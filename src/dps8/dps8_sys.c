@@ -84,7 +84,7 @@
 # include "threadz.h"
 #endif
 
-#ifdef PANEL
+#ifdef PANEL68
 # include "panelScraper.h"
 #endif
 
@@ -109,12 +109,7 @@ vol word36 * M = NULL;  // memory
 // These are part of the scp interface
 //
 
-#ifdef DPS8M
 char sim_name[] = "DPS8/M";
-#endif
-#ifdef L68
-char sim_name[] = "L68";
-#endif
 int32 sim_emax = 4;  // some EIS can take up to 4-words
 static void dps8_init(void);
 static void dps8_exit (void);
@@ -3548,7 +3543,7 @@ static t_stat set_dbg_cpu_mask (int32 UNUSED arg, const char * UNUSED buf)
 // Misc. commands
 //
 
-#ifdef PANEL
+#ifdef PANEL68
 static t_stat scraper (UNUSED int32 arg, const char * buf)
   {
     if (strcasecmp (buf, "start") == 0)
@@ -3975,10 +3970,10 @@ static CTAB dps8_cmds[] =
 // Misc.
 //
 
-# ifdef PANEL
-    {"SCRAPER",       scraper,             0, "Control panel scraper\n",            NULL, NULL},
+# ifdef PANEL68
+    {"SCRAPER",       scraper,             0, "Control panel scraper\n", NULL, NULL},
 # endif
-    { NULL,           NULL,                0, NULL,                                 NULL, NULL}
+    { NULL,           NULL,                0, NULL,                      NULL, NULL}
   }; // dps8_cmds
 
 # ifndef __MINGW64__
@@ -4262,13 +4257,8 @@ static void dps8_init (void) {
     fflush(stdout); fflush(stderr);
   if (strlen (system_state->commit_id) == 0) {
     if (!sim_quiet && sim_randstate && sim_randompst)
-# ifdef L68
-      sim_printf ("Initialized new system state file \"l68.%s\"\r\n",
-                  statenme);
-# else
       sim_printf ("Initialized new system state file \"dps8m.%s\"\r\n",
                   statenme);
-# endif /* ifdef L68 */
   } else {
     if (strcmp (system_state->commit_id, VER_H_GIT_HASH) != 0) {
       sim_warn ("WARNING: System state hash mismatch; \"%s\" may be corrupt!\r\n",
@@ -4328,9 +4318,9 @@ static void dps8_init (void) {
 #  endif /* ifndef __MINGW32__ */
 # endif /* ifndef __MINGW64__ */
   set_default_base_system (0, NULL);
-# ifdef PANEL
+# ifdef PANEL68
   panelScraperInit ();
-# endif /* ifdef PANEL */
+# endif /* ifdef PANEL68 */
 #endif
 #if defined(THREADZ) || defined(LOCKLESS)
   initThreadz ();

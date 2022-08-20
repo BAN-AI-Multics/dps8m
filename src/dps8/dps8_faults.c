@@ -500,28 +500,26 @@ else if (faultNumber == FAULT_ACV)
     cpu . cu . IRO_ISN   = 0;
     cpu . cu . OEB_IOC   = 0;
     cpu . cu . EOFF_IAIM = 0;
-    cpu . cu . ORB_ISP   = 0;
-    cpu . cu . ROFF_IPR  = 0;
-    cpu . cu . OWB_NEA   = 0;
-    cpu . cu . WOFF_OOB  = 0;
-    cpu . cu . NO_GA     = 0;
-    cpu . cu . OCB       = 0;
-    cpu . cu . OCALL     = 0;
-    cpu . cu . BOC       = 0;
-#ifdef DPS8M
-    cpu . cu . PTWAM_ER  = 0;
-#endif
-    cpu . cu . CRT       = 0;
-    cpu . cu . RALR      = 0;
-    cpu . cu . SDWAM_ER  = 0;
-    cpu . cu . OOSB      = 0;
-    cpu . cu . PARU      = 0;
-    cpu . cu . PARL      = 0;
-    cpu . cu . ONC1      = 0;
-    cpu . cu . ONC2      = 0;
-    cpu . cu . IA        = 0;
-    cpu . cu . IACHN     = 0;
-    cpu . cu . CNCHN     = (faultNumber == FAULT_CON) ? subFault.fault_con_subtype & MASK3 : 0;
+    cpu . cu . ORB_ISP = 0;
+    cpu . cu . ROFF_IPR = 0;
+    cpu . cu . OWB_NEA = 0;
+    cpu . cu . WOFF_OOB = 0;
+    cpu . cu . NO_GA = 0;
+    cpu . cu . OCB = 0;
+    cpu . cu . OCALL = 0;
+    cpu . cu . BOC = 0;
+    DPS8M_ (cpu . cu . PTWAM_ER = 0;)
+    cpu . cu . CRT = 0;
+    cpu . cu . RALR = 0;
+    cpu . cu . SDWAM_ER = 0;
+    cpu . cu . OOSB = 0;
+    cpu . cu . PARU = 0;
+    cpu . cu . PARL = 0;
+    cpu . cu . ONC1 = 0;
+    cpu . cu . ONC2 = 0;
+    cpu . cu . IA = 0;
+    cpu . cu . IACHN = 0;
+    cpu . cu . CNCHN = (faultNumber == FAULT_CON) ? subFault.fault_con_subtype & MASK3 : 0;
 
     // Set control unit 'fault occurred during instruction fetch' flag
     cpu . cu . FIF       = cpu . cycle == FETCH_cycle ? 1 : 0;
@@ -625,48 +623,48 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle,
           cpu . cu . IA        = 010;
       }
 
-#ifdef L68
-    // History registers
-    // IHRRS; AL39 pg 47
-    // History register lock control. If this bit is set ON, set STROBE ¢
-    // (bit 30, key k) OFF, locking the history registers for all faults
-    // including the floating faults.
-    CPTUR (cptUseMR);
-    if (cpu.MR.emr && cpu.MR.ihrrs)
-      {
-        cpu.MR.ihr = 0;
-      }
-#endif
-#ifdef DPS8M
-    // History registers
-    // IHRRS; AL39 pg 49
-    // Additional resetting of bit 30. If bit 31 = 1, the following faults also
-    // reset bit 30:
-    //   Lock Up
-    //   Parity
-    //   Command
-    //   Store
-    //   Illegal Procedure
-    //   Shutdown
-    if (cpu.MR.emr && cpu.MR.ihrrs)
-      {
-        if (faultNumber == FAULT_LUF ||
-            faultNumber == FAULT_PAR ||
-            faultNumber == FAULT_CMD ||
-            faultNumber == FAULT_STR ||
-            faultNumber == FAULT_IPR ||
-            faultNumber == FAULT_SDF)
-          {
-            cpu.MR.ihr = 0;
-          }
-      }
-    // Enable History Registers.  This bit will be reset by ... an Op Not
-    // Complete fault. It may be reset by other faults (see bit 31).
-    if (faultNumber == FAULT_ONC)
-      {
-        cpu.MR.ihr = 0;
-      }
-#endif
+    L68_ (
+      // History registers
+      // IHRRS; AL39 pg 47
+      // History register lock control. If this bit is set ON, set STROBE ¢
+      // (bit 30, key k) OFF, locking the history registers for all faults
+      // including the floating faults.
+      CPTUR (cptUseMR);
+      if (cpu.MR.emr && cpu.MR.ihrrs)
+        {
+          cpu.MR.ihr = 0;
+        }
+    )
+    DPS8M_ (
+      // History registers
+      // IHRRS; AL39 pg 49
+      // Additional resetting of bit 30. If bit 31 = 1, the following faults also
+      // reset bit 30:
+      //   Lock Up
+      //   Parity
+      //   Command
+      //   Store
+      //   Illegal Procedure
+      //   Shutdown
+      if (cpu.MR.emr && cpu.MR.ihrrs)
+        {
+          if (faultNumber == FAULT_LUF ||
+              faultNumber == FAULT_PAR ||
+              faultNumber == FAULT_CMD ||
+              faultNumber == FAULT_STR ||
+              faultNumber == FAULT_IPR ||
+              faultNumber == FAULT_SDF)
+            {
+              cpu.MR.ihr = 0;
+            }
+        }
+      // Enable History Registers.  This bit will be reset by ... an Op Not
+      // Complete fault. It may be reset by other faults (see bit 31).
+      if (faultNumber == FAULT_ONC)
+        {
+          cpu.MR.ihr = 0;
+        }
+    )
 
     // If already in a FAULT CYCLE then signal trouble fault
 
@@ -681,7 +679,7 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle,
         if (cpu . bTroubleFaultCycle)
           {
 #if !defined(THREADZ) && !defined(LOCKLESS)
-# ifndef PANEL
+# ifndef PANEL68
 #  ifndef ROUND_ROBIN
             if ((! sample_interrupts ()) &&
                 (sim_qcount () == 0))  // XXX If clk_svc is implemented it will
@@ -720,16 +718,15 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle,
     longjmp (cpu.jmpMain, JMP_REENTRY);
 }
 
-#ifdef L68
 void do_FFV_fault (uint fault_number, const char * fault_msg)
   {
     sim_debug (DBG_FAULT, & cpu_dev,
                "Floating fault %d '%s'\n",
                fault_number, fault_msg);
-# ifndef SPEED
+#ifndef SPEED
     if_sim_debug (DBG_FAULT, & cpu_dev)
       traceInstruction (DBG_FAULT);
-# endif
+#endif
 
     if (fault_number < 1 || fault_number > 3)
       {
@@ -761,28 +758,29 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
     cpu.cu.IRO_ISN   = 0;
     cpu.cu.OEB_IOC   = 0;
     cpu.cu.EOFF_IAIM = 0;
-    cpu.cu.ORB_ISP   = 0;
-    cpu.cu.ROFF_IPR  = 0;
-    cpu.cu.OWB_NEA   = 0;
-    cpu.cu.WOFF_OOB  = 0;
-    cpu.cu.NO_GA     = 0;
-    cpu.cu.OCB       = 0;
-    cpu.cu.OCALL     = 0;
-    cpu.cu.BOC       = 0;
-# ifdef DPS8M
-    cpu.cu.PTWAM_ER  = 0;
-# endif
-    cpu.cu.CRT       = 0;
-    cpu.cu.RALR      = 0;
-    cpu.cu.SDWAM_ER  = 0;
-    cpu.cu.OOSB      = 0;
-    cpu.cu.PARU      = 0;
-    cpu.cu.PARL      = 0;
-    cpu.cu.ONC1      = 0;
-    cpu.cu.ONC2      = 0;
-    cpu.cu.IA        = 0;
-    cpu.cu.IACHN     = 0;
-    cpu.cu.CNCHN     = 0;
+    cpu.cu.ORB_ISP = 0;
+    cpu.cu.ROFF_IPR = 0;
+    cpu.cu.OWB_NEA = 0;
+    cpu.cu.WOFF_OOB = 0;
+    cpu.cu.NO_GA = 0;
+    cpu.cu.OCB = 0;
+    cpu.cu.OCALL = 0;
+    cpu.cu.BOC = 0;
+// FFVs are L68 only, so don't need this:
+//# ifdef DPS8M
+    //cpu.cu.PTWAM_ER = 0;
+//# endif
+    cpu.cu.CRT = 0;
+    cpu.cu.RALR = 0;
+    cpu.cu.SDWAM_ER = 0;
+    cpu.cu.OOSB = 0;
+    cpu.cu.PARU = 0;
+    cpu.cu.PARL = 0;
+    cpu.cu.ONC1 = 0;
+    cpu.cu.ONC2 = 0;
+    cpu.cu.IA = 0;
+    cpu.cu.IACHN = 0;
+    cpu.cu.CNCHN = 0;
 
     // Set control unit 'fault occurred during instruction fetch' flag
     cpu.cu.FIF       = 0;
@@ -798,11 +796,11 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
 // EIS instructions are not used in fault/interrupt pairs, so the
 // only time an EIS instruction could be executing is during EXEC_cycle.
 // I am also assuming that only multi-word EIS instructions are of interest.
-# if 1
+#if 1
     SC_I_MIF (cpu.cycle == EXEC_cycle &&
         cpu.currentInstruction.info->ndes > 0);
     sim_debug (DBG_TRACEEXT, & cpu_dev, "MIF %o\n", TST_I_MIF);
-# endif
+#endif
 
     // History registers
     // IHRRS; AL39 pg 47
@@ -823,9 +821,9 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
         // XXX Does the CU or FR need fixing? ticket #36
         if (cpu.bTroubleFaultCycle)
           {
-# if !defined(THREADZ) && !defined(LOCKLESS)
-#  ifndef PANEL
-#   ifndef ROUND_ROBIN
+#if !defined(THREADZ) && !defined(LOCKLESS)
+# ifndef PANEL68
+#  ifndef ROUND_ROBIN
             if ((! sample_interrupts ()) &&
                 (sim_qcount () == 0))  // XXX If clk_svc is implemented it will
                                        // break this logic
@@ -835,12 +833,11 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
                      cpu.PPR.IC);
                 sim_printf("\nCycles = %"PRId64"\n", cpu.cycleCnt);
                 sim_printf("\nInstructions = %"PRId64"\n", cpu.instrCnt);
-                //stop_reason = STOP_FLT_CASCADE;
                 longjmp (cpu.jmpMain, JMP_STOP);
               }
-#   endif
 #  endif
 # endif
+#endif
           }
         else
           {
@@ -861,7 +858,6 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
     cpu.cycle  = FAULT_cycle;
     longjmp (cpu.jmpMain, JMP_REENTRY);
 }
-#endif
 
 void dlyDoFault (_fault faultNumber, _fault_subtype subFault,
                 const char * faultMsg)
@@ -881,22 +877,16 @@ void dlyDoFault (_fault faultNumber, _fault_subtype subFault,
 
 bool bG7Pending (void)
   {
-#ifdef DPS8M
-    return cpu.g7Faults != 0;
-#endif
-#ifdef L68
-    return cpu.g7Faults != 0 || cpu.FFV_faults != 0;
-#endif
+    if (cpu.tweaks.l68_mode)
+     return cpu.g7Faults != 0 || cpu.FFV_faults != 0; // L68
+    return cpu.g7Faults != 0; // DPS8M
   }
 
 bool bG7PendingNoTRO (void)
   {
-#ifdef DPS8M
-    return (cpu.g7Faults & (~ (1u << FAULT_TRO))) != 0;
-#endif
-#ifdef L68
-    return (cpu.g7Faults & (~ (1u << FAULT_TRO))) != 0 || cpu.FFV_faults != 0;
-#endif
+    if (cpu.tweaks.l68_mode)
+      return (cpu.g7Faults & (~ (1u << FAULT_TRO))) != 0 || cpu.FFV_faults != 0; // L68
+    return (cpu.g7Faults & (~ (1u << FAULT_TRO))) != 0; // DPS8M
   }
 
 void setG7fault (uint cpuNo, _fault faultNo, _fault_subtype subFault)
@@ -911,7 +901,6 @@ void setG7fault (uint cpuNo, _fault faultNo, _fault_subtype subFault)
 #endif
   }
 
-#ifdef L68
 void set_FFV_fault (uint f_fault_no)
   {
     sim_debug (DBG_FAULT, & cpu_dev, "set_FFV_fault CPU f_fault_no %u\n",
@@ -919,7 +908,6 @@ void set_FFV_fault (uint f_fault_no)
     // Map fault number (2/4/6) to bit mask  01/02/04
     cpu.FFV_faults_preset |= 1u << ((f_fault_no / 2) - 1);
   }
-#endif
 
 void clearTROFault (void)
   {
@@ -972,32 +960,32 @@ void doG7Fault (bool allowTR)
          doFault (FAULT_EXF, fst_zero, "Execute fault");
        }
 
-#ifdef L68
-     if (cpu.FFV_faults & 1u)  // FFV + 2 OC TRAP
-       {
-         cpu.FFV_faults &= ~1u;
-# if defined(THREADZ) || defined(LOCKLESS)
-         unlock_scu ();
-# endif
-         do_FFV_fault (1, "OC TRAP");
-       }
-     if (cpu.FFV_faults & 2u)  // FFV + 4 CU HISTORY OVERFLOW TRAP
-       {
-         cpu.FFV_faults &= ~2u;
-# if defined(THREADZ) || defined(LOCKLESS)
-         unlock_scu ();
-# endif
-         do_FFV_fault (2, "CU HIST OVF TRAP");
-       }
-     if (cpu.FFV_faults & 4u)  // FFV + 6 ADR TRAP
-       {
-         cpu.FFV_faults &= ~4u;
-# if defined(THREADZ) || defined(LOCKLESS)
-         unlock_scu ();
-# endif
-         do_FFV_fault (3, "ADR TRAP");
-       }
+     if (cpu.tweaks.l68_mode) { // L68
+       if (cpu.FFV_faults & 1u)  // FFV + 2 OC TRAP
+         {
+           cpu.FFV_faults &= ~1u;
+#if defined(THREADZ) || defined(LOCKLESS)
+           unlock_scu ();
 #endif
+           do_FFV_fault (1, "OC TRAP");
+         }
+       if (cpu.FFV_faults & 2u)  // FFV + 4 CU HISTORY OVERFLOW TRAP
+         {
+           cpu.FFV_faults &= ~2u;
+#if defined(THREADZ) || defined(LOCKLESS)
+           unlock_scu ();
+#endif
+           do_FFV_fault (2, "CU HIST OVF TRAP");
+         }
+       if (cpu.FFV_faults & 4u)  // FFV + 6 ADR TRAP
+         {
+           cpu.FFV_faults &= ~4u;
+#if defined(THREADZ) || defined(LOCKLESS)
+           unlock_scu ();
+#endif
+           do_FFV_fault (3, "ADR TRAP");
+         }
+     }
 #if defined(THREADZ) || defined(LOCKLESS)
      unlock_scu ();
 #endif
@@ -1012,10 +1000,10 @@ void advanceG7Faults (void)
     cpu.g7Faults       |= cpu.g7FaultsPreset;
     cpu.g7FaultsPreset  = 0;
     //memcpy (cpu.g7SubFaults, cpu.g7SubFaultsPreset, sizeof (cpu.g7SubFaults));
-#ifdef L68
-    cpu.FFV_faults        |= cpu.FFV_faults_preset;
-    cpu.FFV_faults_preset  = 0;
-#endif
+    L68_ (
+      cpu.FFV_faults |= cpu.FFV_faults_preset;
+      cpu.FFV_faults_preset = 0;
+    )
 #if defined(THREADZ) || defined(LOCKLESS)
     unlock_scu ();
 #endif

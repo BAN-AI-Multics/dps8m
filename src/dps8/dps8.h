@@ -36,12 +36,6 @@
 #  include <libgen.h>  // needed for OS/X and Android
 # endif
 
-# ifndef L68
-#  ifndef DPS8M
-#   define DPS8M
-#  endif
-# endif
-
 # ifdef NEED_128
 typedef struct { uint64_t h; uint64_t l; } __uint128_t;
 typedef struct { int64_t h;  uint64_t l; }  __int128_t;
@@ -68,33 +62,14 @@ typedef struct { int64_t h;  uint64_t l; }  __int128_t;
 // Dependencies
 //
 
-// PANEL only works on L68
-# ifdef PANEL
-#  ifdef DPS8M
-#   error "PANEL works with L68, not DPS8M"
-#  endif
-#  ifndef L68
-#   define L68
-#  endif
-# endif
-
-# ifdef PANEL
+# ifdef PANEL68
 #  define PNL(x) x
 # else
 #  define PNL(x)
 # endif
 
-# ifdef L68
-#  define L68_(x) x
-# else
-#  define L68_(x)
-# endif
-
-# ifdef DPS8M
-#  define DPS8M_(x) x
-# else
-#  define DPS8M_(x)
-# endif
+# define L68_(x) if (cpu.tweaks.l68_mode) { x }
+# define DPS8M_(x) if (! cpu.tweaks.l68_mode) { x }
 
 // debugging tool
 # ifdef TESTING
@@ -106,9 +81,7 @@ typedef struct { int64_t h;  uint64_t l; }  __int128_t;
 //#define OSCAR
 
 // DPS8-M support Hex Mode Floating Point
-# ifdef DPS8M
-#  define HEX_MODE
-# endif
+# define HEX_MODE
 
 // Instruction profiler
 // #define MATRIX
@@ -357,7 +330,7 @@ typedef enum
   } opc_flag;
 
 // opcode metadata (disallowed) modifications
-typedef enum opc_mod
+enum opc_mod
   {
     NO_DU                 = (1U << 0),   // No DU modification allowed (Can these 2 be combined into 1?)
     NO_DL                 = (1U << 1),   // No DL modification allowed
@@ -372,7 +345,7 @@ typedef enum opc_mod
 # define NO_DDCSS        (NO_DUDL | NO_CSS)
 
     ONLY_AU_QU_AL_QL_XN   = (1U << 5)    // None except au, qu, al, ql, xn
-  } opc_mod;
+  };
 
 // None except au, qu, al, ql, xn for MF1 and REG
 // None except du, au, qu, al, ql, xn for MF2
@@ -422,7 +395,7 @@ enum reg_use { is_WRD =  0174000,
 struct opcode_s {
     const char *mne;       // mnemonic
     opc_flag flags;        // various and sundry flags
-    opc_mod mods;          // disallowed addr mods
+    enum opc_mod mods;          // disallowed addr mods
     uint ndes;             // number of operand descriptor words for instruction (mw EIS)
     enum reg_use reg_use;  // register usage
 };

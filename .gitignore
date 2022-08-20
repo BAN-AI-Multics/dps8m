@@ -129,6 +129,8 @@ rebuild.vne
 *.zst
 *.lzo
 *.lzh
+*.lha
+*.zoo
 *.7z
 *.d.*
 *.ifx

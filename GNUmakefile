@@ -28,7 +28,6 @@
 #
 #       ATOMICS=AIX|BSD|GNU|SYNC        Define specific atomic operations
 #         CROSS=MINGW64                 Enable MinGW-64 cross-compilation
-#           L68=1                       Build as H6180/Level-68 simulator
 #      NEED_128=1                       Enable provided 128-bit int types
 #        NATIVE=1                       Enable "-march=native" via CFLAGS
 #   NO_LOCKLESS=1                       Enable legacy (non-lockless) code

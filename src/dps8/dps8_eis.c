@@ -1365,7 +1365,7 @@ static void parseAlphanumericOperandDescriptor (uint k, uint useTA, bool allowDU
       e -> TA [k - 1] = getbits36_2 (opDesc, 21);    // type alphanumeric
 #endif
 
-#ifdef PANEL
+#ifdef PANEL68
     if (k == 1) // Use data from first operand
       {
         switch (e->TA[0])
@@ -1457,12 +1457,9 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "AR n %u k %u\n", n, k - 1);
               break;
 
             default:
-#ifdef L68
-              doFault (FAULT_IPR, fst_ill_proc, "parseAlphanumericOperandDescriptor TA 3");
-#else
+              L68_ (doFault (FAULT_IPR, fst_ill_proc, "parseAlphanumericOperandDescriptor TA 3");)
+              // DPS8M
               *mod_fault |= FR_ILL_PROC;
-#endif
-              //sim_printf ("parseAlphanumericOperandDescriptor(ta=%d) How'd we get here 1?\n", e->TA[k-1]);
               break;
           }
       }
@@ -1522,12 +1519,11 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "AR n %u k %u\n", n, k - 1);
           break;
 
         case CTA6:
-          if (CN >= 6)
-#ifdef L68
-            doFault (FAULT_IPR, fst_ill_proc, "parseAlphanumericOperandDescriptor TAn CTA6 CN >= 6");
-#else
+          if (CN >= 6) {
+            L68_ (doFault (FAULT_IPR, fst_ill_proc, "parseAlphanumericOperandDescriptor TAn CTA6 CN >= 6");)
+            // DPS8M
             *mod_fault |= FR_ILL_PROC;
-#endif
+          }
           effBITNO = (9u * ARn_CHAR + 6u * r + ARn_BITNO) % 9u;
           effCHAR = ((6u * CN +
                       9u * ARn_CHAR +
@@ -1546,12 +1542,11 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "AR n %u k %u\n", n, k - 1);
           break;
 
         case CTA9:
-          if (CN & 01)
-#ifdef L68
-            doFault(FAULT_IPR, fst_ill_proc, "parseAlphanumericOperandDescriptor CTA9 & CN odd");
-#else
+          if (CN & 01) {
+            L68_ (doFault(FAULT_IPR, fst_ill_proc, "parseAlphanumericOperandDescriptor CTA9 & CN odd");)
+            // DPS8M
             *mod_fault |= FR_ILL_PROC;
-#endif
+          }
           CN = (CN >> 1);
 
           effBITNO = 0;
@@ -1573,12 +1568,9 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "AR n %u k %u\n", n, k - 1);
           break;
 
         default:
-#ifdef L68
-          doFault (FAULT_IPR, fst_ill_proc, "parseAlphanumericOperandDescriptor TA1 3");
-#else
+          L68_ (doFault (FAULT_IPR, fst_ill_proc, "parseAlphanumericOperandDescriptor TA1 3");)
+          // DPS8M
           *mod_fault |= FR_ILL_PROC;
-#endif
-          //sim_printf ("parseAlphanumericOperandDescriptor(ta=%d) How'd we get here 2?\n", e->TA[k-1]);
           break;
     }
 
@@ -1699,7 +1691,7 @@ static void parseNumericOperandDescriptor (int k, fault_ipr_subtype_ *mod_fault)
     word3 CN = getbits36_3 (opDesc, 18);    // character number
     e->TN[k-1] = getbits36_1 (opDesc, 21); // type numeric
 
-#ifdef PANEL
+#ifdef PANEL68
     if (k == 1)
       {
         if (e->TN[0])
@@ -1786,12 +1778,11 @@ static void parseNumericOperandDescriptor (int k, fault_ipr_subtype_ *mod_fault)
           break;
 
         case CTN9:
-            if (CN & 1u)
-#ifdef L68
-              doFault(FAULT_IPR, fst_ill_proc, "parseNumericOperandDescriptor CTA9 & CN odd");
-#else
+            if (CN & 1u) {
+              L68_ (doFault(FAULT_IPR, fst_ill_proc, "parseNumericOperandDescriptor CTA9 & CN odd");)
+              // DPS8M
               *mod_fault |= FR_ILL_PROC;
-#endif
+            }
             CN = (CN >> 1u) & 03u;
 
             effBITNO = 0;
@@ -1845,7 +1836,7 @@ static void parseBitstringOperandDescriptor (int k, fault_ipr_subtype_ *mod_faul
     word18 MFk = e->MF[k-1];
     word36 opDesc = e->op[k-1];
 
-#ifdef PANEL
+#ifdef PANEL68
     if (k == 1)
       cpu.dataMode = 0010; // 1 bit not alpha, not alpha numeric
 #endif
@@ -1898,12 +1889,11 @@ static void parseBitstringOperandDescriptor (int k, fault_ipr_subtype_ *mod_faul
     word4 B = getbits36_4(opDesc, 20);    // bit# from descriptor
     word2 C = getbits36_2 (opDesc, 18);     // char# from descriptor
 
-    if (B >= 9)
-#ifdef L68
-      doFault (FAULT_IPR, fst_ill_proc, "parseBitstringOperandDescriptor B >= 9");
-#else
+    if (B >= 9) {
+      L68_ (doFault (FAULT_IPR, fst_ill_proc, "parseBitstringOperandDescriptor B >= 9");)
+      // DPS8M
       *mod_fault |= FR_ILL_PROC;
-#endif
+    }
 
     word36 r = getMFReg36(MFk & 017, false, true, mod_fault);  // disallow du, allow n,ic
     if ((MFk & 017) == 4)   // reg == IC ?
@@ -2997,15 +2987,15 @@ void cmpc (void)
     parseAlphanumericOperandDescriptor (1, 1, false, &mod_fault);
     parseAlphanumericOperandDescriptor (2, 1, false, &mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // Bits 9-10 MBZ
     if (IWB_IRODD & 0000600000000)
@@ -3027,15 +3017,15 @@ void cmpc (void)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC|mod_fault}, "cmpc op2 23 MBZ");
 #endif
 
-#ifdef DPS8M
-    // DPS8M raises it delayed
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    DPS8M_ (
+      // DPS8M raises it delayed
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     word9 fill = getbits36_9 (cpu.cu.IWB, 0);
 
@@ -3135,15 +3125,15 @@ void scd (void)
     parseAlphanumericOperandDescriptor (2, 1, true, &mod_fault); // use TA1
     parseArgOperandDescriptor (3, &mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // Bits 0-10 MBZ
     if (IWB_IRODD & 0777600000000)
@@ -3160,15 +3150,15 @@ void scd (void)
     if (!(e->MF[2] & MFkID) && e -> op [2]  & 0000000777660)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC|mod_fault}, "scd op3 18-28. 30-31 MBZ");
 
-#ifdef DPS8M
-    // DPS8M raises it delayed
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    DPS8M_ (
+      // DPS8M raises it delayed
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // Both the string and the test character pair are treated as the data type
     // given for the string, TA1. A data type given for the test character
@@ -3318,15 +3308,15 @@ void scdr (void)
     parseAlphanumericOperandDescriptor(2, 1, true, &mod_fault); // Use TA1
     parseArgOperandDescriptor (3, &mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // Bits 0-10 MBZ
     if (IWB_IRODD & 0777600000000)
@@ -3343,15 +3333,15 @@ void scdr (void)
     if (!(e->MF[2] & MFkID) && e -> op [2]  & 0000000777660)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC|mod_fault}, "scdr op3 18-28. 30-31 MBZ");
 
-#ifdef DPS8M
-    // DPS8M raises it delayed
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    DPS8M_ (
+      // DPS8M raises it delayed
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // Both the string and the test character pair are treated as the data type
     // given for the string, TA1. A data type given for the test character
@@ -3520,15 +3510,15 @@ void scm (void)
     parseAlphanumericOperandDescriptor (2, 1, true, &mod_fault);
     parseArgOperandDescriptor (3, &mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // Bits 9-10 MBZ
     if (IWB_IRODD & 0000600000000)
@@ -3542,15 +3532,15 @@ void scm (void)
     if (!(e->MF[2] & MFkID) && e -> op [2]  & 0000000777660)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC|mod_fault}, "scm op3 18-28, 39-31 MBZ");
 
-#ifdef DPS8M
-    // DPS8M raises it delayed
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    DPS8M_ (
+      // DPS8M raises it delayed
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // Both the string and the test character pair are treated as the data type
     // given for the string, TA1. A data type given for the test character
@@ -3688,15 +3678,15 @@ void scmr (void)
     parseAlphanumericOperandDescriptor (2, 1, true, &mod_fault);
     parseArgOperandDescriptor (3, &mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // Bits 9-10 MBZ
     if (IWB_IRODD & 0000600000000)
@@ -3714,15 +3704,15 @@ void scmr (void)
     if (!(e->MF[2] & MFkID) && e -> op [2]  & 0000000777660)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC|mod_fault}, "scmr op3 18-28, 39-31 MBZ");
 
-#ifdef DPS8M
-    // DPS8M raises it delayed
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    DPS8M_ (
+      // DPS8M raises it delayed
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // Both the string and the test character pair are treated as the data type
     // given for the string, TA1. A data type given for the test character
@@ -3889,15 +3879,15 @@ void tct (void)
     parseArgOperandDescriptor (2, &mod_fault);
     parseArgOperandDescriptor (3, &mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // Bits 0-17 MBZ
     if (IWB_IRODD & 0777777000000)
@@ -3915,15 +3905,15 @@ void tct (void)
     if (!(e->MF[2] & MFkID) && e -> op [2]  & 0000000777660)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC|mod_fault}, "tct op3 18-28, 39-31 MBZ");
 
-#ifdef DPS8M
-    // DPS8M raises it delayed
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    DPS8M_ (
+      // DPS8M raises it delayed
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
 #ifdef EIS_PTR3
     sim_debug (DBG_TRACEEXT, & cpu_dev,
@@ -4084,15 +4074,15 @@ void tctr (void)
     parseArgOperandDescriptor (2, &mod_fault);
     parseArgOperandDescriptor (3, &mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // Bits 0-17 MBZ
     if (IWB_IRODD & 0777777000000)
@@ -4110,15 +4100,15 @@ void tctr (void)
     if (!(e->MF[2] & MFkID) && e -> op [2]  & 0000000777660)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC|mod_fault}, "tctr op3 18-28, 39-31 MBZ");
 
-#ifdef DPS8M
-    // DPS8M raises it delayed
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    DPS8M_ (
+      // DPS8M raises it delayed
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
 #ifdef EIS_PTR3
     sim_debug (DBG_TRACEEXT, & cpu_dev,
@@ -4323,15 +4313,15 @@ void mlr (void)
     parseAlphanumericOperandDescriptor(1, 1, false, &mod_fault);
     parseAlphanumericOperandDescriptor(2, 2, false, &mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // Bit 10 MBZ
     if (IWB_IRODD & 0000200000000)
@@ -4345,15 +4335,15 @@ void mlr (void)
     if (!(e->MF[1] & MFkID) && e -> op [1]  & 0000000010000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC|mod_fault}, "mlr op2 23 MBZ");
 
-#ifdef DPS8M
-    // DPS8M raises it delayed
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    DPS8M_ (
+      // DPS8M raises it delayed
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     int srcSZ = 0, dstSZ = 0;
 
@@ -4721,15 +4711,15 @@ void mrl (void)
     parseAlphanumericOperandDescriptor(1, 1, false, &mod_fault);
     parseAlphanumericOperandDescriptor(2, 2, false, &mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // Bit 10 MBZ
     if (IWB_IRODD & 0000200000000)
@@ -4743,15 +4733,15 @@ void mrl (void)
     if (!(e->MF[1] & MFkID) && e -> op [1]  & 0000000010000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC|mod_fault}, "mrl op2 23 MBZ");
 
-#ifdef DPS8M
-    // DPS8M raises it delayed
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    DPS8M_ (
+      // DPS8M raises it delayed
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     int srcSZ = 0, dstSZ = 0;
 
@@ -6675,15 +6665,15 @@ void mve (void)
     parseAlphanumericOperandDescriptor(2, 2, false, &mod_fault);
     parseAlphanumericOperandDescriptor(3, 3, false, &mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // Bits 0, 1, 9, and 10 MBZ
     // According to RJ78, bit 9 is T, but is not mentioned in the text.
@@ -6707,15 +6697,15 @@ void mve (void)
     if (!(e->MF[2] & MFkID) && e -> op [2]  & 0000000010000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC|mod_fault}, "mve op3 23 MBZ");
 
-#ifdef DPS8M
-    // DPS8M raises it delayed
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    DPS8M_ (
+      // DPS8M raises it delayed
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // initialize mop flags. Probably best done elsewhere.
     e->mopES = false; // End Suppression flag
@@ -6800,15 +6790,15 @@ void mvne (void)
     parseAlphanumericOperandDescriptor (2, 2, false, &mod_fault);
     parseAlphanumericOperandDescriptor (3, 3, false, &mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // Bits 0, 1, 9, and 10 MBZ
     if (IWB_IRODD & 0600600000000)
@@ -6837,15 +6827,15 @@ void mvne (void)
     if (!(e->MF[2] & MFkID) && e -> op [2]  & 0000000010000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC|mod_fault}, "mvne op3 23 MBZ");
 
-#ifdef DPS8M
-    // DPS8M raises it delayed
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    DPS8M_ (
+      // DPS8M raises it delayed
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     uint srcTN = e -> TN1;    // type of chars in src
 
@@ -7031,15 +7021,15 @@ void mvt (void)
     parseAlphanumericOperandDescriptor (2, 2, false, &mod_fault);
     parseArgOperandDescriptor (3, &mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
 // ISOLTS 808 test-03b sets bit 0, 1
 // ISOLTS 808 test-03b sets bit 0, 1, 9
@@ -7074,15 +7064,15 @@ void mvt (void)
     if (!(e->MF[2] & MFkID) && e -> op [2]  & 0000000777600)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC|mod_fault}, "mvt op3 18-28 MBZ");
 
-#ifdef DPS8M
-    // DPS8M raises it delayed
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    DPS8M_ (
+      // DPS8M raises it delayed
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
 #ifdef EIS_PTR3
     e->srcTA = (int) TA1;
@@ -7326,29 +7316,29 @@ void cmpn (void)
     parseNumericOperandDescriptor(1, &mod_fault);
     parseNumericOperandDescriptor(2, &mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // Bits 0-10 MBZ
     if (IWB_IRODD & 0777600000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "cmpn 0-10 MBZ");
 
-#ifdef DPS8M
-    // DPS8M raises it delayed
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    DPS8M_ (
+      // DPS8M raises it delayed
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     uint srcTN = e->TN1;    // type of chars in src
 
@@ -7627,15 +7617,15 @@ void mvn (void)
     parseNumericOperandDescriptor(1, &mod_fault);
     parseNumericOperandDescriptor(2, &mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // Bits 2-8 MBZ
     if (IWB_IRODD & 0377000000000)
@@ -7643,15 +7633,15 @@ void mvn (void)
               (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault},
               "mvn 2-8 MBZ");
 
-#ifdef DPS8M
-    // DPS8M raises it delayed
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    DPS8M_ (
+      // DPS8M raises it delayed
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     e->P = getbits36_1 (cpu.cu.IWB, 0) != 0;  // 4-bit data sign character
                                               //  control
@@ -8000,25 +7990,25 @@ void csl (void)
     parseBitstringOperandDescriptor (1, & mod_fault);
     parseBitstringOperandDescriptor (2, & mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+    )
 
     // Bits 1-4 and 10 MBZ
     if (IWB_IRODD & 0360200000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "csl 1-4,10 MBZ");
 
-#ifdef DPS8M
-    // DPS8M raises it delayed
-    if (mod_fault)
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-#endif
+    DPS8M_ (
+      // DPS8M raises it delayed
+      if (mod_fault)
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+    )
 
     e->ADDR1.cPos = (int) e->C1;
     e->ADDR2.cPos = (int) e->C2;
@@ -8265,25 +8255,25 @@ void csr (void)
     parseBitstringOperandDescriptor(1, &mod_fault);
     parseBitstringOperandDescriptor(2, &mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+    )
 
     // Bits 1-4 and 10 MBZ
     if (IWB_IRODD & 0360200000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "csr 1-4,10 MBZ");
 
-#ifdef DPS8M
-    // DPS8M raises it delayed
-    if (mod_fault)
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-#endif
+    DPS8M_ (
+      // DPS8M raises it delayed
+      if (mod_fault)
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+    )
 
     e->ADDR1.cPos = (int) e->C1;
     e->ADDR2.cPos = (int) e->C2;
@@ -8482,25 +8472,25 @@ void sztl (void)
     parseBitstringOperandDescriptor (1, &mod_fault);
     parseBitstringOperandDescriptor (2, &mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+    )
 
     // Bits 1-4 and 10 MBZ
     if (IWB_IRODD & 0360200000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "csl 1-4,10 MBZ");
 
-#ifdef DPS8M
-    // DPS8M raises it delayed
-    if (mod_fault)
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-#endif
+    DPS8M_ (
+      // DPS8M raises it delayed
+      if (mod_fault)
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+    )
 
     e->ADDR1.cPos = (int) e->C1;
     e->ADDR2.cPos = (int) e->C2;
@@ -8652,25 +8642,25 @@ void sztr (void)
     parseBitstringOperandDescriptor(1, &mod_fault);
     parseBitstringOperandDescriptor(2, &mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+    )
 
     // Bits 1-4 and 10 MBZ
     if (IWB_IRODD & 0360200000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "csr 1-4,10 MBZ");
 
-#ifdef DPS8M
-    // DPS8M raises it delayed
-    if (mod_fault)
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-#endif
+    DPS8M_ (
+      // DPS8M raises it delayed
+      if (mod_fault)
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+    )
 
     e->ADDR1.cPos = (int) e->C1;
     e->ADDR2.cPos = (int) e->C2;
@@ -8860,29 +8850,29 @@ void cmpb (void)
     parseBitstringOperandDescriptor(1, &mod_fault);
     parseBitstringOperandDescriptor(2, &mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // Bits 1-8 and 10 MBZ
     if (IWB_IRODD & 0377200000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "cmpb 1-8,10 MBZ");
 
-#ifdef DPS8M
-    // DPS8M raises it delayed
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    DPS8M_ (
+      // DPS8M raises it delayed
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     int charPosn1 = (int) e->C1;
     int charPosn2 = (int) e->C2;
@@ -9499,15 +9489,15 @@ void btd (void)
     parseNumericOperandDescriptor(1, &mod_fault);
     parseNumericOperandDescriptor(2, &mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // Bits 1-10 MBZ
     if (IWB_IRODD & 0377600000000)
@@ -9527,15 +9517,15 @@ void btd (void)
     if (e->S[1] == 0)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC|mod_fault}, "btd op2 S=0");
 
-#ifdef DPS8M
-    // DPS8 raises it delayed
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    DPS8M_ (
+      // DPS8 raises it delayed
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     e->P = getbits36_1 (cpu.cu.IWB, 0) != 0;  // 4-bit data sign character control
 
@@ -9925,15 +9915,15 @@ void dtb (void)
     parseNumericOperandDescriptor(1, &mod_fault);
     parseNumericOperandDescriptor(2, &mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // Bits 0 to 10 of the instruction Must Be Zero. So Say We ISOLTS.
     uint mbz = (uint) getbits36 (IWB_IRODD, 0, 11);
@@ -9961,15 +9951,15 @@ void dtb (void)
         doFault(FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC|mod_fault}, "dtb():  S1=0 or SF1!=0");
     }
 
-#ifdef DPS8M
-    // DPS8M raises it delayed
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    DPS8M_ (
+      // DPS8M raises it delayed
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // If N2 = 0 or N2 > 8 an illegal procedure fault occurs.
     if (e->N2 == 0 || e->N2 > 8)
@@ -10117,29 +10107,29 @@ void ad2d (void)
     parseNumericOperandDescriptor(1, &mod_fault);
     parseNumericOperandDescriptor(2, &mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // Bits 1-8 MBZ
     if (IWB_IRODD & 0377000000000)
       doFault (FAULT_IPR, fst_ill_op, "ad2d 1-8 MBZ");
 
-#ifdef DPS8M
-    // DPS8M raises it delayed
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    DPS8M_ (
+      // DPS8M raises it delayed
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     e->P = getbits36_1 (cpu.cu.IWB, 0) != 0;  // 4-bit data sign character control
     bool T = getbits36_1 (cpu.cu.IWB, 9) != 0;  // truncation bit
@@ -10467,29 +10457,29 @@ void ad3d (void)
     parseNumericOperandDescriptor(2, &mod_fault);
     parseNumericOperandDescriptor(3, &mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // Bit 1 MBZ
     if (IWB_IRODD & 0200000000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "ad3d(): 1 MBZ");
 
-#ifdef DPS8M
-    // DPS8M raises it delayed
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    DPS8M_ (
+      // DPS8M raises it delayed
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // initialize mop flags. Probably best done elsewhere.
     e->P = getbits36_1 (cpu.cu.IWB, 0) != 0;  // 4-bit data sign character control
@@ -10808,15 +10798,15 @@ void sb2d (void)
     parseNumericOperandDescriptor(1, &mod_fault);
     parseNumericOperandDescriptor(2, &mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // Bits 1-8 MBZ
     if (IWB_IRODD & 0377000000000)
@@ -10825,15 +10815,15 @@ void sb2d (void)
         doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "sb2d 0-8 MBZ");
       }
 
-#ifdef DPS8M
-    // DPS8M raises it delayed
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    DPS8M_ (
+      // DPS8M raises it delayed
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     e->P = getbits36_1 (cpu.cu.IWB, 0) != 0;  // 4-bit data sign character control
     bool T = getbits36_1 (cpu.cu.IWB, 9) != 0;  // truncation bit
@@ -11121,29 +11111,29 @@ void sb3d (void)
     parseNumericOperandDescriptor(2, &mod_fault);
     parseNumericOperandDescriptor(3, &mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // Bit 1 MBZ
     if (IWB_IRODD & 0200000000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "sb3d(): 1 MBZ");
 
-#ifdef DPS8M
-    // DPS8M raises it delayed
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    DPS8M_ (
+      // DPS8M raises it delayed
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     e->P = getbits36_1 (cpu.cu.IWB, 0) != 0;  // 4-bit data sign character control
     bool T = getbits36_1 (cpu.cu.IWB, 9) != 0;  // truncation bit
@@ -11450,29 +11440,29 @@ void mp2d (void)
     parseNumericOperandDescriptor(1, &mod_fault);
     parseNumericOperandDescriptor(2, &mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // Bits 1-8 MBZ
     if (IWB_IRODD & 0377000000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "mp2d 1-8 MBZ");
 
-#ifdef DPS8M
-    // DPS8M raises it delayed
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    DPS8M_ (
+      // DPS8M raises it delayed
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     e->P = getbits36_1 (cpu.cu.IWB, 0) != 0;  // 4-bit data sign character control
     bool T = getbits36_1 (cpu.cu.IWB, 9) != 0;  // truncation bit
@@ -11720,29 +11710,29 @@ void mp3d (void)
     parseNumericOperandDescriptor(2, &mod_fault);
     parseNumericOperandDescriptor(3, &mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // Bit 1 MBZ
     if (IWB_IRODD & 0200000000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "mp3d(): 1 MBZ");
 
-#ifdef DPS8M
-    // DPS8M raises it delayed
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    DPS8M_ (
+      // DPS8M raises it delayed
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     e->P = getbits36_1 (cpu.cu.IWB, 0) != 0;  // 4-bit data sign character control
     bool T = getbits36_1 (cpu.cu.IWB, 9) != 0;  // truncation bit
@@ -12772,30 +12762,30 @@ void dv2d (void)
     parseNumericOperandDescriptor(1, &mod_fault);
     parseNumericOperandDescriptor(2, &mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // Bits 1-8 MBZ
     // ISOLTS test 840 and RJ78 says bit 9 (T) MBZ as well
     if (IWB_IRODD & 0377400000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "dv2d 1-9 MBZ");
 
-#ifdef DPS8M
-    // DPS8M raises it delayed
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    DPS8M_ (
+      // DPS8M raises it delayed
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     e->P = getbits36_1 (cpu.cu.IWB, 0) != 0;  // 4-bit data sign character control
     //bool T = getbits36_1 (cpu.cu.IWB, 9) != 0;  // truncation bit
@@ -13163,30 +13153,30 @@ void dv3d (void)
     parseNumericOperandDescriptor(2, &mod_fault);
     parseNumericOperandDescriptor(3, &mod_fault);
 
-#ifdef L68
-    // L68 raises it immediately
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    L68_ (
+      // L68 raises it immediately
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     // Bit 1 MBZ
     // ISOLTS test 840 and RJ78 says bit 9 (T) MBZ
     if (IWB_IRODD & 0200400000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "dv3d(): 1,9 MBZ");
 
-#ifdef DPS8M
-    // DPS8M raises it delayed
-    if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+    DPS8M_ (
+      // DPS8M raises it delayed
+      if (mod_fault)
+        {
+          doFault (FAULT_IPR,
+                   (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                   "Illegal modifier");
+        }
+    )
 
     e->P = getbits36_1 (cpu.cu.IWB, 0) != 0;  // 4-bit data sign character control
     //bool T = getbits36_1 (cpu.cu.IWB, 9) != 0;  // truncation bit

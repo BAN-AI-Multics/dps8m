@@ -410,7 +410,7 @@ void iom_indirect_data_service (uint iom_unit_idx, uint chan, word36 * data,
                                 uint * cnt, bool write);
 void iom_init (void);
 int send_marker_interrupt (uint iom_unit_idx, int chan);
-#ifdef PANEL
+#ifdef PANEL68
 void do_boot (void);
 #endif
 #ifdef IO_THREADZ

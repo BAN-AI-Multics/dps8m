@@ -107,7 +107,7 @@ static uint64 luf_limits[] =
 struct stall_point_s stall_points [N_STALL_POINTS];
 bool stall_point_active = false;
 
-#ifdef PANEL
+#ifdef PANEL68
 static void panel_process_event (void);
 #endif
 
@@ -137,7 +137,7 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
                 (unsigned long long)cpus[cpu_unit_idx].switches.data_switches);
     sim_msg ("Address switches:             %06o(8)\n",
                 cpus[cpu_unit_idx].switches.addr_switches);
-    for (int i = 0; i < N_CPU_PORTS; i ++)
+    for (int i = 0; i < (cpus[cpu_unit_idx].tweaks.l68_mode ? N_L68_CPU_PORTS : N_DPS8M_CPU_PORTS); i ++)
       {
         sim_msg ("Port%c enable:                 %01o(8)\n",
                     'A' + i, cpus[cpu_unit_idx].switches.enable [i]);
@@ -196,6 +196,7 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
 #endif
     sim_msg ("ISOLTS mode:                  %01o(8)\n", cpus[cpu_unit_idx].tweaks.isolts_mode);
     sim_msg ("NODIS mode:                   %01o(8)\n", cpus[cpu_unit_idx].tweaks.nodis);
+    sim_msg ("6180 mode:                    %01o(8) [%s]\n", cpus[cpu_unit_idx].tweaks.l68_mode, cpus[cpu_unit_idx].tweaks.l68_mode ? "6180" : "DPS8/M");
     return SCPE_OK;
   }
 
@@ -239,6 +240,15 @@ static config_value_list_t cfg_on_off [] =
     { NULL,      0 }
   };
 
+static config_value_list_t cfg_l68_mode [] = {
+  { "dps8/m", 0 },
+  { "dps8m",  0 },
+  { "dps8",   0 },
+  { "l68",    1 },
+  { "l6180",  1 },
+  { "6180",   1 },
+};
+
 static config_value_list_t cfg_cpu_mode [] =
   {
     { "gcos",    0 },
@@ -252,12 +262,10 @@ static config_value_list_t cfg_port_letter [] =
     { "b",  1 },
     { "c",  2 },
     { "d",  3 },
-#ifdef L68
     { "e",  4 },
     { "f",  5 },
     { "g",  6 },
     { "h",  7 },
-#endif
     { NULL, 0 }
   };
 
@@ -279,7 +287,8 @@ static config_value_list_t cfg_affinity [] =
 
 static config_value_list_t cfg_size_list [] =
   {
-#ifdef L68
+#if 0
+// For Level-68:
 // rsw.incl.pl1
 //
 //  /* DPS and L68 memory sizes */
@@ -310,12 +319,11 @@ static config_value_list_t cfg_size_list [] =
     { "2048K", 6 },
     { "256K",  7 },
 
-    { "1M",    5 },
-    { "2M",    6 },
-    { "4M",    2 },
-#endif // L68
+    { "1M", 5 },
+    { "2M", 6 },
+    { "4M", 2 },
 
-#ifdef DPS8M
+// For DPS8/M:
 // These values are taken from the dps8_mem_size_table loaded by the boot tape.
 
     {    "32", 0 },
@@ -336,10 +344,30 @@ static config_value_list_t cfg_size_list [] =
     { "2048K", 6 },
     { "4096K", 7 },
 
-    { "1M",    5 },
-    { "2M",    6 },
-    { "4M",    7 },
-#endif // DPS8M
+    { "1M", 5 },
+    { "2M", 6 },
+    { "4M", 7 },
+    { NULL, 0 }
+#endif
+    { "32",     8 },    //   32768
+    { "32K",    8 },    //   32768
+    { "64",     9 },    //   65536
+    { "64K",    9 },    //   65536
+    { "128",   10 },    //  131072
+    { "128K",  10 },    //  131072
+    { "256",   11 },    //  262144
+    { "256K",  11 },    //  262144
+    { "512",   12 },    //  524288
+    { "512K",  12 },    //  524288
+    { "1024",  13 },    // 1048576
+    { "1024K", 13 },    // 1048576
+    { "1M",    13 },
+    { "2048",  14 },    // 2097152
+    { "2048K", 14 },    // 2097152
+    { "2M",    14 },
+    { "4096",  15 },    // 4194304
+    { "4096K", 15 },    // 4194304
+    { "4M",    15 },
     { NULL,    0 }
   };
 
@@ -386,7 +414,8 @@ static config_list_t cpu_config_list [] =
 #endif
     { "isolts_mode",           0,  1,               cfg_on_off             },
     { "nodis",                 0,  1,               cfg_on_off             },
-    { NULL,                    0,  0,               NULL                   }
+    { "l68_mode",              0,  1,               cfg_l68_mode },
+    { NULL,                    0,  0,               NULL }
   };
 
 static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
@@ -447,8 +476,13 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
           cpus[cpu_unit_idx].switches.procMode = v ? procModeMultics : procModeGCOS;
         else if (strcmp (p, "speed") == 0)
           cpus[cpu_unit_idx].options.proc_speed = (uint) v;
-        else if (strcmp (p, "port") == 0)
+        else if (strcmp (p, "port") == 0) {
+          if ((! cpus[cpu_unit_idx].tweaks.l68_mode) && (int) v > 4) {
+            cfg_parse_done (& cfg_state);
+            return SCPE_ARG;
+          }
           port_num = (int) v;
+        }
         else if (strcmp (p, "assignment") == 0)
           cpus[cpu_unit_idx].switches.assignment [port_num] = (uint) v;
         else if (strcmp (p, "interlace") == 0)
@@ -457,8 +491,34 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
           cpus[cpu_unit_idx].switches.enable [port_num] = (uint) v;
         else if (strcmp (p, "init_enable") == 0)
           cpus[cpu_unit_idx].switches.init_enable [port_num] = (uint) v;
-        else if (strcmp (p, "store_size") == 0)
+        else if (strcmp (p, "store_size") == 0) {
+          if (v > 7) {
+            if (cpus[cpu_unit_idx].tweaks.l68_mode) {
+              switch (v) {
+                case  8:  v = 0;   break; // 32K
+                case  9:  v = 1;   break; // 64K
+                case 10:  v = 3;   break; // 128K
+                case 11:  v = 7;   break; // 256K
+                case 12:  v = 4;   break; // 512K
+                case 13:  v = 5;   break; // 1024K
+                case 14:  v = 6;   break; // 2048K
+                case 15:  v = 2;   break; // 4096K
+              }
+            } else {
+              switch (v) {
+                case  8:  v = 0;   break; // 32K
+                case  9:  v = 1;   break; // 64K
+                case 10:  v = 2;   break; // 128K
+                case 11:  v = 3;   break; // 256K
+                case 12:  v = 4;   break; // 512K
+                case 13:  v = 5;   break; // 1024K
+                case 14:  v = 6;   break; // 2048K
+                case 15:  v = 7;   break; // 4096K
+              }
+            }
+          }
           cpus[cpu_unit_idx].switches.store_size [port_num] = (uint) v;
+        }
         else if (strcmp (p, "enable_cache") == 0)
           cpus[cpu_unit_idx].switches.enable_cache = (uint) v ? true : false;
         else if (strcmp (p, "sdwam") == 0)
@@ -510,6 +570,11 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
             cpus[cpu_unit_idx].tweaks.isolts_mode = v;
             if (v)
               {
+                uint store_sz;
+                if (cpus[cpu_unit_idx].tweaks.l68_mode) // L68
+                  store_sz = 3;
+                else // DPS8M
+                  store_sz = 2;
                 cpus[cpu_unit_idx].isolts_switches_save     = cpus[cpu_unit_idx].switches;
                 cpus[cpu_unit_idx].isolts_switches_saved    = true;
 
@@ -517,74 +582,55 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
                 cpus[cpu_unit_idx].switches.addr_switches   = 0100150;
                 cpus[cpu_unit_idx].tweaks.useMap            = true;
                 cpus[cpu_unit_idx].tweaks.enable_wam        = true;
-                cpus[cpu_unit_idx].switches.assignment [0]  = false;
-                cpus[cpu_unit_idx].switches.interlace [0]   = false;
-                cpus[cpu_unit_idx].switches.enable [0]      = false;
+                cpus[cpu_unit_idx].switches.assignment  [0] = 0;
+                cpus[cpu_unit_idx].switches.interlace   [0] = false;
+                cpus[cpu_unit_idx].switches.enable      [0] = false;
                 cpus[cpu_unit_idx].switches.init_enable [0] = false;
-#ifdef DPS8M
-                cpus[cpu_unit_idx].switches.store_size  [0] = 2;
-#endif
-#ifdef L68
-                cpus[cpu_unit_idx].switches.store_size  [0] = 3;
-#endif
+                cpus[cpu_unit_idx].switches.store_size  [0] = store_sz;
 
                 cpus[cpu_unit_idx].switches.assignment  [1] = 0;
                 cpus[cpu_unit_idx].switches.interlace   [1] = false;
                 cpus[cpu_unit_idx].switches.enable      [1] = true;
                 cpus[cpu_unit_idx].switches.init_enable [1] = false;
-#ifdef DPS8M
-                cpus[cpu_unit_idx].switches.store_size  [1] = 2;
-#endif
-#ifdef L68
-                cpus[cpu_unit_idx].switches.store_size  [1] = 3;
-#endif
+                cpus[cpu_unit_idx].switches.store_size  [1] = store_sz;
 
                 cpus[cpu_unit_idx].switches.assignment  [2] = 0;
                 cpus[cpu_unit_idx].switches.interlace   [2] = false;
                 cpus[cpu_unit_idx].switches.enable      [2] = false;
                 cpus[cpu_unit_idx].switches.init_enable [2] = false;
-#ifdef DPS8M
-                cpus[cpu_unit_idx].switches.store_size  [2] = 2;
-#endif
-#ifdef L68
-                cpus[cpu_unit_idx].switches.store_size  [2] = 3;
-#endif
+                cpus[cpu_unit_idx].switches.store_size  [2] = store_sz;
 
                 cpus[cpu_unit_idx].switches.assignment  [3] = 0;
                 cpus[cpu_unit_idx].switches.interlace   [3] = false;
                 cpus[cpu_unit_idx].switches.enable      [3] = false;
                 cpus[cpu_unit_idx].switches.init_enable [3] = false;
-#ifdef DPS8M
-                cpus[cpu_unit_idx].switches.store_size  [3] = 2;
-#endif
-#ifdef L68
-                cpus[cpu_unit_idx].switches.store_size  [3] = 3;
-#endif
-#ifdef L68
-                cpus[cpu_unit_idx].switches.assignment  [4] = 0;
-                cpus[cpu_unit_idx].switches.interlace   [4] = false;
-                cpus[cpu_unit_idx].switches.enable      [4] = false;
-                cpus[cpu_unit_idx].switches.init_enable [4] = false;
-                cpus[cpu_unit_idx].switches.store_size  [4] = 3;
+                cpus[cpu_unit_idx].switches.store_size  [3] = store_sz;
 
-                cpus[cpu_unit_idx].switches.assignment  [5] = 0;
-                cpus[cpu_unit_idx].switches.interlace   [5] = false;
-                cpus[cpu_unit_idx].switches.enable      [5] = false;
-                cpus[cpu_unit_idx].switches.init_enable [5] = false;
-                cpus[cpu_unit_idx].switches.store_size  [5] = 3;
+                if (cpus[cpu_unit_idx].tweaks.l68_mode) { // L68
+                  cpus[cpu_unit_idx].switches.assignment  [4] = 0;
+                  cpus[cpu_unit_idx].switches.interlace   [4] = false;
+                  cpus[cpu_unit_idx].switches.enable      [4] = false;
+                  cpus[cpu_unit_idx].switches.init_enable [4] = false;
+                  cpus[cpu_unit_idx].switches.store_size  [4] = 3;
 
-                cpus[cpu_unit_idx].switches.assignment  [6] = 0;
-                cpus[cpu_unit_idx].switches.interlace   [6] = false;
-                cpus[cpu_unit_idx].switches.enable      [6] = false;
-                cpus[cpu_unit_idx].switches.init_enable [6] = false;
-                cpus[cpu_unit_idx].switches.store_size  [6] = 3;
+                  cpus[cpu_unit_idx].switches.assignment  [5] = 0;
+                  cpus[cpu_unit_idx].switches.interlace   [5] = false;
+                  cpus[cpu_unit_idx].switches.enable      [5] = false;
+                  cpus[cpu_unit_idx].switches.init_enable [5] = false;
+                  cpus[cpu_unit_idx].switches.store_size  [5] = 3;
 
-                cpus[cpu_unit_idx].switches.assignment  [7] = 0;
-                cpus[cpu_unit_idx].switches.interlace   [7] = false;
-                cpus[cpu_unit_idx].switches.enable      [7] = false;
-                cpus[cpu_unit_idx].switches.init_enable [7] = false;
-                cpus[cpu_unit_idx].switches.store_size  [7] = 3;
-#endif
+                  cpus[cpu_unit_idx].switches.assignment  [6] = 0;
+                  cpus[cpu_unit_idx].switches.interlace   [6] = false;
+                  cpus[cpu_unit_idx].switches.enable      [6] = false;
+                  cpus[cpu_unit_idx].switches.init_enable [6] = false;
+                  cpus[cpu_unit_idx].switches.store_size  [6] = 3;
+
+                  cpus[cpu_unit_idx].switches.assignment  [7] = 0;
+                  cpus[cpu_unit_idx].switches.interlace   [7] = false;
+                  cpus[cpu_unit_idx].switches.enable      [7] = false;
+                  cpus[cpu_unit_idx].switches.init_enable [7] = false;
+                  cpus[cpu_unit_idx].switches.store_size  [7] = 3;
+                }
                 cpu_reset_unit_idx ((uint) cpu_unit_idx, false);
                 simh_cpu_reset_and_clear_unit (cpu_unit + cpu_unit_idx, 0, NULL, NULL);
                 cpus[cpu_unit_idx].switches.enable      [1] = true;
@@ -600,6 +646,8 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
           }
         else if (strcmp (p, "nodis") == 0)
           cpus[cpu_unit_idx].tweaks.nodis = v;
+        else if (strcmp (p, "l68_mode") == 0)
+          cpus[cpu_unit_idx].tweaks.l68_mode= v;
         else
           {
             sim_warn ("error: cpu_set_config: Invalid cfg_parse rc <%ld>\n",
@@ -724,6 +772,56 @@ static t_stat cpu_set_stall (UNUSED UNIT * uptr, UNUSED int32 value,
 
     return SCPE_OK;
   }
+
+static t_stat setCPUConfigL68 (UNIT * uptr, UNUSED int32 value, UNUSED const char * cptr, UNUSED void * desc) {
+  long cpuUnitIdx = UNIT_IDX (uptr);
+  if (cpuUnitIdx < 0 || cpuUnitIdx >= N_CPU_UNITS_MAX)
+    return SCPE_ARG;
+  cpu_state_t * cpun = cpus + cpuUnitIdx;
+
+  cpun->tweaks.l68_mode = 1;
+  cpun->options.hex_mode_installed = 0;
+  for (uint port_num = 0; port_num < N_DPS8M_CPU_PORTS; port_num ++) {
+    cpun->switches.assignment[port_num] = port_num;
+    cpun->switches.interlace[port_num] = 0;
+    cpun->switches.store_size[port_num] = 2;
+    cpun->switches.enable[port_num] = 1;
+    cpun->switches.init_enable[port_num] = 1;
+  }
+  for (uint port_num = N_DPS8M_CPU_PORTS; port_num < N_L68_CPU_PORTS; port_num ++) {
+    cpun->switches.assignment[port_num] = 0;
+    cpun->switches.interlace[port_num] = 0;
+    cpun->switches.store_size[port_num] = 0;
+    cpun->switches.enable[port_num] = 0;
+    cpun->switches.init_enable[port_num] = 0;
+  }
+  return SCPE_OK;
+}
+
+static t_stat setCPUConfigDPS8M (UNIT * uptr, UNUSED int32 value, UNUSED const char * cptr, UNUSED void * desc) {
+  long cpuUnitIdx = UNIT_IDX (uptr);
+  if (cpuUnitIdx < 0 || cpuUnitIdx >= N_CPU_UNITS_MAX)
+    return SCPE_ARG;
+  cpu_state_t * cpun = cpus + cpuUnitIdx;
+
+  cpun->tweaks.l68_mode = 0;
+  cpun->options.hex_mode_installed = 0;
+  for (uint port_num = 0; port_num < N_DPS8M_CPU_PORTS; port_num ++) {
+    cpun->switches.assignment[port_num] = port_num;
+    cpun->switches.interlace[port_num] = 0;
+    cpun->switches.store_size[port_num] = 7;
+    cpun->switches.enable[port_num] = 1;
+    cpun->switches.init_enable[port_num] = 1;
+  }
+  for (uint port_num = N_DPS8M_CPU_PORTS; port_num < N_L68_CPU_PORTS; port_num ++) {
+    cpun->switches.assignment[port_num] = 0;
+    cpun->switches.interlace[port_num] = 0;
+    cpun->switches.store_size[port_num] = 0;
+    cpun->switches.enable[port_num] = 0;
+    cpun->switches.init_enable[port_num] = 0;
+  }
+  return SCPE_OK;
+}
 
 static char * cycle_str (cycles_e cycle)
   {
@@ -986,6 +1084,28 @@ static MTAB cpu_mod[] =
       NULL                       // help
     },
 
+    {
+      MTAB_unit_value,           // mask
+      0,                         // match
+      "DPS8M",                   // print string
+      "DPS8M",                   // match string
+      setCPUConfigDPS8M,         // validation routine
+      NULL,                      // display routine
+      NULL,                      // value descriptor
+      NULL                       // help
+    },
+
+    {
+      MTAB_unit_value,           // mask
+      0,                         // match
+      "L68",                     // print string
+      "L68",                     // match string
+      setCPUConfigL68,           // validation routine
+      NULL,                      // display routine
+      NULL,                      // value descriptor
+      NULL                       // help
+    },
+
     { 0, 0, NULL, NULL, NULL, NULL, NULL, NULL }
   };
 
@@ -1131,7 +1251,7 @@ void setup_scbank_map (void)
       cpu.sc_num_banks[u] = 0;
 
     // For each port
-    for (int port_num = 0; port_num < N_CPU_PORTS; port_num ++)
+    for (int port_num = 0; port_num < (cpu.tweaks.l68_mode ? N_L68_CPU_PORTS : N_DPS8M_CPU_PORTS); port_num ++)
       {
         // Ignore disabled ports
         if (! cpu.switches.enable [port_num])
@@ -1147,13 +1267,8 @@ void setup_scbank_map (void)
 
         // Calculate the amount of memory in the SCU in words
         uint store_size = cpu.switches.store_size [port_num];
-#ifdef DPS8M
-        uint store_table [8] =
+        uint dps8m_store_table [8] =
           { 32768, 65536, 131072, 262144, 524288, 1048576, 2097152, 4194304 };
-        uint sz_wds = store_table [store_size];
-//sim_printf ("setup_scbank_map store_size %d sz_wds %d\n", store_size, sz_wds);
-#endif
-#ifdef L68
 // ISOLTS sez:
 // for DPS88:
 //   3. set store size switches to 2222.
@@ -1168,14 +1283,17 @@ void setup_scbank_map (void)
 // So it seems that the memory size is expected to be 64K, not 128K as per
 // the switches; presumably step 3 causes this. Fake it by tweaking store table:
 //
-        uint store_table [8] =
+        uint l68_store_table [8] =
           { 32768, 65536, 4194304, 131072, 524288, 1048576, 2097152, 262144 };
-        uint isolts_store_table [8] =
-          { 32768, 65536, 4194304, 65536,  524288, 1048576, 2097152, 262144 };
-        uint sz_wds = cpu.tweaks.isolts_mode ?
-            isolts_store_table [store_size] :
-            store_table        [store_size];
-#endif
+        uint l68_isolts_store_table [8] =
+          { 32768, 65536, 4194304, 65536, 524288, 1048576, 2097152, 262144 };
+
+        uint sz_wds =
+          cpu.tweaks.l68_mode ?
+            cpu.tweaks.isolts_mode ?
+              l68_isolts_store_table [store_size] :
+              l68_store_table [store_size] :
+          dps8m_store_table [store_size];
 
         // Calculate the base address that will be assigned to the SCU
         uint base_addr_wds = sz_wds * cpu.switches.assignment[port_num];
@@ -1605,7 +1723,7 @@ t_stat simh_hooks (void)
     return reason;
   }
 
-#ifdef PANEL
+#ifdef PANEL68
 static void panel_process_event (void)
   {
     // INITIALIZE pressed; treat at as a BOOT.
@@ -2219,7 +2337,7 @@ setCPU:;
               break;
 
             case FETCH_cycle:
-#ifdef PANEL
+#ifdef PANEL68
                 memset (cpu.cpt, 0, sizeof (cpu.cpt));
 #endif
                 CPT (cpt1U, 13); // fetch cycle
@@ -2499,7 +2617,10 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 #endif
               CPT (cpt1U, 23); // execution complete
 
-              add_CU_history ();
+              if (cpu.tweaks.l68_mode)
+                add_l68_CU_history ();
+              else
+                add_dps8m_CU_history ();
 
               if (ret > 0)
                 {
@@ -2926,15 +3047,15 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 
               // (12-bits of which the top-most 7-bits are used)
               uint fltAddress = (cpu.switches.FLT_BASE << 5) & 07740;
-#ifdef L68
-              if (cpu.is_FFV)
-                {
-                  cpu.is_FFV = false;
-                  CPTUR (cptUseMR);
-                  // The high 15 bits
-                  fltAddress = (cpu.MR.FFV & MASK15) << 3;
-                }
-#endif
+              L68_ (
+                if (cpu.is_FFV)
+                  {
+                    cpu.is_FFV = false;
+                    CPTUR (cptUseMR);
+                    // The high 15 bits
+                    fltAddress = (cpu.MR.FFV & MASK15) << 3;
+                  }
+              )
 
               // absolute address of fault YPair
               word24 addr = fltAddress + 2 * cpu.faultNumber;
@@ -3761,7 +3882,7 @@ static void add_history (uint hset, word36 w0, word36 w1)
       {
         cpu.history [hset] [cpu.history_cyclic[hset]] [0] = w0;
         cpu.history [hset] [cpu.history_cyclic[hset]] [1] = w1;
-        cpu.history_cyclic[hset] = (cpu.history_cyclic[hset] + 1) % N_HIST_SIZE;
+        cpu.history_cyclic[hset] = (cpu.history_cyclic[hset] + 1) % N_MODEL_HIST_SIZE;
       }
   }
 
@@ -3769,11 +3890,10 @@ void add_history_force (uint hset, word36 w0, word36 w1)
   {
     cpu.history [hset] [cpu.history_cyclic[hset]] [0] = w0;
     cpu.history [hset] [cpu.history_cyclic[hset]] [1] = w1;
-    cpu.history_cyclic[hset] = (cpu.history_cyclic[hset] + 1) % N_HIST_SIZE;
+    cpu.history_cyclic[hset] = (cpu.history_cyclic[hset] + 1) % N_MODEL_HIST_SIZE;
   }
 
-#ifdef DPS8M
-void add_CU_history (void)
+void add_dps8m_CU_history (void)
   {
     if (cpu.skip_cu_hist)
       return;
@@ -3796,17 +3916,17 @@ void add_CU_history (void)
     add_history (CU_HIST_REG, w0, w1);
   }
 
-# ifndef QUIET_UNUSED
-void add_DUOU_history (word36 flags, word18 ICT, word9 RS_REG, word9 flags2)
+#ifndef QUIET_UNUSED
+void add_dps8m_DU_OU_history (word36 flags, word18 ICT, word9 RS_REG, word9 flags2)
   {
     word36 w0  = flags, w1 = 0;
     w1        |= (ICT & MASK18) << 18;
     w1        |= (RS_REG & MASK9) << 9;
     w1        |= flags2 & MASK9;
-    add_history (DU_OU_HIST_REG, w0, w1);
+    add_history (DPS8M_DU_OU_HIST_REG, w0, w1);
   }
 
-void add_APU_history (word15 ESN, word21 flags, word24 RMA, word3 RTRR, word9 flags2)
+void add_dps8m_APU_history (word15 ESN, word21 flags, word24 RMA, word3 RTRR, word9 flags2)
   {
     word36 w0  = 0, w1 = 0;
     w0        |= (ESN & MASK15) << 21;
@@ -3814,24 +3934,21 @@ void add_APU_history (word15 ESN, word21 flags, word24 RMA, word3 RTRR, word9 fl
     w1        |= (RMA & MASK24) << 12;
     w1        |= (RTRR & MASK3) << 9;
     w1        |= flags2 & MASK9;
-    add_history (APU_HIST_REG, w0, w1);
+    add_history (cpu.tweaks.l68_mode ? L68_APU_HIST_REG : DPS8M_APU_HIST_REG, w0, w1);
   }
 
-void add_EAPU_history (word18 ZCA, word18 opcode)
+void add_dps8m_EAPU_history (word18 ZCA, word18 opcode)
   {
     word36 w0  = 0;
     w0        |= (ZCA & MASK18) << 18;
     w0        |= opcode & MASK18;
-    add_history (EAPU_HIST_REG, w0, 0);
-    //cpu.eapu_hist[cpu.eapu_cyclic].ZCA    = ZCA;
+    add_history (DPS8M_EAPU_HIST_REG, w0, 0);
+    //cpu.eapu_hist[cpu.eapu_cyclic].ZCA = ZCA;
     //cpu.eapu_hist[cpu.eapu_cyclic].opcode = opcode;
-    //cpu.history_cyclic[EAPU_HIST_REG]     =
-      //(cpu.history_cyclic[EAPU_HIST_REG] + 1) % N_HIST_SIZE;
+    //cpu.history_cyclic[DPS8M_EAPU_HIST_REG] =
+      //(cpu.history_cyclic[DPS8M_EAPU_HIST_REG] + 1) % N_DPS8M_HIST_SIZE;
   }
-# endif
-#endif // DPS8M
-
-#ifdef L68
+#endif
 
 // According to ISOLTS
 //
@@ -3867,7 +3984,7 @@ void add_EAPU_history (word18 ZCA, word18 opcode)
 //  46 -PC BUSY
 //  47 PORT BUSY
 
-void add_CU_history (void)
+void add_l68_CU_history (void)
   {
     CPT (cpt1L, 24); // add cu hist
 // XXX strobe on opcode match
@@ -3985,13 +4102,13 @@ void add_CU_history (void)
 // bit 34= finhib-stc1-cx;010bit 70= unused
 // bit 35= unused            bit 71= unused
 
-void add_DU_history (void)
+void add_l68_DU_history (void)
   {
     CPT (cpt1L, 25); // add du hist
-    PNL (add_history (DU_HIST_REG, cpu.du.cycle1, cpu.du.cycle2);)
+    PNL (add_history (L68_DU_HIST_REG, cpu.du.cycle1, cpu.du.cycle2);)
   }
 
-void add_OU_history (void)
+void add_l68_OU_history (void)
   {
     CPT (cpt1L, 26); // add ou hist
     word36 w0 = 0, w1 = 0;
@@ -4048,7 +4165,7 @@ void add_OU_history (void)
     // 54-71 ICT TRACKER
     putbits36_18 (& w1,      54 - 36, cpu.PPR.IC);
 
-    add_history (OU_HIST_REG, w0, w1);
+    add_history (L68_OU_HIST_REG, w0, w1);
   }
 
 // According to ISOLTS
@@ -4100,7 +4217,7 @@ void add_OU_history (void)
 // 28 TRR #
 // 29 FLT HLD
 
-void add_APU_history (enum APUH_e op)
+void add_l68_APU_history (enum APUH_e op)
   {
     CPT (cpt1L, 28); // add apu hist
     word36 w0 = 0, w1 = 0;
@@ -4115,11 +4232,11 @@ void add_APU_history (enum APUH_e op)
     // 25 SDWAMM
     putbits36_1 (& w0,       25, cpu.cu.SDWAMM);
     // 26-29 SDWAMR
-    putbits36_4 (& w0,       26, cpu.SDWAMR);
+    putbits36_4 (& w0, 26, (word4) cpu.SDWAMR);
     // 30 PTWAMM
     putbits36_1 (& w0,       30, cpu.cu.PTWAMM);
     // 31-34 PTWAMR
-    putbits36_4 (& w0,       31, cpu.PTWAMR);
+    putbits36_4 (& w0, 31, (word4) cpu.PTWAMR);
     // 35 FLT
     PNL (putbits36_1 (& w0,  35, (cpu.apu.state & apu_FLT) ? 1 : 0);)
 
@@ -4132,10 +4249,8 @@ void add_APU_history (enum APUH_e op)
     putbits36_1 (& w1,       34, cpu.SDW0.C);
     // 71 XXX Multiple match error in PTWAM
 
-    add_history (APU_HIST_REG, w0, w1);
+    add_history (L68_APU_HIST_REG, w0, w1);
   }
-
-#endif
 
 #if defined(THREADZ) || defined(LOCKLESS)
 //static pthread_mutex_t debug_lock = PTHREAD_MUTEX_INITIALIZER;

@@ -1300,12 +1300,11 @@ bool tstOVFfault (void)
 # include "tracker.h"
 #endif
 
-t_stat executeInstruction (void)
-  {
+t_stat executeInstruction (void) {
 #ifdef TESTING
-    trk (cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, IWB_IRODD);
+  trk (cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, IWB_IRODD);
 #endif
-    CPT (cpt2U, 13); // execute instruction
+  CPT (cpt2U, 13); // execute instruction
 
 //
 // Decode the instruction
@@ -1360,34 +1359,32 @@ t_stat executeInstruction (void)
 /// executeInstruction: Decode the instruction
 ///
 
-    DCDstruct * ci = & cpu.currentInstruction;
-    decode_instruction (IWB_IRODD, ci);
-    //cpu.isb29 = ci->b29;
-    //ISB29 = ci->b29;
-    const struct opcode_s *info = ci->info;
+  DCDstruct * ci = & cpu.currentInstruction;
+  decode_instruction (IWB_IRODD, ci);
+  const struct opcode_s *info = ci->info;
 
 // Local caches of frequently accessed data
 
-    const uint ndes      = info->ndes;
-    const bool restart   = cpu.cu.rfi;         // instruction is to be restarted
-                           cpu.cu.rfi = 0;
-    const opc_flag flags = info->flags;
-    const opc_mod mods   = info->mods;
-    const uint32 opcode  = ci->opcode;         // opcode
-    const bool opcodeX   = ci->opcodeX;        // opcode extension
-    const word6 tag      = ci->tag;            // instruction tag
+  const uint ndes = info->ndes;
+  const bool restart = cpu.cu.rfi;         // instruction is to be restarted
+  cpu.cu.rfi = 0;
+  const opc_flag flags = info->flags;
+  const enum opc_mod mods = info->mods;
+  const uint32 opcode = ci->opcode;   // opcode
+  const bool opcodeX = ci->opcodeX;   // opcode extension
+  const word6 tag = ci->tag;          // instruction tag
 
 #ifdef MATRIX
-    {
-      const uint32 opcode  = ci->opcode;      // opcode
-      const bool   opcodeX = ci->opcodeX;     // opcode extension
-                                                 // XXX replace with rY
-      const bool   b29     = ci->b29;         // bit-29 - addressing via pointer
-                                                 // register
-      const word6  tag     =  ci->tag;        // instruction tag
-                                                 // XXX replace withrTAG
-      addToTheMatrix (opcode, opcodeX, b29, tag);
-    }
+  {
+    const uint32  opcode = ci->opcode;   // opcode
+    const bool   opcodeX = ci->opcodeX;  // opcode extension
+                                         // XXX replace with rY
+    const bool   b29 = ci->b29;          // bit-29 - addressing via pointer
+                                         // register
+    const word6  tag = ci->tag;          // instruction tag
+                                         //  XXX replace withrTAG
+    addToTheMatrix (opcode, opcodeX, b29, tag);
+  }
 #endif
 
 //#define likely(x) (x)
@@ -1395,381 +1392,289 @@ t_stat executeInstruction (void)
 #define likely(x) __builtin_expect ((x), 1)
 #define unlikely(x) __builtin_expect ((x), 0)
 
-//sim_debug (DBG_TRACEEXT, & cpu_dev, "isb29 %o\n", ci->b29);
-    if (ci->b29)
-      ci->address = SIGNEXT15_18 (ci->address & MASK15);
+  if (ci->b29)
+    ci->address = SIGNEXT15_18 (ci->address & MASK15);
 
-#ifdef L68
+  L68_ (
     CPTUR (cptUseMR);
-    if (unlikely (cpu.MR.emr && cpu.MR.OC_TRAP))
-      {
-        if (cpu.MR.OPCODE == opcode &&
-            cpu.MR.OPCODEX == opcodeX)
-          {
-            if (cpu.MR.ihrrs)
-              {
-                cpu.MR.ihr = 0;
-              }
-            CPT (cpt2U, 14); // opcode trap
-            //set_FFV_fault (2); // XXX According to AL39
-            do_FFV_fault (1, "OC TRAP");
-          }
+    if (unlikely (cpu.MR.emr && cpu.MR.OC_TRAP)) {
+      if (cpu.MR.OPCODE == opcode && cpu.MR.OPCODEX == opcodeX) {
+        if (cpu.MR.ihrrs) {
+          cpu.MR.ihr = 0;
+        }
+        CPT (cpt2U, 14); // opcode trap
+        //set_FFV_fault (2); // XXX According to AL39
+        do_FFV_fault (1, "OC TRAP");
       }
-#endif // L68
+    }
+  )
 
 ///
 /// executeInstruction: Non-restart processing
 ///
 
-    if (likely (!restart) || unlikely (ndes > 0)) // until we implement EIS restart
-    {
-        cpu.cu.TSN_VALID[0] = 0;
-        cpu.cu.TSN_VALID[1] = 0;
-        cpu.cu.TSN_VALID[2] = 0;
-        cpu.cu.TSN_PRNO[0]  = 0;
-        cpu.cu.TSN_PRNO[1]  = 0;
-        cpu.cu.TSN_PRNO[2]  = 0;
-    }
+  if (likely (!restart) || unlikely (ndes > 0)) { // until we implement EIS restart
+    cpu.cu.TSN_VALID[0] = 0;
+    cpu.cu.TSN_VALID[1] = 0;
+    cpu.cu.TSN_VALID[2] = 0;
+    cpu.cu.TSN_PRNO[0] = 0;
+    cpu.cu.TSN_PRNO[1] = 0;
+    cpu.cu.TSN_PRNO[2] = 0;
+  }
 
-    if (unlikely (restart))
-      goto restart_1;
+  if (unlikely (restart))
+    goto restart_1;
 
 //
 // not restart
 //
 
-    cpu.cu.XSF = 0;
-sim_debug (DBG_TRACEEXT, & cpu_dev, "%s sets XSF to %o\n", __func__, cpu.cu.XSF);
+  cpu.cu.XSF = 0;
 
-    cpu.cu.pot = 0;
-    cpu.cu.its = 0;
-    cpu.cu.itp = 0;
+  cpu.cu.pot = 0;
+  cpu.cu.its = 0;
+  cpu.cu.itp = 0;
 
-    CPT (cpt2U, 14); // non-restart processing
-    // Set Address register empty
-    PNL (L68_ (cpu.AR_F_E = false;))
+  CPT (cpt2U, 14); // non-restart processing
+  // Set Address register empty
+  PNL (L68_ (cpu.AR_F_E = false;))
 
-    // Reset the fault counter
-    cpu.cu.APUCycleBits &= 07770;
+  // Reset the fault counter
+  cpu.cu.APUCycleBits &= 07770;
 
-    //cpu.cu.TSN_VALID[0] = 0;
-    //cpu.cu.TSN_VALID[1] = 0;
-    //cpu.cu.TSN_VALID[2] = 0;
+  //cpu.cu.TSN_VALID[0] = 0;
+  //cpu.cu.TSN_VALID[1] = 0;
+  //cpu.cu.TSN_VALID[2] = 0;
 
-    // If executing the target of XEC/XED, check the instruction is allowed
-    if (unlikely (cpu.isXED))
-      {
-        if (flags & NO_XED)
-            doFault (FAULT_IPR,
-                     fst_ill_proc,
-                     "Instruction not allowed in XEC/XED");
-        // The even instruction from C(Y-pair) must not alter
-        // C(Y-pair)36,71, and must not be another xed instruction.
-        if (opcode == 0717 && !opcodeX && cpu.cu.xde && cpu.cu.xdo /* even instruction being executed */)
-            doFault (FAULT_IPR,
-                     fst_ill_proc,
-                     "XED of XED on even word");
-        // ISOLTS 791 03k, 792 03k
-        if (opcode == 0560 && !opcodeX) {
-            // To Execute Double (XED) the RPD instruction, the RPD must be the second
-            // instruction at an odd-numbered address.
-            if (cpu.cu.xde && cpu.cu.xdo /* even instr being executed */)
-                doFault (FAULT_IPR,
-                     (_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC},
-                     "XED of RPD on even word");
-            // To execute an instruction pair having an rpd instruction as the odd
-            // instruction, the xed instruction must be located at an odd address.
-            if (!cpu.cu.xde && cpu.cu.xdo /* odd instr being executed */ && !(cpu.PPR.IC & 1))
-                doFault (FAULT_IPR,
-                     (_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC},
-                     "XED of RPD on odd word, even IC");
-        }
-    } else if (unlikely (cpu.isExec)) {
-        // To execute a rpd instruction, the xec instruction must be in an odd location.
-        // ISOLTS 768 01w
-        if (opcode == 0560 && !opcodeX && cpu.cu.xde && !(cpu.PPR.IC & 1))
-            doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC},
-                 "XEC of RPx on even word");
+  // If executing the target of XEC/XED, check the instruction is allowed
+  if (unlikely (cpu.isXED)) {
+    if (flags & NO_XED)
+      doFault (FAULT_IPR, fst_ill_proc, "Instruction not allowed in XEC/XED");
+    // The even instruction from C(Y-pair) must not alter
+    // C(Y-pair)36,71, and must not be another xed instruction.
+    if (opcode == 0717 && !opcodeX && cpu.cu.xde && cpu.cu.xdo /* even instruction being executed */)
+      doFault (FAULT_IPR, fst_ill_proc, "XED of XED on even word");
+    // ISOLTS 791 03k, 792 03k
+    if (opcode == 0560 && !opcodeX) {
+      // To Execute Double (XED) the RPD instruction, the RPD must be the second
+      // instruction at an odd-numbered address.
+      if (cpu.cu.xde && cpu.cu.xdo /* even instr being executed */)
+        doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC}, "XED of RPD on even word");
+      // To execute an instruction pair having an rpd instruction as the odd
+      // instruction, the xed instruction must be located at an odd address.
+      if (!cpu.cu.xde && cpu.cu.xdo /* odd instr being executed */ && !(cpu.PPR.IC & 1))
+        doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC}, "XED of RPD on odd word, even IC");
+    }
+  } else if (unlikely (cpu.isExec)) {
+    // To execute a rpd instruction, the xec instruction must be in an odd location.
+    // ISOLTS 768 01w
+    if (opcode == 0560 && !opcodeX && cpu.cu.xde && !(cpu.PPR.IC & 1))
+      doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC}, "XEC of RPx on even word");
+  }
+
+  // ISOLTS wants both the not allowed in RPx and RPx illegal modifier
+  // tested.
+  fault_ipr_subtype_ RPx_fault = 0;
+
+  // RPT/RPD illegal modifiers
+  // a:AL39/rpd3
+  if (unlikely (cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl)) {
+    if (! (flags & NO_TAG)) {
+      // check for illegal modifiers:
+      //    only R & RI are allowed
+      //    only X1..X7
+      switch (GET_TM (tag)) {
+        case TM_RI:
+          if (cpu.cu.rl)
+            RPx_fault |= FR_ILL_MOD;
+          break;
+        case TM_R:
+          break;
+        default:
+          // generate fault. Only R & RI allowed
+          RPx_fault |= FR_ILL_MOD;
+      }
+
+      word6 Td = GET_TD (tag);
+      if (Td == TD_X0)
+        RPx_fault |= FR_ILL_MOD;
+      if (Td < TD_X0)
+        RPx_fault |= FR_ILL_MOD;
     }
 
-    // ISOLTS wants both the not allowed in RPx and RPx illegal modifier
-    // tested.
-    fault_ipr_subtype_ RPx_fault = 0;
-
-    // In BAR mode and not allowed?
-
-#if 0
-    if (TST_I_NBAR == 0)
-      if (flags & NO_BAR)
-        RPx_fault |= FR_ILL_SLV;
-#endif
-
-    // RPT/RPD illegal modifiers
-    // a:AL39/rpd3
-    if (unlikely (cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl))
-      {
-        if (! (flags & NO_TAG))
-          {
-            // check for illegal modifiers:
-            //    only R & RI are allowed
-            //    only X1..X7
-            switch (GET_TM (tag))
-              {
-                case TM_RI:
-                  if (cpu.cu.rl)
-                    {
-                      RPx_fault |= FR_ILL_MOD;
-                    }
-                  break;
-                case TM_R:
-                  break;
-                default:
-                  // generate fault. Only R & RI allowed
-                  RPx_fault |= FR_ILL_MOD;
-              }
-
-            word6 Td = GET_TD (tag);
-            if (Td == TD_X0)
-              {
-                RPx_fault |= FR_ILL_MOD;
-              }
-            //if (! cpu.cu.rd && Td < TD_X0)
-            if (Td < TD_X0)
-              {
-                RPx_fault |= FR_ILL_MOD;
-              }
-          }
-
-#ifdef DPS8M
-        // ISOLTS 792 03e
-        // this is really strange. possibly a bug in DPS8M HW (L68 handles it the same as all other instructions)
-        if (RPx_fault && !opcodeX && opcode==0413) // rscr
-          {
-              doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=RPx_fault},
-                 "DPS8M rscr early raise");
-          }
-#endif
+    DPS8M_ (
+      // ISOLTS 792 03e
+      // this is really strange. possibly a bug in DPS8M HW (L68 handles it the same as all other instructions)
+      if (RPx_fault && !opcodeX && opcode==0413) // rscr
+        doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=RPx_fault}, "DPS8M rscr early raise");
+    )
 
     // Instruction not allowed in RPx?
 
-    if (unlikely (cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl))
-      {
-        if (flags & NO_RPT)
-          {
-            RPx_fault |= FR_ILL_PROC;
-          }
-      }
-
-    if (unlikely (cpu.cu.rl))
-      {
-        if (flags & NO_RPL)
-          {
-            RPx_fault |= FR_ILL_PROC;
-          }
-      }
-
-#ifdef L68
-        // ISOLTS 791 03d, 792 03d
-        // L68 wants ILL_MOD here - stca,stcq,stba,stbq,scpr,lcpr
-        // all these instructions have a nonstandard TAG field interpretation. probably a HW bug in decoder
-        if (RPx_fault && !opcodeX && (opcode==0751 || opcode==0752 || opcode==0551
-            || opcode==0552 || opcode==0452 || opcode==0674))
-          {
-            RPx_fault |= FR_ILL_MOD;
-          }
-#endif
-      }
-
-    if (unlikely (RPx_fault != 0))
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=RPx_fault},
-                 "RPx test fail");
-      }
-
-    ///                     check for illegal addressing mode(s) ...
-    ///
-    // ISOLTS wants both the IPR and illegal modifier tested.
-    fault_ipr_subtype_ mod_fault = 0;
-
-    // No CI/SC/SCR allowed
-    if (mods == NO_CSS)
-    {
-        if (_nocss[tag])
-            mod_fault |= FR_ILL_MOD; // "Illegal CI/SC/SCR modification"
-    }
-    // No DU/DL/CI/SC/SCR allowed
-    else if (mods == NO_DDCSS)
-    {
-        if (_noddcss[tag])
-            mod_fault |= FR_ILL_MOD; // "Illegal DU/DL/CI/SC/SCR modification"
-    }
-    // No DL/CI/SC/SCR allowed
-    else if (mods == NO_DLCSS)
-    {
-        if (_nodlcss[tag])
-            mod_fault |= FR_ILL_MOD; // "Illegal DL/CI/SC/SCR modification"
-    }
-    // No DU/DL allowed
-    else if (mods == NO_DUDL)
-    {
-        if (_nodudl[tag])
-            mod_fault |= FR_ILL_MOD; // "Illegal DU/DL modification"
-    }
-    /*LINTED E_ENUM_CONSTS_HAVE_DIFF_TYPES*/
-    else if (mods == ONLY_AU_QU_AL_QL_XN)
-    {
-        if (_onlyaqxn[tag])
-            mod_fault |= FR_ILL_MOD; // "Illegal DU/DL/IC modification"
+    if (unlikely (cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl)) {
+      if (flags & NO_RPT)
+        RPx_fault |= FR_ILL_PROC;
     }
 
-#ifdef L68
+    if (unlikely (cpu.cu.rl)) {
+      if (flags & NO_RPL)
+        RPx_fault |= FR_ILL_PROC;
+    }
+
+    L68_ (
+      // ISOLTS 791 03d, 792 03d
+      // L68 wants ILL_MOD here - stca,stcq,stba,stbq,scpr,lcpr
+      // all these instructions have a nonstandard TAG field interpretation. probably a HW bug in decoder
+      if (RPx_fault && !opcodeX && (opcode==0751 || opcode==0752 || opcode==0551 || opcode==0552 || opcode==0452 || opcode==0674))
+        RPx_fault |= FR_ILL_MOD;
+    )
+  }
+
+  if (unlikely (RPx_fault != 0))
+    doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=RPx_fault}, "RPx test fail");
+
+  ///                     check for illegal addressing mode(s) ...
+  ///
+  // ISOLTS wants both the IPR and illegal modifier tested.
+  fault_ipr_subtype_ mod_fault = 0;
+
+  // No CI/SC/SCR allowed
+  if (mods == NO_CSS) {
+    if (_nocss[tag])
+      mod_fault |= FR_ILL_MOD; // "Illegal CI/SC/SCR modification"
+  }
+  // No DU/DL/CI/SC/SCR allowed
+  else if (mods == NO_DDCSS) {
+    if (_noddcss[tag])
+      mod_fault |= FR_ILL_MOD; // "Illegal DU/DL/CI/SC/SCR modification"
+  }
+  // No DL/CI/SC/SCR allowed
+  else if (mods == NO_DLCSS) {
+    if (_nodlcss[tag])
+      mod_fault |= FR_ILL_MOD; // "Illegal DL/CI/SC/SCR modification"
+  }
+  // No DU/DL allowed
+  else if (mods == NO_DUDL) {
+    if (_nodudl[tag])
+      mod_fault |= FR_ILL_MOD; // "Illegal DU/DL modification"
+  }
+  else if ((unsigned long long)mods == (unsigned long long)ONLY_AU_QU_AL_QL_XN) {
+    if (_onlyaqxn[tag])
+      mod_fault |= FR_ILL_MOD; // "Illegal DU/DL/IC modification"
+  }
+
+  L68_ (
     // L68 raises it immediately
     if (mod_fault)
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+      doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=mod_fault}, "Illegal modifier");
+   )
 
-    // check for priv ins - Attempted execution in normal or BAR modes causes a
-    // illegal procedure fault.
-    if (unlikely (flags & PRIV_INS))
-      {
-#ifdef DPS8M
-        // DPS8M illegal instructions lptp,lptr,lsdp,lsdr
-        // ISOLTS 890 05abc
-        if ((( opcode == 0232 || opcode == 0173) && opcodeX )
-           || (opcode == 0257))
-        {
-            doFault (FAULT_IPR,
-                (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault},
-                "Attempted execution of multics privileged instruction.");
+  // check for priv ins - Attempted execution in normal or BAR modes causes a
+  // illegal procedure fault.
+  if (unlikely (flags & PRIV_INS)) {
+    DPS8M_ (
+      // DPS8M illegal instructions lptp,lptr,lsdp,lsdr
+      // ISOLTS 890 05abc
+      if (((opcode == 0232 || opcode == 0173) && opcodeX ) || (opcode == 0257))
+        doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "Attempted execution of multics privileged instruction.");
+    )
+
+    if (!is_priv_mode ()) {
+      // Multics privileged instructions: absa,ldbr,lra,rcu,scu,sdbr,ssdp,ssdr,sptp,sptr
+      // ISOLTS 890 05abc,06abc
+      bool prv;
+      DPS8M_ (
+        prv =((opcode == 0212 || opcode == 0232 || opcode == 0613 || opcode == 0657) && !opcodeX ) ||
+             ((opcode == 0254 || opcode == 0774) && opcodeX ) ||
+              (opcode == 0557 || opcode == 0154);
+      )
+      L68_ (
+        // on L68, lptp,lptr,lsdp,lsdr instructions are not illegal, so handle them here
+        prv = ((opcode == 0212 || opcode == 0232 || opcode == 0613 || opcode == 0657) && !opcodeX ) ||
+              ((opcode == 0254 || opcode == 0774 || opcode == 0232 || opcode == 0173) && opcodeX ) ||
+               (opcode == 0557 || opcode == 0154 || opcode == 0257);
+      )
+      if (prv) {
+        if (!get_bar_mode ()) {
+          // ISOLTS-890 05ab
+          doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_SLV|mod_fault}, "Attempted execution of multics privileged instruction.");
+        } else {
+          doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "Attempted execution of multics privileged instruction.");
         }
-#endif
-        if (!is_priv_mode ())
-          {
-            // Multics privileged instructions: absa,ldbr,lra,rcu,scu,sdbr,ssdp,ssdr,sptp,sptr
-            // ISOLTS 890 05abc,06abc
-#ifdef DPS8M
-            if (((  opcode == 0212 || opcode == 0232 || opcode == 0613 || opcode == 0657) && !opcodeX )
-               || ((opcode == 0254 || opcode == 0774) && opcodeX )
-               || ( opcode == 0557 || opcode == 0154))
-#else // L68
-            // on L68, lptp,lptr,lsdp,lsdr instructions are not illegal, so handle them here
-            if (((  opcode == 0212 || opcode == 0232 || opcode == 0613 || opcode == 0657) && !opcodeX )
-               || ((opcode == 0254 || opcode == 0774 || opcode == 0232 || opcode == 0173) && opcodeX )
-               || ( opcode == 0557 || opcode == 0154 || opcode == 0257))
-#endif
-            {
-                if (!get_bar_mode ()) {
-                    // ISOLTS-890 05ab
-                    doFault (FAULT_IPR,
-                        (_fault_subtype) {.fault_ipr_subtype=FR_ILL_SLV|mod_fault},
-                        "Attempted execution of multics privileged instruction.");
-                } else {
-                    doFault (FAULT_IPR,
-                        (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault},
-                        "Attempted execution of multics privileged instruction.");
-                }
-            }
-            doFault (FAULT_IPR,
-                (_fault_subtype) {.fault_ipr_subtype=FR_ILL_SLV|mod_fault},
-                "Attempted execution of privileged instruction.");
-          }
       }
+      doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_SLV|mod_fault}, "Attempted execution of privileged instruction.");
+    }
+  }
 
-    if (unlikely (flags & NO_BAR))
-      if (get_bar_mode())
-        {
-          // lbar
-          // ISOLTS 890 06a
-          // ISOLTS says that L68 handles this in the same way
-          if (opcode == 0230 && !opcodeX) {
-            doFault (FAULT_IPR,
-                (_fault_subtype) {.fault_ipr_subtype=FR_ILL_SLV|mod_fault},
-                "Attempted BAR execution of nonprivileged instruction.");
-          } else
-            doFault (FAULT_IPR,
-                (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault},
-                "Attempted BAR execution of nonprivileged instruction.");
-      }
+  if (unlikely (flags & NO_BAR)) {
+    if (get_bar_mode()) {
+      // lbar
+      // ISOLTS 890 06a
+      // ISOLTS says that L68 handles this in the same way
+      if (opcode == 0230 && !opcodeX)
+        doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_SLV|mod_fault}, "Attempted BAR execution of nonprivileged instruction.");
+      else
+        doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "Attempted BAR execution of nonprivileged instruction.");
+    }
+  }
 
-#ifdef DPS8M
+  DPS8M_ (
     // DPS8M raises it delayed
     if (unlikely (mod_fault != 0))
-      {
-        doFault (FAULT_IPR,
-                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
-                 "Illegal modifier");
-      }
-#endif
+      doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=mod_fault}, "Illegal modifier");
+  )
 
-    ///
-    /// executeInstruction: Restart or Non-restart processing
-    ///                     Initialize address registers
-    ///
+///
+/// executeInstruction: Restart or Non-restart processing
+///                     Initialize address registers
+///
+
 restart_1:
+  CPT (cpt2U, 15); // instruction processing
 
-#if 0 // #ifndef CA_REWORK
-# if 1
-    cpu.TPR.CA = ci->address;
-    cpu.iefpFinalAddress = cpu.TPR.CA;
-    //cpu.rY = cpu.TPR.CA;
-# else
-    cpu.iefpFinalAddress = ci->address;
-    cpu.rY = ci->address;
-# endif
-#endif
-
-    CPT (cpt2U, 15); // instruction processing
 ///
 /// executeInstruction: Initialize state saving registers
 ///
 
-    // XXX this may be wrong; make sure that the right value is used
-    // if a page fault occurs. (i.e. this may belong above restart_1.
-    // This is also used by the SCU instruction. ISOLTS tst887 does
-    // a 'SCU n,ad' with a tally of 1; the tally is decremented, setting
-    // the IR tally bit as part of the CA calculation; this is not
-    // the machine conditions that the SCU instruction is saving.
+  // XXX this may be wrong; make sure that the right value is used
+  // if a page fault occurs. (i.e. this may belong above restart_1.
+  // This is also used by the SCU instruction. ISOLTS tst887 does
+  // a 'SCU n,ad' with a tally of 1; the tally is decremented, setting
+  // the IR tally bit as part of the CA calculation; this is not
+  // the machine conditions that the SCU instruction is saving.
 
-    ci->stiTally = TST_I_TALLY;   // for sti instruction
+  ci->stiTally = TST_I_TALLY;   // for sti instruction
 
 ///
 /// executeInstruction: scp hooks
 ///
 
 #ifndef SPEED
-    // Don't trace Multics idle loop
-    //if (cpu.PPR.PSR != 061 || cpu.PPR.IC != 0307)
+  // Don't trace Multics idle loop
+  //if (cpu.PPR.PSR != 061 || cpu.PPR.IC != 0307)
 
-      {
-        traceInstruction (DBG_TRACE);
+  {
+    traceInstruction (DBG_TRACE);
 # ifdef DBGEVENT
-        int dbgevt;
-        if (n_dbgevents && (dbgevt = (dbgevent_lookup (cpu.PPR.PSR, cpu.PPR.IC))) >= 0)
-          {
-            if (dbgevents[dbgevt].t0)
-              clock_gettime (CLOCK_REALTIME, & dbgevent_t0);
-            struct timespec now, delta;
-            clock_gettime (CLOCK_REALTIME, & now);
-            timespec_diff (& dbgevent_t0, & now, & delta);
-            sim_printf ("[%d] %5ld.%03ld %s\r\n", dbgevt, delta.tv_sec, delta.tv_nsec/1000000, dbgevents[dbgevt].tag);
-          }
+    int dbgevt;
+    if (n_dbgevents && (dbgevt = (dbgevent_lookup (cpu.PPR.PSR, cpu.PPR.IC))) >= 0) {
+      if (dbgevents[dbgevt].t0)
+        clock_gettime (CLOCK_REALTIME, & dbgevent_t0);
+      struct timespec now, delta;
+      clock_gettime (CLOCK_REALTIME, & now);
+      timespec_diff (& dbgevent_t0, & now, & delta);
+      sim_printf ("[%d] %5ld.%03ld %s\r\n", dbgevt, delta.tv_sec, delta.tv_nsec/1000000, dbgevents[dbgevt].tag);
+    }
 # endif
 # ifdef TESTING
-        HDBGTrace ("");
+    HDBGTrace ("");
 # endif
-      }
+  }
 #else  // !SPEED
-    // Don't trace Multics idle loop
-    //if (cpu.PPR.PSR != 061 || cpu.PPR.IC != 0307)
+  // Don't trace Multics idle loop
+  //if (cpu.PPR.PSR != 061 || cpu.PPR.IC != 0307)
 # ifdef TESTING
-      HDBGTrace ("");
+  HDBGTrace ("");
 # endif
 #endif // !SPEED
 
@@ -1777,16 +1682,16 @@ restart_1:
 /// executeInstruction: Initialize misc.
 ///
 
-    cpu.du.JMP = (word3) ndes;
-    cpu.dlyFlt = false;
+  cpu.du.JMP = (word3) ndes;
+  cpu.dlyFlt = false;
 
 ///
 /// executeInstruction: RPT/RPD/RPL special processing for 'first time'
 ///
 
-    if (unlikely (cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl))
-      {
-        CPT (cpt2U, 15); // RPx processing
+  if (unlikely (cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl)) {
+    CPT (cpt2U, 15); // RPx processing
+
 //
 // RPT:
 //
@@ -1843,77 +1748,49 @@ restart_1:
 //  instruction.
 //
 
-        sim_debug (DBG_TRACEEXT, & cpu_dev,
-                   "RPT/RPD first %d rpt %d rd %d e/o %d X0 %06o a %d b %d\n",
-                   cpu.cu.repeat_first, cpu.cu.rpt, cpu.cu.rd, cpu.PPR.IC & 1,
-                   cpu.rX[0], !! (cpu.rX[0] & 01000), !! (cpu.rX[0] & 0400));
-        sim_debug (DBG_TRACEEXT, & cpu_dev,
-                   "RPT/RPD CA %06o\n", cpu.TPR.CA);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "RPT/RPD first %d rpt %d rd %d e/o %d X0 %06o a %d b %d\n", cpu.cu.repeat_first, cpu.cu.rpt, cpu.cu.rd, cpu.PPR.IC & 1, cpu.rX[0], !! (cpu.rX[0] & 01000), !! (cpu.rX[0] & 0400));
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "RPT/RPD CA %06o\n", cpu.TPR.CA);
 
 // Handle first time of a RPT or RPD
 
-        if (cpu.cu.repeat_first)
-          {
-            CPT (cpt2U, 16); // RPx first processing
-            // The semantics of these are that even is the first instruction of
-            // and RPD, and odd the second.
+    if (cpu.cu.repeat_first) {
+      CPT (cpt2U, 16); // RPx first processing
+      // The semantics of these are that even is the first instruction of
+      // and RPD, and odd the second.
 
-            bool icOdd = !! (cpu.PPR.IC & 1);
-            bool icEven = ! icOdd;
+      bool icOdd = !! (cpu.PPR.IC & 1);
+      bool icEven = ! icOdd;
 
-            // If RPT or (RPD and the odd instruction)
-            if (cpu.cu.rpt || (cpu.cu.rd && icOdd) || cpu.cu.rl)
-              cpu.cu.repeat_first = false;
+      // If RPT or (RPD and the odd instruction)
+      if (cpu.cu.rpt || (cpu.cu.rd && icOdd) || cpu.cu.rl)
+        cpu.cu.repeat_first = false;
 
-            // a:RJ78/rpd6
-            // For the first execution of the repeated instruction:
-            // C(C(PPR.IC)+1)0,17 + C(Xn) -> y, y -> C(Xn)
-            if (cpu.cu.rpt ||              // rpt
-                (cpu.cu.rd && icEven) ||   // rpd & even
-                (cpu.cu.rd && icOdd)  ||   // rpd & odd
-                cpu.cu.rl)                 // rl
-              {
-#if 0
-                word18 offset;
-                if (ci->b29)
-                  {
-{ static bool first = true;
-if (first) {
-first = false;
-sim_printf ("XXX rethink this; bit 29 is finagled below; should this be done in a different order?\n");
-}}
-sim_debug (DBG_TRACEEXT, & cpu_dev, "b29, ci->address %o\n", ci->address);
-                    // a:RJ78/rpd4
-                    offset = SIGNEXT15_18 (ci->address & MASK15);
-                  }
-                else
-                  offset = ci->address;
-#else
-                word18 offset = ci->address;
-#endif
-                offset &= AMASK;
+      // a:RJ78/rpd6
+      // For the first execution of the repeated instruction:
+      // C(C(PPR.IC)+1)0,17 + C(Xn) -> y, y -> C(Xn)
+      if (cpu.cu.rpt ||              // rpt
+         (cpu.cu.rd && icEven) ||   // rpd & even
+         (cpu.cu.rd && icOdd)  ||   // rpd & odd
+          cpu.cu.rl) {               // rl
+        word18 offset = ci->address;
+        offset &= AMASK;
 
-                sim_debug (DBG_TRACEEXT, & cpu_dev,
-                           "rpt/rd/rl repeat first; offset is %06o\n", offset);
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "rpt/rd/rl repeat first; offset is %06o\n", offset);
 
-                word6 Td = GET_TD (tag);
-                uint Xn = X (Td);  // Get Xn of next instruction
-                sim_debug (DBG_TRACEEXT, & cpu_dev,
-                           "rpt/rd/rl repeat first; X%d was %06o\n",
-                           Xn, cpu.rX[Xn]);
-                // a:RJ78/rpd5
-                cpu.TPR.CA = (cpu.rX[Xn] + offset) & AMASK;
-                cpu.rX[Xn] = cpu.TPR.CA;
+        word6 Td = GET_TD (tag);
+        uint Xn = X (Td);  // Get Xn of next instruction
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "rpt/rd/rl repeat first; X%d was %06o\n", Xn, cpu.rX[Xn]);
+        // a:RJ78/rpd5
+        cpu.TPR.CA = (cpu.rX[Xn] + offset) & AMASK;
+        cpu.rX[Xn] = cpu.TPR.CA;
 #ifdef TESTING
-                HDBGRegXW (Xn, "rpt 1st");
+        HDBGRegXW (Xn, "rpt 1st");
 #endif
-                sim_debug (DBG_TRACEEXT, & cpu_dev,
-                           "rpt/rd/rl repeat first; X%d now %06o\n",
-                           Xn, cpu.rX[Xn]);
-              } // rpt or rd or rl
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "rpt/rd/rl repeat first; X%d now %06o\n", Xn, cpu.rX[Xn]);
+      } // rpt or rd or rl
 
-          } // repeat first
-      } // cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl
+    } // repeat first
+  } // cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl
 
 ///
 /// Restart or Non-restart
@@ -1923,20 +1800,17 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "b29, ci->address %o\n", ci->address);
 /// executeInstruction: EIS operand processing
 ///
 
-    if (unlikely (ndes > 0))
-      {
-        CPT (cpt2U, 27); // EIS operand processing
-        sim_debug (DBG_APPENDING, &cpu_dev, "initialize EIS descriptors\n");
-        // This must not happen on instruction restart
-        if (!restart)
-          {
-            CPT (cpt2U, 28); // EIS not restart
-            cpu.du.CHTALLY = 0;
-            cpu.du.Z = 1;
-          }
-        for (uint n = 0; n < ndes; n += 1)
-          {
-            CPT (cpt2U, 29 + n); // EIS operand fetch (29, 30, 31)
+  if (unlikely (ndes > 0)) {
+    CPT (cpt2U, 27); // EIS operand processing
+    sim_debug (DBG_APPENDING, &cpu_dev, "initialize EIS descriptors\n");
+    // This must not happen on instruction restart
+    if (!restart) {
+      CPT (cpt2U, 28); // EIS not restart
+      cpu.du.CHTALLY = 0;
+      cpu.du.Z = 1;
+    }
+    for (uint n = 0; n < ndes; n += 1) {
+      CPT (cpt2U, 29 + n); // EIS operand fetch (29, 30, 31)
 // XXX This is a bit of a hack; In general the code is good about
 // setting up for bit29 or PR operations by setting up TPR, but
 // assumes that the 'else' case can be ignored when it should set
@@ -1945,27 +1819,16 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "b29, ci->address %o\n", ci->address);
 // this should not be an issue, as this folderol would be in the DU, and
 // we would not be re-executing that code, but until then, set the TPR
 // to the condition we know it should be in.
-            cpu.TPR.TRR = cpu.PPR.PRR;
-            cpu.TPR.TSR = cpu.PPR.PSR;
-#if 0
-{ static bool first = true;
-if (first) {
-first = false;
-sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n");
-}}
-#else
-            // append cycles updates cpu.PPR.IC to TPR.CA
-            word18 saveIC = cpu.PPR.IC;
-            Read (cpu.PPR.IC + 1 + n, & cpu.currentEISinstruction.op[n],
-                  INSTRUCTION_FETCH);
-            cpu.PPR.IC = saveIC;
-            //Read (cpu.PPR.IC + 1 + n, & cpu.currentEISinstruction.op[n],
-            //      APU_DATA_READ);
-#endif
-          }
-        PNL (cpu.IWRAddr = cpu.currentEISinstruction.op[0]);
-        setupEISoperands ();
-      }
+      cpu.TPR.TRR = cpu.PPR.PRR;
+      cpu.TPR.TSR = cpu.PPR.PSR;
+      // append cycles updates cpu.PPR.IC to TPR.CA
+      word18 saveIC = cpu.PPR.IC;
+      Read (cpu.PPR.IC + 1 + n, & cpu.currentEISinstruction.op[n], INSTRUCTION_FETCH);
+      cpu.PPR.IC = saveIC;
+    }
+    PNL (cpu.IWRAddr = cpu.currentEISinstruction.op[0]);
+    setupEISoperands ();
+  }
 
 ///
 /// Restart or Non-restart
@@ -1975,54 +1838,35 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
 /// executeInstruction: non-EIS operand processing
 ///
 
-    else
-      {
-        CPT (cpt2U, 32); // non-EIS operand processing
-        CPT (cpt2U, 33); // not restart non-EIS operand processing
-        if (ci->b29)   // if A bit set set-up TPR stuff ...
-          {
-            CPT (cpt2U, 34); // B29
+  else {
+    CPT (cpt2U, 32); // non-EIS operand processing
+    CPT (cpt2U, 33); // not restart non-EIS operand processing
+    if (ci->b29) {   // if A bit set set-up TPR stuff ...
+      CPT (cpt2U, 34); // B29
 
 // AL39 says that RCU does not restore CA, so words to SCU does not.
 // So we do it here, even if restart
-            word3 n = GET_PRN(IWB_IRODD);  // get PRn
-            word15 offset = GET_OFFSET(IWB_IRODD);
-            CPTUR (cptUsePRn + n);
+      word3 n = GET_PRN(IWB_IRODD);  // get PRn
+      word15 offset = GET_OFFSET(IWB_IRODD);
+      CPTUR (cptUsePRn + n);
 
-            sim_debug (DBG_APPENDING, &cpu_dev,
-                       "doPtrReg: PR[%o] SNR=%05o RNR=%o WORDNO=%06o "
-                       "BITNO=%02o\n",
-                       n, cpu.PAR[n].SNR, cpu.PAR[n].RNR,
-                       cpu.PAR[n].WORDNO, GET_PR_BITNO (n));
-
-#if 0 // #ifndef CA_REWORK
-            cpu.TPR.CA = (cpu.PAR[n].WORDNO + SIGNEXT15_18 (offset))
-                         & MASK18;
-#endif
+      sim_debug (DBG_APPENDING, &cpu_dev, "doPtrReg: PR[%o] SNR=%05o RNR=%o WORDNO=%06o " "BITNO=%02o\n", n, cpu.PAR[n].SNR, cpu.PAR[n].RNR, cpu.PAR[n].WORDNO, GET_PR_BITNO (n));
 
 // Fix tst880: 'call6 pr1|0'. The instruction does a DF1; the fault handler
 // updates PRR in the CU save data. On restart, TRR is not updated.
 // Removing the 'if' appears to resolve the problem without regressions.
-            //if (!restart)
-              {
+      //if (!restart) {
 // Not EIS, bit 29 set, !restart
-                cpu.TPR.TBR = GET_PR_BITNO (n);
+      cpu.TPR.TBR = GET_PR_BITNO (n);
 
-                cpu.TPR.TSR = cpu.PAR[n].SNR;
-                if (ci->info->flags & TRANSFER_INS)
-                  cpu.TPR.TRR = max (cpu.PAR[n].RNR, cpu.PPR.PRR);
-                else
-                  cpu.TPR.TRR = max3 (cpu.PAR[n].RNR, cpu.TPR.TRR, cpu.PPR.PRR);
+      cpu.TPR.TSR = cpu.PAR[n].SNR;
+      if (ci->info->flags & TRANSFER_INS)
+        cpu.TPR.TRR = max (cpu.PAR[n].RNR, cpu.PPR.PRR);
+      else
+        cpu.TPR.TRR = max3 (cpu.PAR[n].RNR, cpu.TPR.TRR, cpu.PPR.PRR);
 
-                sim_debug (DBG_APPENDING, &cpu_dev,
-                           "doPtrReg: n=%o offset=%05o TPR.CA=%06o "
-                           "TPR.TBR=%o TPR.TSR=%05o TPR.TRR=%o\n",
-                           n, offset, cpu.TPR.CA, cpu.TPR.TBR,
-                           cpu.TPR.TSR, cpu.TPR.TRR);
-                //                cpu.cu.XSF = 1;
-                //sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction !restart !EIS sets XSF to %o\n", cpu.cu.XSF);
-                //set_went_appending ();
-            }
+      sim_debug (DBG_APPENDING, &cpu_dev, "doPtrReg: n=%o offset=%05o TPR.CA=%06o " "TPR.TBR=%o TPR.TSR=%05o TPR.TRR=%o\n", n, offset, cpu.TPR.CA, cpu.TPR.TBR, cpu.TPR.TSR, cpu.TPR.TRR);
+      //}
 
 // Putting the a29 clear here makes sense, but breaks the emulator for unclear
 // reasons (possibly ABSA?). Do it in updateIWB instead
@@ -2031,275 +1875,185 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
 //                //  mode
 //                //a = false;
 //                putbits36_1 (& cpu.cu.IWB, 29, 0);
-          }
-        else
-          {
+    } else {
 // not eis, not bit b29
-            if (!restart)
-              {
-                CPT (cpt2U, 35); // not B29
-                cpu.cu.TSN_VALID [0] = 0;
-                cpu.TPR.TBR = 0;
-                if (get_addr_mode () == ABSOLUTE_mode)
-                  {
-                    cpu.TPR.TSR = cpu.PPR.PSR;
-                    cpu.TPR.TRR = 0;
-                    cpu.RSDWH_R1 = 0;
-                  }
-                //cpu.cu.XSF = 0;
-sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n", cpu.cu.XSF);
-                //clr_went_appending ();
-              }
-          }
-
-        // This must not happen on instruction restart
-        if (!restart)
-          {
-            cpu.cu.CT_HOLD = 0; // Clear interrupted IR mode flag
-          }
-
-#if 0 // #ifndef CA_REWORK
-        //
-        // If POT is set, a page fault occurred during the fetch of the data word
-        // pointed to by an indirect addressing word, and the saved CA points
-        // to the data word instead of the indirect word; reset the CA correctly
-        //
-
-        if (restart && cpu.cu.pot)
-          {
-            CPT (cpt2L, 0); // POT set
-            cpu.TPR.CA = GET_ADDR (IWB_IRODD);
-            if (getbits36_1 (cpu.cu.IWB, 29) != 0)
-              cpu.TPR.CA &= MASK15;
-          }
-#endif
-
-        // These are set by do_caf
-        cpu.ou.directOperandFlag      = false;
-        cpu.ou.directOperand          = 0;
-        cpu.ou.characterOperandSize   = 0;
-        cpu.ou.characterOperandOffset = 0;
-        cpu.ou.crflag                 = false;
-
-#define REORDER
-#ifdef REORDER
-        if ((flags & PREPARE_CA) || WRITEOP (ci) || READOP (ci))
-          {
-            CPT (cpt2L, 1); // CAF
-            do_caf ();
-            PNL (L68_ (cpu.AR_F_E = true;))
-            cpu.iefpFinalAddress = cpu.TPR.CA;
-          }
-
-        //if (READOP (ci) && ! ((bool) (flags & TRANSFER_INS)))
-        if (READOP (ci))
-          {
-            CPT (cpt2L, 2); // Read operands
-            readOperands ();
-# ifdef LOCKLESS
-            cpu.rmw_address = cpu.iefpFinalAddress;
-# endif
-            if (cpu.cu.rl)
-              {
-                switch (operand_size ())
-                  {
-                    case 1:
-                      {
-                        cpu.lnk = GETHI36 (cpu.CY);
-                        cpu.CY &= MASK18;
-                        break;
-                      }
-                    case 2:
-                      {
-                        cpu.lnk = GETHI36 (cpu.Ypair[0]);
-                        cpu.Ypair[0] &= MASK18;
-                        break;
-                      }
-                    default:
-                      {
-                        break;
-                      }
-                  }
-              }
-          }
-#else
-        if (flags & PREPARE_CA)
-          {
-            do_caf ();
-            L68_ (cpu.AR_F_E = true;)
-            cpu.iefpFinalAddress = cpu.TPR.CA;
-          }
-        else if (READOP (ci))
-          {
-            do_caf ();
-            cpu.iefpFinalAddress = cpu.TPR.CA;
-            readOperands ();
-          }
-#endif
-        PNL (cpu.IWRAddr = 0);
+      if (!restart) {
+        CPT (cpt2U, 35); // not B29
+        cpu.cu.TSN_VALID [0] = 0;
+        cpu.TPR.TBR = 0;
+        if (get_addr_mode () == ABSOLUTE_mode) {
+          cpu.TPR.TSR = cpu.PPR.PSR;
+          cpu.TPR.TRR = 0;
+          cpu.RSDWH_R1 = 0;
+        }
       }
+    }
+
+    // This must not happen on instruction restart
+    if (!restart)
+      cpu.cu.CT_HOLD = 0; // Clear interrupted IR mode flag
+
+    // These are set by do_caf
+    cpu.ou.directOperandFlag = false;
+    cpu.ou.directOperand = 0;
+    cpu.ou.characterOperandSize = 0;
+    cpu.ou.characterOperandOffset = 0;
+    cpu.ou.crflag = false;
+
+    if ((flags & PREPARE_CA) || WRITEOP (ci) || READOP (ci)) {
+      CPT (cpt2L, 1); // CAF
+      do_caf ();
+      PNL (L68_ (cpu.AR_F_E = true;))
+      cpu.iefpFinalAddress = cpu.TPR.CA;
+    }
+
+    if (READOP (ci)) {
+      CPT (cpt2L, 2); // Read operands
+      readOperands ();
+#ifdef LOCKLESS
+      cpu.rmw_address = cpu.iefpFinalAddress;
+#endif
+      if (cpu.cu.rl) {
+        switch (operand_size ()) {
+          case 1:
+            cpu.lnk = GETHI36 (cpu.CY);
+            cpu.CY &= MASK18;
+            break;
+
+          case 2:
+            cpu.lnk = GETHI36 (cpu.Ypair[0]);
+            cpu.Ypair[0] &= MASK18;
+            break;
+
+          default:
+            break;
+        }
+      }
+    }
+    PNL (cpu.IWRAddr = 0);
+  }
 
 // Initialize zone to 'entire word'
 
-    cpu.useZone = false;
-    cpu.zone = MASK36;
+  cpu.useZone = false;
+  cpu.zone = MASK36;
 
 ///
 /// executeInstruction: Execute the instruction
 ///
 
-    t_stat ret = doInstruction ();
+  t_stat ret = doInstruction ();
 
 ///
 /// executeInstruction: Write operand
 ///
 
-    cpu.last_write = 0;
-    if (WRITEOP (ci))
-      {
-        CPT (cpt2L, 3); // Write operands
-        cpu.last_write = cpu.TPR.CA;
-#ifndef REORDER
-        if (! READOP (ci))
-          {
-            do_caf ();
-            cpu.iefpFinalAddress = cpu.TPR.CA;
-          }
-#endif
+  cpu.last_write = 0;
+  if (WRITEOP (ci)) {
+    CPT (cpt2L, 3); // Write operands
+    cpu.last_write = cpu.TPR.CA;
 #ifdef LOCKLESS
-        if ((ci->info->flags & RMW) == RMW)
-          {
-              if (operand_size() != 1)
-                  sim_warn("executeInstruction: operand_size!= 1\n");
-              if (cpu.iefpFinalAddress != cpu.rmw_address)
-                sim_warn("executeInstruction: write addr changed %o %d\n", cpu.iefpFinalAddress, cpu.rmw_address);
-              core_write_unlock (cpu.iefpFinalAddress, cpu.CY, __func__);
+    if ((ci->info->flags & RMW) == RMW) {
+      if (operand_size() != 1)
+        sim_warn("executeInstruction: operand_size!= 1\n");
+      if (cpu.iefpFinalAddress != cpu.rmw_address)
+        sim_warn("executeInstruction: write addr changed %o %d\n", cpu.iefpFinalAddress, cpu.rmw_address);
+      core_write_unlock (cpu.iefpFinalAddress, cpu.CY, __func__);
 # ifdef TESTING
-              HDBGMWrite (cpu.iefpFinalAddress, cpu.CY, "Write RMW");
+      HDBGMWrite (cpu.iefpFinalAddress, cpu.CY, "Write RMW");
 # endif
-         }
-        else
-          writeOperands ();
+    } else
+      writeOperands ();
 #else
-        writeOperands ();
+    writeOperands ();
 #endif
-      }
+  }
 
-    else if (flags & PREPARE_CA)
-      {
-        // 'EPP ITS; TRA' confuses the APU by leaving last_cycle
-        // at INDIRECT_WORD_FETCH; defoobarize the APU:
-        fauxDoAppendCycle (OPERAND_READ);
-        cpu.TPR.TRR = cpu.PPR.PRR;
-        cpu.TPR.TSR = cpu.PPR.PSR;
-        cpu.TPR.TBR = 0;
-      }
+  else if (flags & PREPARE_CA) {
+    // 'EPP ITS; TRA' confuses the APU by leaving last_cycle
+    // at INDIRECT_WORD_FETCH; defoobarize the APU:
+    fauxDoAppendCycle (OPERAND_READ);
+    cpu.TPR.TRR = cpu.PPR.PRR;
+    cpu.TPR.TSR = cpu.PPR.PSR;
+    cpu.TPR.TBR = 0;
+  }
 
 ///
 /// executeInstruction: RPT/RPD/RPL processing
 ///
 
-    // The semantics of these are that even is the first instruction of
-    // and RPD, and odd the second.
+  // The semantics of these are that even is the first instruction of
+  // and RPD, and odd the second.
 
-    bool icOdd = !! (cpu.PPR.IC & 1);
-    bool icEven = ! icOdd;
+  bool icOdd = !! (cpu.PPR.IC & 1);
+  bool icEven = ! icOdd;
 
-    // Here, repeat_first means that the instruction just executed was the
-    // RPT or RPD; but when the even instruction of a RPD is executed,
-    // repeat_first is still set, since repeat_first cannot be cleared
-    // until the odd instruction gets its first execution. Put some
-    // ugly logic in to detect that condition.
+  // Here, repeat_first means that the instruction just executed was the
+  // RPT or RPD; but when the even instruction of a RPD is executed,
+  // repeat_first is still set, since repeat_first cannot be cleared
+  // until the odd instruction gets its first execution. Put some
+  // ugly logic in to detect that condition.
 
-    bool rf = cpu.cu.repeat_first;
-    if (rf && cpu.cu.rd && icEven)
-      rf = false;
+  bool rf = cpu.cu.repeat_first;
+  if (rf && cpu.cu.rd && icEven)
+    rf = false;
 
-    if (unlikely ((! rf) && (cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl)))
-      {
-        CPT (cpt2L, 7); // Post execution RPx
-        // If we get here, the instruction just executed was a
-        // RPT, RPD or RPL target instruction, and not the RPT or RPD
-        // instruction itself
+  if (unlikely ((! rf) && (cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl))) {
+    CPT (cpt2L, 7); // Post execution RPx
+    // If we get here, the instruction just executed was a
+    // RPT, RPD or RPL target instruction, and not the RPT or RPD
+    // instruction itself
 
-        if (cpu.cu.rpt || cpu.cu.rd)
-          {
-            // Add delta to index register.
+    if (cpu.cu.rpt || cpu.cu.rd) {
+      // Add delta to index register.
 
-            bool rptA = !! (cpu.rX[0] & 01000);
-            bool rptB = !! (cpu.rX[0] & 00400);
+      bool rptA = !! (cpu.rX[0] & 01000);
+      bool rptB = !! (cpu.rX[0] & 00400);
 
-            sim_debug (DBG_TRACEEXT, & cpu_dev,
-                "RPT/RPD delta first %d rf %d rpt %d rd %d "
-                "e/o %d X0 %06o a %d b %d\n",
-                cpu.cu.repeat_first, rf, cpu.cu.rpt, cpu.cu.rd, icOdd,
-                cpu.rX[0], rptA, rptB);
+      sim_debug (DBG_TRACEEXT, & cpu_dev, "RPT/RPD delta first %d rf %d rpt %d rd %d " "e/o %d X0 %06o a %d b %d\n", cpu.cu.repeat_first, rf, cpu.cu.rpt, cpu.cu.rd, icOdd, cpu.rX[0], rptA, rptB);
 
-            if (cpu.cu.rpt) // rpt
-              {
-                CPT (cpt2L, 8); // RPT delta
-                uint Xn    = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
-                cpu.TPR.CA = (cpu.rX[Xn] + cpu.cu.delta) & AMASK;
-                cpu.rX[Xn] = cpu.TPR.CA;
+      if (cpu.cu.rpt) { // rpt
+        CPT (cpt2L, 8); // RPT delta
+        uint Xn = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
+        cpu.TPR.CA = (cpu.rX[Xn] + cpu.cu.delta) & AMASK;
+        cpu.rX[Xn] = cpu.TPR.CA;
 #ifdef TESTING
-                HDBGRegXW (Xn, "rpt delta");
+        HDBGRegXW (Xn, "rpt delta");
 #endif
-                sim_debug (DBG_TRACEEXT, & cpu_dev,
-                           "RPT/RPD delta; X%d now %06o\n", Xn, cpu.rX[Xn]);
-              }
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "RPT/RPD delta; X%d now %06o\n", Xn, cpu.rX[Xn]);
+      }
 
-            // a:RJ78/rpd6
-            // We know that the X register is not to be incremented until
-            // after both instructions have executed, so the following
-            // if uses icOdd instead of the more sensical icEven.
-            if (cpu.cu.rd && icOdd && rptA) // rpd, even instruction
-              {
-                CPT (cpt2L, 9); // RD even
-                // a:RJ78/rpd7
-                uint Xn    = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
-                cpu.TPR.CA = (cpu.rX[Xn] + cpu.cu.delta) & AMASK;
-                cpu.rX[Xn] = cpu.TPR.CA;
+      // a:RJ78/rpd6
+      // We know that the X register is not to be incremented until
+      // after both instructions have executed, so the following
+      // if uses icOdd instead of the more sensical icEven.
+      if (cpu.cu.rd && icOdd && rptA) { // rpd, even instruction
+        CPT (cpt2L, 9); // RD even
+        // a:RJ78/rpd7
+        uint Xn = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
+        cpu.TPR.CA = (cpu.rX[Xn] + cpu.cu.delta) & AMASK;
+        cpu.rX[Xn] = cpu.TPR.CA;
 #ifdef TESTING
-                HDBGRegXW (Xn, "rpd delta even");
+        HDBGRegXW (Xn, "rpd delta even");
 #endif
-                sim_debug (DBG_TRACEEXT, & cpu_dev,
-                           "RPT/RPD delta; X%d now %06o\n", Xn, cpu.rX[Xn]);
-              }
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "RPT/RPD delta; X%d now %06o\n", Xn, cpu.rX[Xn]);
+      }
 
-            if (cpu.cu.rd && icOdd && rptB) // rpdb, odd instruction
-              {
-                CPT (cpt2L, 10); // RD odd
-                // a:RJ78/rpd8
-                uint Xn    = (uint) getbits36_3 (cpu.cu.IRODD, 36 - 3);
-                cpu.TPR.CA = (cpu.rX[Xn] + cpu.cu.delta) & AMASK;
-                cpu.rX[Xn] = cpu.TPR.CA;
+      if (cpu.cu.rd && icOdd && rptB) { // rpdb, odd instruction
+        CPT (cpt2L, 10); // RD odd
+        // a:RJ78/rpd8
+        uint Xn = (uint) getbits36_3 (cpu.cu.IRODD, 36 - 3);
+        cpu.TPR.CA = (cpu.rX[Xn] + cpu.cu.delta) & AMASK;
+        cpu.rX[Xn] = cpu.TPR.CA;
 #ifdef TESTING
-                HDBGRegXW (Xn, "rpd delta odd");
+        HDBGRegXW (Xn, "rpd delta odd");
 #endif
-                sim_debug (DBG_TRACEEXT, & cpu_dev,
-                           "RPT/RPD delta; X%d now %06o\n", Xn, cpu.rX[Xn]);
-              }
-          } // rpt || rd
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "RPT/RPD delta; X%d now %06o\n", Xn, cpu.rX[Xn]);
+      }
+    } // rpt || rd
 
-#if 0
-        else if (cpu.cu.rl)
-          {
-            CPT (cpt2L, 11); // RL
-            // C(Xn) -> y
-# if 1
-            uint Xn = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
-            word18 lnk = GETHI36 (cpu.CY);
-            cpu.CY &= MASK18;
-            cpu.rX[Xn] = lnk;
-            //putbits36 (& cpu.cu.IWB,  0, 18, lnk);
-# else
-            uint Xn = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
-            putbits36 (& cpu.cu.IWB,  0, 18, cpu.rX[Xn]);
-# endif
-          }
-#endif
 
-        // Check for termination conditions.
+    // Check for termination conditions.
 
 ///////
 //
@@ -2312,200 +2066,154 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
 // This implies that rpt and rpl are handled differently; as a test
 // trying:
 
-#ifdef DPS8M
-        if (cpu.cu.rl && cpu.dlyFlt)
-#else // L68
-        if ((cpu.cu.rl || cpu.cu.rpt || cpu.cu.rd) && cpu.dlyFlt)
-#endif
-          {
-            CPT (cpt2L, 14); // Delayed fault
-            doFault (cpu.dlyFltNum, cpu.dlySubFltNum, cpu.dlyCtx);
-          }
+    bool flt;
+    if (cpu.tweaks.l68_mode)
+      flt = (cpu.cu.rl || cpu.cu.rpt || cpu.cu.rd) && cpu.dlyFlt; // L68
+    else
+      flt = cpu.cu.rl && cpu.dlyFlt;
+    if (flt) {
+      CPT (cpt2L, 14); // Delayed fault
+      doFault (cpu.dlyFltNum, cpu.dlySubFltNum, cpu.dlyCtx);
+    }
 
 // Sadly, it fixes ISOLTS 769 test 02a and 02b.
 //
 ///////
 
-        if (cpu.cu.rpt || (cpu.cu.rd && icOdd) || cpu.cu.rl)
-          {
-            CPT (cpt2L, 12); // RPx termination check
-            bool exit = false;
-            // The repetition cycle consists of the following steps:
-            //  a. Execute the repeated instruction
-            //  b. C(X0)0,7 - 1 -> C(X0)0,7
-            // a:AL39/rpd9
-            uint x = (uint) getbits18 (cpu.rX[0], 0, 8);
-            x -= 1;
-            x &= MASK8;
-            putbits18 (& cpu.rX[0], 0, 8, x);
+    if (cpu.cu.rpt || (cpu.cu.rd && icOdd) || cpu.cu.rl) {
+      CPT (cpt2L, 12); // RPx termination check
+      bool exit = false;
+      // The repetition cycle consists of the following steps:
+      //  a. Execute the repeated instruction
+      //  b. C(X0)0,7 - 1 -> C(X0)0,7
+      // a:AL39/rpd9
+      uint x = (uint) getbits18 (cpu.rX[0], 0, 8);
+      x -= 1;
+      x &= MASK8;
+      putbits18 (& cpu.rX[0], 0, 8, x);
 #ifdef TESTING
-            HDBGRegXW (0, "rpt term");
+      HDBGRegXW (0, "rpt term");
 #endif
 
-            //sim_debug (DBG_TRACEEXT, & cpu_dev, "x %03o rX[0] %06o\n", x, rX[0]);
+      // a:AL39/rpd10
+      //  c. If C(X0)0,7 = 0, then set the tally runout indicator ON
+      //     and terminate
 
-            // a:AL39/rpd10
-            //  c. If C(X0)0,7 = 0, then set the tally runout indicator ON
-            //     and terminate
-
-            sim_debug (DBG_TRACEEXT, & cpu_dev, "tally %d\n", x);
-            if (x == 0)
-              {
-                sim_debug (DBG_TRACEEXT, & cpu_dev, "tally runout\n");
-                SET_I_TALLY;
-                exit = true;
-              }
-            else
-              {
-                sim_debug (DBG_TRACEEXT, & cpu_dev, "not tally runout\n");
-                CLR_I_TALLY;
-              }
-
-            //  d. If a terminate condition has been met, then set
-            //     the tally runout indicator OFF and terminate
-
-            if (TST_I_ZERO && (cpu.rX[0] & 0100))
-              {
-                sim_debug (DBG_TRACEEXT, & cpu_dev, "is zero terminate\n");
-                CLR_I_TALLY;
-                exit = true;
-              }
-            if (!TST_I_ZERO && (cpu.rX[0] & 040))
-              {
-                sim_debug (DBG_TRACEEXT, & cpu_dev, "is not zero terminate\n");
-                CLR_I_TALLY;
-                exit = true;
-              }
-            if (TST_I_NEG && (cpu.rX[0] & 020))
-              {
-                sim_debug (DBG_TRACEEXT, & cpu_dev, "is neg terminate\n");
-                CLR_I_TALLY;
-                exit = true;
-              }
-            if (!TST_I_NEG && (cpu.rX[0] & 010))
-              {
-                sim_debug (DBG_TRACEEXT, & cpu_dev, "is not neg terminate\n");
-                CLR_I_TALLY;
-                exit = true;
-              }
-            if (TST_I_CARRY && (cpu.rX[0] & 04))
-              {
-                sim_debug (DBG_TRACEEXT, & cpu_dev, "is carry terminate\n");
-                CLR_I_TALLY;
-                exit = true;
-              }
-            if (!TST_I_CARRY && (cpu.rX[0] & 02))
-              {
-                sim_debug (DBG_TRACEEXT, & cpu_dev, "is not carry terminate\n");
-                CLR_I_TALLY;
-                exit = true;
-              }
-            if (TST_I_OFLOW && (cpu.rX[0] & 01))
-              {
-                sim_debug (DBG_TRACEEXT, & cpu_dev, "is overflow terminate\n");
-// ISOLTS test ps805 says that on overflow the tally should be set.
-                //CLR_I_TALLY;
-                SET_I_TALLY;
-                exit = true;
-              }
-
-            if (exit)
-              {
-                CPT (cpt2L, 13); // RPx terminated
-                cpu.cu.rpt = false;
-                cpu.cu.rd  = false;
-                cpu.cu.rl  = false;
-              }
-            else
-              {
-                sim_debug (DBG_TRACEEXT, & cpu_dev, "not terminate\n");
-              }
-          } // if (cpu.cu.rpt || cpu.cu.rd & (cpu.PPR.IC & 1))
-
-        if (cpu.cu.rl)
-          {
-            CPT (cpt2L, 11); // RL
-            if (cpu.lnk == 0)
-              {
-                CPT (cpt2L, 13); // RPx terminated
-                cpu.cu.rpt = false;
-                cpu.cu.rd  = false;
-                cpu.cu.rl  = false;
-                SET_I_TALLY;
-              }
-            else
-              {
-                // C(Xn) -> y
-#if 1
-                uint Xn = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
-                //word18 lnk = GETHI36 (cpu.CY);
-                //cpu.CY &= MASK18;
-                cpu.rX[Xn] = cpu.lnk;
-# ifdef TESTING
-                HDBGRegXW (Xn, "rl");
-# endif
-                //putbits36 (& cpu.cu.IWB,  0, 18, lnk);
-#else
-                uint Xn = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
-                putbits36 (& cpu.cu.IWB,  0, 18, cpu.rX[Xn]);
-#endif
-              }
-          } // rl
-      } // (! rf) && (cpu.cu.rpt || cpu.cu.rd)
-
-    if (unlikely (cpu.dlyFlt))
-      {
-        CPT (cpt2L, 14); // Delayed fault
-        doFault (cpu.dlyFltNum, cpu.dlySubFltNum, cpu.dlyCtx);
+      sim_debug (DBG_TRACEEXT, & cpu_dev, "tally %d\n", x);
+      if (x == 0) {
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "tally runout\n");
+        SET_I_TALLY;
+        exit = true;
+      } else {
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "not tally runout\n");
+        CLR_I_TALLY;
       }
+
+      //  d. If a terminate condition has been met, then set
+      //     the tally runout indicator OFF and terminate
+
+      if (TST_I_ZERO && (cpu.rX[0] & 0100)) {
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "is zero terminate\n");
+        CLR_I_TALLY;
+        exit = true;
+      }
+      if (!TST_I_ZERO && (cpu.rX[0] & 040)) {
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "is not zero terminate\n");
+        CLR_I_TALLY;
+        exit = true;
+      }
+      if (TST_I_NEG && (cpu.rX[0] & 020)) {
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "is neg terminate\n");
+        CLR_I_TALLY;
+        exit = true;
+      }
+      if (!TST_I_NEG && (cpu.rX[0] & 010)) {
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "is not neg terminate\n");
+        CLR_I_TALLY;
+        exit = true;
+      }
+      if (TST_I_CARRY && (cpu.rX[0] & 04)) {
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "is carry terminate\n");
+        CLR_I_TALLY;
+        exit = true;
+      }
+      if (!TST_I_CARRY && (cpu.rX[0] & 02)) {
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "is not carry terminate\n");
+        CLR_I_TALLY;
+        exit = true;
+      }
+      if (TST_I_OFLOW && (cpu.rX[0] & 01)) {
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "is overflow terminate\n");
+// ISOLTS test ps805 says that on overflow the tally should be set.
+        //CLR_I_TALLY;
+        SET_I_TALLY;
+        exit = true;
+      }
+
+      if (exit) {
+        CPT (cpt2L, 13); // RPx terminated
+        cpu.cu.rpt = false;
+        cpu.cu.rd = false;
+        cpu.cu.rl = false;
+      } else {
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "not terminate\n");
+      }
+    } // if (cpu.cu.rpt || cpu.cu.rd & (cpu.PPR.IC & 1))
+
+    if (cpu.cu.rl) {
+      CPT (cpt2L, 11); // RL
+      if (cpu.lnk == 0) {
+        CPT (cpt2L, 13); // RPx terminated
+        cpu.cu.rpt = false;
+        cpu.cu.rd = false;
+        cpu.cu.rl = false;
+        SET_I_TALLY;
+      } else {
+        // C(Xn) -> y
+        uint Xn = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
+        //word18 lnk = GETHI36 (cpu.CY);
+        //cpu.CY &= MASK18;
+        cpu.rX[Xn] = cpu.lnk;
+#ifdef TESTING
+        HDBGRegXW (Xn, "rl");
+#endif
+      }
+    } // rl
+  } // (! rf) && (cpu.cu.rpt || cpu.cu.rd)
+
+  if (unlikely (cpu.dlyFlt)) {
+    CPT (cpt2L, 14); // Delayed fault
+    doFault (cpu.dlyFltNum, cpu.dlySubFltNum, cpu.dlyCtx);
+  }
+
 ///
 /// executeInstruction: scp hooks
 ///
 
-    cpu.instrCnt ++;
+  cpu.instrCnt ++;
 
-    if_sim_debug (DBG_REGDUMP, & cpu_dev)
-    {
-        char buf [256];
-        sim_debug (DBG_REGDUMPAQI, &cpu_dev,
-                   "A=%012"PRIo64" Q=%012"PRIo64" IR:%s\n",
-                   cpu.rA, cpu.rQ, dump_flags (buf, cpu.cu.IR));
+  if_sim_debug (DBG_REGDUMP, & cpu_dev) {
+    char buf [256];
+    sim_debug (DBG_REGDUMPAQI, &cpu_dev, "A=%012"PRIo64" Q=%012"PRIo64" IR:%s\n", cpu.rA, cpu.rQ, dump_flags (buf, cpu.cu.IR));
 #if !defined(__MINGW64__) || !defined(__MINGW32__)
-        sim_debug (DBG_REGDUMPFLT, &cpu_dev,
-                   "E=%03o A=%012"PRIo64" Q=%012"PRIo64" %.10Lg\n",
-                   cpu.rE, cpu.rA, cpu.rQ, EAQToIEEElongdouble ());
+    sim_debug (DBG_REGDUMPFLT, &cpu_dev, "E=%03o A=%012"PRIo64" Q=%012"PRIo64" %.10Lg\n", cpu.rE, cpu.rA, cpu.rQ, EAQToIEEElongdouble ());
 #else
-        sim_debug (DBG_REGDUMPFLT, &cpu_dev,
-                   "E=%03o A=%012"PRIo64" Q=%012"PRIo64" %.10g\n",
-                   cpu.rE, cpu.rA, cpu.rQ, EAQToIEEEdouble ());
+    sim_debug (DBG_REGDUMPFLT, &cpu_dev, "E=%03o A=%012"PRIo64" Q=%012"PRIo64" %.10g\n", cpu.rE, cpu.rA, cpu.rQ, EAQToIEEEdouble ());
 #endif
-        sim_debug (DBG_REGDUMPIDX, &cpu_dev,
-                   "X[0]=%06o X[1]=%06o X[2]=%06o X[3]=%06o\n",
-                   cpu.rX[0], cpu.rX[1], cpu.rX[2], cpu.rX[3]);
-        sim_debug (DBG_REGDUMPIDX, &cpu_dev,
-                   "X[4]=%06o X[5]=%06o X[6]=%06o X[7]=%06o\n",
-                   cpu.rX[4], cpu.rX[5], cpu.rX[6], cpu.rX[7]);
-        for (int n = 0 ; n < 8 ; n++)
-        {
-            sim_debug (DBG_REGDUMPPR, &cpu_dev,
-                       "PR%d/%s: SNR=%05o RNR=%o WORDNO=%06o BITNO:%02o ARCHAR:%o ARBITNO:%02o\n",
-                       n, PRalias[n], cpu.PR[n].SNR, cpu.PR[n].RNR,
-                       cpu.PR[n].WORDNO, GET_PR_BITNO (n),
-                       GET_AR_CHAR (n), GET_AR_BITNO (n));
-        }
-        sim_debug (DBG_REGDUMPPPR, &cpu_dev,
-                   "PRR:%o PSR:%05o P:%o IC:%06o\n",
-                   cpu.PPR.PRR, cpu.PPR.PSR, cpu.PPR.P, cpu.PPR.IC);
-        sim_debug (DBG_REGDUMPDSBR, &cpu_dev,
-                   "ADDR:%08o BND:%05o U:%o STACK:%04o\n",
-                   cpu.DSBR.ADDR, cpu.DSBR.BND, cpu.DSBR.U, cpu.DSBR.STACK);
+    sim_debug (DBG_REGDUMPIDX, &cpu_dev, "X[0]=%06o X[1]=%06o X[2]=%06o X[3]=%06o\n", cpu.rX[0], cpu.rX[1], cpu.rX[2], cpu.rX[3]);
+    sim_debug (DBG_REGDUMPIDX, &cpu_dev, "X[4]=%06o X[5]=%06o X[6]=%06o X[7]=%06o\n", cpu.rX[4], cpu.rX[5], cpu.rX[6], cpu.rX[7]);
+    for (int n = 0 ; n < 8 ; n++) {
+      sim_debug (DBG_REGDUMPPR, &cpu_dev, "PR%d/%s: SNR=%05o RNR=%o WORDNO=%06o BITNO:%02o ARCHAR:%o ARBITNO:%02o\n", n, PRalias[n], cpu.PR[n].SNR, cpu.PR[n].RNR, cpu.PR[n].WORDNO, GET_PR_BITNO (n), GET_AR_CHAR (n), GET_AR_BITNO (n));
     }
+    sim_debug (DBG_REGDUMPPPR, &cpu_dev, "PRR:%o PSR:%05o P:%o IC:%06o\n", cpu.PPR.PRR, cpu.PPR.PSR, cpu.PPR.P, cpu.PPR.IC);
+    sim_debug (DBG_REGDUMPDSBR, &cpu_dev, "ADDR:%08o BND:%05o U:%o STACK:%04o\n", cpu.DSBR.ADDR, cpu.DSBR.BND, cpu.DSBR.U, cpu.DSBR.STACK);
+  }
 
 ///
 /// executeInstruction: done. (Whew!)
 ///
 
-    return ret;
+  return ret;
 }
 
 //static t_stat DoBasicInstruction (void);
@@ -2565,14 +2273,14 @@ static t_stat doInstruction (void)
     if (i->info->ndes > 0)
       CLR_I_MIF;
 
-#ifdef L68
-    cpu.ou.eac      = 0;
-    cpu.ou.RB1_FULL = 0;
-    cpu.ou.RP_FULL  = 0;
-    cpu.ou.RS_FULL  = 0;
-    cpu.ou.STR_OP   = 0;
-    cpu.ou.cycle    = 0;
-#endif
+    L68_ (
+      cpu.ou.eac = 0;
+      cpu.ou.RB1_FULL = 0;
+      cpu.ou.RP_FULL = 0;
+      cpu.ou.RS_FULL = 0;
+      cpu.ou.STR_OP = 0;
+      cpu.ou.cycle = 0;
+    )
     PNL (cpu.ou.RS = (word9) i->opcode);
     PNL (L68_ (DU_CYCLE_FDUD;)) // set DU idle
     cpu.skip_cu_hist = false;
@@ -2585,7 +2293,7 @@ static t_stat doInstruction (void)
     //t_stat ret =  i->opcodeX ? DoEISInstruction () : DoBasicInstruction ();
     uint32 opcode10 = i->opcode10;
 
-#ifdef PANEL
+#ifdef PANEL68
     if (insGrp [opcode10])
       {
         word8 grp = insGrp [opcode10] - 1;
@@ -2594,12 +2302,12 @@ static t_stat doInstruction (void)
         CPT (cpt3U + row, col); // 3U 0-35, 3L 0-17
       }
 #endif
-#ifdef L68
     bool is_ou = false;
-    if (opcodes10[opcode10].reg_use & is_OU)
-      {
+    bool is_du = false;
+    if (cpu.tweaks.l68_mode) { // L68
+      if (opcodes10[opcode10].reg_use & is_OU) {
         is_ou = true;
-# ifdef PANEL
+#ifdef PANEL68
     // XXX Punt on RP FULL, RS FULL
         cpu.ou.RB1_FULL  = cpu.ou.RP_FULL = cpu.ou.RS_FULL = 1;
         cpu.ou.cycle    |= ou_GIN;
@@ -2616,17 +2324,13 @@ static t_stat doInstruction (void)
         if (reguse & ru_X5) CPT (cpt5U, 11);
         if (reguse & ru_X6) CPT (cpt5U, 12);
         if (reguse & ru_X7) CPT (cpt5U, 13);
-# endif
+#endif // PANEL68
       }
-# ifdef L68
-    bool is_du = false;
-    if (opcodes10[opcode10].reg_use & is_DU)
-      {
+      if (opcodes10[opcode10].reg_use & is_DU) {
         is_du = true;
         PNL (DU_CYCLE_nDUD;) // set not idle
       }
-# endif
-#endif // PANEL
+    }
 
     switch (opcode10)
       {
@@ -3234,9 +2938,7 @@ static t_stat doInstruction (void)
           {
             // C(Y)+1->C(Y)
 
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
             bool ovf;
             cpu.CY = Add36b (cpu.CY, 1, 0, I_ZNOC,
                                  & cpu.cu.IR, & ovf);
@@ -3325,7 +3027,7 @@ static t_stat doInstruction (void)
           //  C(TPR.CA) -> C(PPR.IC)
           //  C(TPR.TSR) -> C(PPR.PSR)
           {
-#ifdef PANEL
+#ifdef PANEL68
             uint32 n;
             if (opcode10 <= 0273)
               n = (opcode10 & 3);
@@ -3432,12 +3134,11 @@ static t_stat doInstruction (void)
 
             // AL39 ldi says that HEX is ignored, but the mode register
             // description says that it isn't
-#ifdef DPS8M
-            word18 tmp18 = GETLO (cpu.CY) & 0777770;
-#endif
-#ifdef L68
-            word18 tmp18 = GETLO (cpu.CY) & 0777760;
-#endif
+            word18 tmp18;
+            if (cpu.tweaks.l68_mode)
+               tmp18 = GETLO (cpu.CY) & 0777760; // L68
+            else
+              tmp18 = GETLO (cpu.CY) & 0777770; // DPS8M
 
             bool bAbsPriv = is_priv_mode ();
 
@@ -3455,24 +3156,12 @@ static t_stat doInstruction (void)
             SC_I_TRUNC (tmp18 & I_TRUNC);
             // I_MIF handled below
             // LDI cannot change I_ABS
-#ifdef DPS8M
-            SC_I_HEX  (tmp18 & I_HEX);
-#endif
+            DPS8M_ (SC_I_HEX  (tmp18 & I_HEX);)
 
-#if 0
-            cpu.bar_attempt = false;
-
-#endif
             if (bAbsPriv)
               {
                 SC_I_PMASK (tmp18 & I_PMASK);
                 SC_I_MIF (tmp18 & I_MIF);
-#if 0
-                if (! (tmp18 & I_NBAR))
-                  {
-                    cpu.bar_attempt = true;
-                  }
-#endif
               }
             else
               {
@@ -3530,9 +3219,7 @@ static t_stat doInstruction (void)
 
         case x0 (0076):   // adq
           {
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
             bool ovf;
 #ifdef TESTING
             HDBGRegQR ("adq");
@@ -3695,14 +3382,12 @@ static t_stat doInstruction (void)
           CPTUR (cptUseIR);
             // AL39 sti says that HEX is ignored, but the mode register
             // description says that it isn't
-#ifdef DPS8M
+
           //SETLO (cpu.CY, (cpu.cu.IR & 0000000777770LL));
-          cpu.CY = cpu.cu.IR & 0000000777770LL;
-#endif
-#ifdef L68
+          DPS8M_ (cpu.CY = cpu.cu.IR & 0000000777770LL; )
           //SETLO (cpu.CY, (cpu.cu.IR & 0000000777760LL));
-          cpu.CY = cpu.cu.IR & 0000000777760LL;
-#endif
+          L68_ (cpu.CY = cpu.cu.IR & 0000000777760LL;)
+
           if (cpu.switches.procMode == procModeGCOS)
             cpu.CY = cpu.cu.IR & 0000000777600LL;
           cpu.zone    = 0000000777777;
@@ -3899,10 +3584,8 @@ static t_stat doInstruction (void)
 
         case x0 (0073):   // lreg
           CPTUR (cptUseE);
-#ifdef L68
-          cpu.ou.cycle |= ou_GOS;
-          cpu.ou.eac = 0;
-#endif
+          L68_ (cpu.ou.cycle |= ou_GOS;)
+          L68_ (cpu.ou.eac = 0;)
           cpu.rX[0] = GETHI (cpu.Yblock8[0]);
 #ifdef TESTING
           HDBGRegXW (0, "lreg");
@@ -3911,9 +3594,7 @@ static t_stat doInstruction (void)
 #ifdef TESTING
           HDBGRegXW (1, "lreg");
 #endif
-#ifdef L68
-          cpu.ou.eac ++;
-#endif
+          L68_ (cpu.ou.eac ++;)
           cpu.rX[2] = GETHI (cpu.Yblock8[1]);
 #ifdef TESTING
           HDBGRegXW (2, "lreg");
@@ -3922,9 +3603,7 @@ static t_stat doInstruction (void)
 #ifdef TESTING
           HDBGRegXW (3, "lreg");
 #endif
-#ifdef L68
-          cpu.ou.eac ++;
-#endif
+          L68_ (cpu.ou.eac ++;)
           cpu.rX[4] = GETHI (cpu.Yblock8[2]);
 #ifdef TESTING
           HDBGRegXW (4, "lreg");
@@ -3933,9 +3612,7 @@ static t_stat doInstruction (void)
 #ifdef TESTING
           HDBGRegXW (5, "lreg");
 #endif
-#ifdef L68
-          cpu.ou.eac ++;
-#endif
+          L68_ (cpu.ou.eac ++;)
           cpu.rX[6] = GETHI (cpu.Yblock8[3]);
 #ifdef TESTING
           HDBGRegXW (6, "lreg");
@@ -3944,9 +3621,7 @@ static t_stat doInstruction (void)
 #ifdef TESTING
           HDBGRegXW (7, "lreg");
 #endif
-#ifdef L68
-          cpu.ou.eac = 0;
-#endif
+          L68_ (cpu.ou.eac ++;)
           cpu.rA = cpu.Yblock8[4];
 #ifdef TESTING
           HDBGRegAW ("lreg");
@@ -3976,30 +3651,20 @@ static t_stat doInstruction (void)
           CPTUR (cptUseRALR);
           // clear block (changed to memset() per DJ request)
           //memset (cpu.Yblock8, 0, sizeof (cpu.Yblock8));
-#ifdef L68
-          cpu.ou.cycle |= ou_GOS;
-          cpu.ou.eac = 0;
-#endif
+          L68_ (cpu.ou.cycle |= ou_GOS;)
+          L68_ (cpu.ou.eac = 0;)
           SETHI (cpu.Yblock8[0], cpu.rX[0]);
           SETLO (cpu.Yblock8[0], cpu.rX[1]);
-#ifdef L68
-          cpu.ou.eac ++;
-#endif
+          L68_ (cpu.ou.eac ++;)
           SETHI (cpu.Yblock8[1], cpu.rX[2]);
           SETLO (cpu.Yblock8[1], cpu.rX[3]);
-#ifdef L68
-          cpu.ou.eac ++;
-#endif
+          L68_ (cpu.ou.eac ++;)
           SETHI (cpu.Yblock8[2], cpu.rX[4]);
           SETLO (cpu.Yblock8[2], cpu.rX[5]);
-#ifdef L68
-          cpu.ou.eac ++;
-#endif
+          L68_ (cpu.ou.eac ++;)
           SETHI (cpu.Yblock8[3], cpu.rX[6]);
           SETLO (cpu.Yblock8[3], cpu.rX[7]);
-#ifdef L68
-          cpu.ou.eac = 0;
-#endif
+          L68_ (cpu.ou.eac ++;)
           cpu.Yblock8[4] = cpu.rA;
           cpu.Yblock8[5] = cpu.rQ;
           cpu.Yblock8[6] = ((word36)(cpu.rE & MASK8)) << 28;
@@ -4098,12 +3763,8 @@ static t_stat doInstruction (void)
           SETHI (cpu.CY, (cpu.PPR.IC + 1) & MASK18);
           // AL39 stc1 says that HEX is ignored, but the mode register
           // description says that it isn't
-#ifdef DPS8M
-          SETLO (cpu.CY, cpu.cu.IR & 0777770);
-#endif
-#ifdef L68
-          SETLO (cpu.CY, cpu.cu.IR & 0777760);
-#endif
+          DPS8M_ (SETLO (cpu.CY, cpu.cu.IR & 0777770);)
+          L68_ (SETLO (cpu.CY, cpu.cu.IR & 0777760);)
           SCF (i->stiTally, cpu.CY, I_TALLY);
           break;
 
@@ -4555,9 +4216,7 @@ static t_stat doInstruction (void)
             //  OVR: If range of A is exceeded, then ON
             //  CARRY: If a carry out of A0 is generated, then ON; otherwise OFF
 
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
 #ifdef TESTING
             HDBGRegAR ("ada");
 #endif
@@ -4573,9 +4232,7 @@ static t_stat doInstruction (void)
         case x0 (0077):   // adaq
           {
             // C(AQ) + C(Y-pair) -> C(AQ)
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
 #ifdef TESTING
             HDBGRegAR ("adaq");
             HDBGRegQR ("adaq");
@@ -4596,9 +4253,7 @@ static t_stat doInstruction (void)
         case x0 (0033):   // adl
           {
             // C(AQ) + C(Y) sign extended -> C(AQ)
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
 #ifdef TESTING
             HDBGRegAR ("adl");
             HDBGRegQR ("adl");
@@ -4622,9 +4277,7 @@ static t_stat doInstruction (void)
             // the exception that the overflow indicator is not affected by the
             // adlaq instruction, nor does an overflow fault occur. Operands
             // and results are treated as unsigned, positive binary integers.
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
 #ifdef TESTING
             HDBGRegAR ("adlaq");
             HDBGRegQR ("adlaq");
@@ -4644,9 +4297,7 @@ static t_stat doInstruction (void)
 
         case x0 (0035):   // adla
           {
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
             // The adla instruction is identical to the ada instruction with
             // the exception that the overflow indicator is not affected by the
             // adla instruction, nor does an overflow fault occur. Operands and
@@ -4670,9 +4321,7 @@ static t_stat doInstruction (void)
             // adlq instruction, nor does an overflow fault occur. Operands and
             // results are treated as unsigned, positive binary integers. */
 
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
 #ifdef TESTING
             HDBGRegQR ("adlq");
 #endif
@@ -4694,9 +4343,7 @@ static t_stat doInstruction (void)
         case x0 (0026):   // adlx6
         case x0 (0027):   // adlx7
           {
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
             uint32 n = opcode10 & 07;  // get n
 #ifdef TESTING
             HDBGRegXR (n, "adlxn");
@@ -4723,9 +4370,7 @@ static t_stat doInstruction (void)
         case x0 (0066):   // adx6
         case x0 (0067):   // adx7
           {
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
             uint32 n = opcode10 & 07;  // get n
 #ifdef TESTING
             HDBGRegXR (n, "adxn");
@@ -4748,9 +4393,7 @@ static t_stat doInstruction (void)
           {
             // C(A) + C(Y) -> C(Y)
 
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
 #ifdef TESTING
             HDBGRegAR ("asa");
 #endif
@@ -4764,9 +4407,7 @@ static t_stat doInstruction (void)
         case x0 (0056):   // asq
           {
             // C(Q) + C(Y) -> C(Y)
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
 #ifdef TESTING
             HDBGRegQR ("asa");
 #endif
@@ -4788,9 +4429,7 @@ static t_stat doInstruction (void)
           {
             // For n = 0, 1, ..., or 7 as determined by operation code
             //    C(Xn) + C(Y)0,17 -> C(Y)0,17
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
             uint32 n = opcode10 & 07;  // get n
 #ifdef TESTING
             HDBGRegXR (n, "asxn");
@@ -4808,9 +4447,7 @@ static t_stat doInstruction (void)
             // If carry indicator OFF, then C(A) + C(Y) -> C(A)
             // If carry indicator ON, then C(A) + C(Y) + 1 -> C(A)
 
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
 #ifdef TESTING
             HDBGRegAR ("awca");
 #endif
@@ -4829,9 +4466,7 @@ static t_stat doInstruction (void)
             // If carry indicator OFF, then C(Q) + C(Y) -> C(Q)
             // If carry indicator ON, then C(Q) + C(Y) + 1 -> C(Q)
 
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
 #ifdef TESTING
             HDBGRegQR ("awcq");
 #endif
@@ -4851,9 +4486,7 @@ static t_stat doInstruction (void)
           {
             // C(A) - C(Y) -> C(A)
 
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
 #ifdef TESTING
             HDBGRegAR ("sba");
 #endif
@@ -4869,9 +4502,7 @@ static t_stat doInstruction (void)
         case x0 (0177):  // sbaq
           {
             // C(AQ) - C(Y-pair) -> C(AQ)
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
 #ifdef TESTING
             HDBGRegAR ("sbaq");
             HDBGRegQR ("sbaq");
@@ -4894,9 +4525,7 @@ static t_stat doInstruction (void)
           {
             // C(A) - C(Y) -> C(A) logical
 
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
 #ifdef TESTING
             HDBGRegAR ("sbla");
 #endif
@@ -4916,9 +4545,7 @@ static t_stat doInstruction (void)
             // and results are treated as unsigned, positive binary integers.
             // C(AQ) - C(Y-pair) -> C(AQ)
 
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
 #ifdef TESTING
             HDBGRegAR ("sblaq");
             HDBGRegQR ("sblaq");
@@ -4939,9 +4566,7 @@ static t_stat doInstruction (void)
         case x0 (0136):  // sblq
           {
             // C(Q) - C(Y) -> C(Q)
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
 #ifdef TESTING
             HDBGRegQR ("sblq");
 #endif
@@ -4966,9 +4591,7 @@ static t_stat doInstruction (void)
             // For n = 0, 1, ..., or 7 as determined by operation code
             // C(Xn) - C(Y)0,17 -> C(Xn)
 
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
             uint32 n = opcode10 & 07;  // get n
 #ifdef TESTING
             HDBGRegXR (n, "sblxn");
@@ -4985,9 +4608,7 @@ static t_stat doInstruction (void)
         case x0 (0176):  // sbq
           {
             // C(Q) - C(Y) -> C(Q)
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
 #ifdef TESTING
             HDBGRegQR ("sbq");
 #endif
@@ -5013,9 +4634,7 @@ static t_stat doInstruction (void)
             // For n = 0, 1, ..., or 7 as determined by operation code
             // C(Xn) - C(Y)0,17 -> C(Xn)
 
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
             uint32 n = opcode10 & 07;  // get n
 #ifdef TESTING
             HDBGRegXR (n, "sbxn");
@@ -5034,9 +4653,7 @@ static t_stat doInstruction (void)
           {
             // C(A) - C(Y) -> C(Y)
 
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
 #ifdef TESTING
             HDBGRegAR ("ssa");
 #endif
@@ -5050,9 +4667,7 @@ static t_stat doInstruction (void)
           {
             // C(Q) - C(Y) -> C(Y)
 
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
 #ifdef TESTING
             HDBGRegQR ("ssq");
 #endif
@@ -5075,9 +4690,7 @@ static t_stat doInstruction (void)
             // For uint32 n = 0, 1, ..., or 7 as determined by operation code
             // C(Xn) - C(Y)0,17 -> C(Y)0,17
 
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
             uint32 n = opcode10 & 07;  // get n
 #ifdef TESTING
             HDBGRegXR (n, "ssxn");
@@ -5095,9 +4708,7 @@ static t_stat doInstruction (void)
             // If carry indicator ON, then C(A)- C(Y) -> C(A)
             // If carry indicator OFF, then C(A) - C(Y) - 1 -> C(A)
 
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
 #ifdef TESTING
             HDBGRegAR ("swca");
 #endif
@@ -5116,9 +4727,7 @@ static t_stat doInstruction (void)
             // If carry indicator ON, then C(Q) - C(Y) -> C(Q)
             // If carry indicator OFF, then C(Q) - C(Y) - 1 -> C(Q)
 
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
 #ifdef TESTING
             HDBGRegQR ("swcq");
 #endif
@@ -5145,9 +4754,7 @@ static t_stat doInstruction (void)
             // containing negative 1 and the result exceeding the range of
             // the AQ register.
 
-#ifdef L68
-            cpu.ou.cycle |= ou_GD1;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GD1;)
 #ifdef NEED_128
 # ifdef TESTING
             HDBGRegAR ("mpf");
@@ -5161,9 +4768,7 @@ static t_stat doInstruction (void)
             tmp72 &= MASK72;
             tmp72 <<= 1;    // left adjust so AQ71 contains 0
 #endif
-#ifdef L68
-            cpu.ou.cycle |= ou_GD2;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GD2;)
             // Overflow can occur only in the case of A and Y containing
             // negative 1
             if (cpu.rA == MAXNEG && cpu.CY == MAXNEG)
@@ -5187,9 +4792,7 @@ static t_stat doInstruction (void)
           // C(Q) * C(Y) -> C(AQ), right adjusted
 
           {
-#ifdef L68
-            cpu.ou.cycle |= ou_GOS;
-#endif
+            L68_ (cpu.ou.cycle |= ou_GOS;)
 #ifdef NEED_128
 # ifdef TESTING
             HDBGRegQR ("mpy");
@@ -5234,9 +4837,7 @@ static t_stat doInstruction (void)
           // * fault occurs, C(Q) contains the dividend magnitude, and the
           // * negative indicator reflects the dividend sign.
 
-#ifdef L68
-          cpu.ou.cycle |= ou_GD1;
-#endif
+          L68_ (cpu.ou.cycle |= ou_GD1;)
           // RJ78: If the dividend = -2**35 and the divisor = +/-1, or if
           // the divisor is 0
 
@@ -5288,9 +4889,7 @@ static t_stat doInstruction (void)
 #endif
 
               t_int64 quotient = dividend / divisor;
-#ifdef L68
-              cpu.ou.cycle |= ou_GD2;
-#endif
+              L68_ (cpu.ou.cycle |= ou_GD2;)
               t_int64 remainder = dividend % divisor;
 #ifdef TESTING
 # ifdef DIV_TRACE
@@ -7128,12 +6727,11 @@ static t_stat doInstruction (void)
             // field of the instruction are used to specify which SCU.
             // init_processor.alm systematically steps through the SCUs,
             // using addresses 000000 100000 200000 300000.
-#ifdef DPS8M
-            uint cpu_port_num = (cpu.TPR.CA >> 15) & 03;
-#endif
-#ifdef L68
-            uint cpu_port_num = (cpu.TPR.CA >> 15) & 07;
-#endif
+            uint cpu_port_num;
+            if (cpu.tweaks.l68_mode)
+              cpu_port_num = (cpu.TPR.CA >> 15) & 07;
+            else
+              cpu_port_num = (cpu.TPR.CA >> 15) & 03;
             if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
               {
                 sim_warn ("rccl on CPU %u port %d has no SCU; faulting\n",
@@ -7489,9 +7087,7 @@ static t_stat doInstruction (void)
                   //if (clear) // a:AL39/cmr2
                     //{
                     //}
-#ifdef L68
-                  cpu.CMR.opnd_on = getbits36_1 (cpu.CY, 56 - 36);
-#endif
+                  L68_ (cpu.CMR.opnd_on = getbits36_1 (cpu.CY, 56 - 36);)
                   cpu.CMR.inst_on = getbits36_1 (cpu.CY, 57 - 36);
                   cpu.CMR.csh_reg = getbits36_1 (cpu.CY, 59 - 36);
                   if (cpu.CMR.csh_reg)
@@ -7499,96 +7095,40 @@ static t_stat doInstruction (void)
                   // cpu.CMR.str_asd = <ignored for lcpr>
                   // cpu.CMR.col_ful = <ignored for lcpr>
                   // cpu.CMR.rro_AB = getbits36_1 (cpu.CY, 18);
-#ifdef DPS8M
-                  cpu.CMR.bypass_cache = getbits36_1 (cpu.CY, 68 - 36);
-#endif
+                  DPS8M_ (cpu.CMR.bypass_cache = getbits36_1 (cpu.CY, 68 - 36);)
                   cpu.CMR.luf = getbits36_2 (cpu.CY, 70 - 36);
                 }
                 break;
 
               case 04: // mode register
                 {
-#if 1
                   CPTUR (cptUseMR);
                   cpu.MR.r = cpu.CY;
 // XXX TEST/NORMAL switch is set to NORMAL
                   putbits36_1 (& cpu.MR.r, 32, 0);
 // SBZ
                   putbits36_2 (& cpu.MR.r, 33, 0);
-# ifdef L68
-                  cpu.MR.FFV                = getbits36_15 (cpu.CY, 0);
-                  cpu.MR.OC_TRAP            = getbits36_1  (cpu.CY, 16);
-                  cpu.MR.ADR_TRAP           = getbits36_1  (cpu.CY, 17);
-                  cpu.MR.OPCODE             = getbits36_9  (cpu.CY, 18);
-                  cpu.MR.OPCODEX            = getbits36_1  (cpu.CY, 27);
-# endif
-                  cpu.MR.sdpap              = getbits36_1  (cpu.CY, 20);
-                  cpu.MR.separ              = getbits36_1  (cpu.CY, 21);
-                  cpu.MR.hrhlt              = getbits36_1  (cpu.CY, 28);
-# ifdef DPS8M
-                  cpu.MR.hrxfr              = getbits36_1  (cpu.CY, 29);
-# endif
-                  cpu.MR.ihr                = getbits36_1  (cpu.CY, 30);
-                  cpu.MR.ihrrs              = getbits36_1  (cpu.CY, 31);
-                  cpu.MR.emr                = getbits36_1  (cpu.CY, 35);
-# ifdef DPS8M
-                  cpu.MR.hexfp              = getbits36_1  (cpu.CY, 33);
-# endif
-#else
-# ifdef L68
-                  cpu.MR.FFV                = getbits36_15 (cpu.CY, 0);
-                  cpu.MR.isolts_tracks      = getbits36_1  (cpu.CY, 15);
-                  cpu.MR.OC_TRAP            = getbits36_1  (cpu.CY, 16);
-                  cpu.MR.ADR_TRAP           = getbits36_1  (cpu.CY, 17);
-                  cpu.MR.hropc              = getbits36_1  (cpu.CY, 29);
-#  if 1
-                  //if (cpu.MR.OC_TRAP)
-                  if (cpu.MR.OC_TRAP || cpu.MR.hropc)
-                    {
-                      cpu.MR.OPCODE         = getbits36_10 (cpu.CY, 18);
-                    }
-                  else
-#  endif
-                    {
-                      cpu.MR.cuolin         = getbits36_1 (cpu.CY, 18);
-                      cpu.MR.solin          = getbits36_1 (cpu.CY, 19);
-                      cpu.MR.sdpap          = getbits36_1 (cpu.CY, 20);
-                      cpu.MR.separ          = getbits36_1 (cpu.CY, 21);
-// tm/vm are only set if the processor maintenance panel PROG switch is on
-#  if 1
-                      cpu.MR.tm             = getbits36_2 (cpu.CY, 22);
-                      cpu.MR.vm             = getbits36_2 (cpu.CY, 24);
-                      cpu.MR.isolts_tracks2 = getbits36_2 (cpu.CY, 26);
-#  endif
-                    }
-                  cpu.MR.hrhlt              = getbits36_1 (cpu.CY, 28);
-                  // Captured above
-                  //cpu.MR.hropc            = getbits36_1 (cpu.CY, 29);
-                  cpu.MR.ihr                = getbits36_1 (cpu.CY, 30);
-                  cpu.MR.ihrrs              = getbits36_1 (cpu.CY, 31);
-                  //cpu.MR.mrgctl           = getbits36_1 (cpu.CY, 32);
-                  cpu.MR.emr                = getbits36_1 (cpu.CY, 35);
-# endif
-# ifdef DPS8M
-                  cpu.MR.cuolin             = getbits36_1 (cpu.CY, 18);
-                  cpu.MR.solin              = getbits36_1 (cpu.CY, 19);
-                  cpu.MR.sdpap              = getbits36_1 (cpu.CY, 20);
-                  cpu.MR.separ              = getbits36_1 (cpu.CY, 21);
-// tm/vm are only set if the processor maintenance panel PROG switch is on
-#  if 1
-                  cpu.MR.tm                 = getbits36_2 (cpu.CY, 22);
-                  cpu.MR.vm                 = getbits36_2 (cpu.CY, 24);
-                  cpu.MR.isolts_tracks2     = getbits36_2 (cpu.CY, 26);
-#  endif
-                  cpu.MR.hrhlt              = getbits36_1 (cpu.CY, 28);
-                  cpu.MR.hrxfr              = getbits36_1 (cpu.CY, 29);
-                  cpu.MR.ihr                = getbits36_1 (cpu.CY, 30);
-                  cpu.MR.ihrrs              = getbits36_1 (cpu.CY, 31);
-                  //cpu.MR.mrgctl           = getbits36_1 (cpu.CY, 32);
-                  cpu.MR.hexfp              = getbits36_1 (cpu.CY, 33);
-                  cpu.MR.emr                = getbits36_1 (cpu.CY, 35);
-# endif
-#endif
+                  L68_ (
+                    cpu.MR.FFV = getbits36_15 (cpu.CY, 0);
+                    cpu.MR.OC_TRAP = getbits36_1 (cpu.CY, 16);
+                    cpu.MR.ADR_TRAP = getbits36_1 (cpu.CY, 17);
+                    cpu.MR.OPCODE = getbits36_9 (cpu.CY, 18);
+                    cpu.MR.OPCODEX = getbits36_1 (cpu.CY, 27);
+                  )
+                  cpu.MR.sdpap = getbits36_1 (cpu.CY, 20);
+                  cpu.MR.separ = getbits36_1 (cpu.CY, 21);
+                  cpu.MR.hrhlt = getbits36_1 (cpu.CY, 28);
+                  DPS8M_ (cpu.MR.hrxfr = getbits36_1 (cpu.CY, 29);)
+                  cpu.MR.ihr = getbits36_1 (cpu.CY, 30);
+                  cpu.MR.ihrrs = getbits36_1 (cpu.CY, 31);
+                  cpu.MR.emr = getbits36_1 (cpu.CY, 35);
+                  if (! cpu.tweaks.l68_mode) // DPS8M
+                    if (cpu.options.hex_mode_installed)
+                      cpu.MR.hexfp = getbits36_1 (cpu.CY, 33);
+                    else
+                      cpu.MR.hexfp = 0;
+                 else // L68
+                    cpu.MR.hexfp = 0;
 
                   // Stop HR Strobe on HR Counter Overflow. (Setting bit 28
                   // shall cause the HR counter to be reset to zero.)
@@ -7676,11 +7216,8 @@ elapsedtime ();
           break;
 
         case x1 (0257):  // lptp
-#ifdef DPS8M
-          break;
-#endif
-#ifdef L68
-          {
+
+          if (cpu.tweaks.l68_mode) {
             // For i = 0, 1, ..., 15
             //   m = C(PTWAM(i).USE)
             //   C(Y-block16+m)0,14 -> C(PTWAM(m).POINTER)
@@ -7696,14 +7233,9 @@ elapsedtime ();
               }
           }
           break;
-#endif
 
         case x1 (0173):  // lptr
-#ifdef DPS8M
-          break;
-#endif
-#ifdef L68
-          {
+          if (cpu.tweaks.l68_mode) {
             // For i = 0, 1, ..., 15
             //   m = C(PTWAM(i).USE)
             //   C(Y-block16+m)0,17 -> C(PTWAM(m).ADDR)
@@ -7716,7 +7248,6 @@ elapsedtime ();
               }
           }
           break;
-#endif
 
         case x1 (0774):  // lra
             CPTUR (cptUseRALR);
@@ -7732,11 +7263,7 @@ elapsedtime ();
             break;
 
         case x0 (0257):  // lsdp
-#ifdef DPS8M
-          break;
-#endif
-#ifdef L68
-          {
+          if (cpu.tweaks.l68_mode) {
             // For i = 0, 1, ..., 15
             //   m = C(SDWAM(i).USE)
             //   C(Y-block16+m)0,14 -> C(SDWAM(m).POINTER)
@@ -7749,14 +7276,9 @@ elapsedtime ();
               }
           }
           break;
-#endif
 
         case x1 (0232):  // lsdr
-#ifdef DPS8M
-          break;
-#endif
-#ifdef L68
-          {
+          if (cpu.tweaks.l68_mode) {
             // For i = 0, 1, ..., 15
             //   m = C(SDWAM(i).USE)
             //   C(Y-block32+2m)0,23  -> C(SDWAM(m).ADDR)
@@ -7785,7 +7307,6 @@ elapsedtime ();
               }
           }
           break;
-#endif
 
         case x0 (0613):  // rcu
           doRCU (); // never returns!
@@ -7800,14 +7321,10 @@ elapsedtime ();
               {
                 case 000: // C(APU history register#1) -> C(Y-pair)
                   {
-                    cpu.Ypair[0] =
-                      cpu.history[APU_HIST_REG]
-                                 [cpu.history_cyclic[APU_HIST_REG]][0];
-                    cpu.Ypair[1] =
-                      cpu.history[APU_HIST_REG]
-                                 [cpu.history_cyclic[APU_HIST_REG]][1];
-                    cpu.history_cyclic[APU_HIST_REG] =
-                      (cpu.history_cyclic[APU_HIST_REG] + 1) % N_HIST_SIZE;
+                    uint reg = cpu.tweaks.l68_mode ? L68_APU_HIST_REG : DPS8M_APU_HIST_REG;
+                    cpu.Ypair[0] = cpu.history[reg] [cpu.history_cyclic[reg]][0];
+                    cpu.Ypair[1] = cpu.history[reg] [cpu.history_cyclic[reg]][1];
+                    cpu.history_cyclic[reg] = (cpu.history_cyclic[reg] + 1) % N_MODEL_HIST_SIZE;
                   }
                   break;
 
@@ -7830,115 +7347,32 @@ elapsedtime ();
                     putbits36_1 (& cpu.Ypair[0], 20, cpu.MR.sdpap);
                     putbits36_1 (& cpu.Ypair[0], 21, cpu.MR.separ);
                     putbits36_1 (& cpu.Ypair[0], 30, cpu.MR.ihr);
-#ifdef DPS8M
-                    putbits36_1 (& cpu.Ypair[0], 33, cpu.MR.hexfp);
-#endif
-#if 0
-                    cpu.Ypair[0] = 0;
-# ifdef L68
-                    putbits36_15 (& cpu.Ypair[0],  0, cpu.MR.FFV);
-                    putbits36_1  (& cpu.Ypair[0], 15, cpu.MR.isolts_tracks);
-                    putbits36_1  (& cpu.Ypair[0], 16, cpu.MR.OC_TRAP);
-                    putbits36_1  (& cpu.Ypair[0], 17, cpu.MR.ADR_TRAP);
-#  if 1
-                    if (cpu.MR.OC_TRAP || cpu.MR.hropc)
-                      {
-                        putbits36_10 (& cpu.Ypair[0], 18, cpu.MR.OPCODE);
-                      }
-                    else
-#  endif
-                      {
-                        putbits36_1 (& cpu.Ypair[0], 18, cpu.MR.cuolin);
-                        putbits36_1 (& cpu.Ypair[0], 19, cpu.MR.solin);
-                        putbits36_1 (& cpu.Ypair[0], 20, cpu.MR.sdpap);
-                        putbits36_1 (& cpu.Ypair[0], 21, cpu.MR.separ);
-// tm/vm are only set if the processor maintenance panel PROG switch is on
-#  if 1
-                        putbits36_2 (& cpu.Ypair[0], 22, cpu.MR.tm);
-                        putbits36_2 (& cpu.Ypair[0], 24, cpu.MR.vm);
-#  else
-                        putbits36_2 (& cpu.Ypair[0], 22, 01llu);
-                        putbits36_2 (& cpu.Ypair[0], 24, 01llu);
-#  endif
-                      }
-# endif
-# ifdef DPS8M
-                    putbits36_1 (& cpu.Ypair[0], 18, cpu.MR.cuolin);
-                    putbits36_1 (& cpu.Ypair[0], 19, cpu.MR.solin);
-                    putbits36_1 (& cpu.Ypair[0], 20, cpu.MR.sdpap);
-                    putbits36_1 (& cpu.Ypair[0], 21, cpu.MR.separ);
-# endif
-// tm/vm are only set if the processor maintenance panel PROG switch is on
-# if 1
-                    putbits36_2 (& cpu.Ypair[0], 22, cpu.MR.tm);
-                    putbits36_2 (& cpu.Ypair[0], 24, cpu.MR.vm);
-                    putbits36_2 (& cpu.Ypair[0], 26, cpu.MR.isolts_tracks2);
-# else
-                    putbits36_2 (& cpu.Ypair[0], 22, 01llu);
-                    putbits36_2 (& cpu.Ypair[0], 24, 01llu);
-                    putbits36_2 (& cpu.Ypair[0], 26, 03llu);
-# endif
-                    putbits36_1 (& cpu.Ypair[0], 28, cpu.MR.hrhlt);
-# ifdef DPS8M
-                    putbits36_1 (& cpu.Ypair[0], 29, cpu.MR.hrxfr);
-# endif
-# ifdef L68
-                    putbits36_1 (& cpu.Ypair[0], 29, cpu.MR.hropc);
-# endif
-                    putbits36_1 (& cpu.Ypair[0], 30, cpu.MR.ihr);
-                    putbits36_1 (& cpu.Ypair[0], 31, cpu.MR.ihrrs);
-                  //putbits36_1 (& cpu.Ypair[0], 32, cpu.MR.mrgctl);
-# ifdef DPS8M
-                    putbits36_1 (& cpu.Ypair[0], 33, cpu.MR.hexfp);
-# endif
-                    putbits36_1 (& cpu.Ypair[0], 35, cpu.MR.emr);
-#endif
+                    DPS8M_ (putbits36_1 (& cpu.Ypair[0], 33, cpu.MR.hexfp);)
                     CPTUR (cptUseCMR);
                     cpu.Ypair[1] = 0;
                     putbits36_15 (& cpu.Ypair[1], 36 - 36,
                                   cpu.CMR.cache_dir_address);
-                    putbits36_1  (& cpu.Ypair[1], 51 - 36, cpu.CMR.par_bit);
-                    putbits36_1  (& cpu.Ypair[1], 52 - 36, cpu.CMR.lev_ful);
-                    putbits36_1  (& cpu.Ypair[1], 54 - 36, cpu.CMR.csh1_on);
-                    putbits36_1  (& cpu.Ypair[1], 55 - 36, cpu.CMR.csh2_on);
-#ifdef L68
-                    putbits36_1  (& cpu.Ypair[1], 56 - 36, cpu.CMR.opnd_on);
-#endif
-                    putbits36_1  (& cpu.Ypair[1], 57 - 36, cpu.CMR.inst_on);
-                    putbits36_1  (& cpu.Ypair[1], 59 - 36, cpu.CMR.csh_reg);
-                    putbits36_1  (& cpu.Ypair[1], 60 - 36, cpu.CMR.str_asd);
-                    putbits36_1  (& cpu.Ypair[1], 61 - 36, cpu.CMR.col_ful);
-                    putbits36_2  (& cpu.Ypair[1], 62 - 36, cpu.CMR.rro_AB);
-#ifdef DPS8M
-                    putbits36_1  (& cpu.Ypair[1], 68 - 36,
-                                  cpu.CMR.bypass_cache);
-#endif
-                    putbits36_2  (& cpu.Ypair[1], 70 - 36, cpu.CMR.luf);
+                    putbits36_1 (& cpu.Ypair[1], 51 - 36, cpu.CMR.par_bit);
+                    putbits36_1 (& cpu.Ypair[1], 52 - 36, cpu.CMR.lev_ful);
+                    putbits36_1 (& cpu.Ypair[1], 54 - 36, cpu.CMR.csh1_on);
+                    putbits36_1 (& cpu.Ypair[1], 55 - 36, cpu.CMR.csh2_on);
+                    L68_ (putbits36_1 (& cpu.Ypair[1], 56 - 36, cpu.CMR.opnd_on);)
+                    putbits36_1 (& cpu.Ypair[1], 57 - 36, cpu.CMR.inst_on);
+                    putbits36_1 (& cpu.Ypair[1], 59 - 36, cpu.CMR.csh_reg);
+                    putbits36_1 (& cpu.Ypair[1], 60 - 36, cpu.CMR.str_asd);
+                    putbits36_1 (& cpu.Ypair[1], 61 - 36, cpu.CMR.col_ful);
+                    putbits36_2 (& cpu.Ypair[1], 62 - 36, cpu.CMR.rro_AB);
+                    DPS8M_ (putbits36_1 (& cpu.Ypair[1], 68 - 36, cpu.CMR.bypass_cache);)
+                    putbits36_2 (& cpu.Ypair[1], 70 - 36, cpu.CMR.luf);
                   }
                   break;
 
                 case 010: // C(APU history register#2) -> C(Y-pair)
                   {
-#ifdef DPS8M
-                    cpu.Ypair[0] =
-                      cpu.history[EAPU_HIST_REG]
-                                 [cpu.history_cyclic[EAPU_HIST_REG]][0];
-                    cpu.Ypair[1] =
-                      cpu.history[EAPU_HIST_REG]
-                                 [cpu.history_cyclic[EAPU_HIST_REG]][1];
-                    cpu.history_cyclic[EAPU_HIST_REG] =
-                      (cpu.history_cyclic[EAPU_HIST_REG] + 1) % N_HIST_SIZE;
-#endif
-#ifdef L68
-                    cpu.Ypair[0] =
-                      cpu.history[DU_HIST_REG]
-                                 [cpu.history_cyclic[DU_HIST_REG]][0];
-                    cpu.Ypair[1] =
-                      cpu.history[DU_HIST_REG]
-                                 [cpu.history_cyclic[DU_HIST_REG]][1];
-                    cpu.history_cyclic[DU_HIST_REG] =
-                      (cpu.history_cyclic[DU_HIST_REG] + 1) % N_HIST_SIZE;
-#endif
+                    uint reg = cpu.tweaks.l68_mode ? L68_DU_HIST_REG : DPS8M_EAPU_HIST_REG;
+                    cpu.Ypair[0] = cpu.history[reg] [cpu.history_cyclic[reg]][0];
+                    cpu.Ypair[1] = cpu.history[reg] [cpu.history_cyclic[reg]][1];
+                    cpu.history_cyclic[reg] = (cpu.history_cyclic[reg] + 1) % N_MODEL_HIST_SIZE;
                   }
                   break;
 
@@ -7951,32 +7385,16 @@ elapsedtime ();
                       cpu.history[CU_HIST_REG]
                                  [cpu.history_cyclic[CU_HIST_REG]][1];
                     cpu.history_cyclic[CU_HIST_REG] =
-                      (cpu.history_cyclic[CU_HIST_REG] + 1) % N_HIST_SIZE;
+                      (cpu.history_cyclic[CU_HIST_REG] + 1) % N_MODEL_HIST_SIZE;
                   }
                   break;
 
                 case 040: // C(OU/DU history register) -> C(Y-pair)
                   {
-#ifdef DPS8M
-                    cpu.Ypair[0] =
-                      cpu.history[DU_OU_HIST_REG]
-                                 [cpu.history_cyclic[DU_OU_HIST_REG]][0];
-                    cpu.Ypair[1] =
-                     cpu.history[DU_OU_HIST_REG]
-                                 [cpu.history_cyclic[DU_OU_HIST_REG]][1];
-                    cpu.history_cyclic[DU_OU_HIST_REG] =
-                      (cpu.history_cyclic[DU_OU_HIST_REG] + 1) % N_HIST_SIZE;
-#endif
-#ifdef L68
-                    cpu.Ypair[0] =
-                      cpu.history[OU_HIST_REG]
-                                 [cpu.history_cyclic[OU_HIST_REG]][0];
-                    cpu.Ypair[1] =
-                      cpu.history[OU_HIST_REG]
-                                 [cpu.history_cyclic[OU_HIST_REG]][1];
-                    cpu.history_cyclic[OU_HIST_REG] =
-                      (cpu.history_cyclic[OU_HIST_REG] + 1) % N_HIST_SIZE;
-#endif
+                    uint reg = cpu.tweaks.l68_mode ? L68_OU_HIST_REG : DPS8M_DU_OU_HIST_REG;
+                    cpu.Ypair[0] = cpu.history[reg] [cpu.history_cyclic[reg]][0];
+                    cpu.Ypair[1] = cpu.history[reg] [cpu.history_cyclic[reg]][1];
+                    cpu.history_cyclic[reg] = (cpu.history_cyclic[reg] + 1) % N_MODEL_HIST_SIZE;
                   }
                   break;
 
@@ -8037,25 +7455,20 @@ elapsedtime ();
 // XXX AL39 The associative memory is ignored (forced to "no match") during address
 // preparation.
             // Level j is selected by C(TPR.CA)12,13
-#ifdef DPS8M
-            uint level = (cpu.TPR.CA >> 4) & 03;
-#endif
-#ifdef L68
-            uint level = 0;
-#endif
+            uint level;
+            L68_ (level = 0;)
+            DPS8M_ (level = (cpu.TPR.CA >> 4) & 03;)
             uint toffset = level * 16;
             for (uint j = 0; j < 16; j ++)
               {
                 cpu.Yblock16[j] = 0;
                 putbits36_15 (& cpu.Yblock16[j],  0,
                            cpu.PTWAM[toffset + j].POINTER);
-#ifdef DPS8M
-                putbits36_12 (& cpu.Yblock16[j], 15,
-                           cpu.PTWAM[toffset + j].PAGENO & 07760);
+                DPS8M_ (
+                  putbits36_12 (& cpu.Yblock16[j], 15, cpu.PTWAM[toffset + j].PAGENO & 07760);
 
-                uint parity = 0;
-                if (cpu.PTWAM[toffset + j].FE)
-                {
+                  uint parity = 0;
+                  if (cpu.PTWAM[toffset + j].FE) {
                     // calculate parity
                     // 58009997-040 p.101,111
                     parity = ((uint) cpu.PTWAM[toffset + j].POINTER << 4) | (cpu.PTWAM[toffset + j].PAGENO >> 8);
@@ -8063,24 +7476,14 @@ elapsedtime ();
                     parity = parity ^ (parity >> 8);
                     parity = parity ^ (parity >> 4);
                     parity = ~ (0x6996u >> (parity & 0xf));
-                }
-                putbits36_1 (& cpu.Yblock16[j], 23, (word1) (parity & 1));
-#endif
-#ifdef L68
-                putbits36_12 (& cpu.Yblock16[j], 15,
-                           cpu.PTWAM[toffset + j].PAGENO);
-#endif
+                  }
+                  putbits36_1 (& cpu.Yblock16[j], 23, (word1) (parity & 1));
+                )
+                L68_ (putbits36_12 (& cpu.Yblock16[j], 15, cpu.PTWAM[toffset + j].PAGENO); )
                 putbits36_1 (& cpu.Yblock16[j], 27,
                            cpu.PTWAM[toffset + j].FE);
-#ifdef DPS8M
-                putbits36_6 (& cpu.Yblock16[j], 30,
-                           cpu.PTWAM[toffset + j].USE);
-#endif
-#ifdef L68
-                putbits36_4 (& cpu.Yblock16[j], 32,
-                           cpu.PTWAM[toffset + j].USE);
-#endif
-
+                DPS8M_ (putbits36_6 (& cpu.Yblock16[j], 30, cpu.PTWAM[toffset + j].USE);)
+                L68_ (putbits36_4 (& cpu.Yblock16[j], 32, cpu.PTWAM[toffset + j].USE);)
               }
           }
           break;
@@ -8091,24 +7494,15 @@ elapsedtime ();
 // preparation.
 
             // Level j is selected by C(TPR.CA)12,13
-#ifdef DPS8M
-            uint level = (cpu.TPR.CA >> 4) & 03;
-#endif
-#ifdef L68
-            uint level = 0;
-#endif
+            uint level;
+            DPS8M_ (level = (cpu.TPR.CA >> 4) & 03;)
+            L68_ (level = 0;)
             uint toffset = level * 16;
             for (uint j = 0; j < 16; j ++)
               {
                 cpu.Yblock16[j] = 0;
-#ifdef DPS8M
-                putbits36_18 (& cpu.Yblock16[j], 0,
-                              cpu.PTWAM[toffset + j].ADDR & 0777760);
-#endif
-#ifdef L68
-                putbits36_18 (& cpu.Yblock16[j], 0,
-                              cpu.PTWAM[toffset + j].ADDR);
-#endif
+                DPS8M_ (putbits36_18 (& cpu.Yblock16[j], 0, cpu.PTWAM[toffset + j].ADDR & 0777760);)
+                L68_ (putbits36_18 (& cpu.Yblock16[j], 0, cpu.PTWAM[toffset + j].ADDR);)
                 putbits36_1 (& cpu.Yblock16[j], 29,
                              cpu.PTWAM[toffset + j].M);
               }
@@ -8120,12 +7514,9 @@ elapsedtime ();
             // XXX AL39: The associative memory is ignored (forced to "no match")
             // during address preparation.
             // Level j is selected by C(TPR.CA)12,13
-#ifdef DPS8M
-            uint level = (cpu.TPR.CA >> 4) & 03;
-#endif
-#ifdef L68
-            uint level = 0;
-#endif
+            uint level;
+            DPS8M_ (level = (cpu.TPR.CA >> 4) & 03;)
+            L68_ (level = 0;)
             uint toffset = level * 16;
             for (uint j = 0; j < 16; j ++)
               {
@@ -8134,10 +7525,9 @@ elapsedtime ();
                            cpu.SDWAM[toffset + j].POINTER);
                 putbits36_1 (& cpu.Yblock16[j], 27,
                            cpu.SDWAM[toffset + j].FE);
-#ifdef DPS8M
-                uint parity = 0;
-                if (cpu.SDWAM[toffset + j].FE)
-                {
+                DPS8M_ (
+                  uint parity = 0;
+                  if (cpu.SDWAM[toffset + j].FE) {
                     // calculate parity
                     // 58009997-040 p.112
                     parity = cpu.SDWAM[toffset + j].POINTER >> 4;
@@ -8145,16 +7535,12 @@ elapsedtime ();
                     parity = parity ^ (parity >> 8);
                     parity = parity ^ (parity >> 4);
                     parity = ~ (0x6996u >> (parity & 0xf));
-                }
-                putbits36_1 (& cpu.Yblock16[j], 15, (word1) (parity & 1));
+                  }
+                  putbits36_1 (& cpu.Yblock16[j], 15, (word1) (parity & 1));
 
-                putbits36_6 (& cpu.Yblock16[j], 30,
-                           cpu.SDWAM[toffset + j].USE);
-#endif
-#ifdef L68
-                putbits36_4 (& cpu.Yblock16[j], 32,
-                           cpu.SDWAM[toffset + j].USE);
-#endif
+                  putbits36_6 (& cpu.Yblock16[j], 30, cpu.SDWAM[toffset + j].USE);
+                )
+                L68_ (putbits36_4 (& cpu.Yblock16[j], 32, cpu.SDWAM[toffset + j].USE);)
               }
           }
           break;
@@ -8166,12 +7552,9 @@ elapsedtime ();
 
             // Level j is selected by C(TPR.CA)11,12
             // Note: not bits 12,13. This is due to operand being Yblock32
-#ifdef DPS8M
-            uint level = (cpu.TPR.CA >> 5) & 03;
-#endif
-#ifdef L68
             uint level = 0;
-#endif
+            DPS8M_ (level = (cpu.TPR.CA >> 5) & 03;)
+            L68_ (level = 0;)
             uint toffset = level * 16;
             for (uint j = 0; j < 16; j ++)
               {
@@ -8218,19 +7601,13 @@ elapsedtime ();
             // The full/empty bit of cache PTWAM register is set to zero and
             // the LRU counters are initialized.
             if (cpu.tweaks.enable_wam)
-              {
-#ifdef DPS8M
-                if (cpu.cu.PT_ON) // only clear when enabled
-#endif
-                    for (uint i = 0; i < N_WAM_ENTRIES; i ++)
+              { // disabled, do nothing
+                if (cpu.tweaks.l68_mode || cpu.cu.PT_ON) // only clear when enabled
+                    for (uint i = 0; i < N_MODEL_WAM_ENTRIES; i ++)
                       {
                         cpu.PTWAM[i].FE = 0;
-#ifdef L68
-                        cpu.PTWAM[i].USE = (word4) i;
-#endif
-#ifdef DPS8M
-                        cpu.PTWAM[i].USE = 0;
-#endif
+                        L68_ (cpu.PTWAM[i].USE = (word4) i;)
+                        DPS8M_ (cpu.PTWAM[i].USE = 0;)
                       }
 
 // 58009997-040 A level of the associative memory is disabled if
@@ -8244,10 +7621,8 @@ elapsedtime ();
 // This is contrary to what AL39 says, so I'm not going to implement it.
 // In fact, I'm not even going to implement the halves.
 
-#ifdef DPS8M
-                if (cpu.TPR.CA != 0000002 && (cpu.TPR.CA & 3) != 0)
-                  sim_warn ("CAMP ignores enable/disable %06o\n", cpu.TPR.CA);
-#endif
+                DPS8M_ (if (cpu.TPR.CA != 0000002 && (cpu.TPR.CA & 3) != 0)
+                  sim_warn ("CAMP ignores enable/disable %06o\n", cpu.TPR.CA);)
                 if ((cpu.TPR.CA & 3) == 02)
                   cpu.cu.PT_ON = 1;
                 else if ((cpu.TPR.CA & 3) == 01)
@@ -8272,18 +7647,12 @@ elapsedtime ();
             // This may be done to either or both halves.
             if (cpu.tweaks.enable_wam)
               {
-#ifdef DPS8M
-                if (cpu.cu.SD_ON) // only clear when enabled
-#endif
-                    for (uint i = 0; i < N_WAM_ENTRIES; i ++)
+                if (cpu.tweaks.l68_mode || cpu.cu.SD_ON) // only clear when enabled
+                    for (uint i = 0; i < N_MODEL_WAM_ENTRIES; i ++)
                       {
                         cpu.SDWAM[i].FE = 0;
-#ifdef L68
-                        cpu.SDWAM[i].USE = (word4) i;
-#endif
-#ifdef DPS8M
-                        cpu.SDWAM[i].USE = 0;
-#endif
+                        L68_ (cpu.SDWAM[i].USE = (word4) i;)
+                        DPS8M_ (cpu.SDWAM[i].USE = 0;)
                       }
 // 58009997-040 A level of the associative memory is disabled if
 // C(TPR.CA) 16,17 = 01
@@ -8296,10 +7665,8 @@ elapsedtime ();
 // This is contrary to what AL39 says, so I'm not going to implement it. In
 // fact, I'm not even going to implement the halves.
 
-#ifdef DPS8M
-                if (cpu.TPR.CA != 0000006 && (cpu.TPR.CA & 3) != 0)
-                  sim_warn ("CAMS ignores enable/disable %06o\n", cpu.TPR.CA);
-#endif
+                DPS8M_ (if (cpu.TPR.CA != 0000006 && (cpu.TPR.CA & 3) != 0)
+                  sim_warn ("CAMS ignores enable/disable %06o\n", cpu.TPR.CA);)
                 if ((cpu.TPR.CA & 3) == 02)
                   cpu.cu.SD_ON = 1;
                 else if ((cpu.TPR.CA & 3) == 01)
@@ -8320,12 +7687,9 @@ elapsedtime ();
             // C(TPR.CA)0,2 (C(TPR.CA)1,2 for the DPS 8M processor)
             // specify which processor port (i.e., which system
             // controller) is used.
-#ifdef DPS8M
-            uint cpu_port_num = (cpu.TPR.CA >> 15) & 03;
-#endif
-#ifdef L68
-            uint cpu_port_num = (cpu.TPR.CA >> 15) & 07;
-#endif
+            uint cpu_port_num;
+            DPS8M_ (cpu_port_num = (cpu.TPR.CA >> 15) & 03;)
+            L68_ (cpu_port_num = (cpu.TPR.CA >> 15) & 07;)
             if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
               {
                 sim_warn ("rmcm to non-existent controller on "
@@ -8381,13 +7745,10 @@ elapsedtime ();
 // Implementing privileged_mode_ut.alm algorithm
 //
 
-           // Extract port number
-#ifdef DPS8M
-            uint cpu_port_num = (cpu.TPR.CA >> 10) & 03;
-#endif
-#ifdef L68
-            uint cpu_port_num = (cpu.TPR.CA >> 10) & 07;
-#endif
+            // Extract port number
+            uint cpu_port_num;
+            DPS8M_ (cpu_port_num = (cpu.TPR.CA >> 10) & 03;)
+            L68_ (cpu_port_num = (cpu.TPR.CA >> 10) & 07;)
 
             // Trace the cable from the port to find the SCU number
             // connected to that port
@@ -8408,7 +7769,7 @@ elapsedtime ();
                 doFault (FAULT_CMD, fst_cmd_ctl, "(rscr)");
               }
             uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
-#ifdef PANEL
+#ifdef PANEL68
             {
                uint function = (cpu.iefpFinalAddress >> 3) & 07;
                CPT (cpt13L, function);
@@ -8428,19 +7789,18 @@ elapsedtime ();
 
         case x0 (0231):  // rsw
           {
-#ifdef DPS8M
-            //if (i->tag == TD_DL)
-            word6 rTAG = GET_TAG (IWB_IRODD);
-            word6 Td   = GET_TD (rTAG);
-            word6 Tm   = GET_TM (rTAG);
-            if (Tm == TM_R && Td == TD_DL)
-              {
-                unsigned char PROM[1024];
-                setupPROM (current_running_cpu_idx, PROM);
-                cpu.rA = PROM[cpu.TPR.CA & 1023];
-                break;
-              }
-#endif // DPS8M
+            if (! cpu.tweaks.l68_mode) {
+              word6 rTAG = GET_TAG (IWB_IRODD);
+              word6 Td = GET_TD (rTAG);
+              word6 Tm = GET_TM (rTAG);
+              if (Tm == TM_R && Td == TD_DL)
+                {
+                  unsigned char PROM[1024];
+                  setupPROM (current_running_cpu_idx, PROM);
+                  cpu.rA = PROM[cpu.TPR.CA & 1023];
+                  break;
+                }
+            }  // DPS8M
             uint select = cpu.TPR.CA & 0x7;
             switch (select)
               {
@@ -8589,88 +7949,89 @@ elapsedtime ();
 // /* (34-35) Processor number:                      */ ||unspec (mc.cpu_type);
 
                   cpu.rA = 0;
-#ifdef DPS8M
-                  cpu.rA |= (word36) ((cpu.switches.interlace[0] == 2 ?
+                  DPS8M_ (
+                    cpu.rA |= (word36) ((cpu.switches.interlace[0] == 2 ?
                             1LL : 0LL) << (35- 0));
-                  cpu.rA |= (word36) ((cpu.switches.interlace[1] == 2 ?
+                    cpu.rA |= (word36) ((cpu.switches.interlace[1] == 2 ?
                             1LL : 0LL) << (35- 1));
-                  cpu.rA |= (word36) ((cpu.switches.interlace[2] == 2 ?
+                    cpu.rA |= (word36) ((cpu.switches.interlace[2] == 2 ?
                             1LL : 0LL) << (35- 2));
-                  cpu.rA |= (word36) ((cpu.switches.interlace[3] == 2 ?
+                    cpu.rA |= (word36) ((cpu.switches.interlace[3] == 2 ?
                             1LL : 0LL) << (35- 3));
-#endif
+                  )
 
-#ifdef DPS8M
-                  cpu.rA |= (word36) ((01L)  /* 0b01 DPS8M */
+                  if (cpu.tweaks.l68_mode)
+                    // NO-OP
+                    // cpu.rA |= (word36) ((00L)  /* 0b00 L68/DPS */
+                    //          << (35- 5));
+                    ;
+                  else
+                    cpu.rA |= (word36) ((01L)  /* 0b01 DPS8M */
                              << (35- 5));
-#endif
-#ifdef L68
-                  cpu.rA |= (word36) ((00L)  /* 0b00 L68/DPS */
-                             << (35- 5));
-#endif
                   cpu.rA |= (word36) ((cpu.switches.FLT_BASE & 0177LL)
                              << (35-12));
-#ifdef DPS8M
-                  cpu.rA |= (word36) ((01L) /* 0b1 ID_PROM installed */
-                             << (35-13));
-#endif
-                  /*LINTED E_EXPR_NULL_EFFECT*/
-                  cpu.rA |= (word36) ((0L) // 0b0000
-                            << (35-17));
+                  DPS8M_ (cpu.rA |= (word36) ((01L) /* 0b1 ID_PROM installed */
+                             << (35-13));)
+                  // NO-OP
+                  // cpu.rA |= (word36) ((00L) // 0b0000
+                  //           << (35-17));
                   //cpu.rA |= (word36) ((0b111L)
                               //<< (35-20));
                   // According to rsw.incl.pl1, Multics ignores this bit.
-                  /*LINTED E_EXPR_NULL_EFFECT*/
-                  cpu.rA |= (word36) ((00L)  // 0b0 BCD option off
-                            << (35-18));
-#ifdef DPS8M
-                  cpu.rA |= (word36) ((01L)  // 0b1 L68/DPS option: DPS
+                  // NO-OP
+                  // cpu.rA |= (word36) ((00L)  // 0b0 BCD option off
+                  //           << (35-18));
+                  if (cpu.tweaks.l68_mode)
+                    // NO-OP
+                    // cpu.rA |= (word36) ((00L)  // 0b0 L68/DPS option: L68
+                    //        << (35-19));
+                    ;
+                  else
+                    cpu.rA |= (word36) ((01L)  // 0b1 L68/DPS option: DPS
                             << (35-19));
-#endif
-#ifdef L68
-                  cpu.rA |= (word36) ((00L)  // 0b0 L68/DPS option: L68
-                            << (35-19));
-#endif
-#ifdef DPS8M
+                  DPS8M_ (
                                              // 8K cache
                                              // 0b0: not installed
                                              // 0b1: installed
-                  cpu.rA |= (word36) ((cpu.switches.enable_cache ? 1 : 0)
+                    cpu.rA |= (word36) ((cpu.switches.enable_cache ? 1 : 0)
                             << (35-20));
-                  /*LINTED E_EXPR_NULL_EFFECT*/
-                  cpu.rA |= (word36) ((00L) // 0b00
-                            << (35-22));
-                  cpu.rA |= (word36) ((cpu.switches.procMode)  /* 0b1 DPS8M */
+                    // NO-OP
+                    // cpu.rA |= (word36) ((00L) // 0b00
+                    //         << (35-22));
+                    cpu.rA |= (word36) ((cpu.switches.procMode)  /* 0b1 DPS8M */
                             << (35-23));
-                  cpu.rA |= (word36) ((cpu.switches.procMode & 1U)
+                    cpu.rA |= (word36) ((cpu.switches.procMode & 1U)
                             << (35-24));
-                  /*LINTED E_EXPR_NULL_EFFECT*/
-                  cpu.rA |= (word36) ((00L) // 0b0 new product line (CPL/NPL)
-                            << (35-25));
-                  /*LINTED E_EXPR_NULL_EFFECT*/
-                  cpu.rA |= (word36) ((00L) // 0b000
-                            << (35-28));
-                  cpu.rA |= (word36) ((cpu.options.proc_speed & 017LL)
+                    // NO-OP
+                    // cpu.rA |= (word36) ((00L) // 0b0 new product line (CPL/NPL)
+                    //         << (35-25));
+                    // NO-OP
+                    // cpu.rA |= (word36) ((00L) // 0b000
+                    //         << (35-28));
+                    cpu.rA |= (word36) ((cpu.options.proc_speed & 017LL)
                             << (35-32));
-#endif
-#ifdef L68
-                  cpu.rA |= (word36) ((00L) // 0b0 2K cache disabled
-                            << (35-27));
-                  cpu.rA |= (word36) ((00L) // 0b0 GCOS mode extended memory disabled
-                            << (35-28));
-                  cpu.rA |= (word36) ((016L) // 0b1110 CPU ID
+                  )
+
+                  L68_ (
+                    // NO-OP
+                    // cpu.rA |= (word36) ((00L) // 0b0 2K cache disabled
+                    //         << (35-27));
+                    // NO-OP
+                    // cpu.rA |= (word36) ((00L) // 0b0 GCOS mode extended memory disabled
+                    //         << (35-28));
+                    cpu.rA |= (word36) ((016L) // 0b1110 CPU ID
                             << (35-32));
-#endif
+                  )
                   cpu.rA |= (word36) ((cpu.switches.cpu_num & 07LL)
                             << (35-35));
                   break;
 
                 case 3: // configuration switches for ports E, F, G, H
-#ifdef DPS8M
-                  cpu.rA = 0;
-                  break;
-#endif
-#ifdef L68
+                  if (!cpu.tweaks.l68_mode) { // DPS8M
+                    cpu.rA = 0;
+                    break;
+                  }
+                  // L68
 // y = 3:
 //
 //   0               0 0               1 1               2 2               3
@@ -8743,7 +8104,6 @@ elapsedtime ();
                             << (35 -  (8 + 27));
                   break;
 
-#endif
 
                 case 4:
                   // I suspect the this is a L68 only, but AL39 says both
@@ -8770,16 +8130,16 @@ elapsedtime ();
                             1LL : 0LL) << (35-17);
                   cpu.rA |= (word36) (cpu.switches.interlace [3] == 2 ?
                             1LL : 0LL) << (35-19);
-#ifdef L68
-                  cpu.rA |= (word36) (cpu.switches.interlace [4] == 2 ?
+                  L68_ (
+                    cpu.rA |= (word36) (cpu.switches.interlace [4] == 2 ?
                             1LL : 0LL) << (35-21);
-                  cpu.rA |= (word36) (cpu.switches.interlace [5] == 2 ?
+                    cpu.rA |= (word36) (cpu.switches.interlace [5] == 2 ?
                             1LL : 0LL) << (35-23);
-                  cpu.rA |= (word36) (cpu.switches.interlace [6] == 2 ?
+                    cpu.rA |= (word36) (cpu.switches.interlace [6] == 2 ?
                             1LL : 0LL) << (35-25);
-                  cpu.rA |= (word36) (cpu.switches.interlace [7] == 2 ?
+                    cpu.rA |= (word36) (cpu.switches.interlace [7] == 2 ?
                             1LL : 0LL) << (35-27);
-#endif
+                  )
                   break;
 
                 default:
@@ -8840,12 +8200,9 @@ elapsedtime ();
             // C(TPR.CA)0,2 (C(TPR.CA)1,2 for the DPS 8M processor)
             // specify which processor port (i.e., which system
             // controller) is used.
-#ifdef DPS8M
-            uint cpu_port_num = (cpu.TPR.CA >> 15) & 03;
-#endif
-#ifdef L68
-            uint cpu_port_num = (cpu.TPR.CA >> 15) & 07;
-#endif
+            uint cpu_port_num;
+            DPS8M_ (cpu_port_num = (cpu.TPR.CA >> 15) & 03;)
+            L68_ (cpu_port_num = (cpu.TPR.CA >> 15) & 07;)
             if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
               {
                 sim_warn ("smcm to non-existent controller on "
@@ -8871,18 +8228,13 @@ elapsedtime ();
             // C(TPR.CA)0,2 (C(TPR.CA)1,2 for the DPS 8M processor)
             // specify which processor port (i.e., which system
             // controller) is used.
-#ifdef DPS8M
-            uint cpu_port_num = (cpu.TPR.CA >> 15) & 03;
-#endif
-#ifdef L68
-            uint cpu_port_num = (cpu.TPR.CA >> 15) & 07;
-#endif
+            uint cpu_port_num;
+            DPS8M_ (cpu_port_num = (cpu.TPR.CA >> 15) & 03;)
+            L68_ (cpu_port_num = (cpu.TPR.CA >> 15) & 07;)
             if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
               {
-#ifdef DPS8M
-                return SCPE_OK;
-#endif
-#ifdef L68
+                DPS8M_ (return SCPE_OK;)
+                // L68
                 // CPTUR (cptUseFR) -- will be set by doFault
                 if (cpu_port_num == 0)
                   putbits36_4 (& cpu.faultRegister[0], 16, 010);
@@ -8894,7 +8246,6 @@ elapsedtime ();
                   putbits36 (& cpu.faultRegister[0], 28, 4, 010);
 // XXX What if the port is > 3?
                 doFault (FAULT_CMD, fst_cmd_ctl, "(smic)");
-#endif
               }
             uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
             t_stat rc = scu_smic ((uint) scuUnitIdx, current_running_cpu_idx,
@@ -8908,12 +8259,9 @@ elapsedtime ();
           {
             //uint cpu_port_num = (cpu.TPR.CA >> 15) & 03;
             // Looking at privileged_mode_ut.alm, shift 10 bits...
-#ifdef DPS8M
-            uint cpu_port_num = (cpu.TPR.CA >> 10) & 03;
-#endif
-#ifdef L68
-            uint cpu_port_num = (cpu.TPR.CA >> 10) & 07;
-#endif
+            uint cpu_port_num;
+            DPS8M_ (cpu_port_num = (cpu.TPR.CA >> 10) & 03;)
+            L68_ (cpu_port_num = (cpu.TPR.CA >> 10) & 07;)
             if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
               {
                 // CPTUR (cptUseFR) -- will be set by doFault
@@ -9723,14 +9071,14 @@ elapsedtime ();
                    fst_ill_op,
                    "Illegal instruction");
       }
-#ifdef L68
-    cpu.ou.STR_OP = (is_ou && (i->info->flags & (STORE_OPERAND | STORE_YPAIR))) ? 1 : 0;
-    cpu.ou.cycle |= ou_GOF;
-    if (cpu.MR_cache.emr && cpu.MR_cache.ihr && is_ou)
-      add_OU_history ();
-    if (cpu.MR_cache.emr && cpu.MR_cache.ihr && is_du)
-      add_DU_history ();
-#endif
+    L68_ (
+      cpu.ou.STR_OP = (is_ou && (i->info->flags & (STORE_OPERAND | STORE_YPAIR))) ? 1 : 0;
+      cpu.ou.cycle |= ou_GOF;
+      if (cpu.MR_cache.emr && cpu.MR_cache.ihr && is_ou)
+        add_l68_OU_history ();
+      if (cpu.MR_cache.emr && cpu.MR_cache.ihr && is_du)
+        add_l68_DU_history ();
+    )
     return SCPE_OK;
 }
 

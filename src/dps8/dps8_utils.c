@@ -44,12 +44,7 @@
 char * dump_flags(char * buffer, word18 flags)
 {
     sprintf(buffer, "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
-#ifdef DPS8M
-            flags & I_HEX   ? "Hex "   : "",
-#endif
-#ifdef L68
-            "",
-#endif
+            flags & I_HEX   ? "Hex "   : "",  // L68 will never have I_HEX set, so no need to DPS8M-only
             flags & I_ABS   ? "Abs "   : "",
             flags & I_MIF   ? "MIF "   : "",
             flags & I_TRUNC ? "Trunc " : "",
@@ -209,10 +204,10 @@ word36 Add36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 
     // Truncate the result
     res &= MASK36;
 
-#ifdef PANEL
-    if (cry)  CPT (cpt2L, 28);         // carry
-    if (ovf)  CPT (cpt2L, 29);         // ovf
-    if (!res) CPT (cpt2L, 30);         // zero
+#ifdef PANEL68
+    if (cry) CPT (cpt2L, 28); // carry
+    if (ovf) CPT (cpt2L, 29); // ovf
+    if (!res) CPT (cpt2L, 30); // zero
     if (res & SIGN36) CPT (cpt2L, 31); // neg
 #endif
 
@@ -292,10 +287,10 @@ word36 Sub36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 
     // Check for carry
     bool cry = r38;
 
-#ifdef PANEL
-    if (cry)  CPT (cpt2L, 28);         // carry
-    if (ovf)  CPT (cpt2L, 29);         // ovf
-    if (!res) CPT (cpt2L, 30);         // zero
+#ifdef PANEL68
+    if (cry) CPT (cpt2L, 28); // carry
+    if (ovf) CPT (cpt2L, 29); // ovf
+    if (!res) CPT (cpt2L, 30); // zero
     if (res & SIGN36) CPT (cpt2L, 31); // neg
 #endif
 
@@ -368,10 +363,10 @@ word18 Add18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 
     // Check for carry
     bool cry = r20;
 
-#ifdef PANEL
-    if (cry)  CPT (cpt2L, 28);         // carry
-    if (ovf)  CPT (cpt2L, 29);         // ovf
-    if (!res) CPT (cpt2L, 30);         // zero
+#ifdef PANEL68
+    if (cry) CPT (cpt2L, 28); // carry
+    if (ovf) CPT (cpt2L, 29); // ovf
+    if (!res) CPT (cpt2L, 30); // zero
     if (res & SIGN36) CPT (cpt2L, 31); // neg
 #endif
 
@@ -450,10 +445,10 @@ word18 Sub18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 
     // Check for carry
     bool cry = r20;
 
-#ifdef PANEL
-    if (cry)  CPT (cpt2L, 28);         // carry
-    if (ovf)  CPT (cpt2L, 29);         // ovf
-    if (!res) CPT (cpt2L, 30);         // zero
+#ifdef PANEL68
+    if (cry) CPT (cpt2L, 28); // carry
+    if (ovf) CPT (cpt2L, 29); // ovf
+    if (!res) CPT (cpt2L, 30); // zero
     if (res & SIGN36) CPT (cpt2L, 31); // neg
 #endif
 
@@ -556,10 +551,10 @@ word72 Add72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
     // Check for carry
     bool cry = r74;
 
-#ifdef PANEL
-    if (cry)  CPT (cpt2L, 28);         // carry
-    if (ovf)  CPT (cpt2L, 29);         // ovf
-    if (!res) CPT (cpt2L, 30);         // zero
+#ifdef PANEL68
+    if (cry) CPT (cpt2L, 28); // carry
+    if (ovf) CPT (cpt2L, 29); // ovf
+    if (!res) CPT (cpt2L, 30); // zero
     if (res & SIGN36) CPT (cpt2L, 31); // neg
 #endif
 
@@ -698,10 +693,10 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
     // Check for carry
     bool cry = r74;
 
-#ifdef PANEL
-    if (cry)  CPT (cpt2L, 28);         // carry
-    if (ovf)  CPT (cpt2L, 29);         // ovf
-    if (!res) CPT (cpt2L, 30);         // zero
+#ifdef PANEL68
+    if (cry) CPT (cpt2L, 28); // carry
+    if (ovf) CPT (cpt2L, 29); // ovf
+    if (!res) CPT (cpt2L, 30); // zero
     if (res & SIGN36) CPT (cpt2L, 31); // neg
 #endif
 
@@ -763,9 +758,9 @@ word36 compl36(word36 op1, word18 *flags, bool * ovf)
 
     * ovf = op1 == MAXNEG;
 
-#ifdef PANEL
-    if (* ovf) CPT (cpt2L, 29);        // ovf
-    if (!res)  CPT (cpt2L, 30);        // zero
+#ifdef PANEL68
+    if (* ovf) CPT (cpt2L, 29); // ovf
+    if (!res) CPT (cpt2L, 30); // zero
     if (res & SIGN36) CPT (cpt2L, 31); // neg
 #endif
 
@@ -796,9 +791,9 @@ word18 compl18(word18 op1, word18 *flags, bool * ovf)
     word18 res = -op1 & MASK18;
 
     * ovf = op1 == MAX18NEG;
-#ifdef PANEL
-    if (* ovf) CPT (cpt2L, 29);        // ovf
-    if (!res)  CPT (cpt2L, 30);        // zero
+#ifdef PANEL68
+    if (* ovf) CPT (cpt2L, 29); // ovf
+    if (!res) CPT (cpt2L, 30); // zero
     if (res & SIGN18) CPT (cpt2L, 31); // neg
 #endif
 
@@ -951,11 +946,9 @@ void convert_to_word36 (word72 src, word36 *even, word36 *odd)
 void cmp36(word36 oP1, word36 oP2, word18 *flags)
   {
     CPT (cpt2L, 25); // cmp36
-#ifdef L68
-    cpu.ou.cycle |= ou_GOS;
-#endif
-    t_int64 op1  = SIGNEXT36_64(oP1 & DMASK);
-    t_int64 op2  = SIGNEXT36_64(oP2 & DMASK);
+    L68_ (cpu.ou.cycle |= ou_GOS;)
+    t_int64 op1 = SIGNEXT36_64(oP1 & DMASK);
+    t_int64 op2 = SIGNEXT36_64(oP2 & DMASK);
 
     word36 sign1 = (word36) op1 & SIGN36;
     word36 sign2 = (word36) op2 & SIGN36;
@@ -997,11 +990,9 @@ void cmp36(word36 oP1, word36 oP2, word18 *flags)
 void cmp18(word18 oP1, word18 oP2, word18 *flags)
   {
     CPT (cpt2L, 26); // cmp18
-#ifdef L68
-    cpu.ou.cycle |= ou_GOS;
-#endif
-    int32 op1    = SIGNEXT18_32 (oP1 & MASK18);
-    int32 op2    = SIGNEXT18_32 (oP2 & MASK18);
+    L68_ (cpu.ou.cycle |= ou_GOS;)
+    int32 op1 = SIGNEXT18_32 (oP1 & MASK18);
+    int32 op2 = SIGNEXT18_32 (oP2 & MASK18);
 
     word18 sign1 = (word18) op1 & SIGN18;
     word18 sign2 = (word18) op2 & SIGN18;
@@ -1047,9 +1038,7 @@ void cmp36wl(word36 A, word36 Y, word36 Q, word18 *flags)
 
     //bool Z = (A <= Y && Y <= Q) || (A >= Y && Y >= Q);
 
-#ifdef L68
-    cpu.ou.cycle |= ou_GOS;
-#endif
+    L68_ (cpu.ou.cycle |= ou_GOS;)
     t_int64 As = (word36s) SIGNEXT36_64(A & DMASK);
     t_int64 Ys = (word36s) SIGNEXT36_64(Y & DMASK);
     t_int64 Qs = (word36s) SIGNEXT36_64(Q & DMASK);
@@ -1082,9 +1071,7 @@ void cmp72(word72 op1, word72 op2, word18 *flags)
     CPT (cpt2L, 27); // cmp72
    // The case of op1 == 400000000000000000000000 and op2 == 0 falls through
    // this code.
-#ifdef L68
-    cpu.ou.cycle |= ou_GOS;
-#endif
+    L68_ (cpu.ou.cycle |= ou_GOS;)
 #ifdef NEED_128
 sim_debug (DBG_TRACEEXT, & cpu_dev, "op1 %016"PRIx64"%016"PRIx64"\n", op1.h, op1.l);
 sim_debug (DBG_TRACEEXT, & cpu_dev, "op2 %016"PRIx64"%016"PRIx64"\n", op2.h, op2.l);

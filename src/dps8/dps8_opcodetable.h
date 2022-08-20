@@ -40,7 +40,7 @@ typedef struct adrMods adrMods;
 
 extern struct adrMods extMods[0100]; ///< extended address modifiers
 extern struct opcode_s opcodes10[02000];
-#ifdef PANEL
+#ifdef PANEL68
 extern word8 insGrp [02000];
 // CPT 3U 0-35, 3L 0-17
 enum { GRP_UNKN  = 0,
