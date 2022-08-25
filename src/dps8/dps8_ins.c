@@ -7123,11 +7123,8 @@ static t_stat doInstruction (void)
                   cpu.MR.ihrrs = getbits36_1 (cpu.CY, 31);
                   cpu.MR.emr = getbits36_1 (cpu.CY, 35);
                   if (! cpu.tweaks.l68_mode) // DPS8M
-                    if (cpu.options.hex_mode_installed)
-                      cpu.MR.hexfp = getbits36_1 (cpu.CY, 33);
-                    else
-                      cpu.MR.hexfp = 0;
-                 else // L68
+                    cpu.MR.hexfp = getbits36_1 (cpu.CY, 33);
+                  else // L68
                     cpu.MR.hexfp = 0;
 
                   // Stop HR Strobe on HR Counter Overflow. (Setting bit 28

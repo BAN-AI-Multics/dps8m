@@ -319,7 +319,7 @@ static char * default_base_system_script [] =
     "set cpu0 config=drl_fatal=disable",
     "set cpu0 config=useMap=disable",
     "set cpu0 config=prom_installed=enable",
-    "set cpu0 config=hex_mode_installed=enable",
+    "set cpu0 config=hex_mode_installed=disable",
     "set cpu0 config=cache_installed=enable",
     "set cpu0 config=clock_slave_installed=enable",
 
@@ -397,7 +397,7 @@ static char * default_base_system_script [] =
     "set cpu1 config=drl_fatal=disable",
     "set cpu1 config=useMap=disable",
     "set cpu1 config=prom_installed=enable",
-    "set cpu1 config=hex_mode_installed=enable",
+    "set cpu1 config=hex_mode_installed=disable",
     "set cpu1 config=cache_installed=enable",
     "set cpu1 config=clock_slave_installed=enable",
 
@@ -475,7 +475,7 @@ static char * default_base_system_script [] =
     "set cpu2 config=drl_fatal=disable",
     "set cpu2 config=useMap=disable",
     "set cpu2 config=prom_installed=enable",
-    "set cpu2 config=hex_mode_installed=enable",
+    "set cpu2 config=hex_mode_installed=disable",
     "set cpu2 config=cache_installed=enable",
     "set cpu2 config=clock_slave_installed=enable",
 
@@ -553,7 +553,7 @@ static char * default_base_system_script [] =
     "set cpu3 config=drl_fatal=disable",
     "set cpu3 config=useMap=disable",
     "set cpu3 config=prom_installed=enable",
-    "set cpu3 config=hex_mode_installed=enable",
+    "set cpu3 config=hex_mode_installed=disable",
     "set cpu3 config=cache_installed=enable",
     "set cpu3 config=clock_slave_installed=enable",
 
@@ -631,7 +631,7 @@ static char * default_base_system_script [] =
     "set cpu4 config=drl_fatal=disable",
     "set cpu4 config=useMap=disable",
     "set cpu4 config=prom_installed=enable",
-    "set cpu4 config=hex_mode_installed=enable",
+    "set cpu4 config=hex_mode_installed=disable",
     "set cpu4 config=cache_installed=enable",
     "set cpu4 config=clock_slave_installed=enable",
 
@@ -709,7 +709,7 @@ static char * default_base_system_script [] =
     "set cpu5 config=drl_fatal=disable",
     "set cpu5 config=useMap=disable",
     "set cpu5 config=prom_installed=enable",
-    "set cpu5 config=hex_mode_installed=enable",
+    "set cpu5 config=hex_mode_installed=disable",
     "set cpu5 config=cache_installed=enable",
     "set cpu5 config=clock_slave_installed=enable",
 
@@ -788,7 +788,7 @@ static char * default_base_system_script [] =
     "set cpu6 config=drl_fatal=disable",
     "set cpu6 config=useMap=disable",
     "set cpu6 config=prom_installed=enable",
-    "set cpu6 config=hex_mode_installed=enable",
+    "set cpu6 config=hex_mode_installed=disable",
     "set cpu6 config=cache_installed=enable",
     "set cpu6 config=clock_slave_installed=enable",
 
@@ -870,7 +870,7 @@ static char * default_base_system_script [] =
     "set cpu7 config=drl_fatal=disable",
     "set cpu7 config=useMap=disable",
     "set cpu7 config=prom_installed=enable",
-    "set cpu7 config=hex_mode_installed=enable",
+    "set cpu7 config=hex_mode_installed=disable",
     "set cpu7 config=cache_installed=enable",
     "set cpu7 config=clock_slave_installed=enable",
 

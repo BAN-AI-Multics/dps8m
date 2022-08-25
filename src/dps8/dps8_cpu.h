@@ -734,7 +734,6 @@ typedef struct {
     bool enable_emcall;   // If set, the instruction set is extended with simulator debugging instructions
     bool nodis;           // If true, start CPU in FETCH cycle; else start in DIS instruction
     bool l68_mode;      // False: DPS8/M; True: 6180
-    bool hex_mode_installed;
 } tweaksType;
 
 enum ou_cycle_e
@@ -1984,6 +1983,7 @@ static inline int core_read (word24 addr, word36 *data, \
   {
     PNL (cpu.portBusy = true;)
     SC_MAP_ADDR (addr, addr);
+    * data = M[addr] & DMASK;
 # ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 # endif
