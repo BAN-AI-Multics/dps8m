@@ -432,6 +432,27 @@ send "q\r"
 expect "quit ?"; sleep 1
 sw "y"
 
+
+swi "edm hfp.fortran"
+swn "      double precision x"
+swn "      x = 1.0"
+swn "      do 10 i = 1, 130"
+swn "      x = x * 2.0"
+swn "      print *, i, x"
+swn "   10 continue"
+swn "      end"
+swn "."
+swn "w"
+sw "q"
+sw "fortran hfp"
+sw "hfp"
+sw "rl"
+sw "fortran -hfp hfp"
+sw "hfp"
+
+
+
+
 sw "cd fnp"
 sw "cwd fnp"
 sw "cp >ldd>mcs>info>site_mcs.bind_fnp"
