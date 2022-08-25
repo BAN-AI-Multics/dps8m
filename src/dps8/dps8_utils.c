@@ -1869,6 +1869,37 @@ int insertWord36toBuffer (uint8 * bufp, t_mtrlnt tbc, uint * words_processed, wo
   }
 
 #ifndef NEED_128
+static void print_uint128o_r (uint128 n, char * p)
+  {
+    if (n == 0)
+      return;
+
+    print_uint128o_r(n / 8, p);
+    if (p)
+      {
+        char s [2];
+        s [0] = n % 8 + '0';
+        s [1] = '\0';
+        strcat (p, s);
+      }
+    else
+      sim_printf("%c", (int) (n%8+0x30));
+  }
+
+char * print_int128o (int128 n, char * p)
+  {
+    if (n == 0)
+      {
+        if (p)
+          strcat (p, "0");
+        else
+          sim_printf ("0");
+        return p;
+      }
+    print_uint128o_r ((uint128) n, p);
+    return p;
+  }
+
 static void print_uint128_r (uint128 n, char * p)
   {
     if (n == 0)

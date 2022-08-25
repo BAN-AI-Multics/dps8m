@@ -29,12 +29,13 @@ void IEEElongdoubleToEAQ(long double f0);
 double float36ToIEEEdouble(float36 f36);
 float36 IEEEdoubleTofloat36(double f);
 #endif
-void ufa (bool sub);
+void ufa (bool sub, bool normalize);
 void ufs (void);
 void fno (word8 * E, word36 * A, word36 * Q);
+void fno_ext (int * e0, word8 * E, word36 * A, word36 * Q);
 
 void fneg (void);
-void ufm (void);
+void ufm (bool normalize);
 void fdv (void);
 void fdi (void);
 void frd (void);
@@ -43,8 +44,8 @@ void fcmg(void);
 
 //void dufa (void);
 //void dufs (void);
-void dufa (bool subtract);
-void dufm (void);
+void dufa (bool subtract, bool normalize);
+void dufm (bool normalize);
 void dfdv (void);
 void dfdi (void);
 void dfrd (void);
