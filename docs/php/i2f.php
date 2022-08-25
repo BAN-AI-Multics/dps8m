@@ -1,8 +1,7 @@
 #!/usr/bin/env php
 <?php
 /*
- * vim: filetype=php:tabstop=2:tw=78:expandtab
- * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+ * vim: filetype=php:tabstop=2:ai:tw=78:expandtab
  * SPDX-License-Identifier: ICU
  * scspell-id: c647fe48-fc68-11ec-9e3d-80ee73e9b8e7
  *

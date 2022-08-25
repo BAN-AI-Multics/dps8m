@@ -1,6 +1,5 @@
 /*
- * vim: filetype=c:tabstop=4:tw=100:expandtab
- * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+ * vim: filetype=c:tabstop=4:ai:expandtab
  * SPDX-License-Identifier: ICU
  * SPDX-License-Identifier: Multics
  * scspell-id: ff1a12fc-f62e-11ec-aea6-80ee73e9b8e7
@@ -4261,8 +4260,8 @@ static void dps8_init (void) {
                   statenme);
   } else {
     if (strcmp (system_state->commit_id, VER_H_GIT_HASH) != 0) {
-      sim_warn ("WARNING: System state hash mismatch; \"%s\" may be corrupt!\r\n",
-                statenme);
+      memset(system_state, 0, sizeof(*system_state));
+      sim_warn ("NOTE: State hash mismatch; system state reset.\r\n");
     }
   }
   fflush(stderr); fflush(stdout);

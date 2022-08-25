@@ -1,5 +1,4 @@
-<!-- vim: set nocp ft=markdown ts=2 sw=2 tw=79 cc=80 et nolist wrap lbr :-->
-<!-- vim: set ruler hlsearch incsearch autoindent wildmenu wrapscan :-->
+<!-- vim: set nocp ft=markdown ts=2 sw=2 ai cc=80 et nolist wrap lbr :-->
 <!-- SPDX-License-Identifier: FSFAP -->
 <!-- scspell-id: 234ac36d-f778-11ec-8863-80ee73e9b8e7 -->
 <!-- Copyright (c) 2006-2022 The DPS8M Development Team

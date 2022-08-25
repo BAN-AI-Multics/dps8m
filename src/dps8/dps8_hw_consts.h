@@ -1,6 +1,5 @@
 /*
- * vim: filetype=c:tabstop=4:tw=100:expandtab
- * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+ * vim: filetype=c:tabstop=4:ai:expandtab
  * SPDX-License-Identifier: ICU
  * scspell-id: 6effbe78-f62e-11ec-87ca-80ee73e9b8e7
  *
@@ -32,9 +31,9 @@
 
 # define XXX_TEMP_SCU_SUBPORT 0
 
-enum { N_SCU_PORTS = 8 };
-enum { N_SCU_SUBPORTS = 4 };
-enum { N_ASSIGNMENTS = 2 };
+enum { N_SCU_PORTS       =  8 };
+enum { N_SCU_SUBPORTS    =  4 };
+enum { N_ASSIGNMENTS     =  2 };
 // Number of interrupts in an interrupt cell register
 enum { N_CELL_INTERRUPTS = 32 };
 
@@ -72,11 +71,11 @@ enum { N_CELL_INTERRUPTS = 32 };
 // IOM
 //
 
-enum { MAX_CHANNELS = 64 };
-enum { N_IOM_PORTS = 8 };
+enum { MAX_CHANNELS     = 64 };
+enum { N_IOM_PORTS      =  8 };
 // The number of devices that a dev_code can address (6 bit number)
-enum { N_DEV_CODES = 64 };
-enum { IOM_CONNECT_CHAN = 2 };
+enum { N_DEV_CODES      = 64 };
+enum { IOM_CONNECT_CHAN =  2 };
 
 /////////////////////////////////////
 //
@@ -328,9 +327,9 @@ static inline int128 SIGNEXT72_128 (word72 w)
       }
     uint128 v =  and_128 (w, MASK72);
 #  if defined(__sun__) || defined(_AIX)
-    return (int128) { (uint64_t) v.h, v.l};
+    return (int128) { (uint64_t)  v.h, v.l};
 #  elif defined(__MINGW32__)
-    return (int128) { (int64_t) v.h, v.l};
+    return (int128) { (int64_t)   v.h, v.l};
 #  else
     return (int128) { (__int64_t) v.h, v.l};
 #  endif
@@ -577,7 +576,7 @@ enum {
 # define I_ZERO  F_A     // zero                             0400000
 
 # define I_ZNOC (I_ZERO | I_NEG | I_OFLOW | I_CARRY)
-# define I_ZNC (I_ZERO | I_NEG | I_CARRY)
+# define I_ZNC  (I_ZERO | I_NEG | I_CARRY)
 
 # define CLR_I_ABS   CLRF (cpu.cu.IR, I_ABS)
 # define CLR_I_MIF   CLRF (cpu.cu.IR, I_MIF)
@@ -860,20 +859,20 @@ enum _faultRegisterBits1
 
 enum _systemControllerIllegalActionCodes
   {
-    SCIAC_NONE =    000,
-    SCIAC_NEA =     002,
-    SCIAC_SOC =     003,
-    SCIAC_PAR5 =    005,
-    SCIAC_PAR6 =    006,
-    SCIAC_PAR7 =    007,
-    SCIAC_NC =      010,
-    SCIAC_PNE =     011,
+    SCIAC_NONE    = 000,
+    SCIAC_NEA     = 002,
+    SCIAC_SOC     = 003,
+    SCIAC_PAR5    = 005,
+    SCIAC_PAR6    = 006,
+    SCIAC_PAR7    = 007,
+    SCIAC_NC      = 010,
+    SCIAC_PNE     = 011,
     SCIAC_ILL_CMD = 012,
-    SCIAC_NR =      013,
-    SCIAC_PAR14 =   014,
-    SCIAC_PAR15 =   015,
-    SCIAC_PAR16 =   016,
-    SCIAC_PAR17 =   017
+    SCIAC_NR      = 013,
+    SCIAC_PAR14   = 014,
+    SCIAC_PAR15   = 015,
+    SCIAC_PAR16   = 016,
+    SCIAC_PAR17   = 017
   };
 
 /////////////////////////////////////
@@ -888,8 +887,8 @@ enum _systemControllerIllegalActionCodes
 // Memory map
 //
 
-# define IOM_MBX_LOW 01200
-# define IOM_MBX_LEN 02200
+# define IOM_MBX_LOW   01200
+# define IOM_MBX_LEN   02200
 # define DN355_MBX_LOW 03400
 # define DN355_MBX_LEN 03000
 
@@ -1460,10 +1459,10 @@ typedef enum {
 // History registers
 //
 
-enum { N_HIST_SETS = 4 };
+enum { N_HIST_SETS       =  4 };
 enum { N_DPS8M_HIST_SIZE = 64 };
-enum { N_L68_HIST_SIZE = 16 };
-enum { N_MAX_HIST_SIZE = 64 };
+enum { N_L68_HIST_SIZE   = 16 };
+enum { N_MAX_HIST_SIZE   = 64 };
 # define N_MODEL_HIST_SIZE (cpu.tweaks.l68_mode ? N_L68_HIST_SIZE : N_DPS8M_HIST_SIZE)
 
 // Bit in CU history register word 0
@@ -1579,6 +1578,6 @@ enum
   };
 
 enum { CU_HIST_REG = 0, DPS8M_DU_OU_HIST_REG = 1, DPS8M_APU_HIST_REG = 2, DPS8M_EAPU_HIST_REG = 3 };
-enum { /*CU_HIST_REG = 0,*/ L68_DU_HIST_REG = 1, L68_OU_HIST_REG = 2, L68_APU_HIST_REG = 3 };
+enum { /* CU_HIST_REG = 0,*/ L68_DU_HIST_REG = 1, L68_OU_HIST_REG    = 2, L68_APU_HIST_REG    = 3 };
 
 #endif // DPS8_HW_CONSTS_H

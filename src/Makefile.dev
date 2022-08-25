@@ -1,6 +1,5 @@
 # DPS8M simulator: src/Makefile.dev
-# vim: filetype=make:tabstop=4:tw=79:noexpandtab:list:listchars=tab\:\>\-
-# vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan:colorcolumn=79
+# vim: filetype=make:tabstop=4:ai:cc=79:noexpandtab:list:listchars=tab\:\>\-
 # SPDX-License-Identifier: ICU
 # scspell-id: 0495e6fe-f62b-11ec-ab1d-80ee73e9b8e7
 
@@ -257,7 +256,7 @@ E_EMPTY_TRANSLATION_UNIT" SUNPRO=1 SUNLINT=1 NEED_128=1 ) 2>&1 |              \
 .PHONY: clsanalz
 clsanalz:                                                                     \
     # clsanalz:    # Runs the Clang Analyzer & save output
-	@$(TEST) -x "./src/ci-kit/scan-build.sh" &&                               \
+	+@$(TEST) -x "./src/ci-kit/scan-build.sh" &&                              \
       $(ENV) sh "./src/ci-kit/scan-build.sh"
 
 ###############################################################################
@@ -358,6 +357,8 @@ lmscspell:                                                                    \
      $(GREP) -Ev '(\.yml$$)'                                                | \
      $(GREP) -Ev '(\.yml\.in$$)'                                            | \
      $(GREP) -Ev '(\.zip$$)'                                                | \
+     $(GREP) -Ev '(docs/hpages/)'                                           | \
+     $(GREP) -Ev '(\.reuse/)'                                               | \
       { $(GREP) "." && { exit 9 ; } ; } && exit 0 ) ; X=$$? ;                 \
 	  $(TEST) "$${X:?}" -ne "9" > /dev/null 2>&1
 	@$(TRUE)

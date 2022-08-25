@@ -1,6 +1,5 @@
 # DPS8M simulator: src/empty/GNUmakefile
-# vim: filetype=make:tabstop=4:tw=79:noexpandtab:list:listchars=tab\:\>\-
-# vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan:colorcolumn=79
+# vim: filetype=make:tabstop=4:cc=79:ai:noexpandtab:list:listchars=tab\:\>\-
 # SPDX-License-Identifier: FSFAP
 # scspell-id: 9653fd78-f630-11ec-9e48-80ee73e9b8e7
 

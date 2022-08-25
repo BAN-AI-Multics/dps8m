@@ -1,6 +1,5 @@
 #!/usr/bin/env sh
-# vim: filetype=sh:tabstop=4:tw=78:expandtab
-# vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+# vim: filetype=sh:tabstop=4:ai:expandtab
 # SPDX-License-Identifier: FSFAP
 # scspell-id: 5a7e9ca5-f62c-11ec-b7cb-80ee73e9b8e7
 
@@ -68,6 +67,11 @@ ${MAKE:-make} --no-print-directory "clean"
 
 ##############################################################################
 
+unset MBS; test -z "${MAKEFLAGS:-}" &&
+MBS="-j $(grep -c '^model name' /proc/cpuinfo 2> /dev/null || printf %s\\n 4)"
+
+##############################################################################
+
 # shellcheck disable=SC2086
 env TZ=UTC scan-build -no-failure-reports -o ./out -maxloop 16               \
  -enable-checker  optin.portability.UnixAPI                                  \
@@ -75,8 +79,7 @@ env TZ=UTC scan-build -no-failure-reports -o ./out -maxloop 16               \
  -enable-checker  security.insecureAPI.bcmp                                  \
  -enable-checker  security.insecureAPI.bcopy                                 \
  -disable-checker deadcode.DeadStores                                        \
- ${MAKE:-make} --no-print-directory                                          \
-  -j "$(grep -c '^model name' /proc/cpuinfo 2> /dev/null || printf %s\\n 4)"
+ ${MAKE:-make} --no-print-directory ${MBS:-}
 
 ##############################################################################
 

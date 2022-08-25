@@ -1,8 +1,7 @@
 /*
  * sim_timer.h: simulator timer library headers
  *
- * vim: filetype=c:tabstop=4:tw=100:expandtab
- * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+ * vim: filetype=c:tabstop=4:ai:expandtab
  * SPDX-License-Identifier: X11
  * scspell-id: e3417ba7-f62a-11ec-b5c5-80ee73e9b8e7
  *

@@ -1,6 +1,5 @@
 /*
- * vim: filetype=c:tabstop=4:tw=100:expandtab
- * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+ * vim: filetype=c:tabstop=4:ai:expandtab
  * SPDX-License-Identifier: ICU
  * SPDX-License-Identifier: Multics
  * scspell-id: 7f512181-f62e-11ec-ad25-80ee73e9b8e7
@@ -1365,14 +1364,14 @@ t_stat executeInstruction (void) {
 
 // Local caches of frequently accessed data
 
-  const uint ndes = info->ndes;
-  const bool restart = cpu.cu.rfi;         // instruction is to be restarted
-  cpu.cu.rfi = 0;
-  const opc_flag flags = info->flags;
+  const uint ndes         = info->ndes;
+  const bool restart      = cpu.cu.rfi;   // instruction is to be restarted
+  cpu.cu.rfi              = 0;
+  const opc_flag flags    = info->flags;
   const enum opc_mod mods = info->mods;
-  const uint32 opcode = ci->opcode;   // opcode
-  const bool opcodeX = ci->opcodeX;   // opcode extension
-  const word6 tag = ci->tag;          // instruction tag
+  const uint32 opcode     = ci->opcode;   // opcode
+  const bool opcodeX      = ci->opcodeX;  // opcode extension
+  const word6 tag         = ci->tag;      // instruction tag
 
 #ifdef MATRIX
   {
@@ -1417,9 +1416,9 @@ t_stat executeInstruction (void) {
     cpu.cu.TSN_VALID[0] = 0;
     cpu.cu.TSN_VALID[1] = 0;
     cpu.cu.TSN_VALID[2] = 0;
-    cpu.cu.TSN_PRNO[0] = 0;
-    cpu.cu.TSN_PRNO[1] = 0;
-    cpu.cu.TSN_PRNO[2] = 0;
+    cpu.cu.TSN_PRNO[0]  = 0;
+    cpu.cu.TSN_PRNO[1]  = 0;
+    cpu.cu.TSN_PRNO[2]  = 0;
   }
 
   if (unlikely (restart))
@@ -1758,7 +1757,7 @@ restart_1:
       // The semantics of these are that even is the first instruction of
       // and RPD, and odd the second.
 
-      bool icOdd = !! (cpu.PPR.IC & 1);
+      bool icOdd  = !! (cpu.PPR.IC & 1);
       bool icEven = ! icOdd;
 
       // If RPT or (RPD and the odd instruction)
@@ -1882,8 +1881,8 @@ restart_1:
         cpu.cu.TSN_VALID [0] = 0;
         cpu.TPR.TBR = 0;
         if (get_addr_mode () == ABSOLUTE_mode) {
-          cpu.TPR.TSR = cpu.PPR.PSR;
-          cpu.TPR.TRR = 0;
+          cpu.TPR.TSR  = cpu.PPR.PSR;
+          cpu.TPR.TRR  = 0;
           cpu.RSDWH_R1 = 0;
         }
       }

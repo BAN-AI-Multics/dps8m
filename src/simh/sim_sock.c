@@ -1,8 +1,7 @@
 /*
  * sim_sock.c: OS-dependent socket routines
  *
- * vim: filetype=c:tabstop=4:tw=100:expandtab
- * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+ * vim: filetype=c:tabstop=4:ai:expandtab
  * SPDX-License-Identifier: X11
  * scspell-id: ca7023db-f62a-11ec-a6b7-80ee73e9b8e7
  *
@@ -803,15 +802,17 @@ if (preferred == NULL)
     preferred = result;
 #endif
 retry:
-newsock = sim_create_sock (preferred->ai_family, 0);    /* create socket */
-if (newsock == INVALID_SOCKET) {                        /* socket error? */
+if (preferred != NULL)
+    newsock = sim_create_sock (preferred->ai_family, 0);    /* create socket */
+if (newsock == INVALID_SOCKET) {                            /* socket error? */
 #ifndef IPV6_V6ONLY
     if (preferred->ai_next) {
         preferred = preferred->ai_next;
         goto retry;
         }
 #else
-    if ((preferred->ai_family == AF_INET6) &&
+    if (preferred != NULL)
+     if ((preferred->ai_family == AF_INET6) &&
         (preferred != result)) {
         preferred = result;
         goto retry;
