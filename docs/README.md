@@ -1,5 +1,4 @@
-<!-- vim: set ft=markdown ts=2 sw=2 tw=79 cc=80 et spell nolist wrap lbr :-->
-<!-- vim: set ruler hlsearch incsearch autoindent wildmenu wrapscan :-->
+<!-- vim: set ft=markdown ts=2 sw=2 cc=80 et ai spell nolist wrap lbr :-->
 <!-- SPDX-License-Identifier: FSFAP -->
 <!-- scspell-id: 24f3020f-f832-11ec-98e6-80ee73e9b8e7 -->
 <!-- Copyright (c) 2021-2022 The DPS8M Development Team
@@ -11,7 +10,7 @@
 # DPS8M Omnibus Documentation
 
 * This directory contains the build scripts and source code
-  for the **DPS8M Omnibus Documentation**.
+  for the **DPS8M Omnibus Documentation** and **Pages deployment**.
 
 * If you are only interested in *reading* the documentation
   — ***not*** *modifying* or *generating* it — compiled

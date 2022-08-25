@@ -1,7 +1,6 @@
 #!/usr/bin/env sh
 # shellcheck disable=SC2015
-# vim: filetype=sh:tabstop=4:tw=78:expandtab
-# vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+# vim: filetype=sh:tabstop=4:ai:expandtab
 # SPDX-License-Identifier: FSFAP
 # scspell-id: 46316a14-f632-11ec-8919-80ee73e9b8e7
 

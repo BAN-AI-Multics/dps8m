@@ -44,6 +44,7 @@ src/punutil/punutil.dSYM/
 src/vmpctool/vmpctool.dSYM/
 .Dependency
 typescript
+*.bak
 
 # Tags
 tags
@@ -256,3 +257,8 @@ compile_commands.json
 # CCTree
 cctree.db
 CCTree.db
+
+# Pages
+docs/hpages/public
+docs/hpages/resources
+docs/hpages/.hugo_build.lock

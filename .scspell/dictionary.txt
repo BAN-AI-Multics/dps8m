@@ -81,6 +81,7 @@ liststyle
 lscpu
 lvid
 mailpath
+makeflags
 maxloop
 mcmbvers
 mdmv
@@ -1620,6 +1621,7 @@ lpbcnt
 lpbpi
 lpbpr
 lpbsz
+lpdlen
 lpdword
 lport
 lportno
@@ -5332,9 +5334,21 @@ xurl
 ypersetup
 
 FILETYPE: YAML; .yml
+advzip
+aixv
 docsprt
+hpages
+hugobuild
+hugogen
+iloi
+kitname
 libcmb
+lzma
 roscspell
+sdel
+tarxt
+zpaqtmp
+ztmp
 
 FILETYPE: PHP; .php
 argv
@@ -5453,6 +5467,7 @@ findstring
 githooks
 gpath
 hlsearch
+hpages
 htmlout
 ifeq
 ifndef
@@ -5633,6 +5648,7 @@ march
 msys
 needrebuild
 nios
+noet
 opterr
 optflags
 orstlint
@@ -6625,6 +6641,7 @@ zref
 FILEID: c59ea528-f631-11ec-a3d7-80ee73e9b8e7
 colorcolumn
 listchars
+noet
 printf
 
 FILEID: bfdf848e-f631-11ec-9b72-80ee73e9b8e7
@@ -6645,6 +6662,7 @@ makecmdgoals
 minicmb
 needrebuild
 nocp
+noet
 notparallel
 orstlint
 permille
@@ -6679,6 +6697,7 @@ gcno
 gcov
 gpath
 grtags
+hpages
 needrebuild
 nvimlog
 nvimsession
@@ -8735,6 +8754,7 @@ depending
 depends
 depicts
 deploy
+deployment
 deposit
 deposited
 deposits
@@ -9647,6 +9667,7 @@ hsieh
 html
 https
 huge
+hugo
 hull
 human
 humor
@@ -10178,6 +10199,7 @@ lzip
 machine
 machines
 macintosh
+macos
 macro
 macros
 made
@@ -12587,6 +12609,7 @@ wish
 with
 within
 without
+woff
 woken
 womack
 wonder

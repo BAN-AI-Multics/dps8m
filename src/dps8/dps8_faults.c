@@ -1,6 +1,5 @@
 /*
- * vim: filetype=c:tabstop=4:tw=100:expandtab
- * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+ * vim: filetype=c:tabstop=4:ai:expandtab
  * SPDX-License-Identifier: ICU
  * SPDX-License-Identifier: Multics
  * scspell-id: 4182f303-f62e-11ec-9475-80ee73e9b8e7
@@ -497,29 +496,29 @@ else if (faultNumber == FAULT_ACV)
 
     // Set cu word1 fault bits
 
-    cpu . cu . IRO_ISN   = 0;
-    cpu . cu . OEB_IOC   = 0;
-    cpu . cu . EOFF_IAIM = 0;
-    cpu . cu . ORB_ISP = 0;
-    cpu . cu . ROFF_IPR = 0;
-    cpu . cu . OWB_NEA = 0;
-    cpu . cu . WOFF_OOB = 0;
-    cpu . cu . NO_GA = 0;
-    cpu . cu . OCB = 0;
-    cpu . cu . OCALL = 0;
-    cpu . cu . BOC = 0;
+    cpu . cu . IRO_ISN          = 0;
+    cpu . cu . OEB_IOC          = 0;
+    cpu . cu . EOFF_IAIM        = 0;
+    cpu . cu . ORB_ISP          = 0;
+    cpu . cu . ROFF_IPR         = 0;
+    cpu . cu . OWB_NEA          = 0;
+    cpu . cu . WOFF_OOB         = 0;
+    cpu . cu . NO_GA            = 0;
+    cpu . cu . OCB              = 0;
+    cpu . cu . OCALL            = 0;
+    cpu . cu . BOC              = 0;
     DPS8M_ (cpu . cu . PTWAM_ER = 0;)
-    cpu . cu . CRT = 0;
-    cpu . cu . RALR = 0;
-    cpu . cu . SDWAM_ER = 0;
-    cpu . cu . OOSB = 0;
-    cpu . cu . PARU = 0;
-    cpu . cu . PARL = 0;
-    cpu . cu . ONC1 = 0;
-    cpu . cu . ONC2 = 0;
-    cpu . cu . IA = 0;
-    cpu . cu . IACHN = 0;
-    cpu . cu . CNCHN = (faultNumber == FAULT_CON) ? subFault.fault_con_subtype & MASK3 : 0;
+    cpu . cu . CRT              = 0;
+    cpu . cu . RALR             = 0;
+    cpu . cu . SDWAM_ER         = 0;
+    cpu . cu . OOSB             = 0;
+    cpu . cu . PARU             = 0;
+    cpu . cu . PARL             = 0;
+    cpu . cu . ONC1             = 0;
+    cpu . cu . ONC2             = 0;
+    cpu . cu . IA               = 0;
+    cpu . cu . IACHN            = 0;
+    cpu . cu . CNCHN            = (faultNumber == FAULT_CON) ? subFault.fault_con_subtype & MASK3 : 0;
 
     // Set control unit 'fault occurred during instruction fetch' flag
     cpu . cu . FIF       = cpu . cycle == FETCH_cycle ? 1 : 0;
@@ -758,29 +757,29 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
     cpu.cu.IRO_ISN   = 0;
     cpu.cu.OEB_IOC   = 0;
     cpu.cu.EOFF_IAIM = 0;
-    cpu.cu.ORB_ISP = 0;
-    cpu.cu.ROFF_IPR = 0;
-    cpu.cu.OWB_NEA = 0;
-    cpu.cu.WOFF_OOB = 0;
-    cpu.cu.NO_GA = 0;
-    cpu.cu.OCB = 0;
-    cpu.cu.OCALL = 0;
-    cpu.cu.BOC = 0;
+    cpu.cu.ORB_ISP   = 0;
+    cpu.cu.ROFF_IPR  = 0;
+    cpu.cu.OWB_NEA   = 0;
+    cpu.cu.WOFF_OOB  = 0;
+    cpu.cu.NO_GA     = 0;
+    cpu.cu.OCB       = 0;
+    cpu.cu.OCALL     = 0;
+    cpu.cu.BOC       = 0;
 // FFVs are L68 only, so don't need this:
 //# ifdef DPS8M
     //cpu.cu.PTWAM_ER = 0;
 //# endif
-    cpu.cu.CRT = 0;
-    cpu.cu.RALR = 0;
+    cpu.cu.CRT      = 0;
+    cpu.cu.RALR     = 0;
     cpu.cu.SDWAM_ER = 0;
-    cpu.cu.OOSB = 0;
-    cpu.cu.PARU = 0;
-    cpu.cu.PARL = 0;
-    cpu.cu.ONC1 = 0;
-    cpu.cu.ONC2 = 0;
-    cpu.cu.IA = 0;
-    cpu.cu.IACHN = 0;
-    cpu.cu.CNCHN = 0;
+    cpu.cu.OOSB     = 0;
+    cpu.cu.PARU     = 0;
+    cpu.cu.PARL     = 0;
+    cpu.cu.ONC1     = 0;
+    cpu.cu.ONC2     = 0;
+    cpu.cu.IA       = 0;
+    cpu.cu.IACHN    = 0;
+    cpu.cu.CNCHN    = 0;
 
     // Set control unit 'fault occurred during instruction fetch' flag
     cpu.cu.FIF       = 0;
@@ -1008,4 +1007,3 @@ void advanceG7Faults (void)
     unlock_scu ();
 #endif
   }
-

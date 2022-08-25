@@ -1,8 +1,7 @@
 /*
  * sim_tmxr.c: Telnet terminal multiplexer library
  *
- * vim: filetype=c:tabstop=4:tw=100:expandtab
- * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+ * vim: filetype=c:tabstop=4:ai:expandtab
  * SPDX-License-Identifier: X11
  * scspell-id: e76cc98d-f62a-11ec-967b-80ee73e9b8e7
  *
@@ -852,8 +851,12 @@ for (i = 0; i < mp->lines; i++) {                       /* check each line in se
                             lp->conn = TRUE;                    /* record connection */
                             lp->sock = lp->connecting;          /* it now looks normal */
                             lp->connecting = 0;
-                            lp->ipad = (char *)realloc (lp->ipad, 1+strlen (lp->destination));
-                            strcpy (lp->ipad, lp->destination);
+                            int lpdlen = 1;
+                            if (lp->destination != NULL)
+                                lpdlen = 1+strlen (lp->destination);
+                            lp->ipad = (char *)realloc (lp->ipad, lpdlen);
+                            if (lp->destination != NULL)
+                                strcpy (lp->ipad, lp->destination);
                             lp->cnms = sim_os_msec ();
                             sim_getnames_sock (lp->sock, &sockname, &peername);
                             snprintf (msg, sizeof(msg)-1, "tmxr_poll_conn() - Outgoing Line Connection to %s (%s->%s) established", lp->destination, sockname, peername);
@@ -1857,6 +1860,8 @@ if (!speed || !*speed)
     return SCPE_2FARG;
 if (_tmln_speed_delta (speed) < 0)
     return SCPE_ARG;
+if (lp == NULL)
+    return SCPE_ARG;
 lp->rxbps = (uint32)strtotv (speed, &cptr, 10);
 if (*cptr == '*') {
     uint32 rxbpsfactor = (uint32) get_uint (cptr+1, 10, 32, &r);
@@ -2333,10 +2338,12 @@ while (*tptr) {
                 }
             }
         if (loopback) {
-            tmxr_set_line_loopback (lp, loopback);
-            sim_printf ("Line %d operating in loopback mode\n", line);
+            if (lp != NULL) {
+              tmxr_set_line_loopback (lp, loopback);
+              sim_printf ("Line %d operating in loopback mode\n", line);
+              }
             }
-        lp->modem_control = modem_control;
+        if (lp != NULL) lp->modem_control = modem_control;
         if (speed[0] && (!datagram)
         )
             tmxr_set_line_speed (lp, speed);

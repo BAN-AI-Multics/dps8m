@@ -1,5 +1,4 @@
-<!-- vim: set ft=markdown ts=2 sw=2 tw=79 cc=80 et spell nolist wrap lbr :-->
-<!-- vim: set ruler hlsearch incsearch autoindent wildmenu wrapscan :-->
+<!-- vim: set ft=markdown ts=2 sw=2 ai cc=80 et spell nolist wrap lbr :-->
 <!-- SPDX-License-Identifier: LicenseRef-DPS8M-Doc OR LicenseRef-CF-GAL -->
 <!-- SPDX-FileCopyrightText: 2021-2022 The DPS8M Development Team -->
 <!-- scspell-id: a61ed469-f778-11ec-8d76-80ee73e9b8e7 -->

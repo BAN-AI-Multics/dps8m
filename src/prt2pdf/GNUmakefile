@@ -1,6 +1,5 @@
 # DPS8M simulator: src/prt2pdf/GNUmakefile
-# vim: filetype=make:tabstop=4:tw=79:noexpandtab:list:listchars=tab\:\>\-
-# vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan:colorcolumn=79
+# vim: filetype=make:tabstop=4:ai:cc=79:noexpandtab:list:listchars=tab\:\>\-
 # SPDX-License-Identifier: ICU
 # scspell-id: 50949946-f631-11ec-81f4-80ee73e9b8e7
 

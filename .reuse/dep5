@@ -1,0 +1,9 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: DPS8M
+Upstream-Contact: The DPS8M Development Team <contact-project+dps8m-dps8m-10664906-issue-@incoming.gitlab.com>
+Source: https://gitlab.com/dps8m/dps8m
+License: ICU
+
+Files: docs/hpages/archetypes/* docs/hpages/data/* docs/hpages/layouts/* docs/hpages/themes/*
+Copyright: 2022 Robert Kaussow <mail@thegeeklab.de>
+License: MIT

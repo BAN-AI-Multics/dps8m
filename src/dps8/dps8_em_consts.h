@@ -1,6 +1,5 @@
 /*
- * vim: filetype=c:tabstop=4:tw=100:expandtab
- * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+ * vim: filetype=c:tabstop=4:ai:expandtab
  * SPDX-License-Identifier: ICU
  * scspell-id: 3ceeac54-f62e-11ec-b6e7-80ee73e9b8e7
  *
@@ -54,7 +53,7 @@ enum { N_ABSI_UNITS_MAX = 1 };
 enum { N_FNP_UNITS_MAX = 16 };
 
 // Operator console
-enum { N_OPC_UNITS_MAX = 8 };
+enum { N_OPC_UNITS_MAX =  8 };
 
 // MTP
 enum { N_MTP_UNITS_MAX = 16 };
@@ -75,7 +74,7 @@ enum { N_DIA_UNITS_MAX = 16 };
 ////////////////
 
 // Tape drive
-enum { N_MT_UNITS_MAX = 34 };
+enum { N_MT_UNITS_MAX  = 34 };
 
 // Printer
 enum { N_PRT_UNITS_MAX = 34 };
@@ -109,7 +108,7 @@ enum { MAX_CTLR_PORTS = 8 };
 //
 
 enum { N_DPS8M_CPU_PORTS = 4 };
-enum { N_L68_CPU_PORTS = 8 };
-enum { N_CPU_PORTS = 8 }; // For data structures, allocate the worst case and enforce limit at run-time
+enum { N_L68_CPU_PORTS   = 8 };
+enum { N_CPU_PORTS       = 8 }; // For data structures, allocate the worst case and enforce limit at run-time
 
 #endif // DPS8_EM_CONSTS_H

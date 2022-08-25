@@ -1,8 +1,7 @@
 /*
  * sim_console.c: simulator console I/O library
  *
- * vim: filetype=c:tabstop=4:tw=100:expandtab
- * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+ * vim: filetype=c:tabstop=4:ai:expandtab
  * SPDX-License-Identifier: X11
  * scspell-id: a2e214e2-f62a-11ec-89cf-80ee73e9b8e7
  *

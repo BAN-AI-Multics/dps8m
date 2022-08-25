@@ -1,8 +1,7 @@
 /*
  * udplib.h: IMP/TIP Modem and Host Interface socket routines using UDP
  *
- * vim: filetype=c:tabstop=4:tw=100:expandtab
- * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+ * vim: filetype=c:tabstop=4:ai:expandtab
  * SPDX-License-Identifier: X11
  * scspell-id: 1d277b36-f630-11ec-8beb-80ee73e9b8e7
  *

@@ -1347,5 +1347,4 @@ parsestr(char *dst, char *src, int len, int Sflg)
   return bi;
 }
 
-// vim: filetype=c:tabstop=4:tw=100:expandtab
-// vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+// vim: filetype=c:tabstop=4:ai:expandtab

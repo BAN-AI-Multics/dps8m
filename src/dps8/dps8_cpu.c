@@ -1,6 +1,5 @@
 /*
- * vim: filetype=c:tabstop=4:tw=100:expandtab
- * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+ * vim: filetype=c:tabstop=4:ai:expandtab
  * SPDX-License-Identifier: ICU
  * SPDX-License-Identifier: Multics
  * scspell-id: 6e07fe19-f62d-11ec-86f2-80ee73e9b8e7
@@ -368,7 +367,7 @@ static config_value_list_t cfg_size_list [] =
     { "4096",  15 },    // 4194304
     { "4096K", 15 },    // 4194304
     { "4M",    15 },
-    { NULL,    0 }
+    { NULL,    0  }
   };
 
 static config_list_t cpu_config_list [] =
@@ -414,8 +413,8 @@ static config_list_t cpu_config_list [] =
 #endif
     { "isolts_mode",           0,  1,               cfg_on_off             },
     { "nodis",                 0,  1,               cfg_on_off             },
-    { "l68_mode",              0,  1,               cfg_l68_mode },
-    { NULL,                    0,  0,               NULL }
+    { "l68_mode",              0,  1,               cfg_l68_mode           },
+    { NULL,                    0,  0,               NULL                   }
   };
 
 static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,

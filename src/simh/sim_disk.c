@@ -1,8 +1,7 @@
 /*
  * sim_disk.c: simulator disk support library
  *
- * vim: filetype=c:tabstop=4:tw=100:expandtab
- * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+ * vim: filetype=c:tabstop=4:ai:expandtab
  * SPDX-License-Identifier: X11
  * scspell-id: b2c7f6c3-f62a-11ec-9f60-80ee73e9b8e7
  *

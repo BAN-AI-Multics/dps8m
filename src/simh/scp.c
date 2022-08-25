@@ -1,8 +1,7 @@
 /*
  * scp.c: simulator control program
  *
- * vim: filetype=c:tabstop=4:tw=100:colorcolumn=84:expandtab
- * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+ * vim: filetype=c:tabstop=4:ai:colorcolumn=84:expandtab
  * SPDX-License-Identifier: X11
  * scspell-id: 7cde852c-f62a-11ec-8444-80ee73e9b8e7
  *
@@ -172,6 +171,7 @@
 
 t_bool sim_asynch_enabled = FALSE;
 t_stat tmxr_locate_line_send (const char *dev_line, SEND **snd);
+t_stat tmxr_locate_line_expect (const char *dev_line, EXPECT **exp);
 extern void (*sim_vm_init) (void);
 extern void (*sim_vm_exit) (void);
 char* (*sim_vm_read) (char *ptr, int32 size, FILE *stream) = NULL;
@@ -3456,9 +3456,13 @@ t_stat sim_show_expect (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST ch
 char gbuf[CBUFSIZE];
 CONST char *tptr;
 EXPECT *exp = NULL;
+t_stat r;
 
 tptr = get_glyph (cptr, gbuf, ',');
 if (sim_isalpha(gbuf[0]) && (strchr (gbuf, ':'))) {
+    r = tmxr_locate_line_expect (gbuf, &exp);
+    if (r != SCPE_OK)
+        return r;
     cptr = tptr;
     }
 else
@@ -5551,7 +5555,6 @@ else if ((flag == RU_STEP) ||
     static t_bool not_implemented_message = FALSE;
 
     if ((!not_implemented_message) && (flag == RU_NEXT)) {
-        sim_printf ("This simulator does not have subroutine call detection.\nPerforming a STEP instead\n");
         not_implemented_message = TRUE;
         flag = RU_STEP;
         }
@@ -8293,6 +8296,7 @@ if (!bp)                                                /* not there? ok */
 if (sw == 0)
     sw = SIM_BRK_ALLTYP;
 
+#ifndef __clang_analyzer__
 while (bp) {
     if (bp->typ == (bp->typ & sw)) {
         free (bp->act);                                 /* deallocate action */
@@ -8308,6 +8312,7 @@ while (bp) {
         bp = bp->next;
         }
     }
+#endif /* ifndef __clang_analyzer__ */
 if (sim_brk_tab[sim_brk_ins] == NULL) {                 /* erased entry */
     sim_brk_ent = sim_brk_ent - 1;                      /* decrement count */
     for (i = sim_brk_ins; i < sim_brk_ent; i++)         /* shuffle remaining entries */
@@ -8634,9 +8639,13 @@ char gbuf[CBUFSIZE];
 CONST char *tptr;
 CONST char *c1ptr;
 t_bool after_set = FALSE;
-uint32 after = exp->after;
+uint32 after;
 int32 cnt = 0;
 t_stat r;
+
+if (exp == NULL)
+    return sim_messagef (SCPE_ARG, "Null exp!\n");
+after = exp->after;
 
 if ((cptr == NULL) || (*cptr == 0))
     return SCPE_2FARG;
@@ -8705,12 +8714,14 @@ free (ep->match);                                       /* deallocate match stri
 free (ep->match_pattern);                               /* deallocate the display format match string */
 free (ep->act);                                         /* deallocate action */
 exp->size -= 1;                                         /* decrement count */
+#ifndef __clang_analyzer__
 for (i=ep-exp->rules; i<exp->size; i++)                 /* shuffle up remaining rules */
     exp->rules[i] = exp->rules[i+1];
 if (exp->size == 0) {                                   /* No rules left? */
     free (exp->rules);
     exp->rules = NULL;
     }
+#endif /* ifndef __clang_analyzer__ */
 return SCPE_OK;
 }
 
@@ -8915,6 +8926,8 @@ exp->buf[exp->buf_ins] = '\0';                          /* Nul terminate for Reg
 
 for (i=0; i < exp->size; i++) {
     ep = &exp->rules[i];
+    if (ep == NULL)
+        break;
     if (ep->switches & EXP_TYP_REGEX) {
         }
     else {
@@ -8981,9 +8994,8 @@ if (exp->buf_ins == exp->buf_size) {                    /* At end of match buffe
         sim_debug (exp->dbit, exp->dptr, "Buffer wrapping\n");
         }
     }
-if (i != exp->size) {                                   /* Found? */
-    sim_debug (exp->dbit, exp->dptr, "Matched expect pattern: %s\n", ep->match_pattern);
-    setenv ("_EXPECT_MATCH_PATTERN", ep->match_pattern, 1);   /* Make the match detail available as an environment variable */
+if ((ep != NULL) && (i != exp->size)) {                 /* Found? */
+    sim_debug (exp->dbit, exp->dptr, "Matched expect pattern!\n");
     if (ep->cnt > 0) {
         ep->cnt -= 1;
         sim_debug (exp->dbit, exp->dptr, "Waiting for %d more match%s before stopping\n",
@@ -9803,8 +9815,9 @@ for (hblock = astrings; (htext = *hblock) != NULL; hblock++) {
                                 }
                             break;
                         case 'D':
+                            if (dptr != NULL)
                                 appendText (topic, dptr->name, strlen (dptr->name));
-                                break;
+                            break;
                         case 'S':
                             appendText (topic, sim_name, strlen (sim_name));
                             break;
@@ -10083,20 +10096,22 @@ if (topic->title)
     fprintf (st, "%s\n", topic->title+1);
 
 skiplines = 0;
-if (!strcmp (topic->title+1, "Registers")) {
-    fprint_reg_help (tmp, dptr) ;
-    skiplines = 1;
-    }
-else
-    if (!strcmp (topic->title+1, "Set commands")) {
-        fprint_set_help (tmp, dptr);
-        skiplines = 3;
-        }
-    else
-        if (!strcmp (topic->title+1, "Show commands")) {
-            fprint_show_help (tmp, dptr);
-            skiplines = 3;
-            }
+if (topic->title) {
+  if (!strcmp (topic->title+1, "Registers")) {
+      fprint_reg_help (tmp, dptr) ;
+      skiplines = 1;
+      }
+  else
+      if (!strcmp (topic->title+1, "Set commands")) {
+          fprint_set_help (tmp, dptr);
+          skiplines = 3;
+          }
+      else
+          if (!strcmp (topic->title+1, "Show commands")) {
+              fprint_show_help (tmp, dptr);
+              skiplines = 3;
+              }
+  }
 rewind (tmp);
 
 /* Discard leading blank lines/redundant titles */

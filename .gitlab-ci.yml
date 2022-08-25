@@ -487,7 +487,7 @@
 ############################################################################
 
 .scriptVerifyVersion: &scriptVerifyVersion |
-    # *scriptVerifyVersion - Smoke-test for version information ...
+    # *scriptVerifyVersion - Smoke-test ...
     ./src/dps8/dps8 --version | grep 'imulator'
     echo "SHOW VERSION" | ./src/dps8/dps8 | grep 'imulator '
     printf '%s\n' "SHOW BUILDINFO" "ECHO" "SHOW VERSION" | ./src/dps8/dps8
@@ -567,15 +567,18 @@ Linux/x86_64, Alpine Edge, Clang, GCC:
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - make distclean
-    - make CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - env LDFLAGS=-static make CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
+    - ( cd src && tar cvf ../dps8m-master-linux-x86.tar dps8/dps8 prt2pdf/prt2pdf punutil/punutil )
+    - pigz -11 -f -m -n dps8m-master-linux-x86.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
+      - ${CI_PROJECT_DIR:?}/dps8m-master-linux-x86.tar.gz
       - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
       - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
@@ -606,12 +609,15 @@ Windows/x86_64, Cygwin64-GCC:
     - cygwin64-make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
     - *scriptBuildInfo
     - cp -vf /usr/x86_64-pc-cygwin/sys-root/usr/bin/cygwin1.dll ${CI_PROJECT_DIR:?}
-    - *scriptCompressArtifacts
     - rm -f "${CI_PROJECT_DIR:?}/cygwin1.dll"
+    - ( cd src && tar cvf ../dps8m-master-cygwin-64.tar dps8/dps8.exe prt2pdf/prt2pdf.exe punutil/punutil.exe )
+    - pigz -11 -f -m -n dps8m-master-cygwin-64.tar
+    - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
+      - ${CI_PROJECT_DIR:?}/dps8m-master-cygwin-64.tar.gz
       - ${CI_PROJECT_DIR:?}/dps8m.zip
   retry: 2
   timeout: 120 minutes
@@ -767,7 +773,7 @@ Linux/x86_64, Fedora, Clang, GCC:
 
 GNU GLOBAL Hypertext:
   image: fedora:latest
-  stage: test
+  stage: docs
   tags:
     - Docker-x64
     - amd64
@@ -789,6 +795,34 @@ GNU GLOBAL Hypertext:
     expire_in: 30 days
     paths:
       - ${CI_PROJECT_DIR:?}/HTML
+  retry: 1
+  timeout: 120 minutes
+  interruptible: true
+
+############################################################################
+
+Hugo:
+  image: fedora:latest
+  stage: docs
+  tags:
+    - Docker-x64
+    - amd64
+    - Linux
+  script:
+    - export GLCICD_JOB="Hugogen64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
+    - dnf -q install -y hugo bzip2 || dnf -q install -y hugo bzip2
+    - *scriptDnfSetup
+    - *scriptInstallNfpm
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - cd docs/hpages && ./hugobuild.sh
+  dependencies: []
+  artifacts:
+    expire_in: 30 days
+    paths:
+      - ${CI_PROJECT_DIR:?}/docs/hpages/public
   retry: 1
   timeout: 120 minutes
   interruptible: true
@@ -848,11 +882,14 @@ AIX/powerpc64, IBM AIX, GCC 10:
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
+    - ( cd src && tar cvf ../dps8m-master-aixv7-gcc.tar dps8/dps8 prt2pdf/prt2pdf punutil/punutil )
+    - pigz -11 -f -m -n dps8m-master-aixv7-gcc.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
+      - ${CI_PROJECT_DIR:?}/dps8m-master-aixv7-gcc.tar.gz
       - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
       - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
@@ -878,11 +915,14 @@ AIX/powerpc64, IBM AIX, IBM XL C/C++ V16.1:
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
+    - ( cd src && tar cvf ../dps8m-master-aixv7-xlc.tar dps8/dps8 prt2pdf/prt2pdf punutil/punutil )
+    - pigz -11 -f -m -n dps8m-master-aixv7-xlc.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
+      - ${CI_PROJECT_DIR:?}/dps8m-master-aixv7-xlc.tar.gz
       - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
       - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
@@ -940,11 +980,14 @@ Linux/powerpc64el, Ubuntu LTS, IBM XL C/C++:
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
+    - ( cd src && tar cvf ../dps8m-master-linux-xlc.tar dps8/dps8 prt2pdf/prt2pdf punutil/punutil )
+    - pigz -11 -f -n dps8m-master-linux-xlc.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
+      - ${CI_PROJECT_DIR:?}/dps8m-master-linux-xlc.tar.gz
       - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
       - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
@@ -971,11 +1014,14 @@ Linux/powerpc64el, Ubuntu LTS, IBM Advance Toolchain 15, IBM MASS:
     - export IBMXLMASSVER="latest-9" export IBMATVER="15.0" && export PATH="/opt/at${IBMATVER:?}/bin:/opt/at${IBMATVER:?}/sbin:/opt/at${IBMATVER:?}/powerpc64le-linux-gnu/bin:${PATH:?}" && cc --version 2>&1 | grep "Advance" && make CC="gcc -DNO_WARN_X86_INTRINSICS -ftree-vectorize -fpeel-loops -mcpu=power8 -mtune=power8 -fsigned-char -mveclibabi=mass -Ofast -flto" LIBS="-L/opt/at${IBMATVER:?}/lib64 -L/opt/ibm/xlmass/${IBMXLMASSVER:?}/lib -luv -lmassvp9 -lmass_simdp9 -lmass -ldl -lrt -lm -flto" -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptVerifyVersion
+    - ( cd src && tar cvf ../dps8m-master-linux-at8.tar dps8/dps8 prt2pdf/prt2pdf punutil/punutil )
+    - pigz -11 -f -n dps8m-master-linux-at8.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
+      - ${CI_PROJECT_DIR:?}/dps8m-master-linux-at8.tar.gz
       - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
       - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
@@ -1003,11 +1049,13 @@ Windows/ARM64, LLVM-MinGW:
     - make CC="aarch64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
     - test -f src/dps8/dps8.exe
     - *scriptBuildInfo
+    - ( cd src && zip -9 ../dps8m-master-mingw-a64.zip dps8/dps8.exe prt2pdf/prt2pdf.exe punutil/punutil.exe )
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
+      - ${CI_PROJECT_DIR:?}/dps8m-master-mingw-a64.zip
       - ${CI_PROJECT_DIR:?}/dps8m.zip
   retry: 2
   timeout: 120 minutes
@@ -1032,11 +1080,13 @@ Windows/ARMv7, LLVM-MinGW:
     - make CC="armv7-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread -D__int64_t=int64_t -D__MINGW64__" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
     - test -f src/dps8/dps8.exe
     - *scriptBuildInfo
+    - ( cd src && zip -9 ../dps8m-master-mingw-av7.zip dps8/dps8.exe prt2pdf/prt2pdf.exe punutil/punutil.exe )
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
+      - ${CI_PROJECT_DIR:?}/dps8m-master-mingw-av7.zip
       - ${CI_PROJECT_DIR:?}/dps8m.zip
   retry: 2
   timeout: 120 minutes
@@ -1061,11 +1111,13 @@ Windows/i686, LLVM-MinGW:
     - make CC="i686-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread -D__int64_t=int64_t -D__MINGW64__" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
     - test -f src/dps8/dps8.exe
     - *scriptBuildInfo
+    - ( cd src && zip -9 ../dps8m-master-mingw-x32.zip dps8/dps8.exe prt2pdf/prt2pdf.exe punutil/punutil.exe )
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
+      - ${CI_PROJECT_DIR:?}/dps8m-master-mingw-x32.zip
       - ${CI_PROJECT_DIR:?}/dps8m.zip
   retry: 2
   timeout: 120 minutes
@@ -1113,7 +1165,7 @@ Windows/x86_64, MinGW64-GCC:
     - Linux
   script:
     - *scriptAlpineSetup
-    - apk add mingw-w64-binutils mingw-w64-headers mingw-w64-gcc mingw-w64-winpthreads mingw-w64-crt || apk add mingw-w64-binutils mingw-w64-headers mingw-w64-gcc mingw-w64-winpthreads mingw-w64-crt
+    - apk add zip mingw-w64-binutils mingw-w64-headers mingw-w64-gcc mingw-w64-winpthreads mingw-w64-crt || apk add zip mingw-w64-binutils mingw-w64-headers mingw-w64-gcc mingw-w64-winpthreads mingw-w64-crt
     - *scriptBuildlibuvMGW64
     - *scriptSanity
     - *scriptCommon
@@ -1122,11 +1174,13 @@ Windows/x86_64, MinGW64-GCC:
     - make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
     - *scriptBuildInfo
     - test -f src/dps8/dps8.exe
+    - ( cd src && zip -9 ../dps8m-master-mingw-x86.zip dps8/dps8.exe prt2pdf/prt2pdf.exe punutil/punutil.exe )
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
+      - ${CI_PROJECT_DIR:?}/dps8m-master-mingw-x86.zip
       - ${CI_PROJECT_DIR:?}/dps8m.zip
   retry: 2
   timeout: 120 minutes
@@ -1182,19 +1236,31 @@ Source Kits:
     - amd64
     - Linux
   script:
-    - ( (apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null); apt-get -qq -y install zip advancecomp pigz tar make git > /dev/null || apt-get -qq -y install zip advancecomp pigz tar make git > /dev/null )
+    - ( (apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null); apt-get -qq -y install zpaq zip advancecomp pigz tar make git lzip 7zip > /dev/null || apt-get -qq -y install zpaq zip advancecomp pigz tar make git lzip 7zip > /dev/null )
     - *scriptSanity
     - *scriptCommon
-    - make distclean && make dist COMPRESS="pigz -9 -f" COMPRESSXT="gz"
+    - make distclean && make dist COMPRESS="pigz -11 -f -m -n" COMPRESSXT="gz"
     - cp -vf sources.tar.gz /tmp
     - make distclean && make zipdist
+    - advzip -z4 sources.zip
     - cp -vf /tmp/sources.tar.gz .
+    - mv sources.zip dps8m-master-src.zip
+    - mv sources.tar.gz dps8m-master-src.tar.gz
+    - make distclean && make dist COMPRESS="lzip -9 -s 512Mi" COMPRESSXT="lz"
+    - mv sources.tar.lz dps8m-master-src.tar.lz
+    - make distclean && env COMPRESSXT="7z" COMPRESS='( mkdir -p 7ztmp && cd 7ztmp && tar xf ../../../$(KITNAME).$(TARXT) && 7zz a -y -m0=lzma -mx=9 -mfb=273 -ssc -ssw -spf -snl -md=512m -ms=on -stl -sdel ../../../$(KITNAME).$(COMPRESSXT) . ) && $(RMDIR) 7ztmp && $(RMF) $(KITNAME).$(TARXT)' make dist
+    - mv sources.7z dps8m-master-src.7z
+    - make distclean && env COMPRESSXT="zpaq" COMPRESS='( mkdir -p zpaqtmp && cd zpaqtmp && tar xf ../../../$(KITNAME).$(TARXT) && zpaq -f add ../../../$(KITNAME).$(COMPRESSXT) . -m5 ) && $(RMF) -r ./zpaqtmp && $(RMF) $(KITNAME).$(TARXT)' make dist
+    - mv sources.zpaq dps8m-master-src.zpaq
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/sources.tar.gz
-      - ${CI_PROJECT_DIR:?}/sources.zip
+      - ${CI_PROJECT_DIR:?}/dps8m-master-src.tar.lz
+      - ${CI_PROJECT_DIR:?}/dps8m-master-src.tar.gz
+      - ${CI_PROJECT_DIR:?}/dps8m-master-src.7z
+      - ${CI_PROJECT_DIR:?}/dps8m-master-src.zip
+      - ${CI_PROJECT_DIR:?}/dps8m-master-src.zpaq
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1376,11 +1442,14 @@ Solaris/x86_64, Oracle Solaris 11.4, GCC:
     - echo "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
+    - ( cd src && tar cvf ../dps8m-master-s114-x86.tar dps8/dps8 prt2pdf/prt2pdf punutil/punutil )
+    - pigz -11 -f -n dps8m-master-s114-x86.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
+      - ${CI_PROJECT_DIR:?}/dps8m-master-s114-x86.tar.gz
       - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
       - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
@@ -1442,11 +1511,14 @@ illumos/x86_64, OpenIndiana Hipster, Clang, GCC 11:
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
+    - ( cd src && tar cvf ../dps8m-master-iloi-x86.tar dps8/dps8 prt2pdf/prt2pdf punutil/punutil )
+    - pigz -11 -f -m -n dps8m-master-iloi-x86.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
+      - ${CI_PROJECT_DIR:?}/dps8m-master-iloi-x86.tar.gz
       - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
       - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
@@ -1473,11 +1545,14 @@ Darwin/x86_64, macOS, Xcode:
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
+    - ( cd src && tar cvf ../dps8m-master-macos-x86.tar dps8/dps8 prt2pdf/prt2pdf punutil/punutil )
+    - pigz -11 -f -m -n dps8m-master-macos-x86.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
+      - ${CI_PROJECT_DIR:?}/dps8m-master-macos-x86.tar.gz
       - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
       - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
@@ -1810,31 +1885,80 @@ pages:
     - Linux
     - amd64
   needs:
-    - job: DPS8M Omnibus Documentation
-    - job: GNU GLOBAL Hypertext
-    - job: Oracle Developer Studio Lint
-    - job: Cppcheck
-    - job: Flawfinder
+    - job: AIX/powerpc64, IBM AIX, GCC 10
+    - job: AIX/powerpc64, IBM AIX, IBM XL C/C++ V16.1
     - job: Clang Analyzer
+    - job: Cppcheck
+    - job: Darwin/x86_64, macOS, Xcode
+    - job: DPS8M Omnibus Documentation
+    - job: Flawfinder
+    - job: GNU GLOBAL Hypertext
+    - job: Hugo
+    - job: illumos/x86_64, OpenIndiana Hipster, Clang, GCC 11
+    - job: Linux/powerpc64el, Ubuntu LTS, IBM Advance Toolchain 15, IBM MASS
+    - job: Linux/powerpc64el, Ubuntu LTS, IBM XL C/C++
+    - job: Linux/x86_64, Alpine Edge, Clang, GCC
+    - job: Oracle Developer Studio Lint
+    - job: Solaris/x86_64, Oracle Solaris 11.4, GCC
+    - job: Source Kits
+    - job: Windows/ARM64, LLVM-MinGW
+    - job: Windows/ARMv7, LLVM-MinGW
+    - job: Windows/i686, LLVM-MinGW
+    - job: Windows/x86_64, Cygwin64-GCC
+    - job: Windows/x86_64, MinGW64-GCC
   dependencies:
-    - "DPS8M Omnibus Documentation"
-    - "GNU GLOBAL Hypertext"
-    - "Oracle Developer Studio Lint"
-    - "Cppcheck"
-    - "Flawfinder"
+    - "AIX/powerpc64, IBM AIX, GCC 10"
+    - "AIX/powerpc64, IBM AIX, IBM XL C/C++ V16.1"
     - "Clang Analyzer"
+    - "Cppcheck"
+    - "Darwin/x86_64, macOS, Xcode"
+    - "DPS8M Omnibus Documentation"
+    - "Flawfinder"
+    - "GNU GLOBAL Hypertext"
+    - "Hugo"
+    - "illumos/x86_64, OpenIndiana Hipster, Clang, GCC 11"
+    - "Linux/powerpc64el, Ubuntu LTS, IBM Advance Toolchain 15, IBM MASS"
+    - "Linux/powerpc64el, Ubuntu LTS, IBM XL C/C++"
+    - "Linux/x86_64, Alpine Edge, Clang, GCC"
+    - "Oracle Developer Studio Lint"
+    - "Solaris/x86_64, Oracle Solaris 11.4, GCC"
+    - "Source Kits"
+    - "Windows/ARM64, LLVM-MinGW"
+    - "Windows/ARMv7, LLVM-MinGW"
+    - "Windows/i686, LLVM-MinGW"
+    - "Windows/x86_64, Cygwin64-GCC"
+    - "Windows/x86_64, MinGW64-GCC"
   stage: deploy
   script:
   - mkdir -p public/master
   - mv -f ${CI_PROJECT_DIR:?}/docs/dps8-omnibus.pdf public/master/dps8m-omnibus.pdf
   - mv -f ${CI_PROJECT_DIR:?}/HTML public/master/global
-  - mkdir -p public/master/lint/oracle
-  - mv -f ${CI_PROJECT_DIR:?}/orstlint.txt public/master/lint/oracle/oracle.txt
-  - mv -f ${CI_PROJECT_DIR:?}/cppcheck public/master/lint/cppcheck
-  - mv -f ${CI_PROJECT_DIR:?}/cppcheck.txt public/master/lint/cppcheck/cppcheck.txt
+  - mkdir -p public/master/lint/oracle || true
+  - mv -f ${CI_PROJECT_DIR:?}/orstlint.txt public/master/lint/oracle/oracle.txt || true
+  - mv -f ${CI_PROJECT_DIR:?}/cppcheck public/master/lint/cppcheck || true
+  - mv -f ${CI_PROJECT_DIR:?}/cppcheck.txt public/master/lint/cppcheck/cppcheck.txt || true
   - mkdir -p public/master/lint/flawfinder
-  - mv -f ${CI_PROJECT_DIR:?}/flawfinder.txt public/master/lint/flawfinder/flawfinder.txt
-  - mv -f ${CI_PROJECT_DIR:?}/out public/master/lint/clang-analyzer
+  - mv -f ${CI_PROJECT_DIR:?}/flawfinder.txt public/master/lint/flawfinder/flawfinder.txt || true
+  - mv -f ${CI_PROJECT_DIR:?}/out public/master/lint/clang-analyzer || true
+  - mv -f ${CI_PROJECT_DIR:?}/docs/hpages/public/* public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-src.tar.lz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-src.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-src.7z public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-src.zip public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-src.zpaq public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-aixv7-xlc.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-aixv7-gcc.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-x86.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-at8.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-xlc.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-macos-x86.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-s114-x86.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-iloi-x86.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-mingw-x86.zip public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-mingw-x32.zip public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-mingw-a64.zip public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-mingw-av7.zip public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-cygwin-64.tar.gz public
   artifacts:
     paths:
     - public

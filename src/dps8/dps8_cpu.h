@@ -1,6 +1,5 @@
 /*
- * vim: filetype=c:tabstop=4:tw=100:expandtab
- * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+ * vim: filetype=c:tabstop=4:ai:expandtab
  * SPDX-License-Identifier: ICU
  * scspell-id: 72d91a53-f62d-11ec-a98f-80ee73e9b8e7
  *
@@ -1506,10 +1505,10 @@ enum { CUH_XINT = 0100, CUH_IFT = 040, CUH_CRD = 020, CUH_MRD = 010,
        CUH_MSTO = 04, CUH_PIB = 02 };
 
 #define N_DPS8M_WAM_ENTRIES 64
-#define N_DPS8M_WAM_MASK 077
-#define N_L68_WAM_ENTRIES 16
-#define N_L68_WAM_MASK 017
-#define N_NAX_WAM_ENTRIES 64
+#define N_DPS8M_WAM_MASK   077
+#define N_L68_WAM_ENTRIES   16
+#define N_L68_WAM_MASK     017
+#define N_NAX_WAM_ENTRIES   64
 #define N_MODEL_WAM_ENTRIES (cpu.tweaks.l68_mode ? N_L68_WAM_ENTRIES : N_DPS8M_WAM_ENTRIES)
 
 typedef struct

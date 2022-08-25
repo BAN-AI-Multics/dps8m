@@ -1,6 +1,5 @@
 # DPS8M simulator: src/ci-kit/ci.makefile
-# vim: filetype=make:tabstop=4:tw=79:noexpandtab:list:listchars=tab\:\>\-
-# vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan:colorcolumn=79
+# vim: filetype=make:tabstop=4:ai:cc=79:noexpandtab:list:listchars=tab\:\>\-
 # SPDX-License-Identifier: ICU
 # scspell-id: 5ccd4788-f62b-11ec-954c-80ee73e9b8e7
 
