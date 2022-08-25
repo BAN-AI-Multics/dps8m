@@ -1984,6 +1984,7 @@ static inline int core_read (word24 addr, word36 *data, \
   {
     PNL (cpu.portBusy = true;)
     SC_MAP_ADDR (addr, addr);
+    * data = M[addr] & DMASK;
 # ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 # endif
