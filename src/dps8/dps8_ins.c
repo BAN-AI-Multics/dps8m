@@ -5798,8 +5798,7 @@ static t_stat doInstruction (void)
           HDBGRegAR ("dfad");
           HDBGRegQR ("dfad");
 #endif
-          dufa (false);
-          fno (&cpu.rE, &cpu.rA, &cpu.rQ);
+          dufa (false, true);
 #ifdef TESTING
           HDBGRegAW ("dfad");
           HDBGRegQW ("dfad");
@@ -5807,7 +5806,7 @@ static t_stat doInstruction (void)
           break;
 
         case x0 (0437):  // dufa
-          dufa (false);
+          dufa (false, false);
           break;
 
         case x0 (0475):  // fad
@@ -5820,8 +5819,7 @@ static t_stat doInstruction (void)
           HDBGRegAR ("fad");
           HDBGRegQR ("fad");
 #endif
-          ufa (false);
-          fno (&cpu.rE, &cpu.rA, &cpu.rQ);
+          ufa (false, true);
 #ifdef TESTING
           HDBGRegAW ("fad");
           HDBGRegQW ("fad");
@@ -5832,7 +5830,7 @@ static t_stat doInstruction (void)
         case x0 (0435):  // ufa
             // C(EAQ) + C(Y) -> C(EAQ)
 
-          ufa (false);
+          ufa (false, false);
           break;
 
         /// Floating-Point Subtraction
@@ -5847,8 +5845,7 @@ static t_stat doInstruction (void)
           HDBGRegAR ("dfsb");
           HDBGRegQR ("dfsb");
 #endif
-          dufa (true);
-          fno (&cpu.rE, &cpu.rA, &cpu.rQ);
+          dufa (true, true);
 #ifdef TESTING
           HDBGRegAW ("dfsb");
           HDBGRegQW ("dfsb");
@@ -5856,7 +5853,7 @@ static t_stat doInstruction (void)
           break;
 
         case x0 (0537):  // dufs
-          dufa (true);
+          dufa (true, false);
           break;
 
         case x0 (0575):  // fsb
@@ -5867,8 +5864,7 @@ static t_stat doInstruction (void)
           HDBGRegQR ("fsb");
 #endif
           CPTUR (cptUseE);
-          ufa (true);
-          fno (&cpu.rE, &cpu.rA, &cpu.rQ);
+          ufa (true, true);
 #ifdef TESTING
           HDBGRegAW ("fsb");
           HDBGRegQW ("fsb");
@@ -5877,7 +5873,7 @@ static t_stat doInstruction (void)
 
         case x0 (0535):  // ufs
           // C(EAQ) - C(Y) -> C(EAQ)
-          ufa (true);
+          ufa (true, false);
           break;
 
         /// Floating-Point Multiplication
@@ -5891,8 +5887,7 @@ static t_stat doInstruction (void)
           HDBGRegAR ("dfmp");
           HDBGRegQR ("dfmp");
 #endif
-          dufm ();
-          fno (&cpu.rE, &cpu.rA, &cpu.rQ);
+          dufm (true);
 #ifdef TESTING
           HDBGRegAW ("dfmp");
           HDBGRegQW ("dfmp");
@@ -5901,7 +5896,7 @@ static t_stat doInstruction (void)
 
         case x0 (0423):  // dufm
 
-          dufm ();
+          dufm (false);
           break;
 
         case x0 (0461):  // fmp
@@ -5909,8 +5904,7 @@ static t_stat doInstruction (void)
           // followed by a fno instruction.
 
           CPTUR (cptUseE);
-          ufm ();
-          fno (&cpu.rE, &cpu.rA, &cpu.rQ);
+          ufm (true);
 #ifdef TESTING
           HDBGRegAW ("fmp");
           HDBGRegQW ("fmp");
@@ -5919,7 +5913,7 @@ static t_stat doInstruction (void)
 
         case x0 (0421):  // ufm
           // C(EAQ)* C(Y) -> C(EAQ)
-          ufm ();
+          ufm (false);
           break;
 
         /// Floating-Point Division
@@ -7123,11 +7117,8 @@ static t_stat doInstruction (void)
                   cpu.MR.ihrrs = getbits36_1 (cpu.CY, 31);
                   cpu.MR.emr = getbits36_1 (cpu.CY, 35);
                   if (! cpu.tweaks.l68_mode) // DPS8M
-                    if (cpu.options.hex_mode_installed)
-                      cpu.MR.hexfp = getbits36_1 (cpu.CY, 33);
-                    else
-                      cpu.MR.hexfp = 0;
-                 else // L68
+                    cpu.MR.hexfp = getbits36_1 (cpu.CY, 33);
+                  else // L68
                     cpu.MR.hexfp = 0;
 
                   // Stop HR Strobe on HR Counter Overflow. (Setting bit 28
