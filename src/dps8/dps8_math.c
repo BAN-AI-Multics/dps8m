@@ -452,10 +452,9 @@ float36 IEEEdoubleTofloat36(double f0)
 #  define HEX_NORM (         BIT71 | BIT70 | BIT69 | BIT68)
 # endif
 
-static inline bool isHex (void)
-  {
-    return (!!cpu.MR.hexfp) && (!!TST_I_HEX);
-  }
+static inline bool isHex (void) {
+    return (! cpu.tweaks.l68_mode) && (!! cpu.options.hex_mode_installed) &&  (!! cpu.MR.hexfp) && (!! TST_I_HEX);
+}
 #endif
 
 /*!
