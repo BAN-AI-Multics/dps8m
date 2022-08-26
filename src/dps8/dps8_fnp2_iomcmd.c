@@ -1728,10 +1728,9 @@ static word18 getl6core (uint iom_unit_idx, uint chan, word24 l66addr, uint addr
   }
 #endif
 
-static void processMBX (uint iomUnitIdx, uint chan)
-  {
-    uint fnp_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
-    struct fnpUnitData_s * fudp = & fnpData.fnpUnitData [fnp_unit_idx];
+static void processMBX (uint iomUnitIdx, uint chan) {
+  uint fnp_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
+  struct fnpUnitData_s * fudp = & fnpData.fnpUnitData [fnp_unit_idx];
 
 // 60132445 FEP Coupler EPS
 // 2.2.1 Control Intercommunication
@@ -1740,12 +1739,11 @@ static void processMBX (uint iomUnitIdx, uint chan)
 // to Level 6 software is a mailbox area consisting to an Overhead
 // mailbox and 7 Channel mailboxes."
 
-    bool ok = true;
+  bool ok = true;
 
-    word36 dia_pcw;
-    iom_direct_data_service (iomUnitIdx, chan, fudp->mailboxAddress+DIA_PCW, & dia_pcw, direct_load);
-    sim_debug (DBG_TRACE, & fnp_dev,
-               "%s: chan %d dia_pcw %012"PRIo64"\n", __func__, chan, dia_pcw);
+  word36 dia_pcw;
+  iom_direct_data_service (iomUnitIdx, chan, fudp->mailboxAddress+DIA_PCW, & dia_pcw, direct_load);
+  sim_debug (DBG_TRACE, & fnp_dev, "%s: chan %d dia_pcw %012"PRIo64"\n", __func__, chan, dia_pcw);
 
 // Mailbox word 0:
 //
@@ -1848,20 +1846,14 @@ static void processMBX (uint iomUnitIdx, uint chan)
 //        15-23 0
 //
 
-    uint command = getbits36_6 (dia_pcw, 30);
-    word36 bootloadStatus = 0;
+  uint command = getbits36_6 (dia_pcw, 30);
+  word36 bootloadStatus = 0;
 
-    if (command == 000) // reset
-      {
-        sim_debug (DBG_TRACE, & fnp_dev,
-                   "%s: chan %d reset command\n", __func__, chan);
-        send_general_interrupt (iomUnitIdx, chan, imwTerminatePic);
-      }
-    else if (command == 072) // bootload
-      {
-#if 1
-        word24 l66addr = (((word24) getbits36_6 (dia_pcw, 24)) << 18) |
-                           (word24) getbits36_18 (dia_pcw, 0);
+  if (command == 000) { // reset
+    sim_debug (DBG_TRACE, & fnp_dev, "%s: chan %d reset command\n", __func__, chan);
+    send_general_interrupt (iomUnitIdx, chan, imwTerminatePic);
+  } else if (command == 072) { // bootload
+    word24 l66addr = (((word24) getbits36_6 (dia_pcw, 24)) << 18) | (word24) getbits36_18 (dia_pcw, 0);
 
 // AN85-01 15-2
 //   0 boot dcw
@@ -1872,44 +1864,52 @@ static void processMBX (uint iomUnitIdx, uint chan)
 //
 // where n is (in 36 bit words) (gicb len + 1) + 63 / 64
 
-//sim_printf ("l66addr %08o\n", l66addr);
-        word36 dcw;
-        iom_direct_data_service (iomUnitIdx, chan, l66addr, & dcw, direct_load);
-        word12 tally = getbits36_12 (dcw, 24);
-        // sim_printf ("%o %d.\n", tally, tally);
-//sim_printf ("dcw %012llo\n", dcw);
-
-        // Calculate start of core image
-        word24 image_off = (tally + 64) & 077777700;
-        // sim_printf ("image_off %o %d.\n", image_off, image_off);
+#ifdef FNP_IMAGE_SAVE
+    sim_printf ("l66addr %08o\n", l66addr);
+#endif
+    word36 dcw;
+    iom_direct_data_service (iomUnitIdx, chan, l66addr, & dcw, direct_load);
+    word12 tally = getbits36_12 (dcw, 24);
+#ifdef FNP_IMAGE_SAVE
+    sim_printf ("tally %o %d.\n", tally, tally);
+    sim_printf ("dcw %012llo\n", dcw);
 #endif
 
-#if 0
-for (uint i = 0; i < 4096; i ++) {
-  if (i % 4 == 0) sim_printf ("%06o", i);
-  word36 word0;
-  iom_direct_data_service (iomUnitIdx, chan, l66addr + i, & word0, direct_load);
-  sim_printf (" %012llo", word0);
-  if (i % 4 == 3) sim_printf ("\r\n");
-  }
+    // Calculate start of core image
+    word24 image_off = (tally + 64) & 077777700;
+#ifdef FNP_IMAGE_SAVE
+    sim_printf ("image_off %o %d.\n", image_off, image_off);
 #endif
-#if 0
-  word36 word0;
-  iom_direct_data_service (iomUnitIdx, chan, l66addr + 001170, & word0, direct_load);
-  sim_printf ("001170 %012llo\n", word0);
-  sim_printf ("(000370*2 %08o\n", getl6core (iomUnitIdx, chan, l66addr + image_off, (0370*2)));
-#endif
-#if 0
-sim_printf ("%05o %08o\n", 0, getl6core (iomUnitIdx, chan, l66addr + image_off, 0));
-word36 word0;
-iom_direct_data_service (iomUnitIdx, chan, l66addr + image_off, & word0, direct_load);
-sim_printf ("word0 %012llo\n", word0);
+
+#ifdef FNP_IMAGE_SAVE
+    for (uint i = 0; i < 4096; i ++) {
+      if (i % 4 == 0)
+        sim_printf ("%06o", i);
+      word36 word0;
+      iom_direct_data_service (iomUnitIdx, chan, l66addr + i, & word0, direct_load);
+      sim_printf (" %012llo", word0);
+      if (i % 4 == 3) sim_printf ("\r\n");
+    }
 #endif
 
 #if 0
-//for (uint i = 0640; i <=0677; i ++)
-for (uint i = 0370*2; i <=0400*2; i ++)
-  sim_printf ("%05o %08o\n", i, getl6core (iomUnitIdx, chan, l66addr + image_off, i));
+    word36 word0;
+    iom_direct_data_service (iomUnitIdx, chan, l66addr + 001170, & word0, direct_load);
+    sim_printf ("001170 %012llo\n", word0);
+    sim_printf ("(000370*2 %08o\n", getl6core (iomUnitIdx, chan, l66addr + image_off, (0370*2)));
+#endif
+
+#if 0
+    sim_printf ("%05o %08o\n", 0, getl6core (iomUnitIdx, chan, l66addr + image_off, 0));
+    word36 word0;
+    iom_direct_data_service (iomUnitIdx, chan, l66addr + image_off, & word0, direct_load);
+    sim_printf ("word0 %012llo\n", word0);
+#endif
+
+#if 0
+    //for (uint i = 0640; i <=0677; i ++)
+    for (uint i = 0370*2; i <=0400*2; i ++)
+      sim_printf ("%05o %08o\n", i, getl6core (iomUnitIdx, chan, l66addr + image_off, i));
 #endif
 
 // comm_ref
@@ -1960,469 +1960,435 @@ for (uint i = 0370*2; i <=0400*2; i ++)
 //       3 crash_location bit (18) unal, /* offset used for unresolved REF's */
 //       3 crash_opcode bit (18) unal,   /* crash instruction */
 
-#if 0
-// print IOM table
-        sim_printf ("FNP IOM table\n");
-        word18 criom = getl6core (iomUnitIdx, chan, l66addr + image_off, 0653);
-        //sim_printf ("criom %08o\n", criom);
-        for (uint ichan = 0; ichan < 16; ichan ++)
-          {
-            word18 flag = getl6core (iomUnitIdx, chan, l66addr + image_off, criom + ichan * 2);
-            word18 taddr = getl6core (iomUnitIdx, chan, l66addr + image_off, criom + ichan * 2 + 1);
-            //adapter_number = getbits18_3 (flag, 3);
-            uint adapter_number = (flag >> 12) & 3;
-            uint device_type_code = (flag >> 4) & 037;
-            uint speed_code = flag & 017;
-            char * dtc_str = "";
-            if (device_type_code == 1)
-              dtc_str = "clock";
-            else if (device_type_code == 2)
-              dtc_str = "dia";
-            else if (device_type_code == 3)
-              dtc_str = "hsla";
-            else if (device_type_code == 4)
-              dtc_str = "lsla";
-            else if (device_type_code == 5)
-              dtc_str = "console";
-            else if (device_type_code == 6)
-              dtc_str = "printer";
-            char * itable [16] =
-              {
-                "console",
-                "reader ",
-                "printer",
-                "-------",
-                "DIA    ",
-                "-------",
-                "HSLA 0 ",
-                "HSLA 1 ",
-                "HSLA 2 ",
-                "LSLA 0 ",
-                "LSLA 1 ",
-                "LSLA 2 ",
-                "LSLA 3 ",
-                "LSLA 4 ",
-                "LSLA 5 ",
-                "clock  "
-              };
+    // Address of IOM table
+    word18 criom = getl6core (iomUnitIdx, chan, l66addr + image_off, 0653);
 
-            sim_printf ("%2d %s %08o %d %d %d %s\n", ichan, itable[ichan], taddr, device_type_code, adapter_number, speed_code, dtc_str);
+#ifdef FNP_IMAGE_SAVE
+// print IOM table
+    sim_printf ("FNP IOM table\n");
+    sim_printf ("criom %08o\n", criom);
+    for (uint ichan = 0; ichan < 16; ichan ++) {
+      word18 flag = getl6core (iomUnitIdx, chan, l66addr + image_off, criom + ichan * 2);
+      word18 taddr = getl6core (iomUnitIdx, chan, l66addr + image_off, criom + ichan * 2 + 1);
+      //adapter_number = getbits18_3 (flag, 3);
+      uint adapter_number = (flag >> 12) & 3;
+      uint device_type_code = (flag >> 4) & 037;
+      uint speed_code = flag & 017;
+      char * dtc_str = "";
+      if (device_type_code == 1)
+        dtc_str = "clock";
+      else if (device_type_code == 2)
+        dtc_str = "dia";
+      else if (device_type_code == 3)
+        dtc_str = "hsla";
+      else if (device_type_code == 4)
+        dtc_str = "lsla";
+      else if (device_type_code == 5)
+        dtc_str = "console";
+      else if (device_type_code == 6)
+        dtc_str = "printer";
+      char * itable [16] = {
+        "console",
+        "reader ",
+        "printer",
+        "3?-------",
+        "DIA    ",
+        "4?-----",
+        "HSLA 0 ",
+        "HSLA 1 ",
+        "HSLA 2 ",
+        "LSLA 0 ",
+        "LSLA 1 ",
+        "LSLA 2 ",
+        "LSLA 3 ",
+        "LSLA 4 ",
+        "LSLA 5 ",
+        "clock  "
+      };
+
+      sim_printf ("%2d %s %08o %d %d %d %s\n", ichan, itable[ichan], taddr, device_type_code, adapter_number, speed_code, dtc_str);
+    }
+#endif
+
+    // Number of LSLAs
+#if defined (VERBOSE_BOOT) || defined (FNP_IMAGE_SAVE)
+    word18 crnls = getl6core (iomUnitIdx, chan, l66addr + image_off, 0655);
+    sim_printf ("Number of LSLAs (crnls) %d\n", crnls);
+#endif
+
+
+    // Walk the LSLAs in the IOM table
+    //  2 words/slot (flags, taddr)
+    //  6 LSLA slots
+    //  first slot at first_lsla_ch 9
+
+    bool hdr = false;
+#if defined (VERBOSE_BOOT) || defined (FNP_IMAGE_SAVE)
+    uint nfound = 0;
+#endif
+    for (uint lsla = 0; lsla < 6; lsla ++) {
+      uint slot = lsla + 9;
+      uint os = slot * 2;
+      // get flags word
+      word18 flags = getl6core (iomUnitIdx, chan, l66addr + image_off, criom + os);
+      uint device_type_code = (flags >> 4) & 037;
+      if (device_type_code == 4) {
+#if defined (VERBOSE_BOOT) || defined (FNP_IMAGE_SAVE)
+        nfound ++;
+#endif
+        // get addr word
+        word18 tblp = getl6core (iomUnitIdx, chan, l66addr + image_off, criom + os + 1);
+        for (uint slot = 0; slot < 52; slot ++) {
+          // 2 word18s per entry
+          //   pad bit(11)
+          //   ibm_code bit(1)   // if 6-bit odd parity
+          //   pad2 bit(3)
+          //   slot_id bit(3)
+          //
+          //   ptr bit(18)
+          word3 slot_id = getl6core (iomUnitIdx, chan, l66addr + image_off, tblp + 2 * slot) & MASK3;
+          if (slot_id != 7) {
+#if defined (VERBOSE_BOOT) || defined (FNP_IMAGE_SAVE)
+            char * slot_ids [8] = {
+              "10 cps",
+              "30 cps, slot 1",
+              "30 cps, slot 2",
+              "30 cps, slot 3",
+              "invalid",
+              "15 cps, slot 1",
+              "15 cps, slot 2",
+              "unused"
+            };
+            char * id = slot_ids[slot_id];
+#endif
+            if (! hdr) {
+              hdr = true;
+#if defined (VERBOSE_BOOT) || defined (FNP_IMAGE_SAVE)
+              sim_printf ("LSLA table: card number, slot, slot_id, slot_id string\n");
+#endif
+            }
+#if defined (VERBOSE_BOOT) || defined (FNP_IMAGE_SAVE)
+            sim_printf ("%d %2d %d %s\n", lsla, slot, slot_id, id);
+#endif
+          }
+        } // for slot
+      } // if dev type 4 (LSLA)
+    } // iom table entry
+#if defined (VERBOSE_BOOT) || defined (FNP_IMAGE_SAVE)
+    if (nfound != crnls)
+      sim_printf ("LSLAs configured %d found %d\n", crnls, nfound);
+#endif
+
+    // Number of HSLAs
+#if defined (VERBOSE_BOOT) || defined (FNP_IMAGE_SAVE)
+    word18 crnhs = getl6core (iomUnitIdx, chan, l66addr + image_off, 0654);
+    sim_printf ("Number of HSLAs (crnhs) %d\n", crnhs);
+#endif
+
+    // Walk the HSLAs in the IOM table
+    //  2 words/slot (flags, taddr)
+    //  3 LSLA slots
+    //  first slot at first_hsla_ch 6
+
+    hdr = false;
+#if defined (VERBOSE_BOOT) || defined (FNP_IMAGE_SAVE)
+    nfound = 0;
+#endif
+    for (uint hsla = 0; hsla < 3; hsla ++) {
+      uint slot = hsla + 6;
+      uint os = slot * 2;
+      // get flags word
+      word18 flags = getl6core (iomUnitIdx, chan, l66addr + image_off, criom + os);
+      uint device_type_code = (flags >> 4) & 037;
+      if (device_type_code == 3) {
+#if defined (VERBOSE_BOOT) || defined (FNP_IMAGE_SAVE)
+        nfound ++;
+#endif
+        // get addr word
+        word18 tblp = getl6core (iomUnitIdx, chan, l66addr + image_off, criom + os + 1);
+        for (uint slot = 0; slot < 32; slot ++) {
+          // 2 word18s per entry
+          //   conc_chan bit(1)
+          //   private_line bit(1)
+          //   async bit(1)
+          //   option1 bit(1)
+          //   option2 bit(1)
+          //   modem_type bit(4)
+          //   line_type bit(5)
+          //   dev_speed bit(4)
+          //
+          //   ptr bit(18)
+
+#if defined (VERBOSE_BOOT) || defined (FNP_IMAGE_SAVE)
+          char * line_types[23] = {
+            "none      ",
+            "ASCII     ",
+            "1050      ",
+            "2741      ",
+            "ARDS      ",
+            "Sync      ",
+            "G115      ",
+            "BSC       ",
+            "202ETX    ",
+            "VIP       ",
+            "ASYNC1    ",
+            "ASYNC2    ",
+            "ASYNC3    ",
+            "SYNC1     ",
+            "SYNC2     ",
+            "SYNC3     ",
+            "POLLED_VIP",
+            "X25LAP    ",
+            "HDLC      ",
+            "COLTS     ",
+            "DSA       ",
+            "HASP_OPR  ",
+            "invalid   "
+          };
+#endif
+
+#if defined (VERBOSE_BOOT) || defined (FNP_IMAGE_SAVE)
+          char * modem_types[8] = {
+            "invalid      ",
+            "Bell 103A/113",
+            "Bell 201C    ",
+            "Bell 202C5   ",
+            "Bell 202C6   ",
+            "Bell 208A    ",
+            "Bell 208B    ",
+            "Bell 209A    "
+          };
+#endif
+
+#if 0
+          char * async_speeds[11] = {
+            "invalid",
+            "75     ",
+            "110    ",
+            "134.5  ",
+            "150    ",
+            "300    ",
+            "600    ",
+            "1050   ",
+            "1200   ",
+            "1800   ",
+            "option "
+          };
+
+          char * sync_speeds[11] = {
+            "invalid",
+            "2000   ",
+            "2400   ",
+            "3600   ",
+            "4800   ",
+            "5400   ",
+            "7200   ",
+            "9600   ",
+            "19200  ",
+            "40800  ",
+            "50000  "
+          };
+#endif
+
+#if defined (VERBOSE_BOOT) || defined (FNP_IMAGE_SAVE)
+          char * async_speeds[16] = {
+            "invalid",
+            "110    ",
+            "133    ",
+            "150    ",
+            "300    ",
+            "600    ",
+            "1200   ",
+            "1800   ",
+            "2400   ",
+            "4800   ",
+            "7200   ",
+            "9600   ",
+            "19200  ",
+            "40800  ",
+            "50000  ",
+            "72000  "
+          };
+
+          char * sync_speeds[16] = {
+            "invalid",
+            "2000   ",
+            "2400   ",
+            "3600   ",
+            "4800   ",
+            "5400   ",
+            "7200   ",
+            "9600   ",
+            "19200  ",
+            "40800  ",
+            "50000  ",
+            "invalid",
+            "invalid",
+            "invalid",
+            "invalid",
+            "invalid"
+          };
+#endif
+          word18 subch_data = getl6core (iomUnitIdx, chan, l66addr + image_off, tblp + 2 * slot);
+#if defined (VERBOSE_BOOT) || defined (FNP_IMAGE_SAVE)
+          word1 async = (subch_data >> 15) & 1;
+          word1 option1 = (subch_data >> 14) & 1;
+#endif
+          word5 line_type = (subch_data >> 4)  & MASK5;
+          if (line_type > 22)
+            line_type = 22;
+          word4 modem_type = (subch_data >> 9)  & MASK4;
+          if (modem_type > 7)
+            modem_type = 0;
+#if defined (VERBOSE_BOOT) || defined (FNP_IMAGE_SAVE)
+          word4 dev_speed = subch_data  & MASK4;
+          //if (dev_speed > 10)
+            //dev_speed = 0;
+          char * speed = async ? async_speeds[dev_speed] : sync_speeds[dev_speed];
+          if (async && dev_speed == 4 && option1)
+            speed = "auto   ";
+#endif
+          if (! hdr) {
+            hdr = true;
+#if defined (VERBOSE_BOOT) || defined (FNP_IMAGE_SAVE)
+            sim_printf ("HSLA table: card number, slot, sync/async, line type, modem_type, speed\n");
+#endif
+          }
+#if defined (VERBOSE_BOOT) || defined (FNP_IMAGE_SAVE)
+          sim_printf ("%d %2d %s %s %s %s\n", hsla, slot, async ? "async" :"sync ", line_types[line_type], modem_types[modem_type], speed);
+#endif
+          uint lineno = hsla * 32u + slot;
+          struct t_line * linep = & fudp->MState.line[lineno];
+
+#if 0
+          if (line_type == 0) {
+            sim_printf ("Note: mapping %c.%03d line type from 'none' to 'ASCII'\n",  hsla + 'a', slot);
+            line_type = 1;
           }
 #endif
-
-#if 1
-        // Number of LSLAs
-# ifdef VERBOSE_BOOT
-        word18 crnls = getl6core (iomUnitIdx, chan, l66addr + image_off, 0655);
-        sim_printf ("Number of LSLAs (crnls) %d\n", crnls);
-# endif
-
-        // Address of IOM table
-        word18 criom = getl6core (iomUnitIdx, chan, l66addr + image_off, 0653);
-
-        // Walk the LSLAs in the IOM table
-        //  2 words/slot (flags, taddr)
-        //  6 LSLA slots
-        //  first slot at first_lsla_ch 9
-
-        bool hdr = false;
-# ifdef VERBOSE_BOOT
-        uint nfound = 0;
-# endif /* ifdef VERBOSE_BOOT */
-        for (uint lsla = 0; lsla < 6; lsla ++)
-          {
-            uint slot = lsla + 9;
-            uint os = slot * 2;
-            // get flags word
-            word18 flags = getl6core (iomUnitIdx, chan, l66addr + image_off, criom + os);
-            uint device_type_code = (flags >> 4) & 037;
-            if (device_type_code == 4)
-              {
-# ifdef VERBOSE_BOOT
-                nfound ++;
-# endif /* ifdef VERBOSE_BOOT */
-                // get addr word
-                word18 tblp = getl6core (iomUnitIdx, chan, l66addr + image_off, criom + os + 1);
-                for (uint slot = 0; slot < 52; slot ++)
-                  {
-                    // 2 word18s per entry
-                    //   pad bit(11)
-                    //   ibm_code bit(1)   // if 6-bit odd parity
-                    //   pad2 bit(3)
-                    //   slot_id bit(3)
-                    //
-                    //   ptr bit(18)
-                    word3 slot_id = getl6core (iomUnitIdx, chan, l66addr + image_off, tblp + 2 * slot) & MASK3;
-                    if (slot_id != 7)
-                      {
-# ifdef VERBOSE_BOOT
-                        char * slot_ids [8] =
-                          {
-                            "10 cps",
-                            "30 cps, slot 1",
-                            "30 cps, slot 2",
-                            "30 cps, slot 3",
-                            "invalid",
-                            "15 cps, slot 1",
-                            "15 cps, slot 2",
-                            "unused"
-                          };
-                        char * id = slot_ids[slot_id];
-# endif /* ifdef VERBOSE_BOOT */
-                        if (! hdr)
-                          {
-                            hdr = true;
-# ifdef VERBOSE_BOOT
-                            sim_printf ("LSLA table: card number, slot, slot_id, slot_id string\n");
-# endif /* ifdef VERBOSE_BOOT */
-                          }
-# ifdef VERBOSE_BOOT
-                        sim_printf ("%d %2d %d %s\n", lsla, slot, slot_id, id);
-# endif /* ifdef VERBOSE_BOOT */
-                      }
-                  } // for slot
-              } // if dev type 4 (LSLA)
-          } // iom table entry
-# ifdef VERBOSE_BOOT
-        if (nfound != crnls)
-          sim_printf ("LSLAs configured %d found %d\n", crnls, nfound);
-# endif /* ifdef VERBOSE_BOOT */
-
-        // Number of HSLAs
-# ifdef VERBOSE_BOOT
-        word18 crnhs = getl6core (iomUnitIdx, chan, l66addr + image_off, 0654);
-        sim_printf ("Number of HSLAs (crnhs) %d\n", crnhs);
-# endif /* ifdef VERBOSE_BOOT */
-
-        // Walk the HSLAs in the IOM table
-        //  2 words/slot (flags, taddr)
-        //  3 LSLA slots
-        //  first slot at first_hsla_ch 6
-
-        hdr = false;
-# ifdef VERBOSE_BOOT
-        nfound = 0;
-# endif /* ifdef VERBOSE_BOOT */
-        for (uint hsla = 0; hsla < 3; hsla ++)
-          {
-            uint slot = hsla + 6;
-            uint os = slot * 2;
-            // get flags word
-            word18 flags = getl6core (iomUnitIdx, chan, l66addr + image_off, criom + os);
-            uint device_type_code = (flags >> 4) & 037;
-            if (device_type_code == 3)
-              {
-# ifdef VERBOSE_BOOT
-                nfound ++;
-# endif /* ifdef VERBOSE_BOOT */
-                // get addr word
-                word18 tblp = getl6core (iomUnitIdx, chan, l66addr + image_off, criom + os + 1);
-                for (uint slot = 0; slot < 32; slot ++)
-                  {
-                    // 2 word18s per entry
-                    //   conc_chan bit(1)
-                    //   private_line bit(1)
-                    //   async bit(1)
-                    //   option1 bit(1)
-                    //   option2 bit(1)
-                    //   modem_type bit(4)
-                    //   line_type bit(5)
-                    //   dev_speed bit(4)
-                    //
-                    //   ptr bit(18)
-
-# ifdef VERBOSE_BOOT
-                    char * line_types[23] =
-                      {
-                        "none      ",
-                        "ASCII     ",
-                        "1050      ",
-                        "2741      ",
-                        "ARDS      ",
-                        "Sync      ",
-                        "G115      ",
-                        "BSC       ",
-                        "202ETX    ",
-                        "VIP       ",
-                        "ASYNC1    ",
-                        "ASYNC2    ",
-                        "ASYNC3    ",
-                        "SYNC1     ",
-                        "SYNC2     ",
-                        "SYNC3     ",
-                        "POLLED_VIP",
-                        "X25LAP    ",
-                        "HDLC      ",
-                        "COLTS     ",
-                        "DSA       ",
-                        "HASP_OPR  ",
-                        "invalid   "
-                      };
-# endif
-
-# ifdef VERBOSE_BOOT
-                    char * modem_types[8] =
-                      {
-                        "invalid      ",
-                        "Bell 103A/113",
-                        "Bell 201C    ",
-                        "Bell 202C5   ",
-                        "Bell 202C6   ",
-                        "Bell 208A    ",
-                        "Bell 208B    ",
-                        "Bell 209A    "
-                      };
-# endif
-
-# if 0
-                    char * async_speeds[11] =
-                      {
-                        "invalid",
-                        "75     ",
-                        "110    ",
-                        "134.5  ",
-                        "150    ",
-                        "300    ",
-                        "600    ",
-                        "1050   ",
-                        "1200   ",
-                        "1800   ",
-                        "option "
-                      };
-
-                    char * sync_speeds[11] =
-                      {
-                        "invalid",
-                        "2000   ",
-                        "2400   ",
-                        "3600   ",
-                        "4800   ",
-                        "5400   ",
-                        "7200   ",
-                        "9600   ",
-                        "19200  ",
-                        "40800  ",
-                        "50000  "
-                      };
-# endif
-# ifdef VERBOSE_BOOT
-                    char * async_speeds[16] =
-                      {
-                        "invalid",
-                        "110    ",
-                        "133    ",
-                        "150    ",
-                        "300    ",
-                        "600    ",
-                        "1200   ",
-                        "1800   ",
-                        "2400   ",
-                        "4800   ",
-                        "7200   ",
-                        "9600   ",
-                        "19200  ",
-                        "40800  ",
-                        "50000  ",
-                        "72000  "
-                      };
-
-                    char * sync_speeds[16] =
-                      {
-                        "invalid",
-                        "2000   ",
-                        "2400   ",
-                        "3600   ",
-                        "4800   ",
-                        "5400   ",
-                        "7200   ",
-                        "9600   ",
-                        "19200  ",
-                        "40800  ",
-                        "50000  ",
-                        "invalid",
-                        "invalid",
-                        "invalid",
-                        "invalid",
-                        "invalid"
-                      };
-# endif
-                    word18 subch_data = getl6core (iomUnitIdx, chan, l66addr + image_off, tblp + 2 * slot);
-# ifdef VERBOSE_BOOT
-                    word1 async = (subch_data >> 15) & 1;
-                    word1 option1 = (subch_data >> 14) & 1;
-# endif
-                    word5 line_type = (subch_data >> 4)  & MASK5;
-                    if (line_type > 22)
-                      line_type = 22;
-                    word4 modem_type = (subch_data >> 9)  & MASK4;
-                    if (modem_type > 7)
-                      modem_type = 0;
-# ifdef VERBOSE_BOOT
-                    word4 dev_speed = subch_data  & MASK4;
-                    //if (dev_speed > 10)
-                      //dev_speed = 0;
-                    char * speed = async ? async_speeds[dev_speed] : sync_speeds[dev_speed];
-                    if (async && dev_speed == 4 && option1)
-                      speed = "auto   ";
-# endif
-                    if (! hdr)
-                      {
-                        hdr = true;
-# ifdef VERBOSE_BOOT
-                        sim_printf ("HSLA table: card number, slot, "
-                                    "sync/async, line type, modem_type, "
-                                    "speed\n");
-# endif
-                      }
-# ifdef VERBOSE_BOOT
-                    sim_printf ("%d %2d %s %s %s %s\n",
-                                 hsla, slot, async ? "async" :"sync ",
-                                 line_types[line_type],
-                                 modem_types[modem_type],
-                                 speed);
-# endif
-                     uint lineno = hsla * 32u + slot;
-                     struct t_line * linep = & fudp->MState.line[lineno];
-# if 0
-                     if (line_type == 0)
-                       {
-                         sim_printf ("Note: mapping %c.%03d line type from 'none' to 'ASCII'\n",  hsla + 'a', slot);
-                         line_type = 1;
-                       }
-# endif
-                     //linep->lineType = line_type ? line_type : 1; // Map none to ASCII
-                     linep->lineType = line_type;
-                  } // for slot
-              } // if dev type 4 (LSLA)
-          } // iom table entry
-# ifdef VERBOSE_BOOT
-        if (nfound != crnls)
-          sim_printf ("LSLAs configured %d found %d\n", crnls, nfound);
-# endif /* ifdef VERBOSE_BOOT */
+          //linep->lineType = line_type ? line_type : 1; // Map none to ASCII
+          linep->lineType = line_type;
+        } // for slot
+      } // if dev type 4 (LSLA)
+    } // iom table entry
+#if defined (VERBOSE_BOOT) || defined (FNP_IMAGE_SAVE)
+    if (nfound != crnls)
+      sim_printf ("LSLAs configured %d found %d\n", crnls, nfound);
 #endif
 
 #if defined(THREADZ) || defined(LOCKLESS)
-        lock_libuv ();
+    lock_libuv ();
 #endif
-        fnpcmdBootload (fnp_unit_idx);
+    fnpcmdBootload (fnp_unit_idx);
 #if defined(THREADZ) || defined(LOCKLESS)
-        unlock_libuv ();
+    unlock_libuv ();
 #endif
-        send_general_interrupt (iomUnitIdx, chan, imwTerminatePic);
-        fudp -> fnpIsRunning = true;
-      }
-    else if (command == 071) // interrupt L6
-      {
+    send_general_interrupt (iomUnitIdx, chan, imwTerminatePic);
+    fudp -> fnpIsRunning = true;
+  } else if (command == 071) { // interrupt L6
 #if defined(THREADZ) || defined(LOCKLESS)
-        lock_libuv ();
+    lock_libuv ();
 #endif
-        ok = interruptL66 (iomUnitIdx, chan) == 0;
+    ok = interruptL66 (iomUnitIdx, chan) == 0;
 #if defined(THREADZ) || defined(LOCKLESS)
-        unlock_libuv ();
+    unlock_libuv ();
 #endif
-      }
-    else if (command == 075) // data xfer from L6 to L66
-      {
-        // Build the L66 address from the PCW
-        //   0-17 A
-        //  24-26 B
-        //  27-29 D Channel #
-        // Operation          C         A        B        D
-        // Data Xfer to L66  075    L66 Addr  L66 Addr  L66 Addr
-        //                           A6-A23    A0-A2     A3-A5
-        // These don't seem to be right; M[L66Add] is always 0.
-        //word24 A = (word24) getbits36_18 (dia_pcw,  0);
-        //word24 B = (word24) getbits36_3  (dia_pcw, 24);
-        //word24 D = (word24) getbits36_3  (dia_pcw, 29);
-        //word24 L66Addr = (B << (24 - 3)) | (D << (24 - 3 - 3)) | A;
+  } else if (command == 075) { // data xfer from L6 to L66
+    // Build the L66 address from the PCW
+    //   0-17 A
+    //  24-26 B
+    //  27-29 D Channel #
+    // Operation          C         A        B        D
+    // Data Xfer to L66  075    L66 Addr  L66 Addr  L66 Addr
+    //                           A6-A23    A0-A2     A3-A5
+    // These don't seem to be right; M[L66Add] is always 0.
+    //word24 A = (word24) getbits36_18 (dia_pcw,  0);
+    //word24 B = (word24) getbits36_3  (dia_pcw, 24);
+    //word24 D = (word24) getbits36_3  (dia_pcw, 29);
+    //word24 L66Addr = (B << (24 - 3)) | (D << (24 - 3 - 3)) | A;
 
-        // According to fnp_util:
-        //  dcl  1 a_dia_pcw aligned based (mbxp),                      /* better declaration than the one used when MCS is running */
-        //         2 address fixed bin (18) unsigned unaligned,
-        //         2 error bit (1) unaligned,
-        //         2 pad1 bit (3) unaligned,
-        //         2 parity bit (1) unaligned,
-        //         2 pad2 bit (1) unaligned,
-        //         2 pad3 bit (3) unaligned,                            /* if we used address extension this would be important */
-        //         2 interrupt_level fixed bin (3) unsigned unaligned,
-        //         2 command bit (6) unaligned;
-        //
-        //   a_dia_pcw.address = address;
-        //
+    // According to fnp_util:
+    //  dcl  1 a_dia_pcw aligned based (mbxp),                      /* better declaration than the one used when MCS is running */
+    //         2 address fixed bin (18) unsigned unaligned,
+    //         2 error bit (1) unaligned,
+    //         2 pad1 bit (3) unaligned,
+    //         2 parity bit (1) unaligned,
+    //         2 pad2 bit (1) unaligned,
+    //         2 pad3 bit (3) unaligned,                            /* if we used address extension this would be important */
+    //         2 interrupt_level fixed bin (3) unsigned unaligned,
+    //         2 command bit (6) unaligned;
+    //
+    //   a_dia_pcw.address = address;
+    //
 
-        //word24 L66Addr = (word24) getbits36_18 (dia_pcw, 0);
-        //sim_printf ("L66 xfer\n");
-        //sim_printf ("PCW  %012"PRIo64"\n", dia_pcw);
-        //sim_printf ("L66Addr %08o\n", L66Addr);
-        //sim_printf ("M[] %012"PRIo64"\n", M[L66Addr]);
+    //word24 L66Addr = (word24) getbits36_18 (dia_pcw, 0);
+    //sim_printf ("L66 xfer\n");
+    //sim_printf ("PCW  %012"PRIo64"\n", dia_pcw);
+    //sim_printf ("L66Addr %08o\n", L66Addr);
+    //sim_printf ("M[] %012"PRIo64"\n", M[L66Addr]);
 
-        // 'dump_mpx d'
-        //L66 xfer
-        //PCW  022002000075
-        //L66Addr 00022002
-        //M[] 000000401775
-        //L66 xfer
-        //PCW  022002000075
-        //L66Addr 00022002
-        //M[] 003772401775
-        //L66 xfer
-        //PCW  022002000075
-        //L66Addr 00022002
-        //M[] 007764401775
-        //
-        // The contents of M seem much more reasonable, bit still don't match
-        // fnp_util$setup_dump_ctl_word. The left octet should be '1', not '0';
-        // bit 18 should be 0 not 1. But the offsets and tallies match exactly.
-        // Huh... Looking at 'dump_6670_control' control instead, it matches
-        // correctly. Apparently fnp_util thinks the FNP is a 6670, not a 335.
-        // I can't decipher the call path, so I don't know why; but looking at
-        // multiplexer_types.incl.pl1, I would guess that by MR12.x, all FNPs
-        // were 6670s.
-        //
-        // So:
-        //
-        //   dcl  1 dump_6670_control aligned based (data_ptr),          /* word used to supply DN6670 address and tally for fdump */
-        //          2 fnp_address fixed bin (18) unsigned unaligned,
-        //          2 unpaged bit (1) unaligned,
-        //          2 mbz bit (5) unaligned,
-        //          2 tally fixed bin (12) unsigned unaligned;
+    // 'dump_mpx d'
+    //L66 xfer
+    //PCW  022002000075
+    //L66Addr 00022002
+    //M[] 000000401775
+    //L66 xfer
+    //PCW  022002000075
+    //L66Addr 00022002
+    //M[] 003772401775
+    //L66 xfer
+    //PCW  022002000075
+    //L66Addr 00022002
+    //M[] 007764401775
+    //
+    // The contents of M seem much more reasonable, bit still don't match
+    // fnp_util$setup_dump_ctl_word. The left octet should be '1', not '0';
+    // bit 18 should be 0 not 1. But the offsets and tallies match exactly.
+    // Huh... Looking at 'dump_6670_control' control instead, it matches
+    // correctly. Apparently fnp_util thinks the FNP is a 6670, not a 335.
+    // I can't decipher the call path, so I don't know why; but looking at
+    // multiplexer_types.incl.pl1, I would guess that by MR12.x, all FNPs
+    // were 6670s.
+    //
+    // So:
+    //
+    //   dcl  1 dump_6670_control aligned based (data_ptr),          /* word used to supply DN6670 address and tally for fdump */
+    //          2 fnp_address fixed bin (18) unsigned unaligned,
+    //          2 unpaged bit (1) unaligned,
+    //          2 mbz bit (5) unaligned,
+    //          2 tally fixed bin (12) unsigned unaligned;
 
-        // Since the data is marked 'paged', and I don't understand the
-        // the paging mechanism or parameters, I'm going to punt here and
-        // not actually transfer any data.
+    // Since the data is marked 'paged', and I don't understand the
+    // the paging mechanism or parameters, I'm going to punt here and
+    // not actually transfer any data.
 
-      }
-    else
-      {
-        sim_warn ("bogus fnp command %d (%o)\n", command, command);
-        ok = false;
-      }
-
-    if (ok)
-      {
-#ifdef TESTING
-        if_sim_debug (DBG_TRACE, & fnp_dev) dmpmbx (fudp->mailboxAddress);
-#endif
-        //iom_chan_data [iomUnitIdx] [chan] . in_use = false;
-        dia_pcw = 0;
-        iom_direct_data_service (iomUnitIdx, chan, fudp -> mailboxAddress+DIA_PCW, & dia_pcw, direct_store);
-        putbits36_1 (& bootloadStatus, 0, 1); // real_status = 1
-        putbits36_3 (& bootloadStatus, 3, 0); // major_status = BOOTLOAD_OK;
-        putbits36_8 (& bootloadStatus, 9, 0); // substatus = BOOTLOAD_OK;
-        putbits36_17 (& bootloadStatus, 17, 0); // channel_no = 0;
-        iom_direct_data_service (iomUnitIdx, chan, fudp -> mailboxAddress+CRASH_DATA, & bootloadStatus, direct_store);
-      }
-    else
-      {
-#ifdef TESTING
-        if_sim_debug (DBG_TRACE, & fnp_dev) dmpmbx (fudp->mailboxAddress);
-#endif
-        // 3 error bit (1) unaligned, /* set to "1"b if error on connect */
-        //iom_chan_data [iomUnitIdx] [chan] . in_use = false;
-        putbits36_1 (& dia_pcw, 18, 1); // set bit 18
-        iom_direct_data_service (iomUnitIdx, chan, fudp -> mailboxAddress+DIA_PCW, & dia_pcw, direct_store);
-      }
+  } else {
+    sim_warn ("bogus fnp command %d (%o)\n", command, command);
+    ok = false;
   }
+
+  if (ok) {
+#ifdef TESTING
+    if_sim_debug (DBG_TRACE, & fnp_dev) dmpmbx (fudp->mailboxAddress);
+#endif
+    //iom_chan_data [iomUnitIdx] [chan] . in_use = false;
+    dia_pcw = 0;
+    iom_direct_data_service (iomUnitIdx, chan, fudp -> mailboxAddress+DIA_PCW, & dia_pcw, direct_store);
+    putbits36_1 (& bootloadStatus, 0, 1); // real_status = 1
+    putbits36_3 (& bootloadStatus, 3, 0); // major_status = BOOTLOAD_OK;
+    putbits36_8 (& bootloadStatus, 9, 0); // substatus = BOOTLOAD_OK;
+    putbits36_17 (& bootloadStatus, 17, 0); // channel_no = 0;
+    iom_direct_data_service (iomUnitIdx, chan, fudp -> mailboxAddress+CRASH_DATA, & bootloadStatus, direct_store);
+  } else {
+#ifdef TESTING
+    if_sim_debug (DBG_TRACE, & fnp_dev) dmpmbx (fudp->mailboxAddress);
+#endif
+    // 3 error bit (1) unaligned, /* set to "1"b if error on connect */
+    //iom_chan_data [iomUnitIdx] [chan] . in_use = false;
+    putbits36_1 (& dia_pcw, 18, 1); // set bit 18
+    iom_direct_data_service (iomUnitIdx, chan, fudp -> mailboxAddress+DIA_PCW, & dia_pcw, direct_store);
+  }
+}
 
 static int fnpCmd (uint iomUnitIdx, uint chan) {
   iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
