@@ -1882,13 +1882,17 @@ static void processMBX (uint iomUnitIdx, uint chan) {
 #endif
 
 #ifdef FNP_IMAGE_SAVE
-    for (uint i = 0; i < 4096; i ++) {
-      if (i % 4 == 0)
-        sim_printf ("%06o", i);
-      word36 word0;
-      iom_direct_data_service (iomUnitIdx, chan, l66addr + i, & word0, direct_load);
-      sim_printf (" %012llo", word0);
-      if (i % 4 == 3) sim_printf ("\r\n");
+    {
+      uint i;
+      for (i = 0; i < 4096; i ++) {
+        if (i % 4 == 0)
+          sim_printf ("%06o", i);
+        word36 word0;
+        iom_direct_data_service (iomUnitIdx, chan, l66addr + image_off + i - 1, & word0, direct_load);
+        sim_printf (" %012llo", word0);
+        if (i % 4 == 3) sim_printf ("\r\n");
+      }
+      sim_printf ("\r\n");
     }
 #endif
 
@@ -1991,7 +1995,7 @@ static void processMBX (uint iomUnitIdx, uint chan) {
         "console",
         "reader ",
         "printer",
-        "3?-------",
+        "3?-----",
         "DIA    ",
         "4?-----",
         "HSLA 0 ",
