@@ -262,3 +262,7 @@ CCTree.db
 docs/hpages/public
 docs/hpages/resources
 docs/hpages/.hugo_build.lock
+
+# Distkit build
+src/LICENSE.txt
+src/README.txt
