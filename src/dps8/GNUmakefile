@@ -632,7 +632,7 @@ kit dist:
           $(GREP) -v '^.lgtm.yml' | $(GREP) -v '/.Attic/'                  |  \
            $(GREP) -v '^src/dps8/make_ver.sh' | $(GREP) -v '^docs'         |  \
             $(GREP) -v '^src/Makefile.scc' | $(GREP) -v 'ci-kit'           |  \
-             $(GREP) -v '^src/dps8/listings/'                              |  \
+             $(GREP) -v '^src/dps8/listings/' | $(GREP) -v '.reuse/dep5'   |  \
               $(GREP) -v '^.scspell' | $(GREP) -v '^LICENSES/'             |  \
                $(GREP) -v '^.*\.license$$' | $(GREP) -v 'src/Makefile.doc' |  \
                 $(GREP) -v '^src/Makefile.dev')                               \
@@ -660,8 +660,9 @@ zipkit zipdist:
             $(GREP) -v '^src/Makefile.scc' | $(GREP) -v 'ci-kit'           |  \
              $(GREP) -v '^.scspell' | $(GREP) -v '^LICENSES/'              |  \
               $(GREP) -v '^.*\.license$$' | $(GREP) -v 'src/Makefile.doc'  |  \
-               $(GREP) -v '^src/dps8/listings/' )                             \
-                              'src/dps8/ver.h~' )
+               $(GREP) -v '^src/dps8/listings/'                            |  \
+                $(GREP) -v '.reuse/dep5' )                                    \
+                           'src/dps8/ver.h~' )
 	@$(SETV); ($(CD) "../.." && $(TAR) xf "$(KITNAME)"."TMP"              &&  \
       $(RMF) "$(KITNAME)"."zip"                                           &&  \
         $(TR) -s ' ' < "./src/dps8/ver.h~" 2> /dev/null                    |  \

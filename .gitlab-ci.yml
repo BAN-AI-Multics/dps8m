@@ -588,7 +588,8 @@ Linux/x86_64, Alpine Edge, Clang, GCC:
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
-    - ( cd src && tar cvf ../dps8m-master-linux-x86.tar dps8/dps8 prt2pdf/prt2pdf punutil/punutil )
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt src
+    - ( cd src && tar cvf ../dps8m-master-linux-x86.tar README.txt LICENSE.txt dps8/dps8 prt2pdf/prt2pdf punutil/punutil )
     - pigz -11 -f -m -n dps8m-master-linux-x86.tar
     - *scriptCompressArtifacts
   dependencies: []
@@ -627,7 +628,8 @@ Windows/x86_64, Cygwin64-GCC:
     - *scriptBuildInfo
     - cp -vf /usr/x86_64-pc-cygwin/sys-root/usr/bin/cygwin1.dll ${CI_PROJECT_DIR:?}
     - rm -f "${CI_PROJECT_DIR:?}/cygwin1.dll"
-    - ( cd src && tar cvf ../dps8m-master-cygwin-64.tar dps8/dps8.exe prt2pdf/prt2pdf.exe punutil/punutil.exe )
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt src
+    - ( cd src && tar cvf ../dps8m-master-cygwin-64.tar README.txt LICENSE.txt dps8/dps8.exe prt2pdf/prt2pdf.exe punutil/punutil.exe )
     - pigz -11 -f -m -n dps8m-master-cygwin-64.tar
     - *scriptCompressArtifacts
   dependencies: []
@@ -899,7 +901,8 @@ AIX/powerpc64, IBM AIX, GCC 10:
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
-    - ( cd src && tar cvf ../dps8m-master-aixv7-gcc.tar dps8/dps8 prt2pdf/prt2pdf punutil/punutil )
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt src
+    - ( cd src && tar cvf ../dps8m-master-aixv7-gcc.tar README.txt LICENSE.txt dps8/dps8 prt2pdf/prt2pdf punutil/punutil )
     - pigz -11 -f -m -n dps8m-master-aixv7-gcc.tar
     - *scriptCompressArtifacts
   dependencies: []
@@ -932,7 +935,8 @@ AIX/powerpc64, IBM AIX, IBM XL C/C++ V16.1:
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
-    - ( cd src && tar cvf ../dps8m-master-aixv7-xlc.tar dps8/dps8 prt2pdf/prt2pdf punutil/punutil )
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt src
+    - ( cd src && tar cvf ../dps8m-master-aixv7-xlc.tar README.txt LICENSE.txt dps8/dps8 prt2pdf/prt2pdf punutil/punutil )
     - pigz -11 -f -m -n dps8m-master-aixv7-xlc.tar
     - *scriptCompressArtifacts
   dependencies: []
@@ -997,7 +1001,8 @@ Linux/powerpc64el, Ubuntu LTS, IBM XL C/C++:
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
-    - ( cd src && tar cvf ../dps8m-master-linux-xlc.tar dps8/dps8 prt2pdf/prt2pdf punutil/punutil )
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt src
+    - ( cd src && tar cvf ../dps8m-master-linux-xlc.tar README.txt LICENSE.txt dps8/dps8 prt2pdf/prt2pdf punutil/punutil )
     - pigz -11 -f -n dps8m-master-linux-xlc.tar
     - *scriptCompressArtifacts
   dependencies: []
@@ -1031,7 +1036,8 @@ Linux/powerpc64el, Ubuntu LTS, IBM Advance Toolchain 15, IBM MASS:
     - export IBMXLMASSVER="latest-9" export IBMATVER="15.0" && export PATH="/opt/at${IBMATVER:?}/bin:/opt/at${IBMATVER:?}/sbin:/opt/at${IBMATVER:?}/powerpc64le-linux-gnu/bin:${PATH:?}" && cc --version 2>&1 | grep "Advance" && make CC="gcc -DNO_WARN_X86_INTRINSICS -ftree-vectorize -fpeel-loops -mcpu=power8 -mtune=power8 -fsigned-char -mveclibabi=mass -Ofast -flto" LIBS="-L/opt/at${IBMATVER:?}/lib64 -L/opt/ibm/xlmass/${IBMXLMASSVER:?}/lib -luv -lmassvp9 -lmass_simdp9 -lmass -ldl -lrt -lm -flto" -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptVerifyVersion
-    - ( cd src && tar cvf ../dps8m-master-linux-at8.tar dps8/dps8 prt2pdf/prt2pdf punutil/punutil )
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt src
+    - ( cd src && tar cvf ../dps8m-master-linux-at8.tar README.txt LICENSE.txt dps8/dps8 prt2pdf/prt2pdf punutil/punutil )
     - pigz -11 -f -n dps8m-master-linux-at8.tar
     - *scriptCompressArtifacts
   dependencies: []
@@ -1066,7 +1072,8 @@ Windows/ARM64, LLVM-MinGW:
     - make CC="aarch64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
     - test -f src/dps8/dps8.exe
     - *scriptBuildInfo
-    - ( cd src && zip -9 ../dps8m-master-mingw-a64.zip dps8/dps8.exe prt2pdf/prt2pdf.exe punutil/punutil.exe )
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt src
+    - ( cd src && zip -9 ../dps8m-master-mingw-a64.zip README.txt LICENSE.txt dps8/dps8.exe prt2pdf/prt2pdf.exe punutil/punutil.exe )
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
@@ -1097,7 +1104,8 @@ Windows/ARMv7, LLVM-MinGW:
     - make CC="armv7-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread -D__int64_t=int64_t -D__MINGW64__" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
     - test -f src/dps8/dps8.exe
     - *scriptBuildInfo
-    - ( cd src && zip -9 ../dps8m-master-mingw-av7.zip dps8/dps8.exe prt2pdf/prt2pdf.exe punutil/punutil.exe )
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt src
+    - ( cd src && zip -9 ../dps8m-master-mingw-av7.zip README.txt LICENSE.txt dps8/dps8.exe prt2pdf/prt2pdf.exe punutil/punutil.exe )
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
@@ -1128,7 +1136,8 @@ Windows/i686, LLVM-MinGW:
     - make CC="i686-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread -D__int64_t=int64_t -D__MINGW64__" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
     - test -f src/dps8/dps8.exe
     - *scriptBuildInfo
-    - ( cd src && zip -9 ../dps8m-master-mingw-x32.zip dps8/dps8.exe prt2pdf/prt2pdf.exe punutil/punutil.exe )
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt src
+    - ( cd src && zip -9 ../dps8m-master-mingw-x32.zip README.txt LICENSE.txt dps8/dps8.exe prt2pdf/prt2pdf.exe punutil/punutil.exe )
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
@@ -1191,7 +1200,8 @@ Windows/x86_64, MinGW64-GCC:
     - make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
     - *scriptBuildInfo
     - test -f src/dps8/dps8.exe
-    - ( cd src && zip -9 ../dps8m-master-mingw-x86.zip dps8/dps8.exe prt2pdf/prt2pdf.exe punutil/punutil.exe )
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt src
+    - ( cd src && zip -9 ../dps8m-master-mingw-x86.zip README.txt LICENSE.txt dps8/dps8.exe prt2pdf/prt2pdf.exe punutil/punutil.exe )
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
@@ -1259,7 +1269,6 @@ Source Kits:
     - make distclean && make dist COMPRESS="pigz -11 -f -m -n" COMPRESSXT="gz"
     - cp -vf sources.tar.gz /tmp
     - make distclean && make zipdist
-    - advzip -z4 sources.zip
     - cp -vf /tmp/sources.tar.gz .
     - mv sources.zip dps8m-master-src.zip
     - mv sources.tar.gz dps8m-master-src.tar.gz
@@ -1459,7 +1468,8 @@ Solaris/x86_64, Oracle Solaris 11.4, GCC:
     - echo "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
-    - ( cd src && tar cvf ../dps8m-master-s114-x86.tar dps8/dps8 prt2pdf/prt2pdf punutil/punutil )
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt src
+    - ( cd src && tar cvf ../dps8m-master-s114-x86.tar README.txt LICENSE.txt dps8/dps8 prt2pdf/prt2pdf punutil/punutil )
     - pigz -11 -f -n dps8m-master-s114-x86.tar
     - *scriptCompressArtifacts
   dependencies: []
@@ -1528,7 +1538,8 @@ illumos/x86_64, OpenIndiana Hipster, Clang, GCC 11:
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
-    - ( cd src && tar cvf ../dps8m-master-iloi-x86.tar dps8/dps8 prt2pdf/prt2pdf punutil/punutil )
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt src
+    - ( cd src && tar cvf ../dps8m-master-iloi-x86.tar README.txt LICENSE.txt dps8/dps8 prt2pdf/prt2pdf punutil/punutil )
     - pigz -11 -f -m -n dps8m-master-iloi-x86.tar
     - *scriptCompressArtifacts
   dependencies: []
@@ -1562,7 +1573,8 @@ Darwin/x86_64, macOS, Xcode:
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
-    - ( cd src && tar cvf ../dps8m-master-macos-x86.tar dps8/dps8 prt2pdf/prt2pdf punutil/punutil )
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt src
+    - ( cd src && tar cvf ../dps8m-master-macos-x86.tar README.txt LICENSE.txt dps8/dps8 prt2pdf/prt2pdf punutil/punutil )
     - pigz -11 -f -m -n dps8m-master-macos-x86.tar
     - *scriptCompressArtifacts
   dependencies: []
@@ -1947,6 +1959,9 @@ pages:
     - "Windows/x86_64, MinGW64-GCC"
   stage: deploy
   script:
+  - apk update || true
+  - apk upgrade || true
+  - apk add advancecomp
   - mkdir -p public/master
   - mv -f ${CI_PROJECT_DIR:?}/docs/dps8-omnibus.pdf public/master/dps8m-omnibus.pdf
   - mv -f ${CI_PROJECT_DIR:?}/HTML public/master/global
@@ -1972,9 +1987,13 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-s114-x86.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-iloi-x86.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-mingw-x86.zip public
+  - advzip -z4 public/dps8m-master-mingw-x86.zip
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-mingw-x32.zip public
+  - advzip -z4 public/dps8m-master-mingw-x32.zip
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-mingw-a64.zip public
+  - advzip -z4 public/dps8m-master-mingw-a64.zip
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-mingw-av7.zip public
+  - advzip -z4 public/dps8m-master-mingw-av7.zip
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-cygwin-64.tar.gz public
   artifacts:
     paths:
