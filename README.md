@@ -11,8 +11,7 @@
 
 [![Pipelines](https://gitlab.com/dps8m/dps8m/badges/master/pipeline.svg?ignore_skipped=true)](https://gitlab.com/dps8m/dps8m/pipelines/latest/)
 &nbsp;
-[![PDF
-Documentation](https://img.shields.io/badge/documentation-PDF-passing.svg)](https://dps8m.gitlab.io/dps8m/master/dps8m-omnibus.pdf)
+[![Website](https://img.shields.io/website?up_message=online&url=https%3A%2F%2Fdps8m.gitlab.io)](https://dps8m.gitlab.io/)
 &nbsp;
 
  - **DPS8M** is a simulator of the 36‑bit GE Large Systems / Honeywell /
@@ -21,11 +20,6 @@ Documentation](https://img.shields.io/badge/documentation-PDF-passing.svg)](http
    the **GE‑645** and engineered to support the
    [**Multics** operating system](https://swenson.org/multics_wiki/).
 
- - **DPS8M** is [**open source software**](LICENSE.md) developed by
-   [**The DPS8M Development Team**](https://dps8m.gitlab.io/dps8m/master/dps8m-omnibus.pdf#the-dps8m-development-team)
-   and
-   [many contributors](https://dps8m.gitlab.io/dps8m/master/dps8m-omnibus.pdf#dps8m-authors-and-contributors).
-
- - See the
-   [**DPS8M Omnibus Documentation**](https://dps8m.gitlab.io/dps8m/master/dps8m-omnibus.pdf)
-   for complete details.
+ - Visit the
+   [**DPS8M Simulator Homepage**](https://dps8m.gitlab.io/)
+   for additional information.
