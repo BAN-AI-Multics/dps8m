@@ -121,3 +121,10 @@ title: DPS8M Releases
 | [**dps8m-master-cygwin-64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-cygwin-64.tar.gz) | Cygwin/x86_64 |
 {{< /tab >}}
 {{< /tabs >}}
+
+<br>
+
+## Historical Archives
+
+* An [**archive of historical releases is available**](Historical_Archives) for educational and research purposes.
+* These releases are made available for their *historical interest*, and **not** recommended for use.
