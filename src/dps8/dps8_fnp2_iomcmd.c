@@ -56,6 +56,62 @@
 # include "threadz.h"
 #endif
 
+#ifdef FNP_IMAGE_SAVE
+static word24 xbuild_DDSPTW_address (word18 PCW_PAGE_TABLE_PTR, word8 pageNumber)
+  {
+//    0      5 6        15  16  17  18                       23
+//   ----------------------------------------------------------
+//   | Page Table Pointer | 0 | 0 |                           |
+//   ----------------------------------------------------------
+// or
+//                        -------------------------------------
+//                        |  Direct chan addr 6-13            |
+//                        -------------------------------------
+    if (PCW_PAGE_TABLE_PTR & 3)
+      sim_warn ("%s: pcw_ptp %#o page_no  %#o\n", __func__, PCW_PAGE_TABLE_PTR, pageNumber);
+    word24 addr = (((word24) PCW_PAGE_TABLE_PTR) & MASK18) << 6;
+    addr |= pageNumber;
+    return addr;
+  }
+
+static void xfetch_DDSPTW (uint iom_unit_idx, int chan, word18 addr)
+  {
+    iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
+    word24 pgte = xbuild_DDSPTW_address (p -> PCW_PAGE_TABLE_PTR,
+                                      (addr >> 10) & MASK8);
+    //iom_core_read (iom_unit_idx, pgte, (word36 *) & p -> PTW_DCW, __func__);
+    core_read (pgte, (word36 *) & p -> PTW_DCW, __func__);
+    //if ((p -> PTW_DCW & 0740000777747) != 04llu)
+      //sim_warn ("%s: chan %d addr %#o pgte %08o ptw %012"PRIo64"\n",
+                //__func__, chan, addr, pgte, p -> PTW_DCW);
+  }
+
+void xiom_direct_data_service (uint iom_unit_idx, uint chan, word24 daddr, word36 * data,
+                           iom_direct_data_service_op op)
+  {
+    iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
+
+    if (p -> masked)
+      return;
+
+    if (p -> PCW_63_PTP && p -> PCW_64_PGE)
+      {
+        xfetch_DDSPTW (iom_unit_idx, (int) chan, daddr);
+        daddr = ((uint) getbits36_14 (p -> PTW_DCW, 4) << 10) | (daddr & MASK10);
+      }
+
+    if (op == direct_store)
+      core_write (daddr, * data, __func__);
+    else if (op == direct_load)
+      core_read (daddr, data, __func__);
+    else if (op == direct_read_clear)
+      {
+        iom_core_read_lock (iom_unit_idx, daddr, data, __func__);
+        iom_core_write_unlock (iom_unit_idx, daddr, 0, __func__);
+      }
+  }
+#endif
+
 #ifdef TESTING
 static inline void fnp_core_read_n (word24 addr, word36 *data, uint n, UNUSED const char * ctx)
   {
@@ -1743,7 +1799,7 @@ static void processMBX (uint iomUnitIdx, uint chan) {
 
   word36 dia_pcw;
   iom_direct_data_service (iomUnitIdx, chan, fudp->mailboxAddress+DIA_PCW, & dia_pcw, direct_load);
-  sim_debug (DBG_TRACE, & fnp_dev, "%s: chan %d dia_pcw %012"PRIo64"\n", __func__, chan, dia_pcw);
+  sim_printf ("%s: chan %d dia_pcw %012"PRIo64"\n", __func__, chan, dia_pcw);
 
 // Mailbox word 0:
 //
@@ -1882,7 +1938,7 @@ static void processMBX (uint iomUnitIdx, uint chan) {
 #endif
 
 #ifdef FNP_IMAGE_SAVE
-    {
+    if (0) {
       uint i;
       for (i = 0; i < 4096; i ++) {
         if (i % 4 == 0)
@@ -1894,6 +1950,25 @@ static void processMBX (uint iomUnitIdx, uint chan) {
       }
       sim_printf ("\r\n");
     }
+    if (2) {
+      for (uint i = 0; i < 00060000; i ++) {
+        if (i % 4 == 0)
+          sim_printf ("%06o", i);
+        word36 word0;
+        xiom_direct_data_service (iomUnitIdx, chan, i + 000010000, & word0, direct_load);
+        sim_printf (" %012llo", word0);
+        if (i % 4 == 3) sim_printf ("\r\n");
+# if 0
+          ssize_t n = write (fd, & word0, sizeof (word0));
+          if (n != sizeof (word0)) {
+            sim_printf ("i %u n %ld\r\n", i, n);
+            perror ("write boot_segment.dat");
+    exit (1);
+          }
+# endif
+    }
+  }
+
 #endif
 
 #if 0
