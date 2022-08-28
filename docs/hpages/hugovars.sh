@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # SPDX-License-Identifier: FSFAP
-# scspell-id: 8824f39a-25f8-11ed-8241-80ee73e9b8e7
+# scspell-id: 95f5e6a0-25f8-11ed-8120-80ee73e9b8e7
 # Copyright (c) 2022 The DPS8M Development Team
 
 ##########################################################################
@@ -22,7 +22,7 @@ test -f "config.toml" ||
 
 ##########################################################################
 
-rm -rf ./resources > /dev/null 2>&1 || true
-rm -rf ./public    > /dev/null 2>&1 || true
+# Build date (assumes GNU date)
+export HUGO_PARAMS_buildDate="$(date -u '+%Y-%m-%d %H:%M:%S %Z.')"
 
 ##########################################################################

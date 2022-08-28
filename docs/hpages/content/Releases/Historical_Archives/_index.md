@@ -30,10 +30,10 @@ title: Historical Archives
 | File                                                                                                 | Platform | Verification                                                                                                                                                                    |
 |:---------------------------------------------------------------------------------------------------- |:-------- |:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [**dps8m-r2.0.0-linux-x86.tar.gz**](/dps8m-archive/R2.0.0/dps8m-r2.0.0-linux-x86.tar.gz)             | x86_64   | <small>\[&nbsp;[SHA256](/dps8m-archive/R2.0.0/dps8m-r2.0.0-linux-x86.tar.gz.sha256)&nbsp;\|&nbsp;[PGP](/dps8m-archive/R2.0.0/dps8m-r2.0.0-linux-x86.tar.gz.asc)&nbsp;\]</small> |
-| [**dps8m-r2.0.0-linux-x86_lockless.tar.gz**](/dps8m-archive/R2.0.0/dps8m-r2.0.0-linux_lockless-x86.tar.gz) \* | x86_64   | <small>\[&nbsp;[SHA256](/dps8m-archive/R2.0.0/dps8m-r2.0.0-linux_lockless-x86.tar.gz.sha256)&nbsp;\|&nbsp;[PGP](/dps8m-archive/R2.0.0/dps8m-r2.0.0-linux_lockless-x86.tar.gz.asc)&nbsp;\]</small> |
+| [**dps8m-r2.0.0-linux-x86_lockless.tar.gz**](/dps8m-archive/R2.0.0/dps8m-r2.0.0-linux-x86_lockless.tar.gz) \* | x86_64   | <small>\[&nbsp;[SHA256](/dps8m-archive/R2.0.0/dps8m-r2.0.0-linux-x86_lockless.tar.gz.sha256)&nbsp;\|&nbsp;[PGP](/dps8m-archive/R2.0.0/dps8m-r2.0.0-linux-x86_lockless.tar.gz.asc)&nbsp;\]</small> |
 | [**dps8m-r2.0.0-linux-av6.tar.gz**](/dps8m-archive/R2.0.0/dps8m-r2.0.0-linux-av6.tar.gz)             | ARMv6    | <small>\[&nbsp;[SHA256](/dps8m-archive/R2.0.0/dps8m-r2.0.0-linux-av6.tar.gz.sha256)&nbsp;\|&nbsp;[PGP](/dps8m-archive/R2.0.0/dps8m-r2.0.0-linux-av6.tar.gz.asc)&nbsp;\]</small> |
-| [**dps8m-r2.0.0-linux-av6_lockless.tar.gz**](/dps8m-archive/R2.0.0/dps8m-r2.0.0-linux_lockless-av6.tar.gz) \* | ARMv6    | <small>\[&nbsp;[SHA256](/dps8m-archive/R2.0.0/dps8m-r2.0.0-linux_lockless-av6.tar.gz.sha256)&nbsp;\|&nbsp;[PGP](/dps8m-archive/R2.0.0/dps8m-r2.0.0-linux_lockless-av6.tar.gz.asc)&nbsp;\]</small> |
-<small>\* Supports lock-free multithreaded multiprocessor simulation.</small>
+| [**dps8m-r2.0.0-linux-av6_lockless.tar.gz**](/dps8m-archive/R2.0.0/dps8m-r2.0.0-linux-av6_lockless.tar.gz) \* | ARMv6    | <small>\[&nbsp;[SHA256](/dps8m-archive/R2.0.0/dps8m-r2.0.0-linux-av6_lockless.tar.gz.sha256)&nbsp;\|&nbsp;[PGP](/dps8m-archive/R2.0.0/dps8m-r2.0.0-linux-av6_lockless.tar.gz.asc)&nbsp;\]</small> |
+<small>\* Lock-free multithreading.</small>
 {{< /tab >}}
 {{< tab "Windows" >}}
 | File                                                                               | Platform  | Verification                                                                                                                                                              |
@@ -62,7 +62,7 @@ title: Historical Archives
 {{< tab "macOS" >}}
 | File                                                                                               | Platform | Verification                                                                                                                                                                              |
 |:-------------------------------------------------------------------------------------------------- |:-------- |:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [**dps8m-r1.0.0-macos_1015-x86.tar.gz**](/dps8m-archive/R1.0.0/dps8m-r1.0.0-macos_1015-x86.tar.gz) | x86_64   | <small>\[&nbsp;[SHA256](/dps8m-archive/R1.0.0/dps8m-r1.0.0-macos_1015-x86.tar.gz.sha256)&nbsp;\|&nbsp;[PGP](/dps8m-archive/R1.0.0/dps8m-r1.0.0-macos_1015-x86.tar.gz.asc)&nbsp;\]</small> |
+| [**dps8m-r1.0.0-macos_1012-x86.tar.gz**](/dps8m-archive/R1.0.0/dps8m-r1.0.0-macos_1012-x86.tar.gz) | x86_64   | <small>\[&nbsp;[SHA256](/dps8m-archive/R1.0.0/dps8m-r1.0.0-macos_1012-x86.tar.gz.sha256)&nbsp;\|&nbsp;[PGP](/dps8m-archive/R1.0.0/dps8m-r1.0.0-macos_1012-x86.tar.gz.asc)&nbsp;\]</small> |
 {{< /tab >}}
 {{< tab "Windows" >}}
 | File                                                                                | Platform     | Verification                                                                                                                                                              |

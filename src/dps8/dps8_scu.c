@@ -764,7 +764,7 @@ static config_value_list_t cfg_mode_list [] =
 static config_value_list_t cfg_mask_list [] =
   {
     { "off", -1 },
-    { NULL,  0 }
+    { NULL,  0  }
   };
 
 static config_value_list_t cfg_able_list [] =
@@ -821,21 +821,20 @@ static config_list_t scu_config_list [] =
     /*  9 */ { "port6",        1, 0,               cfg_able_list },
     /* 10 */ { "port7",        1, 0,               cfg_able_list },
     /* 11 */ { "lwrstoresize", 0, 7,               cfg_size_list },
-    /* 12 */ { "cyclic",       0, 0177,            NULL },
-    /* 13 */ { "nea",          0, 0377,            NULL },
+    /* 12 */ { "cyclic",       0, 0177,            NULL          },
+    /* 13 */ { "nea",          0, 0377,            NULL          },
     // mask: 8 a_online, 4 a1_online, 2 b_online, 1, b1_online
-    /* 14 */ { "onl",          0, 017,             NULL },
-    /* 15 */ { "int",          0, 1,               NULL },
-    /* 16 */ { "lwr",          0, 1,               NULL },
+    /* 14 */ { "onl",          0, 017,             NULL          },
+    /* 15 */ { "int",          0, 1,               NULL          },
+    /* 16 */ { "lwr",          0, 1,               NULL          },
 
     // Hacks
 
-    /* 17 */ { "elapsed_days", 0, 20000,           NULL },
+    /* 17 */ { "elapsed_days", 0, 20000,           NULL       },
     /* 18 */ { "steady_clock", 0, 1,               cfg_on_off },
     /* 19 */ { "bullet_time",  0, 1,               cfg_on_off },
     /* 20 */ { "y2k",          0, 1,               cfg_on_off },
-
-             { NULL,           0, 0,               NULL }
+             { NULL,           0, 0,               NULL       }
   };
 
 static t_stat scu_set_config (UNIT * uptr, UNUSED int32 value,
@@ -1704,19 +1703,19 @@ t_stat scu_sscr (uint scu_unit_idx, UNUSED uint cpu_unit_udx,
             //if (up -> lower_store_size != ((rega >> 24) & 07))
               //sim_printf ("??? The CPU tried to change the SCU store size\n");
             up -> lower_store_size = (rega >> 24) & 07;
-            up -> cyclic           = (regq >> 8) & 0177;
-            up -> nea              = (rega >> 6) & 0377;
+            up -> cyclic           = (regq >>  8) & 0177;
+            up -> nea              = (rega >>  6) & 0377;
             up -> onl              = (rega >> 20) & 017;
-            up -> interlace        = (rega >> 5) & 1;
-            up -> lwr              = (rega >> 4) & 1;
-            up -> port_enable [0]  = (rega >> 3) & 01;
-            up -> port_enable [1]  = (rega >> 2) & 01;
-            up -> port_enable [2]  = (rega >> 1) & 01;
-            up -> port_enable [3]  = (rega >> 0) & 01;
-            up -> port_enable [4]  = (regq >> 3) & 01;
-            up -> port_enable [5]  = (regq >> 2) & 01;
-            up -> port_enable [6]  = (regq >> 1) & 01;
-            up -> port_enable [7]  = (regq >> 0) & 01;
+            up -> interlace        = (rega >>  5) &  1;
+            up -> lwr              = (rega >>  4) &  1;
+            up -> port_enable [0]  = (rega >>  3) & 01;
+            up -> port_enable [1]  = (rega >>  2) & 01;
+            up -> port_enable [2]  = (rega >>  1) & 01;
+            up -> port_enable [3]  = (rega >>  0) & 01;
+            up -> port_enable [4]  = (regq >>  3) & 01;
+            up -> port_enable [5]  = (regq >>  2) & 01;
+            up -> port_enable [6]  = (regq >>  1) & 01;
+            up -> port_enable [7]  = (regq >>  0) & 01;
 
 #if defined(THREADZ) || defined(LOCKLESS)
             unlock_scu ();
