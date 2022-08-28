@@ -119,13 +119,13 @@
 static DEBTAB mt_dt [] =
   {
     { "NOTIFY", DBG_NOTIFY, NULL },
-    { "INFO", DBG_INFO, NULL },
-    { "ERR", DBG_ERR, NULL },
-    { "WARN", DBG_WARN, NULL },
-    { "DEBUG", DBG_DEBUG, NULL },
-    { "TRACE", DBG_TRACE, NULL },
-    { "ALL", DBG_ALL, NULL }, // don't move as it messes up DBG message
-    { NULL, 0, NULL }
+    { "INFO",   DBG_INFO,   NULL },
+    { "ERR",    DBG_ERR,    NULL },
+    { "WARN",   DBG_WARN,   NULL },
+    { "DEBUG",  DBG_DEBUG,  NULL },
+    { "TRACE",  DBG_TRACE,  NULL },
+    { "ALL",    DBG_ALL,    NULL }, // don't move as it messes up DBG message
+    { NULL,     0,          NULL }
   };
 
 //////////////
@@ -249,34 +249,36 @@ static t_stat mtp_set_device_name (UNIT * uptr, UNUSED int32 value,
 static MTAB mtp_mod [] =
   {
     {
-      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* mask */
-      0,            /* match */
-      "NUNITS",     /* print string */
-      "NUNITS",         /* match string */
-      mtp_set_nunits, /* validation routine */
-      mtp_show_nunits, /* display routine */
-      "Number of TAPE units in the system", /* value descriptor */
-      NULL          // help
+      MTAB_XTD | MTAB_VDV | \
+      MTAB_NMO | MTAB_VALR,                 /* mask               */
+      0,                                    /* match              */
+      "NUNITS",                             /* print string       */
+      "NUNITS",                             /* match string       */
+      mtp_set_nunits,                       /* validation routine */
+      mtp_show_nunits,                      /* display routine    */
+      "Number of TAPE units in the system", /* value descriptor   */
+      NULL                                  /* help               */
     },
     {
-      MTAB_XTD | MTAB_VUN | MTAB_VALR, /* mask */
-      0,            /* match */
-      "BOOT_DRIVE",     /* print string */
-      "BOOT_DRIVE",         /* match string */
-      mtp_set_boot_drive, /* validation routine */
-      mtp_show_boot_drive, /* display routine */
-      "Select the boot drive", /* value descriptor */
-      NULL          // help
+      MTAB_XTD | MTAB_VUN | MTAB_VALR,      /* mask               */
+      0,                                    /* match              */
+      "BOOT_DRIVE",                         /* print string       */
+      "BOOT_DRIVE",                         /* match string       */
+      mtp_set_boot_drive,                   /* validation routine */
+      mtp_show_boot_drive,                  /* display routine    */
+      "Select the boot drive",              /* value descriptor   */
+      NULL                                  /* help               */
     },
     {
-      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC, /* mask */
-      0,            /* match */
-      "NAME",     /* print string */
-      "NAME",         /* match string */
-      mtp_set_device_name, /* validation routine */
-      mtp_show_device_name, /* display routine */
-      "Set the device name", /* value descriptor */
-      NULL          // help
+      MTAB_XTD | MTAB_VUN | \
+      MTAB_VALR | MTAB_NC,                  /* mask               */
+      0,                                    /* match              */
+      "NAME",                               /* print string       */
+      "NAME",                               /* match string       */
+      mtp_set_device_name,                  /* validation routine */
+      mtp_show_device_name,                 /* display routine    */
+      "Set the device name",                /* value descriptor   */
+      NULL                                  /* help               */
     },
     { 0, 0, NULL, NULL, NULL, NULL, NULL, NULL }
   };
@@ -288,32 +290,32 @@ static t_stat mtp_reset (UNUSED DEVICE * dptr)
 
 DEVICE mtp_dev =
   {
-    "MTP",            /* name */
-    mtp_unit,         /* units */
-    NULL,             /* registers */
-    mtp_mod,          /* modifiers */
-    N_MTP_UNITS,      /* #units */
-    10,               /* address radix */
-    31,               /* address width */
-    1,                /* address increment */
-    8,                /* data radix */
-    9,                /* data width */
-    NULL,             /* examine routine */
-    NULL,             /* deposit routine */
-    mtp_reset,        /* reset routine */
-    NULL,             /* boot routine */
-    NULL,             /* attach routine */
-    NULL,             /* detach routine */
-    NULL,             /* context */
-    DEV_DEBUG,        /* flags */
+    "MTP",            /* name                */
+    mtp_unit,         /* units               */
+    NULL,             /* registers           */
+    mtp_mod,          /* modifiers           */
+    N_MTP_UNITS,      /* #units              */
+    10,               /* address radix       */
+    31,               /* address width       */
+    1,                /* address increment   */
+    8,                /* data radix          */
+    9,                /* data width          */
+    NULL,             /* examine routine     */
+    NULL,             /* deposit routine     */
+    mtp_reset,        /* reset routine       */
+    NULL,             /* boot routine        */
+    NULL,             /* attach routine      */
+    NULL,             /* detach routine      */
+    NULL,             /* context             */
+    DEV_DEBUG,        /* flags               */
     0,                /* debug control flags */
-    mt_dt,            /* debug flag names */
-    NULL,             /* memory size change */
-    NULL,             /* logical name */
-    NULL,             // attach help
-    NULL,             // help
-    NULL,             // help context
-    NULL,             // device description
+    mt_dt,            /* debug flag names    */
+    NULL,             /* memory size change  */
+    NULL,             /* logical name        */
+    NULL,             /* attach help         */
+    NULL,             /* help                */
+    NULL,             /* help context        */
+    NULL,             /* device description  */
     NULL
   };
 
