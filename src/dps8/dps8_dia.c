@@ -1,6 +1,6 @@
 //#define dumpseg
 //#define DDBG(x) x
-#define DDBG(x) 
+#define DDBG(x)
 /*
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
@@ -208,7 +208,7 @@ static int tcp_parse_remote (const char * premote, char * rhost, size_t rhostl, 
   //            w.x.y.z:rrrr
   //            name.domain.com:rrrr
   //
-  // In all examples, "rrrr" is the remote port number that we use for transmitting.  
+  // In all examples, "rrrr" is the remote port number that we use for transmitting.
   // "w.x.y.z" is a dotted IP for the remote machine
   // and "name.domain.com" is its name (which will be looked up to get the IP).
   // If the host name/IP is omitted then it defaults to "localhost".
@@ -228,17 +228,17 @@ static int tcp_parse_remote (const char * premote, char * rhost, size_t rhostl, 
 #if 0
 static inline void fnp_core_read (word24 addr, word36 *data, UNUSED const char * ctx)
   {
-#ifdef THREADZ
+# ifdef THREADZ
     lock_mem_rd ();
-#endif
-#ifdef SCUMEM
+# endif
+# ifdef SCUMEM
     iom_core_read (addr, data, ctx);
-#else
+# else
     * data = M [addr] & DMASK;
-#endif
-#ifdef THREADZ
+# endif
+# ifdef THREADZ
     unlock_mem ();
-#endif
+# endif
   }
 #endif
 
@@ -758,12 +758,12 @@ struct mailbox
     struct fnp_submailbox fnp_sub_mbxes [4];
   };
 
-#define MAILBOX_WORDS             (sizeof (struct mailbox) / sizeof (word36))
-#define DIA_PCW                 (offsetof (struct mailbox, dia_pcw) / sizeof (word36))
-#define TERM_INPT_MPX_WD        (offsetof (struct mailbox, term_inpt_mpx_wd) / sizeof (word36))
-#define CRASH_DATA              (offsetof (struct mailbox, crash_data) / sizeof (word36))
-#define DN355_SUB_MBXES         (offsetof (struct mailbox, dn355_sub_mbxes) / sizeof (word36))
-#define FNP_SUB_MBXES           (offsetof (struct mailbox, fnp_sub_mbxes) / sizeof (word36))
+# define MAILBOX_WORDS             (sizeof (struct mailbox) / sizeof (word36))
+# define DIA_PCW                 (offsetof (struct mailbox, dia_pcw) / sizeof (word36))
+# define TERM_INPT_MPX_WD        (offsetof (struct mailbox, term_inpt_mpx_wd) / sizeof (word36))
+# define CRASH_DATA              (offsetof (struct mailbox, crash_data) / sizeof (word36))
+# define DN355_SUB_MBXES         (offsetof (struct mailbox, dn355_sub_mbxes) / sizeof (word36))
+# define FNP_SUB_MBXES           (offsetof (struct mailbox, fnp_sub_mbxes) / sizeof (word36))
 #endif
 
 //
@@ -775,24 +775,24 @@ void dia_init (void) {
   memset(& dia_data, 0, sizeof (dia_data));
   //for (uint diaUnitIdx = 0; diaUnitIdx < N_DIA_UNITS_MAX; diaUnitIdx ++) {
     //struct dia_unit_data * dudp = & dia_data.dia_unit_data[diaUnitIdx];
-    //uv_udp_init (uv_default_loop (), & dudp->udpSendHandle);     
+    //uv_udp_init (uv_default_loop (), & dudp->udpSendHandle);
   //}
 }
 
 #if 0
 static inline void fnp_core_write (word24 addr, word36 data, UNUSED const char * ctx)
   {
-#ifdef THREADZ
+# ifdef THREADZ
     lock_mem_wr ();
-#endif
-#ifdef SCUMEM
+# endif
+# ifdef SCUMEM
     iom_core_write (addr, data, ctx);
-#else
+# else
     M [addr] = data & DMASK;
-#endif
-#ifdef THREADZ
+# endif
+# ifdef THREADZ
     unlock_mem ();
-#endif
+# endif
   }
 #endif
 
@@ -808,12 +808,12 @@ static uint virtToPhys (uint ptPtr, uint l66Address)
 
     word36 ptw;
     uint iomUnitIdx = (uint) cables->cablesFromIomToFnp [decoded.devUnitIdx].iomUnitIdx;
-#ifdef SCUMEM
+# ifdef SCUMEM
     iom_core_read (iomUnitIdx, pageTable + l66AddressPage, & ptw, "fnpIOMCmd get ptw");
-#else
+# else
     //fnp_core_read (pageTable + l66AddressPage, & ptw, "fnpIOMCmd get ptw");
     iom_direct_data_service (iomUnitIdx, chan, pateTable + l66AddressPage, & ptw, direct_load);
-#endif
+# endif
     uint page = getbits36_14 (ptw, 4);
     uint addr = page * 1024u + l66Address % 1024u;
     return addr;
@@ -992,7 +992,7 @@ static int interruptL66 (uint iomUnitIdx, uint chan) {
     return 0;
   }
 
-#ifdef dumpseg 
+#ifdef dumpseg
 static word24 xbuild_DDSPTW_address (word18 PCW_PAGE_TABLE_PTR, word8 pageNumber)
   {
 //    0      5 6        15  16  17  18                       23
@@ -1216,8 +1216,8 @@ static iom_cmd_rc_t processMBX (uint iomUnitIdx, uint chan) {
     //word24 image_off = (tally + 64) & 077777700;
     //DDBG (sim_printf ("image_off %o %d.\n", image_off, image_off));
 
-#ifdef dumpseg
-#include <unistd.h>
+# ifdef dumpseg
+#  include <unistd.h>
     { int fd = open ("boot_segment.dat", O_RDWR | O_CREAT | O_TRUNC, 0660);
       if (fd < 0) {
         perror ("open boot_segment.dat");
@@ -1237,9 +1237,9 @@ static iom_cmd_rc_t processMBX (uint iomUnitIdx, uint chan) {
       close (fd);
       exit (1);
     }
-#endif
+# endif
 
-#if 0
+# if 0
     //DDBG (
     for (uint i = 0; i < 4096; i ++) {
       if (i % 4 == 0) sim_printf ("%06o", i);
@@ -1249,11 +1249,11 @@ static iom_cmd_rc_t processMBX (uint iomUnitIdx, uint chan) {
       if (i % 4 == 3) sim_printf ("\r\n");
       };
     //)
-#endif
+# endif
 
     // AN85: gicb routine:
-    // "The connect to the bootload PCW causes the DIA to read the 
-    // gicb rountine inth the FNP under control of the boot ICW which is 
+    // "The connect to the bootload PCW causes the DIA to read the
+    // gicb rountine inth the FNP under control of the boot ICW which is
     // the first word of the boot segment."
 
     // The ICW contains 100000 000517. 517 is the length of the gicb code.
@@ -1389,7 +1389,7 @@ static iom_cmd_rc_t processMBX (uint iomUnitIdx, uint chan) {
   }
 
 //done:
-#if 0
+# if 0
   if (ok) {
     //if_sim_debug (DBG_TRACE, & fnp_dev) dmpmbx (dudp->mailboxAddress);
     //fnp_core_write (dudp -> mailboxAddress, 0, "dia_iom_cmd clear dia_pcw");
@@ -1410,7 +1410,7 @@ static iom_cmd_rc_t processMBX (uint iomUnitIdx, uint chan) {
     //fnp_core_write (dudp -> mailboxAddress, dia_pcw, "dia_iom_cmd set error bit");
     iom_direct_data_service (iomUnitIdx, chan, dudp->mailboxAddress+DIA_PCW, & dia_pcw, direct_store);
   }
-#endif
+# endif
   return ret_cmd;
 }
 #endif
@@ -1508,13 +1508,13 @@ static void load_stored_boot (void)
 #endif
 
 #if 0
-#define psz 17000
+# define psz 17000
 static uint8_t pkt[psz];
 
 // warning: returns ptr to static buffer
 static int poll_coupler (uint diaUnitIdx, uint8_t * * pktp)
   {
-#ifdef PUNT
+# ifdef PUNT
   struct dia_unit_data * dudp = & dia_data.dia_unit_data[diaUnitIdx];
     int sz = dn_udp_receive (dudp->udpSendHandle, pkt, psz);
     if (sz < 0)
@@ -1524,9 +1524,9 @@ static int poll_coupler (uint diaUnitIdx, uint8_t * * pktp)
       }
     * pktp = pkt;
     return sz;
-#else
+# else
     return 0;
-#endif
+# endif
   }
 #endif
 
