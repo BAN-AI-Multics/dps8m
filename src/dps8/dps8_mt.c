@@ -1169,6 +1169,8 @@ static void mtInitRdMem (uint devUnitIdx, uint iomUnitIdx, uint chan)
     mem [charTableOS + 10] = 0x1025;        // as_date Oct 27.
 
     word36 buf [tally];
+    // Make clang analyzer happy
+    memset (buf, 0, sizeof (word36) * tally);
     for (uint i = 0; i < tally; i ++)
       {
         putbits36_18 (buf + i,  0, mem [i * 2]);

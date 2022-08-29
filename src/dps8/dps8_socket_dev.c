@@ -1189,6 +1189,8 @@ static void do_try_read (uint unit_idx, word6 dev_code)
     uint count           = sk_data.unit_data[unit_idx][dev_code].read_buffer_sz;
     uint buffer_size_wds = (count + 3) / 4;
     word36 buffer [buffer_size_wds];
+    // Make clang analyzer happy
+    memset (buffer, 0, sizeof (word36) * buffer_size_wds);
     uint8_t netdata [count];
     ssize_t nread = read (sk_data.unit_data[unit_idx][dev_code].read_fd, & netdata, count);
     if (nread == -1)
