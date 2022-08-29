@@ -4601,6 +4601,9 @@ static decNumber * decDivideOp(decNumber *res,
 
       // if the residue is zero, the operation is done (unless divide
       // or divideInteger and still not enough digits yet)
+#ifdef __clang_analyzer__
+      *var1=0;
+#endif /* ifdef __clang_analyzer__ */
       if (*var1==0 && var1units==1) {        // residue is 0
         if (op&(REMAINDER|REMNEAR)) break;
         if ((op&DIVIDE) && (exponent<=maxexponent)) break;
