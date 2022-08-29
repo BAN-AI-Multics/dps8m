@@ -157,9 +157,9 @@ to distribution of the programs without specific prior written permission.
 * Third-party software is copyrighted by their respective owners and may be
   made available under different license terms.
 * See the
-  [**Third-party Software** section](https://dps8m.gitlab.io/dps8m/dps8m-omnibus.pdf#third-party-software)
+  [**Third-party Software** section](https://dps8m.gitlab.io/dps8m/master/dps8m-omnibus.pdf#third-party-software)
   in the
-  [**Legal** chapter](https://dps8m.gitlab.io/dps8m/dps8m-omnibus.pdf#legal)
+  [**Legal** chapter](https://dps8m.gitlab.io/dps8m/master/dps8m-omnibus.pdf#legal)
   of the
-  [**DPS8M Omnibus Documentation**](https://dps8m.gitlab.io/dps8m/dps8m-omnibus.pdf)
+  [**DPS8M Omnibus Documentation**](https://dps8m.gitlab.io/dps8m/master/dps8m-omnibus.pdf)
   for authoritative information.

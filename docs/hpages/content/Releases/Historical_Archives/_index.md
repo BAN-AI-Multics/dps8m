@@ -62,7 +62,7 @@ title: Historical Archives
 {{< tab "macOS" >}}
 | File                                                                                               | Platform | Verification                                                                                                                                                                              |
 |:-------------------------------------------------------------------------------------------------- |:-------- |:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [**dps8m-r1.0.0-macos_1012-x86.tar.gz**](/dps8m-archive/R1.0.0/dps8m-r1.0.0-macos_1012-x86.tar.gz) | x86_64   | <small>\[&nbsp;[SHA256](/dps8m-archive/R1.0.0/dps8m-r1.0.0-macos_1012-x86.tar.gz.sha256)&nbsp;\|&nbsp;[PGP](/dps8m-archive/R1.0.0/dps8m-r1.0.0-macos_1012-x86.tar.gz.asc)&nbsp;\]</small> |
+| [**dps8m-r1.0.0-macos_1012-x86.zip**](/dps8m-archive/R1.0.0/dps8m-r1.0.0-macos_1012-x86.zip) | x86_64   | <small>\[&nbsp;[SHA256](/dps8m-archive/R1.0.0/dps8m-r1.0.0-macos_1012-x86.zip.sha256)&nbsp;\|&nbsp;[PGP](/dps8m-archive/R1.0.0/dps8m-r1.0.0-macos_1012-x86.zip.asc)&nbsp;\]</small> |
 {{< /tab >}}
 {{< tab "Windows" >}}
 | File                                                                                | Platform     | Verification                                                                                                                                                              |
