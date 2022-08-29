@@ -694,6 +694,8 @@ static void sendConsole (int conUnitIdx, word12 stati)
         n_words = (n_chars + 3) / 4;
     // The "+1" is for them empty line case below
     word36 buf[n_words + 1];
+    // Make Oracle lint happy
+    memset (buf, 0, sizeof (word36) * (n_words + 1));
     word36 * bufp = buf;
 
     // Multics doesn't seem to like empty lines; it the line buffer
@@ -756,6 +758,7 @@ static void sendConsole (int conUnitIdx, word12 stati)
                     if (csp->readp >= csp->tailp)
                       break;
                     unsigned char c = (unsigned char) (* csp->readp ++);
+                    c &= 0177;  // Multics get consternated about this
                     putbits36_9 (bufp, charno * 9, c);
                   }
               }
