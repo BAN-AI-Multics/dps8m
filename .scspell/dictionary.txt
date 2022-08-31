@@ -69,6 +69,8 @@ gitver
 gscript
 gsed
 gtail
+hugoclean
+hugovars
 ibmaix
 ifndef
 initlzr
@@ -5344,6 +5346,7 @@ iloi
 kitname
 libcmb
 lzma
+noci
 roscspell
 sdel
 tarxt
@@ -8248,6 +8251,7 @@ charles
 chars
 chart
 charts
+chat
 check
 checked
 checker
@@ -8480,6 +8484,7 @@ console
 consoles
 consolidated
 constants
+consternated
 constitute
 constrained
 constraint
@@ -8908,6 +8913,7 @@ distinctive
 distinguish
 distinguished
 distinguishing
+distkit
 distracted
 distributed
 distribution
@@ -10241,6 +10247,7 @@ manipulating
 manipulation
 manner
 mantissa
+mantissae
 mantissas
 mantra
 manual
@@ -12164,6 +12171,7 @@ tolerance
 tolerate
 tolts
 tomek
+toml
 tonen
 tongue
 tony
@@ -12556,6 +12564,7 @@ wave
 ways
 weak
 weaponry
+website
 wedged
 wedging
 wednesday
@@ -12616,6 +12625,7 @@ wonder
 word
 words
 workarounds
+workflow
 working
 works
 workspace

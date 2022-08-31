@@ -553,7 +553,6 @@ distclean: clean
 	@$(SETV); $(RMF) "restoreMultics.log"                  ||  $(TRUE)
 	@$(SETV); $(RMF) "TAGS"                                ||  $(TRUE)
 	@$(SETV); $(RMF) "tags"                                ||  $(TRUE)
-	@$(SETV); $(RMF) "ver.h~"                              ||  $(TRUE)
 	@$(SETV); $(RMF) "../../GPATH"                         ||  $(TRUE)
 	@$(SETV); $(RMF) "../../GRTAGS"                        ||  $(TRUE)
 	@$(SETV); $(RMF) "../../GTAGS"                         ||  $(TRUE)
@@ -562,6 +561,8 @@ distclean: clean
 	@$(SETV); $(RMF) "cscope.po.out"                       ||  $(TRUE)
 	@$(SETV); $(TEST) -d "../../libuv-local"               &&                 \
               $(RMF) -r  "../../libuv-local"               ||  $(TRUE)
+	@$(SETV); $(TEST) -d "../../.git"                      &&                 \
+              $(RMF) "ver.h~"                              ||  $(TRUE)
 
 ###############################################################################
 

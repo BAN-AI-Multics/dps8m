@@ -91,7 +91,7 @@ ifndef LTO_SKIP
               CFLAGS += $(LTOSYN)
               LDFLAGS += $(LTOSYN)
             else
-              # Intel C Compiler Classic (no LTO)
+              # Intel C Compiler Classic (no longer supported)
               NO_LTO=1
               LTO_SKIP=1
               export NO_LTO
@@ -256,7 +256,7 @@ ifndef SUNPRO
 endif
 
 ###############################################################################
-# Intel C Compiler Classic
+# Intel C Compiler Classic workarounds (no longer supported)
 
 ifneq "$(findstring icc,$(CC))" ""
   CFLAGS += -no-restrict -D__attribute__\(x\)=/"/"
