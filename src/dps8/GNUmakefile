@@ -185,8 +185,11 @@ endif
 
 ###############################################################################
 
-ifneq ($(MINGW_CROSS),1)
-  C_SRCS  = dps8_absi.c
+ifeq ($(WITH_ABSI_DEV),1)
+  ifneq ($(MINGW_CROSS),1)
+    C_SRCS  = dps8_absi.c
+    C_SRCS += udplib.c
+  endif
 endif
 C_SRCS += bsd_random.c
 C_SRCS += dps8_addrmods.c
@@ -212,8 +215,10 @@ C_SRCS += dps8_opcodetable.c
 C_SRCS += dps8_prt.c
 C_SRCS += dps8_scu.c
 C_SRCS += dps8_simh.c
-ifneq ($(MINGW_CROSS),1)
-  C_SRCS += dps8_socket_dev.c
+ifeq ($(WITH_SOCKET_DEV),1)
+  ifneq ($(MINGW_CROSS),1)
+    C_SRCS += dps8_socket_dev.c
+  endif
 endif
 ifeq ($(TESTING),1)
   C_SRCS += tracker.c
@@ -228,7 +233,6 @@ C_SRCS += hdbg.c
 C_SRCS += segldr.c
 ifneq ($(MINGW_CROSS),1)
   C_SRCS += shm.c
-  C_SRCS += udplib.c
 endif
 ifeq ($(THREADZ),1)
   C_SRCS += threadz.c
@@ -245,7 +249,7 @@ OBJS  := $(patsubst %.c,%.o,$(C_SRCS))
 
 ###############################################################################
 
-ifneq ($(MINGW_CROSS),1)
+ifneq ($(WITH_ABSI_DEV),1)
   H_SRCS  = dps8_absi.h
 endif
 H_SRCS += bsd_random.h
