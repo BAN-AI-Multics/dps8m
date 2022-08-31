@@ -29,8 +29,8 @@ ifndef OS_IBMAIX
             sed -e 's/ TL0/ TL/'   -e 's/ SP0/ SP/'           2> /dev/null |  \
             sed -e 's/.\{1\}/&./g' -e 's/\. \./ /g' -e 's/T\.L\./TL/'         \
                 -e 's/S\.P\./SP/'  -e 's/\.$$//'    -e 's/0\.0\.0 / /'        \
-                -e 's/0\.0 / /'    -e 's/0 / /'     -e 's/\. / /'             \
-                                                              2> /dev/null)
+                -e 's/0\.0 / /' -e 's/0 / /' -e 's/\. / /'    2> /dev/null |  \
+            sed -e 's/ TL / /' 2> /dev/null || true > /dev/null 2>&1)
   export OS_IBMAIX
 endif
 

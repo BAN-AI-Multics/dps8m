@@ -27,6 +27,12 @@ endif
 
 ###############################################################################
 
+ifneq (,$(wildcard ../Makefile.var))
+  include ../Makefile.var
+endif
+
+###############################################################################
+
 ifndef SUNPRO
   ifndef SUNLINT
     ifneq ($(W),)
@@ -40,6 +46,18 @@ endif
 
 ifdef VER_CURRENT_TIME
   CFLAGS += -DVER_CURRENT_TIME="\"$(VER_CURRENT_TIME)\""
+endif
+
+###############################################################################
+
+ifdef BUILD_PROM_OSV_TEXT
+  CFLAGS += -DBUILD_PROM_OSV_TEXT="\"$(BUILD_PROM_OSV_TEXT)\""
+endif
+
+###############################################################################
+
+ifdef BUILD_PROM_OSA_TEXT
+  CFLAGS += -DBUILD_PROM_OSA_TEXT="\"$(BUILD_PROM_OSA_TEXT)\""
 endif
 
 ###############################################################################

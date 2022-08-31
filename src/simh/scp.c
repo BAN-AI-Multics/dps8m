@@ -1539,6 +1539,20 @@ char *strremove(char *str, const char *sub)
     return str;
 }
 
+/* Trim whitespace */
+
+void strtrimspace (char* str_trimmed, const char* str_untrimmed)
+{
+    while (*str_untrimmed != '\0') {
+      if(!isspace(*str_untrimmed)) {
+        *str_trimmed = *str_untrimmed;
+        str_trimmed++;
+      }
+      str_untrimmed++;
+    }
+    *str_trimmed = '\0';
+}
+
 #ifdef USE_DUMA
 void CleanDUMA(void)
 {
@@ -4502,24 +4516,32 @@ if (flag) {
 #endif
 #if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_DATE)
 # if defined(NO_SUPPORT_VERSION)
-        fprintf (st, "\n  Modified: %s", VER_H_GIT_DATE);
+    fprintf (st, "\n  Modified: %s", VER_H_GIT_DATE);
 # else
-        fprintf (st, "\n  Released: %s", VER_H_GIT_DATE);
+    fprintf (st, "\n  Released: %s", VER_H_GIT_DATE);
 # endif
 #endif
 #if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_DATE) && defined(VER_H_PREP_DATE)
     fprintf (st, " - Kit Prepared: %s", VER_H_PREP_DATE);
 #endif
 #ifdef VER_CURRENT_TIME
-        fprintf (st, "\n  Compiled: %s", VER_CURRENT_TIME);
+    fprintf (st, "\n  Compiled: %s", VER_CURRENT_TIME);
 #endif
-        if (dirty)
-                {
-                        fprintf (st, "\r\n\r\n ****** THIS BUILD IS NOT SUPPORTED BY THE DPS8M DEVELOPMENT TEAM ******");
-                }
+    if (dirty)
+      {
+        fprintf (st, "\r\n\r\n ****** THIS BUILD IS NOT SUPPORTED BY THE DPS8M DEVELOPMENT TEAM ******");
+      }
     fprintf (st, "\n\n Build Information:");
-#if defined(VER_H_PREP_OSVN)
-        fprintf (st, "\n  Build OS: %s", VER_H_PREP_OSVN);
+#if defined (BUILD_PROM_OSV_TEXT) && defined (BUILD_PROM_OSA_TEXT)
+    char build_os_version_raw[255];
+    char build_os_arch_raw[255];
+    sprintf(build_os_version_raw, "%.254s", BUILD_PROM_OSV_TEXT);
+    sprintf(build_os_arch_raw, "%.254s", BUILD_PROM_OSA_TEXT);
+    char *build_os_version = strdup(build_os_version_raw);
+    char *build_os_arch = strdup(build_os_arch_raw);
+    strtrimspace(build_os_version, build_os_version_raw);
+    strtrimspace(build_os_arch, build_os_arch_raw);
+    fprintf (st, "\n  Build OS: %s %s", build_os_version, build_os_arch);
 #endif
 #if defined (__VERSION__)
     char gnumver[2];
@@ -4730,11 +4752,11 @@ if (flag) {
 # endif /* ifndef _AIX */
             memset (osversion, 0, sizeof(osversion));
             do {
-                if (NULL == fgets (osversion, sizeof(osversion)-1, f)) {
+              if (NULL == fgets (osversion, sizeof(osversion)-1, f)) {
                     break;
-                }
-                sim_trim_endspc (osversion);
-                } while (osversion[0] == '\0');
+              }
+            sim_trim_endspc (osversion);
+            } while (osversion[0] == '\0');
             pclose (f);
             strremove(osversion, "0000000000000000 ");
             strremove(osversion, " 0000000000000000");

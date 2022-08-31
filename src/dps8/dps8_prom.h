@@ -77,21 +77,21 @@ sprintf ((char *) PROM, \
 #endif /* VER_H_PROM_VER_TEXT */
   "\377\377",             // 128-129                                      (%2s)
 #ifdef BUILD_PROM_OSA_TEXT
-  BUILD_PROM_OSA_TEXT,    // 130-149  target arch ("XXXXXXXXXXXXXXXXXXXX"/%20s)
+  BUILD_PROM_OSA_TEXT,    // 130-149   build arch ("XXXXXXXXXXXXXXXXXXXX"/%20s)
 #else
 # ifdef VER_H_PROM_OSA_TEXT
-  VER_H_PROM_OSA_TEXT,    // 130-149  target arch ("XXXXXXXXXXXXXXXXXXXX"/%20s)
+  VER_H_PROM_OSA_TEXT,    // 130-149   build arch ("XXXXXXXXXXXXXXXXXXXX"/%20s)
 # else
-  "Unknown             ", // 130-149  target arch ("XXXXXXXXXXXXXXXXXXXX"/%20s)
+  "Unknown             ", // 130-149   build arch ("XXXXXXXXXXXXXXXXXXXX"/%20s)
 # endif /* VER_H_PROM_OSA_TEXT */
 #endif /* BUILD_PROM_OSA_TEXT */
 #ifdef BUILD_PROM_OSV_TEXT
-  BUILD_PROM_OSV_TEXT     // 150-169  target os   ("XXXXXXXXXXXXXXXXXXXX"/%20s)
+  BUILD_PROM_OSV_TEXT     // 150-169   build os   ("XXXXXXXXXXXXXXXXXXXX"/%20s)
 #else
 # ifdef VER_H_PROM_OSV_TEXT
-  VER_H_PROM_OSV_TEXT     // 150-169  target os   ("XXXXXXXXXXXXXXXXXXXX"/%20s)
+  VER_H_PROM_OSV_TEXT     // 150-169   build os   ("XXXXXXXXXXXXXXXXXXXX"/%20s)
 # else
-  "Unknown             "  // 150-169  target os   ("XXXXXXXXXXXXXXXXXXXX"/%20s)
+  "Unknown             "  // 150-169   build os   ("XXXXXXXXXXXXXXXXXXXX"/%20s)
 # endif /* VER_H_PROM_OSV_TEXT */
 #endif /* BUILD_PROM_OSV_TEXT */
                           //     170  ------ sprintf adds trailing NULL ------
