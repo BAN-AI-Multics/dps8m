@@ -44,14 +44,6 @@
 # define bzero(b,len) (memset((b), '\0', (len)), (void) 0)
 #endif /* ifndef bzero */
 
-#define SKC_UNIT_IDX(uptr) ((uptr) - sk_unit)
-
-struct skc_state_s
-  {
-    char device_name [MAX_DEV_NAME_LEN];
-  };
-static struct skc_state_s skc_state[N_SKC_UNITS_MAX];
-
 static struct {
     const char *name;
     int code;
@@ -61,7 +53,16 @@ static struct {
 };
 #define N_ERRNOS (sizeof (errnos) / sizeof (errnos[0]))
 
-#define N_FDS 1024
+#ifdef WITH_SOCKET_DEV
+# define SKC_UNIT_IDX(uptr) ((uptr) - sk_unit)
+
+struct skc_state_s
+  {
+    char device_name [MAX_DEV_NAME_LEN];
+  };
+static struct skc_state_s skc_state[N_SKC_UNITS_MAX];
+
+# define N_FDS 1024
 
 static struct
   {
@@ -84,7 +85,7 @@ static struct
       } unit_data[N_SKC_UNITS_MAX][N_DEV_CODES];
   } sk_data;
 
-#define N_SKC_UNITS 64 // default
+# define N_SKC_UNITS 64 // default
 
 static t_stat sk_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr,
                               UNUSED int val, UNUSED const void * desc)
@@ -158,7 +159,7 @@ static MTAB sk_mod [] =
   };
 
 UNIT sk_unit [N_SKC_UNITS_MAX] = {
-#ifdef NO_C_ELLIPSIS
+# ifdef NO_C_ELLIPSIS
   { UDATA ( NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA ( NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA ( NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
@@ -223,11 +224,11 @@ UNIT sk_unit [N_SKC_UNITS_MAX] = {
   { UDATA ( NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA ( NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA ( NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL }
-#else
+# else
   [0 ... (N_SKC_UNITS_MAX -1)] = {
     UDATA ( NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL
   },
-#endif
+# endif
 };
 
 static DEBTAB sk_dt [] =
@@ -355,11 +356,11 @@ sim_printf ("socket() protocol %d\n", protocol);
 sim_printf ("socket() domain EAFNOSUPPORT\n");
         _errno = EAFNOSUPPORT;
       }
-#if defined(__APPLE__) || defined(_AIX) || defined(__HAIKU__)
+# if defined(__APPLE__) || defined(_AIX) || defined(__HAIKU__)
     else if (type != SOCK_STREAM && type != (SOCK_STREAM)) // Only SOCK_STREAM or SOCK_STREAM + SOCK_NONBLOCK
-#else
+# else
     else if (type != SOCK_STREAM && type != (SOCK_STREAM|SOCK_NONBLOCK)) // Only SOCK_STREAM or SOCK_STREAM + SOCK_NONBLOCK
-#endif
+# endif
       {
 sim_printf ("socket() type EPROTOTYPE\n");
         _errno = EPROTOTYPE;
@@ -382,11 +383,11 @@ sim_printf ("errno %d\n", errno);
           {
             sk_data.fd_unit[fd] = (int) unit_idx;
             sk_data.fd_dev_code[fd] = dev_code;
-#if defined(__APPLE__) || defined(_AIX) || defined(__HAIKU__)
+# if defined(__APPLE__) || defined(_AIX) || defined(__HAIKU__)
             sk_data.fd_nonblock[fd] = 0;
-#else
+# else
             sk_data.fd_nonblock[fd] = !! (type & SOCK_NONBLOCK);
-#endif
+# endif
           }
         else
           {
@@ -419,7 +420,7 @@ static void skt_gethostbyname (word36 * buffer)
 
     word9 cnt = getbits36_9 (buffer [0], 27);
 
-#if 0
+# if 0
     sim_printf ("strlen: %hu\n", cnt);
     sim_printf ("name: \"");
     for (uint i = 0; i < cnt; i ++)
@@ -433,7 +434,7 @@ static void skt_gethostbyname (word36 * buffer)
             sim_printf ("\\%03o", ch);
       }
     sim_printf ("\"\n");
-#endif
+# endif
 
     if (cnt > 256)
       {
@@ -591,7 +592,7 @@ sim_printf ("listen() setsockopt returned %d\n", rc);
         goto done;
       }
 
-#ifdef FIONBIO
+# ifdef FIONBIO
     rc = ioctl (socket_fd, FIONBIO, (char *) & on);
 sim_printf ("listen() ioctl returned %d\n", rc);
     if (rc < 0)
@@ -599,7 +600,7 @@ sim_printf ("listen() ioctl returned %d\n", rc);
         _errno = errno;
         goto done;
       }
-#endif
+# endif
 
     rc = listen (socket_fd, backlog);
 sim_printf ("listen() returned %d\n", rc);
@@ -1109,12 +1110,12 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
 
     sim_debug (DBG_DEBUG, & skc_dev, "stati %04o\n", p->stati);
 
-#if 0
+# if 0
     if (p->IDCW_CHAN_CTRL == 3) // marker bit set
       {
         send_marker_interrupt (iom_unit_idx, (int) chan);
       }
-#endif
+# endif
     return IOM_CMD_DISCONNECT; // don't continue down the dcw list.
   }
 
@@ -1243,3 +1244,4 @@ void sk_process_event (void)
           }
       }
   }
+#endif /* ifdef WITH_SOCKET_DEV */

@@ -1775,7 +1775,7 @@ Flawfinder:
 
 Clang Analyzer:
   stage: test
-  allow_failure: true
+  allow_failure: false
   needs:
     - job: Linux/x86_64, Ubuntu LTS, Clang, GCC
     - job: Linux/x86_64, Fedora, Clang, GCC

@@ -35,7 +35,8 @@
 
 #include "udplib.h"
 
-#define DBG_CTR 1
+#ifdef WITH_ABSI_DEV
+# define DBG_CTR 1
 
 static struct absi_state
   {
@@ -43,16 +44,16 @@ static struct absi_state
     int link;
   } absi_state [N_ABSI_UNITS_MAX];
 
-#define N_ABSI_UNITS 1 // default
+# define N_ABSI_UNITS 1 // default
 
-#define UNIT_FLAGS ( UNIT_FIX | UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | \
+# define UNIT_FLAGS ( UNIT_FIX | UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | \
                      UNIT_IDLE )
 UNIT absi_unit[N_ABSI_UNITS_MAX] =
   {
     {UDATA (NULL, UNIT_FLAGS, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL}
   };
 
-#define ABSI_UNIT_IDX(uptr) ((uptr) - absi_unit)
+# define ABSI_UNIT_IDX(uptr) ((uptr) - absi_unit)
 
 static DEBTAB absi_dt[] =
   {
@@ -113,14 +114,14 @@ static t_stat absi_set_device_name (UNIT * uptr, UNUSED int32 value,
     return SCPE_OK;
   }
 
-#define UNIT_WATCH UNIT_V_UF
+# define UNIT_WATCH UNIT_V_UF
 
 static MTAB absi_mod[] =
   {
-#ifndef SPEED
+# ifndef SPEED
     { UNIT_WATCH, 1, "WATCH",   "WATCH",   0, 0, NULL, NULL },
     { UNIT_WATCH, 0, "NOWATCH", "NOWATCH", 0, 0, NULL, NULL },
-#endif
+# endif
     {
       MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR,  /* Mask               */
       0,                                           /* Match              */
@@ -345,7 +346,7 @@ iom_cmd_rc_t absi_iom_cmd (uint iomUnitIdx, uint chan)
 
 void absi_process_event (void)
   {
-#define psz 17000
+# define psz 17000
     uint16_t pkt[psz];
     for (uint32 unit = 0; unit < absi_dev.numunits; unit ++)
       {
@@ -381,3 +382,4 @@ void absi_process_event (void)
           }
       }
   }
+#endif /* ifdef WITH_ABSI_DEV */

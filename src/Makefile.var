@@ -75,6 +75,22 @@ ifdef TESTING
 endif
 
 ###############################################################################
+# Enable ABSI device
+
+ifdef WITH_ABSI_DEV
+  WITH_ABSI_DEV=1
+  CFLAGS += -DWITH_ABSI_DEV
+endif
+
+###############################################################################
+# Enable (unsupported, experimental) socket device
+
+ifdef WITH_SOCKET_DEV
+  WITH_SOCKET_DEV=1
+  CFLAGS += -DWITH_SOCKET_DEV
+endif
+
+###############################################################################
 # Enable default LTO (link-time optimization) flags
 
 ifndef LTO_SKIP

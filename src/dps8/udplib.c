@@ -74,8 +74,8 @@
 #include "udplib.h"
 #include "h316_imp.h"
 
-// Local constants ...
-#define MAXLINKS        10      // maximum number of simultaneous connections
+#ifdef WITH_ABSI_DEV
+# define MAXLINKS        10      // maximum number of simultaneous connections
 //   This constant determines the longest possible IMP data payload that can be
 // sent. Most IMP messages are trivially small - 68 words or so - but, when one
 // IMP asks for a reload the neighbor IMP sends the entire memory image in a
@@ -84,7 +84,7 @@
 // can actually send a UDP packet of this size.  It turns out that there's no
 // simple answer to that - it'll be fragmented for sure, but as long as all
 // the fragments arrive intact then the destination should reassemble them.
-#define MAXDATA      16384      // longest possible IMP packet (in H316 words)
+# define MAXDATA      16384      // longest possible IMP packet (in H316 words)
 
 // UDP connection data structure ...
 //   One of these blocks is allocated for every simulated modem link.
@@ -107,7 +107,7 @@ typedef struct _UDP_LINK UDP_LINK;
 // checked on receive.  It's hardly foolproof, but it's a simple attempt to
 // guard against other applications dumping unsolicited UDP messages into our
 // receiver socket...
-#define MAGIC   ((uint32_t) (((((('H' << 8) | '3') << 8) | '1') << 8) | '6'))
+# define MAGIC   ((uint32_t) (((((('H' << 8) | '3') << 8) | '1') << 8) | '6'))
 
 // UDP wrapper data structure ...
 //   This is the UDP packet which is actually transmitted or received.  It
@@ -122,7 +122,7 @@ struct _UDP_PACKET {
   uint16_t  data[MAXDATA];        // and the actual H316 data words/IMP packet
 };
 typedef struct _UDP_PACKET UDP_PACKET;
-#define UDP_HEADER_LEN  (2*sizeof(uint32_t) + sizeof(uint16_t))
+# define UDP_HEADER_LEN  (2*sizeof(uint32_t) + sizeof(uint16_t))
 
 static UDP_LINK udp_links [MAXLINKS];
 
@@ -241,12 +241,12 @@ int udp_create (const char * premote, int * pln)
     // Parse the remote name and set up the ipaddr and port ...
     if (udp_parse_remote (link, (char *) premote) != 0)
       return -2;
-#if 0
+# if 0
   // Create the socket connection to the destination ...
   sprintf(linkinfo, "Buffer=%d,Line=%d,%s,UDP,Connect=%s", (int)(sizeof(UDP_PACKET)+sizeof(int32_t)), link, udp_links[link].lport, udp_links[link].rhostport);
   ret = tmxr_open_master (&udp_tmxr, linkinfo);
   if (ret != SCPE_OK) return ret;
-#endif
+# endif
 
     int sock = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (sock == -1)
@@ -353,11 +353,11 @@ int udp_send (int link, uint16_t * pdata, uint16_t count, uint16_t flags)
       pkt . data [i] = htons (* pdata ++);
     pktlen = UDP_HEADER_LEN + count * sizeof (uint16_t);
 
-#if 0
+# if 0
     // Send it and we're outta here ...
     iret = tmxr_put_packet_ln (&udp_lines[link], (const uint8 *)&pkt, (size_t)pktlen);
     if (iret != SCPE_OK) return udp_error(link, "tmxr_put_packet_ln()");
-#endif
+# endif
 
     ssize_t rc = send (udp_links [link] . sock, & pkt, (size_t) pktlen, 0);
     if (rc == -1)
@@ -380,7 +380,7 @@ static int udp_receive_packet (int link, UDP_PACKET * ppkt, size_t pktsiz)
     // of the checking for valid packets, unexpected packets, duplicate or out of
     // sequence packets.  That's strictly the caller's problem!
 
-#if 0
+# if 0
     ssize_t pktsiz;
     const uint8 * pbuf;
     int ret;
@@ -396,7 +396,7 @@ static int udp_receive_packet (int link, UDP_PACKET * ppkt, size_t pktsiz)
     if (pbuf == NULL) return 0;
     // Got a packet, so copy it to the packet buffer
     memcpy (ppkt, pbuf, pktsiz);
-#endif
+# endif
 
     ssize_t n = read (udp_links [link] . sock, ppkt, pktsiz);
     if (n < 0)
@@ -512,11 +512,11 @@ printf ("link %lu - packet received (sequence=%lu, length=%lu)\n", (unsigned lon
   }
 
 //#define TEST
-#ifdef TEST
+# ifdef TEST
 
-# define CBUFSIZE        256
-# define SCPE_ARG -1
-# define SCPE_OK -1
+#  define CBUFSIZE        256
+#  define SCPE_ARG -1
+#  define SCPE_OK -1
 
 /* sim_parse_addr       host:port
 
@@ -658,7 +658,7 @@ int main (int argc, char * argv [])
 
     while (1)
       {
-# define psz 17000
+#  define psz 17000
         uint16_t pkt [psz];
         rc = udp_receive (linkno, pkt, psz);
         if (rc < 0)
@@ -683,4 +683,5 @@ int main (int argc, char * argv [])
           }
       }
   }
-#endif
+# endif
+#endif /* ifdef WITH_ABSI_DEV */

@@ -1453,28 +1453,32 @@ static void ev_poll_cb (UNUSED uv_timer_t * handle)
         cpu.instrCntT1 = cpu.instrCnt;
       }
     fnpProcessEvent ();
-# ifndef __MINGW64__
-#  ifndef __MINGW32__
-#   ifndef CROSS_MINGW32
-#    ifndef CROSS_MINGW64
+# ifdef WITH_SOCKET_DEV
+#  ifndef __MINGW64__
+#   ifndef __MINGW32__
+#    ifndef CROSS_MINGW32
+#     ifndef CROSS_MINGW64
     sk_process_event ();
-#    endif /* ifndef CROSS_MINGW64 */
-#   endif /* ifndef CROSS_MINGW32 */
-#  endif /* ifndef __MINGW32__ */
-# endif /* ifndef __MINGW64__ */
+#     endif /* ifndef CROSS_MINGW64 */
+#    endif /* ifndef CROSS_MINGW32 */
+#   endif /* ifndef __MINGW32__ */
+#  endif /* ifndef __MINGW64__ */
+# endif /* ifdef WITH_SOCKET_DEV */
     consoleProcess ();
 # ifdef IO_ASYNC_PAYLOAD_CHAN
     iomProcess ();
 # endif
-# ifndef __MINGW32__
-#  ifndef __MINGW64__
-#   ifndef CROSS_MINGW32
-#    ifndef CROSS_MINGW64
+# ifdef WITH_ABSI_DEV
+#  ifndef __MINGW32__
+#   ifndef __MINGW64__
+#    ifndef CROSS_MINGW32
+#     ifndef CROSS_MINGW64
     absi_process_event ();
-#    endif /* ifndef CROSS_MINGW64 */
-#   endif /* ifndef CROSS_MINGW32 */
-#  endif /* ifndef __MINGW64__ */
-# endif /* ifndef __MINGW32__ */
+#     endif /* ifndef CROSS_MINGW64 */
+#    endif /* ifndef CROSS_MINGW32 */
+#   endif /* ifndef __MINGW64__ */
+#  endif /* ifndef __MINGW32__ */
+# endif /* ifdef WITH_ABSI_DEV */
     PNL (panel_process_event ());
   }
 #endif /* ifndef PERF_STRIP */

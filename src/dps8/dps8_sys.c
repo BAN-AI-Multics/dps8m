@@ -233,16 +233,28 @@ static char * default_base_system_script [] =
     "set rdr nunits=3",
     "set pun nunits=3",
     "set prt nunits=4",
-# ifndef __MINGW64__
-#  ifndef __MINGW32__
-#   ifndef CROSS_MINGW64
-#    ifndef CROSS_MINGW32
-    "set skc nunits=64",
+# ifdef WITH_ABSI_DEV
+#  ifndef __MINGW64__
+#   ifndef __MINGW32__
+#    ifndef CROSS_MINGW64
+#     ifndef CROSS_MINGW32
     "set absi nunits=1",
-#    endif /* ifndef CROSS_MINGW32 */
-#   endif /* ifndef CROSS_MINGW64 */
-#  endif /* ifndef __MINGW32__ */
-# endif /* ifndef __MINGW64__ */
+#     endif /* ifndef CROSS_MINGW32 */
+#    endif /* ifndef CROSS_MINGW64 */
+#   endif /* ifndef __MINGW32__ */
+#  endif /* ifndef __MINGW64__ */
+# endif /* ifdef WITH_ABSI_DEV */
+# ifdef WITH_SOCKET_DEV
+#  ifndef __MINGW64__
+#   ifndef __MINGW32__
+#    ifndef CROSS_MINGW64
+#     ifndef CROSS_MINGW32
+    "set skc nunits=64",
+#     endif /* ifndef CROSS_MINGW32 */
+#    endif /* ifndef CROSS_MINGW64 */
+#   endif /* ifndef __MINGW32__ */
+#  endif /* ifndef __MINGW64__ */
+# endif /* ifdef WITH_SOCKET_DEV */
 
 // CPU0
 
@@ -1509,10 +1521,11 @@ static char * default_base_system_script [] =
     "set pun2 name=punc",
     "cable urp9 1 punc",
 
-# ifndef __MINGW64__
-#  ifndef __MINGW32__
-#   ifndef CROSS_MINGW32
-#    ifndef CROSS_MINGW64
+# ifdef WITH_SOCKET_DEV
+#  ifndef __MINGW64__
+#   ifndef __MINGW32__
+#    ifndef CROSS_MINGW32
+#     ifndef CROSS_MINGW64
     "cable IOMA 040 SKCA",
     "cable IOMA 041 SKCB",
     "cable IOMA 042 SKCC",
@@ -1521,10 +1534,11 @@ static char * default_base_system_script [] =
     "cable IOMA 045 SKCF",
     "cable IOMA 046 SKCG",
     "cable IOMA 047 SKCH",
-#    endif /* ifndef CROSS_MINGW64 */
-#   endif /* ifndef CROSS_MINGW32 */
-#  endif /* ifndef __MINGW32__ */
-# endif /* ifndef __MINGW64__ */
+#     endif /* ifndef CROSS_MINGW64 */
+#    endif /* ifndef CROSS_MINGW32 */
+#   endif /* ifndef __MINGW32__ */
+#  endif /* ifndef __MINGW64__ */
+# endif /* ifdef WITH_SOCKET_DEV */
 
 # if 0
     // ; Attach PRT unit 1 to IOM 0, chan 017, dev_code 2
@@ -1590,16 +1604,18 @@ static char * default_base_system_script [] =
     "set prt16 name=prtq",
 # endif
 
-# ifndef __MINGW64__
-#  ifndef __MINGW32__
-#   ifndef CROSS_MINGW64
-#    ifndef CROSS_MINGW32
+# ifdef WITH_ABSI_DEV
+#  ifndef __MINGW64__
+#   ifndef __MINGW32__
+#    ifndef CROSS_MINGW64
+#     ifndef CROSS_MINGW32
     // ; Attach ABSI unit 0 to IOM 0, chan 032, dev_code 0
     "cable IOM0 032 ABSI0",
-#    endif /* CROSS_MINGW32 */
-#   endif /* CROSS_MINGW64 */
-#  endif /* __MINGW32__ */
-# endif /* __MINGW64__ */
+#     endif /* CROSS_MINGW32 */
+#    endif /* CROSS_MINGW64 */
+#   endif /* __MINGW32__ */
+#  endif /* __MINGW64__ */
+# endif /* ifdef WITH_ABSI_DEV */
 
     // ; Attach IOM unit 0 port A (0) to SCU unit 0, port 0
     "cable SCU0 0 IOM0 0", // SCU0 port 0 IOM0 port 0
@@ -4289,15 +4305,17 @@ static void dps8_init (void) {
   iom_init ();
   disk_init ();
   mt_init ();
-# ifndef __MINGW64__
-#  ifndef __MINGW32__
-#   ifndef CROSS_MINGW64
-#    ifndef CROSS_MINGW32
+# ifdef WITH_SOCKET_DEV
+#  ifndef __MINGW64__
+#   ifndef __MINGW32__
+#    ifndef CROSS_MINGW64
+#     ifndef CROSS_MINGW32
   sk_init ();
-#    endif /* ifndef CROSS_MINGW32 */
-#   endif /* ifndef CROSS_MINGW64 */
-#  endif /* ifndef __MINGW64__ */
-# endif /* ifndef __MINGW32__ */
+#     endif /* ifndef CROSS_MINGW32 */
+#    endif /* ifndef CROSS_MINGW64 */
+#   endif /* ifndef __MINGW64__ */
+#  endif /* ifndef __MINGW32__ */
+# endif /* ifdef WITH_SOCKET_DEV */
   fnpInit ();
   console_init (); // must come after fnpInit due to libuv initialization
  /* mpc_init (); */
@@ -4307,15 +4325,17 @@ static void dps8_init (void) {
   pun_init ();
   prt_init ();
   urp_init ();
-# ifndef __MINGW64__
-#  ifndef __MINGW32__
-#   ifndef CROSS_MINGW64
-#    ifndef CROSS_MINGW32
+# ifdef WITH_ABSI_DEV
+#  ifndef __MINGW64__
+#   ifndef __MINGW32__
+#    ifndef CROSS_MINGW64
+#     ifndef CROSS_MINGW32
   absi_init ();
-#    endif /* CROSS_MINGW32 */
-#   endif /* CROSS_MINGW64 */
-#  endif /* ifndef __MINGW32__ */
-# endif /* ifndef __MINGW64__ */
+#     endif /* CROSS_MINGW32 */
+#    endif /* CROSS_MINGW64 */
+#   endif /* ifndef __MINGW32__ */
+#  endif /* ifndef __MINGW64__ */
+# endif /* ifdef WITH_ABSI_DEV */
   set_default_base_system (0, NULL);
 # ifdef PANEL68
   panelScraperInit ();
@@ -4710,15 +4730,17 @@ DEVICE * sim_devices[] =
     & cpu_dev, // dev[0] is special to the scp interface; it is the 'default device'
     & iom_dev,
     & tape_dev,
-#ifndef __MINGW64__
-# ifndef __MINGW32__
-#  ifndef CROSS_MINGW32
-#   ifndef CROSS_MINGW64
+#ifdef WITH_SOCKET_DEV
+# ifndef __MINGW64__
+#  ifndef __MINGW32__
+#   ifndef CROSS_MINGW32
+#    ifndef CROSS_MINGW64
     & skc_dev,
-#   endif /* ifndef CROSS_MINGW64 */
-#  endif /* ifndef CROSS_MINGW32 */
-# endif /* ifndef __MINGW32__ */
-#endif /* ifndef __MINGW64__ */
+#    endif /* ifndef CROSS_MINGW64 */
+#   endif /* ifndef CROSS_MINGW32 */
+#  endif /* ifndef __MINGW32__ */
+# endif /* ifndef __MINGW64__ */
+#endif /* ifdef WITH_SOCKET_DEV */
     & mtp_dev,
     & fnp_dev,
     & dsk_dev,
@@ -4732,15 +4754,17 @@ DEVICE * sim_devices[] =
     & rdr_dev,
     & pun_dev,
     & prt_dev,
-#ifndef __MINGW64__
-# ifndef __MINGW32__
-#  ifndef CROSS_MINGW32
-#   ifndef CROSS_MINGW64
+#ifdef WITH_ABSI_DEV
+# ifndef __MINGW64__
+#  ifndef __MINGW32__
+#   ifndef CROSS_MINGW32
+#    ifndef CROSS_MINGW64
     & absi_dev,
-#   endif /* ifndef CROSS_MINGW64 */
-#  endif /* ifndef CROSS_MINGW32 */
-# endif /* ifndef __MINGW32__ */
-#endif /* ifndef __MINGW64__ */
+#    endif /* ifndef CROSS_MINGW64 */
+#   endif /* ifndef CROSS_MINGW32 */
+#  endif /* ifndef __MINGW32__ */
+# endif /* ifndef __MINGW64__ */
+#endif /* ifdef WITH_ABSI_DEV */
     NULL
   };
 
