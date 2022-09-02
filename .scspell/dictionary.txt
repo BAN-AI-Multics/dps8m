@@ -2757,6 +2757,7 @@ strtoll
 strtotv
 strtoul
 strtoull
+strtrimspace
 struclev
 strucname
 struct
@@ -3033,6 +3034,7 @@ unlockpt
 unotused
 unsetenv
 unstring
+untrimmed
 unum
 unumlen
 unwatch
@@ -5714,6 +5716,7 @@ dtesting
 dthreadz
 duse
 dwam
+dwith
 endif
 findstring
 flto
@@ -5999,6 +6002,7 @@ FILEID: 5f6d7a56-f62a-11ec-b245-80ee73e9b8e7
 cleandep
 cleandepend
 colorcolumn
+dbuild
 depclean
 dependclean
 distclean

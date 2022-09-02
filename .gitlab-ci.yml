@@ -1774,6 +1774,7 @@ Flawfinder:
 #############################################################################
 
 Clang Analyzer:
+  image: fedora:latest
   stage: test
   allow_failure: false
   needs:
@@ -1782,15 +1783,16 @@ Clang Analyzer:
     - job: Option Verification Test
   tags:
     - Linux
-    - ClangAnalyzer
+    - Docker-x64
     - amd64
-    - Linux-Shell
-    - POSIX
   script:
     - export GLCICD_JOB="ClangAnalyzer" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
+    - *scriptDnfSetup
+    - *scriptInstallNfpm
     - *scriptSanity
     - *scriptCommon
     - *scriptExtraInfo
+    - dnf -q install -y clang-devel clang-analyzer clang-tools-extra bzip2 llvm-devel || dnf -q install -y clang-devel clang-analyzer bzip2 clang-tools-extra llvm-devel
     - gmake superclean
     - gmake clsanalz
     - mkdir -p out
