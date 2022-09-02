@@ -525,7 +525,7 @@ void processCmdDis (uv_stream_t * req, dnPkt * pkt) {
   putbits36_17 (& bootloadStatus, 17, 0); // channel_no = 0;
   struct dia_unit_data * dudp = dia_data.dia_unit_data + cdp->diaUnitIdx;
   iom_direct_data_service (cdp->iomUnitIdx, cdp->chan, dudp->mailboxAddress+CRASH_DATA, & bootloadStatus, direct_store);
-sim_printf ("settimg statis iom %o chan %o unit %o address %lo \r\n", cdp->iomUnitIdx, cdp->chan, cdp->diaUnitIdx, dudp->mailboxAddress+CRASH_DATA);
+sim_printf ("setting status iom %o chan %o unit %o address %lo \r\n", cdp->iomUnitIdx, cdp->chan, cdp->diaUnitIdx, dudp->mailboxAddress+CRASH_DATA);
 
   send_terminate_interrupt (cdp->iomUnitIdx, cdp->chan);
 }
