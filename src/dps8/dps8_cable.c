@@ -1288,7 +1288,7 @@ t_stat sys_cable (int32 arg, const char * buf)
         sim_printf ("CABLE ignored '%s'\n", name_save);
       }
 exit:
-    free (copy);
+    FREE (copy);
     return rc;
   }
 

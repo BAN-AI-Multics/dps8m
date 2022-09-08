@@ -72,6 +72,12 @@
 # define FALSE 0
 #endif /* ifndef FALSE */
 
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
+
 /*
  * Version information
  */
@@ -560,7 +566,7 @@ cmb_parse(struct cmb_config *config, int fd, uint32_t *nitems, uint32_t max)
   buflen = bufsize;
   if (( items = malloc(itemsize)) == NULL)
     {
-      free (buf);
+      FREE (buf);
       return NULL;
     }
 
@@ -593,8 +599,8 @@ cmb_parse(struct cmb_config *config, int fd, uint32_t *nitems, uint32_t max)
           buflen += bufsize;
           if (( buf = realloc(buf, buflen)) == NULL)
             {
-              free(buf);
-              free(items);
+              FREE(buf);
+              FREE(items);
               return NULL;
             }
         }
@@ -604,8 +610,8 @@ cmb_parse(struct cmb_config *config, int fd, uint32_t *nitems, uint32_t max)
 
   if (datasize == 0)
     {
-      free(buf);
-      free(items);
+      FREE(buf);
+      FREE(items);
       return NULL;
     }
 
@@ -773,16 +779,10 @@ cmb_count(struct cmb_config *config, uint32_t nitems)
               errno = ERANGE;
               return 0;
             }
-          else
-            {
-              /* cppcheck-suppress shiftTooManyBits */
-              return 1 << nitems;
-            }
+          /* cppcheck-suppress shiftTooManyBits */
+          return 1 << nitems;
         }
-      else
-        {
-          return ULLONG_MAX >> ( 64 - nitems );
-        }
+      return ULLONG_MAX >> ( 64 - nitems );
     }
 
   /*
@@ -1079,9 +1079,9 @@ cmb(struct cmb_config *config, uint32_t nitems, char *items[])
 
       if (( ncombos = (uint64_t)z ) == 0)
         {
-          free (setnums_backend);
-          free (setnums);
-          free (curitems);
+          FREE (setnums_backend);
+          FREE (setnums);
+          FREE (curitems);
           return errno = ERANGE;
         }
 
@@ -1299,9 +1299,9 @@ cmb(struct cmb_config *config, uint32_t nitems, char *items[])
     }
 
 cmb_return:
-  free(curitems);
-  free(setnums);
-  free(setnums_backend);
+  FREE(curitems);
+  FREE(setnums);
+  FREE(setnums_backend);
 
   return retval;
 }
@@ -1599,7 +1599,7 @@ main(int argc, char *argv[])
           opt_find = TRUE;
           if (cmb_transform_find != NULL)
             {
-              free(cmb_transform_find);
+              FREE(cmb_transform_find);
             }
 
           if (( cmb_transform_find =
@@ -1635,7 +1635,7 @@ main(int argc, char *argv[])
           break;
 
         case 'h': /* help */
-          free(config);
+          FREE(config);
           cmb_usage();
           /* NOTREACHED */
           break;
@@ -1782,7 +1782,7 @@ main(int argc, char *argv[])
       if (!opt_build)
         {
 #endif /* ifdef HAVE_BUILD */
-          free(config);
+          FREE(config);
           exit(EXIT_SUCCESS);
           /* NOTREACHED */
 #ifdef HAVE_BUILD
@@ -1813,7 +1813,7 @@ main(int argc, char *argv[])
       (void)fprintf(stdout, "Compiler: %s\n", __VERSION__ );
 #  endif /* ifdef __GNUC__ */
 # endif /* ifdef __VERSION__ */
-      free(config);
+      FREE(config);
       exit(EXIT_SUCCESS);
       /* NOTREACHED */
     }
@@ -1918,7 +1918,7 @@ main(int argc, char *argv[])
       count = cmb_count(config, (uint32_t)ritems);
       if (opt_silent)
         {
-          free(config);
+          FREE(config);
           exit(EXIT_SUCCESS);
           /* NOTREACHED */
         }
@@ -1930,7 +1930,7 @@ main(int argc, char *argv[])
         }
 
       (void)fprintf(stdout, "%" PRIu64 "%s", count, opt_nulprint ? "" : "\n");
-      free(config);
+      FREE(config);
       exit(EXIT_SUCCESS);
       /* NOTREACHED */
     }
@@ -1962,7 +1962,7 @@ main(int argc, char *argv[])
 
           if (fitems + i > UINT_MAX)
             {
-              free(items_tmp);
+              FREE(items_tmp);
               (void)fprintf(stderr, "FATAL: -f: Too many items\n");
               _Exit(EXIT_FAILURE);
               /* NOTREACHED */
@@ -2043,7 +2043,7 @@ main(int argc, char *argv[])
 
   if (opt_silent && opt_transform == NULL)
     {
-      free(items_tmp);
+      FREE(items_tmp);
       config->action = cmb_nop;
       config->options &= ~CMB_OPT_NUMBERS;
     }
@@ -2217,7 +2217,7 @@ main(int argc, char *argv[])
       count = cmb_count(config, nitems);
       if (opt_silent)
         {
-          free(config);
+          FREE(config);
           exit(EXIT_SUCCESS);
           /* NOTREACHED */
         }
@@ -2286,10 +2286,10 @@ main(int argc, char *argv[])
     {
       for (n = 0; n < nitems; n++)
         {
-          free(items[n]);
+          FREE(items[n]);
         }
 
-      free(items);
+      FREE(items);
     }
   else if (opt_transform)
     {
@@ -2298,30 +2298,30 @@ main(int argc, char *argv[])
           (void)memcpy(&xitem, &items[n], sizeof ( char * ));
           if (opt_range)
             {
-              free(xitem->cp);
+              FREE(xitem->cp);
             }
 
-          free(xitem);
+          FREE(xitem);
         }
 
-      free(items);
+      FREE(items);
     }
 
   if (opt_find)
     {
       if (free_find)
         {
-          free(cmb_transform_find->cp);
+          FREE(cmb_transform_find->cp);
         }
 
-      free(cmb_transform_find);
+      FREE(cmb_transform_find);
       if (cmb_transform_find_buf != NULL)
         {
-          free(cmb_transform_find_buf);
+          FREE(cmb_transform_find_buf);
         }
     }
 
-  free(config);
+  FREE(config);
 
   return retval;
 }
@@ -2427,10 +2427,7 @@ numlen(const char *s)
     {
       return strspn(&s[1], digit) + 1;
     }
-  else
-    {
-      return strspn(s, digit);
-    }
+  return strspn(s, digit);
 }
 
 static size_t
@@ -2469,10 +2466,7 @@ rangelen(const char *s, size_t nlen, size_t slen)
 
       return nlen + rlen + 2;
     }
-  else
-    {
-      return 0;
-    }
+  return 0;
 }
 
 static uint8_t
@@ -2574,10 +2568,7 @@ unumlen(const char *s)
     {
       return 0;
     }
-  else
-    {
-      return strspn(s, digit);
-    }
+  return strspn(s, digit);
 }
 
 static size_t
@@ -2616,10 +2607,7 @@ urangelen(const char *s, size_t nlen, size_t slen)
 
       return nlen + rlen + 2;
     }
-  else
-    {
-      return 0;
-    }
+  return 0;
 }
 
 static uint8_t

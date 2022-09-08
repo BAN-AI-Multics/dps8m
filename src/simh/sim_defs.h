@@ -100,14 +100,16 @@
 #  define FALSE           0
 # endif
 
-/* SCP API shim.
+/*
+ * SCP API shim.
+ *
+ * The SCP API for version 4.0 introduces a number of "pointer-to-const"
+ * parameter qualifiers that were not present in the 3.x versions.  To maintain
+ * compatibility with the earlier versions, the new qualifiers are expressed as
+ * "CONST" rather than "const".  This allows macro removal of the qualifiers
+ * when compiling for SIMH 3.x.
+ */
 
-   The SCP API for version 4.0 introduces a number of "pointer-to-const"
-   parameter qualifiers that were not present in the 3.x versions.  To maintain
-   compatibility with the earlier versions, the new qualifiers are expressed as
-   "CONST" rather than "const".  This allows macro removal of the qualifiers
-   when compiling for SIMH 3.x.
-*/
 # ifndef CONST
 #  define CONST const
 # endif
@@ -198,12 +200,13 @@ typedef uint32          t_addr;
 # define SIM_SW_STOP     (1u << 29)                      /* stop message */
 # define SIM_SW_SHUT     (1u << 30)                      /* shutdown */
 
-/* Simulator status codes
-
-   0                    ok
-   1 - (SCPE_BASE - 1)  simulator specific
-   SCPE_BASE - n        general
-*/
+/*
+ * Simulator status codes
+ *
+ * 0                    ok
+ * 1 - (SCPE_BASE - 1)  simulator specific
+ * SCPE_BASE - n        general
+ */
 
 # define SCPE_OK         0                               /* normal return */
 # define SCPE_BASE       64                              /* base for messages */
@@ -783,10 +786,18 @@ struct FILEREF {
 # include "sim_timer.h"
 # include "sim_fio.h"
 
+# define FREE(p) do  \
+  {                  \
+    free((p));       \
+    (p) = NULL;      \
+  } while(0)
+
 /* Macro to ALWAYS execute the specified expression and fail if it evaluates to false. */
+
 /* This replaces any references to "assert()" which should never be invoked */
 /* with an expression which causes side effects (i.e. must be executed for */
 /* the program to work correctly) */
+
 # define ASSURE(_Expression) while (!(_Expression)) {fprintf(stderr, "%s failed at %s line %d\n", #_Expression, __FILE__, __LINE__);  \
                                                     sim_printf("%s failed at %s line %d\n", #_Expression, __FILE__, __LINE__);       \
                                                     abort();}

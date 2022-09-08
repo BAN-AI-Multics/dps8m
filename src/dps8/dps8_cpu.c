@@ -716,7 +716,8 @@ static t_stat cpu_show_stall (UNUSED FILE * st, UNUSED UNIT * uptr,
     for (int i = 0; i < N_STALL_POINTS; i ++)
       if (stall_points[i].segno || stall_points[i].offset)
         {
-          sim_printf ("%2d %05o:%06o %6u\n", i, stall_points[i].segno, stall_points[i].offset, stall_points[i].time);
+          sim_printf ("%2ld %05o:%06o %6lu\n", (long)i, stall_points[i].segno,
+                 stall_points[i].offset, (unsigned long)stall_points[i].time);
         }
     return SCPE_OK;
   }
@@ -2235,7 +2236,9 @@ setCPU:;
 #else
 # define TR_RATE 2
 
-        cpu.rTR      -= cpu.rTRticks / TR_RATE;
+        //cpu.rTR      -= cpu.rTRticks / TR_RATE;
+        // ubsan
+        cpu.rTR = (word27) (((word27s) cpu.rTR) - (word27s) (cpu.rTRticks / TR_RATE));
         cpu.rTRticks %= TR_RATE;
 
 #endif
@@ -2779,7 +2782,9 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                     }
                   cpu.rTR = (cpu.rTR - ticks) & MASK27;
 #  else // !NO_TIMEWAIT
-                  unsigned long left = cpu.rTR * 125u / 64u;
+                  // unsigned long left = cpu.rTR * 125u / 64u;
+                  // ubsan
+                  unsigned long left = (unsigned long) ((uint64) (cpu.rTR) * 125u / 64u);
                   lock_scu ();
                   if (!sample_interrupts ())
                     {
@@ -4314,7 +4319,7 @@ void dps8_sim_debug (uint32 dbits, DEVICE * dptr, unsigned long long cnt, const 
             if ((len < 0) || (len >= bufsize-1))
               {
                 if (buf != stackbuf)
-                  free (buf);
+                  FREE (buf);
                 bufsize = bufsize * 2;
                 if (bufsize < len + 2)
                   bufsize = len + 2;
@@ -4349,7 +4354,7 @@ void dps8_sim_debug (uint32 dbits, DEVICE * dptr, unsigned long long cnt, const 
 /* Set unterminated flag for next time */
 
         if (buf != stackbuf)
-          free (buf);
+          FREE (buf);
       }
     //pthread_mutex_unlock (& debug_lock);
   }

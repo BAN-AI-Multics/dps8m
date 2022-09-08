@@ -691,9 +691,7 @@ static char get_lace_char(const word12 *buffer, uint char_pos)
         char_matrix[col_offset] = (col_buffer[col_offset] >> (top ? 6 : 0)) & 0x1F;
     }
 
-    char c = search_glyph_patterns(char_matrix);
-
-    return c;
+    return search_glyph_patterns(char_matrix);
 }
 
 static void scan_card_for_glyphs(card_image_t *card)

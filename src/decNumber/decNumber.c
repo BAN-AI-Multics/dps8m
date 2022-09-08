@@ -83,19 +83,7 @@
 /*    Canonical conversions to and from strings are provided; other   */
 /*    conversions are available in separate modules.                  */
 /*                                                                    */
-/* 7. Normally, input operands are assumed to be valid.  Set DECCHECK */
-/*    to 1 for extended operand checking (including NULL operands).   */
-/*    Results are undefined if a badly-formed structure (or a NULL    */
-/*    pointer to a structure) is provided, though with DECCHECK       */
-/*    enabled the operator routines are protected against exceptions. */
-/*    (Except if the result pointer is NULL, which is unrecoverable.) */
-/*                                                                    */
-/*    However, the routines will never cause exceptions if they are   */
-/*    given well-formed operands, even if the value of the operands   */
-/*    is inappropriate for the operation and DECCHECK is not set.     */
-/*    (Except for SIGFPE, as and where documented.)                   */
-/*                                                                    */
-/* 8. Subset arithmetic is available only if DECSUBSET is set to 1.   */
+/* 7. Subset arithmetic is available only if DECSUBSET is set to 1.   */
 /* ------------------------------------------------------------------ */
 /* Implementation notes for maintenance of this module:               */
 /*                                                                    */
@@ -105,8 +93,6 @@
 /*    Instead they have a do{}while(0); construct surrounding the     */
 /*    code which is protected -- break may be used to exit this.      */
 /*    Other routines can safely use the return statement inline.      */
-/*                                                                    */
-/*    Storage leak accounting can be enabled using DECALLOC.          */
 /*                                                                    */
 /* 2. All loops use the for(;;) construct.  Any do construct does     */
 /*    not loop; it is for allocation protection as just described.    */
@@ -172,11 +158,16 @@
 #include "decNumber.h"             // base number library
 #include "decNumberLocal.h"        // decNumber local types, etc.
 
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
+
 /* Constants */
 // Public lookup table used by the D2U macro
 const uByte d2utable[DECMAXD2U+1]=D2UTABLE;
 
-#define DECVERB     1              // set to 1 for verbose DECCHECK
 #define powers      DECPOWERS      // old internal name
 
 // Local constants
@@ -278,50 +269,6 @@ static decNumber * decRoundOperand(const decNumber *, decContext *, uInt *);
 #define SPECIALARG  (rhs->bits & DECSPECIAL)
 #define SPECIALARGS ((lhs->bits | rhs->bits) & DECSPECIAL)
 
-/* Diagnostic macros, etc. */
-#if DECALLOC
-// Handle malloc/free accounting.  If enabled, our accountable routines
-// are used; otherwise the code just goes straight to the system malloc
-// and free routines.
-# define malloc(a) decMalloc(a)
-# define free(a) decFree(a)
-# define DECFENCE 0x5a              // corruption detector
-// 'Our' malloc and free:
-static void *decMalloc(size_t);
-static void  decFree(void *);
-uInt decAllocBytes=0;              // count of bytes allocated
-// Note that DECALLOC code only checks for storage buffer overflow.
-// To check for memory leaks, the decAllocBytes variable must be
-// checked to be 0 at appropriate times (e.g., after the test
-// harness completes a set of tests).  This checking may be unreliable
-// if the testing is done in a multi-thread environment.
-#endif
-
-#if DECCHECK
-// Optional checking routines.  Enabling these means that decNumber
-// and decContext operands to operator routines are checked for
-// correctness.  This roughly doubles the execution time of the
-// fastest routines (and adds 600+ bytes), so should not normally be
-// used in 'production'.
-// decCheckInexact is used to check that inexact results have a full
-// complement of digits (where appropriate -- this is not the case
-// for Quantize, for example)
-# define DECUNRESU ((decNumber *)(void *)0xffffffff)
-# define DECUNUSED ((const decNumber *)(void *)0xffffffff)
-# define DECUNCONT ((decContext *)(void *)(0xffffffff))
-static Flag decCheckOperands(decNumber *, const decNumber *,
-                             const decNumber *, decContext *);
-static Flag decCheckNumber(const decNumber *);
-static void decCheckInexact(const decNumber *, decContext *);
-#endif
-
-#if DECTRACE || DECCHECK
-// Optional trace/debugging routines (may or may not be used)
-static void decDumpAr(char, const Unit *, Int);
-// displays the components of a number
-void decNumberShow(const decNumber *);
-#endif
-
 /* ================================================================== */
 /* Conversions                                                        */
 /* ================================================================== */
@@ -371,10 +318,6 @@ decNumber * decNumberFromUInt32(decNumber *dn, uInt uin) {
 /* it is a NaN, Infinite, or out-of-range.                            */
 /* ------------------------------------------------------------------ */
 Int decNumberToInt32(const decNumber *dn, decContext *set) {
-#if DECCHECK
-  if (decCheckOperands(DECUNRESU, DECUNUSED, dn, set)) return 0;
-#endif
-
   // special or too many digits, or bad exponent
   if (dn->bits&DECSPECIAL || dn->digits>10 || dn->exponent!=0) ; // bad
    else { // is a finite integer with 10 or fewer digits
@@ -407,9 +350,6 @@ Int decNumberToInt32(const decNumber *dn, decContext *set) {
   } // decNumberToInt32
 
 uInt decNumberToUInt32(const decNumber *dn, decContext *set) {
-#if DECCHECK
-  if (decCheckOperands(DECUNRESU, DECUNUSED, dn, set)) return 0;
-#endif
   // special or too many digits, or bad exponent, or negative (<0)
   if (dn->bits&DECSPECIAL || dn->digits>10 || dn->exponent!=0
     || (dn->bits&DECNEG && !ISZERO(dn)));                   // bad
@@ -498,11 +438,6 @@ decNumber * decNumberFromString(decNumber *dn, const char chars[],
 #endif
   Int   residue;                   // rounding residue
   uInt  status=0;                  // error code
-
-#if DECCHECK
-  if (decCheckOperands(DECUNRESU, DECUNUSED, DECUNUSED, set))
-    return decNumberZero(dn);
-#endif
 
   do {                             // status & malloc protection
     for (c=chars;; c++) {          // -> input character
@@ -704,7 +639,7 @@ decNumber * decNumberFromString(decNumber *dn, const char chars[],
     // decNumberShow(dn);
     } while(0);                         // [for break]
 
-  if (allocres!=NULL) free(allocres);   // drop any storage used
+  if (allocres!=NULL) FREE(allocres);   // drop any storage used
   if (status!=0) decStatus(dn, status, set);
   return dn;
   } /* decNumberFromString */
@@ -733,17 +668,10 @@ decNumber * decNumberAbs(decNumber *res, const decNumber *rhs,
   decNumber dzero;                      // for 0
   uInt status=0;                        // accumulator
 
-#if DECCHECK
-  if (decCheckOperands(res, DECUNUSED, rhs, set)) return res;
-#endif
-
   decNumberZero(&dzero);                // set 0
   dzero.exponent=rhs->exponent;         // [no coefficient expansion]
   decAddOp(res, &dzero, rhs, set, (uByte)(rhs->bits & DECNEG), &status);
   if (status!=0) decStatus(res, status, set);
-#if DECCHECK
-  decCheckInexact(res, set);
-#endif
   return res;
   } // decNumberAbs
 
@@ -765,9 +693,6 @@ decNumber * decNumberAdd(decNumber *res, const decNumber *lhs,
   uInt status=0;                        // accumulator
   decAddOp(res, lhs, rhs, set, 0, &status);
   if (status!=0) decStatus(res, status, set);
-#if DECCHECK
-  decCheckInexact(res, set);
-#endif
   return res;
   } // decNumberAdd
 
@@ -792,9 +717,6 @@ decNumber * decNumberAnd(decNumber *res, const decNumber *lhs,
   const Unit *msua, *msub;              // -> operand msus
   Unit *uc,  *msuc;                     // -> result and its msu
   Int   msudigs;                        // digits in res msu
-#if DECCHECK
-  if (decCheckOperands(res, lhs, rhs, set)) return res;
-#endif
 
   if (lhs->exponent!=0 || decNumberIsSpecial(lhs) || decNumberIsNegative(lhs)
    || rhs->exponent!=0 || decNumberIsSpecial(rhs) || decNumberIsNegative(rhs)) {
@@ -926,10 +848,6 @@ decNumber * decNumberCompareTotalMag(decNumber *res, const decNumber *lhs,
   decNumber *allocbufb=NULL;       // -> allocated bufb, iff allocated
   decNumber *a, *b;                // temporary pointers
 
-#if DECCHECK
-  if (decCheckOperands(res, lhs, rhs, set)) return res;
-#endif
-
   do {                                  // protect allocated storage
     // if either is negative, take a copy and absolute
     if (decNumberIsNegative(lhs)) {     // lhs<0
@@ -963,8 +881,8 @@ decNumber * decNumberCompareTotalMag(decNumber *res, const decNumber *lhs,
     decCompareOp(res, lhs, rhs, set, COMPTOTAL, &status);
     } while(0);                         // end protected
 
-  if (allocbufa!=NULL) free(allocbufa); // drop any storage used
-  if (allocbufb!=NULL) free(allocbufb); // ..
+  if (allocbufa!=NULL) FREE(allocbufa); // drop any storage used
+  if (allocbufb!=NULL) FREE(allocbufb); // ..
   if (status!=0) decStatus(res, status, set);
   return res;
   } // decNumberCompareTotalMag
@@ -986,9 +904,6 @@ decNumber * decNumberDivide(decNumber *res, const decNumber *lhs,
   uInt status=0;                        // accumulator
   decDivideOp(res, lhs, rhs, set, DIVIDE, &status);
   if (status!=0) decStatus(res, status, set);
-#if DECCHECK
-  decCheckInexact(res, set);
-#endif
   return res;
   } // decNumberDivide
 
@@ -1044,10 +959,6 @@ decNumber * decNumberExp(decNumber *res, const decNumber *rhs,
   decNumber *allocrhs=NULL;        // non-NULL if rounded rhs allocated
 #endif
 
-#if DECCHECK
-  if (decCheckOperands(res, DECUNUSED, rhs, set)) return res;
-#endif
-
   // Check restrictions; these restrictions ensure that if h=8 (see
   // decExpOp) then the result will either overflow or underflow to 0.
   // Other math functions restrict the input range, too, for inverses.
@@ -1067,13 +978,10 @@ decNumber * decNumberExp(decNumber *res, const decNumber *rhs,
     } while(0);                         // end protected
 
 #if DECSUBSET
-  if (allocrhs !=NULL) free(allocrhs);  // drop any storage used
+  if (allocrhs !=NULL) FREE(allocrhs);  // drop any storage used
 #endif
   // apply significant status
   if (status!=0) decStatus(res, status, set);
-#if DECCHECK
-  decCheckInexact(res, set);
-#endif
   return res;
   } // decNumberExp
 
@@ -1103,11 +1011,6 @@ decNumber * decNumberFMA(decNumber *res, const decNumber *lhs,
   decNumber *allocbufa=NULL;       // -> allocated bufa, iff allocated
   decNumber *acc;                  // accumulator pointer
   decNumber dzero;                 // work
-
-#if DECCHECK
-  if (decCheckOperands(res, lhs, rhs, set)) return res;
-  if (decCheckOperands(res, fhs, DECUNUSED, set)) return res;
-#endif
 
   do {                                  // protect allocated storage
 #if DECSUBSET
@@ -1153,20 +1056,12 @@ decNumber * decNumberFMA(decNumber *res, const decNumber *lhs,
       decNumberZero(&dzero);            // make 0 (any non-NaN would do)
       fhs=&dzero;                       // use that
       }
-#if DECCHECK
-     else { // multiply was OK
-      if (status!=0) printf("Status=%08lx after FMA multiply\n", (LI)status);
-      }
-#endif
     // add the third operand and result -> res, and all is done
     decAddOp(res, acc, fhs, set, 0, &status);
     } while(0);                         // end protected
 
-  if (allocbufa!=NULL) free(allocbufa); // drop any storage used
+  if (allocbufa!=NULL) FREE(allocbufa); // drop any storage used
   if (status!=0) decStatus(res, status, set);
-#if DECCHECK
-  decCheckInexact(res, set);
-#endif
   return res;
   } // decNumberFMA
 
@@ -1189,9 +1084,6 @@ decNumber * decNumberInvert(decNumber *res, const decNumber *rhs,
   const Unit *ua, *msua;                // -> operand and its msu
   Unit  *uc, *msuc;                     // -> result and its msu
   Int   msudigs;                        // digits in res msu
-#if DECCHECK
-  if (decCheckOperands(res, DECUNUSED, rhs, set)) return res;
-#endif
 
   if (rhs->exponent!=0 || decNumberIsSpecial(rhs) || decNumberIsNegative(rhs)) {
     decStatus(res, DEC_Invalid_operation, set);
@@ -1264,10 +1156,6 @@ decNumber * decNumberLn(decNumber *res, const decNumber *rhs,
   decNumber *allocrhs=NULL;        // non-NULL if rounded rhs allocated
 #endif
 
-#if DECCHECK
-  if (decCheckOperands(res, DECUNUSED, rhs, set)) return res;
-#endif
-
   // Check restrictions; this is a math function; if not violated
   // then carry out the operation.
   if (!decCheckMath(rhs, set, &status)) do { // protect allocation
@@ -1289,13 +1177,10 @@ decNumber * decNumberLn(decNumber *res, const decNumber *rhs,
     } while(0);                         // end protected
 
 #if DECSUBSET
-  if (allocrhs !=NULL) free(allocrhs);  // drop any storage used
+  if (allocrhs !=NULL) FREE(allocrhs);  // drop any storage used
 #endif
   // apply significant status
   if (status!=0) decStatus(res, status, set);
-#if DECCHECK
-  decCheckInexact(res, set);
-#endif
   return res;
   } // decNumberLn
 
@@ -1326,10 +1211,6 @@ decNumber * decNumberLn(decNumber *res, const decNumber *rhs,
 decNumber * decNumberLogB(decNumber *res, const decNumber *rhs,
                           decContext *set) {
   uInt status=0;                   // accumulator
-
-#if DECCHECK
-  if (decCheckOperands(res, DECUNUSED, rhs, set)) return res;
-#endif
 
   // NaNs as usual; Infinities return +Infinity; 0->oops
   if (decNumberIsNaN(rhs)) decNaNs(res, rhs, NULL, set, &status);
@@ -1407,10 +1288,6 @@ decNumber * decNumberLog10(decNumber *res, const decNumber *rhs,
 #endif
 
   decContext aset;                 // working context
-
-#if DECCHECK
-  if (decCheckOperands(res, DECUNUSED, rhs, set)) return res;
-#endif
 
   // Handle payloads that exceed the context precision.
   if (rhs->bits&(DECNAN|DECSNAN)) {
@@ -1514,16 +1391,13 @@ decNumber * decNumberLog10(decNumber *res, const decNumber *rhs,
     decDivideOp(res, a, b, &aset, DIVIDE, &status); // into result
     } while(0);                         // [for break]
 
-  if (allocbufa!=NULL) free(allocbufa); // drop any storage used
-  if (allocbufb!=NULL) free(allocbufb); // ..
+  if (allocbufa!=NULL) FREE(allocbufa); // drop any storage used
+  if (allocbufb!=NULL) FREE(allocbufb); // ..
 #if DECSUBSET
-  if (allocrhs !=NULL) free(allocrhs);  // ..
+  if (allocrhs !=NULL) FREE(allocrhs);  // ..
 #endif
   // apply significant status
   if (status!=0) decStatus(res, status, set);
-#if DECCHECK
-  decCheckInexact(res, set);
-#endif
   return res;
   } // decNumberLog10
 
@@ -1544,9 +1418,6 @@ decNumber * decNumberMax(decNumber *res, const decNumber *lhs,
   uInt status=0;                        // accumulator
   decCompareOp(res, lhs, rhs, set, COMPMAX, &status);
   if (status!=0) decStatus(res, status, set);
-#if DECCHECK
-  decCheckInexact(res, set);
-#endif
   return res;
   } // decNumberMax
 
@@ -1567,9 +1438,6 @@ decNumber * decNumberMaxMag(decNumber *res, const decNumber *lhs,
   uInt status=0;                        // accumulator
   decCompareOp(res, lhs, rhs, set, COMPMAXMAG, &status);
   if (status!=0) decStatus(res, status, set);
-#if DECCHECK
-  decCheckInexact(res, set);
-#endif
   return res;
   } // decNumberMaxMag
 
@@ -1590,9 +1458,6 @@ decNumber * decNumberMin(decNumber *res, const decNumber *lhs,
   uInt status=0;                        // accumulator
   decCompareOp(res, lhs, rhs, set, COMPMIN, &status);
   if (status!=0) decStatus(res, status, set);
-#if DECCHECK
-  decCheckInexact(res, set);
-#endif
   return res;
   } // decNumberMin
 
@@ -1613,9 +1478,6 @@ decNumber * decNumberMinMag(decNumber *res, const decNumber *lhs,
   uInt status=0;                        // accumulator
   decCompareOp(res, lhs, rhs, set, COMPMINMAG, &status);
   if (status!=0) decStatus(res, status, set);
-#if DECCHECK
-  decCheckInexact(res, set);
-#endif
   return res;
   } // decNumberMinMag
 
@@ -1638,17 +1500,10 @@ decNumber * decNumberMinus(decNumber *res, const decNumber *rhs,
   decNumber dzero;
   uInt status=0;                        // accumulator
 
-#if DECCHECK
-  if (decCheckOperands(res, DECUNUSED, rhs, set)) return res;
-#endif
-
   decNumberZero(&dzero);                // make 0
   dzero.exponent=rhs->exponent;         // [no coefficient expansion]
   decAddOp(res, &dzero, rhs, set, DECNEG, &status);
   if (status!=0) decStatus(res, status, set);
-#if DECCHECK
-  decCheckInexact(res, set);
-#endif
   return res;
   } // decNumberMinus
 
@@ -1668,9 +1523,6 @@ decNumber * decNumberNextMinus(decNumber *res, const decNumber *rhs,
   decNumber dtiny;                           // constant
   decContext workset=*set;                   // work
   uInt status=0;                             // accumulator
-#if DECCHECK
-  if (decCheckOperands(res, DECUNUSED, rhs, set)) return res;
-#endif
 
   // +Infinity is the special case
   if ((rhs->bits&(DECINF|DECNEG))==DECINF) {
@@ -1712,9 +1564,6 @@ decNumber * decNumberNextPlus(decNumber *res, const decNumber *rhs,
   decNumber dtiny;                           // constant
   decContext workset=*set;                   // work
   uInt status=0;                             // accumulator
-#if DECCHECK
-  if (decCheckOperands(res, DECUNUSED, rhs, set)) return res;
-#endif
 
   // -Infinity is the special case
   if ((rhs->bits&(DECINF|DECNEG))==(DECINF|DECNEG)) {
@@ -1761,9 +1610,6 @@ decNumber * decNumberNextToward(decNumber *res, const decNumber *lhs,
   decContext workset=*set;                   // work
   Int result;                                // ..
   uInt status=0;                             // accumulator
-#if DECCHECK
-  if (decCheckOperands(res, lhs, rhs, set)) return res;
-#endif
 
   if (decNumberIsNaN(lhs) || decNumberIsNaN(rhs)) {
     decNaNs(res, lhs, rhs, set, &status);
@@ -1829,9 +1675,6 @@ decNumber * decNumberOr(decNumber *res, const decNumber *lhs,
   const Unit *msua, *msub;              // -> operand msus
   Unit  *uc, *msuc;                     // -> result and its msu
   Int   msudigs;                        // digits in res msu
-#if DECCHECK
-  if (decCheckOperands(res, lhs, rhs, set)) return res;
-#endif
 
   if (lhs->exponent!=0 || decNumberIsSpecial(lhs) || decNumberIsNegative(lhs)
    || rhs->exponent!=0 || decNumberIsSpecial(rhs) || decNumberIsNegative(rhs)) {
@@ -1897,17 +1740,11 @@ decNumber * decNumberPlus(decNumber *res, const decNumber *rhs,
                           decContext *set) {
   decNumber dzero;
   uInt status=0;                        // accumulator
-#if DECCHECK
-  if (decCheckOperands(res, DECUNUSED, rhs, set)) return res;
-#endif
 
   decNumberZero(&dzero);                // make 0
   dzero.exponent=rhs->exponent;         // [no coefficient expansion]
   decAddOp(res, &dzero, rhs, set, 0, &status);
   if (status!=0) decStatus(res, status, set);
-#if DECCHECK
-  decCheckInexact(res, set);
-#endif
   return res;
   } // decNumberPlus
 
@@ -1928,9 +1765,6 @@ decNumber * decNumberMultiply(decNumber *res, const decNumber *lhs,
   uInt status=0;                   // accumulator
   decMultiplyOp(res, lhs, rhs, set, &status);
   if (status!=0) decStatus(res, status, set);
-#if DECCHECK
-  decCheckInexact(res, set);
-#endif
   return res;
   } // decNumberMultiply
 
@@ -1989,10 +1823,6 @@ decNumber * decNumberPower(decNumber *res, const decNumber *lhs,
   decNumber *dac=dacbuff;          // -> result accumulator
   // same again for possible 1/lhs calculation
   decNumber invbuff[D2N(DECBUFFER+9)];
-
-#if DECCHECK
-  if (decCheckOperands(res, lhs, rhs, set)) return res;
-#endif
 
   do {                             // protect allocated storage
 #if DECSUBSET
@@ -2277,16 +2107,13 @@ decNumber * decNumberPower(decNumber *res, const decNumber *lhs,
 #endif
     } while(0);                         // end protected
 
-  if (allocdac!=NULL) free(allocdac);   // drop any storage used
-  if (allocinv!=NULL) free(allocinv);   // ..
+  if (allocdac!=NULL) FREE(allocdac);   // drop any storage used
+  if (allocinv!=NULL) FREE(allocinv);   // ..
 #if DECSUBSET
-  if (alloclhs!=NULL) free(alloclhs);   // ..
-  if (allocrhs!=NULL) free(allocrhs);   // ..
+  if (alloclhs!=NULL) FREE(alloclhs);   // ..
+  if (allocrhs!=NULL) FREE(allocrhs);   // ..
 #endif
   if (status!=0) decStatus(res, status, set);
-#if DECCHECK
-  decCheckInexact(res, set);
-#endif
   return res;
   } // decNumberPower
 
@@ -2342,10 +2169,6 @@ decNumber * decNumberReduce(decNumber *res, const decNumber *rhs,
   Int  residue=0;                  // as usual
   Int  dropped;                    // work
 
-#if DECCHECK
-  if (decCheckOperands(res, DECUNUSED, rhs, set)) return res;
-#endif
-
   do {                             // protect allocated storage
 #if DECSUBSET
     if (!set->extended) {
@@ -2373,7 +2196,7 @@ decNumber * decNumberReduce(decNumber *res, const decNumber *rhs,
     } while(0);                              // end protected
 
 #if DECSUBSET
-  if (allocrhs !=NULL) free(allocrhs);       // ..
+  if (allocrhs !=NULL) FREE(allocrhs);       // ..
 #endif
   if (status!=0) decStatus(res, status, set);// then report status
   return res;
@@ -2422,9 +2245,6 @@ decNumber * decNumberRemainder(decNumber *res, const decNumber *lhs,
   uInt status=0;                        // accumulator
   decDivideOp(res, lhs, rhs, set, REMAINDER, &status);
   if (status!=0) decStatus(res, status, set);
-#if DECCHECK
-  decCheckInexact(res, set);
-#endif
   return res;
   } // decNumberRemainder
 
@@ -2445,9 +2265,6 @@ decNumber * decNumberRemainderNear(decNumber *res, const decNumber *lhs,
   uInt status=0;                        // accumulator
   decDivideOp(res, lhs, rhs, set, REMNEAR, &status);
   if (status!=0) decStatus(res, status, set);
-#if DECCHECK
-  decCheckInexact(res, set);
-#endif
   return res;
   } // decNumberRemainderNear
 
@@ -2480,10 +2297,6 @@ decNumber * decNumberRotate(decNumber *res, const decNumber *lhs,
                            const decNumber *rhs, decContext *set) {
   uInt status=0;              // accumulator
   Int  rotate;                // rhs as an Int
-
-#if DECCHECK
-  if (decCheckOperands(res, lhs, rhs, set)) return res;
-#endif
 
   // NaNs propagate as normal
   if (decNumberIsNaN(lhs) || decNumberIsNaN(rhs))
@@ -2602,10 +2415,6 @@ decNumber * decNumberSameQuantum(decNumber *res, const decNumber *lhs,
                                  const decNumber *rhs) {
   Unit ret=0;                      // return value
 
-#if DECCHECK
-  if (decCheckOperands(res, lhs, rhs, DECUNCONT)) return res;
-#endif
-
   if (SPECIALARGS) {
     if (decNumberIsNaN(lhs) && decNumberIsNaN(rhs)) ret=1;
      else if (decNumberIsInfinite(lhs) && decNumberIsInfinite(rhs)) ret=1;
@@ -2638,10 +2447,6 @@ decNumber * decNumberScaleB(decNumber *res, const decNumber *lhs,
   Int  reqexp;                // requested exponent change [B]
   uInt status=0;              // accumulator
   Int  residue;               // work
-
-#if DECCHECK
-  if (decCheckOperands(res, lhs, rhs, set)) return res;
-#endif
 
   // Handle special values except lhs infinite
   if (decNumberIsNaN(lhs) || decNumberIsNaN(rhs))
@@ -2704,10 +2509,6 @@ decNumber * decNumberShift(decNumber *res, const decNumber *lhs,
                            const decNumber *rhs, decContext *set) {
   uInt status=0;              // accumulator
   Int  shift;                 // rhs as an Int
-
-#if DECCHECK
-  if (decCheckOperands(res, lhs, rhs, set)) return res;
-#endif
 
   // NaNs propagate as normal
   if (decNumberIsNaN(lhs) || decNumberIsNaN(rhs))
@@ -2861,10 +2662,6 @@ decNumber * decNumberSquareRoot(decNumber *res, const decNumber *rhs,
   // buffer for temporary variable, up to 3 digits
   decNumber buft[D2N(3)];
   decNumber *t=buft;               // up-to-3-digit constant or work
-
-#if DECCHECK
-  if (decCheckOperands(res, DECUNUSED, rhs, set)) return res;
-#endif
 
   do {                             // protect allocated storage
 #if DECSUBSET
@@ -3146,16 +2943,13 @@ decNumber * decNumberSquareRoot(decNumber *res, const decNumber *rhs,
     decNumberCopy(res, a);                   // a is now the result
     } while(0);                              // end protected
 
-  if (allocbuff!=NULL) free(allocbuff);      // drop any storage used
-  if (allocbufa!=NULL) free(allocbufa);      // ..
-  if (allocbufb!=NULL) free(allocbufb);      // ..
+  if (allocbuff!=NULL) FREE(allocbuff);      // drop any storage used
+  if (allocbufa!=NULL) FREE(allocbufa);      // ..
+  if (allocbufb!=NULL) FREE(allocbufb);      // ..
 #if DECSUBSET
-  if (allocrhs !=NULL) free(allocrhs);       // ..
+  if (allocrhs !=NULL) FREE(allocrhs);       // ..
 #endif
   if (status!=0) decStatus(res, status, set);// then report status
-#if DECCHECK
-  decCheckInexact(res, set);
-#endif
   return res;
   } // decNumberSquareRoot
 
@@ -3177,9 +2971,6 @@ decNumber * decNumberSubtract(decNumber *res, const decNumber *lhs,
 
   decAddOp(res, lhs, rhs, set, DECNEG, &status);
   if (status!=0) decStatus(res, status, set);
-#if DECCHECK
-  decCheckInexact(res, set);
-#endif
   return res;
   } // decNumberSubtract
 
@@ -3209,10 +3000,6 @@ decNumber * decNumberToIntegralExact(decNumber *res, const decNumber *rhs,
   decNumber dn;
   decContext workset;              // working context
   uInt status=0;                   // accumulator
-
-#if DECCHECK
-  if (decCheckOperands(res, DECUNUSED, rhs, set)) return res;
-#endif
 
   // handle infinities and NaNs
   if (SPECIALARG) {
@@ -3266,9 +3053,6 @@ decNumber * decNumberXor(decNumber *res, const decNumber *lhs,
   const Unit *msua, *msub;              // -> operand msus
   Unit  *uc, *msuc;                     // -> result and its msu
   Int   msudigs;                        // digits in res msu
-#if DECCHECK
-  if (decCheckOperands(res, lhs, rhs, set)) return res;
-#endif
 
   if (lhs->exponent!=0 || decNumberIsSpecial(lhs) || decNumberIsNegative(lhs)
    || rhs->exponent!=0 || decNumberIsSpecial(rhs) || decNumberIsNegative(rhs)) {
@@ -3379,10 +3163,6 @@ const char *decNumberClassToString(enum decClass eclass) {
 /* ------------------------------------------------------------------ */
 decNumber * decNumberCopy(decNumber *dest, const decNumber *src) {
 
-#if DECCHECK
-  if (src==NULL) return decNumberZero(dest);
-#endif
-
   if (dest==src) return dest;                // no copy required
 
   // Use explicit assignments here as structure assignment could copy
@@ -3418,9 +3198,6 @@ decNumber * decNumberCopy(decNumber *dest, const decNumber *src) {
 /* See also decNumberAbs for a checking version of this.              */
 /* ------------------------------------------------------------------ */
 decNumber * decNumberCopyAbs(decNumber *res, const decNumber *rhs) {
-#if DECCHECK
-  if (decCheckOperands(res, DECUNUSED, rhs, DECUNCONT)) return res;
-#endif
   decNumberCopy(res, rhs);
   res->bits&=~DECNEG;                   // turn off sign
   return res;
@@ -3439,9 +3216,6 @@ decNumber * decNumberCopyAbs(decNumber *res, const decNumber *rhs) {
 /* See also decNumberMinus for a checking version of this.            */
 /* ------------------------------------------------------------------ */
 decNumber * decNumberCopyNegate(decNumber *res, const decNumber *rhs) {
-#if DECCHECK
-  if (decCheckOperands(res, DECUNUSED, rhs, DECUNCONT)) return res;
-#endif
   decNumberCopy(res, rhs);
   res->bits^=DECNEG;                    // invert the sign
   return res;
@@ -3462,9 +3236,6 @@ decNumber * decNumberCopyNegate(decNumber *res, const decNumber *rhs) {
 decNumber * decNumberCopySign(decNumber *res, const decNumber *lhs,
                               const decNumber *rhs) {
   uByte sign;                           // rhs sign
-#if DECCHECK
-  if (decCheckOperands(res, DECUNUSED, rhs, DECUNCONT)) return res;
-#endif
   sign=rhs->bits & DECNEG;              // save sign bit
   decNumberCopy(res, lhs);
   res->bits&=~DECNEG;                   // clear the sign
@@ -3543,9 +3314,6 @@ decNumber * decNumberSetBCD(decNumber *dn, const uByte *bcd, uInt n) {
 /* ------------------------------------------------------------------ */
 Int decNumberIsNormal(const decNumber *dn, decContext *set) {
   Int ae;                               // adjusted exponent
-#if DECCHECK
-  if (decCheckOperands(DECUNRESU, DECUNUSED, dn, set)) return 0;
-#endif
 
   if (decNumberIsSpecial(dn)) return 0; // not finite
   if (decNumberIsZero(dn)) return 0;    // not non-zero
@@ -3563,9 +3331,6 @@ Int decNumberIsNormal(const decNumber *dn, decContext *set) {
 /* ------------------------------------------------------------------ */
 Int decNumberIsSubnormal(const decNumber *dn, decContext *set) {
   Int ae;                               // adjusted exponent
-#if DECCHECK
-  if (decCheckOperands(DECUNRESU, DECUNUSED, dn, set)) return 0;
-#endif
 
   if (decNumberIsSpecial(dn)) return 0; // not finite
   if (decNumberIsZero(dn)) return 0;    // not non-zero
@@ -3588,9 +3353,6 @@ Int decNumberIsSubnormal(const decNumber *dn, decContext *set) {
 decNumber * decNumberTrim(decNumber *dn) {
   Int  dropped;                    // work
   decContext set;                  // ..
-#if DECCHECK
-  if (decCheckOperands(DECUNRESU, DECUNUSED, dn, DECUNCONT)) return dn;
-#endif
   decContextDefault(&set, DEC_INIT_BASE);    // clamp=0
   return decTrim(dn, &set, 0, 1, &dropped);
   } // decNumberTrim
@@ -3614,10 +3376,6 @@ const char * decNumberVersion(void) {
 /* ------------------------------------------------------------------ */
 // Memset is not used as it is much slower in some environments.
 decNumber * decNumberZero(decNumber *dn) {
-
-#if DECCHECK
-  if (decCheckOperands(dn, DECUNUSED, DECUNUSED, DECUNCONT)) return dn;
-#endif
 
   dn->bits=0;
   dn->exponent=0;
@@ -3644,8 +3402,6 @@ decNumber * decNumberZero(decNumber *dn) {
 /* never generated in subset to-number or arithmetic, but can occur   */
 /* in non-subset arithmetic (e.g., -1*0 or 1.234-1.234).              */
 /* ------------------------------------------------------------------ */
-// If DECCHECK is enabled the string "?" is returned if a number is
-// invalid.
 static void decToString(const decNumber *dn, char *string, Flag eng) {
   Int exp=dn->exponent;       // local copy
   Int e;                      // E-part value
@@ -3654,12 +3410,6 @@ static void decToString(const decNumber *dn, char *string, Flag eng) {
   char *c=string;             // work [output pointer]
   const Unit *up=dn->lsu+D2U(dn->digits)-1; // -> msu [input pointer]
   uInt u, pow;                // work
-
-#if DECCHECK
-  if (decCheckOperands(DECUNRESU, dn, DECUNUSED, DECUNCONT)) {
-    strcpy(string, "?");
-    return;}
-#endif
 
   if (decNumberIsNegative(dn)) {   // Negatives get a minus
     *c='-';
@@ -3849,10 +3599,6 @@ static decNumber * decAddOp(decNumber *res, const decNumber *lhs,
   Unit  *allocacc=NULL;            // -> allocated acc buffer, iff allocated
   Int   reqdigits=set->digits;     // local copy; requested DIGITS
   Int   padding;                   // work
-
-#if DECCHECK
-  if (decCheckOperands(res, lhs, rhs, set)) return res;
-#endif
 
   do {                             // protect allocated storage
 #if DECSUBSET
@@ -4069,12 +3815,6 @@ static decNumber * decAddOp(decNumber *res, const decNumber *lhs,
     res->bits=(uByte)(bits&DECNEG);     // it's now safe to overwrite..
     res->exponent=lhs->exponent;        // .. operands (even if aliased)
 
-#if DECTRACE
-      decDumpAr('A', lhs->lsu, D2U(lhs->digits));
-      decDumpAr('B', rhs->lsu, D2U(rhs->digits));
-      printf("  :h: %ld %ld\n", rhsshift, mult);
-#endif
-
     // add [A+B*m] or subtract [A+B*(-m)]
     res->digits=decUnitAddSub(lhs->lsu, D2U(lhs->digits),
                               rhs->lsu, D2U(rhs->digits),
@@ -4084,9 +3824,6 @@ static decNumber * decAddOp(decNumber *res, const decNumber *lhs,
       res->digits=-res->digits;
       res->bits^=DECNEG;           // flip the sign
       }
-#if DECTRACE
-      decDumpAr('+', acc, D2U(res->digits));
-#endif
 
     // If a buffer was used the result must be copied back, possibly
     // shortening.  (If no buffer was used then the result must have
@@ -4153,10 +3890,10 @@ static decNumber * decAddOp(decNumber *res, const decNumber *lhs,
       }
     } while(0);                              // end protected
 
-  if (allocacc!=NULL) free(allocacc);        // drop any storage used
+  if (allocacc!=NULL) FREE(allocacc);        // drop any storage used
 #if DECSUBSET
-  if (allocrhs!=NULL) free(allocrhs);        // ..
-  if (alloclhs!=NULL) free(alloclhs);        // ..
+  if (allocrhs!=NULL) FREE(allocrhs);        // ..
+  if (alloclhs!=NULL) FREE(alloclhs);        // ..
 #endif
   return res;
   } // decAddOp
@@ -4273,10 +4010,6 @@ static decNumber * decDivideOp(decNumber *res,
   Int   shift, cut;                // ..
 #if DECSUBSET
   Int   dropped;                   // work
-#endif
-
-#if DECCHECK
-  if (decCheckOperands(res, lhs, rhs, set)) return res;
 #endif
 
   do {                             // protect allocated storage
@@ -4569,17 +4302,9 @@ static decNumber * decDivideOp(decNumber *res,
         // subtract var1-var2, into var1; only the overlap needs
         // processing, as this is an in-place calculation
         shift=var2ulen-var2units;
-#if DECTRACE
-          decDumpAr('1', &var1[shift], var1units-shift);
-          decDumpAr('2', var2, var2units);
-          printf("m=%ld\n", -mult);
-#endif
         decUnitAddSub(&var1[shift], var1units-shift,
                       var2, var2units, 0,
                       &var1[shift], -mult);
-#if DECTRACE
-          decDumpAr('#', &var1[shift], var1units-shift);
-#endif
         // var1 now probably has leading zeros; these are removed at the
         // top of the inner loop.
         } // inner loop
@@ -4810,11 +4535,11 @@ static decNumber * decDivideOp(decNumber *res,
 #endif
     } while(0);                              // end protected
 
-  if (varalloc!=NULL) free(varalloc);   // drop any storage used
-  if (allocacc!=NULL) free(allocacc);   // ..
+  if (varalloc!=NULL) FREE(varalloc);   // drop any storage used
+  if (allocacc!=NULL) FREE(allocacc);   // ..
 #if DECSUBSET
-  if (allocrhs!=NULL) free(allocrhs);   // ..
-  if (alloclhs!=NULL) free(alloclhs);   // ..
+  if (allocrhs!=NULL) FREE(allocrhs);   // ..
+  if (alloclhs!=NULL) FREE(alloclhs);   // ..
 #endif
   return res;
   } // decDivideOp
@@ -4915,10 +4640,6 @@ static decNumber * decMultiplyOp(decNumber *res, const decNumber *lhs,
 #if DECSUBSET
     decNumber *alloclhs=NULL;      // -> allocated buffer, iff allocated
     decNumber *allocrhs=NULL;      // -> allocated buffer, iff allocated
-#endif
-
-#if DECCHECK
-  if (decCheckOperands(res, lhs, rhs, set)) return res;
 #endif
 
   // precalculate result sign
@@ -5129,9 +4850,6 @@ static decNumber * decMultiplyOp(decNumber *res, const decNumber *lhs,
       } // unchunked units
 #endif
     // common end-path
-#if DECTRACE
-      decDumpAr('*', acc, accunits);         // Show exact result
-#endif
 
     // acc now contains the exact result of the multiplication,
     // possibly with a leading zero unit; build the decNumber from
@@ -5154,14 +4872,14 @@ static decNumber * decMultiplyOp(decNumber *res, const decNumber *lhs,
     decFinish(res, set, &residue, status);   // final cleanup
     } while(0);                         // end protected
 
-  if (allocacc!=NULL) free(allocacc);   // drop any storage used
+  if (allocacc!=NULL) FREE(allocacc);   // drop any storage used
 #if DECSUBSET
-  if (allocrhs!=NULL) free(allocrhs);   // ..
-  if (alloclhs!=NULL) free(alloclhs);   // ..
+  if (allocrhs!=NULL) FREE(allocrhs);   // ..
+  if (alloclhs!=NULL) FREE(alloclhs);   // ..
 #endif
 #if FASTMUL
-  if (allocrhi!=NULL) free(allocrhi);   // ..
-  if (alloclhi!=NULL) free(alloclhi);   // ..
+  if (allocrhi!=NULL) FREE(allocrhi);   // ..
+  if (alloclhi!=NULL) FREE(alloclhi);   // ..
 #endif
   return res;
   } // decMultiplyOp
@@ -5279,11 +4997,6 @@ decNumber * decExpOp(decNumber *res, const decNumber *rhs,
   decNumber bufd[D2N(16)];
   decNumber *d=bufd;               // divisor
   decNumber numone;                // constant 1
-
-#if DECCHECK
-  Int iterations=0;                // for later sanity check
-  if (decCheckOperands(res, DECUNUSED, rhs, set)) return res;
-#endif
 
   do {                                  // protect allocated storage
     if (SPECIALARG) {                   // handle infinities and NaNs
@@ -5449,9 +5162,6 @@ decNumber * decExpOp(decNumber *res, const decNumber *rhs,
 
       // finally ready to roll
       for (;;) {
-#if DECCHECK
-        iterations++;
-#endif
         // only the status from the accumulation is interesting
         // [but it should remain unchanged after first add]
         decAddOp(a, a, t, &aset, 0, status);           // a=a+t
@@ -5465,13 +5175,6 @@ decNumber * decExpOp(decNumber *res, const decNumber *rhs,
             && (a->digits>=p)) break;
         decAddOp(d, d, &numone, &dset, 0, &ignore);    // d=d+1
         } // iterate
-
-#if DECCHECK
-      // just a sanity check; comment out test to show always
-      if (iterations>p+3)
-        printf("Exp iterations=%ld, status=%08lx, p=%ld, d=%ld\n",
-               (LI)iterations, (LI)*status, (LI)p, (LI)x->digits);
-#endif
       } // h<=8
 
     // apply postconditioning: a=a**(10**h) -- this is calculated
@@ -5510,9 +5213,9 @@ decNumber * decExpOp(decNumber *res, const decNumber *rhs,
     decFinish(res, set, &residue, status);       // cleanup/set flags
     } while(0);                         // end protected
 
-  if (allocrhs !=NULL) free(allocrhs);  // drop any storage used
-  if (allocbufa!=NULL) free(allocbufa); // ..
-  if (allocbuft!=NULL) free(allocbuft); // ..
+  if (allocrhs !=NULL) FREE(allocrhs);  // drop any storage used
+  if (allocbufa!=NULL) FREE(allocbufa); // ..
+  if (allocbuft!=NULL) FREE(allocbuft); // ..
   // [status is handled by caller]
   return res;
   } // decExpOp
@@ -5627,11 +5330,6 @@ decNumber * decLnOp(decNumber *res, const decNumber *rhs,
   decNumber  numone;               // constant 1
   decNumber  cmp;                  // work
   decContext aset, bset;           // working contexts
-
-#if DECCHECK
-  Int iterations=0;                // for later sanity check
-  if (decCheckOperands(res, DECUNUSED, rhs, set)) return res;
-#endif
 
   do {                                  // protect allocated storage
     if (SPECIALARG) {                   // handle infinities and NaNs
@@ -5763,10 +5461,6 @@ decNumber * decLnOp(decNumber *res, const decNumber *rhs,
     aset.digits=pp;                     // working context
     bset.digits=pp+rhs->digits;         // wider context
     for (;;) {                          // iterate
-#if DECCHECK
-      iterations++;
-      if (iterations>24) break;         // consider 9 * 2**24
-#endif
       // calculate the adjustment (exp(-a)*x-1) into b.  This is a
       // catastrophic subtraction but it really is the difference
       // from 1 that is of interest.
@@ -5810,13 +5504,6 @@ decNumber * decLnOp(decNumber *res, const decNumber *rhs,
       bset.digits=pp+rhs->digits;            // wider context
       } // Newton's iteration
 
-#if DECCHECK
-    // just a sanity check; remove the test to show always
-    if (iterations>24)
-      printf("Ln iterations=%ld, status=%08lx, p=%ld, d=%ld\n",
-            (LI)iterations, (LI)*status, (LI)p, (LI)rhs->digits);
-#endif
-
     // Copy and round the result to res
     residue=1;                          // indicate dirt to right
     if (ISZERO(a)) residue=0;           // .. unless underflowed to 0
@@ -5825,8 +5512,8 @@ decNumber * decLnOp(decNumber *res, const decNumber *rhs,
     decFinish(res, set, &residue, status);       // cleanup/set flags
     } while(0);                         // end protected
 
-  if (allocbufa!=NULL) free(allocbufa); // drop any storage used
-  if (allocbufb!=NULL) free(allocbufb); // ..
+  if (allocbufa!=NULL) FREE(allocbufa); // drop any storage used
+  if (allocbufb!=NULL) FREE(allocbufb); // ..
   // [status is handled by caller]
   return res;
   } // decLnOp
@@ -5865,10 +5552,6 @@ static decNumber * decQuantizeOp(decNumber *res, const decNumber *lhs,
   Int   reqexp;                    // requested exponent [-scale]
   Int   residue=0;                 // rounding residue
   Int   etiny=set->emin-(reqdigits-1);
-
-#if DECCHECK
-  if (decCheckOperands(res, lhs, rhs, set)) return res;
-#endif
 
   do {                             // protect allocated storage
 #if DECSUBSET
@@ -5990,8 +5673,8 @@ static decNumber * decQuantizeOp(decNumber *res, const decNumber *lhs,
     } while(0);                         // end protected
 
 #if DECSUBSET
-  if (allocrhs!=NULL) free(allocrhs);   // drop any storage used
-  if (alloclhs!=NULL) free(alloclhs);   // ..
+  if (allocrhs!=NULL) FREE(allocrhs);   // drop any storage used
+  if (alloclhs!=NULL) FREE(alloclhs);   // ..
 #endif
   return res;
   } // decQuantizeOp
@@ -6035,10 +5718,6 @@ decNumber * decCompareOp(decNumber *res, const decNumber *lhs,
 #endif
   Int   result=0;                  // default result value
   uByte merged;                    // work
-
-#if DECCHECK
-  if (decCheckOperands(res, lhs, rhs, set)) return res;
-#endif
 
   do {                             // protect allocated storage
 #if DECSUBSET
@@ -6178,8 +5857,8 @@ decNumber * decCompareOp(decNumber *res, const decNumber *lhs,
       }
     }
 #if DECSUBSET
-  if (allocrhs!=NULL) free(allocrhs);   // free any storage used
-  if (alloclhs!=NULL) free(alloclhs);   // ..
+  if (allocrhs!=NULL) FREE(allocrhs);   // free any storage used
+  if (alloclhs!=NULL) FREE(alloclhs);   // ..
 #endif
   return res;
   } // decCompareOp
@@ -6313,7 +5992,7 @@ static Int decUnitCompare(const Unit *a, Int alength,
     result=(*u==0 ? 0 : +1);
     }
   // clean up and return the result
-  if (allocacc!=NULL) free(allocacc);   // drop any storage used
+  if (allocacc!=NULL) FREE(allocacc);   // drop any storage used
   return result;
   } // decUnitCompare
 
@@ -6375,11 +6054,6 @@ static Int decUnitAddSub(const Unit *a, Int alength,
   Int  add;                        // work
 #if DECDPUN<=4                   // myriadal, millenary, etc.
   Int  est;                        // estimated quotient
-#endif
-
-#if DECTRACE
-  if (alength<1 || blength<1)
-    printf("decUnitAddSub: alen blen m %ld %ld [%ld]\n", alength, blength, m);
 #endif
 
   maxC=c+alength;                  // A is usually the longer
@@ -6593,9 +6267,6 @@ static Int decUnitAddSub(const Unit *a, Int alength,
       }
     }
   // add an extra unit iff it would be non-zero
-#if DECTRACE
-    printf("UAS borrow: add %ld, carry %ld\n", add, carry);
-#endif
   if ((add-carry-1)!=0) {
     *c=(Unit)(add-carry-1);
     c++;                      // interesting, include it
@@ -6623,10 +6294,6 @@ static decNumber * decTrim(decNumber *dn, decContext *set, Flag all,
   Int   d, exp;                    // work
   uInt  cut;                       // ..
   Unit  *up;                       // -> current Unit
-
-#if DECCHECK
-  if (decCheckOperands(dn, DECUNUSED, DECUNUSED, DECUNCONT)) return dn;
-#endif
 
   *dropped=0;                           // assume no zeros dropped
   if ((dn->bits & DECSPECIAL)           // fast exit if special ..
@@ -7169,9 +6836,6 @@ static void decApplyRound(decNumber *dn, decContext *set, Int residue,
 
     default: {      // e.g., DEC_ROUND_MAX
       *status|=DEC_Invalid_context;
-#if DECTRACE || (DECCHECK && DECVERB)
-      printf("Unknown rounding mode: %d\n", set->round);
-#endif
       break;}
     } // switch
 
@@ -7475,12 +7139,6 @@ static void decSetSubnormal(decNumber *dn, decContext *set, Int *residue,
 
   if ISZERO(dn) {                       // value is zero
     // residue can never be non-zero here
-#if DECCHECK
-      if (*residue!=0) {
-        printf("++ Subnormal 0 residue %ld\n", (LI)*residue);
-        *status|=DEC_Invalid_operation;
-        }
-#endif
     if (dn->exponent<etiny) {           // clamp required
       dn->exponent=etiny;
       *status|=DEC_Clamped;
@@ -7661,11 +7319,6 @@ static decNumber *decDecap(decNumber *dn, Int drop) {
   Unit *msu;                            // -> target cut point
   Int cut;                              // work
   if (drop>=dn->digits) {               // losing the whole thing
-#if DECCHECK
-    if (drop>dn->digits)
-      printf("decDecap called with drop>digits [%ld>%ld]\n",
-             (LI)drop, (LI)dn->digits);
-#endif
     dn->lsu[0]=0;
     dn->digits=1;
     return dn;
@@ -7800,10 +7453,6 @@ static Int decGetDigits(Unit *uar, Int len) {
   uInt const *pow;                 // work
 #endif
                                    // (at least 1 in final msu)
-#if DECCHECK
-  if (len<1) printf("decGetDigits called with len<1 [%ld]\n", (LI)len);
-#endif
-
   for (; up>=uar; up--) {
     if (*up==0) {                  // unit is all 0s
       if (digits==1) break;        // a zero has one digit
@@ -7829,344 +7478,3 @@ static Int decGetDigits(Unit *uar, Int len) {
     } // up
   return digits;
   } // decGetDigits
-
-#if DECTRACE | DECCHECK
-/* ------------------------------------------------------------------ */
-/* decNumberShow -- display a number [debug aid]                      */
-/*   dn is the number to show                                         */
-/*                                                                    */
-/* Shows: sign, exponent, coefficient (msu first), digits             */
-/*    or: sign, special-value                                         */
-/* ------------------------------------------------------------------ */
-// this is public so other modules can use it
-void decNumberShow(const decNumber *dn) {
-  const Unit *up;                  // work
-  uInt u, d;                       // ..
-  Int cut;                         // ..
-  char isign='+';                  // main sign
-  if (dn==NULL) {
-    printf("NULL\n");
-    return;}
-  if (decNumberIsNegative(dn)) isign='-';
-  printf(" >> %c ", isign);
-  if (dn->bits&DECSPECIAL) {       // Is a special value
-    if (decNumberIsInfinite(dn)) printf("Infinity");
-     else {                                  // a NaN
-      if (dn->bits&DECSNAN) printf("sNaN");  // signalling NaN
-       else printf("NaN");
-      }
-    // if coefficient and exponent are 0, no more to do
-    if (dn->exponent==0 && dn->digits==1 && *dn->lsu==0) {
-      printf("\n");
-      return;}
-    // drop through to report other information
-    printf(" ");
-    }
-
-  // now carefully display the coefficient
-  up=dn->lsu+D2U(dn->digits)-1;         // msu
-  printf("%ld", (LI)*up);
-  for (up=up-1; up>=dn->lsu; up--) {
-    u=*up;
-    printf(":");
-    for (cut=DECDPUN-1; cut>=0; cut--) {
-      d=u/powers[cut];
-      u-=d*powers[cut];
-      printf("%ld", (LI)d);
-      } // cut
-    } // up
-  if (dn->exponent!=0) {
-    char esign='+';
-    if (dn->exponent<0) esign='-';
-    printf(" E%c%ld", esign, (LI)abs(dn->exponent));
-    }
-  printf(" [%ld]\n", (LI)dn->digits);
-  } // decNumberShow
-#endif
-
-#if DECTRACE || DECCHECK
-/* ------------------------------------------------------------------ */
-/* decDumpAr -- display a unit array [debug/check aid]                */
-/*   name is a single-character tag name                              */
-/*   ar   is the array to display                                     */
-/*   len  is the length of the array in Units                         */
-/* ------------------------------------------------------------------ */
-static void decDumpAr(char name, const Unit *ar, Int len) {
-  Int i;
-  const char *spec;
-# if DECDPUN==9
-    spec="%09d ";
-# elif DECDPUN==8
-    spec="%08d ";
-# elif DECDPUN==7
-    spec="%07d ";
-# elif DECDPUN==6
-    spec="%06d ";
-# elif DECDPUN==5
-    spec="%05d ";
-# elif DECDPUN==4
-    spec="%04d ";
-# elif DECDPUN==3
-    spec="%03d ";
-# elif DECDPUN==2
-    spec="%02d ";
-# else
-    spec="%d ";
-# endif
-  printf("  :%c: ", name);
-  for (i=len-1; i>=0; i--) {
-    if (i==len-1) printf("%ld ", (LI)ar[i]);
-     else printf(spec, ar[i]);
-    }
-  printf("\n");
-  return;}
-#endif
-
-#if DECCHECK
-/* ------------------------------------------------------------------ */
-/* decCheckOperands -- check operand(s) to a routine                  */
-/*   res is the result structure (not checked; it will be set to      */
-/*          quiet NaN if error found (and it is not NULL))            */
-/*   lhs is the first operand (may be DECUNRESU)                      */
-/*   rhs is the second (may be DECUNUSED)                             */
-/*   set is the context (may be DECUNCONT)                            */
-/*   returns 0 if both operands, and the context are clean, or 1      */
-/*     otherwise (in which case the context will show an error,       */
-/*     unless NULL).  Note that res is not cleaned; caller should     */
-/*     handle this so res=NULL case is safe.                          */
-/* The caller is expected to abandon immediately if 1 is returned.    */
-/* ------------------------------------------------------------------ */
-static Flag decCheckOperands(decNumber *res, const decNumber *lhs,
-                             const decNumber *rhs, decContext *set) {
-  Flag bad=0;
-  if (set==NULL) {                 // oops; hopeless
-# if DECTRACE || DECVERB
-    printf("Reference to context is NULL.\n");
-# endif
-    bad=1;
-    return 1;}
-   else if (set!=DECUNCONT
-     && (set->digits<1 || set->round>=DEC_ROUND_MAX)) {
-    bad=1;
-# if DECTRACE || DECVERB
-    printf("Bad context [digits=%ld round=%ld].\n",
-           (LI)set->digits, (LI)set->round);
-# endif
-    }
-   else {
-    if (res==NULL) {
-      bad=1;
-# if DECTRACE
-      // this one not DECVERB as standard tests include NULL
-      printf("Reference to result is NULL.\n");
-# endif
-      }
-    if (!bad && lhs!=DECUNUSED) bad=(decCheckNumber(lhs));
-    if (!bad && rhs!=DECUNUSED) bad=(decCheckNumber(rhs));
-    }
-  if (bad) {
-    if (set!=DECUNCONT) decContextSetStatus(set, DEC_Invalid_operation);
-    if (res!=DECUNRESU && res!=NULL) {
-      decNumberZero(res);
-      res->bits=DECNAN;       // qNaN
-      }
-    }
-  return bad;
-  } // decCheckOperands
-
-/* ------------------------------------------------------------------ */
-/* decCheckNumber -- check a number                                   */
-/*   dn is the number to check                                        */
-/*   returns 0 if the number is clean, or 1 otherwise                 */
-/*                                                                    */
-/* The number is considered valid if it could be a result from some   */
-/* operation in some valid context.                                   */
-/* ------------------------------------------------------------------ */
-static Flag decCheckNumber(const decNumber *dn) {
-  const Unit *up;             // work
-  uInt maxuint;               // ..
-  Int ae, d, digits;          // ..
-  Int emin, emax;             // ..
-
-  if (dn==NULL) {             // hopeless
-# if DECTRACE
-    // this one not DECVERB as standard tests include NULL
-    printf("Reference to decNumber is NULL.\n");
-# endif
-    return 1;}
-
-  // check special values
-  if (dn->bits & DECSPECIAL) {
-    if (dn->exponent!=0) {
-# if DECTRACE || DECVERB
-      printf("Exponent %ld (not 0) for a special value [%02x].\n",
-             (LI)dn->exponent, dn->bits);
-# endif
-      return 1;}
-
-    // 2003.09.08: NaNs may now have coefficients, so next tests Inf only
-    if (decNumberIsInfinite(dn)) {
-      if (dn->digits!=1) {
-# if DECTRACE || DECVERB
-        printf("Digits %ld (not 1) for an infinity.\n", (LI)dn->digits);
-# endif
-        return 1;}
-      if (*dn->lsu!=0) {
-# if DECTRACE || DECVERB
-        printf("LSU %ld (not 0) for an infinity.\n", (LI)*dn->lsu);
-# endif
-        decDumpAr('I', dn->lsu, D2U(dn->digits));
-        return 1;}
-      } // Inf
-    // 2002.12.26: negative NaNs can now appear through proposed IEEE
-    //             concrete formats (decimal64, etc.).
-    return 0;
-    }
-
-  // check the coefficient
-  if (dn->digits<1 || dn->digits>DECNUMMAXP) {
-# if DECTRACE || DECVERB
-    printf("Digits %ld in number.\n", (LI)dn->digits);
-# endif
-    return 1;}
-
-  d=dn->digits;
-
-  for (up=dn->lsu; d>0; up++) {
-    if (d>DECDPUN) maxuint=DECDPUNMAX;
-     else {                   // reached the msu
-      maxuint=powers[d]-1;
-      if (dn->digits>1 && *up<powers[d-1]) {
-# if DECTRACE || DECVERB
-        printf("Leading 0 in number.\n");
-        decNumberShow(dn);
-# endif
-        return 1;}
-      }
-    if (*up>maxuint) {
-# if DECTRACE || DECVERB
-      printf("Bad Unit [%08lx] in %ld-digit number at offset %ld [maxuint %ld].\n",
-              (LI)*up, (LI)dn->digits, (LI)(up-dn->lsu), (LI)maxuint);
-# endif
-      return 1;}
-    d-=DECDPUN;
-    }
-
-  // check the exponent.  Note that input operands can have exponents
-  // which are out of the set->emin/set->emax and set->digits range
-  // (just as they can have more digits than set->digits).
-  ae=dn->exponent+dn->digits-1;    // adjusted exponent
-  emax=DECNUMMAXE;
-  emin=DECNUMMINE;
-  digits=DECNUMMAXP;
-  if (ae<emin-(digits-1)) {
-# if DECTRACE || DECVERB
-    printf("Adjusted exponent underflow [%ld].\n", (LI)ae);
-    decNumberShow(dn);
-# endif
-    return 1;}
-  if (ae>+emax) {
-# if DECTRACE || DECVERB
-    printf("Adjusted exponent overflow [%ld].\n", (LI)ae);
-    decNumberShow(dn);
-# endif
-    return 1;}
-
-  return 0;              // it's OK
-  } // decCheckNumber
-
-/* ------------------------------------------------------------------ */
-/* decCheckInexact -- check a normal finite inexact result has digits */
-/*   dn is the number to check                                        */
-/*   set is the context (for status and precision)                    */
-/*   sets Invalid operation, etc., if some digits are missing         */
-/* [this check is not made for DECSUBSET compilation or when          */
-/* subnormal is not set]                                              */
-/* ------------------------------------------------------------------ */
-static void decCheckInexact(const decNumber *dn, decContext *set) {
-# if !DECSUBSET && DECEXTFLAG
-    if ((set->status & (DEC_Inexact|DEC_Subnormal))==DEC_Inexact
-     && (set->digits!=dn->digits) && !(dn->bits & DECSPECIAL)) {
-#  if DECTRACE || DECVERB
-      printf("Insufficient digits [%ld] on normal Inexact result.\n",
-             (LI)dn->digits);
-      decNumberShow(dn);
-#  endif
-      decContextSetStatus(set, DEC_Invalid_operation);
-      }
-# else
-    // next is a noop for quiet compiler
-    if (dn!=NULL && dn->digits==0) set->status|=DEC_Invalid_operation;
-# endif
-  return;
-  } // decCheckInexact
-#endif
-
-#if DECALLOC
-# undef malloc
-# undef free
-/* ------------------------------------------------------------------ */
-/* decMalloc -- accountable allocation routine                        */
-/*   n is the number of bytes to allocate                             */
-/*                                                                    */
-/* Semantics is the same as the stdlib malloc routine, but bytes      */
-/* allocated are accounted for globally, and corruption fences are    */
-/* added before and after the 'actual' storage.                       */
-/* ------------------------------------------------------------------ */
-/* This routine allocates storage with an extra twelve bytes; 8 are   */
-/* at the start and hold:                                             */
-/*   0-3 the original length requested                                */
-/*   4-7 buffer corruption detection fence (DECFENCE, x4)             */
-/* The 4 bytes at the end also hold a corruption fence (DECFENCE, x4) */
-/* ------------------------------------------------------------------ */
-static void *decMalloc(size_t n) {
-  uInt  size=n+12;                 // true size
-  void  *alloc;                    // -> allocated storage
-  uByte *b, *b0;                   // work
-  uInt  uiwork;                    // for macros
-
-  alloc=malloc(size);              // -> allocated storage
-  if (alloc==NULL) return NULL;    // out of storage
-  b0=(uByte *)alloc;               // as bytes
-  decAllocBytes+=n;                // account for storage
-  UBFROMUI(alloc, n);              // save n
-  // printf(" alloc ++ dAB: %ld (%ld)\n", (LI)decAllocBytes, (LI)n);
-  for (b=b0+4; b<b0+8; b++) *b=DECFENCE;
-  for (b=b0+n+8; b<b0+n+12; b++) *b=DECFENCE;
-  return b0+8;                     // -> play area
-  } // decMalloc
-
-/* ------------------------------------------------------------------ */
-/* decFree -- accountable free routine                                */
-/*   alloc is the storage to free                                     */
-/*                                                                    */
-/* Semantics is the same as the stdlib malloc routine, except that    */
-/* the global storage accounting is updated and the fences are        */
-/* checked to ensure that no routine has written 'out of bounds'.     */
-/* ------------------------------------------------------------------ */
-/* This routine first checks that the fences have not been corrupted. */
-/* It then frees the storage using the 'truw' storage address (that   */
-/* is, offset by 8).                                                  */
-/* ------------------------------------------------------------------ */
-static void decFree(void *alloc) {
-  uInt  n;                         // original length
-  uByte *b, *b0;                   // work
-  uInt  uiwork;                    // for macros
-
-  if (alloc==NULL) return;         // allowed; it's a nop
-  b0=(uByte *)alloc;               // as bytes
-  b0-=8;                           // -> true start of storage
-  n=UBTOUI(b0);                    // lift length
-  for (b=b0+4; b<b0+8; b++) if (*b!=DECFENCE)
-    printf("=== Corrupt byte [%02x] at offset %d from %ld ===\n", *b,
-           b-b0-8, (LI)b0);
-  for (b=b0+n+8; b<b0+n+12; b++) if (*b!=DECFENCE)
-    printf("=== Corrupt byte [%02x] at offset +%d from %ld, n=%ld ===\n", *b,
-           b-b0-8, (LI)b0, (LI)n);
-  free(b0);                        // drop the storage
-  decAllocBytes-=n;                // account for storage
-  // printf(" free -- dAB: %d (%d)\n", decAllocBytes, -n);
-  } // decFree
-# define malloc(a) decMalloc(a)
-# define free(a) decFree(a)
-#endif

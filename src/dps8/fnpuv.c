@@ -311,7 +311,7 @@ void fnpuv_unassociated_readcb (uv_tcp_t * client,
 
 static void fuv_close_cb (uv_handle_t * stream)
   {
-    free (stream);
+    FREE (stream);
   }
 
 // teardown a connection
@@ -350,7 +350,7 @@ void close_connection (uv_stream_t* stream)
 #endif
                 linep -> listen = false;
                 if (linep->inBuffer)
-                  free (linep->inBuffer);
+                  FREE (linep->inBuffer);
                 linep->inBuffer = NULL;
                 linep->inSize   = 0;
                 linep->inUsed   = 0;
@@ -376,8 +376,8 @@ void close_connection (uv_stream_t* stream)
             p->telnetp = NULL;
           }
         if (((uvClientData *) stream->data)->ttype)
-          free (((uvClientData *) stream->data)->ttype);
-        free (stream->data);
+          FREE (((uvClientData *) stream->data)->ttype);
+        FREE (stream->data);
         stream->data = NULL;
       } // if (p)
     if (! uv_is_closing ((uv_handle_t *) stream))
@@ -465,7 +465,7 @@ static void fuv_write_cb (uv_write_t * req, int status)
 
 #ifdef USE_REQ_DATA
 //sim_printf ("freeing bufs %p\n", req->data);
-    free (req->data);
+    FREE (req->data);
 #else
     unsigned int nbufs = req->nbufs;
     uv_buf_t * bufs = req->bufs;
@@ -480,20 +480,20 @@ static void fuv_write_cb (uv_write_t * req, int status)
         if (bufs && bufs[i].base)
           {
 //sim_printf ("freeing bufs%d %p\n", i, bufs[i].base);
-            free (bufs[i].base);
+            FREE (bufs[i].base);
             //bufp -> base = NULL;
           }
         if (req->bufsml[i].base)
           {
 //sim_printf ("freeing bufsml%d %p@%p\n", i, req->bufsml[i].base, & req->bufsml[i].base);
-            free (req->bufsml[i].base);
+            FREE (req->bufsml[i].base);
           }
       }
 #endif
 
     // the buf structure is copied; do not free.
 //sim_printf ("freeing req %p\n", req);
-    free (req);
+    FREE (req);
   }
 
 //

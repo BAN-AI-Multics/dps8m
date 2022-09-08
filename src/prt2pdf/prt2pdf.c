@@ -70,6 +70,12 @@
 #include <getopt.h>
 #include <locale.h>
 
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
+
 /* ============================================================================================================================== */
 #define MAX(x, y)       ((x) > (y) ?  (x) : (y))
 /* #define MIN(x, y)       ((x) < (y) ?  (x) : (y)) */
@@ -167,7 +173,7 @@ int GLOBAL_GREEN_BAR;
            }
 
            memcpy(new_xrefs, GLOBAL_XREFS, GLOBAL_NUM_XREFS * sizeof(*GLOBAL_XREFS));
-           free(GLOBAL_XREFS);
+           FREE(GLOBAL_XREFS);
            GLOBAL_XREFS = new_xrefs;
            GLOBAL_NUM_XREFS = new_num_xrefs;
         }

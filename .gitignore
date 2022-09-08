@@ -100,6 +100,7 @@ src/empty/empty
 src/empty/empty.exe
 src/dps8/dps8
 src/dps8/dps8.exe
+src/dps8/ver.h.*
 src/dps8/ver.h
 src/dps8/errnos.h
 tags

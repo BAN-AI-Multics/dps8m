@@ -879,7 +879,7 @@ if [ "${FALLBACK_MAJOR:-0}" -ne 1 ]; then
     VER_H_PROM_MAJOR_VER="$(printf '%s\n' "${BUILD_TMP_VER_SPLIT:-}" | \
         head -n 1 2> /dev/null | \
             tail -n 1 2> /dev/null | \
-                head -n 1 2> /dev/null)"
+                head -n 1 2> /dev/null)" || true
     if [ "${VER_H_PROM_MAJOR_VER:-0}" -gt 999 ]; then
         VER_H_PROM_MAJOR_VER="999"
     fi
@@ -893,7 +893,7 @@ if [ "${FALLBACK_MINOR:-0}" -ne 1 ]; then
     VER_H_PROM_MINOR_VER="$(printf '%s\n' "${BUILD_TMP_VER_SPLIT:-}" | \
         head -n 2 2> /dev/null | \
             tail -n 1 2> /dev/null | \
-                head -n 1 2> /dev/null)"
+                head -n 1 2> /dev/null)" || true
     if [ "${VER_H_PROM_MINOR_VER:-0}" -gt 999 ]; then
         VER_H_PROM_MINOR_VER="999"
     fi
@@ -907,7 +907,7 @@ if [ "${FALLBACK_PATCH:-0}" -ne 1 ]; then
     VER_H_PROM_PATCH_VER="$(printf '%s\n' "${BUILD_TMP_VER_SPLIT:-}" | \
         head -n 3 2> /dev/null | \
             tail -n 1 2> /dev/null | \
-                head -n 1 2> /dev/null)"
+                head -n 1 2> /dev/null)" || true
     if [ "${VER_H_PROM_PATCH_VER:-0}" -gt 999 ]; then
         VER_H_PROM_PATCH_VER="999"
     fi
@@ -921,7 +921,7 @@ if [ "${VER_H_PROM_VER_PART_COUNT:-0}" -gt 3 ]; then
     VER_H_PROM_OTHER_VER="$(printf '%s\n' "${BUILD_TMP_VER_SPLIT:-}" | \
         head -n 4 2> /dev/null | \
             tail -n 1 2> /dev/null | \
-                head -n 1 2> /dev/null)"
+                head -n 1 2> /dev/null)" || true
 else
     VER_H_PROM_OTHER_VER="0"
 fi
@@ -1062,15 +1062,18 @@ printf '%s\n'                                                                \
     "# define VER_H_PROM_OTHER_VER_INT ${VER_H_PROM_OTHER_VER:-999}"         \
     ""                                                                       \
     "#endif /* GENERATED_MAKE_VER_H */"                                      \
-    > "./ver.h" ||
-        { # /* printf > ./ver.h */
+    > "./ver.h.${$}" ||
+        { # /* printf > ./ver.h.${$} */
             printf >&2 '%s\n' \
-                "Error: writing ver.h failed."
+                "Error: writing ver.h.${$} failed."
             rm -f "./ver.h" > /dev/null 2>&1 || \
                 true > /dev/null 2>&1
+            rm -f "./ver.h.${$}" > /dev/null 2>&1 || \
+                true > /dev/null 2>&1
             exit 0
-        } # /* printf > ./ver.h */
-debug_print "End write out ver.h file."
+        } # /* printf > ./ver.h.${$} */
+    mv -f "./ver.h.${$}" "./ver.h"
+debug_print "Successfully wrote ver.h.${$} file and moved to ver.h."
 
 ##############################################################################
 

@@ -268,7 +268,9 @@ word36 Sub36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 
       op2e |= BIT37;
 
     // Do the math
-    word38 res = op1e - op2e - ci;
+    // word38 res = op1e - op2e - ci;
+    // ubsan
+    word38 res = (word38) (((word38s) op1e) - ((word38s) op2e) - ((word38) ci));
 
     // Extract the overflow bits
     bool r37 = (res & BIT37) ? true : false;
@@ -426,7 +428,9 @@ word18 Sub18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 
       op2e |= BIT19;
 
     // Do the math
-    word20 res = op1e - op2e - ci;
+    // word20 res = op1e - op2e - ci;
+    // ubsan
+    word20 res = (word20) (((word20s) op1e) - ((word20s) op2e) - ((word20s) ci));
 
     // Extract the overflow bits
     bool r19 = res & BIT19  ? true : false;
@@ -655,7 +659,9 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
 #ifdef NEED_128
     word74 res = subtract_128 (subtract_128 (op1e, op2e), ci);
 #else
-    word74 res = op1e - op2e - ci;
+    // word74 res = op1e - op2e - ci;
+    // ubsan
+    word74 res = (word72) (((word72s) op1e) - ((word72s) op2e) - ((word72s) ci));
 #endif
 #ifdef NEED_128
     sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n", (word36) (rshift_128 (res, 36).l & MASK36), (word36) (res.l & MASK36), * flags, * ovf);
@@ -753,7 +759,9 @@ word36 compl36(word36 op1, word18 *flags, bool * ovf)
 
     op1 &= DMASK;
 
-    word36 res = -op1 & DMASK;
+    // word36 res = -op1 & DMASK;
+    // ubsan
+    word36 res = ((word36) (- ((word36s) op1))) & DMASK;
 
     * ovf = op1 == MAXNEG;
 
@@ -787,7 +795,9 @@ word18 compl18(word18 op1, word18 *flags, bool * ovf)
 
     op1 &= MASK18;
 
-    word18 res = -op1 & MASK18;
+    // word18 res = -op1 & MASK18;
+    // ubsan
+    word18 res = ((word18) (- (word18s) op1)) & MASK18;
 
     * ovf = op1 == MAX18NEG;
 #ifdef PANEL68
@@ -1144,7 +1154,7 @@ char * strlower(char *q)
         char *s = q;
 
         while (*s) {
-                if (isupper(*s))
+                if (isupper((unsigned char)*s))
                         *s = (char) tolower(*s);
                 s++;
         }
@@ -1370,7 +1380,7 @@ char *rtrim(char *s)
     int index;
 
     //for (index = (int)strlen(s) - 1; index >= 0 && (s[index] == ' ' || s[index] == '\t'); index--)
-    for (index = (int)strlen(s) - 1; index >= 0 && isspace(s[index]); index--)
+    for (index = (int)strlen(s) - 1; index >= 0 && isspace((unsigned char)s[index]); index--)
     {
         s[index] = '\0';
     }
@@ -1387,7 +1397,7 @@ char *ltrim(char *s)
         return NULL;
 
     //for (p = s; (*p == ' ' || *p == '\t') && *p != '\0'; p++)
-    for (p = s; isspace(*p) && *p != '\0'; p++)
+    for (p = s; isspace((unsigned char)*p) && *p != '\0'; p++)
         ;
 
     //strcpy(s, p);
@@ -1543,7 +1553,7 @@ int cfg_parse (const char * tag, const char * cptr, config_list_t * clist, confi
     return (int) (p - clist);
 
 done:
-    free (state -> copy);
+    FREE (state -> copy);
     state -> copy= NULL;
     return ret;
   }
@@ -1551,7 +1561,7 @@ done:
 void cfg_parse_done (config_state_t * state)
   {
     if (state -> copy)
-      free (state -> copy);
+      FREE (state -> copy);
     state -> copy = NULL;
   }
 

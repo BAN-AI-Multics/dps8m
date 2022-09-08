@@ -1158,7 +1158,9 @@ static int read_configuration (uint dev_unit_idx, uint iom_unit_idx, uint chan)
          if (! dev_p[dev_num].in_use)
            continue;
          uint dsk_unit_idx = dev_p[dev_num].unit_idx;
-         word9 dau_type    = (word9) diskTypes[dsk_unit_idx].dau_type;
+         // word9 dau_type    = (word9) diskTypes[dsk_unit_idx].dau_type;
+         // ubsan/asan
+         word9 dau_type    = (word9) diskTypes[dsk_states[dsk_unit_idx].typeIdx].dau_type;
          putbits36_9 (& buffer[1+dev_num],  0, dau_type); // dev.type
          putbits36_9 (& buffer[1+dev_num],  9, dev_num);  // dev.number
          putbits36_9 (& buffer[1+dev_num], 18, 0);        // dev.summary_status // XXX

@@ -62,7 +62,9 @@ unset FLOCK_COMMAND > "/dev/null" 2>&1 || true
 #INPUTS="${INPUTS:-} md/preface.md" # <------------ Preface
 #INPUTS="${INPUTS:-} md/introduction.md" # <------- Introduction
 #INPUTS="${INPUTS:-} md/prologue.md" # <----------- Prologue
-#INPUTS="${INPUTS:-} md/buildsource.md" # <-------- Building from Source Code
+ INPUTS="${INPUTS:-} md/pre-source.md" # <--------- (setup) Building from Source Code
+ INPUTS="${INPUTS:-} hpages/content/Documentation/Source_Compilation/_index.md" # <-------- Building from Source Code
+ INPUTS="${INPUTS:-} md/post-source.md" # <-------- (finish) Building from Source Code
  INPUTS="${INPUTS:-} md/commandref.md" # <--------- Simulator Command Reference
  INPUTS="${INPUTS:-} md/licensing.md" # <---------- Licensing Terms and Legal
 

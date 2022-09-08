@@ -67,7 +67,7 @@ static void accessWriteCallback (uv_write_t * req, int status)
       }
 
 #ifdef USE_REQ_DATA
-    free (req->data);
+    FREE (req->data);
 #else
     unsigned int nbufs = req->nbufs;
     uv_buf_t * bufs = req->bufs;
@@ -80,19 +80,19 @@ static void accessWriteCallback (uv_write_t * req, int status)
       {
         if (bufs && bufs[i].base)
           {
-            free (bufs[i].base);
+            FREE (bufs[i].base);
             //bufp->base = NULL;
           }
         if (req->bufsml[i].base)
           {
-            free (req->bufsml[i].base);
+            FREE (req->bufsml[i].base);
           }
       }
 #endif
 
     // the buf structure is copied; do not free.
 //sim_printf ("freeing req %p\n", req);
-    free (req);
+    FREE (req);
   }
 
 //
@@ -322,7 +322,7 @@ associate:;
 
 static void accessCloseCallback (uv_handle_t * stream)
   {
-    free (stream);
+    FREE (stream);
     //access->client = NULL;
   }
 
@@ -620,7 +620,7 @@ int accessGetChar (uv_access * access)
     if (! access->client)
       {
         if (access->inBuffer)
-          free (access->inBuffer);
+          FREE (access->inBuffer);
         access->inBuffer = NULL;
         access->inSize = 0;
         access->inUsed = 0;
@@ -632,7 +632,7 @@ int accessGetChar (uv_access * access)
          unsigned char c = access->inBuffer[access->inUsed ++];
          if (access->inUsed >= access->inSize)
            {
-             free (access->inBuffer);
+             FREE (access->inBuffer);
              access->inBuffer = NULL;
              access->inSize = 0;
              access->inUsed = 0;

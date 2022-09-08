@@ -302,7 +302,7 @@ else { /* Unaligned and/or partial sector transfers */
             r = _sim_disk_rdsect (uptr, tlba, tbuf, &sread, tsects);
             break;
         default:
-            free (tbuf);
+            FREE (tbuf);
             return SCPE_NOFNC;
         }
     if (r == SCPE_OK) {
@@ -313,7 +313,7 @@ else { /* Unaligned and/or partial sector transfers */
                 *sectsread = sects;
             }
         }
-    free (tbuf);
+    FREE (tbuf);
     return r;
     }
 }
@@ -451,7 +451,7 @@ else { /* Unaligned and/or partial sector transfers */
             *sectswritten = sects;
         }
     }
-free (tbuf);
+FREE (tbuf);
 return r;
 }
 
@@ -485,9 +485,9 @@ switch (f) {                                            /* case on format */
 
 static t_stat _err_return (UNIT *uptr, t_stat stat)
 {
-free (uptr->filename);
+FREE (uptr->filename);
 uptr->filename = NULL;
-free (uptr->disk_ctx);
+FREE (uptr->disk_ctx);
 uptr->disk_ctx = NULL;
 return stat;
 }
@@ -847,7 +847,7 @@ if ((created) && (!copied)) {
         r = sim_disk_wrsect (uptr, (t_lba)(((((t_offset)uptr->capac)*ctx->capac_factor*((dptr->flags & DEV_SECTORS) ? 512 : 1)) - ctx->sector_size)/ctx->sector_size), secbuf, NULL, 1); /* Write Last Sector */
     if (r == SCPE_OK)
         r = sim_disk_wrsect (uptr, (t_lba)(0), secbuf, NULL, 1); /* Write First Sector */
-    free (secbuf);
+    FREE (secbuf);
     if (r != SCPE_OK) {
         sim_disk_detach (uptr);                         /* report error now */
         remove (cptr);                                  /* remove the create file */
@@ -877,7 +877,7 @@ if ((created) && (!copied)) {
                 }
             r = sim_disk_wrsect (uptr, lba, init_buf, NULL, sects);
             if (r != SCPE_OK) {
-                free (init_buf);
+                FREE (init_buf);
                 sim_disk_detach (uptr);                         /* report error now */
                 remove (cptr);                                  /* remove the create file */
                 return SCPE_OPENERR;
@@ -887,7 +887,7 @@ if ((created) && (!copied)) {
             }
         if (!sim_quiet)
             sim_printf ("%s%lu: Initialized To Sector Address %luMB.  100%% complete.\n", sim_dname (dptr), (unsigned long)(uptr-dptr->units), (unsigned long)((((float)lba)*sector_size)/1000000));
-        free (init_buf);
+        FREE (init_buf);
         }
     }
 
@@ -938,7 +938,7 @@ if (sim_switches & SWMASK ('K')) {
         }
     if (!sim_quiet)
         sim_printf ("%s%lu: Verified containing Sector Address %luMB.  100%% complete.\n", sim_dname (dptr), (unsigned long)(uptr-dptr->units), (unsigned long)((((float)lba)*sector_size)/1000000));
-    free (verify_buf);
+    FREE (verify_buf);
     uptr->dynflags |= UNIT_DISK_CHK;
     }
 
@@ -1018,11 +1018,11 @@ if (uptr->io_flush)
 
 uptr->flags &= ~(UNIT_ATT | UNIT_RO);
 uptr->dynflags &= ~(UNIT_NO_FIO | UNIT_DISK_CHK);
-free (uptr->filename);
+FREE (uptr->filename);
 uptr->filename = NULL;
 uptr->fileref = NULL;
 if (uptr->disk_ctx) {
-  free (uptr->disk_ctx);
+  FREE (uptr->disk_ctx);
   uptr->disk_ctx = NULL;
 }
 uptr->io_flush = NULL;

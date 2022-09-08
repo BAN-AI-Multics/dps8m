@@ -38,6 +38,12 @@
 # define srandom bsd_srandom
 #endif /* if defined(__MINGW64__) || defined(__MINGW32__) */
 
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
+
 static char valid_file_name_chars[]
   = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
@@ -59,7 +65,7 @@ utfile_mkstemps(char *request_pattern, int suffix_length)
 
   if (( (long) pattern_length - 6 ) < (long) suffix_length)
   {
-    free(pattern);
+    FREE(pattern);
     return ( -1 );
   }
 
@@ -67,7 +73,7 @@ utfile_mkstemps(char *request_pattern, int suffix_length)
 
   if (strncmp(&pattern[mask_offset], "XXXXXX", 6))
   {
-    free(pattern);
+    FREE(pattern);
     return ( -1 );
   }
 
@@ -87,7 +93,7 @@ utfile_mkstemps(char *request_pattern, int suffix_length)
 
     if (fd >= 0)
     {
-      free(pattern);
+      FREE(pattern);
       return ( fd );
     }
 
@@ -107,6 +113,6 @@ utfile_mkstemps(char *request_pattern, int suffix_length)
    * a unique file name despite many of tries.
    */
 
-  free(pattern);
+  FREE(pattern);
   return ( -1 );
 }

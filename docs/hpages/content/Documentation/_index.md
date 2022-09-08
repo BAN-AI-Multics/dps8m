@@ -7,6 +7,7 @@ title: Documentation
 The **DPS8M Development Team** provides documentation useful to simulator users and developers.
 
 * [**DPS8M Omnibus Documentation**](#dps8m-omnibus-documentation)
+* [**Source Compilation**](#source-compilation)
 * [**Global Cross-reference**](#global-cross-reference)
 
 ## DPS8M Omnibus Documentation
@@ -18,6 +19,12 @@ The **DPS8M Development Team** provides documentation useful to simulator users 
 | Version         | Description                                                      |                                                                                                     |
 | :-------------- | ----------------------                                           | ------------------                                                                                  |
 | **`master`**    | **[DPS8M Omnibus Documentation](https://dps8m.gitlab.io/dps8m/master/dps8m-omnibus.pdf)** for the *git* **`master`** branch | {{< button href="https://dps8m.gitlab.io/dps8m/master/dps8m-omnibus.pdf" >}}View PDF{{< /button >}} |
+
+## Source Compilation
+
+* The simulator [**source code distribution**](../Releases) can be built simply via **`make`** on *most* systems.
+* The [**Source Compilation section**](Source_Compilation) documents platform-specific variations and “*exceptions to the rule*”.
+  * It is *not* intended to be exhaustive  nor replace the [**DPS8M Omnibus Documentation**](#dps8m-omnibus-documentation).
 
 ## Global Cross-reference
 

@@ -330,7 +330,7 @@ void fnpInit(void)
 
 void fnpExit (void) {
   if (fnpData.telnet_address) {
-    free (fnpData.telnet_address);
+    FREE (fnpData.telnet_address);
     fnpData.telnet_address = NULL;
   }
   // For each FNP
@@ -346,12 +346,12 @@ void fnpExit (void) {
         if (data && data->telnetp) {
           sim_warn ("fnpExit freeing unit %u line %u telnetp %p\r\n",
                   fnpUnitIdx, lineNum, data->telnetp);
-          free (data->telnetp);
+          FREE (data->telnetp);
           data->telnetp = NULL;
         }
         sim_warn ("fnpExit freeing unit %u line %u line_client %p\r\n",
                 fnpUnitIdx, lineNum, line_client);
-        free (line_client);
+        FREE (line_client);
         unitp->MState.line[lineNum].line_client = NULL;
       }
     }
@@ -1188,7 +1188,7 @@ static void fnpProcessBuffer (struct t_line * linep)
 #endif
       {
         if (linep->inBuffer)
-          free (linep->inBuffer);
+          FREE (linep->inBuffer);
         linep->inBuffer = NULL;
         linep->inSize   = 0;
         linep->inUsed   = 0;
@@ -1202,7 +1202,7 @@ static void fnpProcessBuffer (struct t_line * linep)
          bool eob = linep->inUsed >= linep->inSize;
          if (eob)
            {
-             free (linep->inBuffer);
+             FREE (linep->inBuffer);
              linep->inBuffer = NULL;
              linep->inSize   = 0;
              linep->inUsed   = 0;
@@ -1388,7 +1388,7 @@ static void send_stn_in_buffer (void)
         * bufp ++ = 0x3; // ETX
         left --;
 
-        free (stnp->stn_in_buffer);
+        FREE (stnp->stn_in_buffer);
         stnp->stn_in_buffer = NULL;
         stnp->stn_in_size   = 0;
         stnp->stn_in_used   = 0;
@@ -2378,7 +2378,7 @@ t_stat set_fnp_server_address (UNUSED int32 arg, const char * buf)
     if ( (!buf) || (buf[0] == 0) )
         return SCPE_ARG;
     if (fnpData.telnet_address)
-      free (fnpData.telnet_address);
+      FREE (fnpData.telnet_address);
     fnpData.telnet_address = strdup (buf);
         if (!sim_quiet)
           {

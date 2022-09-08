@@ -69,6 +69,7 @@ gitver
 gscript
 gsed
 gtail
+hpages
 hugoclean
 hugovars
 ibmaix
@@ -282,6 +283,7 @@ argt
 argv
 arnn
 arpa
+asan
 asbe
 asearch
 aset
@@ -736,6 +738,7 @@ decunresu
 decunused
 decuse
 decverb
+decversext
 decversion
 deepcode
 definethis
@@ -3000,6 +3003,7 @@ typeof
 uarrone
 ubfromui
 ublock
+ubsan
 ubtoui
 ucnt
 udata
@@ -3505,6 +3509,7 @@ decstickytab
 decsubset
 dectrace
 decuse
+decversext
 decversion
 decwbytes
 decweconl
@@ -5340,6 +5345,7 @@ ypersetup
 FILETYPE: YAML; .yml
 advzip
 aixv
+distdir
 docsprt
 hpages
 hugobuild
@@ -7463,6 +7469,10 @@ zwnj
 
 FILEID: 3f9cac60-f632-11ec-9ef6-80ee73e9b8e7
 alnum
+ideposit
+iexamine
+nobreak
+noexpect
 xxxxxxxxxxx
 xxxxxxxxxxxx
 

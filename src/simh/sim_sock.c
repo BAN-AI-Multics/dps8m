@@ -57,16 +57,23 @@
 # define NI_MAXHOST 1025
 #endif
 
-/* OS dependent routines
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
 
-   sim_master_sock      create master socket
-   sim_connect_sock     connect a socket to a remote destination
-   sim_connect_sock_ex  connect a socket to a remote destination
-   sim_accept_conn      accept connection
-   sim_read_sock        read from socket
-   sim_write_sock       write from socket
-   sim_close_sock       close socket
-   sim_setnonblock      set socket non-blocking
+/*
+ * OS dependent routines
+ *
+ * sim_master_sock      create master socket
+ * sim_connect_sock     connect a socket to a remote destination
+ * sim_connect_sock_ex  connect a socket to a remote destination
+ * sim_accept_conn      accept connection
+ * sim_read_sock        read from socket
+ * sim_write_sock       write from socket
+ * sim_close_sock       close socket
+ * sim_setnonblock      set socket non-blocking
 */
 
 /* First, all the non-implemented versions */
@@ -143,9 +150,9 @@ struct addrinfo *a, *an;
 
 for (a=ai; a != NULL; a=an) {
     an = a->ai_next;
-    free (a->ai_canonname);
-    free (a->ai_addr);
-    free (a);
+    FREE (a->ai_canonname);
+    FREE (a->ai_addr);
+    FREE (a);
     }
 }
 
@@ -278,7 +285,7 @@ for (ip=ips; (ip != NULL) && (*ip != NULL); ++ip) {
     ai->ai_next      = NULL;
     ai->ai_addr      = (struct sockaddr *)calloc(1, sizeof(struct sockaddr_in));
     if (NULL == ai->ai_addr) {
-        free(ai);
+        FREE(ai);
         s_freeaddrinfo(result);
         return EAI_MEMORY;
         }

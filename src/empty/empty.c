@@ -116,7 +116,7 @@
 
 #define tmpdir "/tmp"
 #define program "empty"
-#define version "0.6.21e-dps"
+#define version "0.6.21f-dps"
 
 static void usage(void);
 static long toint(char *intstr);
@@ -759,13 +759,15 @@ main(int argc, char *argv[])
       (void)perrxslog(255, "PTY routine failed. Fatal ptsname(master)");
     }
 
-# if defined( __SVR4 ) && !defined( __SCO_VERSION__ )
+# ifdef __SVR4
+#  ifndef __SCO_VERSION__
   if (grantpt(master) == -1)
     {
       (void)perrxslog(255, "Can't grant access to slave part of PTY: %m");
     }
 
-# endif /* if defined( __SVR4 ) && !defined( __SCO_VERSION__ ) */
+#  endif /* ifndef __SCO_VERSION__ */
+# endif /* ifdef __SVR4 */
 #endif /* !defined(__SVR4) && !defined(__hpux__) && !defined(_AIX) */
 
   for (i = 1; i < 32; i++)

@@ -70,16 +70,14 @@ typedef struct { int64_t h;  uint64_t l; }  __int128_t;
 # define L68_(x) if (cpu.tweaks.l68_mode) { x }
 # define DPS8M_(x) if (! cpu.tweaks.l68_mode) { x }
 
-// debugging tool
+// Debugging tool
 # ifdef TESTING
 #  define IF1 if (cpu.tweaks.isolts_mode)
 # else
 #  define IF1 if (0)
 # endif
 
-//#define OSCAR
-
-// DPS8-M support Hex Mode Floating Point
+// DPS8-M supports Hex Mode Floating Point
 # define HEX_MODE
 
 // Instruction profiler
@@ -92,9 +90,7 @@ typedef struct { int64_t h;  uint64_t l; }  __int128_t;
 //#define TR_WORK_MEM
 # define TR_WORK_EXEC
 
-// Multi-threading may require 'volatile' in some place; make it easy
-// to support both configurations
-
+// Multi-threading may require 'volatile' in some places
 # if defined(THREADZ) || defined(LOCKLESS)
 #  define vol volatile
 # else
@@ -167,6 +163,7 @@ typedef uint16      word9;
 typedef uint16      word10;
 typedef uint16      word11;
 typedef uint16      word12;
+typedef int16       word12s;
 typedef uint16      word13;
 typedef uint16      word14;
 typedef uint16      word15;
@@ -176,17 +173,20 @@ typedef uint32      word18;
 typedef uint32      word19;
 typedef int32       word18s;
 typedef uint32      word20;
+typedef int32       word20s;
 typedef uint32      word21;
 typedef uint32      word22;
 typedef uint32      word23;
 typedef uint32      word24;
 typedef uint32      word27;
+typedef int32       word27s;
 typedef uint32      word28;
 typedef uint32      word32;
 typedef uint64      word34;
 typedef uint64      word36;
 typedef uint64      word37;
 typedef uint64      word38;
+typedef int64       word38s;
 typedef int64       word36s;
 typedef __uint128_t word72;
 typedef __int128_t  word72s;
@@ -447,14 +447,14 @@ enum eCAFoper {
 };
 typedef enum eCAFoper eCAFoper;
 
-# define READOP(i) ((bool) (i->info->flags      &  \
+# define READOP(i) ((bool) (i->info->flags     &  \
                            (READ_OPERAND       |  \
                             READ_YPAIR         |  \
                             READ_YBLOCK8       |  \
                             READ_YBLOCK16      |  \
                             READ_YBLOCK32)))
 
-# define WRITEOP(i) ((bool) (i->info->flags     &  \
+# define WRITEOP(i) ((bool) (i->info->flags    &  \
                             (STORE_OPERAND     |  \
                              STORE_YPAIR       |  \
                              STORE_YBLOCK8     |  \
@@ -541,9 +541,15 @@ typedef enum
 
 # define ARRAY_SIZE(a) ( sizeof(a) / sizeof((a)[0]) )
 
+# define FREE(p) do  \
+  {                  \
+    free((p));       \
+    (p) = NULL;      \
+  } while(0)
+
 # if defined (__MINGW64__) || \
-    defined (__MINGW32__) || \
-    defined (__GNUC__) || \
+    defined (__MINGW32__)  || \
+    defined (__GNUC__)     || \
     defined (__clang_version__)
 #  define NO_RETURN __attribute__ ((noreturn))
 #  define UNUSED    __attribute__ ((unused))

@@ -56,6 +56,12 @@ static const char copyright[] =
   "@(#) $  Author: The DPS8M Development Team and Tony Finch <dot@dotat.at> $\n"
   "@(#) $     URL: https://gitlab.com/dps8m/dps8m/-/tree/master/src/unifdef $\n";
 
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
+
 /* types of input lines: */
 typedef enum
 {
@@ -522,7 +528,7 @@ processinout(const char *ifn, const char *ofn)
           exit(1);
     }
 
-    free(backname);
+    FREE(backname);
   }
 
   /* leave file unmodified if unifdef made no changes */
@@ -539,7 +545,7 @@ processinout(const char *ifn, const char *ofn)
         exit(1);
   }
 
-  free(tempname);
+  FREE(tempname);
   tempname = NULL;
 }
 

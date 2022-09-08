@@ -263,7 +263,7 @@ static t_stat attach (UNIT * uptr, const char * cptr)
     ret = udp_create (cptr, & dia_data.dia_unit_data[unitno].link);
     if (ret != SCPE_OK)
       {
-        free (pfn);
+        FREE (pfn);
         return ret;
       }
 
@@ -287,7 +287,7 @@ static t_stat detach (UNIT * uptr)
       return ret;
     dia_data.dia_unit_data[unitno].link = NOLINK;
     uptr->flags &= ~ (unsigned int) UNIT_ATT;
-    free (uptr->filename);
+    FREE (uptr->filename);
     uptr->filename = NULL;
     return SCPE_OK;
   }

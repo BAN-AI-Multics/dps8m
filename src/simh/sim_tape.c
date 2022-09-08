@@ -236,7 +236,7 @@ switch (f) {                                            /* case on format */
 
     case MTUF_F_TPC:                                    /* TPC */
         if (uptr->filebuf)                              /* free map */
-            free (uptr->filebuf);
+            FREE (uptr->filebuf);
         uptr->filebuf = NULL;
         uptr->hwmark = 0;
         break;
@@ -246,7 +246,7 @@ switch (f) {                                            /* case on format */
         }
 
 sim_tape_rewind (uptr);
-free (uptr->tape_ctx);
+FREE (uptr->tape_ctx);
 uptr->tape_ctx = NULL;
 uptr->io_flush = NULL;
 if (auto_format)    /* format was determined or specified at attach time? */
@@ -1910,8 +1910,8 @@ if (((last_bc != 0xffff) &&
         sim_debug (MTSE_DBG_STR, dptr, "tpc_map: ERROR next record position %" T_ADDR_FMT "u beyond EOT: %" T_ADDR_FMT "u\n", tpos, tape_size);
     if (objc == countmap[0])
         sim_debug (MTSE_DBG_STR, dptr, "tpc_map: ERROR tape cnly contains tape marks\n");
-    free (countmap);
-    free (recbuf);
+    FREE (countmap);
+    FREE (recbuf);
     return 0;
     }
 
@@ -1923,8 +1923,8 @@ if ((last_bc != 0xffff) && (tpos > tape_size)) {
 if (map)
     map[objc] = tpos;
 sim_debug (MTSE_DBG_STR, dptr, "tpc_map: OK objc: %d\n", objc);
-free (countmap);
-free (recbuf);
+FREE (countmap);
+FREE (recbuf);
 return objc;
 }
 

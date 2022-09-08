@@ -218,7 +218,7 @@ struct timezone foo;
 uint32 msec;
 
 gettimeofday (&cur, &foo);
-msec = (((uint32) cur.tv_sec) * 1000) + (((uint32) cur.tv_usec) / 1000);
+msec = (((uint32) cur.tv_sec) * 1000UL) + (((uint32) cur.tv_usec) / 1000UL);
 return msec;
 }
 

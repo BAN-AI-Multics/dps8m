@@ -3286,7 +3286,7 @@ static t_stat set_search_path (UNUSED int32 arg, UNUSED const char * buf)
 // Quietly ignore if debugging not enabled
 # ifndef SPEED
     if (source_search_path)
-      free (source_search_path);
+      FREE (source_search_path);
     source_search_path = strdup (buf);
 # endif
     return SCPE_OK;
@@ -4220,8 +4220,8 @@ static void dps8_init (void) {
 
   char   rcap = 0;
   char   rnum = 0;
-  char   rssuffix[20];
-  char   statenme[30];
+  char   rssuffix[24];
+  char   statenme[32];
   struct timespec ts;
 
   memset(statenme, 0, sizeof(&statenme));

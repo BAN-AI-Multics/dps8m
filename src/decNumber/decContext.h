@@ -249,7 +249,7 @@
   extern decContext  * decContextSetStatusFromStringQuiet(decContext *, const char *);
   extern decContext  * decContextSetStatusQuiet(decContext *, uint32_t);
   extern const char  * decContextStatusToString(const decContext *);
-  extern int32_t       decContextTestEndian(uint8_t);
+  extern int32_t       decContextTestEndian(void);
   extern uint32_t      decContextTestSavedStatus(uint32_t, uint32_t);
   extern uint32_t      decContextTestStatus(decContext *, uint32_t);
   extern decContext  * decContextZeroStatus(decContext *);

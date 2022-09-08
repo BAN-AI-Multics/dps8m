@@ -180,7 +180,7 @@ static t_stat absiAttach (UNIT * uptr, const char * cptr)
     ret = udp_create (cptr, & absi_state[unitno].link);
     if (ret != SCPE_OK)
       {
-        free (pfn);
+        FREE (pfn);
         return ret;
       }
 
@@ -204,7 +204,7 @@ static t_stat absiDetach (UNIT * uptr)
       return ret;
     absi_state[unitno].link = NOLINK;
     uptr->flags &= ~ (unsigned int) UNIT_ATT;
-    free (uptr->filename);
+    FREE (uptr->filename);
     uptr->filename = NULL;
     return SCPE_OK;
   }

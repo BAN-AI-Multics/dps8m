@@ -2087,7 +2087,9 @@ restart_1:
       //  b. C(X0)0,7 - 1 -> C(X0)0,7
       // a:AL39/rpd9
       uint x = (uint) getbits18 (cpu.rX[0], 0, 8);
-      x -= 1;
+      //x -= 1;
+      // ubsan
+      x = (uint) (((int) x) - 1);
       x &= MASK8;
       putbits18 (& cpu.rX[0], 0, 8, x);
 #ifdef TESTING
@@ -3866,7 +3868,9 @@ static t_stat doInstruction (void)
         case x0 (0454):  // stt
           CPTUR (cptUseTR);
           if (cpu.tweaks.isolts_mode)
-            cpu.CY = ((-- cpu.shadowTR) & MASK27) << 9;
+            //cpu.CY = ((-- cpu.shadowTR) & MASK27) << 9;
+            // ubsan
+            cpu.CY = (((uint) (((int) cpu.shadowTR) - 1)) & MASK27) << 9;
           else
             cpu.CY = (cpu.rTR & MASK27) << 9;
           break;
@@ -4763,7 +4767,9 @@ static t_stat doInstruction (void)
             tmp72        = and_128 (tmp72, MASK72);
             tmp72        = lshift_128 (tmp72, 1);
 #else
-            word72 tmp72 = SIGNEXT36_72 (cpu.rA) * SIGNEXT36_72 (cpu.CY);
+            // word72 tmp72 = SIGNEXT36_72 (cpu.rA) * SIGNEXT36_72 (cpu.CY);
+            // ubsan
+            word72 tmp72 = (word72) (((word72s) SIGNEXT36_72 (cpu.rA)) * ((word72s) SIGNEXT36_72 (cpu.CY)));
             tmp72 &= MASK72;
             tmp72 <<= 1;    // left adjust so AQ71 contains 0
 #endif
@@ -4861,7 +4867,9 @@ static t_stat doInstruction (void)
 
               if (cpu.rQ & SIGN36)
                 {
-                  cpu.rQ = (- cpu.rQ) & MASK36;
+                  // cpu.rQ = (- cpu.rQ) & MASK36;
+                  // ubsan
+                  cpu.rQ = ((word36) (- (word36s) cpu.rQ)) & MASK36;
 #ifdef TESTING
                   HDBGRegQW ("div");
 #endif
@@ -4994,7 +5002,9 @@ static t_stat doInstruction (void)
               overflow (true, false, "neg overflow fault");
             }
 
-          cpu.rA = -cpu.rA;
+          //cpu.rA = -cpu.rA;
+          // ubsan
+          cpu.rA = (word36) (- (word36s) cpu.rA);
 
           cpu.rA &= DMASK;    // keep to 36-bits
 #ifdef TESTING
@@ -5030,7 +5040,9 @@ static t_stat doInstruction (void)
             SC_I_ZERO (iszero_128 (tmp72));
             SC_I_NEG (isnonzero_128 (and_128 (tmp72, SIGN72)));
 #else
-            tmp72 = -tmp72;
+            //tmp72 = -tmp72;
+            // ubsan
+            tmp72 = (word72) (-(word72s) tmp72);
 
             SC_I_ZERO (tmp72 == 0);
             SC_I_NEG (tmp72 & SIGN72);

@@ -76,6 +76,12 @@
 # include <sys/types.h>
 # include <unistd.h>
 
+# define FREE(p) do  \
+  {                  \
+    free((p));       \
+    (p) = NULL;      \
+  } while(0)
+
 # define LINENOISE_DEFAULT_HISTORY_MAX_LEN  100
 # define LINENOISE_MAX_LINE                4096
 
@@ -403,12 +409,12 @@ freeCompletions(const linenoiseCompletions *lc)
 
   for (i = 0; i < lc->len; i++)
   {
-    free(lc->cvec[i]);
+    FREE(lc->cvec[i]);
   }
 
   if (lc->cvec != NULL)
   {
-    free(lc->cvec);
+    FREE(lc->cvec);
   }
 }
 
@@ -554,7 +560,7 @@ linenoiseAddCompletion(linenoiseCompletions *lc, const char *str)
   cvec = realloc(lc->cvec, sizeof ( char * ) * ( lc->len + 1 ));
   if (cvec == NULL)
   {
-    free(copy);
+    FREE(copy);
     return;
   }
 
@@ -1040,7 +1046,7 @@ linenoiseEditHistoryNext(struct linenoiseState *l, int dir)
      * overwrite it with the next one.
      */
 
-    free(history[history_len - 1 - l->history_index]);
+    FREE(history[history_len - 1 - l->history_index]);
     history[history_len - 1 - l->history_index] = strdup(l->buf);
     /* Show the new entry */
     l->history_index += ( dir == LINENOISE_HISTORY_PREV ) ? 1 : -1;
@@ -1080,7 +1086,7 @@ linenoiseSearchInHistory(struct linenoiseState *l, int direction)
      * overwrite it with the next one.
      */
 
-    free(history[history_len - 1 - l->history_index]);
+    FREE(history[history_len - 1 - l->history_index]);
     history[history_len - 1 - l->history_index] = strdup(l->buf);
 
     /* Search new entry */
@@ -1318,7 +1324,7 @@ linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen,
 
     case ENTER: /* Enter */
       history_len--;
-      free(history[history_len]);
+      FREE(history[history_len]);
       if (mlmode)
       {
         linenoiseEditMoveEnd(&l);
@@ -1359,7 +1365,7 @@ linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen,
       else
       {
         history_len--;
-        free(history[history_len]);
+        FREE(history[history_len]);
         return ( -1 );
       }
 
@@ -1566,7 +1572,7 @@ linenoiseNoTTY(void)
       {
         if (oldval)
         {
-          free(oldval);
+          FREE(oldval);
         }
 
         return ( NULL );
@@ -1578,7 +1584,7 @@ linenoiseNoTTY(void)
     {
       if (c == EOF && len == 0)
       {
-        free(line);
+        FREE(line);
         return ( NULL );
       }
       else
@@ -1661,7 +1667,7 @@ linenoise(const char *prompt)
 void
 linenoiseFree(void *ptr)
 {
-  free(ptr);
+  FREE(ptr);
 }
 
 /*
@@ -1678,10 +1684,10 @@ freeHistory(void)
 
     for (j = 0; j < history_len; j++)
     {
-      free(history[j]);
+      FREE(history[j]);
     }
 
-    free(history);
+    FREE(history);
   }
 }
 
@@ -1742,7 +1748,7 @@ linenoiseHistoryAdd(const char *line)
 
   if (history_len == history_max_len)
   {
-    free(history[0]);
+    FREE(history[0]);
     memmove(
       history,
       history + 1,
@@ -1789,7 +1795,7 @@ linenoiseHistorySetMaxLen(int len)
 
       for (j = 0; j < tocopy - len; j++)
       {
-        free(history[j]);
+        FREE(history[j]);
       }
 
       tocopy = len;
@@ -1800,7 +1806,7 @@ linenoiseHistorySetMaxLen(int len)
       new,
       history + ( history_len - tocopy ),
       sizeof ( char * ) * tocopy);
-    free(history);
+    FREE(history);
     history = new;
   }
 

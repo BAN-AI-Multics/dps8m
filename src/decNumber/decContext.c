@@ -24,7 +24,7 @@
 /* ------------------------------------------------------------------ */
 
 #include <string.h>           // for strcmp
-#include <stdio.h>            // for printf if DECCHECK
+#include <stdio.h>
 #include "decContext.h"       // context and base types
 #include "decNumberLocal.h"   // decNumber local types, etc.
 
@@ -377,22 +377,13 @@ const char *decContextStatusToString(const decContext *context) {
 /*                                                                    */
 /* No error is possible.                                              */
 /* ------------------------------------------------------------------ */
-Int decContextTestEndian(Flag quiet) {
+Int decContextTestEndian(void) {
   Int res=0;                  // optimist
   uInt dle=(uInt)DECLITEND;   // unsign
   /* cppcheck-suppress knownConditionTrueFalse */
   if (dle>1) dle=1;           // ensure 0 or 1
 
   if (LITEND!=DECLITEND) {
-    if (!quiet) {             // always refer to this
-#if DECPRINT
-      const char *adj;
-      if (LITEND) adj="little";
-             else adj="big";
-      printf("Warning: DECLITEND is set to %d, but this computer appears to be %s-endian\n",
-             DECLITEND, adj);
-#endif
-      }
     res=(Int)LITEND-dle;
     }
   return res;

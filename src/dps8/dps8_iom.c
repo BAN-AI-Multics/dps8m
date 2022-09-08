@@ -2994,7 +2994,9 @@ D:;
          p -> LPW_DCW_PTR = (p -> LPW_DCW_PTR + 2u) & MASK18;
        else
          p -> LPW_DCW_PTR = (p -> LPW_DCW_PTR + 1u) & MASK18;
-       p -> LPW_TALLY = (p -> LPW_TALLY - 1u) & MASK12;
+       //p -> LPW_TALLY = (p -> LPW_TALLY - 1u) & MASK12;
+       // ubsan
+       p->LPW_TALLY = ((word12) (((word12s) p->LPW_TALLY) - 1)) & MASK12;
        pack_LPW (iom_unit_idx, chan);
      }
 

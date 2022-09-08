@@ -28,6 +28,7 @@
 #if !defined(DECNUMBERLOC)
 # define DECNUMBERLOC
 # define DECVERSION    "decNumber 3.68"  /* Package Version [16 max.] */
+# define DECVERSEXT    "20210520p3"    /* Local Custom Version String */
 # define DECNLAUTHOR   "Mike Cowlishaw"               /* Who to blame */
 
 # include <stdlib.h>          /* for abs                              */
@@ -100,41 +101,12 @@
 #  define DECUSE64  1         /* 1=use int64s, 0=int32 & smaller only */
 # endif
 
-  /* Conditional code flag -- set this to 0 to exclude printf calls   */
-# if !defined(DECPRINT)
-#  define DECPRINT  0         /* 1=allow printf calls; 0=no printf    */
-# endif
-
-  /* Conditional check flags -- set these to 0 for best performance   */
-# if !defined(DECCHECK)
-#  define DECCHECK  0         /* 1 to enable robust checking          */
-# endif
-# if !defined(DECALLOC)
-#  define DECALLOC  0         /* 1 to enable memory accounting        */
-# endif
-# if !defined(DECTRACE)
-#  define DECTRACE  0         /* 1 to trace certain internals, etc.   */
-# endif
-
   /* Tuning parameter for decNumber (arbitrary precision) module      */
 # if !defined(DECBUFFER)
 #  define DECBUFFER 36        /* Size basis for local buffers.  This  */
                               /* should be a common maximum precision */
                               /* rounded up to a multiple of 4; must  */
                               /* be zero or positive.                 */
-# endif
-
-  /* ---------------------------------------------------------------- */
-  /* Check parameter dependencies                                     */
-  /* ---------------------------------------------------------------- */
-# if DECCHECK & !DECPRINT
-#  error DECCHECK needs DECPRINT to be useful
-# endif
-# if DECALLOC & !DECPRINT
-#  error DECALLOC needs DECPRINT to be useful
-# endif
-# if DECTRACE & !DECPRINT
-#  error DECTRACE needs DECPRINT to be useful
 # endif
 
   /* ---------------------------------------------------------------- */
@@ -404,11 +376,6 @@
   /* Shared lookup tables                                             */
   extern const uInt   DECCOMBMSD[64];   /* Combination field -> MSD   */
   extern const uInt   DECCOMBFROM[48];  /* exp+msd -> Combination     */
-
-  /* Private generic (utility) routine                                */
-# if DECCHECK || DECTRACE
-    extern void decShowNum(const bcdnum *, const char *);
-# endif
 
   /* Format-dependent macros and constants                            */
 # if defined(DECPMAX)

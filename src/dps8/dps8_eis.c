@@ -8176,7 +8176,9 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
     cpu.du.Dk_PTR_W[eisaddr_idx] &= AMASK;
 #else
     word18 saveAddr = p -> address;
-    p -> address += (word18) woff;
+    //p -> address += (word18) woff;
+    //ubsan
+    p->address = (word18) (((word18s) p->address) + (word18s) woff);
 #endif
 
     p -> data = EISRead (p); // read data word from memory
@@ -9589,7 +9591,9 @@ void btd (void)
     word72 x = (word72)e->x;
     if (e->x < 0) {
         e->sign = -1;
-        x = (-x) & MASK72;
+        //x = (-x) & MASK72;
+        // ubsan
+        x = ((word72) (- (word72s) x)) & MASK72;
     }
 
     // convert to decimal string, workaround missing sprintf uint128
@@ -10045,7 +10049,9 @@ sim_printf("dtb: N1 %d N2 %d nin %d CN1 %d CN2 %d msk %012"PRIo64" %012"PRIo64"\
         x &= msk; // multiplication and addition mod msk+1
     }
     if (e->sign == -1)
-        x = -x; // no need to mask it
+        //x = -x; // no need to mask it
+        // ubsan
+        x = (word72) (- (word72s) x); // no need to mask it
 
     //sim_printf ("dtb out %012"PRIo64" %012"PRIo64"\n", (word36)((x >> 36) & DMASK), (word36)(x & DMASK));
 #endif
