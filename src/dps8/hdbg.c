@@ -130,7 +130,7 @@ static long hdbgCPUMask = 0;
 
 static void createBuffer (void) {
   if (hevents) {
-    free (hevents);
+    FREE (hevents);
     hevents = NULL;
   }
   if (hdbgSize <= 0)

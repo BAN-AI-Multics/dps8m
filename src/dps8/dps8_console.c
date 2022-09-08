@@ -453,13 +453,12 @@ void console_exit (void) {
   for (uint i = 0; i < N_OPC_UNITS_MAX; i ++) {
     opc_state_t * csp = console_state + i;
     if (csp->auto_input) {
-      free (csp->auto_input);
+      FREE (csp->auto_input);
       csp->auto_input = NULL;
     }
     if (csp->console_access.telnetp) {
       sim_warn ("console_exit freeing console %u telnetp %p\r\n", i, csp->console_access.telnetp);
       telnet_free (csp->console_access.telnetp);
-      free (csp->console_access.telnetp);
       csp->console_access.telnetp = NULL;
     }
   }
@@ -482,7 +481,7 @@ static int opc_autoinput_set (UNIT * uptr, UNUSED int32 val,
             unsigned char * old = realloc (csp->auto_input, nl + ol + 1);
             strcpy ((char *) old + ol, (char *) new);
             csp->auto_input = old;
-            free (new);
+            FREE (new);
           }
         else
           csp->auto_input = new;
@@ -490,7 +489,7 @@ static int opc_autoinput_set (UNIT * uptr, UNUSED int32 val,
     else
       {
         if (csp->auto_input)
-          free (csp->auto_input);
+          FREE (csp->auto_input);
         csp->auto_input = NULL;
       }
     csp->autop = csp->auto_input;
@@ -501,7 +500,7 @@ int clear_opc_autoinput (int32 flag, UNUSED const char * cptr)
   {
     opc_state_t * csp = console_state + flag;
     if (csp->auto_input)
-      free (csp->auto_input);
+      FREE (csp->auto_input);
     csp->auto_input = NULL;
     csp->autop = csp->auto_input;
     return SCPE_OK;
@@ -519,7 +518,7 @@ int add_opc_autoinput (int32 flag, const char * cptr)
         unsigned char * old = realloc (csp->auto_input, nl + ol + 1);
         strcpy ((char *) old + ol, (char *) new);
         csp->auto_input = old;
-        free (new);
+        FREE (new);
       }
     else
       csp->auto_input = new;
@@ -1056,7 +1055,7 @@ static void consoleProcessIdx (int conUnitIdx)
             unsigned char c = * (csp->autop);
             if (c == 4) // eot
               {
-                free (csp->auto_input);
+                FREE (csp->auto_input);
                 csp->auto_input = NULL;
                 csp->autop      = NULL;
                 // Empty input buffer
@@ -1075,7 +1074,7 @@ static void consoleProcessIdx (int conUnitIdx)
               }
             if (c == 0)
               {
-                free (csp->auto_input);
+                FREE (csp->auto_input);
                 csp->auto_input = NULL;
                 csp->autop      = NULL;
                 goto eol;
@@ -1804,7 +1803,7 @@ static t_stat opc_set_console_address (UNIT * uptr, UNUSED int32 value,
 
     if (console_state[dev_idx].console_access.address)
       {
-        free (console_state[dev_idx].console_access.address);
+        FREE (console_state[dev_idx].console_access.address);
         console_state[dev_idx].console_access.address = NULL;
       }
 

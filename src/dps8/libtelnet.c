@@ -79,6 +79,12 @@
 
 #include "libtelnet.h"
 
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
+
 /* helper for Q-method option tracking */
 #define Q_US(q)    ((q).state & 0x0F)
 #define Q_HIM(q)  (((q).state & 0xF0) >> 4)
@@ -596,7 +602,7 @@ static int _environ_telnet(telnet_t *telnet, unsigned char type,
         telnet->eh(telnet, &ev, telnet->ud);
 
         /* clean up */
-        free(values);
+        FREE(values);
         return 0;
 }
 
@@ -638,7 +644,7 @@ static int _ttype_telnet(telnet_t *telnet, const char* buffer, size_t size) {
                 telnet->eh(telnet, &ev, telnet->ud);
 
                 /* clean up */
-                free(name);
+                FREE(name);
         } else {
                 ev.type       = TELNET_EV_TTYPE;
                 ev.ttype.cmd  = TELNET_TTYPE_SEND;
@@ -697,7 +703,7 @@ telnet_t *telnet_init(const telnet_telopt_t *telopts,
 void telnet_free(telnet_t *telnet) {
         /* free sub-request buffer */
         if (telnet->buffer != 0) {
-                free(telnet->buffer);
+                FREE(telnet->buffer);
                 telnet->buffer      = 0;
                 telnet->buffer_size = 0;
                 telnet->buffer_pos  = 0;
@@ -705,7 +711,7 @@ void telnet_free(telnet_t *telnet) {
 
         /* free RFC-1143 queue */
         if (telnet->q) {
-                free(telnet->q);
+                FREE(telnet->q);
                 telnet->q      = NULL;
                 telnet->q_size = 0;
                 telnet->q_cnt  = 0;
@@ -1173,7 +1179,7 @@ int telnet_vprintf(telnet_t *telnet, const char *fmt, va_list va) {
 
         /* free allocated memory, if any */
         if (output != buffer) {
-                free(output);
+                FREE(output);
         }
 
         return rs;
@@ -1219,7 +1225,7 @@ int telnet_raw_vprintf(telnet_t *telnet, const char *fmt, va_list va) {
 
         /* release allocated memory, if any */
         if (output != buffer) {
-                free(output);
+                FREE(output);
         }
 
         return rs;

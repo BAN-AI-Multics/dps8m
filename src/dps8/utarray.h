@@ -51,6 +51,12 @@
 # include <string.h>  /* memset, etc */
 # include <stdlib.h>  /* exit        */
 
+# define FREE(p) do  \
+  {                  \
+    free((p));       \
+    (p) = NULL;      \
+  } while(0)
+
 # define oom() abort()
 
 typedef void (ctor_f)(void *dst, const void *src);
@@ -82,7 +88,7 @@ typedef struct {
         (a)->icd.dtor(utarray_eltptr(a,_ut_i));                               \
       }                                                                       \
     }                                                                         \
-    free((a)->d);                                                             \
+    FREE((a)->d);                                                             \
   }                                                                           \
   (a)->n=0;                                                                   \
 } while(0)
@@ -94,7 +100,7 @@ typedef struct {
 
 # define utarray_free(a) do {                                                 \
   utarray_done(a);                                                            \
-  free(a);                                                                    \
+  FREE(a);                                                                    \
 } while(0)
 
 # define utarray_reserve(a,by) do {                                           \
@@ -240,7 +246,7 @@ static void utarray_str_cpy(void *dst, const void *src) {
 
 static void utarray_str_dtor(void *elt) {
   char **eltc = (char**)elt;
-  if (*eltc) free(*eltc);
+  if (*eltc) FREE(*eltc);
 }
 
 static const UT_icd ut_str_icd _UNUSED_ = {sizeof(char*),NULL,utarray_str_cpy,utarray_str_dtor};

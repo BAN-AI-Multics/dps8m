@@ -84,6 +84,12 @@ typedef unsigned char uint8_t;
 
 # define UTHASH_VERSION 21.9.8
 
+# define FREE(p) do  \
+  {                  \
+    free((p));       \
+    (p) = NULL;      \
+  } while(0)
+
 # ifndef uthash_fatal
 #  define uthash_fatal(msg) abort()         /* fatal error (out of memory,etc) */
 # endif
@@ -91,7 +97,7 @@ typedef unsigned char uint8_t;
 #  define uthash_malloc(sz) malloc(sz)      /* malloc fcn                      */
 # endif
 # ifndef uthash_free
-#  define uthash_free(ptr,sz) free(ptr)     /* free fcn                        */
+#  define uthash_free(ptr,sz) FREE(ptr)     /* free fcn                        */
 # endif
 
 # ifndef uthash_noexpand_fyi

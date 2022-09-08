@@ -598,7 +598,7 @@ int32 saved_switches = sim_switches;
 t_stat stat;
 
 strcpy (cbuf, sim_rem_command_buf);
-while (isspace(cbuf[0]))
+while (isspace((unsigned char)cbuf[0]))
     memmove (cbuf, cbuf+1, strlen(cbuf+1)+1);   /* skip leading whitespace */
 sim_sub_args (cbuf, sizeof(cbuf), argv);
 cptr = cbuf;
@@ -854,7 +854,7 @@ for (i=(was_active_command ? sim_rem_cmd_active_line : 0);
         strcpy (cbuf, sim_rem_buf[i]);
         sim_rem_buf_ptr[i] = 0;
         sim_rem_buf[i][sim_rem_buf_ptr[i]] = '\0';
-        while (isspace(cbuf[0]))
+        while (isspace((unsigned char)cbuf[0]))
             memmove (cbuf, cbuf+1, strlen(cbuf+1)+1);   /* skip leading whitespace */
         if (cbuf[0] == '\0') {
             if (sim_rem_single_mode[i]) {
@@ -1059,7 +1059,7 @@ else {
 
         tmxr_detach (&sim_rem_con_tmxr, &sim_rem_con_unit[0]);
         for (i=0; i<sim_rem_con_tmxr.lines; i++) {
-            free (sim_rem_buf[i]);
+            FREE (sim_rem_buf[i]);
             sim_rem_buf[i] = NULL;
             sim_rem_buf_size[i] = 0;
             sim_rem_buf_ptr[i] = 0;
@@ -1084,7 +1084,7 @@ if (r != SCPE_OK)
 if (sim_rem_con_tmxr.master)
     return SCPE_ARG;
 for (i=0; i<sim_rem_con_tmxr.lines; i++)
-    free (sim_rem_buf[i]);
+    FREE (sim_rem_buf[i]);
 sim_rem_con_tmxr.lines = lines;
 sim_rem_con_tmxr.ldsc = (TMLN *)realloc (sim_rem_con_tmxr.ldsc, sizeof(*sim_rem_con_tmxr.ldsc)*lines);
 memset (sim_rem_con_tmxr.ldsc, 0, sizeof(*sim_rem_con_tmxr.ldsc)*lines);
@@ -1564,7 +1564,7 @@ else {
     else                                                /* otherwise */
         *pf = sim_fopen (gbuf, (binary ? "a+b" : "a+"));/*   append to an existing file */
     if (*pf == NULL) {                                  /* error? */
-        free (*pref);
+        FREE (*pref);
         *pref = NULL;
         return SCPE_OPENERR;
         }
@@ -1586,7 +1586,7 @@ if ((*pref)->refcount > 0) {
     return SCPE_OK;
     }
 fclose ((*pref)->file);
-free (*pref);
+FREE (*pref);
 *pref = NULL;
 return SCPE_OK;
 }
@@ -2195,7 +2195,7 @@ char c;
 /*LINTED E_EQUALITY_NOT_ASSIGNMENT*/
 while ((c = *decoded++ = *encoded++))                   /* copy the character */
     if (c == ESC_CHAR) {                                /* does it start an escape? */
-        if ((isalpha (*encoded)) ||                     /* is next character "A-Z" or "a-z"? */
+        if ((isalpha ((unsigned char)*encoded)) ||      /* is next character "A-Z" or "a-z"? */
             (*encoded == '@') ||                        /*   or "@"? */
             ((*encoded >= '[') && (*encoded <= '_')))   /*   or "[\]^_"? */
 
@@ -2231,11 +2231,11 @@ else {
     sprintf (mbuf2, "%s%s%s", (sim_switches & SWMASK ('A')) ? "\n" : "",
                               mbuf,
                               (sim_switches & SWMASK ('I')) ? "" : "\n");
-    free (mbuf);
+    FREE (mbuf);
     mbuf = sim_encode_quoted_string ((uint8 *)mbuf2, strlen (mbuf2));
     sim_exp_set (&sim_con_expect, mbuf, 0, sim_con_expect.after, EXP_TYP_PERSIST, NULL);
-    free (mbuf);
-    free (mbuf2);
+    FREE (mbuf);
+    FREE (mbuf2);
     }
 
 return SCPE_OK;
@@ -2257,7 +2257,7 @@ else {
 
     decode ((char *)rbuf, cptr);                        /* decod string */
     sim_send_input (&sim_con_send, rbuf, strlen((char *)rbuf), 0, 0); /* queue it for output */
-    free (rbuf);
+    FREE (rbuf);
     }
 
 return SCPE_OK;

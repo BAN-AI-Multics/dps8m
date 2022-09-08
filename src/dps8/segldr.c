@@ -284,7 +284,7 @@ static t_stat bload (char * p2, char * p3)
       }
 
     // Copy segment into memory
-    word24 addr = nextSegAddr;
+    word24 addr;
     word24 startAddr;
     if (segnum < 0)
       addr = 0;

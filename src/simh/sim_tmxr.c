@@ -236,12 +236,12 @@ if (lp->loopback) {
     }
 if (lp->rxpb) {
     lp->rxpboffset = lp->rxpbsize = 0;
-    free (lp->rxpb);
+    FREE (lp->rxpb);
     lp->rxpb       = NULL;
     }
 if (lp->txpb) {
     lp->txpbsize   = lp->txppsize = lp->txppoffset = 0;
-    free (lp->txpb);
+    FREE (lp->txpb);
     lp->txpb       = NULL;
     }
 memset (lp->rbr, 0, lp->rxbsz);                         /* clear break status array */
@@ -572,7 +572,7 @@ char* tptr = NULL;
 int32 i;
 TMLN *lp;
 
-free (old);
+FREE (old);
 tptr = (char *) calloc (1, 1);
 
 if (tptr == NULL)                                       /* no more mem? */
@@ -591,14 +591,14 @@ for (i=0; i<mp->lines; ++i) {
     lptr = tmxr_line_attach_string(lp);
     if (lptr) {
         sprintf (growstring(&tptr, 10+strlen(lptr)), "%s%s", *tptr ? "," : "", lptr);
-        free (lptr);
+        FREE (lptr);
         }
     }
 if (mp->lines == 1)
     while ((*tptr == ',') || (*tptr == ' '))
         memcpy (tptr, tptr+1, strlen(tptr+1)+1);
 if (*tptr == '\0') {
-    free (tptr);
+    FREE (tptr);
     tptr = NULL;
     }
 return tptr;
@@ -652,7 +652,7 @@ if (lp->destination || lp->port || lp->txlogname) {
         sprintf (growstring(&tptr, 12 ), ",Loopback");
     }
 if (*tptr == '\0') {
-    free (tptr);
+    FREE (tptr);
     tptr = NULL;
     }
 return tptr;
@@ -785,14 +785,14 @@ if (mp->master) {
                         mp->ring_start_time = 0;
                         tmxr_msg (newsock, "No answer on any connection\r\n");
                         sim_close_sock (newsock);
-                        free (address);
+                        FREE (address);
                         }
                     }
                 }
             else {
                 tmxr_msg (newsock, "All connections busy\r\n");
                 sim_close_sock (newsock);
-                free (address);
+                FREE (address);
                 }
             }
         else {
@@ -860,8 +860,8 @@ for (i = 0; i < mp->lines; i++) {                       /* check each line in se
                             lp->cnms = sim_os_msec ();
                             sim_getnames_sock (lp->sock, &sockname, &peername);
                             snprintf (msg, sizeof(msg)-1, "tmxr_poll_conn() - Outgoing Line Connection to %s (%s->%s) established", lp->destination, sockname, peername);
-                            free (sockname);
-                            free (peername);
+                            FREE (sockname);
+                            FREE (peername);
                             return i;
                         case -1:                                /* failed connection */
                             snprintf (msg, sizeof(msg)-1, "tmxr_poll_conn() - Outgoing Line Connection to %s failed", lp->destination);
@@ -877,8 +877,8 @@ for (i = 0; i < mp->lines; i++) {                       /* check each line in se
 
                         sim_getnames_sock (newsock, &sockname, &peername);
                         snprintf (msg, sizeof(msg)-1, "tmxr_poll_conn() - Incoming Line Connection from %s (%s->%s)", address, peername, sockname);
-                        free (sockname);
-                        free (peername);
+                        FREE (sockname);
+                        FREE (peername);
                         ++mp->sessions;                             /* count the new session */
 
                         if (lp->destination) {                      /* Virtual Null Modem Cable? */
@@ -888,7 +888,7 @@ for (i = 0; i < mp->lines; i++) {                       /* check each line in se
                                 tmxr_msg (newsock, "Rejecting connection from unexpected source\r\n");
                                 snprintf (msg, sizeof(msg)-1, "tmxr_poll_conn() - Rejecting line connection from: %s, Expected: %s", address, host);
                                 sim_close_sock (newsock);
-                                free (address);
+                                FREE (address);
                                 continue;                           /* Try for another connection */
                                 }
                             if (lp->connecting) {
@@ -915,13 +915,13 @@ for (i = 0; i < mp->lines; i++) {                       /* check each line in se
                             else {
                                 tmxr_msg (newsock, "Line connection not available\r\n");
                                 sim_close_sock (newsock);
-                                free (address);
+                                FREE (address);
                                 }
                             }
                         else {
                             tmxr_msg (newsock, "Line connection busy\r\n");
                             sim_close_sock (newsock);
-                            free (address);
+                            FREE (address);
                             }
                         }
                     }
@@ -958,14 +958,14 @@ snprintf (msg, sizeof(msg)-1, "tmxr_reset_ln_ex(%s)", closeserial ? "TRUE" : "FA
 
     if (lp->sock) {
         sim_close_sock (lp->sock);                      /* close socket */
-        free (lp->telnet_sent_opts);
+        FREE (lp->telnet_sent_opts);
         lp->telnet_sent_opts = NULL;
         lp->sock = 0;
         lp->conn = FALSE;
         lp->cnms = 0;
         lp->xmte = 1;
         }
-free(lp->ipad);
+FREE(lp->ipad);
 lp->ipad = NULL;
 if ((lp->destination)
 ) {
@@ -1146,7 +1146,7 @@ if (lp->loopback) {
         lp->ser_connect_pending = TRUE;
     }
 else {
-    free (lp->lpb);
+    FREE (lp->lpb);
     lp->lpb = NULL;
     lp->lpbsz = 0;
     }
@@ -1764,7 +1764,7 @@ static void _mux_detach_line (TMLN *lp, t_bool close_listener, t_bool close_conn
 if (close_listener && lp->master) {
     sim_close_sock (lp->master);
     lp->master = 0;
-    free (lp->port);
+    FREE (lp->port);
     lp->port = NULL;
     }
 if (lp->sock) {                             /* if existing tcp, drop it */
@@ -1772,7 +1772,7 @@ if (lp->sock) {                             /* if existing tcp, drop it */
     tmxr_reset_ln (lp);
     }
 if (close_connecting) {
-    free (lp->destination);
+    FREE (lp->destination);
     lp->destination = NULL;
     if (lp->connecting) {                   /* if existing outgoing tcp, drop it */
         lp->sock = lp->connecting;
@@ -1913,7 +1913,7 @@ for (i = 0; i < mp->lines; i++) {               /* initialize lines */
         lp->rxbpsfactor = TMXR_RX_BPS_UNIT_SCALE;
     }
 mp->ring_sock = INVALID_SOCKET;
-free (mp->ring_ipad);
+FREE (mp->ring_ipad);
 mp->ring_ipad = NULL;
 mp->ring_start_time = 0;
 while (*tptr) {
@@ -1938,7 +1938,7 @@ while (*tptr) {
         if (!tbuf[0])
             break;
         cptr = tbuf;
-        if (!isdigit(*cptr)) {
+        if (!isdigit((unsigned char)*cptr)) {
             char gbuf[CBUFSIZE];
             CONST char *init_cptr = cptr;
 
@@ -2135,7 +2135,7 @@ while (*tptr) {
                 if (r == SCPE_OK)
                     setvbuf (lp->txlog, NULL, _IOFBF, 65536);
                 else {
-                    free (lp->txlogname);
+                    FREE (lp->txlogname);
                     lp->txlogname = NULL;
                     break;
                     }
@@ -2163,7 +2163,7 @@ while (*tptr) {
             mp->logfiletmpl[0] = '\0';
             for (i = 0; i < mp->lines; i++) { /* close line logs */
                 lp = mp->ldsc + i;
-                free(lp->txlogname);
+                FREE(lp->txlogname);
                 lp->txlogname = NULL;
                 if (lp->txlog) {
                     sim_close_logfile (&lp->txlogref);
@@ -2180,7 +2180,7 @@ while (*tptr) {
             if (mp->port) {                                 /* close prior listener */
                 sim_close_sock (mp->master);
                 mp->master = 0;
-                free (mp->port);
+                FREE (mp->port);
                 mp->port = NULL;
                 }
             sim_printf ("Listening on port %s\n", listen);
@@ -2188,7 +2188,7 @@ while (*tptr) {
             strcpy (mp->port, listen);                      /* save port */
             mp->master = sock;                              /* save master socket */
             mp->ring_sock = INVALID_SOCKET;
-            free (mp->ring_ipad);
+            FREE (mp->ring_ipad);
             mp->ring_ipad = NULL;
             mp->ring_start_time = 0;
             mp->notelnet = listennotelnet;                  /* save desired telnet behavior flag */
@@ -2264,7 +2264,7 @@ while (*tptr) {
             if (r == SCPE_OK)
                 setvbuf(lp->txlog, NULL, _IOFBF, 65536);
             else {
-                free (lp->txlogname);
+                FREE (lp->txlogname);
                 lp->txlogname = NULL;
                 return sim_messagef (r, "Can't open log file: %s\n", logfiletmpl);
                 }
@@ -2283,7 +2283,7 @@ while (*tptr) {
         lp->rbr = (char *)realloc(lp->rbr, lp->rxbsz);
         lp->packet = packet;
         if (nolog) {
-            free(lp->txlogname);
+            FREE(lp->txlogname);
             lp->txlogname = NULL;
             if (lp->txlog) {
                 sim_close_logfile (&lp->txlogref);
@@ -2577,7 +2577,7 @@ else {
         attach = tmxr_mux_attach_string (NULL, mp);
         if (attach)
             fprintf(st, ",\n    attached to %s, ", attach);
-        free (attach);
+        FREE (attach);
         tmxr_show_summ(st, NULL, 0, mp);
         fprintf(st, ", sessions=%d", mp->sessions);
         if (mp->lines == 1) {
@@ -2652,7 +2652,7 @@ for (i = 0; i < mp->lines; i++) {  /* loop thru conn */
             tmxr_report_disconnection (lp);             /* report disconnection */
             tmxr_reset_ln (lp);
             }
-        free (lp->destination);
+        FREE (lp->destination);
         lp->destination = NULL;
         if (lp->connecting) {
             lp->sock = lp->connecting;
@@ -2664,15 +2664,15 @@ for (i = 0; i < mp->lines; i++) {  /* loop thru conn */
     if (lp->master) {
         sim_close_sock (lp->master);                    /* close master socket */
         lp->master = 0;
-        free (lp->port);
+        FREE (lp->port);
         lp->port = NULL;
         }
     lp->txbfd = 0;
-    free (lp->txb);
+    FREE (lp->txb);
     lp->txb = NULL;
-    free (lp->rxb);
+    FREE (lp->rxb);
     lp->rxb = NULL;
-    free (lp->rbr);
+    FREE (lp->rbr);
     lp->rbr = NULL;
     lp->modembits = 0;
     }
@@ -2680,12 +2680,12 @@ for (i = 0; i < mp->lines; i++) {  /* loop thru conn */
 if (mp->master)
     sim_close_sock (mp->master);                        /* close master socket */
 mp->master = 0;
-free (mp->port);
+FREE (mp->port);
 mp->port = NULL;
 if (mp->ring_sock != INVALID_SOCKET) {
     sim_close_sock (mp->ring_sock);
     mp->ring_sock = INVALID_SOCKET;
-    free (mp->ring_ipad);
+    FREE (mp->ring_ipad);
     mp->ring_ipad = NULL;
     mp->ring_start_time = 0;
     }
@@ -2705,7 +2705,7 @@ int32 i;
 if (!(uptr->flags & UNIT_ATT))                          /* attached? */
     return SCPE_OK;
 tmxr_close_master (mp);                                 /* close master socket */
-free (uptr->filename);                                  /* free setup string */
+FREE (uptr->filename);                                  /* free setup string */
 uptr->filename = NULL;
 uptr->tmxr = NULL;
 mp->last_poll_time = 0;
@@ -2994,7 +2994,7 @@ while (1) {                                         /* format passed string, arg
 
     if ((len < 0) || (len >= bufsize-1)) {
         if (buf != stackbuf)
-            free (buf);
+            FREE (buf);
         bufsize = bufsize * 2;
         if (bufsize < len + 2)
             bufsize = len + 2;
@@ -3020,7 +3020,7 @@ for (i = 0; i < len; ++i) {
             sim_os_ms_sleep (10);
     }
 if (buf != stackbuf)
-    free (buf);
+    FREE (buf);
 return;
 }
 
@@ -3051,8 +3051,8 @@ if (lp->sock) {
 
     sim_getnames_sock (lp->sock, &sockname, &peername);
     fprintf (st, "Connection %s->%s\n", sockname, peername);
-    free (sockname);
-    free (peername);
+    FREE (sockname);
+    FREE (peername);
     }
 
 if ((lp->port) && (!lp->datagram))
@@ -3197,7 +3197,7 @@ if (lp->txlogname == NULL)                              /* can't? */
 strncpy (lp->txlogname, cptr, CBUFSIZE-1);              /* save file name */
 sim_open_logfile (cptr, TRUE, &lp->txlog, &lp->txlogref);/* open log */
 if (lp->txlog == NULL) {                                /* error? */
-    free (lp->txlogname);                               /* free buffer */
+    FREE (lp->txlogname);                               /* free buffer */
     return SCPE_OPENERR;
     }
 if (mp->uptr)                                           /* attached?, then update attach string */
@@ -3219,7 +3219,7 @@ if (lp == NULL)
     return SCPE_IERR;
 if (lp->txlog) {                                        /* logging? */
     sim_close_logfile (&lp->txlogref);                  /* close log */
-    free (lp->txlogname);                               /* free namebuf */
+    FREE (lp->txlogname);                               /* free namebuf */
     lp->txlog = NULL;
     lp->txlogname = NULL;
     }
@@ -3298,15 +3298,15 @@ if (list == NULL)                                       /* allocation failed? */
 set = (t_bool *) calloc (mp->lines, sizeof (t_bool));   /* allocate line set tracking array */
 
 if (set == NULL) {                                      /* allocation failed? */
-    free (list);                                        /* free successful list allocation */
+    FREE (list);                                        /* free successful list allocation */
     return SCPE_MEM;                                    /* report it */
     }
 
 tbuf = (char *) calloc (strlen(carg)+2, sizeof(*carg));
 if (tbuf == NULL) {
-  free(tbuf);
-  free(set);
-  free(list);
+  FREE(tbuf);
+  FREE(set);
+  FREE(list);
   return SCPE_MEM;
 }
 strcpy (tbuf, carg);
@@ -3354,9 +3354,9 @@ if (result == SCPE_OK) {                                /* assignment successful
     memcpy (mp->lnorder, list, mp->lines * sizeof (int32)); /* copy working array to connection array */
     }
 
-free (list);                                            /* free list allocation */
-free (set);                                             /* free set allocation */
-free (tbuf);                                            /* free arg copy with ; */
+FREE (list);                                            /* free list allocation */
+FREE (set);                                             /* free set allocation */
+FREE (tbuf);                                            /* free arg copy with ; */
 
 return result;
 }

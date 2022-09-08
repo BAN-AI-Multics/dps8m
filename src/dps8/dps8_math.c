@@ -509,7 +509,9 @@ void ufa (bool sub, bool normalize) {
       m2 >>= shift_amt;
       e2 += 1;
     } else {
-      m2 = (-m2) & MASK72;
+      //m2 = (-m2) & MASK72;
+      // ubsan
+      m2 = ((word72) (- (word72s) m2)) & MASK72;
     }
 #endif // ! NEED_128
   } // if sub
@@ -1098,7 +1100,9 @@ void fneg (void) {
 #ifdef NEED_128
     m = negate_128 (m);
 #else
-    m = -m;
+    // m = -m;
+    // ubsan
+    m = (word72) (- (word72s) m);
 #endif
   }
   convert_to_word36 (m, & cpu.rA, & cpu.rQ);
@@ -2029,7 +2033,9 @@ void dufa (bool subtract, bool normalize) {
       e2 += 1;
 # endif
     } else {
-      m2 = (-m2) & MASK72;
+      // m2 = (-m2) & MASK72;
+      // ubsan
+      m2 = ((word72) (- (word72s) m2)) & MASK72;
     }
 #endif
   }
@@ -2383,7 +2389,9 @@ void dufm (bool normalize) {
 
   // realign to 72bits
   m3l >>= 63;
-  m3h <<= 1; // m3h is hi by 64, align it for addition. The result is 135 bits so this cannot overflow.
+  // m3h <<= 1; // m3h is hi by 64, align it for addition. The result is 135 bits so this cannot overflow.
+  // ubsan
+  m3h = (int128) (((uint128) m3h) << 1); // m3h is hi by 64, align it for addition. The result is 135 bits so this cannot overflow.
   word72 m3a = ((word72) (m3h+m3l)) & MASK72;
 #endif
 
@@ -2928,7 +2936,9 @@ sim_printf ("DVFa A %012"PRIo64" Q %012"PRIo64" Y %012"PRIo64"\n", cpu.rA, cpu.r
 # ifdef NEED_128
         zFrac = negate_128 (zFrac);
 # else
-        zFrac = ~zFrac + 1;
+        // zFrac = ~zFrac + 1;
+        // ubsan
+        zFrac = (uint128) (((int128) (~zFrac)) + 1);
 # endif
         sign = - sign;
       }
@@ -2960,7 +2970,9 @@ sim_printf ("DVFa A %012"PRIo64" Q %012"PRIo64" Y %012"PRIo64"\n", cpu.rA, cpu.r
 # ifdef NEED_128
         dFrac = negate_128 (dFrac);
 # else
-        dFrac = ~dFrac + 1;
+        // dFrac = ~dFrac + 1;
+        // ubsan
+        dFrac = (uint128) (((int128) (~dFrac)) + 1);
 # endif
         sign = - sign;
       }

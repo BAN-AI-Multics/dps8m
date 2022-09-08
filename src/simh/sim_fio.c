@@ -175,12 +175,12 @@ for (i = (int32)nbuf; i > 0; i--) {                     /* loop on buffers */
     sptr = sptr + size * count;
     c = fwrite (sim_flip, size, c, fptr);
     if (c == 0) {
-        free(sim_flip);
+        FREE(sim_flip);
         return total;
         }
     total = total + c;
     }
-free(sim_flip);
+FREE(sim_flip);
 return total;
 }
 

@@ -47,27 +47,29 @@
  * -------------------------------------------------------------------------
  */
 
-#define PROGNAME "vmpctool"
-#define PROGDESC "virtual memory page cache utility"
-#define VMTOUCH_VERSION "2101.14.2-dps (2022-05-27)"
-#define RESIDENCY_CHART_WIDTH 41
-#define CHART_UPDATE_INTERVAL 0.37
-#define KiB 1024
-#define MAX_CRAWL_DEPTH 1 * KiB + 1
-#define MAX_NUMBER_OF_IGNORES 1 * KiB + 1
+#define PROGNAME                       "vmpctool"
+#define PROGDESC                       "virtual memory page cache utility"
+#define VMTOUCH_VERSION                "2101.14.5-dps (2022-09-05)"
+
+#define RESIDENCY_CHART_WIDTH          41
+#define CHART_UPDATE_INTERVAL          0.37
+
+#define KiB                            1024
+#define MAX_CRAWL_DEPTH                1 * KiB + 1
+#define MAX_NUMBER_OF_IGNORES          1 * KiB + 1
 #define MAX_NUMBER_OF_FILENAME_FILTERS 1 * KiB + 1
-#define VBUFSIZ 4 * KiB + 1
+#define VBUFSIZ                        4 * KiB + 1
 
 #if defined( __linux__ ) || defined( __SVR4__ )
 # define _FILE_OFFSET_BITS 64
-# define _POSIX_SOURCE 1
+# define _POSIX_SOURCE     1
 # ifdef _XOPEN_SOURCE
 #  undef _XOPEN_SOURCE
-#  define _XOPEN_SOURCE 600
+#  define _XOPEN_SOURCE    600
 # endif /* ifdef _XOPEN_SOURCE */
-# define _DEFAULT_SOURCE 1
-# define _BSD_SOURCE 1
-# define _GNU_SOURCE 1
+# define _DEFAULT_SOURCE   1
+# define _BSD_SOURCE       1
+# define _GNU_SOURCE       1
 #endif /* if defined( __linux__ ) || defined( __SVR4__ ) */
 
 #if defined ( __linux__ ) && defined ( __GNU_LIBRARY__ )
@@ -86,7 +88,7 @@
 #if !defined( __MINGW32__ ) && !defined( __MINGW64__ ) \
   && !defined( CROSS_MINGW32 ) && !defined( CROSS_MINGW64 )
 # define HAVE_FNMATCH 1
-# define HAVE_MMAN 1
+# define HAVE_MMAN    1
 #endif /* !Windows */
 
 #include <ctype.h>
@@ -152,46 +154,52 @@
 # endif /* ifdef NAME_MAX */
 #endif /* ifndef MAX_FILENAME_LENGTH */
 
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
+
 struct dev_and_inode
 {
   dev_t dev;
   ino_t ino;
 };
 
-static long pagesize = 0;
-static int64_t total_pages = 0;
-static int64_t total_pages_in_core = 0;
-static int64_t total_files = 0;
-static int64_t total_dirs = 0;
-static size_t offset = 0;
-static size_t max_len = 0;
-static unsigned int junk_counter = 0;
-static int curr_crawl_depth = 0;
+static long pagesize                  = 0;
+static int64_t total_pages            = 0;
+static int64_t total_pages_in_core    = 0;
+static int64_t total_files            = 0;
+static int64_t total_dirs             = 0;
+static size_t offset                  = 0;
+static size_t max_len                 = 0;
+static unsigned int junk_counter      = 0;
+static int curr_crawl_depth           = 0;
 static ino_t crawl_inodes[MAX_CRAWL_DEPTH];
-static void *seen_inodes = NULL;
-static dev_t orig_device = 0;
-static int orig_device_inited = 0;
-static int o_touch = 0;
-static int o_evict = 0;
-static int o_quiet = 0;
-static int o_verbose = 0;
-static int o_lock = 0;
-static int o_lockall = 0;
-static int o_daemon = 0;
-static int o_followsymlinks = 0;
-static int o_singlefilesystem = 0;
+static void *seen_inodes              = NULL;
+static dev_t orig_device              = 0;
+static int orig_device_inited         = 0;
+static int o_touch                    = 0;
+static int o_evict                    = 0;
+static int o_quiet                    = 0;
+static int o_verbose                  = 0;
+static int o_lock                     = 0;
+static int o_lockall                  = 0;
+static int o_daemon                   = 0;
+static int o_followsymlinks           = 0;
+static int o_singlefilesystem         = 0;
 static int o_ignorehardlinkeduplictes = 0;
-static size_t o_max_file_size = SIZE_MAX;
-static int o_wait = 0;
-static char *o_batch = NULL;
-static char *o_pidfile = NULL;
-static int o_0_delim = 0;
+static size_t o_max_file_size         = SIZE_MAX;
+static int o_wait                     = 0;
+static char *o_batch                  = NULL;
+static char *o_pidfile                = NULL;
+static int o_0_delim                  = 0;
 static char *ignore_list[MAX_NUMBER_OF_IGNORES];
 static char *filename_filter_list[MAX_NUMBER_OF_FILENAME_FILTERS];
-static int number_of_ignores = 0;
+static int number_of_ignores          = 0;
 static int number_of_filename_filters = 0;
 static int exit_pipe[2];
-static int daemon_pid = -1;
+static int daemon_pid                 = -1;
 
 static void
 send_exit_signal(char code)
@@ -268,7 +276,9 @@ warning(const char *fmt, ...)
   va_end(ap);
 
   if (!o_quiet)
-    { (void)fprintf(stderr, "\rWARN: %s:%s\n", PROGNAME, buf); }
+    {
+      (void)fprintf(stderr, "\rWARN: %s:%s\n", PROGNAME, buf);
+    }
 }
 
 static void
@@ -289,7 +299,7 @@ reopen_all(void)
 static int
 wait_for_child(void)
 {
-  int  exit_read = 0;
+  int  exit_read  = 0;
   char exit_value = 0;
   int  wait_status;
 
@@ -299,7 +309,7 @@ wait_for_child(void)
       struct timeval tv;
       fd_set rfds;
       FD_ZERO(&rfds);
-      tv.tv_sec = 1;
+      tv.tv_sec  = 1;
       tv.tv_usec = 0;
       FD_SET(exit_pipe[0], &rfds);
       if (select(exit_pipe[0] + 1, &rfds, NULL, NULL, &tv) < 0)
@@ -321,7 +331,9 @@ wait_for_child(void)
         }
 
       if (FD_ISSET(exit_pipe[0], &rfds))
-        { break; }
+        {
+          break;
+        }
     }
   exit_read = (int)read(exit_pipe[0], &exit_value, 1);
   if (exit_read < 0)
@@ -352,7 +364,9 @@ go_daemon(void)
   if (daemon_pid)
     {
       if (o_wait)
-        { exit(wait_for_child()); }
+        {
+          exit(wait_for_child());
+        }
       exit(0);
     }
 
@@ -366,7 +380,9 @@ go_daemon(void)
     }
 
   if (!o_wait)
-    { reopen_all(); }
+    {
+      reopen_all();
+    }
 }
 
 static char *
@@ -424,10 +440,10 @@ static int64_t
 parse_size(char *inp)
 {
   char *tp;
-  int len = (int)strlen(inp);
+  int len      = (int)strlen(inp);
   char *errstr = "bad input; try '4096b', '4k', '100M', '1.5G', etc.";
   char mult_char;
-  int mult = 1;
+  int mult     = 1;
   double val;
 
   if (len < 1)
@@ -439,7 +455,7 @@ parse_size(char *inp)
 
   mult_char = (char)tolower(inp[len - 1]);
 
-  if (isalpha(mult_char))
+  if (isalpha((unsigned char)mult_char))
     {
       switch (mult_char)
         {
@@ -511,10 +527,18 @@ parse_range(char *inp)
   token = strsep(&inp, "-");
 
   if (inp == NULL)
-    { upper_range = (size_t)parse_size(token); }
+    {
+      upper_range = (size_t)parse_size(token);
+    }
   else
-    { if (token != NULL)
-        { if (*token != '\0') { lower_range = (size_t)parse_size(token); } }
+    {
+      if (token != NULL)
+        {
+          if (*token != '\0')
+            {
+              lower_range = (size_t)parse_size(token);
+            }
+        }
       else
         {
           fatal("%s:%d: token cannot be NULL", __func__, __LINE__);
@@ -524,7 +548,9 @@ parse_range(char *inp)
 
       token = strsep(&inp, "-");
       if (*token != '\0')
-        { upper_range = (size_t)parse_size(token); }
+        {
+          upper_range = (size_t)parse_size(token);
+        }
 
       token = strsep(&inp, "-");
       if (token != NULL)
@@ -563,7 +589,9 @@ static void
 parse_ignore_item(char *inp)
 {
   if (inp == NULL)
-    { return; }
+    {
+      return;
+    }
 
   if (strlen(inp) > MAX_FILENAME_LENGTH)
     {
@@ -591,7 +619,9 @@ static void
 parse_filename_filter_item(char *inp)
 {
   if (inp == NULL)
-    { return; }
+    {
+      return;
+    }
 
   if (strlen(inp) > MAX_FILENAME_LENGTH)
     {
@@ -615,11 +645,15 @@ parse_filename_filter_item(char *inp)
 
 static int
 aligned_p(void *p)
-{ return 0 == ((long)p & ( pagesize - 1 )); }
+{
+  return 0 == ((long)p & ( pagesize - 1 ));
+}
 
 static int
 is_mincore_page_resident(char p)
-{ return p & 0x1; }
+{
+  return p & 0x1;
+}
 
 static void
 increment_nofile_rlimit(void)
@@ -635,7 +669,8 @@ increment_nofile_rlimit(void)
       _Exit(1);
     }
 
-  r.rlim_cur = r.rlim_max + 1; r.rlim_max = r.rlim_max + 1;
+  r.rlim_cur = r.rlim_max + 1;
+  r.rlim_max = r.rlim_max + 1;
 
   if (setrlimit(RLIMIT_NOFILE, &r))
     {
@@ -699,7 +734,10 @@ intlength(long int value)
   unsigned long int l = !value;
 
   while (value)
-    { l++; value /= 10; }
+    {
+      l++;
+      value /= 10;
+    }
   return l;
 }
 
@@ -707,15 +745,21 @@ static void
 print_page_residency_chart(FILE *out, char *mincore_array,
                            int64_t pages_in_file)
 {
-  int64_t pages_in_core = 0;
+  int64_t pages_in_core  = 0;
   int64_t pages_per_char = 0;
   int64_t i, j = 0, curr = 0;
   int64_t stretch_factor = 0;
 
+  (void)out;
+
   if (pages_in_file <= RESIDENCY_CHART_WIDTH)
-    { pages_per_char = 1; }
+    {
+      pages_per_char = 1;
+    }
   else
-    { pages_per_char = ( pages_in_file / RESIDENCY_CHART_WIDTH ) + 1; }
+    {
+      pages_per_char = ( pages_in_file / RESIDENCY_CHART_WIDTH ) + 1;
+    }
 
   stretch_factor = RESIDENCY_CHART_WIDTH - ( pages_in_file / pages_per_char );
 
@@ -723,17 +767,26 @@ print_page_residency_chart(FILE *out, char *mincore_array,
   for (i = 0; i < (int64_t)pages_in_file; i++)
     {
       if (is_mincore_page_resident(mincore_array[i]))
-        { curr++; pages_in_core++; }
+        {
+          curr++;
+          pages_in_core++;
+        }
 
       j++;
       if (j == pages_per_char)
         {
           if (curr == pages_per_char)
-            { (void)fprintf(stderr, "="); }
+            {
+              (void)fprintf(stderr, "=");
+            }
           else if (curr == 0)
-            { (void)fprintf(stderr, " "); }
+            {
+              (void)fprintf(stderr, " ");
+            }
           else
-            { (void)fprintf(stderr, "-"); }
+            {
+              (void)fprintf(stderr, "-");
+            }
           j = curr = 0;
         }
     }
@@ -741,11 +794,17 @@ print_page_residency_chart(FILE *out, char *mincore_array,
   if (j)
     {
       if (curr == j)
-        { (void)fprintf(stderr, "="); }
+        {
+          (void)fprintf(stderr, "=");
+        }
       else if (curr == 0)
-        { (void)fprintf(stderr, " "); }
+        {
+          (void)fprintf(stderr, " ");
+        }
       else
-        { (void)fprintf(stderr, "-"); }
+        {
+          (void)fprintf(stderr, "-");
+        }
     }
 
   unsigned long subtint = intlength(pages_in_core);
@@ -757,30 +816,42 @@ print_page_residency_chart(FILE *out, char *mincore_array,
              + ( 1 + ( 9 * 2 ) + 1 ) - ( 1 + ( 2 * leadint ) + 1 ));
 
   if (formint < 0)
-    { formint = 0; }
+    {
+      formint = 0;
+    }
 
   (void)fprintf(stderr, "]");
 
   if (pages_in_file < RESIDENCY_CHART_WIDTH)
-    { (void)fprintf(stderr, " "); }
+    {
+      (void)fprintf(stderr, " ");
+    }
 
   if (pages_per_char >= 1)
-    { (void)fprintf(stderr, " "); }
+    {
+      (void)fprintf(stderr, " ");
+    }
 
   for (long ik = (long)( leadint - subtint ) + leadspc - formint + stretch_factor;
        ik >= 0; --ik)
-         { (void)fprintf(stderr, " "); }
+         {
+           (void)fprintf(stderr, " ");
+         }
 
   (void)fprintf(stderr, "%" PRId64 "/%" PRId64, pages_in_core, pages_in_file);
   for (long k = formint; k >= 0; --k)
-    { (void)fprintf(stderr, " "); }
+    {
+      (void)fprintf(stderr, " ");
+    }
 
-  (void)fflush(stderr); (void)fflush(stdout);
+  (void)fflush(stderr);
+  (void)fflush(stdout);
   (void)fprintf(stderr, "~%s  %-3.0Lf%%",
     pretty_print_size(pagesize * pages_in_file),
     (long double)((long double)((long double)pages_in_core + 0.01L )
       / (long double)((long double)pages_in_file + 0.01L ) * 100L ));
-  (void)fflush(stderr); (void)fflush(stdout);
+  (void)fflush(stderr);
+  (void)fflush(stdout);
 }
 
 #ifdef __linux__
@@ -797,13 +868,20 @@ can_do_mincore(struct stat *st)
       (void)memset(ver, '\0', sizeof(unsigned long)*2*KiB);
       while (*p)
         {
-          if (isdigit(*p))
-            { ver[i] = (unsigned long)strtol(p, &p, 10); i++; }
+          if (isdigit((unsigned char)*p))
+            {
+              ver[i] = (unsigned long)strtol(p, &p, 10);
+              i++;
+            }
           else
-            { p++; }
+            {
+              p++;
+            }
         }
       if (( ver[0] < 5 ) || ( ver[1] < 2 ))
-        { return 1; }
+        {
+          return 1;
+        }
     }
 
   uid_t uid = getuid();
@@ -817,10 +895,10 @@ can_do_mincore(struct stat *st)
 static void
 vmpc_file(char *path)
 {
-  int fd = -1;
-  void *mem = NULL;
+  int fd              = -1;
+  void *mem           = NULL;
   struct stat sb;
-  size_t len_of_file = 0;
+  size_t len_of_file  = 0;
   size_t len_of_range = 0;
   int64_t pages_in_range;
   int i;
@@ -838,7 +916,10 @@ retry_open:
 
 #if defined( O_NOATIME )
   if (fd == -1 && errno == EPERM)
-    { open_flags &= ~O_NOATIME; fd = open(path, open_flags, 0); }
+    {
+      open_flags &= ~O_NOATIME;
+      fd = open(path, open_flags, 0);
+    }
 
 #endif /* if defined( O_NOATIME ) */
 
@@ -886,10 +967,14 @@ retry_open:
 #endif /* if defined( __linux__ ) */
     }
   else
-    { len_of_file = (size_t)sb.st_size; }
+    {
+      len_of_file = (size_t)sb.st_size;
+    }
 
   if (len_of_file == 0)
-    { goto bail; }
+    {
+      goto bail;
+    }
 
   if (len_of_file > o_max_file_size)
     {
@@ -898,14 +983,18 @@ retry_open:
     }
 
   if (max_len > 0 && ( offset + max_len ) < len_of_file)
-    { len_of_range = max_len; }
+    {
+      len_of_range = max_len;
+    }
   else if (offset >= len_of_file)
     {
       warning("%s:%d: file %s smaller than offset", __func__, __LINE__, path);
       goto bail;
     }
   else
-    { len_of_range = (unsigned long)len_of_file - (unsigned long)offset; }
+    {
+      len_of_range = (unsigned long)len_of_file - (unsigned long)offset;
+    }
 
   mem = mmap(
     NULL,
@@ -937,7 +1026,9 @@ retry_open:
   if (o_evict)
     {
       if (o_verbose)
-        { (void)fprintf(stderr, "Evicting %s\n", path); }
+        {
+          (void)fprintf(stderr, "Evicting %s\n", path);
+        }
 
 #if defined( __linux__ )
 # ifdef POSIX_FADV_DONTNEED
@@ -971,7 +1062,7 @@ retry_open:
   else
     {
       double last_chart_print_time = 0.0, temp_time;
-      char *mincore_array = malloc((unsigned long)pages_in_range);
+      char *mincore_array          = malloc((unsigned long)pages_in_range);
       if (mincore_array == NULL)
         {
           fatal(
@@ -999,7 +1090,9 @@ retry_open:
       for (i = 0; i < pages_in_range; i++)
         {
           if (is_mincore_page_resident(mincore_array[i]))
-            { total_pages_in_core++; }
+            {
+              total_pages_in_core++;
+            }
         }
 
       if (o_verbose)
@@ -1012,7 +1105,9 @@ retry_open:
                   (void)fprintf(stderr, "\r%s\n", ctpath);
                 }
               else
-                { (void)fprintf(stderr, "\r%s\n", path); }
+                {
+                  (void)fprintf(stderr, "\r%s\n", path);
+                }
             }
           else
             {
@@ -1061,7 +1156,7 @@ retry_open:
           (void)fprintf(stderr, "\n");
         }
 
-      free(mincore_array);
+      FREE(mincore_array);
     }
 
   if (o_lock)
@@ -1088,7 +1183,9 @@ bail:
     }
 
   if (fd != -1)
-    { (void)close(fd); }
+    {
+      (void)close(fd);
+    }
 }
 
 static int
@@ -1099,7 +1196,9 @@ compare_func(const void *p1, const void *p2)
 
   cmp1 = ( kp1->ino > kp2->ino ) - ( kp1->ino < kp2->ino );
   if (cmp1 != 0)
-    { return cmp1; }
+    {
+      return cmp1;
+    }
 
   return ( kp1->dev > kp2->dev ) - ( kp1->dev < kp2->dev );
 }
@@ -1133,10 +1232,12 @@ is_ignored(const char *path)
   int match, i;
 
   if (!number_of_ignores)
-    { return 0; }
+    {
+      return 0;
+    }
 
   path_copy = strdup(path);
-  match = 0;
+  match     = 0;
 
   char *filename = basename(path_copy);
 
@@ -1149,7 +1250,7 @@ is_ignored(const char *path)
         }
     }
 
-  free(path_copy);
+  FREE(path_copy);
   return match;
 }
 
@@ -1160,7 +1261,9 @@ is_filename_filtered(const char *path)
   int match, i;
 
   if (!number_of_filename_filters)
-    { return 1; }
+    {
+      return 1;
+    }
 
   path_copy = strdup(path);
   match = 0;
@@ -1176,7 +1279,7 @@ is_filename_filtered(const char *path)
         }
     }
 
-  free(path_copy);
+  FREE(path_copy);
   return match;
 }
 #endif /* ifdef HAVE_FNMATCH */
@@ -1206,14 +1309,21 @@ vmpc_rdir(char *path)
   int i;
 
   if (path[0] == '/' && path[1] == '/')
-    { *ndpath = path + 1; path = *ndpath; }
+    {
+      *ndpath = path + 1;
+      path    = *ndpath;
+    }
 
   if (path[tp_path_len - 1] == '/' && tp_path_len > 1)
-    { path[tp_path_len - 1] = '\0'; }
+    {
+      path[tp_path_len - 1] = '\0';
+    }
 
 #ifdef HAVE_FNMATCH
   if (is_ignored(path))
-    { return; }
+    {
+      return;
+    }
 #endif /* ifdef HAVE_FNMATCH */
 
   res = o_followsymlinks ? stat(path, &sb) : lstat(path, &sb);
@@ -1255,9 +1365,8 @@ vmpc_rdir(char *path)
       if (!o_ignorehardlinkeduplictes && sb.st_nlink > 1)
         {
           if (find_object(&sb))
-            { return; }
-          else
-            { add_object(&sb); }
+            return;
+          add_object(&sb);
         }
 
       if (S_ISDIR(sb.st_mode))
@@ -1308,7 +1417,9 @@ retry_opendir:
             {
               if (strcmp(de->d_name,  ".") == 0 ||
                   strcmp(de->d_name, "..") == 0)
-                    { continue; }
+                    {
+                      continue;
+                    }
 
               if ((unsigned long)(snprintf(npath, sizeof (npath),
                   "%s/%s", path, de->d_name)) >= (unsigned long)sizeof(npath))
@@ -1317,7 +1428,9 @@ retry_opendir:
                   goto bail;
                 }
 
-              curr_crawl_depth++; vmpc_rdir(npath); curr_crawl_depth--;
+              curr_crawl_depth++;
+              vmpc_rdir(npath);
+              curr_crawl_depth--;
             }
 
 bail:
@@ -1339,7 +1452,10 @@ bail:
 #ifdef HAVE_FNMATCH
           if (is_filename_filtered(path))
 #endif /* ifdef HAVE_FNMATCH */
-            { total_files++; vmpc_file(path); }
+            {
+              total_files++;
+              vmpc_file(path);
+            }
         }
       else
         {
@@ -1355,10 +1471,12 @@ vmpc_batch_crawl(const char *path)
   char *line = NULL;
   size_t len = 0;
   ssize_t read;
-  int delim = o_0_delim ? '\0' : '\n';
+  int delim  = o_0_delim ? '\0' : '\n';
 
   if (!strcmp(path, "-"))
-    { f = stdin; }
+    {
+      f = stdin;
+    }
   else
     {
       f = fopen(path, "r");
@@ -1372,9 +1490,12 @@ vmpc_batch_crawl(const char *path)
     }
 
   while (( read = getdelim(&line, &len, delim, f)) != -1)
-    { line[read - 1] = '\0'; vmpc_rdir(line); }
+    {
+      line[read - 1] = '\0';
+      vmpc_rdir(line);
+    }
 
-  free(line);
+  FREE(line);
   (void)fclose(f);
 }
 
@@ -1395,7 +1516,7 @@ remove_pidfile(void)
 static void
 write_pidfile(void)
 {
-  FILE *f = NULL;
+  FILE *f        = NULL;
   long int wrote = -1;
 
   f = fopen(o_pidfile, "w");
@@ -1501,13 +1622,13 @@ main(int argc, char **argv)
           break;
 
         case 'l':
-          o_lock = 1;
+          o_lock  = 1;
           o_touch = 1;
           break;
 
         case 'L':
           o_lockall = 1;
-          o_touch = 1;
+          o_touch   = 1;
           break;
 
         case 'd':
@@ -1571,7 +1692,8 @@ main(int argc, char **argv)
         }
     }
 
-  argc -= optind; argv += optind;
+  argc -= optind;
+  argv += optind;
 
   if (o_touch)
     {
@@ -1618,7 +1740,10 @@ main(int argc, char **argv)
         }
 
       if (!o_wait)
-        { o_quiet = 1; o_verbose = 0; }
+        {
+          o_quiet   = 1;
+          o_verbose = 0;
+        }
     }
 
   if (o_wait && !o_daemon)
@@ -1658,7 +1783,9 @@ main(int argc, char **argv)
     }
 
   if (o_daemon)
-    { go_daemon(); }
+    {
+      go_daemon();
+    }
 
   long gtrc = gettimeofday(&start_time, NULL);
 
@@ -1683,10 +1810,14 @@ main(int argc, char **argv)
     }
 
   if (o_batch)
-    { vmpc_batch_crawl(o_batch); }
+    {
+      vmpc_batch_crawl(o_batch);
+    }
 
   for (i = 0; i < argc; i++)
-    { vmpc_rdir(argv[i]); }
+    {
+      vmpc_rdir(argv[i]);
+    }
 
   long etrc = gettimeofday(&end_time, NULL);
 
@@ -1711,7 +1842,7 @@ main(int argc, char **argv)
     }
 
   int64_t total_pages_in_core_size = total_pages_in_core * pagesize;
-  int64_t total_pages_size = total_pages * pagesize;
+  int64_t total_pages_size         = total_pages * pagesize;
   double total_pages_in_core_perc
     = 100.0 * (double)total_pages_in_core / (double)total_pages;
   double elapsed
@@ -1743,7 +1874,10 @@ main(int argc, char **argv)
         }
 
       if (o_pidfile)
-        { register_signals_for_pidfile(); write_pidfile(); }
+        {
+          register_signals_for_pidfile();
+          write_pidfile();
+        }
 
       if (!o_quiet)
         {
@@ -1754,7 +1888,9 @@ main(int argc, char **argv)
         }
 
       if (o_wait)
-        { reopen_all(); }
+        {
+          reopen_all();
+        }
 
       send_exit_signal(0);
       (void)select(0, NULL, NULL, NULL, NULL);
@@ -1765,7 +1901,9 @@ main(int argc, char **argv)
     {
       {
         if (o_verbose)
-          { (void)fprintf(stderr, "\n"); }
+          {
+            (void)fprintf(stderr, "\n");
+          }
 
         (void)fprintf(stderr, "           Files: %'" PRId64 "\n", total_files);
         (void)fprintf(stderr, "     Directories: %'" PRId64 "\n", total_dirs);

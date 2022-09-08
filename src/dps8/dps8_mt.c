@@ -482,7 +482,7 @@ static t_stat mt_set_tape_path (UNUSED UNIT * uptr, UNUSED int32 value,
       {
         PATH_ENTRY *old_entry = current_entry;
         current_entry = current_entry->next_entry;
-        free(old_entry);
+        FREE(old_entry);
       }
 
     search_list_head = NULL;
@@ -956,7 +956,7 @@ void mt_exit (void) {
   while (current_entry != NULL) {
     PATH_ENTRY * old_entry = current_entry;
     current_entry = current_entry->next_entry;
-    free (old_entry);
+    FREE (old_entry);
   }
 }
 

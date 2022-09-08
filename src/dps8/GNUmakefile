@@ -401,11 +401,10 @@ endif
                      "WARNING: Git re-build: Skipping \"make_ver.sh\"."       \
                      " *** Use \"$(MAKE) clean\" or build from top-level!" || \
                          $(TRUE) > /dev/null 2>&1
-	@$(SETV); $(TEST) -f "ver.h" || { ./make_ver.sh ||                        \
-        $(SHELL) ./make_ver.sh ||                                             \
-            { $(PRINTF) '%s\n' "WARNING: Unable to run \"make_ver.sh\"."      \
-                               "     *** Using default fallback data!";       \
-              $(TOUCH) "ver.h"; }; }
+	@$(SETV); $(TEST) -f "ver.h" || { $(TOUCH) "ver.h"; ./make_ver.sh ||      \
+              { $(PRINTF) '%s\n' "WARNING: Unable to run \"make_ver.sh\"."    \
+                                 "     *** Using default fallback data!";     \
+                $(RMF) "ver.h"; $(TOUCH) "ver.h"; }; }
 endif
 
 ###############################################################################
@@ -594,6 +593,7 @@ clean:
 	@$(SETV); $(RMF)  "../../.builder.txt"             ||  $(TRUE)
 	@$(SETV); $(RMF)  "../../.buildos.txt"             ||  $(TRUE)
 	@$(SETV); $(RMF)  "ver.h"                          ||  $(TRUE)
+	@$(SETV); $(RMF)  ./ver.h.* > /dev/null 2>&1       ||  $(TRUE)
 	@$(SETV); $(RMF)  "dump.i"                         ||  $(TRUE)
 	@$(SETV); $(RMF)  "compdef.out"                    ||  $(TRUE)
 	@$(SETV); $(RMF)  "procdef.out"                    ||  $(TRUE)
@@ -605,6 +605,9 @@ clean:
 	@$(SETV); $(RMF)  "../amd_memcpy.o"                ||  $(TRUE)
 	@$(SETV); $(RMF)  "../../amd_memcopy.o"            ||  $(TRUE)
 	@$(SETV); $(RMF)  "./null.i"                       ||  $(TRUE)
+	@$(SETV); $(RMF) "dps8_absi.o"       2> /dev/null  ||  $(TRUE)
+	@$(SETV); $(RMF) "dps8_socket_dev.o" 2> /dev/null  ||  $(TRUE)
+	@$(SETV); $(RMF) "udplib.o"          2> /dev/null  ||  $(TRUE)
 	@$(SETV); $(RMF) ./*.ln > /dev/null 2>&1           ||  $(TRUE)
 	@$(SETV); $(RMF) ./*.gcda > /dev/null 2>&1         ||  $(TRUE)
 

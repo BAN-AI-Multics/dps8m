@@ -820,7 +820,7 @@ static void clear_card_cache(pun_state_t * state)
       {
         CARD_CACHE_ENTRY *old_entry = current_entry;
         current_entry               = current_entry->next_entry;
-        free(old_entry);
+        FREE(old_entry);
       }
 
     state -> first_cached_card = NULL;
