@@ -9,7 +9,10 @@
 
   * <u>Operating systems</u> supported are **AIX**, **FreeBSD**, **NetBSD**, **OpenBSD**, **DragonFly BSD**, **Haiku**, **GNU/Hurd**, **illumos OpenIndiana**, **Linux**, **macOS**, **Solaris**, and **Windows**.
 
-  * <u>C compilers</u> supported are **Clang**, AMD Optimizing C/C++ (**AOCC**), Arm C/C++ Compiler (**ARMClang**), GNU C (**GCC**), IBM Advance Toolchain, IBM XL C/C++ (**XLC**), Intel oneAPI DPC++/C++ (**ICX**), and Oracle Developer Studio (**SunCC**).
+  * <u>C compilers</u> supported are **Clang**, AMD Optimizing C/C++ (**AOCC**), Arm C/C++ Compiler
+  (**ARMClang**), GNU C (**GCC**), IBM Advance Toolchain, IBM XL C/C++ (**XLC**),
+  Intel oneAPI DPC++/C++ (**ICX**), Intel C++ Compiler Classic for macOS (**ICC**),
+  and Oracle Developer Studio (**SunCC**).
 
   * <u>Hardware architectures</u> supported are **Intel x86** (i686, x86_64), **ARM** (ARMv6, ARMv7, ARM64), **PowerPC** (PPC, PPC64, PPC64le), **RISC-V** (RV64), and **m68k** (68020+).
 

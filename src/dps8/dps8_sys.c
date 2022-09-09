@@ -3958,12 +3958,12 @@ static CTAB dps8_cmds[] =
 // Console scripting
 //
 
-    {"AUTOINPUT",     add_opc_autoinput,   0, "Set console auto-input\n",           NULL, NULL},
-    {"AI",            add_opc_autoinput,   0, "Set console auto-input\n",           NULL, NULL},
-    {"AUTOINPUT2",    add_opc_autoinput,   1, "Set CPU-B console auto-input\n",     NULL, NULL},
-    {"AI2",           add_opc_autoinput,   1, "Set console CPU-B auto-input\n",     NULL, NULL},
-    {"CLRAUTOINPUT",  clear_opc_autoinput, 0, "Clear console auto-input\n",         NULL, NULL},
-    {"CLRAUTOINPUT2", clear_opc_autoinput, 1, "Clear CPU-B console auto-input\n",   NULL, NULL},
+    {"AUTOINPUT",     add_opc_autoinput,   0, "Set primary console auto-input\n",     NULL, NULL},
+    {"AI",            add_opc_autoinput,   0, "Set primary console auto-input\n",     NULL, NULL},
+    {"AUTOINPUT2",    add_opc_autoinput,   1, "Set secondary console auto-input\n",   NULL, NULL},
+    {"AI2",           add_opc_autoinput,   1, "Set secondary console auto-input\n",   NULL, NULL},
+    {"CLRAUTOINPUT",  clear_opc_autoinput, 0, "Clear primary console auto-input\n",   NULL, NULL},
+    {"CLRAUTOINPUT2", clear_opc_autoinput, 1, "Clear secondary console auto-input\n", NULL, NULL},
 
 //
 // Tuning
