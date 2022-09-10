@@ -55,12 +55,12 @@ unset FLOCK_COMMAND > "/dev/null" 2>&1 || true
 
  test -z "${BUILDDOC_HTML:-}" &&  \
  INPUTS="yaml/docinfo-post.yml" # <---------------- Start of LaTeX document
-#INPUTS="${INPUTS:-} test.md"
  INPUTS="${INPUTS:-} md/authors.md" # <------------ Authors
 #INPUTS="${INPUTS:-} md/acknowledgements.md" # <--- Acknowledgements
 #INPUTS="${INPUTS:-} md/forward.md" # <------------ Forward
-#INPUTS="${INPUTS:-} md/preface.md" # <------------ Preface
-#INPUTS="${INPUTS:-} md/introduction.md" # <------- Introduction
+ INPUTS="${INPUTS:-} md/pre-overview.md" # <--------- (setup) Building from Source Code
+ INPUTS="${INPUTS:-} hpages/content/Overview/_index.md" # <------- Introduction
+ INPUTS="${INPUTS:-} md/post-overview.md" # <-------- (finish) Building from Source Code
 #INPUTS="${INPUTS:-} md/prologue.md" # <----------- Prologue
  INPUTS="${INPUTS:-} md/pre-source.md" # <--------- (setup) Building from Source Code
  INPUTS="${INPUTS:-} hpages/content/Documentation/Source_Compilation/_index.md" # <-------- Building from Source Code

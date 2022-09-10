@@ -1,28 +1,6 @@
-% SPDX-License-Identifier: LicenseRef-DPS8M-Doc AND LicenseRef-CF-GAL
-% SPDX-FileCopyrightText: 2019-2021 Dean S. Anderson
-% SPDX-FileCopyrightText: 2021-2022 The DPS8M Development Team
-
-\subsection[Central Processing Unit]{CENTRAL PROCESSING UNIT}
-
-This section describes the configuration and operation of the simulated DPS8M Central Processing Unit (CPU).
-
-\subsubsection[CPU Overview]{CPU OVERVIEW}
-
-The DPS8M CPU has
-\begin{itemize}
-	\item 36 bit words
-	\item 18 bit addresses (allowing a segment size of 256 thousand words)
-	\item 15 bit segment numbers (allowing 32 thousand segments of 256 thousand words)
-	\item 1 million instructions per second (1 MIP)
-	\item Direct Memory Access I/O (DMA)
-	\item Two 36 bit accumulators (A and Q)
-	\item Eight 18 bit index registers (X0-X7)
-	\item Eight pointer/address registers (each containing a 15 bit segment number, 18 bit address and 6 bit bit number)
-	\item 36 and 72 bit integer and floating point arithmetic
-	\item 10 digit decimal arithmetic
-	\item String move and compare
-	\item Decimal number formatting (e.g COBOL or PL/1 "PIC")
-\end{itemize}
+% SPDX-License-Identifier: ICU
+%     Copyright (c) 2019-2021 Dean S. Anderson
+%     Copyright (c) 2022 The DPS8M Development Team
 
 \subsubsection[CPU Options]{CPU OPTIONS}
 

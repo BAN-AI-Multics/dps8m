@@ -103,27 +103,3 @@ The following config deck uses most of the default cabling and will allow Multic
     \texttt{intk warm 0. rpvs star} \\
     \texttt{parm dirw} \\
 \end{adjustwidth}
-
-\textbf{IMPORTANT WARNING:}
-
-You may notice if you compare this config deck with the default cabling in the simulator that
-not all the devices cabled are configured. The reason is known as the "Evil Config Deck Bug" in
-Multics.
-
-With the ability of the simulator to simulate a system that is so large no one would ever build
-it in actual hardware, it is possible to trigger bugs in Multics that are caused by running out
-of space in internal data structures. The above config deck is an example of a configuration that
-is right on the edge of triggering one of these bugs. If, for example, you add CPU F into the deck
-above and do not remove any other cards, Multics will crash when attempting to boot.
-
-If you get something like this, you have made a configuration that is too large:
-
-\begin{adjustwidth}{5ex}{1ex}
-    \texttt{bce (boot) 1454.1: M-> [auto-input] boot -cold} \\
-    \texttt{Do you really wish to boot cold and there by destroy the system hierarchy? M-> [auto-input] y} \\
-    \texttt{CONSOLE: ALERT} \\
-    \texttt{1454.2  page\_fault: fatal error at loc 2330} \\
-    \texttt{1454.2  Multics not in operation; control process: Initializer.SysDaemon.z.} \\
-    \texttt{bce (crash) 1454.2: M->} \\
-\end{adjustwidth}
-
