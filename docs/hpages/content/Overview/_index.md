@@ -8,7 +8,7 @@
 
 * Characteristics of the **DPS-8/M** processor:
   * **36-bit** native word size
-  * **18-bit** address size (allowing a segment size of *256 thousand* words*)
+  * **18-bit** address size (allowing a segment size of *256 thousand* words)
   * **15-bit** segment numbers (allowing *32 thousand segments* of *256 thousand words*)
   * Two **36-bit** accumulators (*`A`*,  *`Q`*)
   * Eight **18-bit** index registers (**`X0`** … **`X7`**)
