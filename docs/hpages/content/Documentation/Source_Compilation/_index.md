@@ -570,7 +570,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 ## Haiku
 
-* *TBD*
+* *Details soon ...*
 
 <br>
 
@@ -578,7 +578,10 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 ## GNU/Hurd
 
-* *TBD*
+* Running the simulator on [**GNU/Hurd**](https://www.gnu.org/software/hurd/) is supported using [**Debian GNU/Hurd 2021**](https://www.debian.org/ports/hurd/) (or later).
+* **GCC 11** (or later) is the recommended compiler for optimal performance.
+  * Compilation is also supported using **Clang 11** or later.
+* Building on **GNU/Hurd** should be essentially identical to [**Debian GNU/Linux**](#linux).
 
 <br>
 
@@ -586,7 +589,69 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 ## Linux
 
-* *TBD*
+* Most major **Linux** distributions using the [**GNU C Library**](https://www.gnu.org/software/libc/), [**Bionic**](https://developer.android.com/), and [**musl-libc**](https://www.musl-libc.org/) are supported.
+  * [**Debian GNU/Linux**](https://www.debian.org/) and derivatives ([**Raspberry Pi OS**](https://www.raspberrypi.com/software/)), **Red Hat** variants ([**Fedora**](https://fedoraproject.org/), [**CentOS Stream**](https://www.centos.org/centos-stream/), [**RHEL**](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux)) and compatibles ([**AlmaLinux**](https://almalinux.org/), [**Amazon Linux**](https://aws.amazon.com/amazon-linux-2/), [**Oracle Linux**](https://www.oracle.com/linux/)),  [**Alpine**](https://www.alpinelinux.org/), **SUSE** ([**SLES**](https://www.suse.com/products/server/), [**OpenSUSE**](https://www.opensuse.org/)), [**Void**](https://voidlinux.org/), and [**Ubuntu**](https://ubuntu.com/) are regularly tested on **Intel**, **ARM**, and **POWER** systems.
+
+* **GCC** **12** or later is recommended for optimal performance on most architectures including **Intel** and **ARM**.
+  * **The DPS8M Development Team** regularly tests and supports a wide range of Linux compilers, including **Clang**, AMD Optimizing C/C++ (**AOCC**), Arm C/C++ Compiler (**ARMClang**), GNU C (**GCC**), IBM Advance Toolchain for Linux, IBM XL C/C++ for Linux (**XLC**), Intel oneAPI DPC/C++ (**ICX**), and Oracle Developer Studio (**SunCC**).
+
+* Cross-compilation is supported. Popular targets including various **Linux** platforms, **Microsoft Windows** on **Intel** and **ARM** (using the **MinGW-w64** and **LLVM-MinGW** toolchains) and **Linux on POWER** (using the **IBM Advance Toolchain for Linux**) are regularly built and tested.
+
+## Linux prerequisites
+
+Users of some **Red Hat** variants may need to enable the **PowerTools** repository or the **CodeReady Builder** AppStream to install **`libuv`**:
+  * RHEL 8: `subscription-manager repos --enable codeready-builder-for-rhel-8-$(arch)-rpms`
+  * CentOS Stream 8: `dnf config-manager --set-enabled powertools`
+  * RHEL 9: `subscription-manager repos --enable codeready-builder-for-rhel-9-$(arch)-rpms`
+  * CentOS Stream 9: `dnf config-manager --set-enabled crb`
+
+**Red Hat** offers the [**Red Hat Developer Toolset**](https://developers.redhat.com/products/developertoolset/) for **Red Hat Enterprise Linux** and **CentOS Stream**, which provides up-to-date versions of **GCC** on a rapid release cycle.  Check your packager manager (*i.e.* `dnf search`) for pakcages named **`gcc-toolset-12`** or similar.
+
+Install the required prerequisites using a distribution package manager (or [**Homebrew on Linux**](https://docs.brew.sh/Homebrew-on-Linux)):
+
+* Using **dnf** (for most **rpm**-based distributions) (as *root*):
+
+  ```sh
+  dnf install "@Development Tools" libuv-devel
+  ```
+* Using **apt** (for most **deb**-based distributions) (as *root*):
+
+  ```sh
+  apt install build-essential libuv1-dev
+  ```
+* Using **Homebrew**:
+
+  ```sh
+  brew install libuv
+  ```
+
+## Standard Linux compilation
+
+* Build the simulator (*standard build*) from the top-level source directory (using **GNU Make**):
+
+  ```sh
+  make
+  ```
+
+## Alternative Linux compilation
+
+To use a compiler other than the default (**`cc`**) it is normally sufficient to simply set **`CC`**:
+
+* Build the simulator using **`clang`** from the top-level source directory (using **GNU Make**):
+
+  ```sh
+  env CC="clang" make
+  ```
+
+## Linux cross-compilation
+
+* *Details soon ...*
+
+## Additional Linux Notes
+
+* Although normally handled automatically, when building for or cross-compiling to many 32-bit
+  targets (or when using a compiler lacking support for 128-bit integers) it may be necessary
+  to set the **`NEED_128=1`** build option (via the environment or as an argument to **`make`**.)
 
 <br>
 
@@ -710,7 +775,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 ## Windows
 
-* *TBD*
+* *Details soon ...*
 
 <br>
 
