@@ -6723,6 +6723,7 @@ profdata
 profout
 realclean
 reallyclean
+symdef
 undodir
 useddef
 vimsession
@@ -7873,6 +7874,7 @@ assemblers
 assembly
 assert
 assertion
+assertions
 asserts
 assign
 assigned
@@ -7928,6 +7930,7 @@ authorship
 auto
 autocomplete
 autoindent
+autoinput
 automate
 automated
 automatically
@@ -8815,6 +8818,7 @@ destructor
 detach
 detachable
 detached
+detaching
 detailed
 details
 detect

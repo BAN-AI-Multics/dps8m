@@ -522,8 +522,8 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 * **AIX** **7.2** and **7.3** on [**POWER8®** and **POWER9™**](https://www.ibm.com/it-infrastructure/power)
   are regularly tested by **The DPS8M Development Team**.
 * The simulator can be built on **AIX** using **GNU C** (**`gcc`**) or [**IBM XL C/C++ for AIX**](https://www.ibm.com/products/xl-c-aix-compiler-power) (**`xlc`**).
-  * [**IBM XL C/C++ for AIX V16.1 Service Pack 10** (*IJ36514*)](https://www.ibm.com/support/pages/ibm-xl-cc-aix-161) is the recommended compiler release for optimal performance on **POWER8** and **POWER9** systems.
-    * At the time of writing, [*IBM Open XL C/C++ for AIX V17.1*](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is ***not supported***.  Support for *IBM Open XL C/C++ for AIX V17.1* will be available in a future release.
+  * [**IBM XL C/C++ for AIX V16.1 Service Pack 10** (*IJ36514*)](https://www.ibm.com/support/pages/ibm-xl-cc-aix-161) is the recommended compiler for optimal performance on **POWER8** and **POWER9** systems.
+    * [*IBM Open XL C/C++ for AIX V17.1*](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is ***currently not supported***.  Support will be added in a future release.
 * When building the simulator using **GNU C**, it recommended to use **GCC 10** or later for optimal performance.
   * **GCC 10** can be installed from the [IBM AIX® Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository.
 
@@ -646,57 +646,61 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 * Cross-compilation targeting **ARM64** **macOS** 11:
 
   ```sh
-  make distclean &&                                                  \
-  env CFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0" \
-  LOCAL_CONFOPTS="--host=arm64-apple-darwin" make libuvrel           \
-  HOMEBREW_INC= HOMEBREW_LIB= &&                                     \
-  env CFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0" \
-  LDFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0"    \
+  make distclean &&                                                        \
+  env CFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0"       \
+  LOCAL_CONFOPTS="--host=arm64-apple-darwin" make libuvrel                 \
+  HOMEBREW_INC= HOMEBREW_LIB= &&                                           \
+  env CFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0"       \
+  LDFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0"          \
   make HOMEBREW_INC= HOMEBREW_LIB=
   ```
 
 * Cross-compilation targeting **Intel** **macOS** 10.15:
 
   ```sh
-  make distclean &&                                                       \
-  env CFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15" \
-  LOCAL_CONFOPTS="--host=x86_64-apple-darwin" make libuvrel               \
-  HOMEBREW_INC= HOMEBREW_LIB= &&                                          \
-  env CFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15" \
-  LDFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15"    \
+  make distclean &&                                                        \
+  env CFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15"  \
+  LOCAL_CONFOPTS="--host=x86_64-apple-darwin" make libuvrel                \
+  HOMEBREW_INC= HOMEBREW_LIB= &&                                           \
+  env CFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15"  \
+  LDFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15"     \
   make HOMEBREW_INC= HOMEBREW_LIB=
   ```
 
-* Build a **macOS** Universal Binary (**ARM64**, **Intel**, **Haswell**):
+* The following more complex example builds a **macOS** Universal Binary.
+  * The universal binary will support *three* architectures: **ARM64**, **Intel**, and **Intel Haswell**.
+  * The simulator and **`libuv`** will be cross-compiled three times each, once for each architecture.
+  * The [**`lipo`**](https://developer.apple.com/documentation/apple-silicon/building-a-universal-macos-binary) utility will be used to create the universal **`dps8`** binary (in the top-level build directory).
+
+* Cross-compilation targeting **ARM64**, **Intel**, **Intel Haswell** **macOS**:
 
   ```sh
-  make distclean && \
-  env CFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0"      \
-   LOCAL_CONFOPTS="--host=arm64-apple-darwin" make libuvrel               \
-    HOMEBREW_INC= HOMEBREW_LIB= &&                                        \
-  env CFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0"      \
-   LDFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0"        \
-    make HOMEBREW_INC= HOMEBREW_LIB= &&                                   \
-  cp -f "src/dps8/dps8" "dps8.arm64" &&                                   \
-  make distclean &&                                                       \
-  env CFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15" \
-   LOCAL_CONFOPTS="--host=x86_64-apple-darwin" make libuvrel              \
-    HOMEBREW_INC= HOMEBREW_LIB= &&                                        \
-  env CFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15" \
-   LDFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15"   \
-  make HOMEBREW_INC= HOMEBREW_LIB= &&                                     \
-  cp -f "src/dps8/dps8" "dps8.x86_64" &&                                  \
-  make distclean &&                                                       \
-  env CFLAGS="-target x86_64h-apple-macos10.15 -mmacosx-version-min=10.15 \
-   -march=haswell" LOCAL_CONFOPTS="--host=x86_64-apple-darwin"            \
-  make libuvrel HOMEBREW_INC= HOMEBREW_LIB= &&                            \
-  env CFLAGS="-target x86_64h-apple-macos10.15 -mmacosx-version-min=10.15 \
-   -march=haswell" LDFLAGS="-target x86_64h-apple-macos10.15              \
-    -mmacosx-version-min=10.15" make HOMEBREW_INC= HOMEBREW_LIB= &&       \
-  cp -f "src/dps8/dps8" "dps8.x86_64h" &&                                 \
-  lipo -create -output dps8 dps8.x86_64 dps8.x86_64h dps8.arm64 &&        \
-  make distclean && rm -f dps8.x86_64 dps8.x86_64h dps8.arm64 &&          \
-  rm -rf "./__.SYMDEF SORTED" "./src/empty/empty.dSYM" 2> /dev/null &&    \
+  make distclean &&                                                        \
+  env CFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0"       \
+   LOCAL_CONFOPTS="--host=arm64-apple-darwin" make libuvrel                \
+    HOMEBREW_INC= HOMEBREW_LIB= &&                                         \
+  env CFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0"       \
+   LDFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0"         \
+    make HOMEBREW_INC= HOMEBREW_LIB= &&                                    \
+  cp -f "src/dps8/dps8" "dps8.arm64" &&                                    \
+  make distclean &&                                                        \
+  env CFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15"  \
+   LOCAL_CONFOPTS="--host=x86_64-apple-darwin" make libuvrel               \
+    HOMEBREW_INC= HOMEBREW_LIB= &&                                         \
+  env CFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15"  \
+   LDFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15"    \
+  make HOMEBREW_INC= HOMEBREW_LIB= &&                                      \
+  cp -f "src/dps8/dps8" "dps8.x86_64" &&                                   \
+  make distclean &&                                                        \
+  env CFLAGS="-target x86_64h-apple-macos10.15 -mmacosx-version-min=10.15  \
+   -march=haswell" LOCAL_CONFOPTS="--host=x86_64-apple-darwin"             \
+  make libuvrel HOMEBREW_INC= HOMEBREW_LIB= &&                             \
+  env CFLAGS="-target x86_64h-apple-macos10.15 -mmacosx-version-min=10.15  \
+   -march=haswell" LDFLAGS="-target x86_64h-apple-macos10.15               \
+    -mmacosx-version-min=10.15" make HOMEBREW_INC= HOMEBREW_LIB= &&        \
+  cp -f "src/dps8/dps8" "dps8.x86_64h" &&                                  \
+  lipo -create -output "dps8" "dps8.x86_64" "dps8.x86_64h" "dps8.arm64" && \
+  make distclean && rm -f "dps8.x86_64" "dps8.x86_64h" "dps8.arm64" &&     \
   lipo -detailed_info "dps8"
   ```
 
