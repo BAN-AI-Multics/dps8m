@@ -42,9 +42,11 @@ src/mcmb/mcmb.dSYM/
 src/prt2pdf/prt2pdf.dSYM/
 src/punutil/punutil.dSYM/
 src/vmpctool/vmpctool.dSYM/
+src/empty/empty.dSYM/
 .Dependency
 typescript
 *.bak
+"__.SYMDEF SORTED"
 
 # Tags
 tags
