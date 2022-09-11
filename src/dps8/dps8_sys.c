@@ -3852,10 +3852,10 @@ static CTAB dps8_cmds[] =
 
     {"DEFAULT_BASE_SYSTEM", set_default_base_system,  0, "Set configuration to defaults\n",             NULL, NULL },
 
-    {"CABLE",               sys_cable,                0, "String a cable\n",                            NULL, NULL },
-    {"UNCABLE",             sys_cable,                1, "Unstring a cable\n",                          NULL, NULL },
-    {"CABLE_RIPOUT",        sys_cable_ripout,         0, "Unstring all cables\n",                       NULL, NULL },
-    {"CABLE_SHOW",          sys_cable_show,           0, "Show cables\n",                               NULL, NULL },
+    {"CABLE",               sys_cable,                0, "String a cable.\n",                            NULL, NULL },
+    {"UNCABLE",             sys_cable,                1, "Unstring a cable.\n",                          NULL, NULL },
+    {"CABLE_RIPOUT",        sys_cable_ripout,         0, "Remove all cables from the configuration.\n",                       NULL, NULL },
+    {"CABLE_SHOW",          sys_cable_show,           0, "Show the current cabling configuration.\n",                               NULL, NULL },
 
     {"FNPSERVERPORT",       set_fnp_server_port,      0, "Set the FNP dialin TELNET port number\n",     NULL, NULL },
     {"FNPSERVERADDRESS",    set_fnp_server_address,   0, "Set the FNP dialin server binding address\n", NULL, NULL },
@@ -3866,7 +3866,7 @@ static CTAB dps8_cmds[] =
 //
 
     {"SKIPBOOT",  boot_skip,                     0, "Skip forward on boot tape\n",                        NULL, NULL },
-    {"FNPSTART",  fnp_start,                     0, "Force an immediate FNP initialization\n",            NULL, NULL },
+    {"FNPSTART",  fnp_start,                     0, "Directs the simulator to immediately start listening for FNP connections.\n",            NULL, NULL },
     {"MOUNT",     mount_tape,                    0, "Mount tape image and signal Multics\n",              NULL, NULL },
     {"LOAD",      load_media,                    1, "Mount disk or tape image and signal Multics\n",      NULL, NULL },
     {"UNLOAD",    load_media,                    0, "Unmount disk or tape image and signal Multics\n",    NULL, NULL },
@@ -3875,9 +3875,9 @@ static CTAB dps8_cmds[] =
     {"XF",        do_execute_fault,              0, "Execute fault: Press the execute fault button\n",    NULL, NULL },
     {"RESTART",   do_restart,                    0, "Execute fault: Press the execute fault button\n",    NULL, NULL },
     {"POLL",      set_sys_polling_interval,      0, "Set polling interval (in milliseconds)\n",           NULL, NULL },
-    {"SLOWPOLL",  set_sys_slow_polling_interval, 0, "Set slow polling interval (in polling intervals)\n", NULL, NULL },
-    {"CHECKPOLL", set_sys_poll_check_rate,       0, "Set polling check rate (in polling intervals)\n",    NULL, NULL },
-    {"BURST",     burst_printer,                 0, "Burst process output from printer\n",                NULL, NULL },
+    {"SLOWPOLL",  set_sys_slow_polling_interval, 0, "Set slow polling interval (in polling intervals).\n", NULL, NULL },
+    {"CHECKPOLL", set_sys_poll_check_rate,       0, "Set polling check rate (in polling intervals).\n",    NULL, NULL },
+    {"BURST",     burst_printer,                 0, "Burst process output from printer.\n",                NULL, NULL },
 
 //
 // Debugging

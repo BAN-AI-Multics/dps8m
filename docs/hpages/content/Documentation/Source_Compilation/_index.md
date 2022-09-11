@@ -49,7 +49,7 @@ additional details.
 
 * Ensure you are running a [supported release](https://www.freebsd.org/releases/) of
   [**FreeBSD**](https://www.freebsd.org/) on a [supported platform](https://www.freebsd.org/platforms/).
-  * **FreeBSD**/[**amd64**](https://www.freebsd.org/platforms/amd64/) and **FreeBSD**/[**arm64**](https://www.freebsd.org/platforms/arm/) are regularly tested by **The DPS8M Development Team**.
+  * The current release versions of **FreeBSD**/[**amd64**](https://www.freebsd.org/platforms/amd64/) and **FreeBSD**/[**arm64**](https://www.freebsd.org/platforms/arm/) are regularly tested by **The DPS8M Development Team**.
 
 ### FreeBSD prerequisites
 
@@ -129,7 +129,7 @@ Install the required prerequisites (using FreeBSD Packages or Ports):
 ### Additional FreeBSD Notes
 
 * When running on **FreeBSD**, **DPS8M** utilizes [**FreeBSD-specific** atomic operations](https://www.freebsd.org/cgi/man.cgi?query=atomic).
-* The **FreeBSD-specific** **`atomic_testandset_64`** operation is currently not implemented on every platform **FreeBSD** supports (such as **powerpc64**). If you are unable to build the simulator because this atomic operation is unimplemented on your platform, specify `ATOMICS="GNU"` as an argument to `gmake`, or export this value in the shell environment before compiling.
+* The **FreeBSD-specific** **`atomic_testandset_64`** operation is currently not implemented in all versions or on all platforms **FreeBSD** supports (such as **powerpc64**, or **arm64** prior to **13.0-RELEASE**). If you are unable to build the simulator because this atomic operation is unimplemented on your platform, specify `ATOMICS="GNU"` as an argument to `gmake`, or export this value in the shell environment before compiling.
 
 <br>
 
@@ -578,7 +578,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 ## GNU/Hurd
 
-* Running the simulator on [**GNU/Hurd**](https://www.gnu.org/software/hurd/) is supported using [**Debian GNU/Hurd 2021**](https://www.debian.org/ports/hurd/) (or later).
+* **DPS8M** is supported on [**GNU/Hurd**](https://www.gnu.org/software/hurd/) when using [**Debian GNU/Hurd 2021**](https://www.debian.org/ports/hurd/) (or later).
 * **GCC 11** (or later) is the recommended compiler for optimal performance.
   * Compilation is also supported using **Clang 11** or later.
 * Building on **GNU/Hurd** should be essentially identical to [**Debian GNU/Linux**](#linux).
@@ -597,13 +597,13 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 * Cross-compilation is supported. Popular targets including various **Linux** platforms, **Microsoft Windows** on **Intel** and **ARM** (using the **MinGW-w64** and **LLVM-MinGW** toolchains) and **Linux on POWER** (using the **IBM Advance Toolchain for Linux**) are regularly built and tested.
 
-## Linux prerequisites
+### Linux prerequisites
 
 Users of some **Red Hat** variants may need to enable the **PowerTools** repository or the **CodeReady Builder** AppStream to install **`libuv`**:
-  * RHEL 8: `subscription-manager repos --enable codeready-builder-for-rhel-8-$(arch)-rpms`
-  * CentOS Stream 8: `dnf config-manager --set-enabled powertools`
-  * RHEL 9: `subscription-manager repos --enable codeready-builder-for-rhel-9-$(arch)-rpms`
-  * CentOS Stream 9: `dnf config-manager --set-enabled crb`
+* RHEL 8: `subscription-manager repos --enable codeready-builder-for-rhel-8-$(arch)-rpms`
+* CentOS Stream 8: `dnf config-manager --set-enabled powertools`
+* RHEL 9: `subscription-manager repos --enable codeready-builder-for-rhel-9-$(arch)-rpms`
+* CentOS Stream 9: `dnf config-manager --set-enabled crb`
 
 **Red Hat** offers the [**Red Hat Developer Toolset**](https://developers.redhat.com/products/developertoolset/) for **Red Hat Enterprise Linux** and **CentOS Stream**, which provides up-to-date versions of **GCC** on a rapid release cycle.  Check your packager manager (*i.e.* `dnf search`) for pakcages named **`gcc-toolset-12`** or similar.
 
@@ -625,7 +625,7 @@ Install the required prerequisites using a distribution package manager (or [**H
   brew install libuv
   ```
 
-## Standard Linux compilation
+### Standard Linux compilation
 
 * Build the simulator (*standard build*) from the top-level source directory (using **GNU Make**):
 
@@ -633,7 +633,7 @@ Install the required prerequisites using a distribution package manager (or [**H
   make
   ```
 
-## Alternative Linux compilation
+### Alternative Linux compilation
 
 To use a compiler other than the default (**`cc`**) it is normally sufficient to simply set **`CC`**:
 
@@ -643,11 +643,11 @@ To use a compiler other than the default (**`cc`**) it is normally sufficient to
   env CC="clang" make
   ```
 
-## Linux cross-compilation
+### Linux cross-compilation
 
 * *Details soon ...*
 
-## Additional Linux Notes
+### Additional Linux Notes
 
 * Although normally handled automatically, when building for or cross-compiling to many 32-bit
   targets (or when using a compiler lacking support for 128-bit integers) it may be necessary
@@ -676,7 +676,7 @@ To use a compiler other than the default (**`cc`**) it is normally sufficient to
   brew install libuv pkg-config
   ```
 
-* Users of other package managers (*e.g.* [pkgsrc](https://www.pkgsrc.org/), [MacPorts](https://www.macports.org/)) must set the **`CFLAGS`** (*e.g.* `-I/opt/include`), **`LDFLAGS`** (*e.g.* `-L/opt/lib`), and **`LIBUV`** (*e.g.* `-luv`) environment variables appropriately.
+* Users of other package managers (*e.g.* [**pkgsrc**](https://www.pkgsrc.org/), [**MacPorts**](https://www.macports.org/)) must set the **`CFLAGS`** (*e.g.* `-I/opt/include`), **`LDFLAGS`** (*e.g.* `-L/opt/lib`), and **`LIBUV`** (*e.g.* `-luv`) environment variables appropriately.
 
 ### macOS compilation
 
@@ -734,7 +734,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 * The following more complex example builds a **macOS** Universal Binary.
   * The universal binary will support *three* architectures: **ARM64**, **Intel**, and **Intel Haswell**.
-  * The simulator and **`libuv`** will be cross-compiled three times each, once for each architecture.
+  * The simulator (and **`libuv`**) will be cross-compiled three times each, once for each architecture.
   * The [**`lipo`**](https://developer.apple.com/documentation/apple-silicon/building-a-universal-macos-binary) utility will be used to create the universal **`dps8`** binary (in the top-level build directory).
 
 * Cross-compilation targeting **ARM64**, **Intel**, **Intel Haswell** **macOS**:
