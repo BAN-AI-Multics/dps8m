@@ -10,16 +10,16 @@
   * **36-bit** native word size
   * **18-bit** address size (allowing a segment size of *256 thousand* words)
   * **15-bit** segment numbers (allowing *32 thousand segments* of *256 thousand words*)
-  * Two **36-bit** accumulators (*`A`*,  *`Q`*)
+  * Two **36-bit** accumulators (**`A`** &  **`Q`**)
   * Eight **18-bit** index registers (**`X0`** … **`X7`**)
   * Eight pointer/address registers
     * Each containing a **15-bit** segment number, **18-bit** address, and **6-bit** identifier
-  * String manipulation instructions (move and compare)
+  * String manipulation instructions (**move** & **compare**)
   * Advanced mathematical instructions supporting:
     * **36-** and **72-bit** integer and floating point arithmetic
       * Hexadecimal floating point option (**HFP**)
-    * 10-digit decimal arithmetic
-    * Decimal number formatting (*e.g.* COBOL or PL/I "*PIC*")
+    * **10-digit** decimal arithmetic
+    * Decimal number formatting (*e.g.* **COBOL** or **PL/I** "*PIC*")
   * Direct Memory Access I/O (**DMA**)
 
 ## The DPS8M Simulator
