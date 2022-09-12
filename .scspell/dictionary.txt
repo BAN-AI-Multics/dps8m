@@ -24,7 +24,9 @@ ccompiler
 cddate
 cdpath
 chmod
+clrautoinput
 cmdb
+cmdout
 cmdref
 cmds
 cmyk
@@ -41,6 +43,7 @@ datefallback
 dateformat
 dayofweek
 deadcode
+defaultbasesystem
 dirname
 distclean
 docbuild
@@ -147,8 +150,11 @@ rtmf
 rtnes
 runout
 segldr
+setcommands
 setopt
 shellcheck
+showcommands
+showtemp
 skylighting
 specs
 srand
@@ -795,6 +801,7 @@ dialup
 diffsign
 digitpair
 digitwise
+directs
 dirent
 dirp
 diskb
@@ -919,6 +926,7 @@ eelse
 eendif
 eeof
 eexist
+efault
 efbig
 egid
 ehuh
@@ -1977,6 +1985,7 @@ objs
 objsremaining
 obyte
 ocall
+ocks
 ocptr
 oelif
 oend
@@ -1995,6 +2004,7 @@ omask
 oncyl
 onecmd
 oneword
+onfiguration
 onlyaqxn
 onlyvers
 oosb
@@ -3065,6 +3075,7 @@ usec
 useconds
 usecs
 useint
+usemap
 uservar
 ushort
 usleep
@@ -4831,9 +4842,11 @@ araxis
 basedir
 buildsource
 cikit
+clrautoinput
 codebeat
 codecompare
 colback
+configures
 coreutils
 dandavison
 datadiode
@@ -4847,6 +4860,7 @@ dockerfile
 doesn
 egin
 faketime
+faultbase
 fbsd
 fossa
 furius
@@ -4855,6 +4869,7 @@ gtail
 guiffy
 inet
 inetutils
+interlace
 jmeld
 joeyh
 kdiff
@@ -4875,6 +4890,7 @@ nmap
 nolist
 nongnu
 norebuild
+opens
 perforce
 plasticscm
 prestosoft
@@ -4883,6 +4899,7 @@ scootersoftware
 sizeof
 sourcegear
 stdc
+stopnum
 tcblisting
 tcolorbox
 telnetrc
@@ -6723,6 +6740,7 @@ profdata
 profout
 realclean
 reallyclean
+showtemp
 symdef
 undodir
 useddef
@@ -7687,6 +7705,7 @@ address
 addressed
 addresses
 addressing
+addrmod
 addrs
 adds
 adequacy
@@ -8113,11 +8132,13 @@ breaking
 breakpoint
 breakpoints
 breaks
+brevity
 brew
 brief
 bring
 brisket
 broken
+brought
 browser
 brunelle
 brute
@@ -8431,6 +8452,7 @@ completion
 completions
 complexity
 compliance
+compliant
 complicated
 complications
 components
@@ -8493,6 +8515,7 @@ consequently
 consider
 considered
 considering
+considers
 consistency
 consistent
 consisting
@@ -8834,6 +8857,7 @@ determining
 detriment
 developed
 developer
+developers
 development
 deviation
 device
@@ -9009,6 +9033,7 @@ dumps
 duplex
 duplicate
 duplicated
+duration
 during
 dynamically
 each
@@ -9057,6 +9082,7 @@ emacs
 email
 embedded
 embedding
+emcall
 emergency
 emin
 emit
@@ -9081,6 +9107,7 @@ encoded
 encoding
 encompasses
 encountered
+encountering
 encounters
 encryption
 endian
@@ -9390,6 +9417,7 @@ floor
 flow
 flowchart
 flowcharts
+fluctuating
 flush
 flushes
 flushing
@@ -9462,6 +9490,7 @@ fullest
 fully
 functionalities
 functionality
+functioning
 functions
 funky
 funtions
@@ -9490,6 +9519,7 @@ generation
 generator
 generic
 generous
+genuine
 geometry
 german
 getting
@@ -9653,6 +9683,7 @@ historical
 histories
 history
 hits
+hitting
 hittner
 hlsearch
 hmmm
@@ -9731,6 +9762,7 @@ illegal
 illumos
 illustrate
 illustrated
+illustrates
 illustrations
 image
 images
@@ -9798,6 +9830,7 @@ indicated
 indicates
 indicating
 indications
+indicative
 indicator
 indicators
 indirect
@@ -9837,6 +9870,7 @@ initial
 initialization
 initializations
 initialize
+initializeandclear
 initialized
 initializer
 initializes
@@ -10028,6 +10062,7 @@ kill
 killed
 kind
 kinds
+kips
 kits
 klaus
 kludge
@@ -10059,6 +10094,7 @@ larger
 largest
 last
 lastly
+latency
 later
 latest
 latex
@@ -10208,6 +10244,7 @@ loopback
 looping
 loops
 loose
+loosening
 looser
 lose
 losing
@@ -10323,6 +10360,7 @@ mechanization
 media
 medical
 medium
+megawords
 meld
 member
 members
@@ -10419,6 +10457,7 @@ monday
 mondy
 monitored
 monitoring
+monitors
 monospace
 monotonic
 month
@@ -10527,6 +10566,8 @@ nicer
 nilson
 nine
 node
+nodebug
+nodis
 noexpandtab
 nomenclature
 nominal
@@ -10584,6 +10625,7 @@ numeric
 numerical
 numerically
 numerics
+nunits
 nuttin
 obeys
 obfuscated
@@ -10604,6 +10646,7 @@ occasional
 occluded
 occurred
 occurrence
+occurring
 occurs
 octal
 octet
@@ -10994,6 +11037,7 @@ primary
 primed
 priming
 primitive
+primitives
 principal
 principles
 print
@@ -11165,6 +11209,7 @@ readme
 reads
 ready
 realign
+reality
 realloc
 reallocations
 really
@@ -11208,6 +11253,7 @@ recommends
 recompiling
 recompress
 reconfigure
+reconfigured
 reconstitute
 recorded
 recording
@@ -11258,6 +11304,12 @@ refused
 regarding
 regardless
 regards
+regdumpaqi
+regdumpdsbr
+regdumpflt
+regdumpidx
+regdumpppr
+regdumppr
 regenerate
 regenerating
 regeneration
@@ -11455,6 +11507,7 @@ ribs
 richard
 rickhowe
 ride
+rightfully
 rights
 ring
 ringing
@@ -11494,6 +11547,7 @@ routines
 routing
 rows
 royalty
+rtos
 rubbed
 rubout
 ruff
@@ -11590,6 +11644,7 @@ sees
 segment
 segmented
 segments
+segno
 select
 selected
 selecting
@@ -11681,8 +11736,13 @@ shot
 should
 shoulder
 show
+showbuildinfohere
+showclockshere
+showdeviceshere
 shown
+showpromhere
 shows
+showversionhere
 shuffle
 shut
 shutdown
@@ -11846,6 +11906,7 @@ stage
 staged
 stages
 stall
+stalls
 stamper
 standard
 standards
@@ -11914,6 +11975,7 @@ strongly
 structure
 structured
 structures
+struggling
 stubs
 stuck
 studied
@@ -12213,6 +12275,7 @@ towards
 toxic
 trace
 traced
+traceext
 tracing
 track
 tracked
@@ -12330,6 +12393,7 @@ unassociated
 unattached
 unattended
 unavailable
+unavoidable
 unbiased
 unbootable
 unbounded
@@ -12479,10 +12543,12 @@ used
 useful
 usefulness
 useless
+usemap
 user
 userland
 username
 users
+userspace
 uses
 using
 usually

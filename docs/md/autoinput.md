@@ -1,6 +1,6 @@
 <!-- SPDX-License-Identifier: LicenseRef-DPS8M-Doc OR LicenseRef-CF-GAL -->
 <!-- SPDX-FileCopyrightText: 2022 The DPS8M Development Team -->
-<!-- scspell-id: 88158f69-3173-11ed-965f-80ee73e9b8e7 -->
+<!-- scspell-id: scspell-id: 8e8d9a46-3233-11ed-968f-80ee73e9b8e7 -->
 The `AUTOINPUT` command (abbreviated `AI`) provides the specified input to the
 primary operator console (OPC0):
 
@@ -11,7 +11,7 @@ primary operator console (OPC0):
 * The `AUTOINPUT` command can open the console for input only when a specific *matching string* is found.
   * To specify a *matching string*, use the form of "**`\yString\y`**" for a substring match, or "**`\xString\x`**" for an exact match.
 
-### Examples
+**Examples**
 
         ; Opens the console when AUTOINPUT sees the "M->" string.
         ; Any line of text containing this string will match.
