@@ -4240,11 +4240,11 @@ void add_l68_APU_history (enum APUH_e op)
     // 25 SDWAMM
     putbits36_1 (& w0,       25, cpu.cu.SDWAMM);
     // 26-29 SDWAMR
-    putbits36_4 (& w0, 26, (word4) cpu.SDWAMR);
+    putbits36_4 (& w0,       26, (word4) cpu.SDWAMR);
     // 30 PTWAMM
     putbits36_1 (& w0,       30, cpu.cu.PTWAMM);
     // 31-34 PTWAMR
-    putbits36_4 (& w0, 31, (word4) cpu.PTWAMR);
+    putbits36_4 (& w0,       31, (word4) cpu.PTWAMR);
     // 35 FLT
     PNL (putbits36_1 (& w0,  35, (cpu.apu.state & apu_FLT) ? 1 : 0);)
 
@@ -4268,7 +4268,7 @@ static const char * get_dbg_verb (uint32 dbits, DEVICE * dptr)
     static const char * debtab_none    = "DEBTAB_ISNULL";
     static const char * debtab_nomatch = "DEBTAB_NOMATCH";
     const char * some_match            = NULL;
-    int32 offset = 0;
+    int32 offset                       = 0;
 
     if (dptr->debflags == 0)
       return debtab_none;
@@ -4409,11 +4409,11 @@ void setupPROM (uint cpuNo, unsigned char * PROM) {
   //   Processor mode is set to 0 (Multics)
 
   //  0 -   3   4   Port interlace = 0000
-  putbits36_4 (& rsw2,  0,  0);
+  putbits36_4 (& rsw2,  0,   0);
   //  4 -   5   2   CPU type  01 = DPS8
   putbits36_2 (& rsw2,  4,  001);
   //  6 - 12    7   Fault Base  = 2
-  putbits36_7 (& rsw2,  6,  2);
+  putbits36_7 (& rsw2,  6,   2);
   // 13 - 13    1   PROM Present = 1
   putbits36_1 (& rsw2,  13,  1);
   // 14 - 18    5   Pad 00000

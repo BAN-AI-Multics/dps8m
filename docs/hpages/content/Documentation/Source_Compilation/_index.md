@@ -600,12 +600,27 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 ### Linux prerequisites
 
 Users of some **Red Hat** variants may need to enable the **PowerTools** repository or the **CodeReady Builder** AppStream to install **`libuv`**:
-* RHEL 8: `subscription-manager repos --enable codeready-builder-for-rhel-8-$(arch)-rpms`
-* CentOS Stream 8: `dnf config-manager --set-enabled powertools`
-* RHEL 9: `subscription-manager repos --enable codeready-builder-for-rhel-9-$(arch)-rpms`
-* CentOS Stream 9: `dnf config-manager --set-enabled crb`
 
-**Red Hat** offers the [**Red Hat Developer Toolset**](https://developers.redhat.com/products/developertoolset/) for **Red Hat Enterprise Linux** and **CentOS Stream**, which provides up-to-date versions of **GCC** on a rapid release cycle.  Check your packager manager (*i.e.* `dnf search`) for pakcages named **`gcc-toolset-12`** or similar.
+* RHEL 8:
+  ```sh
+  subscription-manager repos --enable \
+    "codeready-builder-for-rhel-8-$(arch)-rpms"
+  ```
+* CentOS Stream 8:
+  ```sh
+  dnf config-manager --set-enabled "powertools"
+  ```
+* RHEL 9:
+  ```sh
+  subscription-manager repos --enable \
+    "codeready-builder-for-rhel-9-$(arch)-rpms"
+  ```
+* CentOS Stream 9:
+  ```sh
+  dnf config-manager --set-enabled "crb"
+  ```
+
+Additionally, **Red Hat** offers the [**Red Hat Developer Toolset**](https://developers.redhat.com/products/developertoolset/) for **Red Hat Enterprise Linux** and **CentOS Stream**, which provides up-to-date versions of **GCC** on a rapid release cycle.  The *Toolset* packages are also included in various downstream distributions such as **AlmaLinux**. These tools are regularly tested and highly recommended by **The DPS8M Development Team**. Check your distribution packager manager (*i.e.* **`dnf search`**) for packages named **`gcc-toolset-12`** (or similar).
 
 Install the required prerequisites using a distribution package manager (or [**Homebrew on Linux**](https://docs.brew.sh/Homebrew-on-Linux)):
 

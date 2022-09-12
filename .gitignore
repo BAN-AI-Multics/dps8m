@@ -247,6 +247,7 @@ libuv-1.x/
 docs/yaml/docinfo-post.yml
 docs/*.tmp
 docs/*.sav
+docs/md/showtemp.md
 docs/commandref.md
 docs/md/commandref.md
 docs/dps8*.pdf

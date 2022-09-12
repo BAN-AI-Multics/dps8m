@@ -286,7 +286,7 @@ unset FLOCK_COMMAND > "/dev/null" 2>&1 || true
  cat -s "md/commandref.md" > "md/commandref.out" &&  \
      mv -f "md/commandref.out" "md/commandref.md"
 
- # Transform fenced blocks to Verbatims
+ # Transform dps8 fenced blocks to Verbatims in commandref.md
 ${SED:-sed} -i -e 's/```dps8/\\begin{tcolorbox}\[colback=black!2!white,breakable=true\]\n\\begin{Verbatim}\[fontsize=\\small\]/' -e 's/```/\\end{Verbatim}\n\\end{tcolorbox}/' "md/commandref.md"
 
  # Abuse GNU cat to compress consecutive empty lines again

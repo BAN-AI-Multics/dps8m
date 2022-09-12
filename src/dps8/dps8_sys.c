@@ -212,33 +212,33 @@ static char * default_base_system_script [] =
 //  014 MSP0 port 1    disk controller
 
     // ; Disconnect everything...
-    "cable_ripout",
+    "CABLE_RIPOUT",
 
-    "set cpu nunits=6",
-    "set iom nunits=2",
+    "SET CPU NUNITS=6",
+    "SET IOM NUNITS=2",
     // ; 16 drives plus a placeholder for the controller
-    "set tape nunits=17",
-    "set mtp nunits=1",
+    "SET TAPE NUNITS=17",
+    "SET MTP NUNITS=1",
     // ; 4 3381 drives; 2 controllers
     // ; 4 d501 drives; 2 controller
     // ; 4 d451 drives; same controller has d501s
     // ; 2 d500 drives; same controller has d501s
-    "set ipc nunits=2",
-    "set msp nunits=2",
-    "set disk nunits=26",
-    "set scu nunits=4",
-    "set opc nunits=2",
-    "set fnp nunits=8",
-    "set urp nunits=10",
-    "set rdr nunits=3",
-    "set pun nunits=3",
-    "set prt nunits=4",
+    "SET IPC NUNITS=2",
+    "SET MSP NUNITS=2",
+    "SET DISK NUNITS=26",
+    "SET SCU NUNITS=4",
+    "SET OPC NUNITS=2",
+    "SET FNP NUNITS=8",
+    "SET URP NUNITS=10",
+    "SET RDR NUNITS=3",
+    "SET PUN NUNITS=3",
+    "SET PRT NUNITS=4",
 # ifdef WITH_ABSI_DEV
 #  ifndef __MINGW64__
 #   ifndef __MINGW32__
 #    ifndef CROSS_MINGW64
 #     ifndef CROSS_MINGW32
-    "set absi nunits=1",
+    "SET ABSI NUNITS=1",
 #     endif /* ifndef CROSS_MINGW32 */
 #    endif /* ifndef CROSS_MINGW64 */
 #   endif /* ifndef __MINGW32__ */
@@ -249,7 +249,7 @@ static char * default_base_system_script [] =
 #   ifndef __MINGW32__
 #    ifndef CROSS_MINGW64
 #     ifndef CROSS_MINGW32
-    "set skc nunits=64",
+    "SET SKC NUNITS=64",
 #     endif /* ifndef CROSS_MINGW32 */
 #    endif /* ifndef CROSS_MINGW64 */
 #   endif /* ifndef __MINGW32__ */
@@ -258,13 +258,13 @@ static char * default_base_system_script [] =
 
 // CPU0
 
-    "set cpu0 config=faultbase=Multics",
+    "SET CPU0 CONFIG=FAULTBASE=Multics",
 
-    "set cpu0 config=num=0",
+    "SET CPU0 CONFIG=NUM=0",
     // ; As per GB61-01 Operators Guide, App. A
     // ; switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
-    "set cpu0 config=data=024000717200",
-    "set cpu0 config=address=000000000000",
+    "SET CPU0 CONFIG=DATA=024000717200",
+    "SET CPU0 CONFIG=ADDRESS=000000000000",
 
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
@@ -282,67 +282,67 @@ static char * default_base_system_script [] =
     // ;              6 - 2M
     // ;              7 - 4M
 
-    "set cpu0 config=port=A",
-    "set cpu0   config=assignment=0",
-    "set cpu0   config=interlace=0",
-    "set cpu0   config=enable=1",
-    "set cpu0   config=init_enable=1",
-    "set cpu0   config=store_size=4M",
+    "SET CPU0 CONFIG=PORT=A",
+    "SET CPU0   CONFIG=ASSIGNMENT=0",
+    "SET CPU0   CONFIG=INTERLACE=0",
+    "SET CPU0   CONFIG=ENABLE=1",
+    "SET CPU0   CONFIG=INIT_ENABLE=1",
+    "SET CPU0   CONFIG=STORE_SIZE=4M",
 
-    "set cpu0 config=port=B",
-    "set cpu0   config=assignment=1",
-    "set cpu0   config=interlace=0",
-    "set cpu0   config=enable=1",
-    "set cpu0   config=init_enable=1",
-    "set cpu0   config=store_size=4M",
+    "SET CPU0 CONFIG=PORT=B",
+    "SET CPU0   CONFIG=ASSIGNMENT=1",
+    "SET CPU0   CONFIG=INTERLACE=0",
+    "SET CPU0   CONFIG=ENABLE=1",
+    "SET CPU0   CONFIG=INIT_ENABLE=1",
+    "SET CPU0   CONFIG=STORE_SIZE=4M",
 
-    "set cpu0 config=port=C",
-    "set cpu0   config=assignment=2",
-    "set cpu0   config=interlace=0",
-    "set cpu0   config=enable=1",
-    "set cpu0   config=init_enable=1",
-    "set cpu0   config=store_size=4M",
+    "SET CPU0 CONFIG=PORT=C",
+    "SET CPU0   CONFIG=ASSIGNMENT=2",
+    "SET CPU0   CONFIG=INTERLACE=0",
+    "SET CPU0   CONFIG=ENABLE=1",
+    "SET CPU0   CONFIG=INIT_ENABLE=1",
+    "SET CPU0   CONFIG=STORE_SIZE=4M",
 
-    "set cpu0 config=port=D",
-    "set cpu0   config=assignment=3",
-    "set cpu0   config=interlace=0",
-    "set cpu0   config=enable=1",
-    "set cpu0   config=init_enable=1",
-    "set cpu0   config=store_size=4M",
+    "SET CPU0 CONFIG=PORT=D",
+    "SET CPU0   CONFIG=ASSIGNMENT=3",
+    "SET CPU0   CONFIG=INTERLACE=0",
+    "SET CPU0   CONFIG=ENABLE=1",
+    "SET CPU0   CONFIG=INIT_ENABLE=1",
+    "SET CPU0   CONFIG=STORE_SIZE=4M",
 
     // ; 0 = GCOS 1 = VMS
-    "set cpu0 config=mode=Multics",
+    "SET CPU0 CONFIG=MODE=Multics",
 
-    "set cpu0 config=enable_cache=enable",
-    "set cpu0 config=sdwam=enable",
-    "set cpu0 config=ptwam=enable",
+    "SET CPU0 CONFIG=ENABLE_CACHE=enable",
+    "SET CPU0 CONFIG=SDWAM=enable",
+    "SET CPU0 CONFIG=PTWAM=enable",
 
     // ; 0 = 8/70
-    "set cpu0 config=speed=0",
+    "SET CPU0 CONFIG=SPEED=0",
 
-    "set cpu0 config=dis_enable=enable",
-    "set cpu0 config=steady_clock=disable",
-    "set cpu0 config=halt_on_unimplemented=disable",
-    "set cpu0 config=enable_wam=disable",
-    "set cpu0 config=report_faults=disable",
-    "set cpu0 config=tro_enable=enable",
-    "set cpu0 config=y2k=disable",
-    "set cpu0 config=drl_fatal=disable",
-    "set cpu0 config=useMap=disable",
-    "set cpu0 config=prom_installed=enable",
-    "set cpu0 config=hex_mode_installed=disable",
-    "set cpu0 config=cache_installed=enable",
-    "set cpu0 config=clock_slave_installed=enable",
+    "SET CPU0 CONFIG=DIS_ENABLE=enable",
+    "SET CPU0 CONFIG=STEADY_CLOCK=disable",
+    "SET CPU0 CONFIG=HALT_ON_UNIMPLEMENTED=disable",
+    "SET CPU0 CONFIG=ENABLE_WAM=disable",
+    "SET CPU0 CONFIG=REPORT_FAULTS=disable",
+    "SET CPU0 CONFIG=TRO_ENABLE=enable",
+    "SET CPU0 CONFIG=Y2K=disable",
+    "SET CPU0 CONFIG=DRL_FATAL=disable",
+    "SET CPU0 CONFIG=USEMAP=disable",
+    "SET CPU0 CONFIG=PROM_INSTALLED=enable",
+    "SET CPU0 CONFIG=HEX_MODE_INSTALLED=disable",
+    "SET CPU0 CONFIG=CACHE_INSTALLED=enable",
+    "SET CPU0 CONFIG=CLOCK_SLAVE_INSTALLED=enable",
 
 // CPU1
 
-    "set cpu1 config=faultbase=Multics",
+    "SET CPU1 CONFIG=FAULTBASE=Multics",
 
-    "set cpu1 config=num=1",
+    "SET CPU1 CONFIG=NUM=1",
     // ; As per GB61-01 Operators Guide, App. A
     // ; switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
-    "set cpu1 config=data=024000717200",
-    "set cpu1 config=address=000000000000",
+    "SET CPU1 CONFIG=DATA=024000717200",
+    "SET CPU1 CONFIG=ADDRESS=000000000000",
 
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
@@ -360,67 +360,67 @@ static char * default_base_system_script [] =
     // ;              6 - 2M
     // ;              7 - 4M
 
-    "set cpu1 config=port=A",
-    "set cpu1   config=assignment=0",
-    "set cpu1   config=interlace=0",
-    "set cpu1   config=enable=1",
-    "set cpu1   config=init_enable=1",
-    "set cpu1   config=store_size=4M",
+    "SET CPU1 CONFIG=PORT=A",
+    "SET CPU1   CONFIG=ASSIGNMENT=0",
+    "SET CPU1   CONFIG=INTERLACE=0",
+    "SET CPU1   CONFIG=ENABLE=1",
+    "SET CPU1   CONFIG=INIT_ENABLE=1",
+    "SET CPU1   CONFIG=STORE_SIZE=4M",
 
-    "set cpu1 config=port=B",
-    "set cpu1   config=assignment=1",
-    "set cpu1   config=interlace=0",
-    "set cpu1   config=enable=1",
-    "set cpu1   config=init_enable=1",
-    "set cpu1   config=store_size=4M",
+    "SET CPU1 CONFIG=PORT=B",
+    "SET CPU1   CONFIG=ASSIGNMENT=1",
+    "SET CPU1   CONFIG=INTERLACE=0",
+    "SET CPU1   CONFIG=ENABLE=1",
+    "SET CPU1   CONFIG=INIT_ENABLE=1",
+    "SET CPU1   CONFIG=STORE_SIZE=4M",
 
-    "set cpu1 config=port=C",
-    "set cpu1   config=assignment=2",
-    "set cpu1   config=interlace=0",
-    "set cpu1   config=enable=1",
-    "set cpu1   config=init_enable=1",
-    "set cpu1   config=store_size=4M",
+    "SET CPU1 CONFIG=PORT=C",
+    "SET CPU1   CONFIG=ASSIGNMENT=2",
+    "SET CPU1   CONFIG=INTERLACE=0",
+    "SET CPU1   CONFIG=ENABLE=1",
+    "SET CPU1   CONFIG=INIT_ENABLE=1",
+    "SET CPU1   CONFIG=STORE_SIZE=4M",
 
-    "set cpu1 config=port=D",
-    "set cpu1   config=assignment=3",
-    "set cpu1   config=interlace=0",
-    "set cpu1   config=enable=1",
-    "set cpu1   config=init_enable=1",
-    "set cpu1   config=store_size=4M",
+    "SET CPU1 CONFIG=PORT=D",
+    "SET CPU1   CONFIG=ASSIGNMENT=3",
+    "SET CPU1   CONFIG=INTERLACE=0",
+    "SET CPU1   CONFIG=ENABLE=1",
+    "SET CPU1   CONFIG=INIT_ENABLE=1",
+    "SET CPU1   CONFIG=STORE_SIZE=4M",
 
     // ; 0 = GCOS 1 = VMS
-    "set cpu1 config=mode=Multics",
+    "SET CPU1 CONFIG=MODE=Multics",
 
-    "set cpu1 config=enable_cache=enable",
-    "set cpu1 config=sdwam=enable",
-    "set cpu1 config=ptwam=enable",
+    "SET CPU1 CONFIG=ENABLE_CACHE=enable",
+    "SET CPU1 CONFIG=SDWAM=enable",
+    "SET CPU1 CONFIG=PTWAM=enable",
 
     // ; 0 = 8/70
-    "set cpu1 config=speed=0",
+    "SET CPU1 CONFIG=SPEED=0",
 
-    "set cpu1 config=dis_enable=enable",
-    "set cpu1 config=steady_clock=disable",
-    "set cpu1 config=halt_on_unimplemented=disable",
-    "set cpu1 config=enable_wam=disable",
-    "set cpu1 config=report_faults=disable",
-    "set cpu1 config=tro_enable=enable",
-    "set cpu1 config=y2k=disable",
-    "set cpu1 config=drl_fatal=disable",
-    "set cpu1 config=useMap=disable",
-    "set cpu1 config=prom_installed=enable",
-    "set cpu1 config=hex_mode_installed=disable",
-    "set cpu1 config=cache_installed=enable",
-    "set cpu1 config=clock_slave_installed=enable",
+    "SET CPU1 CONFIG=DIS_ENABLE=enable",
+    "SET CPU1 CONFIG=STEADY_CLOCK=disable",
+    "SET CPU1 CONFIG=HALT_ON_UNIMPLEMENTED=disable",
+    "SET CPU1 CONFIG=ENABlE_WAM=disable",
+    "SET CPU1 CONFIG=REPORT_FAULTS=disable",
+    "SET CPU1 CONFIG=TRO_ENABLE=enable",
+    "SET CPU1 CONFIG=Y2K=disable",
+    "SET CPU1 CONFIG=DRL_FATAL=disable",
+    "SET CPU1 CONFIG=USEMAP=disable",
+    "SET CPU1 CONFIG=PROM_INSTALLED=enable",
+    "SET CPU1 CONFIG=HEX_MODE_INSTALLED=disable",
+    "SET CPU1 CONFIG=CACHE_INSTALLED=enable",
+    "SET CPU1 CONFIG=CLOCK_SLAVE_INSTALLED=enable",
 
 // CPU2
 
-    "set cpu2 config=faultbase=Multics",
+    "SET CPU2 CONFIG=FAULTBASE=Multics",
 
-    "set cpu2 config=num=2",
+    "SET CPU2 CONFIG=NUM=2",
     // ; As per GB61-01 Operators Guide, App. A
     // ; switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
-    "set cpu2 config=data=024000717200",
-    "set cpu2 config=address=000000000000",
+    "SET CPU2 CONFIG=DATA=024000717200",
+    "SET CPU2 CONFIG=ADDRESS=000000000000",
 
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
@@ -438,67 +438,67 @@ static char * default_base_system_script [] =
     // ;              6 - 2M
     // ;              7 - 4M
 
-    "set cpu2 config=port=A",
-    "set cpu2   config=assignment=0",
-    "set cpu2   config=interlace=0",
-    "set cpu2   config=enable=1",
-    "set cpu2   config=init_enable=1",
-    "set cpu2   config=store_size=4M",
+    "SET CPU2 CONFIG=PORT=A",
+    "SET CPU2   CONFIG=ASSIGNMENT=0",
+    "SET CPU2   CONFIG=INTERLACE=0",
+    "SET CPU2   CONFIG=ENABLE=1",
+    "SET CPU2   CONFIG=INIT_ENABLE=1",
+    "SET CPU2   CONFIG=STORE_SIZE=4M",
 
-    "set cpu2 config=port=B",
-    "set cpu2   config=assignment=1",
-    "set cpu2   config=interlace=0",
-    "set cpu2   config=enable=1",
-    "set cpu2   config=init_enable=1",
-    "set cpu2   config=store_size=4M",
+    "SET CPU2 CONFIG=PORT=B",
+    "SET CPU2   CONFIG=ASSIGNMENT=1",
+    "SET CPU2   CONFIG=INTERLACE=0",
+    "SET CPU2   CONFIG=ENABLE=1",
+    "SET CPU2   CONFIG=INIT_ENABLE=1",
+    "SET CPU2   CONFIG=STORE_SIZE=4M",
 
-    "set cpu2 config=port=C",
-    "set cpu2   config=assignment=2",
-    "set cpu2   config=interlace=0",
-    "set cpu2   config=enable=1",
-    "set cpu2   config=init_enable=1",
-    "set cpu2   config=store_size=4M",
+    "SET CPU2 CONFIG=PORT=C",
+    "SET CPU2   CONFIG=ASSIGNMENT=2",
+    "SET CPU2   CONFIG=INTERLACE=0",
+    "SET CPU2   CONFIG=ENABLE=1",
+    "SET CPU2   CONFIG=INIT_ENABLE=1",
+    "SET CPU2   CONFIG=STORE_SIZE=4M",
 
-    "set cpu2 config=port=D",
-    "set cpu2   config=assignment=3",
-    "set cpu2   config=interlace=0",
-    "set cpu2   config=enable=1",
-    "set cpu2   config=init_enable=1",
-    "set cpu2   config=store_size=4M",
+    "SET CPU2 CONFIG=PORT=D",
+    "SET CPU2   CONFIG=ASSIGNMENT=3",
+    "SET CPU2   CONFIG=INTERLACE=0",
+    "SET CPU2   CONFIG=ENABLE=1",
+    "SET CPU2   CONFIG=INIT_ENABLE=1",
+    "SET CPU2   CONFIG=STORE_SIZE=4M",
 
     // ; 0 = GCOS 1 = VMS
-    "set cpu2 config=mode=Multics",
+    "SET CPU2 CONFIG=MODE=Multics",
 
-    "set cpu2 config=enable_cache=enable",
-    "set cpu2 config=sdwam=enable",
-    "set cpu2 config=ptwam=enable",
+    "SET CPU2 CONFIG=ENABLE_CACHE=enable",
+    "SET CPU2 CONFIG=SDWAM=enable",
+    "SET CPU2 CONFIG=PTWAM=enable",
 
     // ; 0 = 8/70
-    "set cpu2 config=speed=0",
+    "SET CPU2 CONFIG=SPEED=0",
 
-    "set cpu2 config=dis_enable=enable",
-    "set cpu2 config=steady_clock=disable",
-    "set cpu2 config=halt_on_unimplemented=disable",
-    "set cpu2 config=enable_wam=disable",
-    "set cpu2 config=report_faults=disable",
-    "set cpu2 config=tro_enable=enable",
-    "set cpu2 config=y2k=disable",
-    "set cpu2 config=drl_fatal=disable",
-    "set cpu2 config=useMap=disable",
-    "set cpu2 config=prom_installed=enable",
-    "set cpu2 config=hex_mode_installed=disable",
-    "set cpu2 config=cache_installed=enable",
-    "set cpu2 config=clock_slave_installed=enable",
+    "SET CPU2 CONFIG=DIS_ENABLE=enable",
+    "SET CPU2 CONFIG=STEADY_CLOCK=disable",
+    "SET CPU2 CONFIG=HALT_ON_UNIMPLEMENTED=disable",
+    "SET CPU2 CONFIG=ENABLE_WAM=disable",
+    "SET CPU2 CONFIG=REPORT_FAULTS=disable",
+    "SET CPU2 CONFIG=TRO_ENABLE=enable",
+    "SET CPU2 CONFIG=Y2K=disable",
+    "SET CPU2 CONFIG=DRL_FATAL=disable",
+    "SET CPU2 CONFIG=USEMAP=disAble",
+    "SET CPU2 CONFIG=PROM_INSTALLED=enable",
+    "SET CPU2 CONFIG=HEX_MODE_INSTALLED=disable",
+    "SET CPU2 CONFIG=CACHE_INSTALLED=enable",
+    "SET CPU2 CONFIG=CLOCK_SLAVE_INSTALLED=enable",
 
 // CPU3
 
-    "set cpu3 config=faultbase=Multics",
+    "SET CPU3 CONFIG=FAULTBASE=Multics",
 
-    "set cpu3 config=num=3",
+    "SET CPU3 CONFIG=NUM=3",
     // ; As per GB61-01 Operators Guide, App. A
     // ; switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
-    "set cpu3 config=data=024000717200",
-    "set cpu3 config=address=000000000000",
+    "SET CPU3 CONFIG=DATA=024000717200",
+    "SET CPU3 CONFIG=ADDRESS=000000000000",
 
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
@@ -516,67 +516,67 @@ static char * default_base_system_script [] =
     // ;              6 - 2M
     // ;              7 - 4M
 
-    "set cpu3 config=port=A",
-    "set cpu3   config=assignment=0",
-    "set cpu3   config=interlace=0",
-    "set cpu3   config=enable=1",
-    "set cpu3   config=init_enable=1",
-    "set cpu3   config=store_size=4M",
+    "SET CPU3 CONFIG=PORT=A",
+    "SET CPU3   CONFIG=ASSIGNMENT=0",
+    "SET CPU3   CONFIG=INTERLACE=0",
+    "SET CPU3   CONFIG=ENABLE=1",
+    "SET CPU3   CONFIG=INIT_ENABLE=1",
+    "SET CPU3   CONFIG=STORE_SIZE=4M",
 
-    "set cpu3 config=port=B",
-    "set cpu3   config=assignment=1",
-    "set cpu3   config=interlace=0",
-    "set cpu3   config=enable=1",
-    "set cpu3   config=init_enable=1",
-    "set cpu3   config=store_size=4M",
+    "SET CPU3 CONFIG=PORT=B",
+    "SET CPU3   CONFIG=ASSIGNMENT=1",
+    "SET CPU3   CONFIG=INTERLACE=0",
+    "SET CPU3   CONFIG=ENABLE=1",
+    "SET CPU3   CONFIG=INIT_ENABLE=1",
+    "SET CPU3   CONFIG=STORE_SIZE=4M",
 
-    "set cpu3 config=port=C",
-    "set cpu3   config=assignment=2",
-    "set cpu3   config=interlace=0",
-    "set cpu3   config=enable=1",
-    "set cpu3   config=init_enable=1",
-    "set cpu3   config=store_size=4M",
+    "SET CPU3 CONFIG=PORT=C",
+    "SET CPU3   CONFIG=ASSIGNMENT=2",
+    "SET CPU3   CONFIG=INTERLACE=0",
+    "SET CPU3   CONFIG=ENABLE=1",
+    "SET CPU3   CONFIG=INIT_ENABLE=1",
+    "SET CPU3   CONFIG=STORE_SIZE=4M",
 
-    "set cpu3 config=port=D",
-    "set cpu3   config=assignment=3",
-    "set cpu3   config=interlace=0",
-    "set cpu3   config=enable=1",
-    "set cpu3   config=init_enable=1",
-    "set cpu3   config=store_size=4M",
+    "SET CPU3 CONFIG=PORT=D",
+    "SET CPU3   CONFIG=ASSIGNMENT=3",
+    "SET CPU3   CONFIG=INTERLACE=0",
+    "SET CPU3   CONFIG=ENABLE=1",
+    "SET CPU3   CONFIG=INIT_ENABLE=1",
+    "SET CPU3   CONFIG=STORE_SIZE=4M",
 
     // ; 0 = GCOS 1 = VMS
-    "set cpu3 config=mode=Multics",
+    "SET CPU3 CONFIG=MODE=Multics",
 
-    "set cpu3 config=enable_cache=enable",
-    "set cpu3 config=sdwam=enable",
-    "set cpu3 config=ptwam=enable",
+    "SET CPU3 CONFIG=ENABLE_CACHE=enable",
+    "SET CPU3 CONFIG=SDWAM=enable",
+    "SET CPU3 CONFIG=PTWAM=enable",
 
     // ; 0 = 8/70
-    "set cpu3 config=speed=0",
+    "SET CPU3 CONFIG=SPEED=0",
 
-    "set cpu3 config=dis_enable=enable",
-    "set cpu3 config=steady_clock=disable",
-    "set cpu3 config=halt_on_unimplemented=disable",
-    "set cpu3 config=enable_wam=disable",
-    "set cpu3 config=report_faults=disable",
-    "set cpu3 config=tro_enable=enable",
-    "set cpu3 config=y2k=disable",
-    "set cpu3 config=drl_fatal=disable",
-    "set cpu3 config=useMap=disable",
-    "set cpu3 config=prom_installed=enable",
-    "set cpu3 config=hex_mode_installed=disable",
-    "set cpu3 config=cache_installed=enable",
-    "set cpu3 config=clock_slave_installed=enable",
+    "SET CPU3 CONFIG=DIS_ENABLE=enable",
+    "SET CPU3 CONFIG=STEADY_CLOCK=disable",
+    "SET CPU3 CONFIG=HALT_ON_UNIMPLEMENTED=disable",
+    "SET CPU3 CONFIG=ENABLE_WAM=disable",
+    "SET CPU3 CONFIG=REPORT_FAULTS=disable",
+    "SET CPU3 CONFIG=TRO_ENABLE=enable",
+    "SET CPU3 CONFIG=Y2K=disable",
+    "SET CPU3 CONFIG=DRL_FATAL=disable",
+    "SET CPU3 CONFIG=USEMAP=disable",
+    "SET CPU3 CONFIG=PROM_INSTALLED=enable",
+    "SET CPU3 CONFIG=HEX_MODE_INSTALLED=disable",
+    "SET CPU3 CONFIG=CACHE_INSTALLED=enable",
+    "SET CPU3 CONFIG=CLOCK_SLAVE_INSTALLED=enable",
 
 // CPU4
 
-    "set cpu4 config=faultbase=Multics",
+    "SET CPU4 CONFIG=FAULTBASE=Multics",
 
-    "set cpu4 config=num=4",
+    "SET CPU4 CONFIG=NUM=4",
     // ; As per GB61-01 Operators Guide, App. A
     // ; switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
-    "set cpu4 config=data=024000717200",
-    "set cpu4 config=address=000000000000",
+    "SET CPU4 CONFIG=DATA=024000717200",
+    "SET CPU4 CONFIG=ADDRESS=000000000000",
 
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
@@ -594,67 +594,67 @@ static char * default_base_system_script [] =
     // ;              6 - 2M
     // ;              7 - 4M
 
-    "set cpu4 config=port=A",
-    "set cpu4   config=assignment=0",
-    "set cpu4   config=interlace=0",
-    "set cpu4   config=enable=1",
-    "set cpu4   config=init_enable=1",
-    "set cpu4   config=store_size=4M",
+    "SET CPU4 CONFIG=PORT=A",
+    "SET CPU4   CONFIG=ASSIGNMENT=0",
+    "SET CPU4   CONFIG=INTERLACE=0",
+    "SET CPU4   CONFIG=ENABLE=1",
+    "SET CPU4   CONFIG=INIT_ENABLE=1",
+    "SET CPU4   CONFIG=STORE_SIZE=4M",
 
-    "set cpu4 config=port=B",
-    "set cpu4   config=assignment=1",
-    "set cpu4   config=interlace=0",
-    "set cpu4   config=enable=1",
-    "set cpu4   config=init_enable=1",
-    "set cpu4   config=store_size=4M",
+    "SET CPU4 CONFIG=PORT=B",
+    "SET CPU4   CONFIG=ASSIGNMENT=1",
+    "SET CPU4   CONFIG=INTERLACE=0",
+    "SET CPU4   CONFIG=ENABLE=1",
+    "SET CPU4   CONFIG=INIT_ENABLE=1",
+    "SET CPU4   CONFIG=STORE_SIZE=4M",
 
-    "set cpu4 config=port=C",
-    "set cpu4   config=assignment=2",
-    "set cpu4   config=interlace=0",
-    "set cpu4   config=enable=1",
-    "set cpu4   config=init_enable=1",
-    "set cpu4   config=store_size=4M",
+    "SET CPU4 CONFIG=PORT=C",
+    "SET CPU4   CONFIG=ASSIGNMENT=2",
+    "SET CPU4   CONFIG=INTERLACE=0",
+    "SET CPU4   CONFIG=ENABLE=1",
+    "SET CPU4   CONFIG=INIT_ENABLE=1",
+    "SET CPU4   CONFIG=STORE_SIZE=4M",
 
-    "set cpu4 config=port=D",
-    "set cpu4   config=assignment=3",
-    "set cpu4   config=interlace=0",
-    "set cpu4   config=enable=1",
-    "set cpu4   config=init_enable=1",
-    "set cpu4   config=store_size=4M",
+    "SET CPU4 CONFIG=PORT=D",
+    "SET CPU4   CONFIG=ASSIGNMENT=3",
+    "SET CPU4   CONFIG=INTERLACE=0",
+    "SET CPU4   CONFIG=ENABLE=1",
+    "SET CPU4   CONFIG=INIT_ENABLE=1",
+    "SET CPU4   CONFIG=STORE_SIZE=4M",
 
     // ; 0 = GCOS 1 = VMS
-    "set cpu4 config=mode=Multics",
+    "SET CPU4 CONFIG=MODE=Multics",
 
-    "set cpu4 config=enable_cache=enable",
-    "set cpu4 config=sdwam=enable",
-    "set cpu4 config=ptwam=enable",
+    "SET CPU4 CONFIG=ENABLE_CACHE=enable",
+    "SET CPU4 CONFIG=SDWAM=enable",
+    "SET CPU4 CONFIG=PTWAM=enable",
 
     // ; 0 = 8/70
-    "set cpu4 config=speed=0",
+    "SET CPU4 CONFIG=SPEED=0",
 
-    "set cpu4 config=dis_enable=enable",
-    "set cpu4 config=steady_clock=disable",
-    "set cpu4 config=halt_on_unimplemented=disable",
-    "set cpu4 config=enable_wam=disable",
-    "set cpu4 config=report_faults=disable",
-    "set cpu4 config=tro_enable=enable",
-    "set cpu4 config=y2k=disable",
-    "set cpu4 config=drl_fatal=disable",
-    "set cpu4 config=useMap=disable",
-    "set cpu4 config=prom_installed=enable",
-    "set cpu4 config=hex_mode_installed=disable",
-    "set cpu4 config=cache_installed=enable",
-    "set cpu4 config=clock_slave_installed=enable",
+    "SET CPU4 CONFIG=DIS_ENABLE=enable",
+    "SET CPU4 CONFIG=STEADY_CLOCK=disable",
+    "SET CPU4 CONFIG=HALT_ON_UNIMPLEMENTED=disable",
+    "SET CPU4 CONFIG=ENABLE_WAM=disable",
+    "SET CPU4 CONFIG=REPORT_FAULTS=disable",
+    "SET CPU4 CONFIG=TRO_ENABLE=enable",
+    "SET CPU4 CONFIG=Y2K=disable",
+    "SET CPU4 CONFIG=DRL_FATAL=disable",
+    "SET CPU4 CONFIG=USEMAP=disable",
+    "SET CPU4 CONFIG=PROM_INSTALLED=enable",
+    "SET CPU4 CONFIG=HEX_MODE_INSTALLED=disable",
+    "SET CPU4 CONFIG=CACHE_INSTALLED=enable",
+    "SET CPU4 CONFIG=CLOCK_SLAVE_INSTALLED=enable",
 
 // CPU5
 
-    "set cpu5 config=faultbase=Multics",
+    "SET CPU5 CONFIG=FAULTBASE=Multics",
 
-    "set cpu5 config=num=5",
+    "SET CPU5 CONFIG=NUM=5",
     // ; As per GB61-01 Operators Guide, App. A
     // ; switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
-    "set cpu5 config=data=024000717200",
-    "set cpu5 config=address=000000000000",
+    "SET CPU5 CONFIG=DATA=024000717200",
+    "SET CPU5 CONFIG=ADDRESS=000000000000",
 
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
@@ -672,68 +672,68 @@ static char * default_base_system_script [] =
     // ;              6 - 2M
     // ;              7 - 4M
 
-    "set cpu5 config=port=A",
-    "set cpu5   config=assignment=0",
-    "set cpu5   config=interlace=0",
-    "set cpu5   config=enable=1",
-    "set cpu5   config=init_enable=1",
-    "set cpu5   config=store_size=4M",
+    "SET CPU5 CONFIG=PORT=A",
+    "SET CPU5   CONFIG=ASSIGNMENT=0",
+    "SET CPU5   CONFIG=INTERLACE=0",
+    "SET CPU5   CONFIG=ENABLE=1",
+    "SET CPU5   CONFIG=INIT_ENABLE=1",
+    "SET CPU5   CONFIG=STORE_SIZE=4M",
 
-    "set cpu5 config=port=B",
-    "set cpu5   config=assignment=1",
-    "set cpu5   config=interlace=0",
-    "set cpu5   config=enable=1",
-    "set cpu5   config=init_enable=1",
-    "set cpu5   config=store_size=4M",
+    "SET CPU5 CONFIG=PORT=B",
+    "SET CPU5   CONFIG=ASSIGNMENT=1",
+    "SET CPU5   CONFIG=INTERLACE=0",
+    "SET CPU5   CONFIG=ENABLE=1",
+    "SET CPU5   CONFIG=INIT_ENABLE=1",
+    "SET CPU5   CONFIG=STORE_SIZE=4M",
 
-    "set cpu5 config=port=C",
-    "set cpu5   config=assignment=2",
-    "set cpu5   config=interlace=0",
-    "set cpu5   config=enable=1",
-    "set cpu5   config=init_enable=1",
-    "set cpu5   config=store_size=4M",
+    "SET CPU5 CONFIG=PORT=C",
+    "SET CPU5   CONFIG=ASSIGNMENT=2",
+    "SET CPU5   CONFIG=INTERLACE=0",
+    "SET CPU5   CONFIG=ENABLE=1",
+    "SET CPU5   CONFIG=INIT_ENABLE=1",
+    "SET CPU5   CONFIG=STORE_SIZE=4M",
 
-    "set cpu5 config=port=D",
-    "set cpu5   config=assignment=3",
-    "set cpu5   config=interlace=0",
-    "set cpu5   config=enable=1",
-    "set cpu5   config=init_enable=1",
-    "set cpu5   config=store_size=4M",
+    "SET CPU5 CONFIG=PORT=D",
+    "SET CPU5   CONFIG=ASSIGNMENT=3",
+    "SET CPU5   CONFIG=INTERLACE=0",
+    "SET CPU5   CONFIG=ENABLE=1",
+    "SET CPU5   CONFIG=INIT_ENABLE=1",
+    "SET CPU5   CONFIG=STORE_SIZE=4M",
 
     // ; 0 = GCOS 1 = VMS
-    "set cpu5 config=mode=Multics",
+    "SET CPU5 CONFIG=MODE=Multics",
 
-    "set cpu5 config=enable_cache=enable",
-    "set cpu5 config=sdwam=enable",
-    "set cpu5 config=ptwam=enable",
+    "SET CPU5 CONFIG=ENABLE_CACHE=enable",
+    "SET CPU5 CONFIG=SDWAM=enable",
+    "SET CPU5 CONFIG=PTWAM=enable",
 
     // ; 0 = 8/70
-    "set cpu5 config=speed=0",
+    "SET CPU5 CONFIG=SPEED=0",
 
-    "set cpu5 config=dis_enable=enable",
-    "set cpu5 config=steady_clock=disable",
-    "set cpu5 config=halt_on_unimplemented=disable",
-    "set cpu5 config=enable_wam=disable",
-    "set cpu5 config=report_faults=disable",
-    "set cpu5 config=tro_enable=enable",
-    "set cpu5 config=y2k=disable",
-    "set cpu5 config=drl_fatal=disable",
-    "set cpu5 config=useMap=disable",
-    "set cpu5 config=prom_installed=enable",
-    "set cpu5 config=hex_mode_installed=disable",
-    "set cpu5 config=cache_installed=enable",
-    "set cpu5 config=clock_slave_installed=enable",
+    "SET CPU5 CONFIG=DIS_ENABLE=enable",
+    "SET CPU5 CONFIG=STEADY_CLOCK=disable",
+    "SET CPU5 CONFIG=HALT_ON_UNIMPLEMENTED=disable",
+    "SET CPU5 CONFIG=ENABLE_WAM=disable",
+    "SET CPU5 CONFIG=REPORT_FAULTS=disable",
+    "SET CPU5 CONFIG=TRO_ENABLE=enable",
+    "SET CPU5 CONFIG=Y2K=disable",
+    "SET CPU5 CONFIG=DRL_FATAL=disable",
+    "SET CPU5 CONFIG=USEMAP=disable",
+    "SET CPU5 CONFIG=PROM_INSTALLED=enable",
+    "SET CPU5 CONFIG=HEX_MODE_INSTALLED=disable",
+    "SET CPU5 CONFIG=CACHE_INSTALLED=enable",
+    "SET CPU5 CONFIG=CLOCK_SLAVE_INSTALLED=enable",
 
-# if 0 // Until the port expander code is working
+# if 0 // Disabled until the port expander code is working
 // CPU6
 
-    "set cpu6 config=faultbase=Multics",
+    "SET CPU6 CONFIG=FAULTBASE=Multics",
 
-    "set cpu6 config=num=6",
+    "SET CPU6 CONFIG=NUM=6",
     // ; As per GB61-01 Operators Guide, App. A
     // ; switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
-    "set cpu6 config=data=024000717200",
-    "set cpu6 config=address=000000000000",
+    "SET CPU6 CONFIG=DATA=024000717200",
+    "SET CPU6 CONFIG=ADDRESS=000000000000",
 
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
@@ -751,71 +751,71 @@ static char * default_base_system_script [] =
     // ;              6 - 2M
     // ;              7 - 4M
 
-    "set cpu6 config=port=A",
-    "set cpu6   config=assignment=0",
-    "set cpu6   config=interlace=0",
-    "set cpu6   config=enable=1",
-    "set cpu6   config=init_enable=1",
-    "set cpu6   config=store_size=4M",
+    "SET CPU6 CONFIG=PORT=A",
+    "SET CPU6   CONFIG=ASSIGNMENT=0",
+    "SET CPU6   CONFIG=INTERLACE=0",
+    "SET CPU6   CONFIG=ENABLE=1",
+    "SET CPU6   CONFIG=INIT_ENABLE=1",
+    "SET CPU6   CONFIG=STORE_SIZE=4M",
 
-    "set cpu6 config=port=B",
-    "set cpu6   config=assignment=1",
-    "set cpu6   config=interlace=0",
-    "set cpu6   config=enable=1",
-    "set cpu6   config=init_enable=1",
-    "set cpu6   config=store_size=4M",
+    "SET CPU6 CONFIG=PORT=B",
+    "SET CPU6   CONFIG=ASSIGNMENT=1",
+    "SET CPU6   CONFIG=INTERLACE=0",
+    "SET CPU6   CONFIG=ENABLE=1",
+    "SET CPU6   CONFIG=INIT_ENABLE=1",
+    "SET CPU6   CONFIG=STORE_SIZE=4M",
 
-    "set cpu6 config=port=C",
-    "set cpu6   config=assignment=2",
-    "set cpu6   config=interlace=0",
-    "set cpu6   config=enable=1",
-    "set cpu6   config=init_enable=1",
-    "set cpu6   config=store_size=4M",
+    "SET CPU6 CONFIG=PORT=C",
+    "SET CPU6   CONFIG=ASSIGNMENT=2",
+    "SET CPU6   CONFIG=INTERLACE=0",
+    "SET CPU6   CONFIG=ENABLE=1",
+    "SET CPU6   CONFIG=INIT_ENABLE=1",
+    "SET CPU6   CONFIG=STORE_SIZE=4M",
 
-    "set cpu6 config=port=D",
-    "set cpu6   config=assignment=3",
-    "set cpu6   config=interlace=0",
-    "set cpu6   config=enable=1",
-    "set cpu6   config=init_enable=1",
-    "set cpu6   config=store_size=4M",
+    "SET CPU6 CONFIG=PORT=D",
+    "SET CPU6   CONFIG=ASSIGNMENT=3",
+    "SET CPU6   CONFIG=INTERLACE=0",
+    "SET CPU6   CONFIG=ENABLE=1",
+    "SET CPU6   CONFIG=INIT_ENABLE=1",
+    "SET CPU6   CONFIG=STORE_SIZE=4M",
 
     // ; 0 = GCOS 1 = VMS
-    "set cpu6 config=mode=Multics",
+    "SET CPU6 CONFIG=MODE=Multics",
 
-    "set cpu6 config=enable_cache=enable",
-    "set cpu6 config=sdwam=enable",
-    "set cpu6 config=ptwam=enable",
+    "SET CPU6 CONFIG=ENABLE_CACHE=enable",
+    "SET CPU6 CONFIG=SDWAM=enable",
+    "SET CPU6 CONFIG=PTWAM=enable",
 
     // ; 0 = 8/70
-    "set cpu6 config=speed=0",
+    "SET CPU6 CONFIG=SPEED=0",
 
-    "set cpu6 config=dis_enable=enable",
-    "set cpu6 config=steady_clock=disable",
-    "set cpu6 config=halt_on_unimplemented=disable",
-    "set cpu6 config=enable_wam=disable",
-    "set cpu6 config=report_faults=disable",
-    "set cpu6 config=tro_enable=enable",
-    "set cpu6 config=y2k=disable",
-    "set cpu6 config=drl_fatal=disable",
-    "set cpu6 config=useMap=disable",
-    "set cpu6 config=prom_installed=enable",
-    "set cpu6 config=hex_mode_installed=disable",
-    "set cpu6 config=cache_installed=enable",
-    "set cpu6 config=clock_slave_installed=enable",
+    "SET CPU6 CONFIG=DIS_ENABLE=enable",
+    "SET CPU6 CONFIG=STEADY_CLOCK=disable",
+    "SET CPU6 CONFIG=HALT_ON_UNIMPLEMENTED=disable",
+    "SET CPU6 CONFIG=ENABLE_WAM=disable",
+    "SET CPU6 CONFIG=REPORT_FAULTS=disable",
+    "SET CPU6 CONFIG=TRO_ENABLE=enable",
+    "SET CPU6 CONFIG=Y2K=disable",
+    "SET CPU6 CONFIG=DRL_FATAL=disable",
+    "SET CPU6 CONFIG=USEMAP=disable",
+    "SET CPU6 CONFIG=PROM_INSTALLED=enable",
+    "SET CPU6 CONFIG=HEX_MODE_INSTALLED=disable",
+    "SET CPU6 CONFIG=CACHE_INSTALLED=enable",
+    "SET CPU6 CONFIG=CLOCK_SLAVE_INSTALLED=enable",
 
 # endif
 
-# if 0 // Until the port expander code is working
+# if 0 // Disabled until the port expander code is working
 
 // CPU7
 
-    "set cpu7 config=faultbase=Multics",
+    "SET CPU7 CONFIG=FAULTBASE=Multics",
 
-    "set cpu7 config=num=7",
+    "SET CPU7 CONFIG=NUM=7",
     // ; As per GB61-01 Operators Guide, App. A
     // ; switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
-    "set cpu7 config=data=024000717200",
-    "set cpu7 config=address=000000000000",
+    "SET CPU7 CONFIG=DATA=024000717200",
+    "SET CPU7 CONFIG=ADDRESS=000000000000",
 
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
@@ -833,707 +833,709 @@ static char * default_base_system_script [] =
     // ;              6 - 2M
     // ;              7 - 4M
 
-    "set cpu7 config=port=A",
-    "set cpu7   config=assignment=0",
-    "set cpu7   config=interlace=0",
-    "set cpu7   config=enable=1",
-    "set cpu7   config=init_enable=1",
-    "set cpu7   config=store_size=4M",
+    "SET CPU7 CONFIG=PORT=A",
+    "SET CPU7   CONFIG=ASSIGNMENT=0",
+    "SET CPU7   CONFIG=INTERLACE=0",
+    "SET CPU7   CONFIG=ENABLE=1",
+    "SET CPU7   CONFIG=INIT_ENABLE=1",
+    "SET CPU7   CONFIG=STORE_SIZE=4M",
 
-    "set cpu7 config=port=B",
-    "set cpu7   config=assignment=1",
-    "set cpu7   config=interlace=0",
-    "set cpu7   config=enable=1",
-    "set cpu7   config=init_enable=1",
-    "set cpu7   config=store_size=4M",
+    "SET CPU7 CONFIG=PORT=B",
+    "SET CPU7   CONFIG=ASSIGNMENT=1",
+    "SET CPU7   CONFIG=INTERLACE=0",
+    "SET CPU7   CONFIG=ENABLE=1",
+    "SET CPU7   CONFIG=INIT_ENABLE=1",
+    "SET CPU7   CONFIG=STORE_SIZE=4M",
 
-    "set cpu7 config=port=C",
-    "set cpu7   config=assignment=2",
-    "set cpu7   config=interlace=0",
-    "set cpu7   config=enable=1",
-    "set cpu7   config=init_enable=1",
-    "set cpu7   config=store_size=4M",
+    "SET CPU7 CONFIG=PORT=C",
+    "SET CPU7   CONFIG=ASSIGNMENT=2",
+    "SET CPU7   CONFIG=INTERLACE=0",
+    "SET CPU7   CONFIG=ENABLE=1",
+    "SET CPU7   CONFIG=INIT_ENABLE=1",
+    "SET CPU7   CONFIG=STORE_SIZE=4M",
 
-    "set cpu7 config=port=D",
-    "set cpu7   config=assignment=3",
-    "set cpu7   config=interlace=0",
-    "set cpu7   config=enable=1",
-    "set cpu7   config=init_enable=1",
-    "set cpu7   config=store_size=4M",
+    "SET CPU7 CONFIG=PORT=D",
+    "SET CPU7   CONFIG=ASSIGNMENT=3",
+    "SET CPU7   CONFIG=INTERLACE=0",
+    "SET CPU7   CONFIG=ENABLE=1",
+    "SET CPU7   CONFIG=INIT_ENABLE=1",
+    "SET CPU7   CONFIG=STORE_SIZE=4M",
 
     // ; 0 = GCOS 1 = VMS
-    "set cpu7 config=mode=Multics",
+    "SET CPU7 CONFIG=MODE=Multics",
 
-    "set cpu7 config=enable_cache=enable",
-    "set cpu7 config=sdwam=enable",
-    "set cpu7 config=ptwam=enable",
+    "SET CPU7 CONFIG=ENABLE_CACHE=enable",
+    "SET CPU7 CONFIG=SDWAM=enable",
+    "SET CPU7 CONFIG=PTWAM=enable",
 
     // ; 0 = 8/70
-    "set cpu7 config=speed=0",
+    "SET CPU7 CONFIG=SPEED=0",
 
-    "set cpu7 config=dis_enable=enable",
-    "set cpu7 config=steady_clock=disable",
-    "set cpu7 config=halt_on_unimplemented=disable",
-    "set cpu7 config=enable_wam=disable",
-    "set cpu7 config=report_faults=disable",
-    "set cpu7 config=tro_enable=enable",
-    "set cpu7 config=y2k=disable",
-    "set cpu7 config=drl_fatal=disable",
-    "set cpu7 config=useMap=disable",
-    "set cpu7 config=prom_installed=enable",
-    "set cpu7 config=hex_mode_installed=disable",
-    "set cpu7 config=cache_installed=enable",
-    "set cpu7 config=clock_slave_installed=enable",
+    "SET CPU7 CONFIG=DIS_ENABLE=enable",
+    "SET CPU7 CONFIG=STEADY_CLOCK=disable",
+    "SET CPU7 CONFIG=HALT_ON_UNIMPLEMENTED=disable",
+    "SET CPU7 CONFIG=ENABLE_WAM=disable",
+    "SET CPU7 CONFIG=REPORT_FAULTS=disable",
+    "SET CPU7 CONFIG=TRO_ENABLE=enable",
+    "SET CPU7 CONFIG=Y2K=disable",
+    "SET CPU7 CONFIG=DRL_FATAL=disable",
+    "SET CPU7 CONFIG=USEmAP=disable",
+    "SET CPU7 CONFIG=PROM_INSTALLED=enable",
+    "SET CPU7 CONFIG=HEX_MODE_INSTALLED=disable",
+    "SET CPU7 CONFIG=CACHE_INSTALLED=enable",
+    "SET CPU7 CONFIG=CLOCK_SLAVE_INSTALLED=enable",
 
 # endif
 
 // IOM0
 
-    "set iom0 config=iom_base=Multics",
-    "set iom0 config=multiplex_base=0120",
-    "set iom0 config=os=Multics",
-    "set iom0 config=boot=tape",
-    "set iom0 config=tapechan=012",
-    "set iom0 config=cardchan=011",
-    "set iom0 config=scuport=0",
+    "SET IOM0 CONFIG=IOM_BASE=Multics",
+    "SET IOM0 CONFIG=MULTIPLEX_BASE=0120",
+    "SET IOM0 CONFIG=OS=Multics",
+    "SET IOM0 CONFIG=BOOT=tape",
+    "SET IOM0 CONFIG=TAPECHAN=012",
+    "SET IOM0 CONFIG=CARDCHAN=011",
+    "SET IOM0 CONFIG=SCUPORT=0",
 
-    "set iom0 config=port=0",
-    "set iom0   config=addr=0",
-    "set iom0   config=interlace=0",
-    "set iom0   config=enable=1",
-    "set iom0   config=initenable=0",
-    "set iom0   config=halfsize=0",
-    "set iom0   config=store_size=4M",
+    "SET IOM0 CONFIG=PORT=0",
+    "SET IOM0   CONFIG=ADDR=0",
+    "SET IOM0   CONFIG=INTERLACE=0",
+    "SET IOM0   CONFIG=ENABLE=1",
+    "SET IOM0   CONFIG=INITENABLE=0",
+    "SET IOM0   CONFIG=HALFSIZE=0",
+    "SET IOM0   CONFIG=STORE_SIZE=4M",
 
-    "set iom0 config=port=1",
-    "set iom0   config=addr=1",
-    "set iom0   config=interlace=0",
-    "set iom0   config=enable=1",
-    "set iom0   config=initenable=0",
-    "set iom0   config=halfsize=0",
-    "set iom0   config=store_size=4M",
+    "SET IOM0 CONFIG=PORT=1",
+    "SET IOM0   CONFIG=ADDR=1",
+    "SET IOM0   CONFIG=INTERLACE=0",
+    "SET IOM0   CONFIG=ENABLE=1",
+    "SET IOM0   CONFIG=INITENABLE=0",
+    "SET IOM0   CONFIG=HALFSIZE=0",
+    "SET IOM0   CONFIG=STORE_SIZE=4M",
 
-    "set iom0 config=port=2",
-    "set iom0   config=addr=2",
-    "set iom0   config=interlace=0",
-    "set iom0   config=enable=1",
-    "set iom0   config=initenable=0",
-    "set iom0   config=halfsize=0",
-    "set iom0   config=store_size=4M",
+    "SET IOM0 CONFIG=PORT=2",
+    "SET IOM0   CONFIG=ADDR=2",
+    "SET IOM0   CONFIG=INTERLACE=0",
+    "SET IOM0   CONFIG=ENABLE=1",
+    "SET IOM0   CONFIG=INITENABLE=0",
+    "SET IOM0   CONFIG=HALFSIZE=0",
+    "SET IOM0   CONFIG=STORE_SIZE=4M",
 
-    "set iom0 config=port=3",
-    "set iom0   config=addr=3",
-    "set iom0   config=interlace=0",
-    "set iom0   config=enable=1",
-    "set iom0   config=initenable=0",
-    "set iom0   config=halfsize=0",
-    "set iom0   config=store_size=4M",
+    "SET IOM0 CONFIG=PORT=3",
+    "SET IOM0   CONFIG=ADDR=3",
+    "SET IOM0   CONFIG=INTERLACE=0",
+    "SET IOM0   CONFIG=ENABLE=1",
+    "SET IOM0   CONFIG=INITENABLE=0",
+    "SET IOM0   CONFIG=HALFSIZE=0",
+    "SET IOM0   CONFIG=STORE_SIZE=4M",
 
-    "set iom0 config=port=4",
-    "set iom0   config=enable=0",
+    "SET IOM0 CONFIG=PORT=4",
+    "SET IOM0   CONFIG=ENABLE=0",
 
-    "set iom0 config=port=5",
-    "set iom0   config=enable=0",
+    "SET IOM0 CONFIG=PORT=5",
+    "SET IOM0   CONFIG=ENABLE=0",
 
-    "set iom0 config=port=6",
-    "set iom0   config=enable=0",
+    "SET IOM0 CONFIG=PORT=6",
+    "SET IOM0   CONFIG=ENABLE=0",
 
-    "set iom0 config=port=7",
-    "set iom0   config=enable=0",
+    "SET IOM0 CONFIG=PORT=7",
+    "SET IOM0   CONFIG=ENABLE=0",
 
 // IOM1
 
-    "set iom1 config=iom_base=Multics2",
-    "set iom1 config=multiplex_base=0121",
-    "set iom1 config=os=Multics",
-    "set iom1 config=boot=tape",
-    "set iom1 config=tapechan=012",
-    "set iom1 config=cardchan=011",
-    "set iom1 config=scuport=0",
+    "SET IOM1 CONFIG=IOM_BASE=Multics2",
+    "SET IOM1 CONFIG=MULTIPLEX_BASE=0121",
+    "SET IOM1 CONFIG=OS=Multics",
+    "SET IOM1 CONFIG=BOOT=tape",
+    "SET IOM1 CONFIG=TAPECHAN=012",
+    "SET IOM1 CONFIG=CARDCHAN=011",
+    "SET IOM1 CONFIG=SCUPORT=0",
 
-    "set iom1 config=port=0",
-    "set iom1   config=addr=0",
-    "set iom1   config=interlace=0",
-    "set iom1   config=enable=1",
-    "set iom1   config=initenable=0",
-    "set iom1   config=halfsize=0;",
+    "SET IOM1 CONFIG=PORT=0",
+    "SET IOM1   CONFIG=ADDR=0",
+    "SET IOM1   CONFIG=INTERLACE=0",
+    "SET IOM1   CONFIG=ENABLE=1",
+    "SET IOM1   CONFIG=INITENABLE=0",
+    "SET IOM1   CONFIG=HALFSIZE=0",
 
-    "set iom1 config=port=1",
-    "set iom1   config=addr=1",
-    "set iom1   config=interlace=0",
-    "set iom1   config=enable=1",
-    "set iom1   config=initenable=0",
-    "set iom1   config=halfsize=0;",
+    "SET IOM1 CONFIG=PORT=1",
+    "SET IOM1   CONFIG=ADDR=1",
+    "SET IOM1   CONFIG=INTERLACE=0",
+    "SET IOM1   CONFIG=ENABLE=1",
+    "SET IOM1   CONFIG=INITENABLE=0",
+    "SET IOM1   CONFIG=HALFSIZE=0",
 
-    "set iom1 config=port=2",
-    "set iom1   config=enable=0",
-    "set iom1 config=port=3",
-    "set iom1   config=enable=0",
-    "set iom1 config=port=4",
-    "set iom1   config=enable=0",
-    "set iom1 config=port=5",
-    "set iom1   config=enable=0",
-    "set iom1 config=port=6",
-    "set iom1   config=enable=0",
-    "set iom1 config=port=7",
-    "set iom1   config=enable=0",
+    "SET IOM1 CONFIG=PORT=2",
+    "SET IOM1   CONFIG=ENABLE=0",
+    "SET IOM1 CONFIG=PORT=3",
+    "SET IOM1   CONFIG=ENABLE=0",
+    "SET IOM1 CONFIG=PORT=4",
+    "SET IOM1   CONFIG=ENABLE=0",
+    "SET IOM1 CONFIG=PORT=5",
+    "SET IOM1   CONFIG=ENABLE=0",
+    "SET IOM1 CONFIG=PORT=6",
+    "SET IOM1   CONFIG=ENABLE=0",
+    "SET IOM1 CONFIG=PORT=7",
+    "SET IOM1   CONFIG=ENABLE=0",
 
 # if 0
 
 // IOM2
 
-    "set iom2 config=iom_base=Multics2",
-    "set iom2 config=multiplex_base=0121",
-    "set iom2 config=os=Multics",
-    "set iom2 config=boot=tape",
-    "set iom2 config=tapechan=012",
-    "set iom2 config=cardchan=011",
-    "set iom2 config=scuport=0",
+    "set IOM2 CONFIG=IOM_BASE=Multics2",
+    "set IOM2 CONFIG=MULTIPLEX_BASE=0121",
+    "set IOM2 CONFIG=OS=Multics",
+    "set IOM2 CONFIG=BOOT=tape",
+    "SET IOM2 CONFIG=TAPECHAN=012",
+    "SET IOM2 CONFIG=CARDCHAN=011",
+    "SET IOM2 CONFIG=SCUPORT=0",
 
-    "set iom2 config=port=0",
-    "set iom2   config=addr=0",
-    "set iom2   config=interlace=0",
-    "set iom2   config=enable=1",
-    "set iom2   config=initenable=0",
-    "set iom2   config=halfsize=0;",
+    "SET IOM2 CONFIG=PORT=0",
+    "SET IOM2   CONFIG=ADDR=0",
+    "SET IOM2   CONFIG=INTERLACE=0",
+    "SET IOM2   CONFIG=ENABLE=1",
+    "SET IOM2   CONFIG=INITENABLE=0",
+    "SET IOM2   CONFIG=HALFSIZE=0",
 
-    "set iom2 config=port=1",
-    "set iom2   config=addr=1",
-    "set iom2   config=interlace=0",
-    "set iom2   config=enable=1",
-    "set iom2   config=initenable=0",
-    "set iom2   config=halfsize=0;",
+    "SET IOM2 CONFIG=PORT=1",
+    "SET IOM2   CONFIG=ADDR=1",
+    "SET IOM2   CONFIG=INTERLACE=0",
+    "SET IOM2   CONFIG=ENABLE=1",
+    "SET IOM2   CONFIG=INITENABLE=0",
+    "SET IOM2   CONFIG=HALFSIZE=0",
 
-    "set iom2 config=port=2",
-    "set iom2   config=enable=0",
-    "set iom2 config=port=3",
-    "set iom2   config=enable=0",
-    "set iom2 config=port=4",
-    "set iom2   config=enable=0",
-    "set iom2 config=port=5",
-    "set iom2   config=enable=0",
-    "set iom2 config=port=6",
-    "set iom2   config=enable=0",
-    "set iom2 config=port=7",
-    "set iom2   config=enable=0",
+    "SET IOM2 CONFIG=PORT=2",
+    "SET IOM2   CONFIG=ENABLE=0",
+    "SET IOM2 CONFIG=PORT=3",
+    "SET IOM2   CONFIG=ENABLE=0",
+    "SET IOM2 CONFIG=PORT=4",
+    "SET IOM2   CONFIG=ENABLE=0",
+    "SET IOM2 CONFIG=PORT=5",
+    "SET IOM2   CONFIG=ENABLE=0",
+    "SET IOM2 CONFIG=PORT=6",
+    "SET IOM2   CONFIG=ENABLE=0",
+    "SET IOM2 CONFIG=PORT=7",
+    "SET IOM2   CONFIG=ENABLE=0",
 
 // IOM3
 
-    "set iom3 config=iom_base=Multics2",
-    "set iom3 config=multiplex_base=0121",
-    "set iom3 config=os=Multics",
-    "set iom3 config=boot=tape",
-    "set iom3 config=tapechan=012",
-    "set iom3 config=cardchan=011",
-    "set iom3 config=scuport=0",
+    "SET IOM3 CONFIG=IOM_BASE=Multics2",
+    "SET IOM3 CONFIG=MULTIPLEX_BASE=0121",
+    "SET IOM3 CONFIG=OS=Multics",
+    "SET IOM3 CONFIG=BOOT=TAPE",
+    "SET IOM3 CONFIG=TAPECHAN=012",
+    "SET IOM3 CONFIG=CARDCHAN=011",
+    "SET IOM3 CONFIG=SCUPORT=0",
 
-    "set iom3 config=port=0",
-    "set iom3   config=addr=0",
-    "set iom3   config=interlace=0",
-    "set iom3   config=enable=1",
-    "set iom3   config=initenable=0",
-    "set iom3   config=halfsize=0;",
+    "SET IOM3 CONFIG=PORT=0",
+    "SET IOM3   CONFIG=ADDR=0",
+    "SET IOM3   CONFIG=INTERLACE=0",
+    "SET IOM3   CONFIG=ENABLE=1",
+    "SET IOM3   CONFIG=INITENABLE=0",
+    "SET IOM3   CONFIG=HALFSIZE=0",
 
-    "set iom3 config=port=1",
-    "set iom3   config=addr=1",
-    "set iom3   config=interlace=0",
-    "set iom3   config=enable=1",
-    "set iom3   config=initenable=0",
-    "set iom3   config=halfsize=0;",
+    "SET IOM3 CONFIG=PORT=1",
+    "SET IOM3   CONFIG=ADDR=1",
+    "SET IOM3   CONFIG=INTERLACE=0",
+    "SET IOM3   CONFIG=ENABLE=1",
+    "SET IOM3   CONFIG=INITENABLE=0",
+    "SET IOM3   CONFIG=HALFSIZE=0",
 
-    "set iom3 config=port=2",
-    "set iom3   config=enable=0",
-    "set iom3 config=port=3",
-    "set iom3   config=enable=0",
-    "set iom3 config=port=4",
-    "set iom3   config=enable=0",
-    "set iom3 config=port=5",
-    "set iom3   config=enable=0",
-    "set iom3 config=port=6",
-    "set iom3   config=enable=0",
-    "set iom3 config=port=7",
-    "set iom3   config=enable=0",
+    "SET IOM3 CONFIG=PORT=2",
+    "SET IOM3   CONFIG=ENABLE=0",
+    "SET IOM3 CONFIG=PORT=3",
+    "SET IOM3   CONFIG=ENABLE=0",
+    "SET IOM3 CONFIG=PORT=4",
+    "SET IOM3   CONFIG=ENABLE=0",
+    "SET IOM3 CONFIG=PORT=5",
+    "SET IOM3   CONFIG=ENABLE=0",
+    "SET IOM3 CONFIG=PORT=6",
+    "SET IOM3   CONFIG=ENABLE=0",
+    "SET IOM3 CONFIG=PORT=7",
+    "SET IOM3   CONFIG=ENABLE=0",
 # endif
 
 // SCU0
 
-    "set scu0 config=mode=program",
-    "set scu0 config=port0=enable",
-    "set scu0 config=port1=enable",
-    "set scu0 config=port2=enable",
-    "set scu0 config=port3=enable",
-    "set scu0 config=port4=enable",
-    "set scu0 config=port5=enable",
-    "set scu0 config=port6=enable",
-    "set scu0 config=port7=enable",
-    "set scu0 config=maska=7",
-    "set scu0 config=maskb=off",
-    "set scu0 config=lwrstoresize=7",
-    "set scu0 config=cyclic=0040",
-    "set scu0 config=nea=0200",
-    "set scu0 config=onl=014",
-    "set scu0 config=int=0",
-    "set scu0 config=lwr=0",
+    "SET SCU0 CONFIG=MODE=program",
+    "SET SCU0 CONFIG=PORT0=enable",
+    "SET SCU0 CONFIG=PORT1=enable",
+    "SET SCU0 CONFIG=PORT2=enable",
+    "SET SCU0 CONFIG=PORT3=enable",
+    "SET SCU0 CONFIG=PORT4=enable",
+    "SET SCU0 CONFIG=PORT5=enable",
+    "SET SCU0 CONFIG=PORT6=enable",
+    "SET SCU0 CONFIG=PORT7=enable",
+    "SET SCU0 CONFIG=MASKA=7",
+    "SET SCU0 CONFIG=MASKB=off",
+    "SET SCU0 CONFIG=LWRSTORESIZE=7",
+    "SET SCU0 CONFIG=CYCLIC=0040",
+    "SET SCU0 CONFIG=NEA=0200",
+    "SET SCU0 CONFIG=ONL=014",
+    "SET SCU0 CONFIG=INT=0",
+    "SET SCU0 CONFIG=LWR=0",
 
 // SCU1
 
-    "set scu1 config=mode=program",
-    "set scu1 config=port0=enable",
-    "set scu1 config=port1=enable",
-    "set scu1 config=port2=enable",
-    "set scu1 config=port3=enable",
-    "set scu1 config=port4=enable",
-    "set scu1 config=port5=enable",
-    "set scu1 config=port6=enable",
-    "set scu1 config=port7=enable",
-    "set scu1 config=maska=off",
-    "set scu1 config=maskb=off",
-    "set scu1 config=lwrstoresize=7",
-    "set scu1 config=cyclic=0040",
-    "set scu1 config=nea=0200",
-    "set scu1 config=onl=014",
-    "set scu1 config=int=0",
-    "set scu1 config=lwr=0",
+    "SET SCU1 CONFIG=MODE=program",
+    "SET SCU1 CONFIG=PORT0=enable",
+    "SET SCU1 CONFIG=PORT1=enable",
+    "SET SCU1 CONFIG=PORT2=enable",
+    "SET SCU1 CONFIG=PORT3=enable",
+    "SET SCU1 CONFIG=PORT4=enable",
+    "SET SCU1 CONFIG=PORT5=enable",
+    "SET SCU1 CONFIG=PORT6=enable",
+    "SET SCU1 CONFIG=PORT7=enable",
+    "SET SCU1 CONFIG=MASKA=off",
+    "SET SCU1 CONFIG=MASKB=off",
+    "SET SCU1 CONFIG=LWRSTORESIZE=7",
+    "SET SCU1 CONFIG=CYCLIC=0040",
+    "SET SCU1 CONFIG=NEA=0200",
+    "SET SCU1 CONFIG=ONL=014",
+    "SET SCU1 CONFIG=INT=0",
+    "SET SCU1 CONFIG=LWR=0",
 
 // SCU2
 
-    "set scu2 config=mode=program",
-    "set scu2 config=port0=enable",
-    "set scu2 config=port1=enable",
-    "set scu2 config=port2=enable",
-    "set scu2 config=port3=enable",
-    "set scu2 config=port4=enable",
-    "set scu2 config=port5=enable",
-    "set scu2 config=port6=enable",
-    "set scu2 config=port7=enable",
-    "set scu2 config=maska=off",
-    "set scu2 config=maskb=off",
-    "set scu2 config=lwrstoresize=7",
-    "set scu2 config=cyclic=0040",
-    "set scu2 config=nea=0200",
-    "set scu2 config=onl=014",
-    "set scu2 config=int=0",
-    "set scu2 config=lwr=0",
+    "SET SCU2 CONFIG=MODE=program",
+    "SET SCU2 CONFIG=PORT0=enable",
+    "SET SCU2 CONFIG=PORT1=enable",
+    "SET SCU2 CONFIG=PORT2=enable",
+    "SET SCU2 CONFIG=PORT3=enable",
+    "SET SCU2 CONFIG=PORT4=enable",
+    "SET SCU2 CONFIG=PORT5=enable",
+    "SET SCU2 CONFIG=PORT6=enable",
+    "SET SCU2 CONFIG=PORT7=enable",
+    "SET SCU2 CONFIG=MASKA=off",
+    "SET SCU2 CONFIG=MASKB=off",
+    "SET SCU2 CONFIG=LWRSTORESIZE=7",
+    "SET SCU2 CONFIG=CYCLIC=0040",
+    "SET SCU2 CONFIG=NEA=0200",
+    "SET SCU2 CONFIG=ONL=014",
+    "SET SCU2 CONFIG=INT=0",
+    "SET SCU2 CONFIG=LWR=0",
 
 // SCU3
 
-    "set scu3 config=mode=program",
-    "set scu3 config=port0=enable",
-    "set scu3 config=port1=enable",
-    "set scu3 config=port2=enable",
-    "set scu3 config=port3=enable",
-    "set scu3 config=port4=enable",
-    "set scu3 config=port5=enable",
-    "set scu3 config=port6=enable",
-    "set scu3 config=port7=enable",
-    "set scu3 config=maska=off",
-    "set scu3 config=maskb=off",
-    "set scu3 config=lwrstoresize=7",
-    "set scu3 config=cyclic=0040",
-    "set scu3 config=nea=0200",
-    "set scu3 config=onl=014",
-    "set scu3 config=int=0",
-    "set scu3 config=lwr=0",
+    "SET SCU3 CONFIG=MODE=program",
+    "SET SCU3 CONFIG=PORT0=enable",
+    "SET SCU3 CONFIG=PORT1=enable",
+    "SET SCU3 CONFIG=PORT2=enable",
+    "SET SCU3 CONFIG=PORT3=enable",
+    "SET SCU3 CONFIG=PORT4=enable",
+    "SET SCU3 CONFIG=PORT5=enable",
+    "SET SCU3 CONFIG=PORT6=enable",
+    "SET SCU3 CONFIG=PORT7=enable",
+    "SET SCU3 CONFIG=MASKA=off",
+    "SET SCU3 CONFIG=MASKB=off",
+    "SET SCU3 CONFIG=LWRSTORESIZE=7",
+    "SET SCU3 CONFIG=CYCLIC=0040",
+    "SET SCU3 CONFIG=NEA=0200",
+    "SET SCU3 CONFIG=ONL=014",
+    "SET SCU3 CONFIG=INT=0",
+    "SET SCU3 CONFIG=LWR=0",
 
 # if 0
 // SCU4
 
-    "set scu4 config=mode=program",
-    "set scu4 config=port0=enable",
-    "set scu4 config=port1=enable",
-    "set scu4 config=port2=enable",
-    "set scu4 config=port3=enable",
-    "set scu4 config=port4=enable",
-    "set scu4 config=port5=enable",
-    "set scu4 config=port6=enable",
-    "set scu4 config=port7=enable",
-    "set scu4 config=maska=off",
-    "set scu4 config=maskb=off",
-    "set scu4 config=lwrstoresize=7",
-    "set scu4 config=cyclic=0040",
-    "set scu4 config=nea=0200",
-    "set scu4 config=onl=014",
-    "set scu4 config=int=0",
-    "set scu4 config=lwr=0",
+    "SET SCU4 CONFIG=MODE=program",
+    "SET SCU4 CONFIG=PORT0=enable",
+    "SET SCU4 CONFIG=PORT1=enable",
+    "SET SCU4 CONFIG=PORT2=enable",
+    "SET SCU4 CONFIG=PORT3=enable",
+    "SET SCU4 CONFIG=PORT4=enable",
+    "SET SCU4 CONFIG=PORT5=enable",
+    "SET SCU4 CONFIG=PORT6=enable",
+    "SET SCU4 CONFIG=PORT7=enable",
+    "SET SCU4 CONFIG=MASKA=off",
+    "SET SCU4 CONFIG=MASKB=off",
+    "SET SCU4 CONFIG=LWRSTORESIZE=7",
+    "SET SCU4 CONFIG=CYCLIC=0040",
+    "SET SCU4 CONFIG=NEA=0200",
+    "SET SCU4 CONFIG=ONL=014",
+    "SET SCU4 CONFIG=INT=0",
+    "SET SCU4 CONFIG=LWR=0",
 
 // SCU5
 
-    "set scu5 config=mode=program",
-    "set scu5 config=port0=enable",
-    "set scu5 config=port1=enable",
-    "set scu5 config=port2=enable",
-    "set scu5 config=port3=enable",
-    "set scu5 config=port4=enable",
-    "set scu5 config=port5=enable",
-    "set scu5 config=port6=enable",
-    "set scu5 config=port7=enable",
-    "set scu5 config=maska=off",
-    "set scu5 config=maskb=off",
-    "set scu5 config=lwrstoresize=7",
-    "set scu5 config=cyclic=0040",
-    "set scu5 config=nea=0200",
-    "set scu5 config=onl=014",
-    "set scu5 config=int=0",
-    "set scu5 config=lwr=0",
+    "SET SCU5 CONFIG=MODE=program",
+    "SET SCU5 CONFIG=PORT0=enable",
+    "SET SCU5 CONFIG=PORT1=enable",
+    "SET SCU5 CONFIG=PORT2=enable",
+    "SET SCU5 CONFIG=PORT3=enable",
+    "SET SCU5 CONFIG=PORT4=enable",
+    "SET SCU5 CONFIG=PORT5=enable",
+    "SET SCU5 CONFIG=PORT6=enable",
+    "SET SCU5 CONFIG=PORT7=enable",
+    "SET SCU5 CONFIG=MASKA=off",
+    "SET SCU5 CONFIG=MASKB=off",
+    "SET SCU5 CONFIG=LWRSTORESIZE=7",
+    "SET SCU5 CONFIG=CYCLIC=0040",
+    "SET SCU5 CONFIG=NEA=0200",
+    "SET SCU5 CONFIG=ONL=014",
+    "SET SCU5 CONFIG=INT=0",
+    "SET SCU5 CONFIG=LWR=0",
 
 // SCU6
 
-    "set scu6 config=mode=program",
-    "set scu6 config=port0=enable",
-    "set scu6 config=port1=enable",
-    "set scu6 config=port2=enable",
-    "set scu6 config=port3=enable",
-    "set scu6 config=port4=enable",
-    "set scu6 config=port5=enable",
-    "set scu6 config=port6=enable",
-    "set scu6 config=port7=enable",
-    "set scu6 config=maska=off",
-    "set scu6 config=maskb=off",
-    "set scu6 config=lwrstoresize=7",
-    "set scu6 config=cyclic=0040",
-    "set scu6 config=nea=0200",
-    "set scu6 config=onl=014",
-    "set scu6 config=int=0",
-    "set scu6 config=lwr=0",
+    "SET SCU6 CONFIG=MODE=program",
+    "SET SCU6 CONFIG=PORT0=enable",
+    "SET SCU6 CONFIG=PORT1=enable",
+    "SET SCU6 CONFIG=PORT2=enable",
+    "SET SCU6 CONFIG=PORT3=enable",
+    "SET SCU6 CONFIG=PORT4=enable",
+    "SET SCU6 CONFIG=PORT5=enable",
+    "SET SCU6 CONFIG=PORT6=enable",
+    "SET SCU6 CONFIG=PORT7=enable",
+    "SET SCU6 CONFIG=MASKA=off",
+    "SET SCU6 CONFIG=MASKB=off",
+    "SET SCU6 CONFIG=LWRSTORESIZE=7",
+    "SET SCU6 CONFIG=CYCLIC=0040",
+    "SET SCU6 CONFIG=NEA=0200",
+    "SET SCU6 CONFIG=ONL=014",
+    "SET SCU6 CONFIG=INT=0",
+    "SET SCU6 CONFIG=LWR=0",
 
 // SCU7
 
-    "set scu7 config=mode=program",
-    "set scu7 config=port0=enable",
-    "set scu7 config=port1=enable",
-    "set scu7 config=port2=enable",
-    "set scu7 config=port3=enable",
-    "set scu7 config=port4=enable",
-    "set scu7 config=port5=enable",
-    "set scu7 config=port6=enable",
-    "set scu7 config=port7=enable",
-    "set scu7 config=maska=off",
-    "set scu7 config=maskb=off",
-    "set scu7 config=lwrstoresize=7",
-    "set scu7 config=cyclic=0040",
-    "set scu7 config=nea=0200",
-    "set scu7 config=onl=014",
-    "set scu7 config=int=0",
-    "set scu7 config=lwr=0",
+    "SET SCU7 CONFIG=MODE=program",
+    "SET SCU7 CONFIG=PORT0=enable",
+    "SET SCU7 CONFIG=PORT1=enable",
+    "SET SCU7 CONFIG=PORT2=enable",
+    "SET SCU7 CONFIG=PORT3=enable",
+    "SET SCU7 CONFIG=PORT4=enable",
+    "SET SCU7 CONFIG=PORT5=enable",
+    "SET SCU7 CONFIG=PORT6=enable",
+    "SET SCU7 CONFIG=PORT7=enable",
+    "SET SCU7 CONFIG=MASKA=off",
+    "SET SCU7 CONFIG=MASKB=off",
+    "SET SCU7 CONFIG=LWRSTORESIZE=7",
+    "SET SCU7 CONFIG=CYCLIC=0040",
+    "SET SCU7 CONFIG=NEA=0200",
+    "SET SCU7 CONFIG=ONL=014",
+    "SET SCU7 CONFIG=INT=0",
+    "SET SCU7 CONFIG=LWR=0",
 # endif
 
-    // ; There are bugs in the FNP code that require sim unit number
-    // ; to be the same as the Multics unit number; ie fnp0 == fnpa, etc.
+    // ; DO NOT CHANGE THE CONFIGURATION OF THE FNP UNITS.
+    // ; Restrictions in the FNP code that REQUIRE the simulator
+    // ; unit numbers to be the same as the Multics unit numbers!
+    // ; i.e. fnp0 == fnpa, etc.
     // ;
-    // ; fnp a 3400
-    // ; fnp b 3700
-    // ; fnp c 4200
-    // ; fnp d 4500
-    // ; fnp e 5000
-    // ; fnp f 5300
-    // ; fnp g 5600
-    // ; fnp h 6100
+    // ; FNP a 3400
+    // ; FNP b 3700
+    // ; FNP c 4200
+    // ; FNP d 4500
+    // ; FNP e 5000
+    // ; FNP f 5300
+    // ; FNP g 5600
+    // ; FNP h 6100
 
-    "set fnp0 config=mailbox=03400",
-    "set fnp0 ipc_name=fnp-a",
-    "set fnp1 config=mailbox=03700",
-    "set fnp1 ipc_name=fnp-b",
-    "set fnp2 config=mailbox=04200",
-    "set fnp2 ipc_name=fnp-c",
-    "set fnp3 config=mailbox=04500",
-    "set fnp3 ipc_name=fnp-d",
-    "set fnp4 config=mailbox=05000",
-    "set fnp4 ipc_name=fnp-e",
-    "set fnp5 config=mailbox=05300",
-    "set fnp5 ipc_name=fnp-f",
-    "set fnp6 config=mailbox=05600",
-    "set fnp6 ipc_name=fnp-g",
-    "set fnp7 config=mailbox=06100",
-    "set fnp7 ipc_name=fnp-h",
+    "SET FNP0 CONFIG=MAILBOX=03400",
+    "SET FNP0 IPC_NAME=fnp-a",
+    "SET FNP1 CONFIG=MAILBOX=03700",
+    "SET FNP1 IPC_NAME=fnp-b",
+    "SET FNP2 CONFIG=MAILBOX=04200",
+    "SET FNP2 IPC_NAME=fnp-c",
+    "SET FNP3 CONFIG=MAILBOX=04500",
+    "SET FNP3 IPC_NAME=fnp-d",
+    "SET FNP4 CONFIG=MAILBOX=05000",
+    "SET FNP4 IPC_NAME=fnp-e",
+    "SET FNP5 CONFIG=MAILBOX=05300",
+    "SET FNP5 IPC_NAME=fnp-f",
+    "SET FNP6 CONFIG=MAILBOX=05600",
+    "SET FNP6 IPC_NAME=fnp-g",
+    "SET FNP7 CONFIG=MAILBOX=06100",
+    "SET FNP7 IPC_NAME=fnp-h",
 
     //XXX"set mtp0 boot_drive=1",
     // ; Attach tape MPC to IOM 0, chan 012, dev_code 0
-    "set mtp0 boot_drive=0",
-    "set mtp0 name=MTP0",
+    "SET MTP0 BOOT_DRIVE=0",
+    "SET MTP0 NAME=MTP0",
     // ; Attach TAPE unit 0 to IOM 0, chan 012, dev_code 1
-    "cable IOM0 012 MTP0 0",
-    "cable IOM1 012 MTP0 1",
-    "cable MTP0 1 TAPE1",
-    "set tape1 name=tapa_01",
-    "cable MTP0 2 TAPE2",
-    "set tape2 name=tapa_02",
-    "cable MTP0 3 TAPE3",
-    "set tape3 name=tapa_03",
-    "cable MTP0 4 TAPE4",
-    "set tape4 name=tapa_04",
-    "cable MTP0 5 TAPE5",
-    "set tape5 name=tapa_05",
-    "cable MTP0 6 TAPE6",
-    "set tape6 name=tapa_06",
-    "cable MTP0 7 TAPE7",
-    "set tape7 name=tapa_07",
-    "cable MTP0 8 TAPE8",
-    "set tape8 name=tapa_08",
-    "cable MTP0 9 TAPE9",
-    "set tape9 name=tapa_09",
-    "cable MTP0 10 TAPE10",
-    "set tape10 name=tapa_10",
-    "cable MTP0 11 TAPE11",
-    "set tape11 name=tapa_11",
-    "cable MTP0 12 TAPE12",
-    "set tape12 name=tapa_12",
-    "cable MTP0 13 TAPE13",
-    "set tape13 name=tapa_13",
-    "cable MTP0 14 TAPE14",
-    "set tape14 name=tapa_14",
-    "cable MTP0 15 TAPE15",
-    "set tape15 name=tapa_15",
-    "cable MTP0 16 TAPE16",
-    "set tape16 name=tapa_16",
+    "CABLE IOM0 012 MTP0 0",
+    "CABLE IOM1 012 MTP0 1",
+    "CABLE MTP0 1 TAPE1",
+    "SET TAPE1 NAME=tapa_01",
+    "CABLE MTP0 2 TAPE2",
+    "SET TAPE2 NAME=tapa_02",
+    "CABLE mtP0 3 TAPE3",
+    "SET TAPE3 NAME=tapa_03",
+    "CABLE MTP0 4 TAPE4",
+    "SET TAPE4 NAME=tapa_04",
+    "CABLE MTP0 5 TAPE5",
+    "SET TAPE5 NAME=tapa_05",
+    "CABLE MTP0 6 TAPE6",
+    "SET TAPE6 NAME=tapa_06",
+    "CABLE MTP0 7 TAPE7",
+    "SET TAPE7 NAME=tapa_07",
+    "CABLE MTP0 8 TAPE8",
+    "SET TAPE8 NAME=tapa_08",
+    "CABLE MTP0 9 TAPE9",
+    "SET TAPE9 NAME=tapa_09",
+    "CABLE MTP0 10 TAPE10",
+    "SET TAPE10 NAME=tapa_10",
+    "CABLE mtP0 11 TAPE11",
+    "SET TAPE11 NAME=tapa_11",
+    "CABLE MTP0 12 TAPE12",
+    "SET TAPE12 NAME=tapa_12",
+    "CABLE MTP0 13 TAPE13",
+    "SET TAPE13 NAME=tapa_13",
+    "CABLE MTP0 14 TAPE14",
+    "SET TAPE14 NAME=tapa_14",
+    "CABLE MTP0 15 TAPE15",
+    "SET TAPE15 NAME=tapa_15",
+    "CABLE MTP0 16 TAPE16",
+    "SET TAPE16 NAME=tapa_16",
 
 // 4 3381 disks
 
-    "set ipc0 name=IPC0",
-    "cable IOM0 013 IPC0 0",
-    "cable IOM1 013 IPC0 1",
+    "SET IPC0 NAME=IPC0",
+    "CABLE IOM0 013 IPC0 0",
+    "CABLE IOM1 013 IPC0 1",
     // ; Attach DISK unit 0 to IPC0 dev_code 0",
-    "cable IPC0 0 DISK0",
-    "set disk0 type=3381",
-    "set disk0 name=dska_00",
+    "CABLE IPC0 0 DISK0",
+    "SET DISK0 TYPE=3381",
+    "SET DISK0 NAME=dska_00",
     // ; Attach DISK unit 1 to IPC0 dev_code 1",
     "cable IPC0 1 DISK1",
     "set disk1 type=3381",
     "set disk1 name=dska_01",
     // ; Attach DISK unit 2 to IPC0 dev_code 2",
-    "cable IPC0 2 DISK2",
-    "set disk2 type=3381",
-    "set disk2 name=dska_02",
+    "CABLE IPC0 2 DISK2",
+    "SET DISK2 TYPE=3381",
+    "SET DISK2 NAME=dska_02",
     // ; Attach DISK unit 3 to IPC0 dev_code 3",
-    "cable IPC0 3 DISK3",
-    "set disk3 type=3381",
-    "set disk3 name=dska_03",
+    "CABLE IPC0 3 DISK3",
+    "SET DISK3 TYPE=3381",
+    "SET DISK3 NAME=dska_03",
 
 // 4 d501 disks + 4 d451 disks + 2 d500 disks
-
-    "set msp0 name=MSP0",
-    "cable IOM0 014 MSP0 0",
-    "cable IOM1 014 MSP0 1",
+    "SET MSP0 NAME=MSP0",
+    "CABLE IOM0 014 MSP0 0",
+    "CABLE IOM1 014 MSP0 1",
 
     // ; Attach DISK unit 4 to MSP0 dev_code 1",
-    "cable MSP0 1 DISK4",
-    "set disk4 type=d501",
-    "set disk4 name=dskb_01",
+    "CABLE MSP0 1 DISK4",
+    "SET disk4 TYPE=d501",
+    "SET disk4 NAME=dskb_01",
     // ; Attach DISK unit 5 to MSP0 dev_code 2",
-    "cable MSP0 2 DISK5",
-    "set disk5 type=d501",
-    "set disk5 name=dskb_02",
+    "CABLE MSP0 2 DISK5",
+    "SET DISK5 TYPE=d501",
+    "SET DISK5 NAME=dskb_02",
     // ; Attach DISK unit 6 to MSP0 dev_code 3",
-    "cable MSP0 3 DISK6",
-    "set disk6 type=d501",
-    "set disk6 name=dskb_03",
+    "CABLE MSP0 3 DISK6",
+    "SET DISK6 TYPE=d501",
+    "SET DISK6 NAME=dskb_03",
     // ; Attach DISK unit 7 to MSP0 dev_code 4",
-    "cable MSP0 4 DISK7",
-    "set disk7 type=d501",
-    "set disk7 name=dskb_04",
+    "CABLE MSP0 4 DISK7",
+    "SET DISK7 TYPE=d501",
+    "SET DISK7 NAME=dskb_04",
 
     // ; Attach DISK unit 8 to MSP0 dev_code 5",
-    "cable MSP0 5 DISK8",
-    "set disk8 type=d451",
-    "set disk8 name=dskb_05",
+    "CABLE MSP0 5 DISK8",
+    "SET DISK8 TYPE=d451",
+    "SET DISK8 NAME=dskb_05",
     // ; Attach DISK unit 9 to MSP0 dev_code 6",
-    "cable MSP0 6 DISK9",
-    "set disk9 type=d451",
-    "set disk9 name=dskb_06",
+    "CABLE MSP0 6 DISK9",
+    "SET DISK9 TYPE=d451",
+    "SET DISK9 NAME=dskb_06",
     // ; Attach DISK unit 10 to MSP0 dev_code 7",
-    "cable MSP0 7 DISK10",
-    "set disk10 type=d451",
-    "set disk10 name=dskb_07",
+    "CABLE MSP0 7 DISK10",
+    "SET DISK10 TYPE=d451",
+    "SET DISK10 NAME=dskb_07",
     // ; Attach DISK unit 11 to MSP0 dev_code 8",
-    "cable MSP0 8 DISK11",
-    "set disk11 type=d451",
-    "set disk11 name=dskb_08",
+    "CABLE MSP0 8 DISK11",
+    "SET DISK11 TYPE=d451",
+    "SET DISK11 NAME=dskb_08",
     // ; Attach DISK unit 12 to MSP0 dev_code 9",
-    "cable MSP0 9 DISK12",
-    "set disk12 type=d500",
-    "set disk12 name=dskb_09",
+    "CABLE MSP0 9 DISK12",
+    "SET DISK12 TYPE=d500",
+    "SET DISK12 NAME=dskb_09",
     // ; Attach DISK unit 13 to MSP0 dev_code 10",
-    "cable MSP0 10 DISK13",
-    "set disk13 type=d500",
-    "set disk13 name=dskb_10",
+    "CABLE MSP0 10 DISK13",
+    "SET DISK13 TYPE=d500",
+    "SET DISK13 NAME=dskb_10",
 
     // since we define 16 (decimal) 3381s in the default config deck, we need to add another 12
     // ; Attach DISK unit 14 to IPC0 dev_code 4",
-    "cable IPC0 4 DISK14",
-    "set disk14 type=3381",
-    "set disk14 name=dska_04",
+    "CABLE IPC0 4 DISK14",
+    "SET DISK14 TYPE=3381",
+    "SET DISK14 NAME=dska_04",
     // ; Attach DISK unit 15 to IPC0 dev_code 5",
-    "cable IPC0 5 DISK15",
-    "set disk15 type=3381",
-    "set disk15 name=dska_05",
+    "CABLE IPC0 5 DISK15",
+    "SET DISK15 TYPE=3381",
+    "SET DISK15 NAME=dska_05",
     // ; Attach DISK unit 16 to IPC0 dev_code 6",
-    "cable IPC0 6 DISK16",
-    "set disk16 type=3381",
-    "set disk16 name=dska_06",
+    "CABLE IPC0 6 DISK16",
+    "SET DISK16 TYPE=3381",
+    "SET DISK16 NAME=dska_06",
     // ; Attach DISK unit 17 to IPC0 dev_code 7",
-    "cable IPC0 7 DISK17",
-    "set disk17 type=3381",
-    "set disk17 name=dska_07",
+    "CABLE IPC0 7 DISK17",
+    "SET DISK17 TYPE=3381",
+    "SET DISK17 NAME=dska_07",
     // ; Attach DISK unit 18 to IPC0 dev_code 8",
-    "cable IPC0 8 DISK18",
-    "set disk18 type=3381",
-    "set disk18 name=dska_08",
+    "CABLE IPC0 8 DISK18",
+    "SET DISK18 TYPE=3381",
+    "SET DISK18 NAME=dska_08",
     // ; Attach DISK unit 19 to IPC0 dev_code 9",
-    "cable IPC0 9 DISK19",
-    "set disk19 type=3381",
-    "set disk19 name=dska_09",
+    "CABLE IPC0 9 DISK19",
+    "SET DISK19 TYPE=3381",
+    "SET DISK19 NAME=dska_09",
     // ; Attach DISK unit 20 to IPC0 dev_code 10",
-    "cable IPC0 10 DISK20",
-    "set disk20 type=3381",
-    "set disk20 name=dska_10",
+    "CABLE IPC0 10 DISK20",
+    "SET DISK20 TYPE=3381",
+    "SET DISK20 NAME=dska_10",
     // ; Attach DISK unit 21 to IPC0 dev_code 11",
-    "cable IPC0 11 DISK21",
-    "set disk21 type=3381",
-    "set disk21 name=dska_11",
+    "CABLE IPC0 11 DISK21",
+    "SET DISK21 TYPE=3381",
+    "SET DISK21 NAME=dska_11",
     // ; Attach DISK unit 22 to IPC0 dev_code 12",
-    "cable IPC0 12 DISK22",
-    "set disk22 type=3381",
-    "set disk22 name=dska_12",
+    "CABLE IPC0 12 DISK22",
+    "SET DISK22 TYPE=3381",
+    "SET DISK22 NAME=dska_12",
     // ; Attach DISK unit 23 to IPC0 dev_code 13",
-    "cable IPC0 13 DISK23",
-    "set disk23 type=3381",
-    "set disk23 name=dska_13",
+    "CABLE IPC0 13 DISK23",
+    "SET DISK23 TYPE=3381",
+    "SET DISK23 NAME=dska_13",
     // ; Attach DISK unit 24 to IPC0 dev_code 14",
-    "cable IPC0 14 DISK24",
-    "set disk24 type=3381",
-    "set disk24 name=dska_14",
+    "CABLE IPC0 14 DISK24",
+    "SET DISK24 TYPE=3381",
+    "SET DISK24 NAME=dska_14",
     // ; Attach DISK unit 25 to IPC0 dev_code 15",
-    "cable IPC0 15 DISK25",
-    "set disk25 type=3381",
-    "set disk25 name=dska_15",
+    "CABLE IPC0 15 DISK25",
+    "SET DISK25 TYPE=3381",
+    "SET DISK25 NAME=dska_15",
 
     // ; Attach OPC unit 0 to IOM A, chan 036, dev_code 0
-    "cable IOMA 036 opc0",
-    "cable IOMA 053 opc1",
-    "set opc1 config=model=m6601",
-   // No devices for console, so no 'cable OPC0 # CONx'
+    "CABLE IOMA 036 OPC0",
+    // ; Attach OPC unit 1 to IOM A, chan 053, dev_code 0
+    "CABLE IOMA 053 OPC1",
+    "SET OPC1 CONFIG=MODEL=m6601",
+    // No "devices" for console, so no 'CABLE OPC0 # CONx', etc.
 
     // ;;;
     // ;;; FNP
     // ;;;
 
     // ; Attach FNP unit 3 (d) to IOM A, chan 020, dev_code 0
-    "cable IOMA 020 FNPD",
+    "CABLE IOMA 020 FNPD",
     // ; Attach FNP unit 0 (a) to IOM A, chan 021, dev_code 0
-    "cable IOMA 021 FNPA",
+    "CABLE IOMA 021 FNPA",
     // ; Attach FNP unit 1 (b) to IOM A, chan 022, dev_code 0
-    "cable IOMA 022 FNPB",
+    "CABLE IOMA 022 FNPB",
     // ; Attach FNP unit 2 (c) to IOM A, chan 023, dev_code 0
-    "cable IOMA 023 FNPC",
+    "CABLE IOMA 023 FNPC",
     // ; Attach FNP unit 4 (e) to IOM A, chan 024, dev_code 0
-    "cable IOMA 024 FNPE",
+    "CABLE IOMA 024 FNPE",
     // ; Attach FNP unit 5 (f) to IOM A, chan 025, dev_code 0
-    "cable IOMA 025 FNPF",
+    "CABLE IOMA 025 FNPF",
     // ; Attach FNP unit 6 (g) to IOM A, chan 026, dev_code 0
-    "cable IOMA 026 FNPG",
+    "CABLE IOMA 026 FNPG",
     // ; Attach FNP unit 7 (h) to IOM A, chan 027, dev_code 0
-    "cable IOMA 027 FNPH",
+    "CABLE IOMA 027 FNPH",
 
     // ;;;
     // ;;; MPC
     // ;;;
 
     // ; Attach MPC unit 0 to IOM 0, char 015, dev_code 0
-    "cable IOM0 015 URP0",
-    "set urp0 name=urpa",
+    "CABLE IOM0 015 URP0",
+    "SET URP0 NAME=urpa",
 
     // ; Attach RDR unit 0 to IOM 0, chan 015, dev_code 1
-    "cable URP0 1 RDR0",
-    "set rdr0 name=rdra",
+    "CABLE URP0 1 RDR0",
+    "SET RDR0 NAME=rdra",
 
     // ; Attach MPC unit 1 to IOM 0, char 016, dev_code 0
-    "cable IOM0 016 URP1",
-    "set urp1 name=urpb",
+    "CABLE IOM0 016 URP1",
+    "SET URP1 NAME=urpb",
 
     // ; Attach PUN unit 0 to IOM 0, chan 016, dev_code 1
-    "cable URP1 1 PUN0",
-    "set pun0 name=puna",
+    "CABLE URP1 1 PUN0",
+    "SET PUN0 NAME=puna",
 
     // ; Attach MPC unit 2 to IOM 0, char 017, dev_code 0
-    "cable IOM0 017 URP2",
-    "set urp2 name=urpc",
+    "CABLE iOM0 017 URP2",
+    "SET URP2 NAME=urpc",
 
     // ; Attach PRT unit 0 to IOM 0, chan 017, dev_code 1
-    "set prt0 name=prta",
-//    "set prt0 model=1600",    // Needs polts fixes
-    "cable URP2 1 PRT0",
+    "CABLE URP2 1 PRT0",
+    "SET PRT0 NAME=prta",
+//    "SET PRT0 MODEL=1600",    // Needs polts fixes
 
     // ; Attach MPC unit 3 to IOM 0, char 050, dev_code 0
-    "cable ioma 050 urp3",
-    "set urp3 name=urpd",
+    "CABLE IOMA 050 URP3",
+    "SET URP3 NAME=urpd",
 
     // ; Attach PRT unit 1 to IOM 0, chan 050, dev_code 1
-    "set prt1 name=prtb",
-//    "set prt1 model=303",    // Needs polts fixes
-    "cable urp3 1 prt1",
+    "CABLE URP3 1 PRT1",
+    "SET PRT1 NAME=prtb",
+//    "SET PRT1 MODEL=303",    // Needs polts fixes
 
     // ; Attach MPC unit 4 to IOM 0, char 051, dev_code 0
-    "cable ioma 051 urp4",
-    "set urp4 name=urpe",
+    "CABLE IOMA 051 URP4",
+    "SET URP4 NAME=urpe",
 
     // ; Attach PRT unit 2 to IOM 0, chan 051, dev_code 1
-    "set prt2 name=prtc",
-//    "set prt2 model=300",    // Needs polts fixes
-    "cable urp4 1 prt2",
+    "CABLE URP4 1 PRT2",
+    "SET PRT2 NAME=prtc",
+//    "SET PRT2 MODEL=300",    // Needs polts fixes
 
     // ; Attach MPC unit 5 to IOM 0, chan 052, dev_code 0
-    "cable ioma 052 urp5",
-    "set urp5 name=urpf",
+    "CABLE IOMA 052 URP5",
+    "SET URP5 NAME=urpf",
 
     // ; Attach PRT unit 3 to IOM 0, chan 052, dev_code 1
-    "set prt3 name=prtd",
-//    "set prt3 model=202",    // Needs polts fixes
-    "cable urp5 1 prt3",
+    "CABLE URP5 1 PRT3",
+    "SET PRT3 NAME=prtd",
+//    "SET PRT3 MODEL=202",    // Needs polts fixes
 
     // ; Attach MPC unit 6 to IOM 0, chan 055, dev_code 0
-    "cable ioma 055 urp6",
-    "set urp6 name=urpg",
+    "CABLE IOMA 055 URP6",
+    "SET URP6 NAME=urpg",
 
     // ; Attach RDR unit 1 to IOM 0, chan 055, dev_code 1
-    "set rdr1 name=rdrb",
-    "cable urp6 1 rdrb",
+    "CABLE URP6 1 RDRB",
+    "SET RDR1 NAME=rdrb",
 
     // ; Attach MPC unit 7 to IOM 0, chan 056, dev_code 0
-    "cable ioma 056 urp7",
-    "set urp7 name=urph",
+    "CABLE IOMA 056 URP7",
+    "SET URP7 NAME=urph",
 
     // ; Attach RDR unit 2 to IOM 0, chan 056, dev_code 1
-    "set rdr2 name=rdrc",
-    "cable urp7 1 rdrc",
+    "CABLE URP7 1 RDRC",
+    "SET RDR2 NAME=rdrc",
 
     // ; Attach MPC unit 8 to IOM 0, chan 057, dev_code 0
-    "cable ioma 057 urp8",
-    "set urp8 name=urpi",
+    "CABLE IOMA 057 URP8",
+    "SET URP8 NAME=urpi",
 
     // ; Attach PUN unit 1 to IOM 0, chan 057, dev_code 1
-    "set pun1 name=punb",
-    "cable urp8 1 punb",
+    "CABLE URP8 1 PUNB",
+    "SET PUN1 NAME=punb",
 
     // ; Attach MPC unit 9 to IOM 0, chan 060, dev_code 0
-    "cable ioma 060 urp9",
-    "set urp9 name=urpj",
+    "CABLE IOMA 060 URP9",
+    "SET URP9 NAME=urpj",
 
     // ; Attach PUN unit 2 to IOM 0, chan 060, dev_code 1
-    "set pun2 name=punc",
-    "cable urp9 1 punc",
+    "CABLE URP9 1 PUNC",
+    "SET PUN2 NAME=punc",
 
 # ifdef WITH_SOCKET_DEV
 #  ifndef __MINGW64__
 #   ifndef __MINGW32__
 #    ifndef CROSS_MINGW32
 #     ifndef CROSS_MINGW64
-    "cable IOMA 040 SKCA",
-    "cable IOMA 041 SKCB",
-    "cable IOMA 042 SKCC",
-    "cable IOMA 043 SKCD",
-    "cable IOMA 044 SKCE",
-    "cable IOMA 045 SKCF",
-    "cable IOMA 046 SKCG",
-    "cable IOMA 047 SKCH",
+    "CABLE IOMA 040 SKCA",
+    "CABLE IOMA 041 SKCB",
+    "CABLE IOMA 042 SKCC",
+    "CABLE IOMA 043 SKCD",
+    "CABLE IOMA 044 SKCE",
+    "CABLE IOMA 045 SKCF",
+    "CABLE IOMA 046 SKCG",
+    "CABLE IOMA 047 SKCH",
 #     endif /* ifndef CROSS_MINGW64 */
 #    endif /* ifndef CROSS_MINGW32 */
 #   endif /* ifndef __MINGW32__ */
@@ -1542,66 +1544,66 @@ static char * default_base_system_script [] =
 
 # if 0
     // ; Attach PRT unit 1 to IOM 0, chan 017, dev_code 2
-    "set prt1 name=prtb",
-    "cable URP2 2 PRT1",
+    "SET PRT1 NAME=prtb",
+    "CABLE URP2 2 PRT1",
 
     // ; Attach PRT unit 2 to IOM 0, chan 017, dev_code 3
-    "set prt2 name=prtc",
-    "cable URP2 3 PRT2",
+    "SET PRT2 NAME=prtc",
+    "CABLE URP2 3 PRT2",
 
     // ; Attach PRT unit 3 to IOM 0, chan 017, dev_code 4
-    "cable URP2 4 PRT3",
-    "set prt3 name=prtd",
+    "CABLE URP2 4 PRT3",
+    "SET PRT3 NAME=prtd",
 
     // ; Attach PRT unit 4 to IOM 0, chan 017, dev_code 5
-    "cable URP2 5 PRT4",
-    "set prt4 name=prte",
+    "CABLE URP2 5 PRT4",
+    "SET PRT4 NAME=prte",
 
     // ; Attach PRT unit 5 to IOM 0, chan 017, dev_code 6
-    "cable URP2 6 PRT5",
-    "set prt5 name=prtf",
+    "CABLE URP2 6 PRT5",
+    "SET PRT5 NAME=prtf",
 
     // ; Attach PRT unit 6 to IOM 0, chan 017, dev_code 7
-    "cable URP2 7 PRT6",
-    "set prt6 name=prtg",
+    "CABLE URP2 7 PRT6",
+    "SET PRT6 NAME=prtg",
 
     // ; Attach PRT unit 7 to IOM 0, chan 017, dev_code 8
-    "cable URP2 8 PRT7",
-    "set prt7 name=prth",
+    "CABLE URP2 8 PRT7",
+    "SET PRT7 NAME=prth",
 
     // ; Attach PRT unit 8 to IOM 0, chan 017, dev_code 9
-    "cable URP2 9 PRT8",
-    "set prt8 name=prti",
+    "CABLE URP2 9 PRT8",
+    "SET PRT8 NAME=prti",
 
     // ; Attach PRT unit 9 to IOM 0, chan 017, dev_code 10
-    "cable URP2 10 PRT9",
-    "set prt9 name=prtj",
+    "CABLE URP2 10 PRT9",
+    "SET PRT9 NAME=prtj",
 
     // ; Attach PRT unit 10 to IOM 0, chan 017, dev_code 11
-    "cable URP2 11 PRT10",
-    "set prt10 name=prtk",
+    "CABLE URP2 11 PRT10",
+    "SET PRT10 NAME=prtk",
 
     // ; Attach PRT unit 11 to IOM 0, chan 017, dev_code 12
-    "cable URP2 12 PRT11",
-    "set prt11 name=prtl",
+    "CABLE URP2 12 PRT11",
+    "SET PRT11 NAME=prtl",
 
     // ; Attach PRT unit 12 to IOM 0, chan 017, dev_code 13
-    "cable URP2 13 PRT12",
-    "set prt12 name=prtm",
+    "CABLE URP2 13 PRT12",
+    "SET PRT12 NAME=prtm",
 
     // ; Attach PRT unit 13 to IOM 0, chan 017, dev_code 14
-    "cable URP2 14 PRT13",
-    "set prt13 name=prtn",
+    "CABLE URP2 14 PRT13",
+    "SET PRT13 NAME=prtn",
 
     // ; Attach PRT unit 14 to IOM 0, chan 017, dev_code 15
-    "cable URP2 15 PRT14",
-    "set prt14 name=prto",
+    "CABLE URP2 15 PRT14",
+    "SET PRT14 NAME=prto",
 
     // ; Attach PRT unit 15 to IOM 0, chan 017, dev_code 16
-    "set prt15 name=prtp",
+    "SET PRT15 NAME=prtp",
 
     // ; Attach PRT unit 16 to IOM 0, chan 017, dev_code 17
-    "set prt16 name=prtq",
+    "SET PRT16 NAME=prtq",
 # endif
 
 # ifdef WITH_ABSI_DEV
@@ -1610,7 +1612,7 @@ static char * default_base_system_script [] =
 #    ifndef CROSS_MINGW64
 #     ifndef CROSS_MINGW32
     // ; Attach ABSI unit 0 to IOM 0, chan 032, dev_code 0
-    "cable IOM0 032 ABSI0",
+    "CABLE IOM0 032 ABSI0",
 #     endif /* CROSS_MINGW32 */
 #    endif /* CROSS_MINGW64 */
 #   endif /* __MINGW32__ */
@@ -1618,129 +1620,138 @@ static char * default_base_system_script [] =
 # endif /* ifdef WITH_ABSI_DEV */
 
     // ; Attach IOM unit 0 port A (0) to SCU unit 0, port 0
-    "cable SCU0 0 IOM0 0", // SCU0 port 0 IOM0 port 0
+    "CABLE SCU0 0 IOM0 0", // SCU0 port 0 IOM0 port 0
 
     // ; Attach IOM unit 0 port B (1) to SCU unit 1, port 0
-    "cable SCU1 0 IOM0 1", // SCU1 port 0 IOM0 port 1
+    "CABLE SCU1 0 IOM0 1", // SCU1 port 0 IOM0 port 1
 
     // ; Attach IOM unit 0 port C (2) to SCU unit 2, port 0
-    "cable SCU2 0 IOM0 2", // SCU2 port 0 IOM0 port 2
+    "CABLE SCU2 0 IOM0 2", // SCU2 port 0 IOM0 port 2
 
     // ; Attach IOM unit 0 port D (3) to SCU unit 3, port 0
-    "cable SCU3 0 IOM0 3", // SCU3 port 0 IOM0 port 3
+    "CABLE SCU3 0 IOM0 3", // SCU3 port 0 IOM0 port 3
 
     // ; Attach IOM unit 1 port A (0) to SCU unit 0, port 1
-    "cable SCU0 1 IOM1 0", // SCU0 port 0 IOM0 port 0
+    "CABLE SCU0 1 IOM1 0", // SCU0 port 0 IOM0 port 0
 
     // ; Attach IOM unit 1 port B (1) to SCU unit 1, port 1
-    "cable SCU1 1 IOM1 1", // SCU1 port 0 IOM0 port 1
+    "CABLE SCU1 1 IOM1 1", // SCU1 port 0 IOM0 port 1
 
     // ; Attach IOM unit 1 port C (2) to SCU unit 2, port 1
-    "cable SCU2 1 IOM1 2", // SCU2 port 0 IOM0 port 2
+    "CABLE SCU2 1 IOM1 2", // SCU2 port 0 IOM0 port 2
 
     // ; Attach IOM unit 1 port D (3) to SCU unit 3, port 1
-    "cable SCU3 1 IOM1 3", // SCU3 port 0 IOM0 port 3
+    "CABLE SCU3 1 IOM1 3", // SCU3 port 0 IOM0 port 3
 
 // SCU0 --> CPU0-5
 
     // ; Attach SCU unit 0 port 7 to CPU unit A (1), port 0
-    "cable SCU0 7 CPU0 0",
+    "CABLE SCU0 7 CPU0 0",
 
     // ; Attach SCU unit 0 port 6 to CPU unit B (1), port 0
-    "cable SCU0 6 CPU1 0",
+    "CABLE SCU0 6 CPU1 0",
 
     // ; Attach SCU unit 0 port 5 to CPU unit C (2), port 0
-    "cable SCU0 5 CPU2 0",
+    "CABLE SCU0 5 CPU2 0",
 
     // ; Attach SCU unit 0 port 4 to CPU unit D (3), port 0
-    "cable SCU0 4 CPU3 0",
+    "CABLE SCU0 4 CPU3 0",
 
     // ; Attach SCU unit 0 port 3 to CPU unit E (4), port 0
-    "cable SCU0 3 CPU4 0",
+    "CABLE SCU0 3 CPU4 0",
 
     // ; Attach SCU unit 0 port 2 to CPU unit F (5), port 0
-    "cable SCU0 2 CPU5 0",
+    "CABLE SCU0 2 CPU5 0",
 
 // SCU1 --> CPU0-5
 
     // ; Attach SCU unit 1 port 7 to CPU unit A (1), port 1
-    "cable SCU1 7 CPU0 1",
+    "CABLE SCU1 7 CPU0 1",
 
     // ; Attach SCU unit 1 port 6 to CPU unit B (1), port 1
-    "cable SCU1 6 CPU1 1",
+    "CABLE SCU1 6 CPU1 1",
 
     // ; Attach SCU unit 1 port 5 to CPU unit C (2), port 1
-    "cable SCU1 5 CPU2 1",
+    "CABLE SCU1 5 CPU2 1",
 
     // ; Attach SCU unit 1 port 4 to CPU unit D (3), port 1
-    "cable SCU1 4 CPU3 1",
+    "CABLE SCU1 4 CPU3 1",
 
     // ; Attach SCU unit 1 port 3 to CPU unit E (4), port 0
-    "cable SCU1 3 CPU4 1",
+    "CABLE SCU1 3 CPU4 1",
 
     // ; Attach SCU unit 1 port 2 to CPU unit F (5), port 0
-    "cable SCU1 2 CPU5 1",
+    "CABLE SCU1 2 CPU5 1",
 
 // SCU2 --> CPU0-5
 
     // ; Attach SCU unit 2 port 7 to CPU unit A (1), port 2
-    "cable SCU2 7 CPU0 2",
+    "CABLE SCU2 7 CPU0 2",
 
     // ; Attach SCU unit 2 port 6 to CPU unit B (1), port 2
-    "cable SCU2 6 CPU1 2",
+    "CABLE SCU2 6 CPU1 2",
 
     // ; Attach SCU unit 2 port 5 to CPU unit C (2), port 2
-    "cable SCU2 5 CPU2 2",
+    "CABLE SCU2 5 CPU2 2",
 
     // ; Attach SCU unit 2 port 4 to CPU unit D (3), port 2
-    "cable SCU2 4 CPU3 2",
+    "CABLE SCU2 4 CPU3 2",
 
     // ; Attach SCU unit 2 port 3 to CPU unit E (4), port 0
-    "cable SCU2 3 CPU4 2",
+    "CABLE SCU2 3 CPU4 2",
 
     // ; Attach SCU unit 2 port 2 to CPU unit F (5), port 0
-    "cable SCU2 2 CPU5 2",
+    "CABLE SCU2 2 CPU5 2",
 
 // SCU3 --> CPU0-5
 
     // ; Attach SCU unit 3 port 7 to CPU unit A (1), port 3
-    "cable SCU3 7 CPU0 3",
+    "CABLE SCU3 7 CPU0 3",
 
     // ; Attach SCU unit 3 port 6 to CPU unit B (1), port 3
-    "cable SCU3 6 CPU1 3",
+    "CABLE SCU3 6 CPU1 3",
 
     // ; Attach SCU unit 3 port 5 to CPU unit C (2), port 3
-    "cable SCU3 5 CPU2 3",
+    "CABLE SCU3 5 CPU2 3",
 
     // ; Attach SCU unit 3 port 4 to CPU unit D (3), port 3
-    "cable SCU3 4 CPU3 3",
+    "CABLE SCU3 4 CPU3 3",
 
     // ; Attach SCU unit 3 port 3 to CPU unit E (4), port 0
-    "cable SCU3 3 CPU4 3",
+    "CABLE SCU3 3 CPU4 3",
 
     // ; Attach SCU unit 3 port 2 to CPU unit F (5), port 0
-    "cable SCU3 2 CPU5 3",
+    "CABLE SCU3 2 CPU5 3",
 
-    "set cpu0 reset",
-    "set scu0 reset",
-    "set scu1 reset",
-    "set scu2 reset",
-    "set scu3 reset",
-    "set iom0 reset",
+    "SET CPU0 RESET",
+    "SET SCU0 RESET",
+    "SET SCU1 RESET",
+    "SET SCU2 RESET",
+    "SET SCU3 RESET",
+    "SET IOM0 RESET",
 
 # if defined(THREADZ) || defined(LOCKLESS)
-    "set cpu nunits=6",
+    "SET CPU NUNITS=6",
 # else
 #  ifdef ROUND_ROBIN
-    "set cpu nunits=6",
+    "SET CPU NUNITS=6",
 #  else
-    "set cpu nunits=1",
+    "SET CPU NUNITS=1",
 #  endif
 # endif // THREADZ
-    // "set sys config=activate_time=8",
-    // "set sys config=terminate_time=8",
-    "set sys config=connect_time=-1",
+    // "SET SYS CONFIG=ACTIVATE_TIME=8",
+    // "SET SYS CONFIG=TERMINATE_TIME=8",
+    "SET SYS CONFIG=CONNECT_TIME=-1",
   }; // default_base_system_script
+
+void print_default_base_system_script (void)
+  {
+    int n_lines = sizeof (default_base_system_script) / sizeof (char *);
+    sim_printf ("; DEFAULT_BASE_SYSTEM_SCRIPT (%lu lines follow)\n",
+            (unsigned long)n_lines);
+    for (int line = 0; line < n_lines; line ++)
+    sim_printf ("%s\n", default_base_system_script[line]);
+  }
 
 // Execute a line of script
 

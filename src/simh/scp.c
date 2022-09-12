@@ -208,6 +208,7 @@ t_stat show_dev_show_commands (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, C
 t_stat show_version (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr);
 t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cprr);
 t_stat show_prom (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr);
+t_stat show_default_base_system_script (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr);
 t_stat show_default (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr);
 t_stat show_break (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr);
 t_stat show_on (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr);
@@ -594,6 +595,7 @@ static const char simh_help[] =
       " PC for the number of instructions given by its argument.  If no argument\n"
       " is supplied, one instruction is executed.\n"
       "4Switches\n"
+      "5`-T`\n"
       " If the `STEP` command is invoked with the \"`-T`\" switch, the step\n"
       " command will cause execution to run for *microseconds* rather than\n"
       " instructions.\n"
@@ -611,7 +613,7 @@ static const char simh_help[] =
       " When booting Multics, the boot device should always be `iom0`.\n"
       " Assuming a tape is attached to the `tape0` device, it will be bootstrapped\n"
       " into memory and the system will transfer control to the boot record.\n\n"
-      "4Example\n"
+      " **Example**\n\n"
       "++; Boot Multics using iom0\n"
       "++boot iom0\n\n"
        /***************** 80 character line width template *************************/
@@ -718,7 +720,7 @@ static const char simh_help[] =
       " * The format of a currently attached tape image can be displayed with\n"
       "   the `SHOW FORMAT` command:\n\n"
       "++SHOW <unit> FORMAT\n\n"
-      "4Examples\n"
+      " **Examples**\n\n"
       " The following example illustrates common `ATTACH` usage:\n"
       "++; Associate the tape image file \"12.7MULTICS.tap\" with the tape0 unit\n"
       "++; in read-only mode, where tape0 corresponds to the first tape device.\n"
@@ -811,7 +813,7 @@ static const char simh_help[] =
       "+SET NOQUIET                 Re-enables suppression of some messages\n"
 #define HLP_SET_PROMPT "*Commands SET Command_Prompt"
       "3Command Prompt\n"
-      "+SET PROMPT \"string\"          Sets an alternate simulator prompt string\n"
+      "+SET PROMPT \"string\"         Sets an alternate simulator prompt string\n"
       "3Device and Unit Settings\n"
       "+SET <dev> OCT|DEC|HEX       Set device display radix\n"
       "+SET <dev> ENABLED           Enable device\n"
@@ -828,28 +830,26 @@ static const char simh_help[] =
        /***************** 80 character line width template *************************/
 #define HLP_SHOW        "*Commands SHOW"
       "2SHOW\n"
-      "+SH{OW} CON{FIGURATION}      Show configuration\n"
-      "+SH{OW} CONS{OLE} {arg}      Show console options\n"
-      "+SH{OW} DEV{ICES}            Show devices\n"
-      "+SH{OW} FEA{TURES}           Show system devices with descriptions\n"
-      "+SH{OW} M{ODIFIERS}          Show modifiers applicable to all devices\n"
-      "+SH{OW} S{HOW}               Show SHOW commands applicable to all devices\n"
-      "+SH{OW} N{AMES}              Show logical names\n"
-      "+SH{OW} Q{UEUE}              Show event queue\n"
-      "+SH{OW} TI{ME}               Show simulated time\n"
-      "+SH{OW} B{UILDINFO}          Show build-time compilation information\n"
-      "+SH{OW} VE{RSION}            Show simulator version\n"
-      "+SH{OW} P{ROM}               Show PROM initialization template data\n"
-      "+SH{OW} <dev> RADIX          Show device display radix\n"
-      "+SH{OW} <dev> DEBUG          Show device debug flags\n"
-      "+SH{OW} <dev> MODIFIERS      Show device modifiers\n"
-      "+SH{OW} <dev> NAMES          Show device logical name\n"
-      "+SH{OW} <dev> SHOW           Show device SHOW commands\n"
-      "+SH{OW} <dev> {arg,...}      Show device parameters\n"
-      "+SH{OW} <unit> {arg,...}     Show unit parameters\n"
-      "+SH{OW} CLOCKS               Show calibrated timers\n"
-      "+SH{OW} ON                   Show ON condition actions\n"
-      "+H{ELP} <dev> SHOW           Show device-specific SHOW commands\n\n"
+      "+SH{OW} B{UILDINFO}               Show build-time compilation information\n"
+      "+SH{OW} CL{OCKS}                  Show wall clock and timer information\n"
+      "+SH{OW} C{ONFIGURATION}           Show simulator configuration\n"
+      "+SH{OW} D{EFAULT_BASE_SYSTEM}     Show default base system script\n"
+      "+SH{OW} DEV{ICES}                 Show devices\n"
+      "+SH{OW} M{ODIFIERS}               Show SET commands for all devices\n"
+      "+SH{OW} O{N}                      Show ON condition actions\n"
+      "+SH{OW} P{ROM}                    Show CPU ID PROM initialization data\n"
+      "+SH{OW} Q{UEUE}                   Show event queue\n"
+      "+SH{OW} S{HOW}                    Show SHOW commands for all devices\n"
+      "+SH{OW} T{IME}                    Show simulated timer\n"
+      "+SH{OW} VE{RSION}                 Show simulator version\n"
+      "+H{ELP} <dev> SHOW                Show device-specific SHOW commands\n"
+      "+SH{OW} <dev> {arg,...}           Show device parameters\n"
+      "+SH{OW} <dev> DEBUG               Show device debug flags\n"
+      "+SH{OW} <dev> MODIFIERS           Show device modifiers\n"
+      "+SH{OW} <dev> RADIX               Show device display radix\n"
+      "+SH{OW} <dev> SHOW                Show device SHOW commands\n"
+      "+SH{OW} <unit> {arg,...}          Show unit parameters\n\n"
+      " See the Omnibus documentation for a complete SHOW command reference.\n\n"
 #define HLP_SHOW_CONFIG         "*Commands SHOW"
 #define HLP_SHOW_DEVICES        "*Commands SHOW"
 #define HLP_SHOW_FEATURES       "*Commands SHOW"
@@ -861,6 +861,7 @@ static const char simh_help[] =
 #define HLP_SHOW_VERSION        "*Commands SHOW"
 #define HLP_SHOW_BUILDINFO      "*Commands SHOW"
 #define HLP_SHOW_PROM           "*Commands SHOW"
+#define HLP_SHOW_DBS            "*Commands SHOW"
 #define HLP_SHOW_DEFAULT        "*Commands SHOW"
 #define HLP_SHOW_CONSOLE        "*Commands SHOW"
 #define HLP_SHOW_REMOTE         "*Commands SHOW"
@@ -940,7 +941,7 @@ static const char simh_help[] =
       " command file which is encountered.\n"
       " * Since labels don't do anything other than specifying the target of\n"
       " a `GOTO`, they may also be used to provide comments in `DO` command files.\n\n"
-      "4Examples\n\n"
+      " **Example**\n\n"
       " The following examples illustrate usage of the `GOTO` command:\n\n"
       "++:: This is a comment\n"
       "++echo Some Message to Output\n"
@@ -961,8 +962,8 @@ static const char simh_help[] =
       " condition names.\n\n"
       " * The \"`-Q`\" switch on the `RETURN` command will cause the specified\n"
       " status to be returned, but normal error status message printing to be\n"
-      " suppressed.\n"
-      "4Condition Names\n"
+      " suppressed.\n\n"
+      " **Condition Names**\n\n"
       " The available standard SCPE_ condition names and their meanings are:\n\n"
       " | Name    | Meaning                             |\n"
       " | ------- | ----------------------------------- |\n"
@@ -1016,7 +1017,7 @@ static const char simh_help[] =
 #define HLP_CALL        "*Commands Executing_Command_Files Call_a_subroutine"
       "3Call a subroutine\n"
       " Control can be transferred to a labeled subroutine using `CALL`.\n"
-      "4Example\n"
+      " **Example**\n\n"
       "++CALL routine\n"
       "++BYE\n"
       "++\n"
@@ -1057,7 +1058,7 @@ static const char simh_help[] =
       " command file with the `AFAIL` status to the calling command file.  This\n"
       " behavior can be changed with the `ON` command as well as switches to the\n"
       " invoking `DO` command.\n\n"
-      "4Examples\n"
+      " **Examples**\n\n"
       " The command file below might be used to bootstrap a hypothetical system\n"
       " that halts after the initial load from disk. The `ASSERT` command can then\n"
       " be used to confirm that the load completed successfully by examining the\n"
@@ -1072,14 +1073,14 @@ static const char simh_help[] =
       " the \"`ASSERT A=0`\" command will be displayed to the user, and the\n"
       " command file will be aborted with an \"`Assertion failed`\" message.\n"
       " Otherwise, the command file will continue to bring up the system.\n\n"
-      " * See **`IF`** command documentation for for more information and details\n"
+      " * See the **`IF`** command documentation for more information and details\n"
       " regarding simulator state expressions.\n\n"
 #define HLP_IF          "*Commands Executing_Command_Files Testing_Conditions"
       "3Testing Conditions\n"
       " The `IF` command tests a simulator state condition and executes additional\n"
       " commands if the condition is true:\n\n"
       "++IF <Simulator State Expressions> commandtoprocess{; additionalcommand}...\n\n"
-      "4Examples\n"
+      " **Examples**\n\n"
       " The command file below might be used to bootstrap a hypothetical system\n"
       " that halts after the initial load from disk. The `IF` command can then\n"
       " be used to confirm that the load completed successfully by examining the\n"
@@ -1250,6 +1251,7 @@ static C1TAB set_unit_tab[] = {
 
 static SHTAB show_glob_tab[] = {
     { "CONFIGURATION",  &show_config,               0, HLP_SHOW_CONFIG },
+    { "DEFAULT_BASE_SYSTEM_SCRIPT", &show_default_base_system_script, 0, HLP_SHOW_DBS },
     { "DEVICES",        &show_config,               1, HLP_SHOW_DEVICES },
     { "FEATURES",       &show_config,               2, HLP_SHOW_FEATURES },
     { "QUEUE",          &show_queue,                0, HLP_SHOW_QUEUE },
@@ -4020,6 +4022,13 @@ fprintf (st, " %s", sprint_capac (dptr, uptr));
 }
 
 /* Show <global name> processors  */
+
+extern void print_default_base_system_script (void);
+t_stat show_default_base_system_script (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
+{
+  print_default_base_system_script();
+  return 0;
+}
 
 static void printp (unsigned char * PROM, char * label, int offset, int length) {
   sim_printf ("  %s '", label);
