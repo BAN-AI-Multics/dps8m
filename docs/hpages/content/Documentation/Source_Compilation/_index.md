@@ -184,7 +184,7 @@ Install the required prerequisites (using NetBSD Packages or [pkgsrc](https://ww
   * Using pkgsrc (as *root*):
 
     ```sh
-    cd /usr/pkgsrc/lang/gcc12 && make install clean
+    cd /usr/pkgsrc/lang/gcc12/ && make install clean
     ```
 
 * Build the simulator from the top-level source directory (using **GNU Make**):
@@ -208,8 +208,8 @@ Install the required prerequisites (using NetBSD Packages or [pkgsrc](https://ww
   * Using pkgsrc (as *root*):
 
     ```sh
-    cd /usr/pkgsrc/lang/clang && make install clean
-    cd /usr/pkgsrc/devel/lld && make install clean
+    cd /usr/pkgsrc/lang/clang/ && make install clean
+    cd /usr/pkgsrc/devel/lld/ && make install clean
     ```
 
 * Build the simulator from the top-level source directory (using **GNU Make**):

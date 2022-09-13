@@ -248,12 +248,15 @@ docs/yaml/docinfo-post.yml
 docs/*.tmp
 docs/*.sav
 docs/md/showtemp.md
+docs/md/_cmdout.md
 docs/commandref.md
 docs/md/commandref.md
 docs/dps8*.pdf
 docs/docsdocker
 docs/stage?.pdf
 docs/temp.out
+docs/pdf/neato.pdf
+docs/pdf/gvsubset.pdf
 
 # Clang
 compile_commands.json

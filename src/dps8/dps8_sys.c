@@ -1259,7 +1259,7 @@ static char * default_base_system_script [] =
     "SET TAPE1 NAME=tapa_01",
     "CABLE MTP0 2 TAPE2",
     "SET TAPE2 NAME=tapa_02",
-    "CABLE mtP0 3 TAPE3",
+    "CABLE MTP0 3 TAPE3",
     "SET TAPE3 NAME=tapa_03",
     "CABLE MTP0 4 TAPE4",
     "SET TAPE4 NAME=tapa_04",
@@ -1275,7 +1275,7 @@ static char * default_base_system_script [] =
     "SET TAPE9 NAME=tapa_09",
     "CABLE MTP0 10 TAPE10",
     "SET TAPE10 NAME=tapa_10",
-    "CABLE mtP0 11 TAPE11",
+    "CABLE MTP0 11 TAPE11",
     "SET TAPE11 NAME=tapa_11",
     "CABLE MTP0 12 TAPE12",
     "SET TAPE12 NAME=tapa_12",
@@ -1456,7 +1456,7 @@ static char * default_base_system_script [] =
     "SET PUN0 NAME=puna",
 
     // ; Attach MPC unit 2 to IOM 0, char 017, dev_code 0
-    "CABLE iOM0 017 URP2",
+    "CABLE IOM0 017 URP2",
     "SET URP2 NAME=urpc",
 
     // ; Attach PRT unit 0 to IOM 0, chan 017, dev_code 1
