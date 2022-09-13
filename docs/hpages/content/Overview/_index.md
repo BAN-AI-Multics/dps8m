@@ -50,7 +50,7 @@
 
   * <u>Hardware architectures</u> supported are **Intel x86** (i686, x86_64), **ARM** (ARMv6, ARMv7, ARM64), **PowerPC** (PPC, PPC64, PPC64le), **RISC-V** (RV64), and **m68k** (68020+).
 
-* Various releases of **DPS8M** have been ported to **embedded systems**, **cell phones**, **tablets**, **handheld gaming consoles**, **wireless routers**, and even modern **mainframes**.  A full-featured port should be possible for any 32- or 64-bit platform with hardware atomic operations able to support the [**libuv**](https://libuv.org/) asynchronous I/O library.
+* Various releases of **DPS8M** have been ported to **embedded systems**, **cell phones**, **tablets**, **handheld gaming consoles**, **wireless routers**, and even modern **mainframes**.  A full-featured port should be possible for any 32- or 64-bit platform with appropriate hardware atomic operations and able to support the [**libuv**](https://libuv.org/) asynchronous I/O library.
 
 * The simulator is distributed as an [**easy-to-build**](../Documentation/Source_Compilation)
   source code [**distribution**](../Releases) (buildable simply via **`make`** on most systems) or as ready-to-run [**pre-compiled binaries**](../Releases) for several popular platforms.
