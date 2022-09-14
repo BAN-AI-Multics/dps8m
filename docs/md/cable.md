@@ -79,26 +79,56 @@ The "**`CABLE DUMP`**" command prints the current cabling configuration in great
 
 ### CABLE GRAPH
 
-The "**`CABLE GRAPH`**" command prints the current cabling configuration in the "**DOT**" graph description language.
+The "**`CABLE GRAPH`**" command prints the current cabling configuration in the "**DOT**" graph description language (suitable for rendering with *GraphViz*, etc.)
 
 <!-- pagebreak -->
 
 #### Complete Cabling Graph
 
+The following is a **complete** cabling graph of the *default base system*:
+
 \captionsetup{labelformat=empty}
 ![](./pdf/neato.pdf)
 \begin{figure}[!h]
-\caption{Rendering of the complete cabling configuration of the default base system (created using GraphViz).}
+\caption{}
 \end{figure}
 
 <!-- pagebreak -->
 
-#### CPU/SCU/IOM Cabling Graph
+#### CPU / SCU / IOM Cabling Graph
+
+The following graph shows the cabling configuration of the *default base system*'s "**`CPU`**", "**`SCU`**", and "**`IOM`**" devices:
 
 \captionsetup{labelformat=empty}
 ![](./pdf/gvsubset.pdf)
 \begin{figure}[!h]
-\caption{Rendering of the "CPU", "SCU", and "IOM" cabling configuration of the default base system (created using GraphViz).}
+\caption{}
 \end{figure}
+
+<!-- pagebreak -->
+
+#### Storage Cabling Graph
+
+The following graph shows the cabling configuration of the *default base system*'s **storage** devices:
+
+\captionsetup{labelformat=empty}
+![](./pdf/storage.pdf)
+\begin{figure}[!h]
+\caption{}
+\end{figure}
+
+<!-- pagebreak -->
+
+#### Controller Cabling Graph
+
+The following graph shows the cabling configuration of the *default base system*'s **controller** devices:
+
+\captionsetup{labelformat=empty}
+![](./pdf/iomcon.pdf){height=60%}
+\begin{figure}[!h]
+\caption{}
+\end{figure}
+
+See the "**Simulator Defaults**" chapter for more details (including the full output of the "`CABLE DUMP`" command).
 
 

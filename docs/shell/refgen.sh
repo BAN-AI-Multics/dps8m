@@ -42,6 +42,8 @@ rm -f "./md/commandref.md"   > /dev/null 2>&1 || true
 rm -f "./temp1.tmp"          > /dev/null 2>&1 || true
 rm -f "./temp2.tmp"          > /dev/null 2>&1 || true
 rm -f "./pdf/neato.pdf"      > /dev/null 2>&1 || true
+rm -f "./pdf/storage.pdf"    > /dev/null 2>&1 || true
+rm -f "./pdf/iomcon.pdf"     > /dev/null 2>&1 || true
 rm -f "./pdf/gvsubset.pdf"   > /dev/null 2>&1 || true
 
 ############################################################################
@@ -52,7 +54,7 @@ cp -f "./md/showcommands.md" "./md/showtemp.md"
 # Command Reference chapter
 
 # shellcheck disable=SC1001,SC2016
-( ( echo HELP | "../src/dps8/dps8" -t -q | tail -n +2 | grep -v '^$' | tr -s ' ' | tr ' ' '\n' | grep -v '^$' | grep -vwE '(HELP|IGNORE|BREAK|NOBREAK|EXPECT|NOEXPECT|SEND|EXAMINE|DEPOSIT|IEXAMINE|IDEPOSIT|XF|RESTART|AI|AI2|UNCABLE|CABLE_SHOW|CABLE_RIPOUT)' | sort | xargs -I{} echo echo\ \;echo\ \XXXXXXXXXXXX\ {}\;echo help\ -f\ {}\|../src/dps8/dps8\ -t\ -q\;echo\;echo |sh) | grep -Ev '(DPS8/M help.$|^L68 help.$)' ) | expand | sed -e 's/XXXXXXXXXXXX/#/' -e 's/^1\.1\.//' -e 's/^[0-9]\+ /## /' -e 's/^[0-9]\+\.[0-9]\+ /## /' -e 's/^[0-9]\+\.[0-9]\+\.[0-9]\+ /### /' -e 's/^[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+ /#### /' -e 's/^#/##/' -e 's/^    //' -e '' -e 's/^        /             /' -e '/^[[:alnum:]]/s/</\\</g' -e '/^[[:alnum:]]/s/>/\\>/g' -e '/^[[:alnum:]]/s/_/\\_/g' | ansifilter -T | tee "./temp2.tmp" && printf '%s\n\n' '<!-- pagebreak -->' '# Simulator Command Reference' 'This chapter provides reference documentation for the **DPS8M** simulator command set.' '* This information is also available from within the simulator; it is accessible by using the interactive `HELP` command.' '' '<!-- br -->' '' > "./temp1.tmp" && sed -e 's/^## /\n\n<!-- br -->\n\n## /g' -e 's/^\* \* /   * /g' < "./temp2.tmp" >> "./temp1.tmp" && rm -f "./temp2.tmp" && mv -f "./temp1.tmp" "./md/commandref.md"
+( ( echo HELP | "../src/dps8/dps8" -t -q | tail -n +2 | grep -v '^$' | tr -s ' ' | tr ' ' '\n' | grep -v '^$' | grep -vwE '(HELP|IGNORE|BREAK|NOBREAK|EXPECT|NOEXPECT|SEND|EXAMINE|DEPOSIT|IEXAMINE|IDEPOSIT|XF|RESTART|AI|AI2|UNCABLE|CABLE_SHOW|CABLE_RIPOUT|FNPSERVER3270PORT)' | sort | xargs -I{} echo echo\ \;echo\ \XXXXXXXXXXXX\ {}\;echo help\ -f\ {}\|../src/dps8/dps8\ -t\ -q\;echo\;echo |sh) | grep -Ev '(DPS8/M help.$|^L68 help.$)' ) | expand | sed -e 's/XXXXXXXXXXXX/#/' -e 's/^1\.1\.//' -e 's/^[0-9]\+ /## /' -e 's/^[0-9]\+\.[0-9]\+ /## /' -e 's/^[0-9]\+\.[0-9]\+\.[0-9]\+ /### /' -e 's/^[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+ /#### /' -e 's/^#/##/' -e 's/^    //' -e '' -e 's/^        /             /' -e '/^[[:alnum:]]/s/</\\</g' -e '/^[[:alnum:]]/s/>/\\>/g' -e '/^[[:alnum:]]/s/_/\\_/g' | ansifilter -T | tee "./temp2.tmp" && printf '%s\n\n' '<!-- pagebreak -->' '# Simulator Command Reference' 'This chapter provides reference documentation for the **DPS8M** simulator command set.' '* This information is also available from within the simulator; it is accessible by using the interactive `HELP` command.' '' '<!-- br -->' '' > "./temp1.tmp" && sed -e 's/^## /\n\n<!-- br -->\n\n## /g' -e 's/^\* \* /   * /g' < "./temp2.tmp" >> "./temp1.tmp" && rm -f "./temp2.tmp" && mv -f "./temp1.tmp" "./md/commandref.md"
 
 ############################################################################
 # Replacements
@@ -69,6 +71,10 @@ sed -e '/^Clear secondary console auto-input$/ {' -e 'r md/clrautoinput2.md' -e 
 sed -e '/^String a cable.$/ {' -e 'r md/cable.md' -e 'd' -e '}' -i "./md/commandref.md"
 # SET
 sed -e '/^See the Omnibus documentation for a complete SET command reference.$/ {' -e 'r md/setcommands.md' -e 'd' -e '}' -i "./md/commandref.md"
+# FNPSERVERADDRESS
+sed -e '/^Set the FNP dialin server binding address$/ {' -e 'r md/fnpserveraddress.md' -e 'd' -e '}' -i "./md/commandref.md"
+# FNPSERVERPORT
+sed -e '/^Set the FNP dialin TELNET port number$/ {' -e 'r md/fnpserverport.md' -e 'd' -e '}' -i "./md/commandref.md"
 
 ####################################################################################################
 # SHOW BUILDINFO
@@ -911,6 +917,20 @@ printf '%s\n' "CABLE GRAPH" | ../src/dps8/dps8 -q -t | neato -Goverlap=prism -Gm
 ( echo "CABLE_RIPOUT"   ; echo "SHOW DEFAULT"  | ../src/dps8/dps8 -q -t | grep -wi cable |    \
     grep -E '(CPU|SCU)' ; echo "CABLE GRAPH" ) | ../src/dps8/dps8 -q -t | dot -Goverlap=false \
       -Gratio=1.30 -Gsplines=true -Tpdf -o pdf/gvsubset.pdf
+
+####################################################################################################
+# CABLE GRAPH IOM CONTROLLER SUBSET
+( echo "CABLE_RIPOUT" ; echo "show default" | ../src/dps8/dps8 -q -t | grep -wi cable | \
+   grep -E 'IOM' ; echo "CABLE GRAPH" ) | ../src/dps8/dps8 -q -t | grep -v SCU | sfdp   \
+      -Gratio=0.70 -Grankdir=LR -Goverlap=false -Gsplines=true -Tpdf -o pdf/iomcon.pdf
+
+####################################################################################################
+# CABLE GRAPH STORAGE SUBSET
+
+( echo "CABLE_RIPOUT" ; echo "show default" | ../src/dps8/dps8 -q -t | grep -wi cable |  \
+   grep -E 'MSP|IPC|MTP|DISK|TAPE|IOM' ; echo "CABLE GRAPH" ) | ../src/dps8/dps8 -q -t | \
+      grep -vE 'SCU|URP|FNP|OPC' | neato -Gratio=1.25 -Grankdir=LR -Goverlap=false       \
+         -Gsplines=true -Tpdf -o pdf/storage.pdf
 
 ####################################################################################################
 # Completed SHOW
