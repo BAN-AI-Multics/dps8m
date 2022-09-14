@@ -592,10 +592,19 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 * Most major **Linux** distributions using the [**GNU C Library**](https://www.gnu.org/software/libc/), [**Bionic**](https://developer.android.com/), and [**musl-libc**](https://www.musl-libc.org/) are supported.
   * [**Debian GNU/Linux**](https://www.debian.org/) and derivatives ([**Raspberry Pi OS**](https://www.raspberrypi.com/software/)), **Red Hat** variants ([**Fedora**](https://fedoraproject.org/), [**CentOS Stream**](https://www.centos.org/centos-stream/), [**RHEL**](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux)) and compatibles ([**AlmaLinux**](https://almalinux.org/), [**Amazon Linux**](https://aws.amazon.com/amazon-linux-2/), [**Oracle Linux**](https://www.oracle.com/linux/)),  [**Alpine**](https://www.alpinelinux.org/), **SUSE** ([**SLES**](https://www.suse.com/products/server/), [**OpenSUSE**](https://www.opensuse.org/)), [**Void**](https://voidlinux.org/), and [**Ubuntu**](https://ubuntu.com/) are regularly tested on **Intel**, **ARM**, and **POWER** systems.
 
+### Linux compilers
+
 * **GCC** **12** or later is recommended for optimal performance on most architectures including **Intel** and **ARM**.
-  * **The DPS8M Development Team** regularly tests and supports a wide range of Linux compilers, including **Clang**, AMD Optimizing C/C++ (**AOCC**), Arm C/C++ Compiler (**ARMClang**), GNU C (**GCC**), IBM Advance Toolchain for Linux, IBM XL C/C++ for Linux (**XLC**), Intel oneAPI DPC/C++ (**ICX**), and Oracle Developer Studio (**SunCC**).
+  * **The DPS8M Development Team** regularly tests and supports a wide range of Linux compilers, including **Clang**, AMD Optimizing C/C++ (**AOCC**), Arm C/C++ Compiler (**ARMClang**), GNU C (**GCC**) (*version* **8**+), IBM Advance Toolchain for Linux, IBM XL C/C++ for Linux (**XLC**), Intel oneAPI DPC/C++ (**ICX**), and Oracle Developer Studio (**SunCC**).
+
+  * **Red Hat** offers the [**Red Hat Developer Toolset**](https://developers.redhat.com/products/developertoolset/) for **Red Hat Enterprise Linux** and **CentOS Stream**, which provides up-to-date versions of **GCC** on a rapid release cycle, with full support.  The *Toolset* packages are also included in various downstream distributions such as **AlmaLinux**. These tools are regularly tested and highly recommended by **The DPS8M Development Team**. Check your distribution packager manager (*i.e.* **`dnf search`**) for packages named **`gcc-toolset-12`** (or similar).
+
+  * **Canonical** similarly offers two [**Ubuntu Toolchain PPAs**](https://wiki.ubuntu.com/ToolChain#Toolchain_Updates), one providing **GCC** updates for release branches, and the other providing new **GCC** versions for both current and **LTS** releases, maintained by the Ubuntu Toolchain team.  (For example, at the time of writing, Ubuntu 20.04 LTS is ships **GCC 9.3** and **GCC 10**, and the **Toolchain PPAs** ship **GCC 9.4** and **GCC 11**.)  Although these packages are unsupported by Canonical, they are regularly used by **The DPS8M Development Team** with great success.
+
+  * **Intel®** **C++ Compiler** ***Classic*** (**ICC**) for Linux is **no longer supported** for building **DPS8M**.  Users should upgrade to the current [**Intel® oneAPI DPC++/C++ (ICX) Compiler**](https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html).
 
 * Cross-compilation is supported. Popular targets including various **Linux** platforms, **Microsoft Windows** on **Intel** and **ARM** (using the **MinGW-w64** and **LLVM-MinGW** toolchains) and **Linux on POWER** (using the **IBM Advance Toolchain for Linux**) are regularly built and tested.
+
 
 ### Linux prerequisites
 
@@ -620,9 +629,7 @@ Users of some **Red Hat** variants may need to enable the **PowerTools** reposit
   dnf config-manager --set-enabled "crb"
   ```
 
-Additionally, **Red Hat** offers the [**Red Hat Developer Toolset**](https://developers.redhat.com/products/developertoolset/) for **Red Hat Enterprise Linux** and **CentOS Stream**, which provides up-to-date versions of **GCC** on a rapid release cycle.  The *Toolset* packages are also included in various downstream distributions such as **AlmaLinux**. These tools are regularly tested and highly recommended by **The DPS8M Development Team**. Check your distribution packager manager (*i.e.* **`dnf search`**) for packages named **`gcc-toolset-12`** (or similar).
-
-Install the required prerequisites using a distribution package manager (or [**Homebrew on Linux**](https://docs.brew.sh/Homebrew-on-Linux)):
+Install the required prerequisites using a distribution package manager:
 
 * Using **dnf** (for most **rpm**-based distributions) (as *root*):
 
@@ -633,11 +640,6 @@ Install the required prerequisites using a distribution package manager (or [**H
 
   ```sh
   apt install build-essential libuv1-dev
-  ```
-* Using **Homebrew**:
-
-  ```sh
-  brew install libuv
   ```
 
 ### Standard Linux compilation
@@ -681,7 +683,7 @@ To use a compiler other than the default (**`cc`**) it is normally sufficient to
 * [**Xcode**](https://developer.apple.com/xcode/) is required; it is **strongly recommended** to use the most recent release for optimal performance.
   * Building with [**Intel® C++ Compiler Classic for macOS**](https://www.intel.com/content/www/us/en/developer/articles/tool/oneapi-standalone-components.html#dpcpp-cpp) (**`icc`**) **2022.6.0** or later is also supported.
   * At the time of writing, building the simulator on **macOS** using **GCC** is ***not recommended***.
-* The following instructions were verified using **macOS 12.5.1** with **Xcode 14.0** (Apple Clang 14.0.0).
+* The following instructions were verified using **macOS 12.6** with **Xcode 14.0** (Apple Clang 14.0.0).
 
 ### macOS prerequisites
 
