@@ -1628,7 +1628,6 @@ return tmxr_put_packet_ln_ex (lp, buf, size, 0);
 
 t_stat tmxr_put_packet_ln_ex (TMLN *lp, const uint8 *buf, size_t size, uint8 frame_byte)
 {
-/*LINTED E_FUNC_SET_NOT_USED*/
 t_stat r;
 size_t fc_size = (frame_byte ? 1 : 0);
 size_t pktlen_size = (lp->datagram ? 0 : 2);
@@ -1695,7 +1694,6 @@ return;
 int32 tmxr_send_buffered_data (TMLN *lp)
 {
 int32 nbytes, sbytes;
-/*LINTED E_FUNC_SET_NOT_USED*/
 t_stat r;
 
 nbytes = tmxr_tqln(lp);                                 /* avail bytes */
