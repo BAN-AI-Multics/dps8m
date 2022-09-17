@@ -1445,8 +1445,8 @@ int cfg_parse (const char * tag, const char * cptr, config_list_t * clist, confi
     char * start = NULL;
     if (! state -> copy)
       {
-        state -> copy = strdup (cptr);
-        start = state -> copy;
+        state -> copy            = strdup (cptr);
+        start                    = state -> copy;
         state ->  statement_save = NULL;
       }
 
@@ -1464,7 +1464,7 @@ int cfg_parse (const char * tag, const char * cptr, config_list_t * clist, confi
 
     // extract name
     char * name_start = statement;
-    char * name_save = NULL;
+    char * name_save  = NULL;
     char * name;
     name = strtok_r (name_start, "=", & name_save);
     if (! name)
@@ -1522,7 +1522,6 @@ int cfg_parse (const char * tag, const char * cptr, config_list_t * clist, confi
       }
 
     // Must be a number
-
     if (p -> min > p -> max)
       {
         sim_printf ("error: %s: can't parse value\n", tag);
@@ -1554,7 +1553,7 @@ int cfg_parse (const char * tag, const char * cptr, config_list_t * clist, confi
 
 done:
     FREE (state -> copy);
-    state -> copy= NULL;
+    state -> copy = NULL;
     return ret;
   }
 
