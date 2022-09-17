@@ -1654,6 +1654,7 @@ lp->txppoffset = 0;
 while ((lp->txppoffset < lp->txppsize) &&
        (SCPE_OK == (r = tmxr_putc_ln (lp, lp->txpb[lp->txppoffset]))))
    ++lp->txppoffset;
+(void)r;
 tmxr_send_buffered_data (lp);
 return (lp->conn || lp->loopback) ? SCPE_OK : SCPE_LOST;
 }
@@ -1733,6 +1734,7 @@ while ((lp->txppoffset < lp->txppsize) &&               /* buffered packet data?
        (lp->txbsz > nbytes) &&                          /* and room in xmt buffer */
        (SCPE_OK == (r = tmxr_putc_ln (lp, lp->txpb[lp->txppoffset]))))
    ++lp->txppoffset;
+(void)r;
 if ((nbytes == 0) && (tmxr_tqln(lp) > 0))
     return tmxr_send_buffered_data (lp);
 return tmxr_tqln(lp) + tmxr_tpqln(lp);

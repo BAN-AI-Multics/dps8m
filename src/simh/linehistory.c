@@ -1512,6 +1512,7 @@ linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen,
       break;
     }
   }
+ /* NOTREACHED */ /* unreachable */
  return ( -1 );
 }
 
@@ -1599,6 +1600,7 @@ linenoiseNoTTY(void)
       len++;
     }
   }
+ /* NOTREACHED */ /* unreachable */
  return ( NULL );
 }
 

@@ -946,7 +946,7 @@ void doG7Fault (bool allowTR)
          doFault (FAULT_TRO, fst_zero, "Timer runout");
        }
 
-     // Strictly speaking EXF isn't a G7 fault, put if we treat is as one,
+     // Strictly speaking EXF isn't a G7 fault, but if we treat is as one,
      // we are allowing the current instruction to complete, simplifying
      // implementation
      if (cpu . g7Faults & (1u << FAULT_EXF))

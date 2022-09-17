@@ -185,7 +185,6 @@ static Comment_state incomment;             /*  comment parser state       */
 static Line_state    linestate;             /*  #if line parser state      */
 static Ifstate       ifstate[MAXDEPTH];     /*  #if processor state        */
 static bool          ignoring[MAXDEPTH];    /*  ignore comments state      */
-static int           stifline[MAXDEPTH];    /*  start of current #if       */
 static int           depth;                 /*  current #if nesting        */
 static int           delcount;              /*  count of deleted lines     */
 static unsigned      blankcount;            /*  count of blank lines       */
@@ -995,7 +994,6 @@ nest(void)
   }
 
   depth += 1;
-  stifline[depth] = linenum;
 }
 static void
 unnest(void)

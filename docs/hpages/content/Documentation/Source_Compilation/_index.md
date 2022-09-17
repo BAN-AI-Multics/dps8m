@@ -1,12 +1,11 @@
 <!-- SPDX-License-Identifier: ICU
      Copyright (c) 2022 The DPS8M Development Team -->
 
-The simulator is distributed in various forms, including an easy-to-build [**source code distribution**](https://dps8m.gitlab.io/dps8m/Releases/),
-which can be built simply via **`make`** on *most* systems. The following sections document ***only***
-platform-specific variations, and are **not** intended to be a general or exhaustive reference.
+The simulator is distributed in various forms, including an easy-to-build [**source code distribution**](https://dps8m.gitlab.io/dps8m/Releases/), which can be built simply via **`make`** on *most* systems.
 
-Review the complete [**DPS8M Omnibus Documentation**](https://dps8m.gitlab.io/dps8m/Documentation/) for
-additional details.
+Review the complete [**DPS8M Omnibus Documentation**](https://dps8m.gitlab.io/dps8m/Documentation/) for additional details.
+
+<!-- br -->
 
 * [**General Information**](#general-information)
 * [**FreeBSD**](#freebsd)
@@ -22,9 +21,14 @@ additional details.
 * [**macOS**](#macos)
 * [**Windows**](#windows)
 
+<!-- br -->
+
 ## General Information
 
 * For optimal performance, building the simulator from source is highly recommended.
+
+[]()
+
 * Building on a **64-bit** platform is **strongly encouraged**.
 
 []()
@@ -41,9 +45,15 @@ additional details.
   * The [**git repository**](https://gitlab.com/dps8m/dps8m) requires approximately **175 MiB** of storage
     space to clone and **250 MiB** to build.
 
+<!-- br -->
+
+The following sections document ***only*** platform-specific variations, and are **not** intended to be a general or exhaustive reference.
+
 <br>
 
 ---
+
+<!-- pagebreak -->
 
 ## FreeBSD
 
@@ -82,7 +92,10 @@ Install the required prerequisites (using FreeBSD Packages or Ports):
   the simulator, we recommend that version 10 or later of the **GNU C** (`gcc`) compiler be used for
   optimal performance.
 * At the time of writing, **GCC 12** is available for **FreeBSD** systems and is the version of GCC
-  currently recommended by **The DPS8M Development Team**.  It can be installed via FreeBSD Packages
+  currently recommended by **The DPS8M Development Team**.
+  \
+  \
+  It can be installed via FreeBSD Packages
   or Ports:
 
   * Using FreeBSD Packages (as *root*):
@@ -129,7 +142,11 @@ Install the required prerequisites (using FreeBSD Packages or Ports):
 ### Additional FreeBSD Notes
 
 * When running on **FreeBSD**, **DPS8M** utilizes [**FreeBSD-specific** atomic operations](https://www.freebsd.org/cgi/man.cgi?query=atomic).
-* The **FreeBSD-specific** **`atomic_testandset_64`** operation is currently not implemented in all versions or on all platforms **FreeBSD** supports (such as **powerpc64**, or **arm64** prior to **13.0-RELEASE**). If you are unable to build the simulator because this atomic operation is unimplemented on your platform, specify `ATOMICS="GNU"` as an argument to `gmake`, or export this value in the shell environment before compiling.
+
+* The **FreeBSD-specific** **`atomic_testandset_64`** operation is currently not implemented in all versions of **FreeBSD** or on all platforms **FreeBSD** supports (*e.g.* **powerpc64**, or **arm64** prior to **13.0-RELEASE**).
+  \
+  \
+  If you are unable to build the simulator because this atomic operation is unimplemented on your platform, specify `ATOMICS="GNU"` as an argument to `gmake`, or export this value in the shell environment before compiling.
 
 <br>
 
@@ -140,6 +157,10 @@ Install the required prerequisites (using FreeBSD Packages or Ports):
 * Ensure you are running a [supported release](https://www.netbsd.org/releases/formal.html) of
   [**NetBSD**](https://www.netbsd.org) on a [supported platform](https://www.netbsd.org/ports/).
   * **NetBSD**/[**amd64**](https://www.netbsd.org/ports/amd64/) is regularly tested by **The DPS8M Development Team**.
+
+[]()
+
+* **DPS8M** is fully supported on **NetBSD 9.2** or later.
 
 ### NetBSD prerequisites
 
@@ -173,7 +194,10 @@ Install the required prerequisites (using NetBSD Packages or [pkgsrc](https://ww
   be used for optimal performance.
 
 * At the time of writing, **GCC 12** is available for **NetBSD** systems and is the version of GCC currently
-  recommended by **The DPS8M Development Team**.  It can be installed via Packages or pkgsrc.
+  recommended by **The DPS8M Development Team**.
+  \
+  \
+  It can be installed via Packages or pkgsrc.
 
   * Using NetBSD Packages (as *root*):
 
@@ -196,7 +220,10 @@ Install the required prerequisites (using NetBSD Packages or [pkgsrc](https://ww
 ### Compilation using Clang
 
 * **GCC** is recommended for optimal performance, but compilation using **Clang** (and linking
-  using **LLD**, the LLVM linker) is supported.  Both **Clang** and **LLD** can be installed via
+  using **LLD**, the LLVM linker) is supported.
+  \
+  \
+  Both **Clang** and **LLD** can be installed via
   Packages or pkgsrc.
 
   * Using NetBSD Packages (as *root*):
@@ -254,6 +281,9 @@ Install the required prerequisites (using NetBSD Packages or [pkgsrc](https://ww
   * **OpenBSD**/[**amd64**](https://www.openbsd.org/amd64.html) and
     **OpenBSD**/[**arm64**](https://www.openbsd.org/arm64.html) are regularly tested by
     **The DPS8M Development Team**.
+
+[]()
+
 * The following instructions were verified using **OpenBSD 7.1** on
   [**amd64**](https://www.openbsd.org/amd64.html) and
   [**arm64**](https://www.openbsd.org/arm64.html).
@@ -291,8 +321,10 @@ Install the required prerequisites (using OpenBSD Packages or Ports):
 
 * At the time of writing, appropriate versions of the **GNU assembler** and **GNU C** (version **11**)
   are available for **OpenBSD**.  (In addition, **LLD**, the LLVM linker, may be required.)  These tools have
-  been tested and are highly recommended by **The DPS8M Development Team**. They can be installed via
-  OpenBSD Packages or Ports:
+  been tested and are highly recommended by **The DPS8M Development Team**.
+  \
+  \
+  They can be installed via OpenBSD Packages or Ports:
 
   * Using OpenBSD Packages (as *root*):
 
@@ -309,8 +341,11 @@ Install the required prerequisites (using OpenBSD Packages or Ports):
 
 * LLVM **LLD** 13.0.0 or later is recommended for linking, even when using **GCC 11** for compilation.
   **LLD** is the default linker on ***most*** (*but not all*) supported OpenBSD platforms.  To determine the linker
-  in use, examine the output of `ld --version`.  If the linker identifies itself by a name *other* than **LLD**
-  (*e.g.* **`GNU ld`** or similar), **LLD** must be installed via OpenBSD Packages or Ports.
+  in use, examine the output of '`ld --version`'.
+  \
+  \
+  If the linker identifies itself by a name *other* than **LLD**
+  (*e.g.* "**`GNU ld`**" or similar), **LLD** must be installed via OpenBSD Packages or Ports.
 
   * Using OpenBSD Packages (as *root*):
 
@@ -341,12 +376,14 @@ Install the required prerequisites (using OpenBSD Packages or Ports):
 ### Compilation using Clang
 
 * **GCC** is recommended for optimal performance, but compilation using **Clang** is supported.
-* A version of **Clang** newer than the base system version may be available via the **`llvm`** package or port.
+* A version of **Clang** newer than the base system version may be available via the '**`llvm`**' package or port.
 * Once installed, it can be used for compilation by setting `CC=/usr/local/bin/clang`.
 
 ### Additional OpenBSD Notes
 
 * At the time of writing, **OpenBSD**/[**luna88k**](https://www.openbsd.org/luna88k.html) has not been tested.
+  \
+  \
   It should be possible to build the simulator for this architecture using the `gcc` compiler provided by the
   base system and specifying the `NO_LTO=1` build option.
 
@@ -356,8 +393,7 @@ Install the required prerequisites (using OpenBSD Packages or Ports):
 
 ## DragonFly BSD
 
-* At the time of writing [**DragonFly BSD 6.2.2**](https://www.dragonflybsd.org/download/) was current
-  and used to verify the following instructions.
+* At the time of writing, [**DragonFly BSD 6.2.2**](https://www.dragonflybsd.org/download/) was current and used to verify the following instructions.
 
 ### DragonFly BSD prerequisites
 
@@ -427,41 +463,43 @@ Install the required prerequisites (using OpenBSD Packages or Ports):
 * Ensure your **Solaris** installation is reasonably current. [**Oracle Solaris**](https://www.oracle.com/solaris) **11.4 SRU42** or later is recommended.
 * The simulator can be built on **Solaris** using the **GCC**, **Clang**, and **Oracle Developer Studio** compilers.
 * **GCC 11** is the recommended compiler for optimal performance on all Intel-based **Solaris** systems.
-  * **GCC 11** can be installed from the standard IPS repository via **`pkg install gcc-11`**.
-* Building with **Clang 11** or later is also supported (*but not recommended due to lack of LTO support*).
-  * **Clang 11** can be installed from the standard IPS repository via **`pkg install clang@11 llvm@11`**.
-* Building with the **Oracle Developer Studio 12.6** (`suncc`) compiler is also supported.
+  * **GCC 11** can be installed from the standard IPS repository via '**`pkg install gcc-11`**'.
 * Link-time optimization (*LTO*) is supported ***only*** when building with **GCC** version 10 or later.
   * The `NO_LTO=1` build option should be specified when using earlier versions of the **GCC** compiler.
+* Building with **Clang 11** or later is also supported (*but not recommended due to lack of LTO support*).
+  * **Clang 11** can be installed from the standard IPS repository via '**`pkg install clang@11 llvm@11`**'.
+* Building with the **Oracle Developer Studio 12.6** (`suncc`) compiler is also supported.
 
 ### Solaris prerequisites
 
 * Install the required prerequisites from the standard IPS repository (as *root*):
 
   ```sh
-  pkg install gnu-make gnu-binutils gnu-sed gnu-grep \
-    gnu-tar libtool gnu-coreutils gawk pkg-config    \
-    autoconf automake wget
+  pkg install gnu-make gnu-binutils gnu-sed gnu-grep gnu-tar gawk \
+    gnu-coreutils gawk pkg-config libtool autoconf automake wget
   ```
 
 ### Solaris compilation
 
 The following commands will download and build a local static **`libuv`** before compiling the simulator.
-If a site-provided **`libuv`** library has been installed (in the **`/usr/local`** prefix), the
-**`libuvrel`** target (and **`-j 1`** argument) may be omitted.
 
-Build the simulator from the top-level source directory (using **GNU Make**):
+If a site-provided **`libuv`** library has been installed (in the "**`/usr/local`**" prefix), the
+**`libuvrel`** stage of the build may be omitted.
+
+Build **`libuv`** and the simulator from the top-level source directory (using **GNU Make**):
 
 * Using **GCC**:
 
   ```sh
-  env TAR="gtar" TR="gtr" CC="gcc" gmake libuvrel all -j 1
+  env TAR="gtar" TR="gtr" CC="gcc" gmake libuvrel && \
+  env TAR="gtar" TR="gtr" CC="gcc" gmake
   ```
 
 * Using **Clang**:
 
   ```sh
-  env TAR="gtar" NO_LTO=1 TR="gtr" CC="clang" gmake libuvrel all -j 1
+  env TAR="gtar" NO_LTO=1 TR="gtr" CC="clang" gmake libuvrel && \
+  env TAR="gtar" NO_LTO=1 TR="gtr" CC="clang" gmake
   ```
 
 * Using **Oracle Developer Studio 12.6**:
@@ -470,7 +508,11 @@ Build the simulator from the top-level source directory (using **GNU Make**):
   env TAR="gtar" NO_LTO=1 SUNPRO=1 NEED_128=1 TR="gtr" CSTD="c11"   \
   CFLAGS="-DNO_C_ELLIPSIS -Qy -xO5 -m64 -xlibmil -xCC -mt -xlibmopt \
   -fno-semantic-interposition -xprefetch=auto -xprefetch_level=3"   \
-  CC="/opt/developerstudio12.6/bin/suncc" gmake libuvrel all -j 1
+  CC="/opt/developerstudio12.6/bin/suncc" gmake libuvrel &&         \
+  env TAR="gtar" NO_LTO=1 SUNPRO=1 NEED_128=1 TR="gtr" CSTD="c11"   \
+  CFLAGS="-DNO_C_ELLIPSIS -Qy -xO5 -m64 -xlibmil -xCC -mt -xlibmopt \
+  -fno-semantic-interposition -xprefetch=auto -xprefetch_level=3"   \
+  CC="/opt/developerstudio12.6/bin/suncc" gmake
   ```
 
 <br>
@@ -482,15 +524,15 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 * Ensure your [**OpenIndiana**](https://www.openindiana.org/) installation is up-to-date.
   *Hipster* **2022-08-26** was used for verification.
 * **GCC 11** is currently the recommended compiler for optimal performance.
-  * **GCC 11** can be installed from the standard IPS repository via **`pkg install gcc-11`**.
+  * **GCC 11** can be installed from the standard IPS repository via '**`pkg install gcc-11`**'.
 * Building with **Clang 13** or later is also supported (*but not recommended due to lack of LTO support*).
-  * **Clang 13** can be installed from the standard IPS repository via **`pkg install clang-13`**.
+  * **Clang 13** can be installed from the standard IPS repository via '**`pkg install clang-13`**'.
 * Link-time optimization (*LTO*) is supported ***only*** when building with **GCC** version 10 or later.
   * The `NO_LTO=1` build option should be specified when using earlier versions of the **GCC** compiler.
 
 ### OpenIndiana prerequisites
 
-* Install the requires prerequisites from the standard IPS repository (as *root*):
+* Install the required prerequisites from the standard IPS repository (as *root*):
 
   ```sh
   pkg install gnu-make libuv gnu-binutils gnu-coreutils
@@ -521,9 +563,10 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 * Ensure you are running a [supported release](https://www.ibm.com/support/pages/aix-support-lifecycle-information) of [**IBM AIX®**](https://www.ibm.com/products/aix) on a [supported platform](https://www.ibm.com/support/pages/system-aix-maps).
 * **AIX** **7.2** and **7.3** on [**POWER8®** and **POWER9™**](https://www.ibm.com/it-infrastructure/power)
   are regularly tested by **The DPS8M Development Team**.
-* The simulator can be built on **AIX** using **GNU C** (**`gcc`**) or [**IBM XL C/C++ for AIX**](https://www.ibm.com/products/xl-c-aix-compiler-power) (**`xlc`**).
+* The simulator can be built on **AIX** using [**IBM XL C/C++ for AIX**](https://www.ibm.com/products/xl-c-aix-compiler-power) (**`xlc`**) or **GNU C** (**`gcc`**).
   * [**IBM XL C/C++ for AIX V16.1 Service Pack 10** (*IJ36514*)](https://www.ibm.com/support/pages/ibm-xl-cc-aix-161) is the recommended compiler for optimal performance on **POWER8** and **POWER9** systems.
-    * [*IBM Open XL C/C++ for AIX V17.1*](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is ***currently not supported***.  Support will be added in a future release.
+    * [*IBM Open XL C/C++ for AIX V17.1*](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is ***currently not supported***.
+    * Support will be added in a future release.
 * When building the simulator using **GNU C**, it recommended to use **GCC 10** or later for optimal performance.
   * **GCC 10** can be installed from the [IBM AIX® Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository.
 
@@ -557,11 +600,20 @@ Build the simulator from the top-level source directory (using **GNU Make**):
   -I../decNumber -D_GNU_SOURCE -D_ALL_SOURCE -U__STRICT_POSIX__"
   ```
 
+  * When building on **POWER9** or higher systems, "`-qarch=pwr9`" should replace "`-qarch=pwr8`" in the above compiler invocation.
+
+  * Compilation using higher optimization levels
+    (*i.e.* "`-O4`" or "`-O5`" replacing "`-O3 -qhot -qarch=pwr8`") and/or enabling
+    automatic parallelization (*i.e.* "`-qsmp`") is possible, but the resulting
+    binaries have *not* been benchmarked or extensively tested.
+
+  * Refer to the [**IBM XL C/C++ for AIX V16.1 Optimization and Tuning Guide**](https://www.ibm.com/docs/en/xl-c-and-cpp-aix/16.1?topic=category-optimization-tuning) for additional information.
+
 * Using **GCC 10**:
 
   ```sh
-  env PATH="/opt/freeware/bin:${PATH}" CC="gcc-10" ATOMICS="AIX" \
-    NO_LTO=1 gmake
+  env PATH="/opt/freeware/bin:${PATH}" CC="gcc-10" \
+    ATOMICS="AIX" NO_LTO=1 gmake
   ```
 
 <br>
@@ -595,13 +647,16 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 ### Linux compilers
 
 * **GCC** **12** or later is recommended for optimal performance on most architectures including **Intel** and **ARM**.
-  * **The DPS8M Development Team** regularly tests and supports a wide range of Linux compilers, including **Clang**, AMD Optimizing C/C++ (**AOCC**), Arm C/C++ Compiler (**ARMClang**), GNU C (**GCC**) (*version* **8**+), IBM Advance Toolchain for Linux, IBM XL C/C++ for Linux (**XLC**), Intel oneAPI DPC/C++ (**ICX**), and Oracle Developer Studio (**SunCC**).
+  * **The DPS8M Development Team** regularly tests and supports a wide range of Linux compilers, including **Clang**, AMD Optimizing C/C++ (**AOCC**), Arm C/C++ Compiler (**ARMClang**), GNU C (**GCC**) (*version* **8**+), IBM Advance Toolchain for Linux, IBM XL C/C++ for Linux (**XLC**), Intel oneAPI DPC/C++ (**ICX**), NVIDIA HPC SDK C Compiler (**NVC**), and Oracle Developer Studio (**SunCC**).
 
-  * **Red Hat** offers the [**Red Hat Developer Toolset**](https://developers.redhat.com/products/developertoolset/) for **Red Hat Enterprise Linux** and **CentOS Stream**, which provides up-to-date versions of **GCC** on a rapid release cycle, with full support.  The *Toolset* packages are also included in various downstream distributions such as **AlmaLinux**. These tools are regularly tested and highly recommended by **The DPS8M Development Team**. Check your distribution packager manager (*i.e.* **`dnf search`**) for packages named **`gcc-toolset-12`** (or similar).
+  * **Red Hat** offers the [**Red Hat Developer Toolset**](https://developers.redhat.com/products/developertoolset/) for **Red Hat Enterprise Linux** and **CentOS Stream**, which provides up-to-date versions of **GCC** on a rapid release cycle, with *full support*.
+    * The *Toolset* packages are also included in various downstream distributions such as **AlmaLinux**. These tools are regularly tested and highly recommended by **The DPS8M Development Team**. Check your distribution packager manager (*i.e.* '**`dnf search`**') for packages named '**`gcc-toolset-12`**' (or similar).
 
-  * **Canonical** similarly offers two [**Ubuntu Toolchain PPAs**](https://wiki.ubuntu.com/ToolChain#Toolchain_Updates), one providing **GCC** updates for release branches, and the other providing new **GCC** versions for both current and **LTS** releases, maintained by the Ubuntu Toolchain team.  (For example, at the time of writing, Ubuntu 20.04 LTS is ships **GCC 9.3** and **GCC 10**, and the **Toolchain PPAs** ship **GCC 9.4** and **GCC 11**.)  Although these packages are unsupported by Canonical, they are regularly used by **The DPS8M Development Team** with great success.
+  * **Canonical** similarly offers two [**Ubuntu Toolchain PPAs**](https://wiki.ubuntu.com/ToolChain#Toolchain_Updates), one providing **GCC** updates for release branches, and the other providing new **GCC** versions for both current and **LTS** releases, maintained by the Ubuntu Toolchain team.
+    * For example, at the time of writing, Ubuntu 20.04 LTS ships **GCC 9.3** and **GCC 10**, and the **Toolchain PPAs** ship **GCC 9.4** and **GCC 11**. Although these packages are *not supported* by Canonical, they are regularly and successfully used by **The DPS8M Development Team**.
 
-  * **Intel®** **C++ Compiler** ***Classic*** (**ICC**) for Linux is **no longer supported** for building **DPS8M**.  Users should upgrade to the current [**Intel® oneAPI DPC++/C++ (ICX) Compiler**](https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html).
+  * **Intel®** **C++ Compiler** **Classic** (**ICC**) for Linux is ***no longer supported*** for building **DPS8M** (*as of* ***R3.0.0***).  Users should upgrade to the current version of the [**Intel® oneAPI DPC++/C++** (**ICX**) **Compiler**](https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html).
+    * **ICC** remains a supported compiler option for building **DPS8M** on **Intel**-based **macOS** systems.
 
 * Cross-compilation is supported. Popular targets including various **Linux** platforms, **Microsoft Windows** on **Intel** and **ARM** (using the **MinGW-w64** and **LLVM-MinGW** toolchains) and **Linux on POWER** (using the **IBM Advance Toolchain for Linux**) are regularly built and tested.
 
@@ -611,20 +666,27 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 Users of some **Red Hat** variants may need to enable the **PowerTools** repository or the **CodeReady Builder** AppStream to install **`libuv`**:
 
 * RHEL 8:
+
   ```sh
   subscription-manager repos --enable \
     "codeready-builder-for-rhel-8-$(arch)-rpms"
   ```
+
 * CentOS Stream 8:
+
   ```sh
   dnf config-manager --set-enabled "powertools"
   ```
+
 * RHEL 9:
+
   ```sh
   subscription-manager repos --enable \
     "codeready-builder-for-rhel-9-$(arch)-rpms"
   ```
+
 * CentOS Stream 9:
+
   ```sh
   dnf config-manager --set-enabled "crb"
   ```
@@ -693,7 +755,7 @@ To use a compiler other than the default (**`cc`**) it is normally sufficient to
   brew install libuv pkg-config
   ```
 
-* Users of other package managers (*e.g.* [**pkgsrc**](https://www.pkgsrc.org/), [**MacPorts**](https://www.macports.org/)) must set the **`CFLAGS`** (*e.g.* `-I/opt/include`), **`LDFLAGS`** (*e.g.* `-L/opt/lib`), and **`LIBUV`** (*e.g.* `-luv`) environment variables appropriately.
+* Users of other package managers (*e.g.* [**pkgsrc**](https://www.pkgsrc.org/), [**MacPorts**](https://www.macports.org/)) must set the **`CFLAGS`** (*e.g.* "`-I/opt/include`"), **`LDFLAGS`** (*e.g.* "`-L/opt/lib`"), and **`LIBUV`** (*e.g.* "`-luv`") environment variables appropriately.
 
 ### macOS compilation
 
@@ -714,8 +776,9 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 ### macOS cross-compilation
 
 The following commands will download and cross-compile a local static **`libuv`** and then
-cross-compile the simulator.  You **must** perform a **`make distclean`** before building
-for a different target.
+cross-compile the simulator.
+
+You **must** perform a '**`make distclean`**' before building for a different target.
 
 * Install required prerequisites using [**Homebrew**](https://brew.sh/):
 

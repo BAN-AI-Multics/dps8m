@@ -3,6 +3,8 @@
 <!-- scspell-id: 7988dd71-3344-11ed-8b11-80ee73e9b8e7 -->
 The `CABLE` command (*abbreviated* `C`) connects (or "*strings*") a simulated cable between devices.
 
+        CABLE <device> <port/channel> <device> {port/channel}
+
 **Examples**
 
 * Connect a cable from (*system controller unit*) "`SCU`**`i`**" port "**`j`**" to (*central processing unit*) "`CPU`**`k`**" port "**`l`**".
@@ -47,14 +49,20 @@ The `CABLE` command (*abbreviated* `C`) connects (or "*strings*") a simulated ca
 * Connect a cable from "`URP`**`i`**" device code "**`j`**" to (*printer*) "`PRT`**`k`**".
         CABLE URPi j PRTk
 
+<!-- br -->
+
 ### UNCABLE (U)
 
 The "**`UNCABLE`**" command (*abbreviated* `U`) removes (or "*unstrings*") a simulated cable.
+
+        UNCABLE <device> <port/channel> <device>
 
 **Example**
 
 * Unstring the cable connecting "`IOM`**`0`**" channel "**`12`**" to "`MSP`**`0`**".
         UNCABLE IOM0 12 MSP0
+
+<!-- br -->
 
 ### CABLE_RIPOUT
 
@@ -65,6 +73,8 @@ The "**`CABLE_RIPOUT`**" command (*alias* "**`CABLE RIPOUT`**") removes (or *uns
         CABLE RIPOUT
         CABLE_RIPOUT
 
+<!-- br -->
+
 ### CABLE_SHOW
 
 The "**`CABLE_SHOW`**" command (*alias* "**`CABLE SHOW`**") prints the current cabling configuration in human readable form.
@@ -73,9 +83,13 @@ The "**`CABLE_SHOW`**" command (*alias* "**`CABLE SHOW`**") prints the current c
 
 SHOWCABLESHOWHERE
 
+<!-- br -->
+
 ### CABLE DUMP
 
 The "**`CABLE DUMP`**" command prints the current cabling configuration in great detail.
+
+<!-- br -->
 
 ### CABLE GRAPH
 
