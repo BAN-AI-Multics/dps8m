@@ -142,6 +142,7 @@ struct cpuThreadz_t
     pthread_mutex_t runLock;
 
     // DIS sleep
+    pthread_condattr_t sleepCondAttr;
     pthread_cond_t sleepCond;
 
   };

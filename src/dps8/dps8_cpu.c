@@ -899,14 +899,13 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
     cpu.RSDWH_R1 = 0;
     cpu.rTR      = MASK27;
 //#if defined(THREADZ) || defined(LOCKLESS)
-//    clock_gettime (CLOCK_BOOTTIME, & cpu.rTRTime);
+//    clock_gettime (CLOCK_MONOTONIC, & cpu.rTRTime);
 //#endif
     if (cpu.tweaks.isolts_mode)
       {
         cpu.shadowTR = 0;
         cpu.rTRlsb   = 0;
       }
-    cpu.rTR      = MASK27;
     cpu.rTRticks = 0;
 
     set_addr_mode (ABSOLUTE_mode);
@@ -2246,8 +2245,9 @@ setCPU:;
         if (cpu.rTR & ~MASK27)
           {
             cpu.rTR &= MASK27;
-            if (cpu.tweaks.tro_enable)
+            if (cpu.tweaks.tro_enable) {
               setG7fault (current_running_cpu_idx, FAULT_TRO, fst_zero);
+            }
           }
 
         sim_debug (DBG_CYCLE, & cpu_dev, "Cycle is %s\n",
@@ -2776,35 +2776,45 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   word27 ticks = ms * 512;
                   if (cpu.rTR <= ticks)
                     {
-                      if (cpu.tweaks.tro_enable)
-                        setG7fault (current_running_cpu_idx, FAULT_TRO,
-                                    fst_zero);
+                      if (cpu.tweaks.tro_enable) {
+                        setG7fault (current_running_cpu_idx, FAULT_TRO, fst_zero);
+                      }
+                      cpu.rTR = (cpu.rTR - ticks) & MASK27;
                     }
-                  cpu.rTR = (cpu.rTR - ticks) & MASK27;
+                  else
+                    cpu.rTR = (cpu.rTR - ticks) & MASK27;
+
+                  if (cpu.rTR == 0)
+                    cpu.rTR = MASK27;
 #  else // !NO_TIMEWAIT
                   // unsigned long left = cpu.rTR * 125u / 64u;
                   // ubsan
                   unsigned long left = (unsigned long) ((uint64) (cpu.rTR) * 125u / 64u);
+                  unsigned long nowLeft = left;
                   lock_scu ();
                   if (!sample_interrupts ())
                     {
-                      left = sleepCPU (left);
+                      nowLeft = sleepCPU (left);
                     }
                   unlock_scu ();
-                  if (left)
+                  if (nowLeft)
                     {
-                      cpu.rTR = (word27) (left * 64 / 125);
+                      // sleepCPU uses a clock that is not guarenteed to be monotonic, and occaisionally returns nowLeft > left.
+                      // Don't run rTR backwards if that happens
+                      if (nowLeft < left) {
+                        cpu.rTR = (word27) (left * 64 / 125);
+                      }
                     }
                   else
                     {
+                      // We slept until timer runout
                       if (cpu.tweaks.tro_enable)
                         {
                           lock_scu ();
-                          setG7fault (current_running_cpu_idx, FAULT_TRO,
-                                      fst_zero);
+                          setG7fault (current_running_cpu_idx, FAULT_TRO, fst_zero);
                           unlock_scu ();
                         }
-                      cpu.rTR = 0;
+                      cpu.rTR = MASK27;
                     }
 #  endif // !NO_TIMEWAIT
                   cpu.rTRticks = 0;
@@ -2840,11 +2850,16 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   // 512Khz / 512 is millisecods
                   if (cpu.rTR <= sys_opts.sys_poll_interval * 512)
                     {
-                      if (cpu.tweaks.tro_enable)
+                      if (cpu.tweaks.tro_enable) {
                         setG7fault (current_running_cpu_idx, FAULT_TRO,
                                     fst_zero);
+                      }
+                      cpu.rTR = (cpu.rTR - sys_opts.sys_poll_interval * 512) & MASK27;
                     }
-                  cpu.rTR = (cpu.rTR - sys_opts.sys_poll_interval * 512) & MASK27;
+                  else
+                    cpu.rTR = (cpu.rTR - sys_opts.sys_poll_interval * 512) & MASK27;
+                  if (cpu.rTR == 0)
+                    cpu.rTR = MASK27;
 # endif // ! (THREADZ || LOCKLESS)
 #endif // ! ROUND_ROBIN
                   /*NOTREACHED*/
