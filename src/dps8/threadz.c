@@ -382,10 +382,11 @@ void createCPUThread (uint cpuNum)
     p->run = true;
 
     // initialize DIS sleep
-#if defined __APPLE__ || ! defined (CLOCK_MONOTONIC)
+#ifdef USE_MONOTONIC
+# if defined __APPLE__ || ! defined (CLOCK_MONOTONIC)
     p->sleepClock = CLOCK_REALTIME;
     rc = pthread_cond_init (& p->sleepCond, NULL);
-#else
+# else
     rc = pthread_condattr_init (& p->sleepCondAttr);
     if (rc)
       sim_printf ("createCPUThread pthread_condattr_init sleepCond %d\n", rc);
@@ -397,8 +398,10 @@ void createCPUThread (uint cpuNum)
     } else {
       p->sleepClock = CLOCK_MONOTONIC;
     }
-
+# endif // ! APPLE
     rc = pthread_cond_init (& p->sleepCond, & p->sleepCondAttr);
+#else
+    rc = pthread_cond_init (& p->sleepCond, NULL);
 #endif
     if (rc)
       sim_printf ("createCPUThread pthread_cond_init sleepCond %d\n", rc);
@@ -477,7 +480,11 @@ unsigned long  sleepCPU (unsigned long usec) {
   struct cpuThreadz_t * p = & cpuThreadz[current_running_cpu_idx];
   struct timespec startTime, absTime;
 
+#ifdef USE_MONOTONIC
   clock_gettime (p->sleepClock, & startTime);
+#else
+  clock_gettime (CLOCK_REALTIME, & startTime);
+#endif
   absTime = startTime;
   int64_t nsec = ((int64_t) usec) * 1000 + (int64_t)startTime.tv_nsec;
   absTime.tv_nsec = nsec % 1000000000;
@@ -495,7 +502,11 @@ unsigned long  sleepCPU (unsigned long usec) {
 
   struct timespec newTime;
   struct timespec delta;
+#ifdef USE_MONOTONIC
   clock_gettime (p->sleepClock, & newTime);
+#else
+  clock_gettime (CLOCK_REALTIME, & newTime);
+#endif
   timespec_diff (& absTime, & newTime, & delta);
 
   if (delta.tv_nsec < 0)

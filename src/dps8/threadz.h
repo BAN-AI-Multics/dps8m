@@ -142,11 +142,13 @@ struct cpuThreadz_t
     pthread_mutex_t runLock;
 
     // DIS sleep
-#if !defined __APPLE__ && defined (CLOCK_MONOTONIC)
+#ifdef USE_MONOTONIC
+# if !defined __APPLE__ && defined (CLOCK_MONOTONIC)
+    clockid_t sleepClock;
     pthread_condattr_t sleepCondAttr;
+# endif
 #endif
     pthread_cond_t sleepCond;
-    clockid_t sleepClock;
 
   };
 extern struct cpuThreadz_t cpuThreadz [N_CPU_UNITS_MAX];
