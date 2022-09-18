@@ -1422,9 +1422,9 @@ static void deliver_interrupts (uint scu_unit_idx)
                 HDBGIntrSet (inum, cpu_unit_udx, scu_unit_idx, __func__);
 #  endif
                 createCPUThread((uint) cpu_unit_udx);
-#  ifndef NO_TIMEWAIT
+//#  ifndef NO_TIMEWAIT
                 wakeCPU ((uint) cpu_unit_udx);
-#  endif
+//#  endif
                 sim_debug (DBG_DEBUG, & scu_dev,
                            "interrupt set for CPU %d SCU %d\n",
                            cpu_unit_udx, scu_unit_idx);
@@ -1489,9 +1489,9 @@ sim_debug (DBG_DEBUG, & scu_dev, "interrupt set for CPU %d SCU %d\n", cpu_unit_u
                 HDBGIntrSet (inum, cpu_unit_udx, scu_unit_idx, __func__);
 #  endif
                 createCPUThread((uint) cpu_unit_udx);
-#  ifndef NO_TIMEWAIT
+//#  ifndef NO_TIMEWAIT
                 wakeCPU ((uint) cpu_unit_udx);
-#  endif
+//#  endif
                 sim_debug (DBG_DEBUG, & scu_dev,
                            "interrupt set for CPU %d SCU %d\n",
                            cpu_unit_udx, scu_unit_idx);

@@ -70,6 +70,8 @@ __thread uint current_running_cpu_idx;
 
 #define ASSUME0 0
 
+#define NO_TIMEWAIT
+
 // CPU data structures
 
 static UNIT cpu_unit [N_CPU_UNITS_MAX] = {
@@ -2760,32 +2762,39 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   //   rTR * 125 / 64
 
 #  ifdef NO_TIMEWAIT
-                  //sim_usleep (sys_opts.sys_poll_interval * 1000/*10000*/);
-                  struct timespec req, rem;
-                  uint ms        = sys_opts.sys_poll_interval;
-                  long int nsec  = (long int) ms * 1000 * 1000;
-                  req.tv_nsec    = nsec;
-                  req.tv_sec    += req.tv_nsec / 1000000000;
-                  req.tv_nsec   %= 1000000000;
-                  int rc         = nanosleep (& req, & rem);
-                  // Awakened early?
-                  if (rc == -1)
-                    {
-                       ms = (uint) (rem.tv_nsec / 1000 + req.tv_sec * 1000);
-                    }
-                  word27 ticks = ms * 512;
-                  if (cpu.rTR <= ticks)
-                    {
+                  bool waiting = true;
+                  while (waiting) {
+                    sim_usleep (sys_opts.sys_poll_interval * 1000/*10000*/);
+//                   //sim_usleep (sys_opts.sys_poll_interval * 1000/*10000*/);
+//                   struct timespec req, rem;
+//                   uint ms        = sys_opts.sys_poll_interval;
+//                   long int nsec  = (long int) ms * 1000 * 1000;
+//                   req.tv_nsec    = nsec;
+//                   req.tv_sec    += req.tv_nsec / 1000000000;
+//                   req.tv_nsec   %= 1000000000;
+//                   int rc         = nanosleep (& req, & rem);
+//                   // Awakened early?
+//                   if (rc == -1)
+//                     {
+//                        ms = (uint) (rem.tv_nsec / 1000 + req.tv_sec * 1000);
+//                     }
+                    word27 ticks = sys_opts.sys_poll_interval * 512;
+                    if (cpu.rTR <= ticks) {
                       if (cpu.tweaks.tro_enable) {
                         setG7fault (current_running_cpu_idx, FAULT_TRO, fst_zero);
+                        // It is not necessarily the case that this will cause in interrupt,
+                        // but take a cycle through the state machine to check. If not,
+                        // we will end up back in the CONT_DIS path and wait some more.
+                        waiting = false;
                       }
-                      cpu.rTR = (cpu.rTR - ticks) & MASK27;
                     }
-                  else
                     cpu.rTR = (cpu.rTR - ticks) & MASK27;
-
-                  if (cpu.rTR == 0)
-                    cpu.rTR = MASK27;
+                    if (cpu.rTR == 0)
+                      cpu.rTR = MASK27;
+                    for (uint i = 0; i < N_SCU_UNITS_MAX; i ++)
+                      if (cpu.events.XIP[i])
+                        waiting = false;
+                  } // while (waiting)
 #  else // !NO_TIMEWAIT
                   // unsigned long left = cpu.rTR * 125u / 64u;
                   // ubsan
