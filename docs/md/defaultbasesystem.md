@@ -7,4 +7,3 @@ The `DEFAULT_BASE_SYSTEM` command restores the configuration of the simulator to
 
 * For complete details including all commands executed by the *default base system script*, see the "**Default Base System Script**" section of the "**Simulator Defaults**" chapter of this manual.
 
-

@@ -189,7 +189,7 @@ Install the required prerequisites (using NetBSD Packages or [pkgsrc](https://ww
 
 ### Optimized NetBSD compilation
 
-* **NetBSD** provides an older version of **GCC** (or **Clang**) as part of the base system (depending on the platform.)
+* **NetBSD** provides an older version of **GCC** (or **Clang**) as part of the base system (depending on the platform).
   While *sufficient* to build the simulator, we recommend that version 10 or later of the **GNU C** (`gcc`) compiler
   be used for optimal performance.
 
@@ -315,7 +315,7 @@ Install the required prerequisites (using OpenBSD Packages or Ports):
 
 ### Optimized OpenBSD compilation
 
-* **OpenBSD** provides an older version of **GCC** (or **Clang**) as part of the base system (depending on the platform.)
+* **OpenBSD** provides an older version of **GCC** (or **Clang**) as part of the base system (depending on the platform).
   While *sufficient* to build the simulator, we recommend that a recent version of the **GNU assembler** (`gas`)
   and version 10 or later of the **GNU C** (`gcc`) compiler be used for optimal performance.
 
@@ -476,7 +476,7 @@ Install the required prerequisites (using OpenBSD Packages or Ports):
 
   ```sh
   pkg install gnu-make gnu-binutils gnu-sed gnu-grep gnu-tar gawk \
-    gnu-coreutils gawk pkg-config libtool autoconf automake wget
+    gnu-coreutils pkg-config libtool autoconf automake wget
   ```
 
 ### Solaris compilation
@@ -492,27 +492,27 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 
   ```sh
   env TAR="gtar" TR="gtr" CC="gcc" gmake libuvrel && \
-  env TAR="gtar" TR="gtr" CC="gcc" gmake
+  env TR="gtr" CC="gcc" gmake
   ```
 
 * Using **Clang**:
 
   ```sh
   env TAR="gtar" NO_LTO=1 TR="gtr" CC="clang" gmake libuvrel && \
-  env TAR="gtar" NO_LTO=1 TR="gtr" CC="clang" gmake
+  env NO_LTO=1 TR="gtr" CC="clang" gmake
   ```
 
 * Using **Oracle Developer Studio 12.6**:
 
   ```sh
-  env TAR="gtar" NO_LTO=1 SUNPRO=1 NEED_128=1 TR="gtr" CSTD="c11"   \
-  CFLAGS="-DNO_C_ELLIPSIS -Qy -xO5 -m64 -xlibmil -xCC -mt -xlibmopt \
-  -fno-semantic-interposition -xprefetch=auto -xprefetch_level=3"   \
-  CC="/opt/developerstudio12.6/bin/suncc" gmake libuvrel &&         \
-  env TAR="gtar" NO_LTO=1 SUNPRO=1 NEED_128=1 TR="gtr" CSTD="c11"   \
-  CFLAGS="-DNO_C_ELLIPSIS -Qy -xO5 -m64 -xlibmil -xCC -mt -xlibmopt \
-  -fno-semantic-interposition -xprefetch=auto -xprefetch_level=3"   \
-  CC="/opt/developerstudio12.6/bin/suncc" gmake
+  env TAR="gtar" NO_LTO=1 SUNPRO=1 NEED_128=1 TR="gtr" CSTD="c11"     \
+    CFLAGS="-DNO_C_ELLIPSIS -Qy -xO5 -m64 -xlibmil -xCC -mt -xlibmopt \
+    -fno-semantic-interposition -xprefetch=auto -xprefetch_level=3"   \
+    CC="/opt/developerstudio12.6/bin/suncc" gmake libuvrel &&         \
+  env NO_LTO=1 SUNPRO=1 NEED_128=1 TR="gtr" CSTD="c11"                \
+    CFLAGS="-DNO_C_ELLIPSIS -Qy -xO5 -m64 -xlibmil -xCC -mt -xlibmopt \
+    -fno-semantic-interposition -xprefetch=auto -xprefetch_level=3"   \
+    CC="/opt/developerstudio12.6/bin/suncc" gmake
   ```
 
 <br>
@@ -592,20 +592,20 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
   ```sh
   env PATH="/opt/freeware/bin:${PATH}" ATOMICS="AIX" AWK="gawk" NO_LTO=1 \
-  OBJECT_MODE=64 gmake CC="/opt/IBM/xlC/16.1.0/bin/xlc_r" NEED_128=1     \
-  USE_POPT=1 PULIBS="-lpopt" LDFLAGS="-L/opt/freeware/lib -b64"          \
-  LIBS="-luv -lbsd -lm" CFLAGS="-O3 -qhot -qarch=pwr8 -qalign=natural    \
-  -qtls -DUSE_POPT=1 -DUSE_FLOCK=1 -DUSE_FCNTL=1 -DAIX_ATOMICS=1         \
-  -DNEED_128=1 -DLOCKLESS=1 -I/opt/freeware/include -I../simh            \
-  -I../decNumber -D_GNU_SOURCE -D_ALL_SOURCE -U__STRICT_POSIX__"
+    OBJECT_MODE=64 gmake CC="/opt/IBM/xlC/16.1.0/bin/xlc_r" NEED_128=1   \
+    USE_POPT=1 PULIBS="-lpopt" LDFLAGS="-L/opt/freeware/lib -b64"        \
+    LIBS="-luv -lbsd -lm" CFLAGS="-O3 -qhot -qarch=pwr8 -qalign=natural  \
+    -qtls -DUSE_POPT=1 -DUSE_FLOCK=1 -DUSE_FCNTL=1 -DAIX_ATOMICS=1       \
+    -DNEED_128=1 -DLOCKLESS=1 -I/opt/freeware/include -I../simh          \
+    -I../decNumber -D_GNU_SOURCE -D_ALL_SOURCE -U__STRICT_POSIX__"
   ```
 
-  * When building on **POWER9** or higher systems, "`-qarch=pwr9`" should replace "`-qarch=pwr8`" in the above compiler invocation.
+  * When building on **POWER9** or higher systems, '`-qarch=pwr9`' should replace '`-qarch=pwr8`' in the above compiler invocation.
 
   * Compilation using higher optimization levels
-    (*i.e.* "`-O4`" or "`-O5`" replacing "`-O3 -qhot -qarch=pwr8`") and/or enabling
-    automatic parallelization (*i.e.* "`-qsmp`") is possible, but the resulting
-    binaries have *not* been benchmarked or extensively tested.
+    (*i.e.* '`-O4`' or '`-O5`' replacing '`-O3 -qhot -qarch=pwr8`') and/or enabling
+    automatic parallelization (*i.e.* '`-qsmp`') is possible, but the resulting
+    binaries have *not* been benchmarked or extensively tested by **The DPS8M Development Team**.
 
   * Refer to the [**IBM XL C/C++ for AIX V16.1 Optimization and Tuning Guide**](https://www.ibm.com/docs/en/xl-c-and-cpp-aix/16.1?topic=category-optimization-tuning) for additional information.
 
@@ -647,7 +647,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 ### Linux compilers
 
 * **GCC** **12** or later is recommended for optimal performance on most architectures including **Intel** and **ARM**.
-  * **The DPS8M Development Team** regularly tests and supports a wide range of Linux compilers, including **Clang**, AMD Optimizing C/C++ (**AOCC**), Arm C/C++ Compiler (**ARMClang**), GNU C (**GCC**) (*version* **8**+), IBM Advance Toolchain for Linux, IBM XL C/C++ for Linux (**XLC**), Intel oneAPI DPC/C++ (**ICX**), NVIDIA HPC SDK C Compiler (**NVC**), and Oracle Developer Studio (**SunCC**).
+  * **The DPS8M Development Team** regularly tests and supports a wide range of Linux compilers, including **Clang**, AMD Optimizing C/C++ (**AOCC**), Arm C/C++ Compiler (**ARMClang**), GNU C (**GCC**) (*version* **8**+), IBM Advance Toolchain for Linux, IBM XL C/C++ for Linux (**XLC**), Intel oneAPI DPC++/C++ (**ICX**), NVIDIA HPC SDK C Compiler (**NVC**), and Oracle Developer Studio (**SunCC**).
 
   * **Red Hat** offers the [**Red Hat Developer Toolset**](https://developers.redhat.com/products/developertoolset/) for **Red Hat Enterprise Linux** and **CentOS Stream**, which provides up-to-date versions of **GCC** on a rapid release cycle, with *full support*.
     * The *Toolset* packages are also included in various downstream distributions such as **AlmaLinux**. These tools are regularly tested and highly recommended by **The DPS8M Development Team**. Check your distribution packager manager (*i.e.* '**`dnf search`**') for packages named '**`gcc-toolset-12`**' (or similar).
@@ -714,23 +714,106 @@ Install the required prerequisites using a distribution package manager:
 
 ### Alternative Linux compilation
 
-To use a compiler other than the default (**`cc`**) it is normally sufficient to simply set **`CC`**:
+To use a compiler other than the default (**`cc`**) it is normally sufficient to simply set the **`CC`** environment variable, if the compiler accepts command-line arguments compatible with **GCC** or **Clang**. Other compilers are also supported, with additional configuration.
 
-* Build the simulator using **`clang`** from the top-level source directory (using **GNU Make**):
+Examples of building the simulator on **Linux** using various popular compilers follows:
+
+* Build the simulator using **Clang** (**Clang 14** *or later recommended*):
 
   ```sh
   env CC="clang" make
   ```
 
+* Build the simulator using **Intel oneAPI DPC++/C++** (**ICX**):
+
+  ```sh
+  source /opt/intel/oneapi/setvars.sh && \
+  env CC="icx" make
+  ```
+
+* Build the simulator using **AMD Optimizing C/C++** (**AOCC**), version 3.2.0, (with **AOCC**-provided **AMD LibM**):
+
+  ```sh
+  export AOCCVER="3.2.0" &&                              \
+  export AOCLPATH="/opt/AMD/aocc-compiler-${AOCCVER}" && \
+  source ${AOCCPATH}/setenv_AOCC.sh &&                   \
+  env CC="clang" CFLAGS="-mllvm -vector-library=AMDLIBM" \
+    LDFLAGS="-Wno-unused-command-line-argument"          \
+    LOCALLIBS="-lalm" make
+  ```
+
+* Build the simulator using **AMD Optimizing C/C++** (**AOCC**), version 3.2.0, with **AMD Optimizing CPU Libraries** (**AOCL**) (**AMD AOCL-LibM** and **AMD AOCL-LibMem**), version 3.2.0:
+
+  ```sh
+  export AOCCVER="3.2.0" &&                                       \
+  export AOCCPATH="/opt/AMD/aocc-compiler-${AOCCVER}" &&          \
+  export AOCLVER="3.2.0" &&                                       \
+  export AOCLPATH="/opt/AMD/aocl/aocl-linux-aocc-${AOCLVER}" &&   \
+  export LD_LIBRARY_PATH="${AOCLPATH}/lib:${LD_LIBRARY_PATH}" &&  \
+  source ${AOCCPATH}/setenv_AOCC.sh &&                            \
+  env CC="clang" CFLAGS="-mllvm -vector-library=AMDLIBM"          \
+    LDFLAGS="-Wno-unused-command-line-argument -L${AOCLPATH}/lib" \
+    LOCALLIBS="-lalm -laocl-libmem" make
+  ```
+
+* Build the simulator using **Oracle Developer Studio** (**SunCC**) for Linux, version 12.6:
+
+  ```sh
+  env CFLAGS="-DNO_C_ELLIPSIS -Qy -xO5 -m64 -xlibmil -xCC -mt -xlibmopt \
+    -fno-semantic-interposition -xprefetch=auto -xprefetch_level=3"     \
+    CC="/opt/oracle/developerstudio12.6/bin/suncc" NO_LTO=1 SUNPRO=1    \
+    NEED_128=1 CSTD="c11" make
+  ```
+
+* Build the simulator using **IBM XL C/C++ for Linux V16.1.1** for Linux/POWER:
+
+  ```sh
+  env NO_LTO=1 CSTD="c11" CFLAGS="-qtls -qarch=pwr8" \
+    CC="/opt/ibm/xlC/16.1.1/bin/c99_r" make
+  ```
+
+  * When building on **POWER9** or higher systems, '`-qarch=pwr9`' should replace '`-qarch=pwr8`' in the above compiler invocation.
+
+  * Compilation using higher optimization levels (*e.g.* '`-O4`', '`-O5`', '`-qhot`', *etc.*) and/or enabling automatic parallelization (*i.e.* '`-qsmp`') is possible, but the resulting binaries have *not* been benchmarked or extensively tested by **The DPS8M Development Team**.
+
+* Build the simulator using **NVIDIA HPC SDK C Compiler** (**NVC**), version 22.7, for Linux/x86_64:
+
+  ```sh
+  export NVCVER="22.7" &&                                            \
+  export NVCPATH="/opt/nvidia/hpc_sdk/Linux_x86_64/${NVCVER}/bin" && \
+  env NO_LTO=1 CFLAGS="-noswitcherror" CC="${NVCPATH}/nvc" make      \
+    OPTFLAGS="-fast -O4 -Mipa=fast,inline"
+  ```
+
+  * The **NVIDIA HPC SDK C Compiler** is the successor to the **PGI C Compiler** product. If you are using the earlier **PGI C Compiler** (**PGCC**), adjust paths appropriately, and replace '**`nvc`**' with '**`pgcc`**' in the above invocation.
+
+  * **DPS8M** is known to trigger bugs in many versions of the **PGCC** and **NVC** compilers, such as:
+    ```text
+    NVC++-F-0000-Internal compiler error. add_cilis(): bad jmp code 1056
+    ```
+    If you encounter this (*or similar*) compiler errors, try adding '`-Mnovect`' to '`OPTFLAGS`' as a workaround.
+
 ### Linux cross-compilation
 
-* *Details soon ...*
+The following commands will download and cross-compile a local static **`libuv`** and then cross-compile the simulator.
+
+* Using the **IBM Advance Toolchain** **V15** on Linux/x86_64 to cross-compile for Linux/POWER:
+
+  ```sh
+  env CC="/opt/at15.0/bin/powerpc64le-linux-gnu-gcc" \
+    LOCAL_CONFOPTS="--host=powerpc64le-linux-gnu"    \
+    CFLAGS="-mcpu=power8" make libuvrel &&           \
+  env CC="/opt/at15.0/bin/powerpc64le-linux-gnu-gcc" \
+    CFLAGS="-mcpu=power8" make
+  ```
+
+  * When building on **POWER9** or higher systems, '`-qarch=pwr9`' should replace '`-qarch=pwr8`' in the above compiler invocation.
 
 ### Additional Linux Notes
 
 * Although normally handled automatically, when building for or cross-compiling to many 32-bit
   targets (or when using a compiler lacking support for 128-bit integers) it may be necessary
-  to set the **`NEED_128=1`** build option (via the environment or as an argument to **`make`**.)
+  to set the **`NEED_128=1`** build option (via the environment or as an argument to **`make`**).
 
 <br>
 
@@ -755,7 +838,7 @@ To use a compiler other than the default (**`cc`**) it is normally sufficient to
   brew install libuv pkg-config
   ```
 
-* Users of other package managers (*e.g.* [**pkgsrc**](https://www.pkgsrc.org/), [**MacPorts**](https://www.macports.org/)) must set the **`CFLAGS`** (*e.g.* "`-I/opt/include`"), **`LDFLAGS`** (*e.g.* "`-L/opt/lib`"), and **`LIBUV`** (*e.g.* "`-luv`") environment variables appropriately.
+* Users of other package managers (*e.g.* [pkgsrc](https://www.pkgsrc.org/), [MacPorts](https://www.macports.org/)) must set the **`CFLAGS`** (*e.g.* '`-I/opt/include`'), **`LDFLAGS`** (*e.g.* '`-L/opt/lib`'), and **`LIBUV`** (*e.g.* '`-luv`') environment variables appropriately.
 
 ### macOS compilation
 
@@ -791,25 +874,25 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 * Cross-compilation targeting **ARM64** **macOS** 11:
 
   ```sh
-  make distclean &&                                                        \
-  env CFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0"       \
-  LOCAL_CONFOPTS="--host=arm64-apple-darwin" make libuvrel                 \
-  HOMEBREW_INC= HOMEBREW_LIB= &&                                           \
-  env CFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0"       \
-  LDFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0"          \
-  make HOMEBREW_INC= HOMEBREW_LIB=
+  make distclean &&                                                  \
+  env CFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0" \
+    LOCAL_CONFOPTS="--host=arm64-apple-darwin" make libuvrel         \
+    HOMEBREW_INC= HOMEBREW_LIB= &&                                   \
+  env CFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0" \
+    LDFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0"  \
+    make HOMEBREW_INC= HOMEBREW_LIB=
   ```
 
 * Cross-compilation targeting **Intel** **macOS** 10.15:
 
   ```sh
-  make distclean &&                                                        \
-  env CFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15"  \
-  LOCAL_CONFOPTS="--host=x86_64-apple-darwin" make libuvrel                \
-  HOMEBREW_INC= HOMEBREW_LIB= &&                                           \
-  env CFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15"  \
-  LDFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15"     \
-  make HOMEBREW_INC= HOMEBREW_LIB=
+  make distclean &&                                                       \
+  env CFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15" \
+    LOCAL_CONFOPTS="--host=x86_64-apple-darwin" make libuvrel             \
+    HOMEBREW_INC= HOMEBREW_LIB= &&                                        \
+  env CFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15" \
+    LDFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15"  \
+    make HOMEBREW_INC= HOMEBREW_LIB=
   ```
 
 * The following more complex example builds a **macOS** Universal Binary.

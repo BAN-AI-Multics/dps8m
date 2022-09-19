@@ -6,4 +6,3 @@ secondary operator console (OPC1).
 
 * Refer to the documentation for the `AUTOINPUT` command for `AUTOINPUT2` usage.
 
-

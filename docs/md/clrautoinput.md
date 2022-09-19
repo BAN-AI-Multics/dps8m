@@ -6,4 +6,3 @@ operator console (OPC0).
 
 * This is normally not required, but may be useful for developers or when writing complex scripts.
 
-
