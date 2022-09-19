@@ -656,13 +656,7 @@ sim_usleep(useconds_t tusleep)
 
   rqt.tv_sec  = tusleep / 1000000;
   rqt.tv_nsec = (tusleep % 1000000) * 1000;
-  return clock_nanosleep(
-# ifdef CLOCK_MONOTONIC_COARSE
-          CLOCK_MONOTONIC_COARSE,
-# else
-          CLOCK_MONOTONIC,
-# endif
-          0, &rqt, NULL);
+  return clock_nanosleep(CLOCK_MONOTONIC, 0, &rqt, NULL);
 #else
   return usleep(tusleep);
 #endif /* if ( !defined(__APPLE__) && !defined(__OpenBSD__) ) */
