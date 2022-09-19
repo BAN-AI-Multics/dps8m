@@ -379,9 +379,14 @@ printf '%s\n' "" >&2
 
 ###############################################################################
 
+# dps8 (excluding sim_tmxr)
 title_line "$(printf '%s' 'dps8')" >&2
 printf '%s\n' "" >&2
-do_cppcheck "dps8" "./src/decNumber" "./src/simh" "./src/dps8"
+do_cppcheck "dps8"                     \
+  "./src/decNumber"                    \
+  "$(find ./src/simh -name '*.[ch]' |  \
+     grep -v 'sim_tmxr\.[ch]')"        \
+  "./src/dps8"
 printf '%s\n' "" >&2
 
 ###############################################################################
