@@ -14,4 +14,3 @@ The `FNPSERVERPORT` command directs the simulator to listen for FNP (*front-end 
 
 See also: `FNPSERVERADDRESS`.
 
-

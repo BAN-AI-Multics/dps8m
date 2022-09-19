@@ -201,6 +201,8 @@ the IC reaches the address specified by "**`<segno>`**" and "**`<offset>`**", id
         SET CPU NODEBUG
         SET CPU0 DEBUG=CYCLE
 
+<!------------------------------------------------------------------------------------->
+
 <!-- br -->
 
 #### CONFIG
@@ -794,17 +796,23 @@ See *GB61-01* **Operators Guide, Appendix A** for more details.
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### DEBUG (NODEBUG)
 
 * TBD
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### RESET
 
 * TBD
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### CONFIG
 
@@ -814,6 +822,10 @@ The following "**`IOM`**" configuration options are associated with a specified 
 
 * The following "**`<set-option>`**"'s are available, in the form of "**`<option>=<value>`**", for example:
         SET IOMn CONFIG=<option>=<value>
+
+<!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ##### PORT
 \
@@ -829,12 +841,16 @@ The following "**`IOM`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ##### ADDR
 \
 \
 * TBD (Address of the port)
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ##### INTERLACE
 \
@@ -843,12 +859,16 @@ The following "**`IOM`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ##### ENABLE
 \
 \
 * TBD (Port enabled or disabled)
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ##### INITENABLE
 \
@@ -857,6 +877,8 @@ The following "**`IOM`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ##### HALFSIZE
 \
 \
@@ -864,12 +886,16 @@ The following "**`IOM`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ##### STORE_SIZE
 \
 \
 * TBD (Size of memory - one of 32 64 128 256 512 1024 2048 4096 32K 64K 128K 256K 512K 1024K 2048K 4096K 1M 2M 4M, 4M is default.)
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ##### MODEL
 \
@@ -885,6 +911,8 @@ The following "**`IOM`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ##### OS
 \
 \
@@ -898,6 +926,8 @@ The following "**`IOM`**" configuration options are associated with a specified 
         SET IOM0 CONFIG=MODE=multics
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ##### BOOT
 \
@@ -913,6 +943,8 @@ The following "**`IOM`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ##### IOM_BASE
 \
 \
@@ -926,6 +958,8 @@ The following "**`IOM`**" configuration options are associated with a specified 
         SET IOM0 CONFIG=IOM_BASE=Multics
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ##### MULTIPLEX_BASE
 \
@@ -941,6 +975,8 @@ The following "**`IOM`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ##### TAPECHAN
 \
 \
@@ -954,6 +990,8 @@ The following "**`IOM`**" configuration options are associated with a specified 
         SET IOM0 CONFIG=TAPECHAN=012
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ##### CARDCHAN
 \
@@ -969,6 +1007,8 @@ The following "**`IOM`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ##### SCUPORT
 \
 \
@@ -983,6 +1023,8 @@ The following "**`IOM`**" configuration options are associated with a specified 
 
 <!------------------------------------------------------------------------------------->
 
+<!-- br -->
+
 ### SCU Configuration
 
 #### DEBUG (NODEBUG)
@@ -990,6 +1032,8 @@ The following "**`IOM`**" configuration options are associated with a specified 
 * TBD
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### NUNITS
 "**`NUNITS`**" configures the number of "`SCU`" units.
@@ -1003,11 +1047,15 @@ The following "**`IOM`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### RESET
 
 * TBD
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### CONFIG
 
@@ -1018,12 +1066,18 @@ The following "**`SCU`**" configuration options are associated with a specified 
 * The following "**`<set-option>`**"'s are available, in the form of "**`<option>=<value>`**", for example:
         SET SCUn CONFIG=<option>=<value>
 
+<!-- br -->
+
+<!------------------------------------------------------------------------------------->
+
 ##### MODE
 \
 \
 * TBD (0 or 1)
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ##### MASKA
 \
@@ -1032,12 +1086,16 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ##### MASKB
 \
 \
 * TBD ("off" for all SCUs by default)
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ##### PORT0
 \
@@ -1046,12 +1104,16 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ##### PORT1
 \
 \
 * TBD (0 or 1)
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ##### PORT2
 \
@@ -1060,12 +1122,16 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ##### PORT3
 \
 \
 * TBD (0 or 1)
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ##### PORT4
 \
@@ -1074,12 +1140,16 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ##### PORT5
 \
 \
 * TBD (0 or 1)
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ##### PORT6
 \
@@ -1088,12 +1158,16 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ##### PORT7
 \
 \
 * TBD (0 or 1)
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ##### LWRSTORESIZE
 \
@@ -1102,12 +1176,16 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ##### CYCLIC
 \
 \
 * TBD (0040 by default)
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ##### NEA
 \
@@ -1116,12 +1194,16 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ##### ONL
 \
 \
 * TBD (014 by default)
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ##### INT
 \
@@ -1130,12 +1212,16 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ##### LW
 \
 \
 * TBD (0 or 1)
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ##### ELAPSED_DAYS
 \
@@ -1144,12 +1230,16 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ##### STEADY_CLOCK
 \
 \
 * TBD (0 or 1, disable or enable)
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ##### BULLET_TIME
 \
@@ -1158,12 +1248,16 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ##### Y2K
 \
 \
 * TBD (0 or 1, disable or enable)
 
 <!------------------------------------------------------------------------------------->
+
+<!-- br -->
 
 ### TAPE Configuration
 
@@ -1173,11 +1267,15 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### DEFAULT_PATH
 
 * TBD
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### ADD_PATH
 
@@ -1185,11 +1283,15 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### CAPACITY_ALL
 
 * TBD
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### CAPACITY
 
@@ -1197,17 +1299,23 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### REWIND
 
 * TBD
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### READY
 
 * TBD
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### NAME
 "**`NAME`**" configures the device name of the specified "`TAPE`" unit.
@@ -1221,6 +1329,8 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### NUNITS
 "**`NUNITS`**" configures the number of "`TAPE`" units.
 
@@ -1233,6 +1343,8 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
 <!------------------------------------------------------------------------------------->
 
+<!-- br -->
+
 ### MTP Configuration
 
 #### DEBUG (NODEBUG)
@@ -1240,6 +1352,8 @@ The following "**`SCU`**" configuration options are associated with a specified 
 * TBD
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### NAME
 "**`NAME`**" configures the device name of the specified "`MTP`" unit.
@@ -1253,6 +1367,8 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### NUNITS
 "**`NUNITS`**" configures the number of "`MTP`" units.
 
@@ -1265,11 +1381,15 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### BOOT_DRIVE
 
 * TBD
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### CONFIG
 
@@ -1281,6 +1401,8 @@ The following "**`MTP`**" configuration options are associated with a specified 
         SET MTPn CONFIG=<option>=<value>
 
 <!------------------------------------------------------------------------------------->
+
+<!-- br -->
 
 ### IPC Configuration
 
@@ -1296,6 +1418,8 @@ The following "**`MTP`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### NUNITS
 "**`NUNITS`**" configures the number of "`IPC`" units.
 
@@ -1307,6 +1431,8 @@ The following "**`MTP`**" configuration options are associated with a specified 
         SET IPC NUNITS=6
 
 <!------------------------------------------------------------------------------------->
+
+<!-- br -->
 
 ### MSP Configuration
 
@@ -1322,6 +1448,8 @@ The following "**`MTP`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### NUNITS
 "**`NUNITS`**" configures the number of "`MSP`" units.
 
@@ -1334,6 +1462,8 @@ The following "**`MTP`**" configuration options are associated with a specified 
 
 <!------------------------------------------------------------------------------------->
 
+<!-- br -->
+
 ### Disk Configuration
 
 #### DEBUG (NODEBUG)
@@ -1342,17 +1472,23 @@ The following "**`MTP`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### TYPE
 
 * TBD
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### READY
 
 * TBD
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### NAME
 "**`NAME`**" configures the device name of the specified "`DISK`" unit.
@@ -1366,6 +1502,8 @@ The following "**`MTP`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### NUNITS
 "**`NUNITS`**" configures the number of "`DISK`" units.
 
@@ -1378,6 +1516,8 @@ The following "**`MTP`**" configuration options are associated with a specified 
 
 <!------------------------------------------------------------------------------------->
 
+<!-- br -->
+
 ### RDR Configuration
 
 #### DEBUG (NODEBUG)
@@ -1386,11 +1526,15 @@ The following "**`MTP`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### PATH
 
 * TBD
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### NAME
 "**`NAME`**" configures the device name of the specified "`RDR`" unit.
@@ -1404,6 +1548,8 @@ The following "**`MTP`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### NUNITS
 "**`NUNITS`**" configures the number of "`RDR`" units.
 
@@ -1416,6 +1562,8 @@ The following "**`MTP`**" configuration options are associated with a specified 
 
 <!------------------------------------------------------------------------------------->
 
+<!-- br -->
+
 ### PUN Configuration
 
 #### DEBUG (NODEBUG)
@@ -1424,11 +1572,15 @@ The following "**`MTP`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### PATH
 
 * TBD
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### NAME
 "**`NAME`**" configures the device name of the specified "`PUN`" unit.
@@ -1442,6 +1594,8 @@ The following "**`MTP`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### NUNITS
 "**`NUNITS`**" configures the number of "`PUN`" units.
 
@@ -1454,6 +1608,8 @@ The following "**`MTP`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### CONFIG
 
 The following "**`PUN`**" configuration options are associated with a specified "`PUN`" unit (*i.e.* "PUN**`n`**") and are configured using the "`SET`" command (*i.e.* "**`SET PUNn CONFIG`**"):
@@ -1463,12 +1619,18 @@ The following "**`PUN`**" configuration options are associated with a specified 
 * The following "**`<set-option>`**"'s are available, in the form of "**`<option>=<value>`**", for example:
         SET PUNn CONFIG=<option>=<value>
 
+<!-- br -->
+
+<!------------------------------------------------------------------------------------->
+
 ##### LOGCARDS
 \
 \
 * TBD
 
 <!------------------------------------------------------------------------------------->
+
+<!-- br -->
 
 ### PRT Configuration
 
@@ -1478,11 +1640,15 @@ The following "**`PUN`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### PATH
 
 * TBD
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### MODEL
 
@@ -1490,11 +1656,15 @@ The following "**`PUN`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### READY
 
 * TBD
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### NAME
 "**`NAME`**" configures the device name of the specified "`PRT`" unit.
@@ -1508,6 +1678,8 @@ The following "**`PUN`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### NUNITS
 "**`NUNITS`**" configures the number of "`PRT`" units.
 
@@ -1520,6 +1692,8 @@ The following "**`PUN`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### CONFIG
 
 The following "**`PRT`**" configuration options are associated with a specified "`PRT`" unit (*i.e.* "PRT**`n`**") and are configured using the "`SET`" command (*i.e.* "**`SET PRTn CONFIG`**"):
@@ -1531,12 +1705,16 @@ The following "**`PRT`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ##### SPLIT
 \
 \
 * TBD
 
 <!------------------------------------------------------------------------------------->
+
+<!-- br -->
 
 ### FNP Configuration
 
@@ -1545,6 +1723,8 @@ The following "**`PRT`**" configuration options are associated with a specified 
 * TBD
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### NUNITS
 "**`NUNITS`**" configures the number of "`FNP`" units.
@@ -1558,6 +1738,8 @@ The following "**`PRT`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### CONFIG
 
 The following "**`FNP`**" configuration options are associated with a specified "`FNP`" unit (*i.e.* "FNP**`n`**") and are configured using the "`SET`" command (*i.e.* "**`SET FNPn CONFIG`**"):
@@ -1567,12 +1749,18 @@ The following "**`FNP`**" configuration options are associated with a specified 
 * The following "**`<set-option>`**"'s are available, in the form of "**`<option>=<value>`**", for example:
         SET FNPn CONFIG=<option>=<value>
 
+<!-- br -->
+
+<!------------------------------------------------------------------------------------->
+
 ##### MAILBOX
 \
 \
 * TBD
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ##### IPC_NAME
 \
@@ -1581,12 +1769,16 @@ The following "**`FNP`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ##### SERVICE
 \
 \
 * TBD
 
 <!------------------------------------------------------------------------------------->
+
+<!-- br -->
 
 ### OPC Configuration
 
@@ -1596,11 +1788,15 @@ The following "**`FNP`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### AUTOINPUT
 
 * TBD
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### NAME
 "**`NAME`**" configures the device name of the specified "`OPC`" unit.
@@ -1614,6 +1810,8 @@ The following "**`FNP`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### NUNITS
 "**`NUNITS`**" configures the number of "`OPC`" units.
 
@@ -1626,6 +1824,8 @@ The following "**`FNP`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### CONFIG
 
 The following "**`OPC`**" configuration options are associated with a specified "`OPC`" unit (*i.e.* "OPC**`n`**") and are configured using the "`SET`" command (*i.e.* "**`SET OPCn CONFIG`**"):
@@ -1635,12 +1835,18 @@ The following "**`OPC`**" configuration options are associated with a specified 
 * The following "**`<set-option>`**"'s are available, in the form of "**`<option>=<value>`**", for example:
         SET OPCn CONFIG=<option>=<value>
 
+<!-- br -->
+
+<!------------------------------------------------------------------------------------->
+
 ##### AUTOACCEPT
 \
 \
 * TBD
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ##### NOEMPTY
 \
@@ -1649,12 +1855,16 @@ The following "**`OPC`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ##### ATTN_FLUSH
 \
 \
 * TBD
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ##### PORT
 \
@@ -1663,12 +1873,16 @@ The following "**`OPC`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ##### ADDRESS
 \
 \
 * TBD
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ##### PW
 \
@@ -1677,6 +1891,8 @@ The following "**`OPC`**" configuration options are associated with a specified 
 
 <!------------------------------------------------------------------------------------->
 
+<!-- br -->
+
 ### URP Configuration
 
 #### DEBUG (NODEBUG)
@@ -1684,6 +1900,8 @@ The following "**`OPC`**" configuration options are associated with a specified 
 * TBD
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### NAME
 "**`NAME`**" configures the device name of the specified "`URP`" unit.
@@ -1697,6 +1915,8 @@ The following "**`OPC`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### NUNITS
 "**`NUNITS`**" configures the number of "`URP`" units.
 
@@ -1706,5 +1926,4 @@ The following "**`OPC`**" configuration options are associated with a specified 
 
 * Set the number of "`URP`" units to "`10`" (*the default setting*):
         SET URP NUNITS=10
-
 

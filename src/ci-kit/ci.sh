@@ -117,6 +117,15 @@ command -v tmux > /dev/null 2>&1 ||
 
 ##############################################################################
 
+command -v ncat > /dev/null 2>&1 ||
+  {
+    printf '%s\n'  \
+      '*** Warning: "ncat" not found in PATH!'
+    sleep 6
+  }
+
+##############################################################################
+
 command -v "stdbuf" > /dev/null 2>&1 &&
   STDBUF="stdbuf -o L" ||
     STDBUF="exec"

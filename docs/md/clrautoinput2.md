@@ -6,4 +6,3 @@ operator console (OPC1).
 
 * Refer to the documentation for the `CLRAUTOINPUT` command for `CLRAUTOINPUT2` usage.
 
-

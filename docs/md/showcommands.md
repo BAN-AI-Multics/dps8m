@@ -4,6 +4,8 @@
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ### BUILDINFO (B)
 
 "**`BUILDINFO`**" (*abbreviated* "`B`") shows build-time compilation information including the complete compiler flags (*i.e.* "`CFLAGS`", "`LDFLAGS`", etc.) used when building the simulator, the libraries the simulator is linked against and their versions, relevant definitions set by the C preprocessor at build-time, the types of file locking mechanisms available, and the style of atomic operation primitives in use.
@@ -13,6 +15,8 @@
 SHOWBUILDINFOHERE
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ### CLOCKS (CL)
 
@@ -24,6 +28,8 @@ SHOWCLOCKSHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ### CONFIGURATION (C)
 
 "**`CONFIGURATION`**" (*abbreviated* "`C`") shows a detailed overview of the current simulator configuration.
@@ -32,6 +38,8 @@ SHOWCLOCKSHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ### DEFAULT_BASE_SYSTEM (D)
 
 "**`DEFAULT_BASE_SYSTEM`**" (*abbreviated* "`D`") shows the *default base system configuration script* which is executed automatically at simulator startup or via the "**`DEFAULT_BASE_SYSTEM`**" command.
@@ -39,6 +47,8 @@ SHOWCLOCKSHERE
 * See the documentation for the "**`DEFAULT_BASE_SYSTEM`**" command earlier in this chapter and the **Default Base System Script** section of the **Simulator Defaults** chapter for additional details.
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ### DEVICES (DEV)
 
@@ -50,17 +60,23 @@ SHOWDEVICESHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ### MODIFIERS (M)
 
 "**`MODIFIERS`**" (*abbreviated* "`M`") shows a summary of available "`SET`" commands for all devices.
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ### ON (O)
 
 "**`ON`**" (*abbreviated* "`O`") shows information about "`ON`" condition actions.
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ### PROM (P)
 
@@ -72,11 +88,15 @@ SHOWPROMHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ### QUEUE (Q)
 
 "**`QUEUE`**" (*abbreviated* "`Q`") shows information about the simulator's event queue.
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ### SHOW (S)
 
@@ -84,11 +104,15 @@ SHOWPROMHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ### TIME (T)
 
 "**`TIME`**" (*abbreviated* "`T`") shows information about the simulated timer.
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ### VERSION (V)
 
@@ -112,6 +136,8 @@ SHOWVERSIONHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ### CPU
 
 The following device-specific "`SHOW`" commands are available for the "`CPU`" device. If the "`SHOW CPU`" command can operate on a specific unit, but no unit is specified, the first unit (*i.e.* `CPU`**`0`**) is assumed.
@@ -123,6 +149,8 @@ The following device-specific "`SHOW`" commands are available for the "`CPU`" de
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### CONFIG
 
 "**`CONFIG`**" shows configuration details (set via "`SET CPU CONFIG`") for the "`CPU`" unit specified.
@@ -132,6 +160,8 @@ The following device-specific "`SHOW`" commands are available for the "`CPU`" de
 SHOWCPUCONFIGHERE
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### NUNITS
 
@@ -143,6 +173,8 @@ SHOWCPUNUNITSHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### KIPS
 
 "**`KIPS`**" shows the global CPU lockup fault scaling factor (set via "`SET CPU KIPS`").
@@ -152,6 +184,8 @@ SHOWCPUNUNITSHERE
 SHOWCPUKIPSHERE
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### STALL
 
@@ -163,6 +197,8 @@ SHOWCPUSTALLHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### DEBUG
 
 "**`DEBUG`**" shows the currently configured debug options (set via "`SET CPU DEBUG`").
@@ -173,11 +209,15 @@ SHOWCPUDEBUGHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ### DISK
 
 The following device-specific "`SHOW`" commands are available for the "`DISK`" device. If the "`SHOW DISK`" command can operate on a specific unit, but no unit is specified, the first unit (*i.e.* `DISK`**`0`**) is assumed.
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### NAME
 
@@ -189,6 +229,8 @@ SHOWDISKNAMEHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### NUNITS
 
 "**`NUNITS`**" shows the number of "`DISK`" units configured (set via "`SET DISK NUNITS`").
@@ -198,6 +240,8 @@ SHOWDISKNAMEHERE
 SHOWDISKNUNITSHERE
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### TYPE
 
@@ -209,6 +253,8 @@ SHOWDISKTYPEHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### DEBUG
 
 "**`DEBUG`**" shows the currently configured debug options (set via "`SET DISK DEBUG`").
@@ -219,11 +265,15 @@ SHOWDISKDEBUGHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ### FNP
 
 The following device-specific "`SHOW`" commands are available for the "`FNP`" device. If the "`SHOW FNP`" command can operate on a specific unit, but no unit is specified, the first unit (*i.e.* `FNP`**`0`**) is assumed.
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### CONFIG
 
@@ -235,6 +285,8 @@ SHOWFNPCONFIGHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### IPC_NAME
 
 "**`IPC_NAME`**" shows the IPC name for the "`FNP`" unit specified (set via "`SET FNPn IPC_NAME`").
@@ -244,6 +296,8 @@ SHOWFNPCONFIGHERE
 SHOWFNPIPCNAMEHERE
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### NAME
 
@@ -255,6 +309,8 @@ SHOWFNPNAMEHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### NUNITS
 
 "**`NUNITS`**" shows the number of "`FNP`" units configured (set via "`SET FNP NUNITS`").
@@ -264,6 +320,8 @@ SHOWFNPNAMEHERE
 SHOWFNPNUNITSHERE
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### SERVICE
 
@@ -277,6 +335,8 @@ SHOWFNPSERVICEHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### STATUS
 
 "**`STATUS`**" shows detailed line status information for the "`FNP`" unit specified.
@@ -289,6 +349,8 @@ SHOWFNPSTATUSHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### DEBUG
 
 "**`DEBUG`**" shows the currently configured debug options (set via "`SET FNP DEBUG`").
@@ -299,11 +361,15 @@ SHOWFNPDEBUGHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ### IOM
 
 The following device-specific "`SHOW`" commands are available for the "`IOM`" device. If the "`SHOW IOM`" command can operate on a specific unit, but no unit is specified, the first unit (*i.e.* `IOM`**`0`**) is assumed.
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### CONFIG
 
@@ -315,6 +381,8 @@ SHOWIOMCONFIGHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### NUNITS
 
 "**`NUNITS`**" shows the number of "`IOM`" units configured (set via "`SET IOM NUNITS`").
@@ -325,6 +393,8 @@ SHOWIOMNUNITSHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### DEBUG
 
 "**`DEBUG`**" shows the currently configured debug options (set via "`SET IOM DEBUG`").
@@ -333,9 +403,13 @@ SHOWIOMDEBUGHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ### IPC
 
 The following device-specific "`SHOW`" commands are available for the "`IPC`" device. If the "`SHOW IPC`" command can operate on a specific unit, but no unit is specified, the first unit (*i.e.* `IPC`**`0`**) is assumed.
+
+<!------------------------------------------------------------------------------------->
 
 #### NAME
 
@@ -347,6 +421,8 @@ SHOWIPCNAMEHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### NUNITS
 
 "**`NUNITS`**" shows the number of "`IPC`" units configured (set via "`SET IPC NUNITS`").
@@ -357,9 +433,13 @@ SHOWIPCNUNITSHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ### MSP
 
 The following device-specific "`SHOW`" commands are available for the "`MSP`" device. If the "`SHOW MSP`" command can operate on a specific unit, but no unit is specified, the first unit (*i.e.* `MSP`**`0`**) is assumed.
+
+<!------------------------------------------------------------------------------------->
 
 #### NAME
 
@@ -371,6 +451,8 @@ SHOWMSPNAMEHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### NUNITS
 
 "**`NUNITS`**" shows the number of "`MSP`" units configured (set via "`SET MSP NUNITS`").
@@ -381,9 +463,13 @@ SHOWMSPNUNITSHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ### MTP
 
 The following device-specific "`SHOW`" commands are available for the "`MTP`" device. If the "`SHOW MTP`" command can operate on a specific unit, but no unit is specified, the first unit (*i.e.* `MTP`**`0`**) is assumed.
+
+<!------------------------------------------------------------------------------------->
 
 #### BOOT_DRIVE
 
@@ -395,6 +481,8 @@ SHOWMTPBOOTDRIVEHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### NAME
 
 "**`NAME`**" shows the currently configured device name (set via "`SET MTPn NAME`").
@@ -404,6 +492,8 @@ SHOWMTPBOOTDRIVEHERE
 SHOWMTPNAMEHERE
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### NUNITS
 
@@ -415,6 +505,8 @@ SHOWMTPNUNITSHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### DEBUG
 
 "**`DEBUG`**" shows the currently configured debug options (set via "`SET MTP DEBUG`").
@@ -425,9 +517,13 @@ SHOWMTPDEBUGHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ### OPC
 
 The following device-specific "`SHOW`" commands are available for the "`OPC`" device. If the "`SHOW OPC`" command can operate on a specific unit, but no unit is specified, the first unit (*i.e.* `OPC`**`0`**) is assumed.
+
+<!------------------------------------------------------------------------------------->
 
 #### CONFIG
 
@@ -439,6 +535,8 @@ SHOWOPCCONFIGHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### ADDRESS
 
 "**`ADDRESS`**" shows the currently configured address for the specified unit (set via "`SET OPCn ADDRESS`").
@@ -448,6 +546,8 @@ SHOWOPCCONFIGHERE
 SHOWOPCADDRESSHERE
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### AUTOINPUT
 
@@ -459,6 +559,8 @@ SHOWOPCAUTOINPUTHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### NAME
 
 "**`NAME`**" shows the currently configured device name (set via "`SET OPCn NAME`").
@@ -468,6 +570,8 @@ SHOWOPCAUTOINPUTHERE
 SHOWOPCNAMEHERE
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### NUNITS
 
@@ -479,6 +583,8 @@ SHOWOPCNUNITSHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### PORT
 
 "**`PORT`**" shows the currently configured port for the specified unit (set via "`SET OPCn PORT`").
@@ -488,6 +594,8 @@ SHOWOPCNUNITSHERE
 SHOWOPCPORTHERE
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### PW
 
@@ -499,6 +607,8 @@ SHOWOPCPWHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### DEBUG
 
 "**`DEBUG`**" shows the currently configured debug options (set via "`SET OPC DEBUG`").
@@ -509,9 +619,15 @@ SHOWOPCDEBUGHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ### PRT
 
 The following device-specific "`SHOW`" commands are available for the "`PRT`" device. If the "`SHOW PRT`" command can operate on a specific unit, but no unit is specified, the first unit (*i.e.* `PRT`**`0`**) is assumed.
+
+<!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### CONFIG
 
@@ -523,6 +639,8 @@ SHOWPRTCONFIGHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### MODEL
 
 "**`MODEL`**" shows configured model (set via "`SET PRTn MODEL`") for the "`PRT`" unit specified.
@@ -532,6 +650,8 @@ SHOWPRTCONFIGHERE
 SHOWPRTMODELHERE
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### NAME
 
@@ -543,6 +663,8 @@ SHOWPRTNAMEHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### NUNITS
 
 "**`NUNITS`**" shows the number of "`PRT`" units configured (set via "`SET PRT NUNITS`").
@@ -552,6 +674,8 @@ SHOWPRTNAMEHERE
 SHOWPRTNUNITSHERE
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### PATH
 
@@ -565,6 +689,8 @@ SHOWPRTPATHHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### DEBUG
 
 "**`DEBUG`**" shows the currently configured debug options (set via "`SET PRT DEBUG`").
@@ -574,6 +700,8 @@ SHOWPRTPATHHERE
 SHOWPRTDEBUGHERE
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ### PUN
 
@@ -589,6 +717,8 @@ SHOWPUNCONFIGHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### NAME
 
 "**`NAME`**" shows the currently configured device name (set via "`SET PUNn NAME`").
@@ -599,6 +729,8 @@ SHOWPUNNAMEHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### NUNITS
 
 "**`NUNITS`**" shows the number of "`PUN`" units configured (set via "`SET PUN NUNITS`").
@@ -608,6 +740,8 @@ SHOWPUNNAMEHERE
 SHOWPUNNUNITSHERE
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### PATH
 
@@ -621,6 +755,8 @@ SHOWPUNPATHHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### DEBUG
 
 "**`DEBUG`**" shows the currently configured debug options (set via "`SET PUN DEBUG`").
@@ -631,9 +767,13 @@ SHOWPUNDEBUGHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ### RDR
 
 The following device-specific "`SHOW`" commands are available for the "`RDR`" device. If the "`SHOW RDR`" command can operate on a specific unit, but no unit is specified, the first unit (*i.e.* `RDR`**`0`**) is assumed.
+
+<!------------------------------------------------------------------------------------->
 
 #### NAME
 
@@ -645,6 +785,8 @@ SHOWRDRNAMEHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### NUNITS
 
 "**`NUNITS`**" shows the number of "`RDR`" units configured (set via "`SET RDR NUNITS`").
@@ -654,6 +796,8 @@ SHOWRDRNAMEHERE
 SHOWRDRNUNITSHERE
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### PATH
 
@@ -667,6 +811,8 @@ SHOWRDRPATHHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### DEBUG
 
 "**`DEBUG`**" shows the currently configured debug options (set via "`SET RDR DEBUG`").
@@ -676,6 +822,8 @@ SHOWRDRPATHHERE
 SHOWRDRDEBUGHERE
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ### SCU
 
@@ -691,6 +839,8 @@ SHOWSCUCONFIGHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### NUNITS
 
 "**`NUNITS`**" shows the number of "`SCU`" units configured (set via "`SET SCU NUNITS`").
@@ -700,6 +850,8 @@ SHOWSCUCONFIGHERE
 SHOWSCUNUNITSHERE
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### STATE
 
@@ -711,6 +863,8 @@ SHOWSCUSTATEHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### DEBUG
 
 "**`DEBUG`**" shows the currently configured debug options (set via "`SET SCU DEBUG`").
@@ -721,9 +875,13 @@ SHOWSCUDEBUGHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 ### TAPE
 
 The following device-specific "`SHOW`" commands are available for the "`TAPE`" device. If the "`SHOW TAPE`" command can operate on a specific unit, but no unit is specified, the first unit (*i.e.* `TAPE`**`0`**) is assumed.
+
+<!------------------------------------------------------------------------------------->
 
 #### ADD_PATH
 
@@ -735,6 +893,8 @@ SHOWTAPEADDPATHHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### CAPACITY
 
 "**`CAPACITY`**" shows the storage capacity of the specified "`TAPE`" unit.
@@ -744,6 +904,8 @@ SHOWTAPEADDPATHHERE
 SHOWTAPECAPACITYHERE
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### DEFAULT_PATH
 
@@ -757,6 +919,8 @@ SHOWTAPEDEFAULTPATHHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### NAME
 
 "**`NAME`**" shows the currently configured device name (set via "`SET TAPEn NAME`").
@@ -766,6 +930,8 @@ SHOWTAPEDEFAULTPATHHERE
 SHOWTAPENAMEHERE
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 #### NUNITS
 
@@ -777,6 +943,8 @@ SHOWTAPENUNITSHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### DEBUG
 
 "**`DEBUG`**" shows the currently configured debug options (set via "`SET TAPE DEBUG`").
@@ -786,6 +954,8 @@ SHOWTAPENUNITSHERE
 SHOWTAPEDEBUGHERE
 
 <!-- br -->
+
+<!------------------------------------------------------------------------------------->
 
 ### URP
 
@@ -801,6 +971,8 @@ SHOWURPNAMEHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### NUNITS
 
 "**`NUNITS`**" shows the number of "`URP`" units configured (set via "`SET URP NUNITS`").
@@ -811,6 +983,8 @@ SHOWURPNUNITSHERE
 
 <!-- br -->
 
+<!------------------------------------------------------------------------------------->
+
 #### DEBUG
 
 "**`DEBUG`**" shows the currently configured debug options (set via "`SET URP DEBUG`").
@@ -818,5 +992,4 @@ SHOWURPNUNITSHERE
 **Example**
 
 SHOWURPDEBUGHERE
-
 

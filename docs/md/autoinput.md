@@ -21,4 +21,3 @@ primary operator console (OPC0):
         ; A line of text containing only this exact string will match.
         AUTOINPUT \xReady\x
 
-

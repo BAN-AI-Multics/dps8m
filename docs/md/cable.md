@@ -93,7 +93,7 @@ The "**`CABLE DUMP`**" command prints the current cabling configuration in great
 
 ### CABLE GRAPH
 
-The "**`CABLE GRAPH`**" command prints the current cabling configuration in the "**DOT**" graph description language (suitable for rendering with *GraphViz*, etc.)
+The "**`CABLE GRAPH`**" command prints the current cabling configuration in the "**DOT**" graph description language (suitable for rendering with *GraphViz*, etc).
 
 <!-- pagebreak -->
 
@@ -144,5 +144,4 @@ The following graph shows the cabling configuration of the *default base system*
 \end{figure}
 
 See the "**Simulator Defaults**" chapter for more details (including the full output of the "`CABLE DUMP`" command).
-
 

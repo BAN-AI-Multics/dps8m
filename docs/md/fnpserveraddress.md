@@ -14,4 +14,3 @@ The `FNPSERVERADDRESS` command directs the simulator to bind the simulated FNP (
 
 See also: `FNPSERVERPORT`.
 
-
