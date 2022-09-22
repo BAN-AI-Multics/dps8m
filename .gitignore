@@ -176,6 +176,15 @@ prt2pdf.xml
 vmpctool.xml
 cppcheck.xml
 
+# Oracle Performance Analyzer
+src/dps8/dps8.analyze
+src/empty/empty.analyze
+src/mcmb/mcmb.analyze
+src/prt2pdf/prt2pdf.analyze
+src/punutil/punutil.analyze
+src/unifdef/unifdef.analyze
+src/vmpctool/vmpctool.analyze
+
 # Vim
 *.*.swp
 session.vim
