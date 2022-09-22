@@ -142,6 +142,12 @@ struct cpuThreadz_t
     pthread_mutex_t runLock;
 
     // DIS sleep
+#ifdef USE_MONOTONIC
+# if !defined __APPLE__ && defined (CLOCK_MONOTONIC)
+    clockid_t sleepClock;
+    pthread_condattr_t sleepCondAttr;
+# endif
+#endif
     pthread_cond_t sleepCond;
 
   };

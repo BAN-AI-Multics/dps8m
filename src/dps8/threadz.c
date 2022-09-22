@@ -382,12 +382,31 @@ void createCPUThread (uint cpuNum)
     p->run = true;
 
     // initialize DIS sleep
+#ifdef USE_MONOTONIC
+# if defined __APPLE__ || ! defined (CLOCK_MONOTONIC)
+    p->sleepClock = CLOCK_REALTIME;
     rc = pthread_cond_init (& p->sleepCond, NULL);
+# else
+    rc = pthread_condattr_init (& p->sleepCondAttr);
+    if (rc)
+      sim_printf ("createCPUThread pthread_condattr_init sleepCond %d\n", rc);
+
+    rc = pthread_condattr_setclock (& p->sleepCondAttr, CLOCK_MONOTONIC);
+    if (rc) {
+      //sim_printf ("createCPUThread pthread_condattr_setclock  sleepCond %d\n", rc);
+      p->sleepClock = CLOCK_REALTIME;
+    } else {
+      p->sleepClock = CLOCK_MONOTONIC;
+    }
+# endif // ! APPLE
+    rc = pthread_cond_init (& p->sleepCond, & p->sleepCondAttr);
+#else
+    rc = pthread_cond_init (& p->sleepCond, NULL);
+#endif
     if (rc)
       sim_printf ("createCPUThread pthread_cond_init sleepCond %d\n", rc);
 
-    rc = pthread_create (& p->cpuThread, NULL, cpu_thread_main,
-                    & p->cpuThreadArg);
+    rc = pthread_create (& p->cpuThread, NULL, cpu_thread_main, & p->cpuThreadArg);
     if (rc)
       sim_printf ("createCPUThread pthread_create %d\n", rc);
 
@@ -456,32 +475,44 @@ void cpuRunningWait (void)
 
 // Called by CPU thread to sleep until time up or signaled
 // Return time left
-unsigned long  sleepCPU (unsigned long usec)
-  {
-    int rc;
-    struct cpuThreadz_t * p = & cpuThreadz[current_running_cpu_idx];
-    struct timespec abstime;
-    clock_gettime (CLOCK_REALTIME, & abstime);
-    int64_t nsec = ((int64_t) usec) * 1000 + (int64_t)abstime.tv_nsec;
-    abstime.tv_nsec = (int64_t)nsec % 1000000000;
-    abstime.tv_sec += (int64_t)nsec / 1000000000;
+unsigned long  sleepCPU (unsigned long usec) {
+  int rc;
+  struct cpuThreadz_t * p = & cpuThreadz[current_running_cpu_idx];
+  struct timespec startTime, absTime;
 
-    rc = pthread_cond_timedwait (& p->sleepCond,
-                                 & scu_lock,
-                                 & abstime);
-//sim_printf ("wake %u %u %lu\n", cpu.rTR, current_running_cpu_idx, usec);
-    if (rc == ETIMEDOUT)
-      return 0;
-    if (rc)
-      sim_printf ("sleepCPU pthread_cond_timedwait rc %ld  usec %ld TR %lu CPU %lu\n", (long) rc, (long) usec, (unsigned long) cpu.rTR, (unsigned long) current_running_cpu_idx);
-    struct timespec newtime, delta;
-    clock_gettime (CLOCK_REALTIME, & newtime);
-    timespec_diff (& abstime, & newtime, & delta);
-//sim_printf ("wake %u %u %lu %lu\n", cpu.rTR, current_running_cpu_idx, usec, delta.tv_nsec / 1000);
-    if (delta.tv_nsec < 0)
-      return 0; // safety
-    return (unsigned long) delta.tv_nsec / 1000;
+#ifdef USE_MONOTONIC
+  clock_gettime (p->sleepClock, & startTime);
+#else
+  clock_gettime (CLOCK_REALTIME, & startTime);
+#endif
+  absTime = startTime;
+  int64_t nsec = ((int64_t) usec) * 1000 + (int64_t)startTime.tv_nsec;
+  absTime.tv_nsec = nsec % 1000000000;
+  absTime.tv_sec += nsec / 1000000000;
+
+  rc = pthread_cond_timedwait (& p->sleepCond, & scu_lock, & absTime);
+
+  if (rc == ETIMEDOUT) {
+    return 0;
   }
+
+  if (rc) {
+    sim_printf ("sleepCPU pthread_cond_timedwait rc %ld  usec %ld TR %lu CPU %lu\n", (long) rc, (long) usec, (unsigned long) cpu.rTR, (unsigned long) current_running_cpu_idx);
+  }
+
+  struct timespec newTime;
+  struct timespec delta;
+#ifdef USE_MONOTONIC
+  clock_gettime (p->sleepClock, & newTime);
+#else
+  clock_gettime (CLOCK_REALTIME, & newTime);
+#endif
+  timespec_diff (& absTime, & newTime, & delta);
+
+  if (delta.tv_nsec < 0)
+    return 0; // safety
+  return (unsigned long) delta.tv_nsec / 1000;
+}
 
 // Called to wake sleeping CPU; such as interrupt during DIS
 
