@@ -36,6 +36,14 @@ ifdef ATOMICS
 endif
 
 ###############################################################################
+# No C ellipsis extension
+
+ifdef NO_C_ELLIPSIS
+  NO_C_ELLIPSIS=1
+  CFLAGS += -DNO_C_ELLIPSIS
+endif
+
+###############################################################################
 # ISOLTS-enabled build
 
 ifeq ($(ISOLTS),1)
