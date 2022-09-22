@@ -734,9 +734,6 @@ void fnpuv_recv_eor (uv_tcp_t * client)
 
 void fnpuv_read_start (uv_tcp_t * client)
   {
-#ifdef TESTING
-sim_printf ("fnpuv_read_start\r\n");
-#endif
     if (! client || uv_is_closing ((uv_handle_t *) client))
       return;
     uv_read_start ((uv_stream_t *) client, alloc_buffer, fuv_read_cb);
