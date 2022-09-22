@@ -1552,9 +1552,9 @@ typedef struct
 
     word36 itxPair [2];
 
-#if defined(THREADZ) || defined(LOCKLESS)
-    struct timespec rTRTime; // time when rTR was set
-#endif
+//#if defined(THREADZ) || defined(LOCKLESS)
+//    struct timespec rTRTime; // time when rTR was set
+//#endif
 
     mode_register_s MR;
     // Changes to the mode register history bits do not take affect until
