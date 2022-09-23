@@ -503,6 +503,8 @@ uint128 divide_128 (uint128 a, uint128 b, uint128 * remp)
     v[6] = (uint16_t) (b.h >> 32);
     v[7] = (uint16_t) (b.h >> 48);
 
+    q[0] = q[1] = q[2] = q[3] = q[4] = q[5] = q[6] = q[7] = 0;
+
     int normlen;
     for (normlen = 8; normlen > 0; normlen --)
       if (v [normlen - 1])
@@ -548,6 +550,9 @@ uint128 divide_128_16 (uint128 a, uint16_t b, uint16_t * remp)
     u[7] = (uint16_t) (a.h >> 48);
 
     v[0] = (uint16_t) b;
+
+    q[0] = q[1] = q[2] = q[3] = q[4] = q[5] = q[6] = q[7] = 0;
+
     divmnu (q, remp, u, v, m, n);
     return construct_128 (
        (((uint64_t) q [7]) << 48) |
@@ -582,6 +587,8 @@ uint128 divide_128_32 (uint128 a, uint32_t b, uint32_t * remp)
 
     v[0] = (uint16_t) b;
     v[1] = (uint16_t) (b >> 16);
+
+    q[0] = q[1] = q[2] = q[3] = q[4] = q[5] = q[6] = q[7] = 0;
 
     divmnu (q, remp ? r : NULL, u, v, m, n);
     if (remp)
