@@ -259,7 +259,8 @@ void emCallReportFault (void)
   {
            sim_printf ("fault report:\n");
            sim_printf ("  fault number %d (%o)\n", cpu . faultNumber, cpu . faultNumber);
-           sim_printf ("  subfault number %"PRIu64" (%"PRIo64")\n", cpu.subFault.bits, cpu.subFault.bits);
+           sim_printf ("  subfault number %llu (%llo)\n", (unsigned long long) cpu.subFault.bits,
+                   (unsigned long long)cpu.subFault.bits);
            sim_printf ("  faulting address %05o:%06o\n", fault_psr, fault_ic);
            sim_printf ("  msg %s\n", fault_msg);
   }
@@ -421,8 +422,9 @@ else if (faultNumber == FAULT_ACV)
     //if (faultNumber < 0 || faultNumber > 31)
     if (faultNumber & ~037U)  // quicker?
     {
-        sim_printf ("fault(out-of-range): %d %"PRIo64" '%s'\n",
-                    faultNumber, subFault.bits, faultMsg ? faultMsg : "?");
+        sim_printf ("fault(out-of-range): %d %llo '%s'\n",
+                    faultNumber, (unsigned long long)subFault.bits,
+                    faultMsg ? faultMsg : "?");
         sim_warn ("fault out-of-range\n");
         faultNumber = FAULT_TRB;
     }

@@ -1867,8 +1867,9 @@ static void fetch_DDSPTW (uint iom_unit_idx, int chan, word18 addr)
                                       (addr >> 10) & MASK8);
     iom_core_read (iom_unit_idx, pgte, (word36 *) & p -> PTW_DCW, __func__);
     if ((p -> PTW_DCW & 0740000777747) != 04llu)
-      sim_warn ("%s: chan %d addr %#o pgte %08o ptw %012"PRIo64"\n",
-                __func__, chan, addr, pgte, p -> PTW_DCW);
+      sim_warn ("%s: chan %ld addr %#llo pgte %08llo ptw %012llo\n",
+                __func__, (long)chan, (unsigned long long)addr,
+                (unsigned long long)pgte, (unsigned long long)p -> PTW_DCW);
   }
 
 static word24 build_IDSPTW_address (word18 PCW_PAGE_TABLE_PTR, word1 seg, word8 pageNumber)
@@ -1904,8 +1905,8 @@ static void fetch_IDSPTW (uint iom_unit_idx, int chan, word18 addr)
                                       (addr >> 10) & MASK8);
     iom_core_read (iom_unit_idx, pgte, (word36 *) & p -> PTW_DCW, __func__);
     if ((p -> PTW_DCW & 0740000777747) != 04llu)
-      sim_warn ("%s: chan %d addr %#o ptw %012"PRIo64"\n",
-                __func__, chan, addr, p -> PTW_DCW);
+      sim_warn ("%s: chan %d addr %#o ptw %012llo\n",
+                __func__, chan, addr, (unsigned long long)p -> PTW_DCW);
   }
 
 static word24 build_LPWPTW_address (word18 PCW_PAGE_TABLE_PTR, word1 seg, word8 pageNumber)
@@ -1940,8 +1941,8 @@ static void fetch_LPWPTW (uint iom_unit_idx, uint chan)
                                       (p -> LPW_DCW_PTR >> 10) & MASK8);
     iom_core_read (iom_unit_idx, addr, (word36 *) & p -> PTW_LPW, __func__);
     if ((p -> PTW_LPW & 0740000777747) != 04llu)
-      sim_warn ("%s: chan %d addr %#o ptw %012"PRIo64"\n",
-                __func__, chan, addr, p -> PTW_LPW);
+      sim_warn ("%s: chan %d addr %#o ptw %012llo\n",
+                __func__, chan, addr, (unsigned long long)p -> PTW_LPW);
   }
 
 // 'write' means peripheral write; i.e. the peripheral is writing to core after
