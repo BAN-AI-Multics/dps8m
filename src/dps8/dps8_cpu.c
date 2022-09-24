@@ -922,6 +922,7 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
     cpu.CMR.luf  = 3;    // default of 16 mS
     cpu.cu.SD_ON = cpu.switches.sdwam_enable ? 1 : 0;
     cpu.cu.PT_ON = cpu.switches.ptwam_enable ? 1 : 0;
+    cpu.lufOccurred = false;
 
     if (cpu.tweaks.nodis) {
       set_cpu_cycle (FETCH_cycle);
