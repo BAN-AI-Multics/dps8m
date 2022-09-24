@@ -3047,6 +3047,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpc tally %d c1 %03o c2 %03o\n", cpu.du.CH
             cleanupOperandDescriptor (2);
             return;
           }
+        mifSampleInterrupts ();
       }
 
     if (e -> N1 < e -> N2)
@@ -3064,6 +3065,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpc tally %d c1 %03o c2 %03o\n", cpu.du.CH
                 cleanupOperandDescriptor (2);
                 return;
               }
+            mifSampleInterrupts ();
           }
       }
     else if (e->N1 > e->N2)
@@ -3081,6 +3083,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpc tally %d c1 %03o c2 %03o\n", cpu.du.CH
                 cleanupOperandDescriptor (2);
                 return;
               }
+            mifSampleInterrupts ();
           }
       }
     // else ==
@@ -3254,6 +3257,7 @@ void scd (void)
             yCharn12 = EISget469 (1, cpu.du.CHTALLY + 1);
             if (yCharn11 == c1 && yCharn12 == c2)
               break;
+            mifSampleInterrupts ();
           }
         SC_I_TALLY (cpu.du.CHTALLY == limit);
       }
@@ -3440,6 +3444,7 @@ void scdr (void)
 
             if (yCharn11 == c1 && yCharn12 == c2)
                 break;
+            mifSampleInterrupts ();
           }
         SC_I_TALLY (cpu.du.CHTALLY == limit);
       }
@@ -3613,6 +3618,7 @@ void scm (void)
             //Y3 = bitfieldInsert36(Y3, cpu.du.CHTALLY, 0, 24);
             break;
           }
+        mifSampleInterrupts ();
       }
     //word36 CY3 = bitfieldInsert36 (0, cpu.du.CHTALLY, 0, 24);
     word36 CY3 = setbits36_24 (0, 12, cpu.du.CHTALLY);
@@ -3784,6 +3790,7 @@ void scmr (void)
             //Y3 = bitfieldInsert36(Y3, cpu.du.CHTALLY, 0, 24);
             break;
           }
+        mifSampleInterrupts ();
       }
     //word36 CY3 = bitfieldInsert36 (0, cpu.du.CHTALLY, 0, 24);
     word36 CY3 = setbits36_24 (0, 12, cpu.du.CHTALLY);
@@ -4020,6 +4027,7 @@ void tct (void)
             CY3 = setbits36_9 (0, 0, cout);
             break;
           }
+        mifSampleInterrupts ();
       }
 
     SC_I_TALLY (cpu.du.CHTALLY == e -> N1);
@@ -4216,6 +4224,7 @@ void tctr (void)
             CY3 = setbits36_9 (0, 0, cout);
             break;
           }
+        mifSampleInterrupts ();
       }
 
     SC_I_TALLY (cpu.du.CHTALLY == e -> N1);
@@ -4478,6 +4487,7 @@ void mlr (void)
             EISReadPage (& e -> ADDR1, cpu.du.CHTALLY / 4, pg);
             EISWritePage (& e -> ADDR2, cpu.du.CHTALLY / 4, pg);
             cpu.du.CHTALLY += PGSZ * 4;
+            mifSampleInterrupts ();
           }
         cleanupOperandDescriptor (1);
         cleanupOperandDescriptor (2);
@@ -4527,6 +4537,7 @@ void mlr (void)
           {
             EISWritePage (& e -> ADDR2, cpu.du.CHTALLY / 4, pg);
             cpu.du.CHTALLY += PGSZ * 4;
+            mifSampleInterrupts ();
           }
         cleanupOperandDescriptor (1);
         cleanupOperandDescriptor (2);
@@ -4557,6 +4568,7 @@ void mlr (void)
             uint n = cpu.du.CHTALLY / 4;
             word36 w = EISReadIdx (& e -> ADDR1, n);
             EISWriteIdx (& e -> ADDR2, n, w, true);
+            mifSampleInterrupts ();
           }
         cleanupOperandDescriptor (1);
         cleanupOperandDescriptor (2);
@@ -4587,6 +4599,7 @@ void mlr (void)
           {
             uint n = cpu.du.CHTALLY / 4;
             EISWriteIdx (& e -> ADDR2, n, w, true);
+            mifSampleInterrupts ();
           }
         cleanupOperandDescriptor (1);
         cleanupOperandDescriptor (2);
@@ -4652,6 +4665,7 @@ void mlr (void)
               }
             EISput469 (2, cpu.du.CHTALLY, cout);
           }
+        mifSampleInterrupts ();
       }
 
     // If N1 < N2, then for i = N1+1, N1+2, ..., N2
@@ -4674,6 +4688,7 @@ void mlr (void)
               }
             else
               EISput469 (2, cpu.du.CHTALLY, fillT);
+            mifSampleInterrupts ();
           }
     }
     cleanupOperandDescriptor (1);
@@ -4853,6 +4868,7 @@ void mrl (void)
             uint n = (limit - cpu.du.CHTALLY - 1) / 4;
             word36 w = EISReadIdx (& e -> ADDR1, n);
             EISWriteIdx (& e -> ADDR2, n, w, true);
+            mifSampleInterrupts ();
           }
         cleanupOperandDescriptor (1);
         cleanupOperandDescriptor (2);
@@ -4887,6 +4903,7 @@ void mrl (void)
           {
             uint n = (limit - cpu.du.CHTALLY - 1) / 4;
             EISWriteIdx (& e -> ADDR2, n, w, true);
+            mifSampleInterrupts ();
           }
         cleanupOperandDescriptor (1);
         cleanupOperandDescriptor (2);
@@ -4952,6 +4969,7 @@ void mrl (void)
               }
             EISput469 (2, e -> N2 - cpu.du.CHTALLY - 1, cout);
           }
+        mifSampleInterrupts ();
       }
 
     // If N1 < N2, then for i = N1+1, N1+2, ..., N2
@@ -4976,6 +4994,7 @@ void mrl (void)
               {
                  EISput469 (2, e -> N2 - cpu.du.CHTALLY - 1, fillT);
               }
+            mifSampleInterrupts ();
           }
     }
     cleanupOperandDescriptor (1);
@@ -7239,6 +7258,7 @@ void mvt (void)
 
             EISput469 (2, cpu.du.CHTALLY, cout);
         }
+      mifSampleInterrupts ();
     }
 
     // If N1 < N2, then for i = N1+1, N1+2, ..., N2
@@ -7274,7 +7294,10 @@ void mvt (void)
         }
 
         for( ; cpu.du.CHTALLY < e->N2 ; cpu.du.CHTALLY ++)
+          {
             EISput469 (2, cpu.du.CHTALLY, cfill);
+            mifSampleInterrupts ();
+          }
     }
 
     cleanupOperandDescriptor (1);
@@ -8067,6 +8090,7 @@ void csl (void)
         // if ADDR1 is on a word boundary, it might fault on the next loop,
         // so we flush the write in case.
         EISgetBitRWN(&e->ADDR2, e->ADDR1.last_bit_posn == 35);    // write bit w/ addr increment to memory
+        mifSampleInterrupts ();
     }
 
     if (e->N1 < e->N2)
@@ -8092,6 +8116,7 @@ void csl (void)
             // if ADDR1 is on a word boundary, it might fault on the next loop,
             // so we flush the write in case.
             EISgetBitRWN(&e->ADDR2, e->ADDR1.last_bit_posn == 35);    // write bit w/ addr increment to memory
+            mifSampleInterrupts ();
           }
       }
 
@@ -8347,6 +8372,7 @@ void csr (void)
         // if ADDR1 is on a word boundary, it might fault on the next loop,
         // so we flush the write in case.
         EISgetBitRWNR(&e->ADDR2, e->ADDR1.last_bit_posn == 0);
+        mifSampleInterrupts ();
       }
 
     if (e->N1 < e->N2)
@@ -8372,6 +8398,7 @@ void csr (void)
             // if ADDR1 is on a word boundary, it might fault on the next loop,
             // so we flush the write in case.
             EISgetBitRWNR(&e->ADDR2, e->ADDR1.last_bit_posn == 0);
+            mifSampleInterrupts ();
           }
       }
 
@@ -8545,6 +8572,7 @@ void sztl (void)
             cpu.du.Z = 0;
             break;
           }
+          mifSampleInterrupts ();
       }
 
     if (e->N1 < e->N2)
@@ -8562,6 +8590,7 @@ void sztl (void)
                 cpu.du.Z = 0;
                 break;
               }
+            mifSampleInterrupts ();
           }
       }
 
@@ -8730,7 +8759,7 @@ void sztr (void)
             cpu.du.Z = 0;
             break;
           }
-
+        mifSampleInterrupts ();
       }
 
     if (e->N1 < e->N2)
@@ -8750,7 +8779,7 @@ void sztr (void)
                 cpu.du.Z = 0;
                 break;
             }
-
+            mifSampleInterrupts ();
           }
       }
 
@@ -8925,6 +8954,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpb(min(e->N1, e->N2)) i %d b1 %d b2 %d\n"
 
             return;
         }
+      mifSampleInterrupts ();
 
     }
     if (e->N1 < e->N2)
@@ -8946,6 +8976,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpb(e->N1 < e->N2) i %d b1fill %d b2 %d\n"
 
                 return;
             }
+          mifSampleInterrupts ();
         }
     } else if (e->N1 > e->N2)
     {
@@ -8966,6 +8997,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpb(e->N1 > e->N2) i %d b1 %d b2fill %d\n"
 
                 return;
             }
+            mifSampleInterrupts ();
         }
     }
     cleanupOperandDescriptor (1);

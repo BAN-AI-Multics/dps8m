@@ -57,6 +57,8 @@ typedef struct { int64_t h;  uint64_t l; }  __int128_t;
 // FNP polled ~100Hz; 2 secs. is 200 polls
 # define DISC_DELAY 200
 
+# define LUF_BY_MEMORY
+
 //
 // Dependencies
 //

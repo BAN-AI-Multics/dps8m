@@ -120,8 +120,6 @@ static t_addr parse_addr(DEVICE *dptr, const char *cptr, const char **optr);
 static void fprint_addr(FILE *stream, DEVICE *dptr, t_addr addr);
 #endif // TESTING
 
-int32 luf_flag = 1;
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // SCP Commands
@@ -333,6 +331,7 @@ static char * default_base_system_script [] =
     "SET CPU0 CONFIG=HEX_MODE_INSTALLED=disable",
     "SET CPU0 CONFIG=CACHE_INSTALLED=enable",
     "SET CPU0 CONFIG=CLOCK_SLAVE_INSTALLED=enable",
+    "SET CPU0 CONFIG=ENABLELUF=enable",
 
 // CPU1
 
@@ -411,6 +410,7 @@ static char * default_base_system_script [] =
     "SET CPU1 CONFIG=HEX_MODE_INSTALLED=disable",
     "SET CPU1 CONFIG=CACHE_INSTALLED=enable",
     "SET CPU1 CONFIG=CLOCK_SLAVE_INSTALLED=enable",
+    "SET CPU1 CONFIG=ENABLELUF=enable",
 
 // CPU2
 
@@ -489,6 +489,7 @@ static char * default_base_system_script [] =
     "SET CPU2 CONFIG=HEX_MODE_INSTALLED=disable",
     "SET CPU2 CONFIG=CACHE_INSTALLED=enable",
     "SET CPU2 CONFIG=CLOCK_SLAVE_INSTALLED=enable",
+    "SET CPU2 CONFIG=ENABLELUF=enable",
 
 // CPU3
 
@@ -567,6 +568,7 @@ static char * default_base_system_script [] =
     "SET CPU3 CONFIG=HEX_MODE_INSTALLED=disable",
     "SET CPU3 CONFIG=CACHE_INSTALLED=enable",
     "SET CPU3 CONFIG=CLOCK_SLAVE_INSTALLED=enable",
+    "SET CPU3 CONFIG=ENABLELUF=enable",
 
 // CPU4
 
@@ -645,6 +647,7 @@ static char * default_base_system_script [] =
     "SET CPU4 CONFIG=HEX_MODE_INSTALLED=disable",
     "SET CPU4 CONFIG=CACHE_INSTALLED=enable",
     "SET CPU4 CONFIG=CLOCK_SLAVE_INSTALLED=enable",
+    "SET CPU4 CONFIG=ENABLELUF=enable",
 
 // CPU5
 
@@ -723,6 +726,7 @@ static char * default_base_system_script [] =
     "SET CPU5 CONFIG=HEX_MODE_INSTALLED=disable",
     "SET CPU5 CONFIG=CACHE_INSTALLED=enable",
     "SET CPU5 CONFIG=CLOCK_SLAVE_INSTALLED=enable",
+    "SET CPU5 CONFIG=ENABLELUF=enable",
 
 # if 0 // Disabled until the port expander code is working
 // CPU6
@@ -802,6 +806,7 @@ static char * default_base_system_script [] =
     "SET CPU6 CONFIG=HEX_MODE_INSTALLED=disable",
     "SET CPU6 CONFIG=CACHE_INSTALLED=enable",
     "SET CPU6 CONFIG=CLOCK_SLAVE_INSTALLED=enable",
+    "SET CPU6 CONFIG=ENABLELUF=enable",
 
 # endif
 
@@ -884,6 +889,7 @@ static char * default_base_system_script [] =
     "SET CPU7 CONFIG=HEX_MODE_INSTALLED=disable",
     "SET CPU7 CONFIG=CACHE_INSTALLED=enable",
     "SET CPU7 CONFIG=CLOCK_SLAVE_INSTALLED=enable",
+    "SET CPU7 CONFIG=ENABLELUF=enable",
 
 # endif
 
@@ -3604,14 +3610,6 @@ static t_stat yield (int32 flag, UNUSED const char * cptr)
   }
 #endif
 
-#ifndef PERF_STRIP
-static t_stat set_luf (int32 flag, UNUSED const char * cptr)
-  {
-    luf_flag = flag;
-    return SCPE_OK;
-  }
-#endif /* ifndef PERF_STRIP */
-
 #ifdef DBGEVENT
 uint n_dbgevents;
 struct dbgevent_t dbgevents[max_dbgevents];
@@ -3984,13 +3982,6 @@ static CTAB dps8_cmds[] =
     {"CLEAR_YIELD",   clear_yield,         1, "Clear yield data points\n",          NULL, NULL},
     {"YIELD",         yield,               1, "Define yield data point\n",          NULL, NULL},
 # endif
-
-//
-// Hacks
-//
-
-    {"LUF",           set_luf,             1, "Enable normal LUF handling\n",       NULL, NULL},
-    {"NOLUF",         set_luf,             0, "Disable normal LUF handling\n",      NULL, NULL},
 
 //
 // Misc.

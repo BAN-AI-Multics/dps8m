@@ -92,7 +92,11 @@ static UNIT cpu_unit [N_CPU_UNITS_MAX] = {
 #define UNIT_IDX(uptr) ((uptr) - cpu_unit)
 
 // Assume CPU clock ~ 1MIPS. lockup time is 32 ms
-#define LOCKUP_KIPS 1000
+#ifdef LUF_BY_MEMORY
+# define LOCKUP_KIPS 1000
+#else
+# define LOCKUP_KIPS 1000
+#endif
 static uint kips = LOCKUP_KIPS;
 static uint64 luf_limits[] =
   {
@@ -196,6 +200,7 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
     sim_msg ("ISOLTS mode:                  %01o(8)\n", cpus[cpu_unit_idx].tweaks.isolts_mode);
     sim_msg ("NODIS mode:                   %01o(8)\n", cpus[cpu_unit_idx].tweaks.nodis);
     sim_msg ("6180 mode:                    %01o(8) [%s]\n", cpus[cpu_unit_idx].tweaks.l68_mode, cpus[cpu_unit_idx].tweaks.l68_mode ? "6180" : "DPS8/M");
+    sim_msg ("Enable LUF:                   %01o(8)\n", cpus[cpu_unit_idx].tweaks.enableLUF);
     return SCPE_OK;
   }
 
@@ -414,6 +419,7 @@ static config_list_t cpu_config_list [] =
     { "isolts_mode",           0,  1,               cfg_on_off             },
     { "nodis",                 0,  1,               cfg_on_off             },
     { "l68_mode",              0,  1,               cfg_l68_mode           },
+    { "enableluf",             0,  1,               cfg_on_off             },
     { NULL,                    0,  0,               NULL                   }
   };
 
@@ -647,6 +653,8 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
           cpus[cpu_unit_idx].tweaks.nodis = v;
         else if (strcmp (p, "l68_mode") == 0)
           cpus[cpu_unit_idx].tweaks.l68_mode= v;
+        else if (strcmp (p, "enableluf") == 0)
+          cpus[cpu_unit_idx].tweaks.enableLUF = v;
         else
           {
             sim_warn ("error: cpu_set_config: Invalid cfg_parse rc <%ld>\n",
@@ -1686,6 +1694,20 @@ bool sample_interrupts (void)
     return false;
   }
 
+// During long running instructions, sample the interrupts to allow
+// mid-instruction faults.
+//
+// Checking the IWB interrupt inhibit suffices; the only time we execute
+// out of IRODD, EIS instructions would be illegal.
+
+bool mifSampleInterrupts (void) {
+  // If interrupts inhibited for this instrction, don't sample.
+  if (GET_I (cpu.cu.IWB))
+    return false;
+  // sample_interrupts has the side-effect of resetting the LUF counter
+  return sample_interrupts ();
+}
+
 t_stat simh_hooks (void)
   {
     int reason = 0;
@@ -2494,35 +2516,32 @@ setCPU:;
           /*FALLTHRU*/ /* fall through */
           case PSEUDO_FETCH_cycle:
 
-            tmp_priv_mode = is_priv_mode ();
-            if (! (luf_flag && tmp_priv_mode))
-              cpu.lufCounter ++;
+#ifndef LUF_BY_MEMORY
+            cpu.lufCounter ++;
+#endif
 #if 1
-            if (cpu.lufCounter > luf_limits[cpu.CMR.luf])
-              {
-                if (tmp_priv_mode)
-                  {
-                    // In priv. mode the LUF is noted but not executed
-                    cpu.lufOccurred = true;
-                  }
-                else
-                  {
-                    do_LUF_fault ();
-                  }
+            if (cpu.tweaks.enableLUF) {
+              if (cpu.lufCounter > luf_limits[cpu.CMR.luf]) {
+                tmp_priv_mode = is_priv_mode ();
+                if (tmp_priv_mode) {
+                  // In priv. mode the LUF is noted but not executed
+                  cpu.lufOccurred = true;
+                } else {
+                  do_LUF_fault ();
+                }
               } // lufCounter > luf_limit
 
-            // After 32ms, the LUF fires regardless of priv.
-            if (cpu.lufCounter > luf_limits[4])
-              {
+              // After 32ms, the LUF fires regardless of priv.
+              if (cpu.lufCounter > luf_limits[4]) {
                 do_LUF_fault ();
               }
 
-            // If the LUF occurred in priv. mode and we left priv. mode,
-            // fault.
-            if (! tmp_priv_mode && cpu.lufOccurred)
-              {
+              // If the LUF occurred in priv. mode and we left priv. mode,
+              // fault.
+              if (! tmp_priv_mode && cpu.lufOccurred) {
                 do_LUF_fault ();
               }
+            } // enableLUF
 #else
             if ((tmp_priv_mode && cpu.lufCounter > luf_limits[4]) ||
                 (! tmp_priv_mode &&
@@ -3376,6 +3395,9 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
 # ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 # endif
+# ifdef LUF_BY_MEMORY
+    cpu.lufCounter ++;
+# endif
     sim_debug (DBG_CORE, & cpu_dev,
                "core_read  %08o %012"PRIo64" (%s)\n",
                 addr, * data, ctx);
@@ -3401,6 +3423,12 @@ int32 core_read_lock (word24 addr, word36 *data, UNUSED const char * ctx)
     LOAD_ACQ_CORE_WORD(v, addr);
     * data = v & DMASK;
 # endif /* ifndef SUNLINT */
+# ifdef TR_WORK_MEM
+    cpu.rTRticks ++;
+# endif
+# ifdef LUF_BY_MEMORY
+    cpu.lufCounter ++;
+# endif
     return 0;
 }
 #endif
@@ -3443,6 +3471,9 @@ int core_write (word24 addr, word36 data, const char * ctx)
 # ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 # endif
+# ifdef LUF_BY_MEMORY
+    cpu.lufCounter ++;
+# endif
     sim_debug (DBG_CORE, & cpu_dev,
                "core_write %08o %012"PRIo64" (%s)\n",
                 addr, data, ctx);
@@ -3467,19 +3498,28 @@ int core_write_unlock (word24 addr, word36 data, UNUSED const char * ctx)
     STORE_REL_CORE_WORD(addr, data);
 # endif /* ifndef SUNLINT */
     cpu.locked_addr = 0;
+# ifdef TR_WORK_MEM
+    cpu.rTRticks ++;
+# endif
+# ifdef LUF_BY_MEMORY
+    cpu.lufCounter ++;
+# endif
     return 0;
 }
 
-int core_unlock_all (void)
-{
+int core_unlock_all (void) {
   if (cpu.locked_addr != 0) {
-      sim_warn ("core_unlock_all: locked %08o %c %05o:%06o\n",
-                cpu.locked_addr, current_running_cpu_idx + 'A',
-                cpu.PPR.PSR,     cpu.PPR.IC);
+    sim_warn ("core_unlock_all: locked %08o %c %05o:%06o\n", cpu.locked_addr, current_running_cpu_idx + 'A', cpu.PPR.PSR, cpu.PPR.IC);
 # ifndef SUNLINT
       STORE_REL_CORE_WORD(cpu.locked_addr, M[cpu.locked_addr]);
 # endif /* ifndef SUNLINT */
       cpu.locked_addr = 0;
+# ifdef TR_WORK_MEM
+      cpu.rTRticks ++;
+# endif
+# ifdef LUF_BY_MEMORY
+      cpu.lufCounter ++;
+# endif
   }
   return 0;
 }
@@ -3524,6 +3564,9 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
 # endif
 # ifdef TR_WORK_MEM
     cpu.rTRticks ++;
+# endif
+# ifdef LUF_BY_MEMORY
+    cpu.lufCounter ++;
 # endif
     sim_debug (DBG_CORE, & cpu_dev,
                "core_write_zone %08o %012"PRIo64" (%s)\n",
@@ -3622,6 +3665,9 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
 # ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 # endif
+# ifdef LUF_BY_MEMORY
+    cpu.lufCounter ++;
+# endif
     PNL (trackport (addr - 1, * even));
     return 0;
   }
@@ -3686,6 +3732,9 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx) {
 # endif
 # ifdef TR_WORK_MEM
   cpu.rTRticks ++;
+# endif
+# ifdef LUF_BY_MEMORY
+    cpu.lufCounter ++;
 # endif
   PNL (trackport (addr - 1, even));
   sim_debug (DBG_CORE, & cpu_dev, "core_write2 %08o %012"PRIo64" (%s)\n", addr, odd, ctx);

@@ -733,6 +733,7 @@ typedef struct {
     bool enable_emcall;   // If set, the instruction set is extended with simulator debugging instructions
     bool nodis;           // If true, start CPU in FETCH cycle; else start in DIS instruction
     bool l68_mode;      // False: DPS8/M; True: 6180
+    bool enableLUF;       // If true, enable LUF faults
 } tweaksType;
 
 enum ou_cycle_e
@@ -1954,6 +1955,7 @@ static inline void SET_AR_CHAR_BITNO (uint n, word2 c, word4 b)
   }
 
 bool sample_interrupts (void);
+bool mifSampleInterrupts (void);
 t_stat simh_hooks (void);
 int operand_size (void);
 t_stat read_operand (word18 addr, processor_cycle_type cyctyp);
@@ -1986,6 +1988,9 @@ static inline int core_read (word24 addr, word36 *data, \
 # ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 # endif
+# ifdef LUF_BY_MEMORY
+    cpu.lufCounter ++;
+# endif
     PNL (trackport (addr, * data);)
     return 0;
   }
@@ -2011,6 +2016,9 @@ static inline int core_write (word24 addr, word36 data, \
     M[addr] = data & DMASK;
 # ifdef TR_WORK_MEM
     cpu.rTRticks ++;
+# endif
+# ifdef LUF_BY_MEMORY
+    cpu.lufCounter ++;
 # endif
     PNL (trackport (addr, data);)
     return 0;
@@ -2039,6 +2047,9 @@ static inline int core_write_zone (word24 addr, word36 data, \
 # ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 # endif
+# ifdef LUF_BY_MEMORY
+    cpu.lufCounter ++;
+# endif
     PNL (trackport (addr, data);)
     return 0;
   }
@@ -2052,6 +2063,9 @@ static inline int core_read2 (word24 addr, word36 *even, word36 *odd,
     *odd = M[addr] & DMASK;
 # ifdef TR_WORK_MEM
     cpu.rTRticks ++;
+# endif
+# ifdef LUF_BY_MEMORY
+    cpu.lufCounter ++;
 # endif
     PNL (trackport (addr - 1, * even);)
     return 0;
@@ -2080,6 +2094,9 @@ static inline int core_write2 (word24 addr, word36 even, word36 odd,
     PNL (trackport (addr - 1, even);)
 # ifdef TR_WORK_MEM
     cpu.rTRticks ++;
+# endif
+# ifdef LUF_BY_MEMORY
+    cpu.lufCounter ++;
 # endif
     return 0;
   }
