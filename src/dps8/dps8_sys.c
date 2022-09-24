@@ -1940,7 +1940,7 @@ bool sim_deb_bar          = false;
 static t_stat dps_debug_mme_cntdwn (UNUSED int32 arg, const char * buf)
   {
     sim_deb_mme_cntdwn = strtoull (buf, NULL, 0);
-    sim_msg ("Debug MME countdown set to %"PRId64"\n", sim_deb_mme_cntdwn);
+    sim_msg ("Debug MME countdown set to %llu\n", (long long unsigned int)sim_deb_mme_cntdwn);
     return SCPE_OK;
   }
 
@@ -1948,21 +1948,21 @@ static t_stat dps_debug_skip (UNUSED int32 arg, const char * buf)
   {
     sim_deb_skip_cnt   = 0;
     sim_deb_skip_limit = strtoull (buf, NULL, 0);
-    sim_msg ("Debug skip set to %"PRId64"\n", sim_deb_skip_limit);
+    sim_msg ("Debug skip set to %llu\n", (long long unsigned int)sim_deb_skip_limit);
     return SCPE_OK;
   }
 
 static t_stat dps_debug_start (UNUSED int32 arg, const char * buf)
   {
     sim_deb_start = strtoull (buf, NULL, 0);
-    sim_msg ("Debug set to start at cycle: %"PRId64"\n", sim_deb_start);
+    sim_msg ("Debug set to start at cycle: %llu\n", (long long unsigned int)sim_deb_start);
     return SCPE_OK;
   }
 
 static t_stat dps_debug_stop (UNUSED int32 arg, const char * buf)
   {
     sim_deb_stop = strtoull (buf, NULL, 0);
-    sim_msg ("Debug set to stop at cycle: %"PRId64"\n", sim_deb_stop);
+    sim_msg ("Debug set to stop at cycle: %llu\n", (long long unsigned int)sim_deb_stop);
     return SCPE_OK;
   }
 
@@ -1971,7 +1971,7 @@ static t_stat dps_debug_break (UNUSED int32 arg, const char * buf)
     sim_deb_break = strtoull (buf, NULL, 0);
     if (buf[0] == '+')
       sim_deb_break += sim_deb_start;
-    sim_msg ("Debug set to break at cycle: %"PRId64"\n", sim_deb_break);
+    sim_msg ("Debug set to break at cycle: %llu\n", (long long unsigned int)sim_deb_break);
     return SCPE_OK;
   }
 
@@ -1987,7 +1987,8 @@ static t_stat dps_debug_segno (int32 arg, const char * buf)
           }
         sim_deb_segno[segno] = true;
         sim_deb_segno_on     = true;
-        sim_msg ("Debug set for segno %lo %ld.\n", segno, (long) segno);
+        sim_msg ("Debug set for segno %llo %llu.\n",
+                (long long unsigned int)segno, (long long unsigned int) segno);
       }
     else
       {
@@ -2001,7 +2002,7 @@ static t_stat dps_debug_segno (int32 arg, const char * buf)
 static t_stat dps_debug_ringno (UNUSED int32 arg, const char * buf)
   {
     sim_deb_ringno = strtoull (buf, NULL, 0);
-    sim_msg ("Debug set to ringno %"PRIo64"\n", sim_deb_ringno);
+    sim_msg ("Debug set to ringno %llo\n", (long long unsigned int)sim_deb_ringno);
     return SCPE_OK;
   }
 
@@ -2009,9 +2010,9 @@ static t_stat dps_debug_bar (int32 arg, UNUSED const char * buf)
   {
     sim_deb_bar = arg;
     if (arg)
-      sim_msg ("Debug set BAR %"PRIo64"\n", sim_deb_ringno);
+      sim_msg ("Debug set BAR %llo\n", (long long unsigned int)sim_deb_ringno);
     else
-      sim_msg ("Debug unset BAR %"PRIo64"\n", sim_deb_ringno);
+      sim_msg ("Debug unset BAR %llo\n", (long long unsigned int)sim_deb_ringno);
     return SCPE_OK;
   }
 
@@ -2847,8 +2848,9 @@ static t_stat stack_trace (UNUSED int32 arg,  UNUSED const char * buf)
                   }
                 word36 argv = M[argnop];
                 sim_msg ("arg%d value   %05o:%06o[%08o] "
-                            "%012"PRIo64" (%"PRIu64")\n",
-                            argno, argSegno, argOffset, argnop, argv, argv);
+                            "%012llo (%llu)\n",
+                            argno, argSegno, argOffset, argnop,
+                            (unsigned long long int)argv, (unsigned long long int)argv);
                 sim_msg ("\n");
              }
          }
@@ -3539,7 +3541,7 @@ sim_msg ("%05o:%06o\n", cpu.PR[2].SNR, cpu.rX[0]);
 static t_stat search_memory (UNUSED int32 arg, const char * buf)
   {
     word36 value;
-    if (sscanf (buf, "%"PRIo64"", & value) != 1)
+    if (sscanf (buf, "%llo", & value) != 1)
       return SCPE_ARG;
 
     uint i;
@@ -4555,7 +4557,7 @@ t_stat fprint_sym (UNUSED FILE * ofile, UNUSED t_addr addr,
             // XXX Need to complete MW EIS support in disassemble()
 
             for(uint n = 0 ; n < p->info->ndes; n += 1)
-                fprintf(ofile, " %012"PRIo64"", val[n + 1]);
+                fprintf(ofile, " %012llo", (unsigned long long int)val[n + 1]);
 
             return (t_stat) -p->info->ndes;
         }

@@ -92,7 +92,7 @@ static inline void l_putbits36_1 (vol word36 * x, uint p, word1 val)
 #endif /* ifdef THREADZ */
 
 //
-// As mailbox messages are processed, decoded data are stashed here
+// As mailbox messages are processed, decoded data is stashed here
 ///
 
 struct decoded_t
@@ -117,41 +117,41 @@ static void dmpmbx (uint mailboxAddress)
   {
     struct mailbox mbx;
     fnp_core_read_n (mailboxAddress, (word36 *) & mbx, MAILBOX_WORDS, "dmpmbx");
-    sim_printf ("dia_pcw            %012"PRIo64"\n", mbx.dia_pcw);
-    sim_printf ("mailbox_requests   %012"PRIo64"\n", mbx.mailbox_requests);
-    sim_printf ("term_inpt_mpx_wd   %012"PRIo64"\n", mbx.term_inpt_mpx_wd);
-    sim_printf ("last_mbx_req_count %012"PRIo64"\n", mbx.last_mbx_req_count);
-    sim_printf ("num_in_use         %012"PRIo64"\n", mbx.num_in_use);
-    sim_printf ("mbx_used_flags     %012"PRIo64"\n", mbx.mbx_used_flags);
+    sim_printf ("dia_pcw            %012llo\n", (long long unsigned int) mbx.dia_pcw);
+    sim_printf ("mailbox_requests   %012llo\n", (long long unsigned int) mbx.mailbox_requests);
+    sim_printf ("term_inpt_mpx_wd   %012llo\n", (long long unsigned int) mbx.term_inpt_mpx_wd);
+    sim_printf ("last_mbx_req_count %012llo\n", (long long unsigned int) mbx.last_mbx_req_count);
+    sim_printf ("num_in_use         %012llo\n", (long long unsigned int) mbx.num_in_use);
+    sim_printf ("mbx_used_flags     %012llo\n", (long long unsigned int) mbx.mbx_used_flags);
     for (uint i = 0; i < 8; i ++)
       {
         sim_printf ("CS  mbx %d\n", i);
-        sim_printf ("    word1        %012"PRIo64"\n",
-                    mbx.dn355_sub_mbxes[i].word1);
-        sim_printf ("    word2        %012"PRIo64"\n",
-                    mbx.dn355_sub_mbxes[i].word2);
-        sim_printf ("    command_data %012"PRIo64"\n",
-                    mbx.dn355_sub_mbxes[i].command_data [0]);
-        sim_printf ("                 %012"PRIo64"\n",
-                    mbx.dn355_sub_mbxes[i].command_data [1]);
-        sim_printf ("                 %012"PRIo64"\n",
-                    mbx.dn355_sub_mbxes[i].command_data [2]);
-        sim_printf ("    word6        %012"PRIo64"\n",
-                    mbx.dn355_sub_mbxes[i].word6);
+        sim_printf ("    word1        %012llo\n",
+                    (long long unsigned int) mbx.dn355_sub_mbxes[i].word1);
+        sim_printf ("    word2        %012llo\n",
+                    (long long unsigned int) mbx.dn355_sub_mbxes[i].word2);
+        sim_printf ("    command_data %012llo\n",
+                    (long long unsigned int) mbx.dn355_sub_mbxes[i].command_data [0]);
+        sim_printf ("                 %012llo\n",
+                    (long long unsigned int) mbx.dn355_sub_mbxes[i].command_data [1]);
+        sim_printf ("                 %012llo\n",
+                    (long long unsigned int) mbx.dn355_sub_mbxes[i].command_data [2]);
+        sim_printf ("    word6        %012llo\n",
+                    (long long unsigned int) mbx.dn355_sub_mbxes[i].word6);
       }
     for (uint i = 0; i < 4; i ++)
       {
         sim_printf ("FNP mbx %d\n", i);
-        sim_printf ("    word1        %012"PRIo64"\n",
-                    mbx.fnp_sub_mbxes[i].word1);
-        sim_printf ("    word2        %012"PRIo64"\n",
-                    mbx.fnp_sub_mbxes[i].word2);
-        sim_printf ("    mystery      %012"PRIo64"\n",
-                    mbx.fnp_sub_mbxes[i].mystery [0]);
-        sim_printf ("                 %012"PRIo64"\n",
-                    mbx.fnp_sub_mbxes[i].mystery [1]);
-        sim_printf ("                 %012"PRIo64"\n",
-                    mbx.fnp_sub_mbxes[i].mystery [2]);
+        sim_printf ("    word1        %012llo\n",
+                    (unsigned long long int)mbx.fnp_sub_mbxes[i].word1);
+        sim_printf ("    word2        %012llo\n",
+                    (unsigned long long int)mbx.fnp_sub_mbxes[i].word2);
+        sim_printf ("    mystery      %012llo\n",
+                    (unsigned long long int)mbx.fnp_sub_mbxes[i].mystery [0]);
+        sim_printf ("                 %012llo\n",
+                    (unsigned long long int)mbx.fnp_sub_mbxes[i].mystery [1]);
+        sim_printf ("                 %012llo\n",
+                    (unsigned long long int)mbx.fnp_sub_mbxes[i].mystery [2]);
       }
 
   }

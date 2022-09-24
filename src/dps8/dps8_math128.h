@@ -18,7 +18,7 @@
  */
 
 /*
- * Defines 128 bits Integer for 32 bits platform
+ * 128-bit integer support
  */
 
 #ifdef NEED_128
@@ -55,15 +55,13 @@ uint128 rshift_128 (uint128 a, unsigned int n);
 int128 rshift_s128 (int128 a, unsigned int n);
 #else
 
-/* if (sizeof(long) < 8), I expect we're on a 32 bit system */
-
 # if (__SIZEOF_LONG__ < 8) && ( !defined(__MINGW64__) || !defined(__MINGW32__) )
 
 typedef          int TItype     __attribute__ ((mode (TI)));
 typedef unsigned int UTItype    __attribute__ ((mode (TI)));
 
-typedef TItype __int128_t ;
-typedef UTItype __uint128_t ;
+typedef TItype __int128_t;
+typedef UTItype __uint128_t;
 
 # endif
 #endif

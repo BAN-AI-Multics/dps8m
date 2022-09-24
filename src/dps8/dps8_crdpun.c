@@ -699,7 +699,7 @@ static void log_card(word12 tally, word36 * buffer)
 
     for (uint i = 0; i < tally; i ++)
       {
-        sim_printf ("  %012"PRIo64"\n", buffer [i]);
+        sim_printf ("  %012llo\n", (unsigned long long)buffer [i]);
       }
     sim_printf ("\r\n");
 

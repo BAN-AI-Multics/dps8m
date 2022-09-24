@@ -201,7 +201,7 @@ s6: ./run/disks/yoyodyne.dsk ../dps8/dps8 ./.yoyodyne.s4
 .NOTPARALLEL: s7
 s7: ../dps8/dps8
 	@printf '\n%s\n' "### Start Stage 7: Run performance test ###############"
-	env CPUPROFILE=perf.prof.out \
+	time env CPUPROFILE=perf.prof.out \
         ./perf.sh 0 2>&1
 	@printf '\n%s\n' "### End Stage 7 #######################################"
 

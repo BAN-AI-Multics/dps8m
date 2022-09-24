@@ -1321,11 +1321,11 @@ char *strremove(char *str, const char *sub)
 
 /* Trim whitespace */
 
-void strtrimspace (char* str_trimmed, const char* str_untrimmed)
+void strtrimspace (char *str_trimmed, const char *str_untrimmed)
 {
     while (*str_untrimmed != '\0') {
-      if(!isspace(*str_untrimmed)) {
-        *str_trimmed = *str_untrimmed;
+      if(!isspace((char)*str_untrimmed)) {
+        *str_trimmed = (char)*str_untrimmed;
         str_trimmed++;
       }
       str_untrimmed++;
@@ -4001,7 +4001,9 @@ fprintf (st, " %s", sprint_capac (dptr, uptr));
 extern void print_default_base_system_script (void);
 t_stat show_default_base_system_script (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 {
+#ifndef PERF_STRIP
   print_default_base_system_script();
+#endif /* ifndef PERF_STRIP */
   return 0;
 }
 
@@ -4350,7 +4352,7 @@ if (flag) {
     strremove(postver, " (https://github.com/yrnkrn/zapcc)");
     strremove(postver, "https://github.com/yrnkrn/zapcc ");
 #endif
-#if defined (__GNUC__) && defined (__VERSION__)
+#if ( defined (__GNUC__) && defined (__VERSION__) ) && !defined (__EDG__)
 # ifndef __clang_version__
     if (isdigit((unsigned char)gnumver[0])) {
         fprintf (st, "\n  Compiler: GCC %s", postver);
@@ -4371,6 +4373,28 @@ if (flag) {
     }
 # elif defined (__clang_version__)
     fprintf (st, "\n  Compiler: %s", postver);
+# endif
+#elif defined (__PGI) && !defined(__NVCOMPILER)
+    fprintf (st, "\n  Compiler: Portland Group, Inc. (PGI) C Compiler ");
+# ifdef __PGIC__
+    fprintf (st, "%d", __PGIC__);
+#  ifdef __PGIC_MINOR__
+    fprintf (st, ".%d", __PGIC_MINOR__);
+#   ifdef __PGIC_PATCHLEVEL__
+    fprintf (st, ".%d", __PGIC_PATCHLEVEL__);
+#   endif
+#  endif
+# endif
+#elif defined(__NVCOMPILER)
+    fprintf (st, "\n  Compiler: NVIDIA HPC SDK C Compiler ");
+# ifdef __NVCOMPILER_MAJOR__
+    fprintf (st, "%d", __NVCOMPILER_MAJOR__);
+#  ifdef __NVCOMPILER_MINOR__
+    fprintf (st, ".%d", __NVCOMPILER_MINOR__);
+#   ifdef __NVCOMPILER_PATCHLEVEL__
+    fprintf (st, ".%d", __NVCOMPILER_PATCHLEVEL__);
+#   endif
+#  endif
 # endif
 #elif defined (_MSC_FULL_VER) && defined (_MSC_BUILD)
     fprintf (st, "\n  Compiler: Microsoft C %d.%02d.%05d.%02d",

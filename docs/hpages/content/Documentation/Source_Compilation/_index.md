@@ -565,8 +565,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
   are regularly tested by **The DPS8M Development Team**.
 * The simulator can be built on **AIX** using [**IBM XL C/C++ for AIX**](https://www.ibm.com/products/xl-c-aix-compiler-power) (**`xlc`**) or **GNU C** (**`gcc`**).
   * [**IBM XL C/C++ for AIX V16.1 Service Pack 10** (*IJ36514*)](https://www.ibm.com/support/pages/ibm-xl-cc-aix-161) is the recommended compiler for optimal performance on **POWER8** and **POWER9** systems.
-    * [*IBM Open XL C/C++ for AIX V17.1*](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is ***currently not supported***.
-    * Support will be added in a future release.
+    * [*IBM Open XL C/C++ for AIX V17.1*](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) has not been sufficiently tested.
 * When building the simulator using **GNU C**, it recommended to use **GCC 10** or later for optimal performance.
   * **GCC 10** can be installed from the [IBM AIX® Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository.
 

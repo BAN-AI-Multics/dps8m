@@ -768,7 +768,7 @@ void fno_ext (int * e0, word8 * E, word36 * A, word36 * Q) {
   } else {
     CLR_I_ZERO;
     if (* E == 127) {
-sim_printf ("overflow 1 E %o \r\n", * E);
+//sim_printf ("overflow 1 E %o \r\n", * E);
       SET_I_EOFL;
       if (tstOVFfault ())
         dlyDoFault (FAULT_OFL, fst_zero, "fno exp overflow fault");

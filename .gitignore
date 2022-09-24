@@ -271,6 +271,8 @@ docs/pdf/gvsubset.pdf
 
 # Clang
 compile_commands.json
+src/ci-kit/*san.txt
+QuickStart_MR*/
 
 # CCTree
 cctree.db

@@ -32,12 +32,14 @@
 # include <setjmp.h>  // for setjmp/longjmp used by interrupts & faults
 
 # if (defined(__APPLE__) && defined(__MACH__)) || defined(__ANDROID__)
-#  include <libgen.h>  // needed for OS/X and Android
+#  include <libgen.h>  // needed for macOS and Android
 # endif
 
+typedef int64_t __int64_t;
+
 # ifdef NEED_128
-typedef struct { uint64_t h; uint64_t l; } __uint128_t;
-typedef struct { int64_t h;  uint64_t l; }  __int128_t;
+typedef struct { uint64_t h; uint64_t l; } x__uint128_t;
+typedef struct { int64_t h;  uint64_t l; } x__int128_t;
 #  define construct_128(h, l) ((uint128) { (h), (l) })
 #  define construct_s128(h, l) ((int128) { (h), (l) })
 # endif /* ifdef NEED_128 */
@@ -45,13 +47,10 @@ typedef struct { int64_t h;  uint64_t l; }  __int128_t;
 // Quiet compiler unused warnings
 # define QUIET_UNUSED
 
-# ifndef TESTING
 // Enable speed over debugging if not TESTING
+# ifndef TESTING
 #  define SPEED
 # endif /* ifndef TESTING */
-
-// Enable round-robin multi-CPU
-//#define ROUND_ROBIN
 
 // Experimental dial_out line disconnect delay
 // FNP polled ~100Hz; 2 secs. is 200 polls
@@ -188,13 +187,21 @@ typedef uint64      word37;
 typedef uint64      word38;
 typedef int64       word38s;
 typedef int64       word36s;
+# ifndef NEED_128
 typedef __uint128_t word72;
 typedef __int128_t  word72s;
 typedef __uint128_t word73;
 typedef __uint128_t word74;
-
 typedef __uint128_t uint128;
 typedef __int128_t  int128;
+# else
+typedef x__uint128_t word72;
+typedef x__int128_t  word72s;
+typedef x__uint128_t word73;
+typedef x__uint128_t word74;
+typedef x__uint128_t uint128;
+typedef x__int128_t  int128;
+# endif
 
 typedef word36      float36;    // single precision float
 typedef word72      float72;    // double precision float

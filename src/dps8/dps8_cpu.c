@@ -2799,7 +2799,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   unlock_scu ();
                   if (nowLeft)
                     {
-                      // sleepCPU uses a clock that is not guarenteed to be monotonic, and occaisionally returns nowLeft > left.
+                      // sleepCPU uses a clock that is not guaranteed to be monotonic, and occasionally returns nowLeft > left.
                       // Don't run rTR backwards if that happens
                       if (nowLeft < left) {
                         cpu.rTR = (word27) (left * 64 / 125);
@@ -3119,19 +3119,19 @@ leave:
 #ifdef TESTING
     HDBGPrint ();
 #endif
-    sim_msg ("\n");
-    sim_msg ("cycles        %'15llu\n", (unsigned long long)cpu.cycleCnt);
-    sim_msg ("instructions  %'15llu\n", (unsigned long long)cpu.instrCnt);
-    sim_msg ("lockCnt       %'15llu\n", (unsigned long long)cpu.lockCnt);
-    sim_msg ("lockImmediate %'15llu\n", (unsigned long long)cpu.lockImmediate);
-    sim_msg ("lockWait      %'15llu\n", (unsigned long long)cpu.lockWait);
-    sim_msg ("lockWaitMax   %'15llu\n", (unsigned long long)cpu.lockWaitMax);
-    sim_msg ("lockYield     %'15llu\n", (unsigned long long)cpu.lockYield);
+    sim_msg ("\r\n");
+    sim_msg ("cycles        %'15llu\r\n", (unsigned long long)cpu.cycleCnt);
+    sim_msg ("instructions  %'15llu\r\n", (unsigned long long)cpu.instrCnt);
+    sim_msg ("lockCnt       %'15llu\r\n", (unsigned long long)cpu.lockCnt);
+    sim_msg ("lockImmediate %'15llu\r\n", (unsigned long long)cpu.lockImmediate);
+    sim_msg ("lockWait      %'15llu\r\n", (unsigned long long)cpu.lockWait);
+    sim_msg ("lockWaitMax   %'15llu\r\n", (unsigned long long)cpu.lockWaitMax);
+    sim_msg ("lockYield     %'15llu\r\n", (unsigned long long)cpu.lockYield);
 #if 0
     for (int i = 0; i < N_FAULTS; i ++)
       {
         if (cpu.faultCnt [i])
-          sim_msg  ("%s faults = %llu\n",
+          sim_msg  ("%s faults = %llu\r\n",
                       faultNames [i], (unsigned long long)cpu.faultCnt [i]);
       }
 #endif
@@ -3356,10 +3356,9 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
 # ifndef SPEED
     if (watch_bits [addr])
       {
-        sim_msg ("WATCH [%"PRId64"] %05o:%06o read   %08o %012"PRIo64" "
-                    "(%s)\n",
-                    cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr, M [addr],
-                    ctx);
+        sim_msg ("WATCH [%llu] %05o:%06o read   %08o %012llo (%s)\n",
+                    (long long unsigned int)cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr,
+                    (long long unsigned int)M [addr], ctx);
         traceInstruction (0);
       }
 # endif
@@ -3434,9 +3433,9 @@ int core_write (word24 addr, word36 data, const char * ctx)
 # ifndef SPEED
     if (watch_bits [addr])
       {
-        sim_msg ("WATCH [%"PRId64"] %05o:%06o write  %08o %012"PRIo64" "
-                    "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr,
-                    M [addr], ctx);
+        sim_msg ("WATCH [%llu] %05o:%06o write  %08llo %012llo (%s)\n",
+                 (long long unsigned int)cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC,
+                 (long long unsigned int)addr, (unsigned long long int)M [addr], ctx);
         traceInstruction (0);
       }
 # endif
@@ -3516,9 +3515,9 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
 # ifndef SPEED
     if (watch_bits [mapAddr])
       {
-        sim_msg ("WATCH [%"PRId64"] %05o:%06o writez %08o %012"PRIo64" "
-                    "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, mapAddr,
-                    M [mapAddr], ctx);
+        sim_msg ("WATCH [%llu] %05o:%06o writez %08llo %012llo (%s)\n",
+                (unsigned long long int)cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC,
+                (unsigned long long int)mapAddr, (unsigned long long int)M [mapAddr], ctx);
         traceInstruction (0);
       }
 # endif
@@ -3561,9 +3560,9 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
 # ifndef SPEED
     if (watch_bits [addr])
       {
-        sim_msg ("WATCH [%"PRId64"] %05o:%06o read2  %08o %012"PRIo64" "
-                    "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr,
-                    M [addr], ctx);
+        sim_msg ("WATCH [%llu] %05o:%06o read2  %08llo %012llo (%s)\n",
+                 (unsigned long long int)cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC,
+                 (unsigned long long int)addr, (unsigned long long int)M [addr], ctx);
         traceInstruction (0);
       }
 # endif
@@ -3598,9 +3597,9 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
 # ifndef SPEED
     if (watch_bits [addr])
       {
-        sim_msg ("WATCH [%"PRId64"] %05o:%06o read2  %08o %012"PRIo64" "
-                    "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr,
-                    M [addr], ctx);
+        sim_msg ("WATCH [%llu] %05o:%06o read2  %08llo %012llo (%s)\n",
+                 (unsigned long long int)cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC,
+                 (unsigned long long int)addr, (unsigned long long int)M [addr], ctx);
         traceInstruction (0);
       }
 # endif
@@ -3650,8 +3649,9 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx) {
 
 # ifndef SPEED
   if (watch_bits [addr]) {
-    sim_msg ("WATCH [%"PRId64"] %05o:%06o write2 %08o %012"PRIo64" " "(%s)\n",
-             cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr, even, ctx);
+    sim_msg ("WATCH [%llu] %05o:%06o write2 %08llo %012llo (%s)\n",
+             (unsigned long long int)cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC,
+             (unsigned long long int)addr, (unsigned long long int)even, ctx);
     traceInstruction (0);
   }
 # endif
@@ -3664,15 +3664,17 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx) {
 # else
   M[addr++] = even & DMASK;
 # endif
-  sim_debug (DBG_CORE, & cpu_dev, "core_write2 %08o %012"PRIo64" (%s)\n", addr - 1, even, ctx);
+  sim_debug (DBG_CORE, & cpu_dev, "core_write2 %08o %012llo (%s)\n", addr - 1,
+          (long long unsigned int)even, ctx);
 
   // If the even address is OK, the odd will be
   //mem_check (addr,  "core_write2 nem");
 
 # ifndef SPEED
   if (watch_bits [addr]) {
-    sim_msg ("WATCH [%"PRId64"] %05o:%06o write2 %08o %012"PRIo64" " "(%s)\n",
-             cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr, odd, ctx);
+    sim_msg ("WATCH [%llu] %05o:%06o write2 %08llo %012llo (%s)\n",
+             (long long unsigned int)cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC,
+             (long long unsigned int)addr, (long long unsigned int)odd, ctx);
     traceInstruction (0);
   }
 # endif

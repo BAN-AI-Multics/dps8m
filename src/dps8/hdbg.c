@@ -313,66 +313,66 @@ done: ;
 static FILE * hdbgOut = NULL;
 
 static void printM (struct hevt * p) {
-  fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d FINAL: %s %s %08o %012"PRIo64"\n",
-           p->time,
+  fprintf (hdbgOut, "DBG(%llu)> CPU %d FINAL: %s %s %08o %012llo\n",
+           (unsigned long long int)p->time,
            p->cpu_idx,
            p->ctx,
            p->rw ? "write" : "read ",
            p->memref.addr,
-           p->memref.data);
+           (unsigned long long int)p->memref.data);
 }
 
 static void printAPU (struct hevt * p) {
-  fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d APU: %s %s %05o:%06o %08o %012"PRIo64"\n",
-           p->time,
+  fprintf (hdbgOut, "DBG(%llu)> CPU %d APU: %s %s %05o:%06o %08o %012llo\n",
+           (unsigned long long int)p->time,
            p->cpu_idx,
            p->ctx,
            p->rw ? "write" : "read ",
            p->apu.segno,
            p->apu.offset,
            p->apu.final,
-           p->apu.data);
+           (unsigned long long int)p->apu.data);
 }
 
 static void printTrace (struct hevt * p) {
   char buf[256];
   if (p -> trace.addrMode == ABSOLUTE_mode) {
-    fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d TRACE: %s %06o %o %012"PRIo64" (%s)\n",
-             p->time,
+    fprintf (hdbgOut, "DBG(%llu)> CPU %d TRACE: %s %06o %o %012llo (%s)\n",
+             (unsigned long long int)p->time,
              p->cpu_idx,
              p->ctx,
              p->trace.ic,
              p->trace.ring,
-             p->trace.inst,
+             (unsigned long long int)p->trace.inst,
              disassemble (buf, p->trace.inst));
   } else {
-    fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d TRACE: %s %05o:%06o %o %012"PRIo64" (%s)\n",
-             p->time,
+    fprintf (hdbgOut, "DBG(%llu)> CPU %d TRACE: %s %05o:%06o %o %012llo (%s)\n",
+             (unsigned long long int)p->time,
              p->cpu_idx,
              p->ctx,
              p->trace.segno,
              p->trace.ic,
              p->trace.ring,
-             p->trace.inst,
+             (unsigned long long int)p->trace.inst,
              disassemble (buf, p->trace.inst));
   }
 }
 
 static void printFault (struct hevt * p) {
-  fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d FAULT: %s Fault %d(0%o), sub %"PRId64"(0%"PRIo64"), '%s'\n",
-           p->time,
+  fprintf (hdbgOut, "DBG(%llu)> CPU %d FAULT: %s Fault %d(0%o), sub %llu(0%llo), '%s'\n",
+           (unsigned long long int)p->time,
            p->cpu_idx,
            p->ctx,
            p->fault.faultNumber,
            p->fault.faultNumber,
-           p->fault.subFault.bits,
-           p->fault.subFault.bits,
+           (unsigned long long int)p->fault.subFault.bits,
+           (unsigned long long int)p->fault.subFault.bits,
            p->fault.faultMsg);
 }
 
 static void printIntrSet (struct hevt * p) {
-  fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d INTR_SET: %s number %d(0%o), CPU %u SCU %u\n",
-           p->time,
+  fprintf (hdbgOut, "DBG(%llu)> CPU %d INTR_SET: %s number %d(0%o), CPU %u SCU %u\n",
+           (unsigned long long int)p->time,
            p->cpu_idx,
            p->ctx,
            p->intrSet.inum,
@@ -382,8 +382,8 @@ static void printIntrSet (struct hevt * p) {
 }
 
 static void printIntr (struct hevt * p) {
-  fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d INTR: %s Interrupt pair address %o\n",
-           p->time,
+  fprintf (hdbgOut, "DBG(%llu)> CPU %d INTR: %s Interrupt pair address %o\n",
+           (unsigned long long int)p->time,
            p->cpu_idx,
            p->ctx,
            p->intr.intr_pair_addr);
@@ -403,41 +403,41 @@ static char * regNames[] = {
 
 static void printReg (struct hevt * p) {
   if (p->reg.type == hreg_IR)
-    fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d REG: %s %s %s %012"PRIo64" Z%o N%o C %o O%o T%o \n",
-             p->time,
+    fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s %s %s %012llo Z%o N%o C %o O%o T%o \n",
+             (unsigned long long int)p->time,
              p->cpu_idx,
              p->ctx,
              p->rw ? "write" : "read ",
              regNames[p->reg.type],
-             p->reg.data,
+             (unsigned long long int)p->reg.data,
              TSTF (p->reg.data, I_ZERO),
              TSTF (p->reg.data, I_NEG),
              TSTF (p->reg.data, I_CARRY),
              TSTF (p->reg.data, I_OFLOW),
              TSTF (p->reg.data, I_TALLY));
   else if (p->reg.type >= hreg_X0 && p->reg.type <= hreg_X7)
-    fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d REG: %s %s %s %06"PRIo64"\n",
-             p->time,
+    fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s %s %s %06llo\n",
+             (unsigned long long int)p->time,
              p->cpu_idx,
              p->ctx,
              p->rw ? "write" : "read ",
              regNames[p->reg.type],
-             p->reg.data);
+             (unsigned long long int)p->reg.data);
   else
-    fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d REG: %s %s  %s %012"PRIo64"\n",
-             p->time,
+    fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s %s  %s %012llo\n",
+             (unsigned long long int)p->time,
              p->cpu_idx,
              p->ctx,
              p->rw ? "write" : "read ",
              regNames[p->reg.type],
-             p->reg.data);
+             (unsigned long long int)p->reg.data);
 }
 
 static void printPAReg (struct hevt * p)
 {
   if (p->reg.type >= hreg_PR0 && p->reg.type <= hreg_PR7)
-    fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d REG: %s %s %s %05o:%06o BIT %2o RNR %o\n",
-             p->time,
+    fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s %s %s %05o:%06o BIT %2o RNR %o\n",
+             (unsigned long long int)p->time,
              p->cpu_idx,
              p->ctx,
              p->rw ? "write" : "read ",
@@ -447,8 +447,8 @@ static void printPAReg (struct hevt * p)
              p->par.data.PR_BITNO,
              p->par.data.RNR);
   else
-    fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d REG: %s write %s %05o:%06o CHAR %o BIT %2o RNR %o\n",
-             p->time,
+    fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s write %s %05o:%06o CHAR %o BIT %2o RNR %o\n",
+             (unsigned long long int)p->time,
              p->cpu_idx,
              p->ctx,
              regNames[p->reg.type],
@@ -460,8 +460,8 @@ static void printPAReg (struct hevt * p)
 }
 
 static void printDSBRReg (struct hevt * p) {
-  fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d REG: %s %s %s %05o:%06o BIT %2o RNR %o\n",
-           p->time,
+  fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s %s %s %05o:%06o BIT %2o RNR %o\n",
+           (unsigned long long int)p->time,
            p->cpu_idx,
            p->ctx,
            p->rw ? "write" : "read ",
@@ -475,68 +475,68 @@ static void printDSBRReg (struct hevt * p) {
 static void printIEFP (struct hevt * p) {
   switch (p->iefp.type) {
     case hdbgIEFP_abs_bar_read:
-      fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d IEFP ABS BAR READ:  |%06o\n",
-               p->time,
+      fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP ABS BAR READ:  |%06o\n",
+               (unsigned long long int)p->time,
                p->cpu_idx,
                p->iefp.offset);
       break;
 
     case hdbgIEFP_abs_read:
-      fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d IEFP ABS     READ:  :%06o\n",
-               p->time,
+      fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP ABS     READ:  :%06o\n",
+               (unsigned long long int)p->time,
                p->cpu_idx,
                p->iefp.offset);
       break;
 
     case hdbgIEFP_bar_read:
-      fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d IEFP APP BAR READ:  %05o|%06o\n",
-               p->time,
+      fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP APP BAR READ:  %05o|%06o\n",
+               (unsigned long long int)p->time,
                p->cpu_idx,
                p->iefp.segno,
                p->iefp.offset);
       break;
 
     case hdbgIEFP_read:
-      fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d IEFP APP     READ:  %05o:%06o\n",
-               p->time,
+      fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP APP     READ:  %05o:%06o\n",
+               (unsigned long long int)p->time,
                p->cpu_idx,
                p->iefp.segno,
                p->iefp.offset);
       break;
 
     case hdbgIEFP_abs_bar_write:
-      fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d IEFP ABS BAR WRITE: |%06o\n",
-               p->time,
+      fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP ABS BAR WRITE: |%06o\n",
+               (long long unsigned int)p->time,
                p->cpu_idx,
                p->iefp.offset);
       break;
 
     case hdbgIEFP_abs_write:
-      fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d IEFP ABS     WRITE: :%06o\n",
-               p->time,
+      fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP ABS     WRITE: :%06o\n",
+               (long long unsigned int)p->time,
                p->cpu_idx,
                p->iefp.offset);
       break;
 
     case hdbgIEFP_bar_write:
-      fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d IEFP APP BAR WRITE: %05o|%06o\n",
-               p->time,
+      fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP APP BAR WRITE: %05o|%06o\n",
+               (unsigned long long int)p->time,
                p->cpu_idx,
                p->iefp.segno,
                p->iefp.offset);
       break;
 
     case hdbgIEFP_write:
-      fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d IEFP APP     WRITE: %05o:%06o\n",
-               p->time,
+      fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP APP     WRITE: %05o:%06o\n",
+               (unsigned long long int)p->time,
                p->cpu_idx,
                p->iefp.segno,
                p->iefp.offset);
       break;
 
     default:
-      fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d IEFP ??? ??? WRITE: %05o?%06o\n",
-               p->time,
+      fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP ??? ??? WRITE: %05o?%06o\n",
+               (long long unsigned int)p->time,
                p->cpu_idx,
                p->iefp.segno,
                p->iefp.offset);
@@ -545,8 +545,8 @@ static void printIEFP (struct hevt * p) {
 }
 
 static void printNote (struct hevt * p) {
-  fprintf (hdbgOut, "DBG(%"PRId64")> Note: %s\n",
-               p->time,
+  fprintf (hdbgOut, "DBG(%llu)> Note: %s\n",
+               (long long unsigned int)p->time,
                p->note.noteBody);
 }
 
