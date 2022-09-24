@@ -2689,7 +2689,7 @@ void dfdi (void) {
 void dvf (void)
 {
 //#ifdef DBGCAC
-//sim_printf ("DVF %"PRId64" %06o:%06o\n", cpu.cycleCnt, PPR.PSR, PPR.IC);
+//sim_printf ("DVF %"PRId64" %06o:%06o\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC);
 //#endif
     // C(AQ) / (Y)
     //  fractional quotient → C(A)
@@ -2788,104 +2788,109 @@ void dvf (void)
     // s  dividend x
     //  C(AQ)
 
-    L68_ (cpu.ou.cycle |= ou_GD1;)
-    int sign = 1;
-    bool dividendNegative = (getbits36_1 (cpu . rA, 0) != 0);
-    bool divisorNegative = (getbits36_1 (cpu.CY, 0) != 0);
+  L68_ (cpu.ou.cycle |= ou_GD1;)
+  int sign = 1;
+  bool dividendNegative = (getbits36_1 (cpu.rA, 0) != 0);
+  bool divisorNegative = (getbits36_1 (cpu.CY, 0) != 0);
 
-    // Get the 70 bits of the dividend (72 bits less the sign bit and the
-    // ignored bit 71.
+  // Get the 70 bits of the dividend (72 bits less the sign bit and the
+  // ignored bit 71.
 
-    // dividend format:   . d(0) ...  d(69)
+  // dividend format:   . d(0) ...  d(69)
 
-    uint128 zFrac = ((uint128) (cpu . rA & MASK35) << 35) | ((cpu . rQ >> 1) & MASK35);
-    if (dividendNegative)
-      {
-        zFrac = ~zFrac + 1;
-        sign = - sign;
-      }
-    zFrac &= MASK70;
-//sim_printf ("zFrac "); print_int128 (zFrac); sim_printf ("\n");
+  uint128 zFrac = (((uint128) (cpu.rA & MASK35)) << 35) | ((cpu.rQ >> 1) & MASK35);
+  if (dividendNegative) {
+    zFrac = ~zFrac + 1;
+    sign = - sign;
+  }
+  zFrac &= MASK70;
+  //char buf [128];
+  //buf [0] = 0;
+  //print_int128o (zFrac, buf);
+  //sim_printf ("zFrac %s \r\n", buf);
 
-    // Get the 35 bits of the divisor (36 bits less the sign bit)
+  // Get the 35 bits of the divisor (36 bits less the sign bit)
 
-    // divisor format: . d(0) .... d(34) 0 0 0 .... 0
+  // divisor format: . d(0) .... d(34) 0 0 0 .... 0
 
-# if 1
-    // divisor goes in the high half
-    uint128 dFrac = (cpu.CY & MASK35) << 35;
-    if (divisorNegative)
-      {
-        dFrac = ~dFrac + 1;
-        sign = - sign;
-      }
-    dFrac &= MASK35 << 35;
+# if 0
+  // divisor goes in the high half
+  uint128 dFrac = ((uint128) (cpu.CY & MASK35)) << 35;
+  if (divisorNegative) {
+    dFrac = ~dFrac + 1;
+    sign = - sign;
+  }
+  dFrac &= ((uint128) MASK35) << 35;
 # else
-    // divisor goes in the low half
-    uint128 dFrac = cpu.CY & MASK35;
-    if (divisorNegative)
-      {
-        dFrac = ~dFrac + 1;
-        sign = - sign;
-      }
-    dFrac &= MASK35;
+  // divisor goes in the low half
+  uint128 dFrac = cpu.CY & MASK35;
+  if (divisorNegative) {
+    dFrac = ~dFrac + 1;
+    sign = - sign;
+  }
+  dFrac &= MASK35;
 # endif
 
-    if (dFrac == 0)
-      {
-sim_printf ("DVFa A %012"PRIo64" Q %012"PRIo64" Y %012"PRIo64"\n", cpu.rA, cpu.rQ, cpu.CY);
+  if (dFrac == 0) {
+//sim_printf ("DVFa A %012"PRIo64" Q %012"PRIo64" Y %012"PRIo64"\r\n", cpu.rA, cpu.rQ, cpu.CY);
 // case 1: 400000000000 000000000000 000000000000 --> 400000000000 000000000000
 //         dFrac 000000000000 000000000000
 
-        //cpu . rA = (zFrac >> 35) & MASK35;
-        //cpu . rQ = (zFrac & MASK35) << 1;
+    cpu.rA = (zFrac >> 35) & MASK35;
+    cpu.rQ = (zFrac & MASK35) << 1;
 
-        //SC_I_ZERO (dFrac == 0);
-        //SC_I_NEG (cpu . rA & SIGN36);
-        SC_I_ZERO (cpu.CY == 0);
-        SC_I_NEG (cpu.rA & SIGN36);
-        doFault(FAULT_DIV, fst_zero, "DVF: divide check fault");
-      }
+    SC_I_ZERO (cpu.CY == 0);
+    SC_I_NEG (cpu.rA & SIGN36);
+// /* if (current_running_cpu_idx) */ sim_printf ("dvf 1 divide check fault A %012llo B %012llo Y %012llo Z %d N %d\r\n", cpu.rA, cpu.rQ, cpu.CY, TST_I_ZERO, TST_I_NEG);
+    doFault(FAULT_DIV, fst_zero, "DVF: divide check fault");
+  }
 
-    L68_ (cpu.ou.cycle |= ou_GD2;)
-    uint128 sn = zFrac;
-    word36 quot = 0;
-    for (uint i = 0; i < 35; i ++)
-      {
-        // 71 bit number
-        uint128 s2n = sn << 1;
-        if (s2n > dFrac)
-          {
-            s2n -= dFrac;
-            quot |= (1llu << (34 - i));
-          }
-        sn = s2n;
-      }
-    word36 remainder = sn;
+  //buf [0] = 0;
+  //print_int128o (dFrac, buf);
+  //sim_printf ("dFrac %s \r\n", buf);
 
-    if (sign == -1)
-      quot = ~quot + 1;
+  L68_ (cpu.ou.cycle |= ou_GD2;)
+  uint128 sn = zFrac;
+  word36 quot = 0;
+  for (uint i = 0; i < 35; i ++) {
+    // 71 bit number
+    uint128 s2n = sn << 1;
+    if (s2n > dFrac) {
+      s2n -= dFrac;
+      quot |= (1llu << (34 - i));
+    }
+    sn = s2n;
+    //buf [0] = 0;
+    //print_int128o (sn, buf);
+    //sim_printf ("sn %s \r\n", buf);
+    //buf [0] = 0;
+    //print_int128o (quot, buf);
+    //sim_printf ("quot %s \r\n", buf);
+  }
+  word36 remainder = sn;
 
-    if (dividendNegative)
-      remainder = ~remainder + 1;
+  if (sign == -1)
+    quot = ~quot + 1;
 
-    L68_ (cpu.ou.cycle |= ou_GD2;)
+  if (dividendNegative)
+    remainder = ~remainder + 1;
+
+  L68_ (cpu.ou.cycle |= ou_GD2;)
     // I am surmising that the "If | dividend | >= | divisor |" is an
     // overflow prediction; implement it by checking that the calculated
     // quotient will fit in 35 bits.
 
-    if (quot & ~MASK35)
-      {
-        SC_I_ZERO (cpu.rA == 0);
-        SC_I_NEG (cpu.rA & SIGN36);
-
-        doFault(FAULT_DIV, fst_zero, "DVF: divide check fault");
-      }
-    cpu . rA = quot & MASK36;
+  if (quot & ~((uint128) MASK35)) {
+    SC_I_ZERO (cpu.rA == 0);
+    SC_I_NEG (cpu.rA & SIGN36);
+// /* if (current_running_cpu_idx) */ sim_printf ("dvf 2 divide check fault A %012llo B %012llo Y %012llo Z %d N %d\r\n", cpu.rA, cpu.rQ, cpu.CY, TST_I_ZERO, TST_I_NEG);
+    doFault(FAULT_DIV, fst_zero, "DVF: divide check fault");
+  }
+  cpu.rA = quot & MASK36;
 # ifdef TESTING
-    HDBGRegAW ("dvf");
+  HDBGRegAW ("dvf");
 # endif
-    cpu . rQ = remainder & MASK36;
+  cpu.rQ = remainder & MASK36;
 
 #endif
 
@@ -2906,6 +2911,7 @@ sim_printf ("DVFa A %012"PRIo64" Q %012"PRIo64" Y %012"PRIo64"\n", cpu.rA, cpu.r
     }
 # endif
 
+// /* if (current_running_cpu_idx) */ sim_printf ("dvf 0 A %012llo B %012llo Y %012llo\r\n", cpu.rA, cpu.rQ, cpu.CY);
     // dividend format
     // 0  1     70 71
     // s  dividend x
@@ -2950,6 +2956,10 @@ sim_printf ("DVFa A %012"PRIo64" Q %012"PRIo64" Y %012"PRIo64"\n", cpu.rA, cpu.r
 //sim_debug (DBG_TRACEEXT, & cpu_dev, "zfrac %016"PRIx64" %016"PRIx64"\n", (uint64) (zFrac>>64), (uint64) zFrac);
 # endif
 
+  //char buf [128];
+  //buf [0] = 0;
+  //print_int128o (zFrac, buf);
+  //sim_printf ("zFrac %s \r\n", buf);
     //char buf [128] = "";
     //print_int128 (zFrac, buf);
     //sim_debug (DBG_CAC, & cpu_dev, "zFrac %s\n", buf);
@@ -3012,6 +3022,9 @@ sim_printf ("DVFa A %012"PRIo64" Q %012"PRIo64" Y %012"PRIo64"\n", cpu.rA, cpu.r
         dlyDoFault(FAULT_DIV, fst_zero, "DVF: divide check fault");
         return;
       }
+  //buf [0] = 0;
+  //print_int128o (dFrac, buf);
+  //sim_printf ("dFrac %s \r\n", buf);
 
     L68_ (cpu.ou.cycle |= ou_GD2;)
 # ifdef NEED_128
@@ -3113,6 +3126,7 @@ sim_printf ("DVFa A %012"PRIo64" Q %012"PRIo64" Y %012"PRIo64"\n", cpu.rA, cpu.r
 //sim_debug (DBG_CAC, & cpu_dev, "Remainder %"PRId64"\n", cpu . rQ);
     SC_I_ZERO (cpu . rA == 0 && cpu . rQ == 0);
     SC_I_NEG (cpu . rA & SIGN36);
+// /* if (current_running_cpu_idx) */ sim_printf ("dvf 3 A %012llo B %012llo Y %012llo Z %d N %d\r\n", cpu.rA, cpu.rQ, cpu.CY, TST_I_ZERO, TST_I_NEG);
 }
 
 /*!
