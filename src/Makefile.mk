@@ -394,7 +394,6 @@ ifeq ($(UNAME_S),Linux)
     UNAME_M=$(shell $(UNAME) -m 2> /dev/null)
   endif
   ifeq ($(UNAME_M),m68k)
-    export NO_LTO=1
     export NEED_128=1
   endif
   ifeq ($(UNAME_M),m88k)
@@ -402,212 +401,169 @@ ifeq ($(UNAME_S),Linux)
     export NEED_128=1
   endif
   ifeq ($(UNAME_M),arml)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),arm)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv4l)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv4hf)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv4)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv4t)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv5l)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv5hf)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv5)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv5t)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv5te)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv5tej)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv6l)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv6)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv6j)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv6k)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv6z)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv6kz)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv6zk)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv6t2)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv6-m)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv6hf)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv6)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv6s-m)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv7)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv7l)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv7hf)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv7-a)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv7ve)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv7-r)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv7-m)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv7e-m)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),iwmmxt)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),iwmmxt2)
-    export NO_LTO=1
     export NEED_128=1
     ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),ppc)
-    export NO_LTO=1
     export NEED_128=1
   endif
   ifeq ($(UNAME_M),ppcle)
-    export NO_LTO=1
     export NEED_128=1
   endif
   ifeq ($(UNAME_M),powerpc)
     export NEED_128=1
   endif
   ifeq ($(UNAME_M),sh4)
-    export NO_LTO=1
     export NEED_128=1
   endif
   ifeq ($(UNAME_M),unicore32)
-    export NO_LTO=1
     export NEED_128=1
   endif
   ifeq ($(UNAME_M),nios2)
-    export NO_LTO=1
     export NEED_128=1
   endif
   ifeq ($(UNAME_M),m32r)
-    export NO_LTO=1
     export NEED_128=1
   endif
   ifeq ($(UNAME_M),arm32)
-    export NO_LTO=1
     export NEED_128=1
   endif
   ifeq ($(UNAME_M),arm11)
-    export NO_LTO=1
     export NEED_128=1
   endif
   ifeq ($(UNAME_M),rv32)
-    export NO_LTO=1
     export NEED_128=1
   endif
   export ATOMICS
