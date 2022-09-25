@@ -2522,8 +2522,8 @@ setCPU:;
 #endif
 #if 1
             if (cpu.tweaks.enableLUF) {
+              tmp_priv_mode = is_priv_mode ();
               if (cpu.lufCounter > luf_limits[cpu.CMR.luf]) {
-                tmp_priv_mode = is_priv_mode ();
                 if (tmp_priv_mode) {
                   // In priv. mode the LUF is noted but not executed
                   cpu.lufOccurred = true;
