@@ -73,7 +73,7 @@ MBS="-j $(grep -c '^model name' /proc/cpuinfo 2> /dev/null || printf %s\\n 4)"
 ##############################################################################
 
 # shellcheck disable=SC2086
-env TZ=UTC scan-build -no-failure-reports -o ./out -maxloop 16               \
+env TZ=UTC scan-build -no-failure-reports -o ./out -maxloop 512              \
  -enable-checker  optin.portability.UnixAPI                                  \
  -enable-checker  security.FloatLoopCounter                                  \
  -enable-checker  security.insecureAPI.bcmp                                  \

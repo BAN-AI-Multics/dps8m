@@ -9414,6 +9414,9 @@ void _sim_err (const char* fmt, ...)
             if (buf != stackbuf)
                 FREE (buf);
             bufsize = bufsize * 2;
+#ifdef __clang_analyzer__
+            if (bufsize == 0) bufsize = 2;
+#endif /* ifdef __clang_analyzer__ */
             buf = (char *) malloc (bufsize);
             if (buf == NULL)                            /* out of memory */
                 return;
