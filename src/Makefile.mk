@@ -386,8 +386,7 @@ endif
 ifeq ($(UNAME_S),Linux)
   ifeq ($(CROSS),)
     ifneq ($(CYGWIN_MINGW_CROSS),1)
-      CFLAGS += -DCLOCK_REALTIME=CLOCK_REALTIME_COARSE                        \
-                -DUSE_FLOCK=1 -DUSE_FCNTL=1
+      CFLAGS += -DUSE_FLOCK=1 -DUSE_FCNTL=1
     endif
   endif
   ifndef UNAME_M
