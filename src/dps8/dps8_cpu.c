@@ -906,6 +906,7 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
         cpu.shadowTR = 0;
         cpu.rTRlsb   = 0;
       }
+    cpu.rTR = MASK27;
     cpu.rTRticks = 0;
 
     set_addr_mode (ABSOLUTE_mode);
