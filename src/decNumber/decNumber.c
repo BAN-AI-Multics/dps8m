@@ -5426,8 +5426,13 @@ decNumber * decLnOp(decNumber *res, const decNumber *rhs,
     decCopyFit(b, rhs, &aset, &residue, &ignore); // copy & shorten
     b->exponent=0;                      // make integer
     t=decGetInt(b);                     // [cannot fail]
+#ifdef __clang_analyzer__
+    if (t<0) t=10;
+#endif /* ifdef __clang_analyzer__ */
     if (t<10) t=X10(t);                 // adjust single-digit b
+#ifndef __clang_analyzer__
     t=LNnn[t-10];                       // look up ln(b)
+#endif /* ifndef __clang_analyzer__ */
     decNumberFromInt32(b, t>>2);        // b=ln(b) coefficient
     b->exponent=-(t&3)-3;               // set exponent
     b->bits=DECNEG;                     // ln(0.10)->ln(0.99) always -ve
@@ -7392,7 +7397,9 @@ static decNumber * decNaNs(decNumber *res, const decNumber *lhs,
     // copy safe number of units, then decapitate
     res->bits=lhs->bits;                // need sign etc.
     uresp1=res->lsu+D2U(set->digits);
+#ifndef __clang_analyzer__
     for (ur=res->lsu, ul=lhs->lsu; ur<uresp1; ur++, ul++) *ur=*ul;
+#endif /* ifndef __clang_analyzer__ */
     res->digits=D2U(set->digits)*DECDPUN;
     // maybe still too long
     if (res->digits>set->digits) decDecap(res, res->digits-set->digits);
