@@ -20,26 +20,27 @@
 ##############################################################################
 # Build flags:
 #
-#   <------------------ Maintain spacing and formatting ------------------->
+# <------------------- Maintain spacing and formatting -------------------->
 #
-#       Build flag (ex: make V=1)           Description of build flag
-#     #############################  #######################################
+#      Build flag (ex: make V=1)               Description of build flag
+#  #########################################################################
 #
-#         ATOMICS=AIX|BSD|GNU|SYNC        Define specific atomic operations
-#           CROSS=MINGW64                 Enable MinGW-64 cross-compilation
-#        NEED_128=1                       Enable provided 128-bit int types
-#          NATIVE=1                       Enable "-march=native" via CFLAGS
-#     NO_LOCKLESS=1                       Enable legacy (non-lockless) code
-#          NO_LTO=1                       Disables the use of LTO for build
-#   NO_C_ELLIPSIS=1                       Disables the C ellipsis extension
-#      PERF_STRIP=1                       Enable CPU-only benchmarking mode
-#     ROUND_ROBIN=1                       Enable non-threaded multiple CPUs
-#         TESTING=1                       Enable developmental testing mode
-#            DUMA=1                       Enable the libDUMA malloc library
-#               V=1                       Enable verbose compilation output
-#               W=1                       Enable extra compilation warnings
+#          ATOMICS=AIX|BSD|GNU|SYNC        Define specific atomic operations
+#            CROSS=MINGW64                 Enable MinGW-64 cross-compilation
+#   WITH_BACKTRACE=1                       Enable building with libbacktrace
+#         NEED_128=1                       Enable provided 128-bit int types
+#           NATIVE=1                       Enable "-march=native" via CFLAGS
+#      NO_LOCKLESS=1                       Enable legacy (non-lockless) code
+#           NO_LTO=1                       Disables the use of LTO for build
+#    NO_C_ELLIPSIS=1                       Disables the C ellipsis extension
+#       PERF_STRIP=1                       Enable CPU-only benchmarking mode
+#      ROUND_ROBIN=1                       Enable non-threaded multiple CPUs
+#          TESTING=1                       Enable developmental testing mode
+#             DUMA=1                       Enable the libDUMA malloc library
+#                V=1                       Enable verbose compilation output
+#                W=1                       Enable extra compilation warnings
 #
-#   <------------------ Maintain spacing and formatting ------------------->
+# <------------------- Maintain spacing and formatting -------------------->
 #
 ##############################################################################
 
@@ -101,11 +102,11 @@ options:                                                                     \
 	-@$(PRINTF) '%s\n' "      e.g. \"$(MAKE) TESTING=1 V=1 W=1\""            \
       2> /dev/null || $(TRUE)
 	-@$(PRINTF) '\n%s\n'                                                     \
-      "    Build flag (ex: make V=1)             Description of build flag"  \
+     "      Build flag (ex: make V=1)             Description of build flag" \
         2> /dev/null || $(TRUE)
 	-@$(PRINTF) ' %s '                                                       \
-      "--------------------------------"                                     \
-        " ---------------------------------------"                           \
+      "----------------------------------"                                   \
+        " -------------------------------------"                             \
           2> /dev/null || $(TRUE)
 	-@$(PRINTF) '\n%s\n' "" 2> /dev/null || $(TRUE)
 	@$(GREP) '^#.*=' "GNUmakefile" 2> /dev/null |                            \
@@ -289,10 +290,10 @@ ifneq (,$(wildcard src/Makefile.env))
   include src/Makefile.env
 endif
 
-###############################################################################
+##############################################################################
 # Help and Debugging Targets                                                 \
     # XXXX:    # --------------------- Help and Debugging -------------------
-###############################################################################
+##############################################################################
 
 ifneq (,$(wildcard src/Makefile.scc))
   include src/Makefile.scc

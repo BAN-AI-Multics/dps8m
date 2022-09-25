@@ -81,6 +81,15 @@
 
 #include <uv.h>
 
+#ifndef HAVE_UNISTD
+# undef USE_BACKTRACE
+#endif
+
+#ifdef USE_BACKTRACE
+# include <string.h>
+# include <signal.h>
+#endif
+
 #define DBG_CTR 0
 
 #include "../dps8/dps8.h"
@@ -1324,7 +1333,7 @@ char *strremove(char *str, const char *sub)
 void strtrimspace (char *str_trimmed, const char *str_untrimmed)
 {
     while (*str_untrimmed != '\0') {
-      if(!isspace((char)*str_untrimmed)) {
+      if(!isspace((unsigned char)*str_untrimmed)) {
         *str_trimmed = (char)*str_untrimmed;
         str_trimmed++;
       }
@@ -1340,7 +1349,44 @@ void CleanDUMA(void)
   DUMA_CHECKALL();
   (void)fflush(stderr);
 }
+# undef USE_DUMA
+# define USE_DUMA 1
 #endif /* ifdef USE_DUMA */
+
+#ifndef SIG_SETMASK
+# undef USE_BACKTRACE
+#endif /* ifndef SIG_SETMASK */
+
+#ifdef PERF_STRIP
+# undef USE_BACKTRACE
+#endif /* ifdef PERF_STRIP */
+
+#ifdef USE_BACKTRACE
+# include <backtrace.h>
+# include <backtrace-supported.h>
+# define BACKTRACE_SKIP 1
+# define BACKTRACE_MAIN "main"
+# undef USE_BACKTRACE
+# define USE_BACKTRACE 1
+#endif /* ifdef USE_BACKTRACE */
+
+#ifdef BACKTRACE_SUPPORTED
+# ifdef BACKTRACE_SUPPORTS_THREADS
+#  if !( BACKTRACE_SUPPORTED )
+#   undef USE_BACKTRACE
+#  endif /* if !( BACKTRACE_SUPPORTED ) */
+# else  /* ifdef BACKTRACE_SUPPORTS_THREADS */
+#  undef USE_BACKTRACE
+# endif /* ifdef BACKTRACE_SUPPORTS_THREADS */
+#else  /* ifdef BACKTRACE_SUPPORTED */
+# undef USE_BACKTRACE
+#endif /* ifdef BACKTRACE_SUPPORTED */
+
+#ifdef USE_BACKTRACE
+# ifdef BACKTRACE_SUPPORTED
+#  include "backtrace_func.c"
+# endif /* ifdef BACKTRACE_SUPPORTED */
+#endif /* ifdef USE_BACKTRACE */
 
 /* Main command loop */
 
@@ -1351,6 +1397,14 @@ char *cptr, *cptr2;
 char nbuf[PATH_MAX + 7];
 char cbuf[4*CBUFSIZE];
 char **targv = NULL;
+# ifdef USE_BACKTRACE
+#  ifdef BACKTRACE_SUPPORTED
+#   ifdef _INC_BACKTRACE_FUNC
+bt_pid = (long)getpid();
+(void)bt_pid;
+#   endif /* ifdef _INC_BACKTRACE_FUNC */
+#  endif /* ifdef BACKTRACE_SUPPORTED */
+# endif /* ifdef USE_BACKTRACE */
 int32 i, sw;
 t_bool lookswitch;
 t_stat stat;
@@ -1393,6 +1447,12 @@ DUMA_SET_FILL(0x2E);
 (void)fflush(stderr);
 (void)atexit(CleanDUMA);
 # endif /* ifdef USE_DUMA */
+
+# ifdef USE_BACKTRACE
+#  ifdef BACKTRACE_SUPPORTED
+#   include "backtrace_main.c"
+#  endif /* ifdef BACKTRACE_SUPPORTED */
+# endif /* ifdef USE_BACKTRACE */
 
 setlocale(LC_NUMERIC, "");
 
@@ -4153,6 +4213,10 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
 #if !defined(USE_FLOCK) && !defined(USE_FCNTL)
     fprintf (st, "No file locking available");
 #endif
+#if defined(USE_BACKTRACE)
+    fprintf (st, "\n     Backtrace support: ");
+    fprintf (st, "libbacktrace");
+#endif /* if defined(USE_BACKTRACE) */
     fprintf (st, "\n");
     return 0;
 }
@@ -4366,6 +4430,7 @@ if (flag) {
     char clangllvmver[1024];
     sprintf(clangllvmver, "%.1023s", __clang_version__);
     strremove(clangllvmver, "git://github.com/OpenIndiana/oi-userland.git ");
+    strremove(clangllvmver, "https://github.com/OpenIndiana/oi-userland.git ");
     if (gnumver[0] == 'c' || gnumver[0] == 'C') {
         fprintf (st, "\n  Compiler: Clang %s", clangllvmver);
     } else {

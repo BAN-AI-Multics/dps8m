@@ -116,7 +116,7 @@
 
 #define tmpdir "/tmp"
 #define program "empty"
-#define version "0.6.21f-dps"
+#define version "0.6.22f-dps"
 
 static void usage(void);
 static long toint(char *intstr);
@@ -731,7 +731,7 @@ main(int argc, char *argv[])
               "PTY routine failed. Fatal open(\"/dev/ptc\"), ...");
     }
 
-# else /* ifdef _AIX */
+# else
   if (( master = open("/dev/ptmx", O_RDWR)) == -1)
     {
       (void)perrxslog(255,
@@ -1089,8 +1089,7 @@ perrxslog(int ex_code, const char *err_text, ...)
   va_start(va, err_text);
 #if !defined( __hpux__ ) && !defined( _AIX ) && !defined( __OSF1 )
   (void)vsyslog(LOG_NOTICE, err_text, va);
-#else  /* if !defined( __hpux__ ) && !defined( _AIX )
-        *  && !defined( __OSF1 ) */
+#else
   char err_buf[BUFSIZ];
 
   (void)vsprintf(err_buf, err_text, va);

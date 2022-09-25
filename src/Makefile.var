@@ -36,6 +36,17 @@ ifdef ATOMICS
 endif
 
 ###############################################################################
+# libbacktrace support
+
+LIBBACKTRACE ?= -lbacktrace
+
+ifdef WITH_BACKTRACE
+  WITH_BACKTRACE=1
+  CFLAGS += -DUSE_BACKTRACE
+  LIBS += $(LIBBACKTRACE)
+endif
+
+###############################################################################
 # No C ellipsis extension
 
 ifdef NO_C_ELLIPSIS
