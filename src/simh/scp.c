@@ -4585,8 +4585,12 @@ if (flag) {
     arch = " ";
 #endif
     fprintf (st, "%s", arch);
-#if defined(GENERATED_MAKE_VER_H) && defined(VER_H_PREP_USER)
+#if defined(BUILD_BY_USER)
+        fprintf (st, "\n  Built by: %s", BUILD_BY_USER);
+#else
+# if defined(GENERATED_MAKE_VER_H) && defined(VER_H_PREP_USER)
         fprintf (st, "\n  Built by: %s", VER_H_PREP_USER);
+# endif
 #endif
                 fprintf (st, "\n\n Host System Information:");
 #if defined(_WIN32)
