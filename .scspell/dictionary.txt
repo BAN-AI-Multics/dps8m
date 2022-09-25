@@ -1352,6 +1352,7 @@ iacc
 iachn
 iack
 iaim
+ianlancetaylor
 ibmaplbn
 ibmapsize
 ibmapvbn
@@ -2566,6 +2567,7 @@ setjmp
 setlk
 setlo
 setlocale
+setmask
 setmax
 setmode
 setname
@@ -2603,20 +2605,30 @@ shtb
 sidx
 sigabrt
 sigaction
+sigbus
 sigchld
 sigerr
+sigfillset
 sigfpe
 sighup
+sigill
 sigint
 signbit
 signext
 signum
 signums
 sigpipe
+sigpower
+sigprocmask
+sigpwr
 sigquit
 sigr
 sigsegv
+sigset
+sigstkflt
+sigsys
 sigterm
+sigunused
 sigusr
 sims
 singlefilesystem
@@ -2750,6 +2762,7 @@ stime
 stmt
 stnp
 stopbits
+stopbt
 stopc
 stopnum
 storesize
@@ -3048,6 +3061,7 @@ uffp
 uflags
 ufmask
 uint
+uintptr
 uiwork
 ulen
 ullong
@@ -5800,6 +5814,7 @@ ifdef
 ifeq
 ifndef
 ifneq
+lbacktrace
 listchars
 lpthread
 ltosyn
@@ -8176,6 +8191,7 @@ backlinks
 backlog
 backslash
 backspace
+backtrace
 backup
 backups
 backwards
@@ -9859,6 +9875,7 @@ hello
 help
 helped
 helper
+helpers
 helping
 helps
 helvetica
@@ -10340,6 +10357,7 @@ leverage
 lexical
 liability
 liable
+libbacktrace
 liberal
 libraries
 library
