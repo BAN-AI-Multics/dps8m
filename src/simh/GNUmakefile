@@ -62,6 +62,12 @@ endif
 
 ###############################################################################
 
+ifdef BUILD_BY_USER
+  CFLAGS += -DBUILD_BY_USER="\"$(BUILD_BY_USER)\""
+endif
+
+###############################################################################
+
 C_SRCS = scp.c       sim_console.c  sim_disk.c   sim_fio.c   dispatch.c       \
          sim_sock.c  sim_tape.c     sim_timer.c  sim_tmxr.c  linehistory.c
 

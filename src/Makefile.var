@@ -267,6 +267,17 @@ ifndef BUILD_PROM_OSA_TEXT
 endif
 
 ###############################################################################
+# Set "Built by" string for distkit builds
+
+ifeq (,$(wildcard ../dps8/make_ver.sh))
+  ifneq (,$(wildcard ../dps8/build_usr.sh))
+    BUILD_BY_USER=$(shell ../dps8/build_usr.sh)
+  else
+    BUILD_BY_USER=Unknown
+  endif
+endif
+
+###############################################################################
 # Oracle Developer Studio
 
 ifndef SUNPRO
