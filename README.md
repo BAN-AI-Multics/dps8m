@@ -14,7 +14,7 @@
 [![Website](https://img.shields.io/website?up_message=online&url=https%3A%2F%2Fdps8m.gitlab.io)](https://dps8m.gitlab.io/)
 &nbsp;
 
- - **DPS8M** is a simulator of the 36‑bit GE Large Systems / Honeywell /
+ - **DPS8M** is a simulator of the **36‑bit** GE Large Systems / Honeywell /
    Bull 600/6000‑series mainframe computers (Honeywell 6180, Honeywell
    Series‑60 ∕ Level‑68, and Honeywell ∕ Bull **DPS‑8/M**) descended from
    the **GE‑645** and engineered to support the

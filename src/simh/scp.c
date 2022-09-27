@@ -4103,16 +4103,16 @@ t_stat show_prom (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cp
 
 t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 {
-    fprintf (st, " Build Information:\n");
+    fprintf (st, "\r\n Build Information:\n");
 #if defined(BUILDINFO_scp) && defined(SYSDEFS_USED)
-    fprintf (st, "      Compilation info: %s\n", BUILDINFO_scp );
+    fprintf (st, "\r\n      Compilation info: %s\n", BUILDINFO_scp );
 # ifndef __OPEN64__
-    fprintf (st, "  Relevant definitions: %s\n", SYSDEFS_USED );
+    fprintf (st, "\r\n  Relevant definitions: %s\n", SYSDEFS_USED );
 # endif
 #elif defined(BUILDINFO_scp)
-    fprintf (st, "      Compilation info: %s\n", BUILDINFO_scp );
+    fprintf (st, "\r\n      Compilation info: %s\n", BUILDINFO_scp );
 #else
-    fprintf (st, "      Compilation info: Not available\n" );
+    fprintf (st, "\r\n      Compilation info: Not available\n" );
 #endif
 #if defined (UV_VERSION_MAJOR) && \
     defined (UV_VERSION_MINOR) && \
@@ -4121,24 +4121,24 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
 #  ifndef UV_VERSION_MINOR
 #   ifndef UV_VERSION_PATCH
 #    ifndef UV_VERSION_SUFFIX
-    fprintf (st, "    Event loop library: Built with libuv v%d", UV_VERSION_MAJOR);
+    fprintf (st, "\r\n    Event loop library: Built with libuv v%d", UV_VERSION_MAJOR);
 #    endif /* ifndef UV_VERSION_SUFFIX */
 #   endif /* ifndef UV_VERSION_PATCH */
 #  endif /* ifndef UV_VERSION_MINOR */
 #  ifdef UV_VERSION_MINOR
 #   ifndef UV_VERSION_PATCH
 #    ifndef UV_VERSION_SUFFIX
-    fprintf (st, "    Event loop library: Built with libuv %d.%d", UV_VERSION_MAJOR,
+    fprintf (st, "\r\n    Event loop library: Built with libuv %d.%d", UV_VERSION_MAJOR,
             UV_VERSION_MINOR);
 #    endif /* ifndef UV_VERSION_SUFFIX */
 #   endif /* ifndef UV_VERSION_PATCH */
 #   ifdef UV_VERSION_PATCH
 #    ifndef UV_VERSION_SUFFIX
-    fprintf (st, "    Event loop library: Built with libuv %d.%d.%d", UV_VERSION_MAJOR,
+    fprintf (st, "\r\n    Event loop library: Built with libuv %d.%d.%d", UV_VERSION_MAJOR,
             UV_VERSION_MINOR, UV_VERSION_PATCH);
 #    endif /* ifndef UV_VERSION_SUFFIX */
 #    ifdef UV_VERSION_SUFFIX
-    fprintf (st, "    Event loop library: Built with libuv %d.%d.%d", UV_VERSION_MAJOR,
+    fprintf (st, "\r\n    Event loop library: Built with libuv %d.%d.%d", UV_VERSION_MAJOR,
             UV_VERSION_MINOR, UV_VERSION_PATCH);
 #     ifdef UV_VERSION_IS_RELEASE
 #      if UV_VERSION_IS_RELEASE == 1
@@ -4163,29 +4163,28 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
             fprintf (st, "; %s in use", uv_version_string());
 # endif /* ifdef UV_VERSION_MAJOR */
 #else
-    fprintf (st, "    Event loop library: Using libuv (or compatible) library, unknown version");
+    fprintf (st, "\r\n    Event loop library: Using libuv (or compatible) library, unknown version");
 #endif /* if defined(UV_VERSION_MAJOR) &&  \
         *    defined(UV_VERSION_MINOR) &&  \
         *    defined(UV_VERSION_PATCH)     \
         */
 #ifdef DECNUMBERLOC
-    fprintf (st, "\n");
 # ifdef DECVERSION
 #  ifdef DECVERSEXT
-    fprintf (st, "          Math library: %s-%s", DECVERSION, DECVERSEXT);
+    fprintf (st, "\r\n          Math library: %s-%s", DECVERSION, DECVERSEXT);
 #  else
 #   ifdef DECNLAUTHOR
-    fprintf (st, "          Math library: %s (%s and contributors)", DECVERSION, DECNLAUTHOR);
+    fprintf (st, "\r\n          Math library: %s (%s and contributors)", DECVERSION, DECNLAUTHOR);
 #   else
-    fprintf (st, "          Math library: %s", DECVERSION);
+    fprintf (st, "\r\n          Math library: %s", DECVERSION);
 #   endif /* ifdef DECNLAUTHOR */
 #  endif /* ifdef DECVERSEXT */
 # else
-    fprintf (st, "          Math library: decNumber, unknown version");
+    fprintf (st, "\r\n          Math library: decNumber, unknown version");
 # endif /* ifdef DECVERSION */
 #endif /* ifdef DECNUMBERLOC */
 #ifdef LOCKLESS
-    fprintf (st, "\n     Atomic operations: ");
+    fprintf (st, "\r\n     Atomic operations: ");
 # if defined(AIX_ATOMICS)
     fprintf (st, "IBM AIX-style");
 # elif defined(BSD_ATOMICS)
@@ -4200,7 +4199,7 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
     fprintf (st, "Windows NT interlocked operations");
 # endif
 #endif /* ifdef LOCKLESS */
-    fprintf (st, "\n          File locking: ");
+    fprintf (st, "\r\n          File locking: ");
 #if defined(USE_FCNTL) && defined(USE_FLOCK)
     fprintf (st, "POSIX-style fcntl() and BSD-style flock() locking");
 #endif
@@ -4214,10 +4213,10 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
     fprintf (st, "No file locking available");
 #endif
 #if defined(USE_BACKTRACE)
-    fprintf (st, "\n     Backtrace support: ");
+    fprintf (st, "\r\n     Backtrace support: ");
     fprintf (st, "libbacktrace");
 #endif /* if defined(USE_BACKTRACE) */
-    fprintf (st, "\n");
+    fprintf (st, "\r\n");
     return 0;
 }
 

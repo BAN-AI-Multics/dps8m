@@ -337,6 +337,7 @@ ${SED:-sed} -i -e 's/```dps8/\\begin{tcolorbox}\[colback=black!2!white,breakable
      -e 's/<!-- pagebreak -->/\\newpage/g'        \
      -e 's/<!-- br -->/\&nbsp;/g'                 \
      ${INPUTS:?}                                  \
+  | ./shell/nopdf.sh                              \
   | ${SAVE_TEE:-cat} | ${PANDOC:-pandoc}          \
      -V geometry:margin=0.7in                     \
      ${ONESIDE:-}                                 \

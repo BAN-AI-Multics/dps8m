@@ -20,24 +20,24 @@
     echo -e "section_start:`date +%s`:alma9install_section[collapsed=true]\r\e[0K\033[0;36mSetting up AlmaLinux 9 ...\033[0m" || true
     echo "Checking for Docker ..."
     test -f /.dockerenv || exit 1
-    test -z "${SKIP_UPDATE}" && dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update
-    test -z "${SKIP_UPDATE}" && dnf -y --allowerasing --best install epel-release || dnf -y --allowerasing --nobest epel-release
-    test -z "${SKIP_UPDATE}" && curl -fsSL https://repo.almalinux.org/almalinux/9/devel/almalinux-devel.repo -o /etc/yum.repos.d/almalinux-devel.repo || curl -fsSL https://repo.almalinux.org/almalinux/9/devel/almalinux-devel.repo -o /etc/yum.repos.d/almalinux-devel.repo
-    test -z "${SKIP_UPDATE}" && sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-devel.repo || true
-    test -z "${SKIP_UPDATE}" && sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-highavailability.repo || true
-    test -z "${SKIP_UPDATE}" && sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-plus.repo || true
-    test -z "${SKIP_UPDATE}" && sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-rt.repo || true
-    test -z "${SKIP_UPDATE}" && sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-crb.repo || true
-    test -z "${SKIP_UPDATE}" && sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-nfv.repo || true
-    test -z "${SKIP_UPDATE}" && sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-saphana.repo || true
-    test -z "${SKIP_UPDATE}" && sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-sap.repo || true
-    test -z "${SKIP_UPDATE}" && sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-extras.repo || true
-    test -z "${SKIP_UPDATE}" && sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-appstream.repo || true
-    test -z "${SKIP_UPDATE}" && sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-resilientstorage.repo || true
-    test -z "${SKIP_UPDATE}" && dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update
-    test -z "${SKIP_UPDATE}" && dnf -y install rpmconf || dnf -y install rpmconf
-    test -z "${SKIP_UPDATE}" && yes | rpmconf -a -u use_maintainer || true
-    test -z "${SKIP_UPDATE}" && dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update
+    dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update
+    dnf -y --allowerasing --best install epel-release || dnf -y --allowerasing --nobest epel-release
+    curl -fsSL https://repo.almalinux.org/almalinux/9/devel/almalinux-devel.repo -o /etc/yum.repos.d/almalinux-devel.repo || curl -fsSL https://repo.almalinux.org/almalinux/9/devel/almalinux-devel.repo -o /etc/yum.repos.d/almalinux-devel.repo
+    sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-devel.repo || true
+    sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-highavailability.repo || true
+    sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-plus.repo || true
+    sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-rt.repo || true
+    sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-crb.repo || true
+    sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-nfv.repo || true
+    sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-saphana.repo || true
+    sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-sap.repo || true
+    sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-extras.repo || true
+    sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-appstream.repo || true
+    sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-resilientstorage.repo || true
+    dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update
+    dnf -y install rpmconf || dnf -y install rpmconf
+    yes | rpmconf -a -u use_maintainer || true
+    dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update
     echo -e "section_end:`date +%s`:alma9install_section\r\e[0K" || true
 
 ############################################################################
@@ -47,12 +47,13 @@
     echo -e "section_start:`date +%s`:alpinesetup_section[collapsed=true]\r\e[0K\033[0;36mSetting up Alpine Linux ...\033[0m" || true
     echo "Checking for Docker ..."
     test -f /.dockerenv || exit 1
-    test -z "${SKIP_UPDATE}" && echo "Running apk update ..."
-    test -z "${SKIP_UPDATE}" && apk update || apk update
-    test -z "${SKIP_UPDATE}" && echo "Running apk upgrade ..."
-    test -z "${SKIP_UPDATE}" && apk upgrade || apk upgrade
-    test -z "${SKIP_UPDATE}" && echo "Installing software ..."
-    test -z "${SKIP_UPDATE}" && export ARGS="libc-dev linux-headers musl-dev gcc g++ llvm llvm-dev llvm-static clang clang-libs clang-dev git unzip zip curl wget sed tar gawk file bash coreutils make ctags lzip gzip libuv-dev libuv-static psmisc grep moreutils gnupg libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-dev automake"; apk add ${ARGS:?} || apk add ${ARGS:?}
+    echo "Running apk update ..."
+    apk update || apk update
+    echo "Running apk upgrade ..."
+    apk upgrade || apk upgrade
+    echo "Installing software ..."
+    export ARGS="libc-dev linux-headers musl-dev gcc g++ llvm llvm-dev llvm-static clang clang-libs clang-dev git unzip zip curl wget sed tar gawk file bash coreutils make ctags lzip gzip libuv-dev libuv-static psmisc grep moreutils gnupg libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-dev automake"; apk add ${ARGS:?} || apk add ${ARGS:?}
+    ln -fs "$(command -v bash)" "/bin/sh"
     echo -e "section_end:`date +%s`:alpinesetup_section\r\e[0K" || true
 
 ############################################################################
@@ -62,8 +63,8 @@
     echo -e "section_start:`date +%s`:aptinstalllibuv1_section[collapsed=true]\r\e[0K\033[0;36mInstalling libuv1-dev ...\033[0m" || true
     echo "Checking for Docker ..."
     test -f /.dockerenv || exit 1
-    test -z "${SKIP_UPDATE}" && echo "Installing libuv1-dev ..."
-    test -z "${SKIP_UPDATE}" && env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
+    echo "Installing libuv1-dev ..."
+    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
     echo -e "section_end:`date +%s`:aptinstalllibuv1_section\r\e[0K" || true
 
 ############################################################################
@@ -73,16 +74,16 @@
     echo -e "section_start:`date +%s`:aptgetinstall_section[collapsed=true]\r\e[0K\033[0;36mSetting up system ...\033[0m" || true
     echo "Checking for Docker ..."
     test -f /.dockerenv || exit 1
-    test -z "${SKIP_UPDATE}" && echo "Running apt-get update ..."
-    test -z "${SKIP_UPDATE}" && env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update -y -qq
-    test -z "${SKIP_UPDATE}" && echo "Installing software ..."
-    test -z "${SKIP_UPDATE}" && export ARGS="gawk moreutils apt-utils gnupg2 bash curl wget git lsb-release software-properties-common time"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
-    test -z "${SKIP_UPDATE}" && echo "Running apt-get upgrade ..."
-    test -z "${SKIP_UPDATE}" && env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq
-    test -z "${SKIP_UPDATE}" && echo "Running apt-get dist-upgrade ..."
-    test -z "${SKIP_UPDATE}" && env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq
-    test -z "${SKIP_UPDATE}" && echo "Installing additional software ..."
-    test -z "${SKIP_UPDATE}" && export ARGS="lzip bash wget gcc libtool unzip autoconf-archive util-linux psmisc clang zip pigz make"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
+    echo "Running apt-get update ..."
+    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update -y -qq
+    echo "Installing software ..."
+    export ARGS="gawk moreutils apt-utils gnupg2 bash curl wget git lsb-release software-properties-common time"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
+    echo "Running apt-get upgrade ..."
+    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq
+    echo "Running apt-get dist-upgrade ..."
+    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq
+    echo "Installing additional software ..."
+    export ARGS="lzip bash wget gcc libtool unzip autoconf-archive util-linux psmisc clang zip pigz make"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
     echo -e "section_end:`date +%s`:aptgetinstall_section\r\e[0K" || true
 
 ############################################################################
@@ -109,19 +110,37 @@
 
 ############################################################################
 
+.scriptBuildlibbacktrace: &scriptBuildlibbacktrace |
+    # *scriptBuildlibbacktrace - Build static libbacktrace from git master ...
+    echo -e "section_start:`date +%s`:buildlibbacktrace_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libbacktrace library ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    echo "Getting libbacktrace from GitHub ..."
+    wget -nv https://github.com/ianlancetaylor/libbacktrace/archive/refs/heads/master.tar.gz
+    echo "Preparing libbacktrace ..."
+    tar zxvf master.tar.gz && cd libbacktrace-master && autoreconf -vfi
+    echo "Configuring libbacktrace ..."
+    env CFLAGS="-fPIE" sh ./configure --enable-static --disable-shared --disable-werror
+    echo "Compiling libbacktrace ..."
+    make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && make install && cd ..
+    ldconfig || true
+    echo -e "section_end:`date +%s`:buildlibbacktrace_section\r\e[0K" || true
+
+############################################################################
+
 .scriptBuildlibuvFCygwin64: &scriptBuildlibuvFCygwin64 |
     # *scriptBuildlibuvFCygwin64 - Build static libuv from git with Fedora Cygwin64 cross-compiler ...
     echo -e "section_start:`date +%s`:buildlibuvfedoracygwin64_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with Fedora Cygwin64 cross-compiler ...\033[0m" || true
     echo "Checking for Docker ..."
     test -f /.dockerenv || exit 1
-    test -z "${SKIP_UPDATE}" && echo "Getting libuv from GitHub ..."
-    test -z "${SKIP_UPDATE}" && wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
-    test -z "${SKIP_UPDATE}" && echo "Preparing libuv ..."
-    test -z "${SKIP_UPDATE}" && unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    test -z "${SKIP_UPDATE}" && echo "Configuring libuv ..."
-    test -z "${SKIP_UPDATE}" && cygwin64-configure --disable-shared --enable-static --disable-dependency-tracking
-    test -z "${SKIP_UPDATE}" && echo "Compiling libuv ..."
-    test -z "${SKIP_UPDATE}" && cygwin64-make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && cygwin64-make install && cd ..
+    echo "Getting libuv from GitHub ..."
+    wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
+    echo "Preparing libuv ..."
+    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
+    echo "Configuring libuv ..."
+    cygwin64-configure --disable-shared --enable-static --disable-dependency-tracking
+    echo "Compiling libuv ..."
+    cygwin64-make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && cygwin64-make install && cd ..
     echo -e "section_end:`date +%s`:buildlibuvfedoracygwin64_section\r\e[0K" || true
 
 ############################################################################
@@ -131,14 +150,14 @@
     echo -e "section_start:`date +%s`:buildlibuvllvmmgwaarch64_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with LLVM-MinGW-Aarch64 cross-compiler ...\033[0m" || true
     echo "Checking for Docker ..."
     test -f /.dockerenv || exit 1
-    test -z "${SKIP_UPDATE}" && echo "Getting libuv from GitHub ..."
-    test -z "${SKIP_UPDATE}" && wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
-    test -z "${SKIP_UPDATE}" && echo "Preparing libuv ..."
-    test -z "${SKIP_UPDATE}" && unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    test -z "${SKIP_UPDATE}" && echo "Configuring libuv ..."
-    test -z "${SKIP_UPDATE}" && ./configure --disable-shared --enable-static --host=aarch64-w64-mingw32 --disable-dependency-tracking
-    test -z "${SKIP_UPDATE}" && echo "Compiling libuv ..."
-    test -z "${SKIP_UPDATE}" && make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && make install && cd ..
+    echo "Getting libuv from GitHub ..."
+    wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
+    echo "Preparing libuv ..."
+    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
+    echo "Configuring libuv ..."
+    ./configure --disable-shared --enable-static --host=aarch64-w64-mingw32 --disable-dependency-tracking
+    echo "Compiling libuv ..."
+    make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && make install && cd ..
     echo -e "section_end:`date +%s`:buildlibuvllvmmgwaarch64_section\r\e[0K" || true
 
 ############################################################################
@@ -148,14 +167,14 @@
     echo -e "section_start:`date +%s`:buildlibuvllvmmgwarmv7_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with LLVM-MinGW-ARMv7 cross-compiler ...\033[0m" || true
     echo "Checking for Docker ..."
     test -f /.dockerenv || exit 1
-    test -z "${SKIP_UPDATE}" && echo "Getting libuv from GitHub ..."
-    test -z "${SKIP_UPDATE}" && wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
-    test -z "${SKIP_UPDATE}" && echo "Preparing libuv ..."
-    test -z "${SKIP_UPDATE}" && unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    test -z "${SKIP_UPDATE}" && echo "Configuring libuv ..."
-    test -z "${SKIP_UPDATE}" && ./configure --disable-shared --enable-static --host=armv7-w64-mingw32 --disable-dependency-tracking
-    test -z "${SKIP_UPDATE}" && echo "Compiling libuv ..."
-    test -z "${SKIP_UPDATE}" && make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && make install && cd ..
+    echo "Getting libuv from GitHub ..."
+    wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
+    echo "Preparing libuv ..."
+    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
+    echo "Configuring libuv ..."
+    ./configure --disable-shared --enable-static --host=armv7-w64-mingw32 --disable-dependency-tracking
+    echo "Compiling libuv ..."
+    make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && make install && cd ..
     echo -e "section_end:`date +%s`:buildlibuvllvmmgwarmv7_section\r\e[0K" || true
 
 ############################################################################
@@ -165,16 +184,16 @@
     echo -e "section_start:`date +%s`:buildlibuvllvmmgwi686_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with LLVM-MinGW-i686 cross-compiler ...\033[0m" || true
     echo "Checking for Docker ..."
     test -f /.dockerenv || exit 1
-    test -z "${SKIP_UPDATE}" && echo "Getting libuv from GitHub ..."
-    test -z "${SKIP_UPDATE}" && wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
-    test -z "${SKIP_UPDATE}" && echo "Preparing libuv ..."
-    test -z "${SKIP_UPDATE}" && unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    test -z "${SKIP_UPDATE}" && echo "Patching libuv for MinGW32 ..."
-    test -z "${SKIP_UPDATE}" && (curl -fsSL https://gist.githubusercontent.com/johnsonjh/0ee49cbafdc918cb8023b9ba8a041939/raw 2> /dev/null || curl -fsSL https://gist.githubusercontent.com/johnsonjh/0ee49cbafdc918cb8023b9ba8a041939/raw 2> /dev/null) | patch -p1
-    test -z "${SKIP_UPDATE}" && echo "Configuring libuv ..."
-    test -z "${SKIP_UPDATE}" && ./configure --disable-shared --enable-static --host=i686-w64-mingw32 --disable-dependency-tracking
-    test -z "${SKIP_UPDATE}" && echo "Compiling libuv ..."
-    test -z "${SKIP_UPDATE}" && make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && make install && cd ..
+    echo "Getting libuv from GitHub ..."
+    wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
+    echo "Preparing libuv ..."
+    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
+    echo "Patching libuv for MinGW32 ..."
+    (curl -fsSL https://gist.githubusercontent.com/johnsonjh/0ee49cbafdc918cb8023b9ba8a041939/raw 2> /dev/null || curl -fsSL https://gist.githubusercontent.com/johnsonjh/0ee49cbafdc918cb8023b9ba8a041939/raw 2> /dev/null) | patch -p1
+    echo "Configuring libuv ..."
+    ./configure --disable-shared --enable-static --host=i686-w64-mingw32 --disable-dependency-tracking
+    echo "Compiling libuv ..."
+    make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && make install && cd ..
     echo -e "section_end:`date +%s`:buildlibuvllvmmgwi686_section\r\e[0K" || true
 
 ############################################################################
@@ -184,14 +203,14 @@
     echo -e "section_start:`date +%s`:buildlibuvllvmmgwx8664_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with LLVM-MinGW-x86_64 cross-compiler ...\033[0m" || true
     echo "Checking for Docker ..."
     test -f /.dockerenv || exit 1
-    test -z "${SKIP_UPDATE}" && echo "Getting libuv from GitHub ..."
-    test -z "${SKIP_UPDATE}" && wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
-    test -z "${SKIP_UPDATE}" && echo "Preparing libuv ..."
-    test -z "${SKIP_UPDATE}" && unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    test -z "${SKIP_UPDATE}" && echo "Configuring libuv ..."
-    test -z "${SKIP_UPDATE}" && ./configure --disable-shared --enable-static --host=x86_64-w64-mingw32 --disable-dependency-tracking
-    test -z "${SKIP_UPDATE}" && echo "Compiling libuv ..."
-    test -z "${SKIP_UPDATE}" && make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && make install && cd ..
+    echo "Getting libuv from GitHub ..."
+    wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
+    echo "Preparing libuv ..."
+    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
+    echo "Configuring libuv ..."
+    ./configure --disable-shared --enable-static --host=x86_64-w64-mingw32 --disable-dependency-tracking
+    echo "Compiling libuv ..."
+    make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && make install && cd ..
     echo -e "section_end:`date +%s`:buildlibuvllvmmgwx8664_section\r\e[0K" || true
 
 ############################################################################
@@ -201,14 +220,14 @@
     echo -e "section_start:`date +%s`:buildlibuvmingw64c_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with mingw64 cross-compiler ...\033[0m" || true
     echo "Checking for Docker ..."
     test -f /.dockerenv || exit 1
-    test -z "${SKIP_UPDATE}" && echo "Getting libuv from GitHub ..."
-    test -z "${SKIP_UPDATE}" && wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
-    test -z "${SKIP_UPDATE}" && echo "Preparing libuv ..."
-    test -z "${SKIP_UPDATE}" && unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    test -z "${SKIP_UPDATE}" && echo "Configuring libuv ..."
-    test -z "${SKIP_UPDATE}" && ./configure --disable-shared --enable-static --host=x86_64-w64-mingw32 --disable-dependency-tracking
-    test -z "${SKIP_UPDATE}" && echo "Compiling libuv ..."
-    test -z "${SKIP_UPDATE}" && make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && make install && cd ..
+    echo "Getting libuv from GitHub ..."
+    wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
+    echo "Preparing libuv ..."
+    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
+    echo "Configuring libuv ..."
+    ./configure --disable-shared --enable-static --host=x86_64-w64-mingw32 --disable-dependency-tracking
+    echo "Compiling libuv ..."
+    make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && make install && cd ..
     echo -e "section_end:`date +%s`:buildlibuvmingw64c_section\r\e[0K" || true
 
 ############################################################################
@@ -255,10 +274,10 @@
     echo -e "section_start:`date +%s`:dnfuinstall_section[collapsed=true]\r\e[0K\033[0;36mSetting up system ...\033[0m" || true
     echo "Checking for Docker ..."
     test -f /.dockerenv || exit 1
-    test -z "${SKIP_UPDATE}" && echo "Updating system ..."
-    test -z "${SKIP_UPDATE}" && dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update
-    test -z "${SKIP_UPDATE}" && echo "Installing software ..."
-    test -z "${SKIP_UPDATE}" && export ARGS="ccache lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make gnupg2 bash curl wget git time gcc clang"; dnf -y --allowerasing --best install ${ARGS:?} || dnf -y --allowerasing --nobest install ${ARGS:?}
+    echo "Updating system ..."
+    dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update
+    echo "Installing software ..."
+    export ARGS="ccache lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make gnupg2 bash curl wget git time gcc clang"; dnf -y --allowerasing --best install ${ARGS:?} || dnf -y --allowerasing --nobest install ${ARGS:?}
     echo -e "section_end:`date +%s`:dnfuinstall_section\r\e[0K" || true
 
 ############################################################################
@@ -297,12 +316,12 @@
     echo -e "section_start:`date +%s`:coprcygwinstall_section[collapsed=true]\r\e[0K\033[0;36mInstalling Fedora Cygwin64 ...\033[0m" || true
     echo "Checking for Docker ..."
     test -f /.dockerenv || exit 1
-    test -z "${SKIP_UPDATE}" && echo "Installing DNF Copr plugins ..."
-    test -z "${SKIP_UPDATE}" && dnf -y --best install 'dnf-command(copr)' || dnf -y --nobest install 'dnf-command(copr)'
-    test -z "${SKIP_UPDATE}" && echo "Enabling Cygwin repo ..."
-    test -z "${SKIP_UPDATE}" && dnf -y copr enable yselkowitz/cygwin || dnf -y copr enable yselkowitz/cygwin
-    test -z "${SKIP_UPDATE}" && echo "Installing Cygwin software ..."
-    test -z "${SKIP_UPDATE}" && dnf --best install -y cygport cygwin64-binutils cygwin64-w32api-headers cygwin64-w32api-runtime cygwin64-libltdl cygwin64-cpp cygwin64-gcc cygwin64-libtool cygwin64-filesystem cygwin64 || dnf --skip-broken --nobest install -y cygport cygwin64-binutils cygwin64-w32api-headers cygwin64-w32api-runtime cygwin64-libltdl cygwin64-cpp cygwin64-gcc cygwin64-libtool cygwin64-filesystem cygwin64 cygwin64
+    echo "Installing DNF Copr plugins ..."
+    dnf -y --best install 'dnf-command(copr)' || dnf -y --nobest install 'dnf-command(copr)'
+    echo "Enabling Cygwin repo ..."
+    dnf -y copr enable yselkowitz/cygwin || dnf -y copr enable yselkowitz/cygwin
+    echo "Installing Cygwin software ..."
+    dnf --best install -y cygport cygwin64-binutils cygwin64-w32api-headers cygwin64-w32api-runtime cygwin64-libltdl cygwin64-cpp cygwin64-gcc cygwin64-libtool cygwin64-filesystem cygwin64 || dnf --skip-broken --nobest install -y cygport cygwin64-binutils cygwin64-w32api-headers cygwin64-w32api-runtime cygwin64-libltdl cygwin64-cpp cygwin64-gcc cygwin64-libtool cygwin64-filesystem cygwin64 cygwin64
     echo -e "section_end:`date +%s`:coprcygwinstall_section\r\e[0K" || true
 
 ############################################################################
@@ -318,14 +337,14 @@
     echo -e "section_start:`date +%s`:oracleinstall_section[collapsed=true]\r\e[0K\033[0;36mSetting up Oracle Linux 8 ...\033[0m" || true
     echo "Checking for Docker ..."
     test -f /.dockerenv || exit 1
-    test -z "${SKIP_UPDATE}" && echo "Installing latest EPEL-8 release ..."
-    test -z "${SKIP_UPDATE}" && dnf -y --refresh --allowerasing --best install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm || dnf -y --refresh --allowerasing --nobest install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-    test -z "${SKIP_UPDATE}" && echo "Enabling Oracle Linux 8 CodeReady Builder repo ..."
-    test -z "${SKIP_UPDATE}" && echo '[OL8_codeready_builder]' > /etc/yum.repos.d/codeready_builder.repo
-    test -z "${SKIP_UPDATE}" && echo 'name=OL8_codeready_builder' >> /etc/yum.repos.d/codeready_builder.repo
-    test -z "${SKIP_UPDATE}" && echo 'baseurl=https://yum.oracle.com/repo/OracleLinux/OL8/codeready/builder/x86_64/' >> /etc/yum.repos.d/codeready_builder.repo
-    test -z "${SKIP_UPDATE}" && echo 'enabled=1' >> /etc/yum.repos.d/codeready_builder.repo
-    test -z "${SKIP_UPDATE}" && echo 'gpgcheck=0' >> /etc/yum.repos.d/codeready_builder.repo
+    echo "Installing latest EPEL-8 release ..."
+    dnf -y --refresh --allowerasing --best install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm || dnf -y --refresh --allowerasing --nobest install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+    echo "Enabling Oracle Linux 8 CodeReady Builder repo ..."
+    echo '[OL8_codeready_builder]' > /etc/yum.repos.d/codeready_builder.repo
+    echo 'name=OL8_codeready_builder' >> /etc/yum.repos.d/codeready_builder.repo
+    echo 'baseurl=https://yum.oracle.com/repo/OracleLinux/OL8/codeready/builder/x86_64/' >> /etc/yum.repos.d/codeready_builder.repo
+    echo 'enabled=1' >> /etc/yum.repos.d/codeready_builder.repo
+    echo 'gpgcheck=0' >> /etc/yum.repos.d/codeready_builder.repo
     echo -e "section_end:`date +%s`:oracleinstall_section\r\e[0K" || true
 
 ############################################################################
@@ -348,12 +367,12 @@
     echo -e "section_start:`date +%s`:voidlsetup_section[collapsed=true]\r\e[0K\033[0;36mSetting up Void Linux ...\033[0m" || true
     echo "Checking for Docker ..."
     test -f /.dockerenv || exit 1
-    test -z "${SKIP_UPDATE}" && echo "Updating xbps ..."
-    test -z "${SKIP_UPDATE}" && xbps-install -Suy xbps || xbps-install -Suy xbps
-    test -z "${SKIP_UPDATE}" && echo "Updating system ..."
-    test -z "${SKIP_UPDATE}" && xbps-install -Suy || xbps-install -Suy
-    test -z "${SKIP_UPDATE}" && echo "Installing software ..."
-    test -z "${SKIP_UPDATE}" && export ARGS="mksh gcc clang llvm clang-tools-extra git unzip zip curl wget sed tar gawk file bash coreutils make ctags lzip gzip libuv-devel psmisc grep moreutils gnupg libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-devel"; xbps-install -Suy ${ARGS:?} || xbps-install -Suy ${ARGS:?}
+    echo "Updating xbps ..."
+    xbps-install -Suy xbps || xbps-install -Suy xbps
+    echo "Updating system ..."
+    xbps-install -Suy || xbps-install -Suy
+    echo "Installing software ..."
+    export ARGS="automake m4 libtool pkg-config mksh gcc clang llvm clang-tools-extra git unzip zip curl wget sed tar gawk file bash coreutils make ctags lzip gzip libuv-devel psmisc grep moreutils gnupg libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-devel"; xbps-install -Suy ${ARGS:?} || xbps-install -Suy ${ARGS:?}
     echo -e "section_end:`date +%s`:voidlsetup_section\r\e[0K" || true
 
 ############################################################################
@@ -411,13 +430,15 @@ Linux/x86_64, AlmaLinux 9, Clang, GCC:
     - *scriptInstallNfpm
     - *scriptSanity
     - *scriptCommon
+    - *scriptBuildlibbacktrace
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - make distclean
-    - make CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - *scriptDPS8Mods
+    - make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -431,7 +452,7 @@ Linux/x86_64, AlmaLinux 9, Clang, GCC:
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 120 minutes
+  timeout: 30 minutes
   interruptible: true
 
 ############################################################################
@@ -450,13 +471,15 @@ Linux/x86_64, Alpine Edge, Clang, GCC:
     - *scriptInstallNfpm
     - *scriptSanity
     - *scriptCommon
+    - *scriptBuildlibbacktrace
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - make distclean
-    - env LDFLAGS=-static make CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - *scriptDPS8Mods
+    - env LDFLAGS=-static make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -477,7 +500,60 @@ Linux/x86_64, Alpine Edge, Clang, GCC:
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 120 minutes
+  timeout: 30 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/powerpc64el, IBM Advance Toolchain 16:
+  stage: build
+  tags:
+    - Linux
+    - Cross-AT16
+    - Linux-Shell
+  script:
+    - export GLCICD_JOB="crossAT16job" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
+    - *scriptSanity
+    - *scriptCommon
+    - export DISTDIR="dps8m-master"
+    - *scriptExtraInfo
+    - *scriptDPS8Mods
+    - env LOCAL_CONFOPTS="--host=powerpc64le-linux-gnu" CC="/opt/at16.0/bin/powerpc64le-linux-gnu-gcc" CFLAGS="-DNO_WARN_X86_INTRINSICS -ftree-vectorize -fpeel-loops -mcpu=power8 -mtune=power8 -fsigned-char -flto" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") libuvrel --output-sync
+    - env CC="/opt/at16.0/bin/powerpc64le-linux-gnu-gcc" CFLAGS="-DNO_WARN_X86_INTRINSICS -ftree-vectorize -fpeel-loops -mcpu=power8 -mtune=power8 -fsigned-char -flto" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-ate.tar "./${DISTDIR:?}" )
+    - pigz -11 -f -m -n dps8m-master-linux-ate.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - env LOCAL_CONFOPTS="--host=powerpc64le-linux-gnu" CC="/opt/at16.0/bin/powerpc64le-linux-gnu-gcc" CFLAGS="-DNO_WARN_X86_INTRINSICS -ftree-vectorize -fpeel-loops -mcpu=power9 -mtune=power9 -fsigned-char -flto" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") libuvrel --output-sync
+    - env CC="/opt/at16.0/bin/powerpc64le-linux-gnu-gcc" CFLAGS="-DNO_WARN_X86_INTRINSICS -ftree-vectorize -fpeel-loops -mcpu=power9 -mtune=power9 -fsigned-char -flto" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-atn.tar "./${DISTDIR:?}" )
+    - pigz -11 -f -m -n dps8m-master-linux-atn.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - env LOCAL_CONFOPTS="--host=powerpc64le-linux-gnu" CC="/opt/at16.0/bin/powerpc64le-linux-gnu-gcc" CFLAGS="-DNO_WARN_X86_INTRINSICS -ftree-vectorize -fpeel-loops -mcpu=power10 -mtune=power10 -fsigned-char -flto" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") libuvrel --output-sync
+    - env CC="/opt/at16.0/bin/powerpc64le-linux-gnu-gcc" CFLAGS="-DNO_WARN_X86_INTRINSICS -ftree-vectorize -fpeel-loops -mcpu=power10 -mtune=power10 -fsigned-char -flto" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-att.tar "./${DISTDIR:?}" )
+    - pigz -11 -f -m -n dps8m-master-linux-att.tar
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/dps8m-master-linux-ate.tar.gz
+      - ${CI_PROJECT_DIR:?}/dps8m-master-linux-atn.tar.gz
+      - ${CI_PROJECT_DIR:?}/dps8m-master-linux-att.tar.gz
+  retry: 2
+  timeout: 30 minutes
   interruptible: true
 
 ############################################################################
@@ -499,7 +575,7 @@ Windows/x86_64, Cygwin64-GCC:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - cygwin64-make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - cygwin64-make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - *scriptBuildInfo
     - cp -vf /usr/x86_64-pc-cygwin/sys-root/usr/bin/cygwin1.dll ${CI_PROJECT_DIR:?}
     - rm -f "${CI_PROJECT_DIR:?}/cygwin1.dll"
@@ -517,7 +593,7 @@ Windows/x86_64, Cygwin64-GCC:
       - ${CI_PROJECT_DIR:?}/dps8m-master-cygwin-64.tar.gz
       - ${CI_PROJECT_DIR:?}/dps8m.zip
   retry: 2
-  timeout: 120 minutes
+  timeout: 30 minutes
   interruptible: true
 
 ############################################################################
@@ -536,7 +612,7 @@ Linux/x86_64, Fedora, Intel oneAPI DPC++/C++:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - . /opt/intel/oneapi/common.sh 2> /dev/null && . /opt/intel/oneapi/setvars.sh 2> /dev/null && icx -V && CFLAGS="-Wno-tautological-constant-compare" make CC=icx NO_LTO=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - . /opt/intel/oneapi/common.sh 2> /dev/null && . /opt/intel/oneapi/setvars.sh 2> /dev/null && icx -V && CFLAGS="-Wno-tautological-constant-compare" make CC=icx WITH_BACKTRACE=1 NO_LTO=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -550,7 +626,7 @@ Linux/x86_64, Fedora, Intel oneAPI DPC++/C++:
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 120 minutes
+  timeout: 30 minutes
   interruptible: true
 
 ############################################################################
@@ -570,7 +646,7 @@ Linux/x86_64, Fedora, Oracle Developer Studio:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - pkill suncc > /dev/null 2>&1 || true
-    - export CSTD="c11" && export CFLAGS="-DNO_C_ELLIPSIS -DUSE_FLOCK=1 -DUSE_FCNTL=1" && make CC="ccache /opt/oracle/developerstudio-latest/bin/suncc -xatomic=studio -xautopar -Qy -fd -xO4 -m64 -native -xlibmil -xvpara -xCC -mt -xlibmopt -xloopinfo -fno-semantic-interposition -native -xregs=frameptr -xprefetch=auto -xprefetch_level=3 -xjobs=$(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")" SUNPRO=1 NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory 2>&1 | grep --line-buffered -v -e " not parallelized" -e " enumerator value overflows INT_MAX"
+    - export CSTD="c11" && export CFLAGS="-DNO_C_ELLIPSIS -DUSE_FLOCK=1 -DUSE_FCNTL=1" && make CC="ccache /opt/oracle/developerstudio-latest/bin/suncc -xatomic=studio -xautopar -Qy -fd -xO5 -m64 -xlibmil -xvpara -xCC -mt -xlibmopt -xloopinfo -fno-semantic-interposition -xregs=frameptr -xprefetch=auto -xprefetch_level=3 -xjobs=$(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")" SUNPRO=1 NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync 2>&1 | grep --line-buffered -v -e " not parallelized" -e " enumerator value overflows INT_MAX"
     - pkill suncc > /dev/null 2>&1 || true
     - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
@@ -591,7 +667,7 @@ Linux/x86_64, Fedora, Oracle Developer Studio:
       - ${CI_PROJECT_DIR:?}/libmtsk_crt.so.1.lz
       - ${CI_PROJECT_DIR:?}/libmtsk.so.1.lz
   retry: 2
-  timeout: 45 minutes
+  timeout: 30 minutes
   interruptible: true
 
 ############################################################################
@@ -610,10 +686,9 @@ Linux/x86_64, Fedora, AOCC, AOCL:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - ( . /opt/AMD/aocc-latest/setenv_AOCC.sh 2> /dev/null && export PATH="/opt/AMD/aocc-latest/bin:${PATH:?}" && export LD_LIBRARY_PATH="/opt/AMD/aocc-latest/lib:/opt/AMD/aocl/latest/lib:${LD_LIBRARY_PATH:-}" && clang --version && export CFLAGS="-Wno-unused-command-line-argument -Ofast -ffast-math"; make CC="clang -mllvm -vector-library=AMDLIBM" LIBS="-L/opt/AMD/aocl/latest/lib -L/opt/AMD/aocc-latest/lib /opt/AMD/aocl/latest/lib/libalm.a /opt/AMD/aocl/latest/amd-memcpy/lib/libamd_memcpy.so -lpthread -luv -lm" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory )
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
-    - *scriptBuildInfo
-    - *scriptVerifyVersion
+    - ( . /opt/AMD/aocc-latest/setenv_AOCC.sh 2> /dev/null && export PATH="/opt/AMD/aocc-latest/bin:${PATH:?}" && export LD_LIBRARY_PATH="/opt/AMD/aocc-latest/lib:/opt/AMD/aocl/latest/lib:${LD_LIBRARY_PATH:-}" && clang --version && export CFLAGS="-Wno-unused-command-line-argument -I/usr/local/include -Ofast -ffast-math"; make WITH_BACKTRACE=1 CC="clang -mllvm -vector-library=AMDLIBM" LIBS="-L/opt/AMD/aocl/latest/lib -L/opt/AMD/aocc-latest/lib -L/usr/local/lib /opt/AMD/aocl/latest/lib/libalm.a -laocl-libmem /usr/local/lib/libbacktrace.a -lpthread -luv -lm" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync )
+    - printf %s\\n "SHOW VERSION" | env LD_LIBRARY_PATH="/opt/AMD/aocc-latest/lib:/opt/AMD/aocl/latest/lib:${LD_LIBRARY_PATH:-}" ./src/dps8/dps8
+    - printf %s\\n "SHOW BUILDINFO" | env LD_LIBRARY_PATH="/opt/AMD/aocc-latest/lib:/opt/AMD/aocl/latest/lib:${LD_LIBRARY_PATH:-}" ./src/dps8/dps8
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
@@ -624,7 +699,7 @@ Linux/x86_64, Fedora, AOCC, AOCL:
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 120 minutes
+  timeout: 30 minutes
   interruptible: true
 
 ############################################################################
@@ -643,13 +718,15 @@ Linux/x86_64, Fedora, Clang, GCC:
     - *scriptInstallNfpm
     - *scriptSanity
     - *scriptCommon
+    - *scriptBuildlibbacktrace
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - make distclean
-    - make CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - *scriptDPS8Mods
+    - make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -663,7 +740,7 @@ Linux/x86_64, Fedora, Clang, GCC:
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 120 minutes
+  timeout: 30 minutes
   interruptible: true
 
 ############################################################################
@@ -682,10 +759,10 @@ GNU GLOBAL Hypertext:
     - *scriptInstallNfpm
     - *scriptSanity
     - *scriptCommon
-    - *scriptDPS8Mods
     - *scriptExtraInfo
     - make distclean
-    - make CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - *scriptDPS8Mods
+    - make CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - htags --map-file --auto-completion --colorize-warned-line -h -I --tabs 4 -v -n -o -s --tabs 4 --table-flist --statistics
   dependencies: []
   artifacts:
@@ -693,7 +770,7 @@ GNU GLOBAL Hypertext:
     paths:
       - ${CI_PROJECT_DIR:?}/HTML
   retry: 1
-  timeout: 120 minutes
+  timeout: 30 minutes
   interruptible: true
 
 ############################################################################
@@ -721,7 +798,7 @@ Hugo:
     paths:
       - ${CI_PROJECT_DIR:?}/docs/hpages/public
   retry: 1
-  timeout: 120 minutes
+  timeout: 30 minutes
   interruptible: true
 
 ############################################################################
@@ -739,13 +816,15 @@ Linux/x86_64, Fedora Rawhide, Clang, GCC:
     - *scriptInstallNfpm
     - *scriptSanity
     - *scriptCommon
+    - *scriptBuildlibbacktrace
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - make distclean
-    - make CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - *scriptDPS8Mods
+    - make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -759,12 +838,12 @@ Linux/x86_64, Fedora Rawhide, Clang, GCC:
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 120 minutes
+  timeout: 30 minutes
   interruptible: true
 
 ############################################################################
 
-AIX/powerpc64, IBM AIX, GCC 10:
+AIX/powerpc64, IBM AIX, GCC:
   stage: build
   tags:
     - AIX
@@ -775,7 +854,7 @@ AIX/powerpc64, IBM AIX, GCC 10:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - gmake CC=gcc-10 NO_LTO=1 -j 6 --output-sync --print-directory
+    - env CFLAGS="-I/usr/local/include" LDFLAGS="-L/usr/local/lib" gmake WITH_BACKTRACE=1 CC=gcc-10 NO_LTO=1 -j 6 --output-sync
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -796,7 +875,7 @@ AIX/powerpc64, IBM AIX, GCC 10:
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 120 minutes
+  timeout: 60 minutes
   interruptible: true
 
 ############################################################################
@@ -812,7 +891,7 @@ AIX/powerpc64, IBM AIX, IBM XL C/C++ V16.1:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - export XLCXLC="xlc_r" && export XLCVER="16.1.0" && gmake -j 6 NO_LTO=1 CC="/opt/IBM/xlC/${XLCVER:?}/bin/${XLCXLC:?} -O3 -qhot -qarch=pwr8 -qchars=signed -q64 -qalign=natural -qtls" CFLAGS="-DUSE_POPT=1 -DUSE_FLOCK=1 -DUSE_FCNTL=1 -DAIX_ATOMICS=1 -DNEED_128=1 -DLOCKLESS=1 -I/opt/freeware/include -I../simh -I../decNumber -D_GNU_SOURCE -U__STRICT_POSIX__" USE_POPT=1 NEED_128=1 PULIBS="-lpopt" LDFLAGS="-L/opt/freeware/lib -b64" LIBS="-luv -lbsd -lm" --output-sync --print-directory
+    - export XLCXLC="xlc_r" && export XLCVER="16.1.0" && gmake -j 6 NO_LTO=1 CC="/opt/IBM/xlC/${XLCVER:?}/bin/${XLCXLC:?} -O3 -qhot -qarch=pwr8 -qchars=signed -q64 -qalign=natural -qtls" CFLAGS="-DUSE_POPT=1 -DUSE_FLOCK=1 -DUSE_FCNTL=1 -DAIX_ATOMICS=1 -DNEED_128=1 -DLOCKLESS=1 -I/opt/freeware/include -I../simh -I../decNumber -D_GNU_SOURCE -U__STRICT_POSIX__" USE_POPT=1 NEED_128=1 PULIBS="-lpopt" LDFLAGS="-L/opt/freeware/lib -b64" LIBS="-luv -lbsd -lm" --output-sync
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -833,7 +912,7 @@ AIX/powerpc64, IBM AIX, IBM XL C/C++ V16.1:
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 120 minutes
+  timeout: 60 minutes
   interruptible: true
 
 ############################################################################
@@ -849,7 +928,7 @@ AIX/powerpc64, IBM AIX, IBM XL Clang V16.1:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - export XLCVER="16.1.0" && LDFLAGS="-L/opt/freeware/lib -b64 -m64" CFLAGS="-m64 -I/opt/freeware/include" gmake -j 6 NO_LTO=1 CC="/opt/IBM/xlC/${XLCVER:?}/bin/xlclang" NEED_128=1 --output-sync --print-directory
+    - export XLCVER="16.1.0" && LDFLAGS="-L/opt/freeware/lib -b64 -m64" CFLAGS="-m64 -I/opt/freeware/include" gmake -j 6 NO_LTO=1 CC="/opt/IBM/xlC/${XLCVER:?}/bin/xlclang" NEED_128=1 --output-sync
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -863,7 +942,7 @@ AIX/powerpc64, IBM AIX, IBM XL Clang V16.1:
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 120 minutes
+  timeout: 60 minutes
   interruptible: true
 
 ############################################################################
@@ -881,7 +960,7 @@ Linux/powerpc64el, Ubuntu LTS, IBM XL C/C++:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - export IBMXLCVER="latest" && /opt/ibm/xlC/"${IBMXLCVER:?}"/bin/c99_r -qversion 2>&1 | grep "Version" && make NO_LTO=1 CC=/opt/ibm/xlC/"${IBMXLCVER:?}"/bin/c99_r -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - export IBMXLCVER="latest" && /opt/ibm/xlC/"${IBMXLCVER:?}"/bin/c99_r -qversion 2>&1 | grep "Version" && make NO_LTO=1 CC=/opt/ibm/xlC/"${IBMXLCVER:?}"/bin/c99_r -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -902,12 +981,12 @@ Linux/powerpc64el, Ubuntu LTS, IBM XL C/C++:
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 120 minutes
+  timeout: 60 minutes
   interruptible: true
 
 ############################################################################
 
-Linux/powerpc64el, Ubuntu LTS, IBM Advance Toolchain 15, IBM MASS:
+Linux/powerpc64el, IBM Advance Toolchain 15:
   stage: build
   tags:
     - Shell-Linux
@@ -920,7 +999,7 @@ Linux/powerpc64el, Ubuntu LTS, IBM Advance Toolchain 15, IBM MASS:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - export IBMXLMASSVER="latest-9" export IBMATVER="15.0" && export PATH="/opt/at${IBMATVER:?}/bin:/opt/at${IBMATVER:?}/sbin:/opt/at${IBMATVER:?}/powerpc64le-linux-gnu/bin:${PATH:?}" && cc --version 2>&1 | grep "Advance" && make CC="gcc -DNO_WARN_X86_INTRINSICS -ftree-vectorize -fpeel-loops -mcpu=power8 -mtune=power8 -fsigned-char -mveclibabi=mass -Ofast -flto" LIBS="-L/opt/at${IBMATVER:?}/lib64 -L/opt/ibm/xlmass/${IBMXLMASSVER:?}/lib -luv -lmassvp9 -lmass_simdp9 -lmass -ldl -lrt -lm -flto" -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - export IBMATVER="15.0" && export PATH="/opt/at${IBMATVER:?}/bin:/opt/at${IBMATVER:?}/sbin:/opt/at${IBMATVER:?}/powerpc64le-linux-gnu/bin:${PATH:?}" && cc --version 2>&1 | grep "Advance" && make CC="gcc -DNO_WARN_X86_INTRINSICS -ftree-vectorize -fpeel-loops -mcpu=power8 -mtune=power8 -fsigned-char -Ofast -flto" LIBS="-L/opt/at${IBMATVER:?}/lib64 -luv -ldl -lrt -lm -flto" -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptVerifyVersion
     - export DISTDIR="dps8-$(./src/dps8/dps8 --version | awk '{ print $3 }' | tr -cd '0-9A-z.\-\_\+' | tr '+' '_')"
@@ -940,7 +1019,7 @@ Linux/powerpc64el, Ubuntu LTS, IBM Advance Toolchain 15, IBM MASS:
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 120 minutes
+  timeout: 60 minutes
   interruptible: true
 
 ############################################################################
@@ -959,7 +1038,7 @@ Windows/ARM64, LLVM-MinGW:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make CC="aarch64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - make CC="aarch64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - test -f src/dps8/dps8.exe
     - *scriptBuildInfo
     - mkdir -p src/dps8-master-mingw-a64
@@ -974,7 +1053,7 @@ Windows/ARM64, LLVM-MinGW:
       - ${CI_PROJECT_DIR:?}/dps8m-master-mingw-a64.zip
       - ${CI_PROJECT_DIR:?}/dps8m.zip
   retry: 2
-  timeout: 120 minutes
+  timeout: 30 minutes
   interruptible: true
 
 ############################################################################
@@ -993,7 +1072,7 @@ Windows/ARMv7, LLVM-MinGW:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make CC="armv7-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread -D__int64_t=int64_t -D__MINGW64__" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - make CC="armv7-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread -D__int64_t=int64_t -D__MINGW64__" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - test -f src/dps8/dps8.exe
     - *scriptBuildInfo
     - mkdir -p src/dps8-master-mingw-av7
@@ -1008,7 +1087,7 @@ Windows/ARMv7, LLVM-MinGW:
       - ${CI_PROJECT_DIR:?}/dps8m-master-mingw-av7.zip
       - ${CI_PROJECT_DIR:?}/dps8m.zip
   retry: 2
-  timeout: 120 minutes
+  timeout: 30 minutes
   interruptible: true
 
 ############################################################################
@@ -1027,7 +1106,7 @@ Windows/i686, LLVM-MinGW:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make CC="i686-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread -D__int64_t=int64_t -D__MINGW64__" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - make CC="i686-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread -D__int64_t=int64_t -D__MINGW64__" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - test -f src/dps8/dps8.exe
     - *scriptBuildInfo
     - mkdir -p src/dps8-master-mingw-x32
@@ -1042,7 +1121,7 @@ Windows/i686, LLVM-MinGW:
       - ${CI_PROJECT_DIR:?}/dps8m-master-mingw-x32.zip
       - ${CI_PROJECT_DIR:?}/dps8m.zip
   retry: 2
-  timeout: 120 minutes
+  timeout: 30 minutes
   interruptible: true
 
 ############################################################################
@@ -1061,7 +1140,7 @@ Windows/x86_64, LLVM-MinGW:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make CC="x86_64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - make CC="x86_64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - *scriptBuildInfo
     - test -f src/dps8/dps8.exe
     - *scriptCompressArtifacts
@@ -1071,7 +1150,7 @@ Windows/x86_64, LLVM-MinGW:
     paths:
       - ${CI_PROJECT_DIR:?}/dps8m.zip
   retry: 2
-  timeout: 120 minutes
+  timeout: 30 minutes
   interruptible: true
 
 ############################################################################
@@ -1093,7 +1172,7 @@ Windows/x86_64, MinGW64-GCC:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - *scriptBuildInfo
     - test -f src/dps8/dps8.exe
     - mkdir -p src/dps8-master-mingw-x86
@@ -1108,7 +1187,7 @@ Windows/x86_64, MinGW64-GCC:
       - ${CI_PROJECT_DIR:?}/dps8m-master-mingw-x86.zip
       - ${CI_PROJECT_DIR:?}/dps8m.zip
   retry: 2
-  timeout: 120 minutes
+  timeout: 30 minutes
   interruptible: true
 
 ############################################################################
@@ -1128,13 +1207,15 @@ Linux/x86_64, Oracle Linux 8, Clang, GCC:
     - *scriptInstallNfpm
     - *scriptSanity
     - *scriptCommon
+    - *scriptBuildlibbacktrace
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - make distclean
-    - make CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - *scriptDPS8Mods
+    - make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1148,7 +1229,7 @@ Linux/x86_64, Oracle Linux 8, Clang, GCC:
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 120 minutes
+  timeout: 30 minutes
   interruptible: true
 
 ###########################################################################
@@ -1186,7 +1267,7 @@ Source Kits:
       - ${CI_PROJECT_DIR:?}/dps8m-master-src.zip
       - ${CI_PROJECT_DIR:?}/dps8m-master-src.zpaq
   retry: 2
-  timeout: 120 minutes
+  timeout: 45 minutes
   interruptible: true
 
 ############################################################################
@@ -1206,13 +1287,15 @@ Linux/x86_64, Ubuntu, Clang, GCC:
     - *scriptAptInstallLibuv1
     - *scriptSanity
     - *scriptCommon
+    - *scriptBuildlibbacktrace
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - make distclean
-    - make CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - *scriptDPS8Mods
+    - make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1226,7 +1309,7 @@ Linux/x86_64, Ubuntu, Clang, GCC:
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 120 minutes
+  timeout: 30 minutes
   interruptible: true
 
 ############################################################################
@@ -1246,13 +1329,15 @@ Linux/x86_64, Ubuntu LTS, Clang, GCC:
     - *scriptAptInstallLibuv1
     - *scriptSanity
     - *scriptCommon
+    - *scriptBuildlibbacktrace
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - make distclean
-    - make CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - *scriptDPS8Mods
+    - make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1266,7 +1351,7 @@ Linux/x86_64, Ubuntu LTS, Clang, GCC:
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 120 minutes
+  timeout: 30 minutes
   interruptible: true
 
 ############################################################################
@@ -1287,13 +1372,15 @@ Linux/x86_64, Void glibc, Clang, GCC:
     - *scriptInstallNfpm
     - *scriptSanity
     - *scriptCommon
+    - *scriptBuildlibbacktrace
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - make distclean
-    - make CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - *scriptDPS8Mods
+    - make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -1306,7 +1393,7 @@ Linux/x86_64, Void glibc, Clang, GCC:
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 120 minutes
+  timeout: 45 minutes
   interruptible: true
 
 ############################################################################
@@ -1327,13 +1414,15 @@ Linux/x86_64, Void musl, static, Clang, GCC:
     - *scriptInstallNfpm
     - *scriptSanity
     - *scriptCommon
+    - *scriptBuildlibbacktrace
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - ( export LDFLAGS="-static"; make CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory )
+    - ( export LDFLAGS="-static"; make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync )
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - make distclean
-    - ( export LDFLAGS="-static"; make CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory )
+    - *scriptDPS8Mods
+    - ( export LDFLAGS="-static"; make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync )
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -1346,7 +1435,7 @@ Linux/x86_64, Void musl, static, Clang, GCC:
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 120 minutes
+  timeout: 45 minutes
   interruptible: true
 
 ############################################################################
@@ -1362,7 +1451,7 @@ Solaris/x86_64, Oracle Solaris 11.4, GCC:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - ( gcc -v; gmake CC=gcc -j 6 --output-sync --print-directory )
+    - ( gcc -v; gmake WITH_BACKTRACE=1 CC=gcc -j 6 --output-sync )
     - echo "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1383,7 +1472,7 @@ Solaris/x86_64, Oracle Solaris 11.4, GCC:
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 120 minutes
+  timeout: 30 minutes
   interruptible: true
 
 ############################################################################
@@ -1399,7 +1488,7 @@ Solaris/x86_64, Oracle Solaris 11.4, Oracle Developer Studio:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - export CSTD="c11" && export CFLAGS="-DNO_C_ELLIPSIS" && gmake CC="/opt/developerstudio-latest/bin/suncc -xatomic=studio -xautopar -Qy -xO4 -m64 -native -xlibmil -xvpara -xCC -mt -xlibmopt -xloopinfo -xvector=simd -fma=fused -fno-semantic-interposition -xarch=avx2 -xregs=frameptr -xprefetch=auto -xprefetch_level=3 -xjobs=$(psrinfo -p 2> /dev/null || printf %s\\n "4")" --output-sync --print-directory SUNPRO=1 NEED_128=1 -j $(psrinfo -p 2> /dev/null || printf %s\\n "4") 2>&1 | grep -v " not parallelized" | grep -v " enumerator value overflows INT_MAX"
+    - export CSTD="c11" && export CFLAGS="-DNO_C_ELLIPSIS -I/usr/local/include" && export LDFLAGS="-I/usr/local/lib" && gmake CC="/opt/developerstudio-latest/bin/suncc -xatomic=studio -xautopar -Qy -xO5 -m64 -xlibmil -xvpara -xCC -mt -xlibmopt -xloopinfo -fno-semantic-interposition -xregs=frameptr -xprefetch=auto -xprefetch_level=3 -xjobs=$(psrinfo -p 2> /dev/null || printf %s\\n "4")" --output-sync SUNPRO=1 NEED_128=1 -j $(psrinfo -p 2> /dev/null || printf %s\\n "4") 2>&1 | grep -v " not parallelized" | grep -v " enumerator value overflows INT_MAX"
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - lzip -9vk < /opt/developerstudio-latest/lib/compilers/atomic/amd64/libstatomic.so.1 > libstatomic.so.1.lz
@@ -1414,12 +1503,12 @@ Solaris/x86_64, Oracle Solaris 11.4, Oracle Developer Studio:
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
       - ${CI_PROJECT_DIR:?}/libstatomic.so.1.lz
   retry: 2
-  timeout: 120 minutes
+  timeout: 30 minutes
   interruptible: true
 
 ############################################################################
 
-illumos/x86_64, OpenIndiana Hipster, Clang, GCC 11:
+illumos/x86_64, OpenIndiana Hipster, Clang, GCC:
   stage: build
   tags:
     - OpenIndiana
@@ -1431,11 +1520,12 @@ illumos/x86_64, OpenIndiana Hipster, Clang, GCC 11:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - gmake CC=clang NO_LTO=1 -j 6 --output-sync --print-directory
+    - gmake CC=clang NO_LTO=1 -j 6 --output-sync
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - gmake distclean
-    - gmake CC=gcc-11 -j 6 --output-sync --print-directory
+    - *scriptDPS8Mods
+    - gmake WITH_BACKTRACE=1 CC=gcc-11 -j 6 --output-sync
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1456,7 +1546,7 @@ illumos/x86_64, OpenIndiana Hipster, Clang, GCC 11:
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 120 minutes
+  timeout: 30 minutes
   interruptible: true
 
 #############################################################################
@@ -1473,7 +1563,7 @@ Darwin/x86_64, macOS, Xcode:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make CC=clang -j 6 --print-directory
+    - make WITH_BACKTRACE=1 CC=clang -j 6
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1494,7 +1584,7 @@ Darwin/x86_64, macOS, Xcode:
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 120 minutes
+  timeout: 30 minutes
   interruptible: true
 
 #############################################################################
@@ -1534,7 +1624,7 @@ Option Verification Test:
     paths:
       - ${CI_PROJECT_DIR:?}/options-test.txt
   retry: 2
-  timeout: 360 minutes
+  timeout: 180 minutes
   interruptible: true
 
 #############################################################################
@@ -1557,9 +1647,10 @@ DPS8M Omnibus Documentation:
     - mktexfmt xelatex.fmt || true
     - *scriptSanity
     - *scriptCommon
+    - *scriptBuildlibbacktrace
     - *scriptExtraInfo
     - *scriptDPS8Mods
-    - gmake && gmake docspdf
+    - env WITH_BACKTRACE=1 NATIVE=1 gmake && env WITH_BACKTRACE=1 NATIVE=1 gmake docspdf
   dependencies: []
   artifacts:
     when: always
@@ -1567,7 +1658,7 @@ DPS8M Omnibus Documentation:
     paths:
       - ${CI_PROJECT_DIR:?}/docs/dps8-omnibus.pdf
   retry: 2
-  timeout: 120 minutes
+  timeout: 45 minutes
   interruptible: true
 
 ############################################################################
@@ -1590,9 +1681,10 @@ Multics CI-Kit Test:
     - *scriptSanity
     - ( cd src/ci-kit && env NO_CI_SYMLINK_TAPES=1 STASH_CI_TAPES=1 ./init.sh ) || true
     - *scriptCommon
+    - *scriptBuildlibbacktrace
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - bash -x -c '( set -o pipefail ; set -x ; cd src/ci-kit && env NO_CI_SYMLINK_TAPES=1 STASH_CI_TAPES=1 ./init.sh ; ./ci.sh ; make -f ci.makefile diff ; mv -f new.log new.txt)'
+    - bash -x -c '( set -o pipefail ; set -x ; cd src/ci-kit && export WITH_BACKTRACE=1 && env NO_CI_SYMLINK_TAPES=1 STASH_CI_TAPES=1 ./init.sh ; ./ci.sh ; make -f ci.makefile diff ; mv -f new.log new.txt)'
   dependencies: []
   artifacts:
     when: always
@@ -1600,7 +1692,7 @@ Multics CI-Kit Test:
     paths:
       - ${CI_PROJECT_DIR:?}/src/ci-kit/new.txt
   retry: 2
-  timeout: 120 minutes
+  timeout: 90 minutes
   interruptible: true
 
 ############################################################################
@@ -1623,13 +1715,15 @@ Linux/x86_64, Ubuntu 18.04, Clang, GCC:
     - chsh -s /bin/tcsh root
     - export SHELL=/bin/tcsh
     - *scriptCommon
+    - *scriptBuildlibbacktrace
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - make distclean
-    - make CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - *scriptDPS8Mods
+    - make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1643,7 +1737,7 @@ Linux/x86_64, Ubuntu 18.04, Clang, GCC:
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 120 minutes
+  timeout: 30 minutes
   interruptible: true
 
 #############################################################################
@@ -1711,7 +1805,7 @@ Clang Analyzer:
     expire_in: 30 days
     paths:
       - ${CI_PROJECT_DIR:?}/out/*
-  timeout: 120 minutes
+  timeout: 45 minutes
   interruptible: true
 
 #############################################################################
@@ -1782,7 +1876,7 @@ Oracle Developer Studio Lint:
     expire_in: 30 days
     paths:
       - ${CI_PROJECT_DIR:?}/orstlint.txt
-  timeout: 120 minutes
+  timeout: 30 minutes
   interruptible: true
 
 #############################################################################
@@ -1823,7 +1917,7 @@ pages:
     - Linux
     - amd64
   needs:
-    - job: AIX/powerpc64, IBM AIX, GCC 10
+    - job: AIX/powerpc64, IBM AIX, GCC
     - job: AIX/powerpc64, IBM AIX, IBM XL C/C++ V16.1
     - job: Clang Analyzer
     - job: Cppcheck
@@ -1832,8 +1926,9 @@ pages:
     - job: Flawfinder
     - job: GNU GLOBAL Hypertext
     - job: Hugo
-    - job: illumos/x86_64, OpenIndiana Hipster, Clang, GCC 11
-    - job: Linux/powerpc64el, Ubuntu LTS, IBM Advance Toolchain 15, IBM MASS
+    - job: illumos/x86_64, OpenIndiana Hipster, Clang, GCC
+    - job: Linux/powerpc64el, IBM Advance Toolchain 15
+    - job: Linux/powerpc64el, IBM Advance Toolchain 16
     - job: Linux/powerpc64el, Ubuntu LTS, IBM XL C/C++
     - job: Linux/x86_64, Alpine Edge, Clang, GCC
     - job: Oracle Developer Studio Lint
@@ -1845,7 +1940,7 @@ pages:
     - job: Windows/x86_64, Cygwin64-GCC
     - job: Windows/x86_64, MinGW64-GCC
   dependencies:
-    - "AIX/powerpc64, IBM AIX, GCC 10"
+    - "AIX/powerpc64, IBM AIX, GCC"
     - "AIX/powerpc64, IBM AIX, IBM XL C/C++ V16.1"
     - "Clang Analyzer"
     - "Cppcheck"
@@ -1854,8 +1949,9 @@ pages:
     - "Flawfinder"
     - "GNU GLOBAL Hypertext"
     - "Hugo"
-    - "illumos/x86_64, OpenIndiana Hipster, Clang, GCC 11"
-    - "Linux/powerpc64el, Ubuntu LTS, IBM Advance Toolchain 15, IBM MASS"
+    - "illumos/x86_64, OpenIndiana Hipster, Clang, GCC"
+    - "Linux/powerpc64el, IBM Advance Toolchain 15"
+    - "Linux/powerpc64el, IBM Advance Toolchain 16"
     - "Linux/powerpc64el, Ubuntu LTS, IBM XL C/C++"
     - "Linux/x86_64, Alpine Edge, Clang, GCC"
     - "Oracle Developer Studio Lint"
@@ -1891,6 +1987,9 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-aixv7-gcc.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-x86.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-at8.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-ate.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-atn.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-att.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-xlc.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-macos-x86.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-s114-x86.tar.gz public

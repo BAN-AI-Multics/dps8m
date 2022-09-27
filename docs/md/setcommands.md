@@ -90,7 +90,7 @@
 
 **Example**
 
-* Set the number of "`CPU`" units to "`6`" (*the default setting*):
+* Set the number of "`CPU`" units to "`6`" (*the default number*):
         SET CPU NUNITS=6
 
 <!------------------------------------------------------------------------------------->
@@ -159,7 +159,7 @@ the IC reaches the address specified by "**`<segno>`**" and "**`<offset>`**", id
 
 **Example**
 
-* Configure two stalls, #`1` for "`250`" iterations at "`0132:011227`", and #`2` for "`1250`" iterations at "`0122:052137`":
+* Configure two stalls, #`1` for `250` iterations at "`0132:011227`", and #`2` for `1250` iterations at "`0122:052137`":
         SET CPU STALL=1=0132:011227=250
         SET CPU STALL=2=0122:052137=1250
 
@@ -262,8 +262,9 @@ The following "**`CPU`**" configuration options are associated with a specified 
 * Set CPU**`0`** switches to "`024000717200`" (*the default value*).
         SET CPU0 CONFIG=DATA=024000717200
 
+**See Also**
 
-See *GB61-01* **Operators Guide, Appendix A** for more details.
+Refer to *GB61-01* **Operators Guide, Appendix A** for more details.
 
 <!------------------------------------------------------------------------------------->
 
@@ -461,7 +462,7 @@ See *GB61-01* **Operators Guide, Appendix A** for more details.
 "**`PTWAM`**" configures whether PTW associative memory is enabled, where "`0`" or "`disable`" is disabled and "`1`" or "`enable`" is enabled:
 
         SDWAM=<0 or 1>
-        SDWAM=<enable oo disable>
+        SDWAM=<enable or disable>
 
 **Example**
 
@@ -640,7 +641,9 @@ See *GB61-01* **Operators Guide, Appendix A** for more details.
         SET CPU0 CONFIG=ADDRESS=000000000000
 
 
-See *GB61-01* **Operators Guide, Appendix A** for more details.
+**See also**
+
+Refer to *GB61-01* **Operators Guide, Appendix A** for more details.
 
 <!------------------------------------------------------------------------------------->
 
@@ -791,7 +794,7 @@ See *GB61-01* **Operators Guide, Appendix A** for more details.
 
 **Example**
 
-* Set the number of "`IOM`" units to "`2`" (*the default setting*):
+* Set the number of "`IOM`" units to "`2`" (*the default number*):
         SET IOM NUNITS=2
 
 <!-- br -->
@@ -906,7 +909,7 @@ The following "**`IOM`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the model of **IOM`0`** to "`iom`" (*the default setting*):
+* Set the model of **IOM`0`** to "`iom`" (*the default model*):
         SET IOM0 CONFIG=MODEL=iom
 
 <!-- br -->
@@ -922,7 +925,7 @@ The following "**`IOM`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the allowed operating system mode for **IOM`0`** to **`multics`** (*the default setting*):
+* Set the allowed operating system mode for **IOM`0`** to **`multics`** (*the default allowed mode*):
         SET IOM0 CONFIG=MODE=multics
 
 <!-- br -->
@@ -938,7 +941,7 @@ The following "**`IOM`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set **IOM`0`** to boot from "`tape`" (*the default setting*):
+* Set **IOM`0`** to boot from "`tape`" (*the default boot device setting*):
         SET IOM0 CONFIG=BOOT=tape
 
 <!-- br -->
@@ -954,7 +957,7 @@ The following "**`IOM`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the base address of **IOM`0`** to **`Multics`** (`014`) (*the default setting*):
+* Set the base address of **IOM`0`** to **`Multics`** (`014`) (*the default base address*):
         SET IOM0 CONFIG=IOM_BASE=Multics
 
 <!-- br -->
@@ -970,7 +973,7 @@ The following "**`IOM`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the multiplex base address of **IOM`0`** to `0120` (*the default setting*):
+* Set the multiplex base address of **IOM`0`** to `0120` (*the default multiplex base address*):
         SET IOM0 CONFIG=MULTIPLEX_BASE=0120
 
 <!-- br -->
@@ -986,7 +989,7 @@ The following "**`IOM`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the default tape channel of **IOM`0`** to `012` (*the default setting*):
+* Set the default tape channel of **IOM`0`** to `012` (*the default tape channel setting*):
         SET IOM0 CONFIG=TAPECHAN=012
 
 <!-- br -->
@@ -1002,7 +1005,7 @@ The following "**`IOM`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the default card channel of **IOM`0`** to `011` (*the default setting*):
+* Set the default card channel of **IOM`0`** to `011` (*the default card channel setting*):
         SET IOM0 CONFIG=CARDCHAN=011
 
 <!-- br -->
@@ -1018,7 +1021,7 @@ The following "**`IOM`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the SCU port of **IOM`0`** to `0` (*the default setting*):
+* Set the SCU port of **IOM`0`** to `0` (*the default port*):
         SET IOM0 CONFIG=SCUPORT=0
 
 <!------------------------------------------------------------------------------------->
@@ -1042,7 +1045,7 @@ The following "**`IOM`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the number of `SCU` units to "`4`" (*the default setting*):
+* Set the number of `SCU` units to "`4`" (*the default number*):
         SET SCU NUNITS=6
 
 <!-- br -->
@@ -1324,7 +1327,7 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the device name of "`TAPE`**`1`**" to "`tapa_01`" (*the default setting*).
+* Set the device name of "`TAPE`**`1`**" to "`tapa_01`" (*the default device name*).
         SET TAPE1 NAME=tapa_01
 
 <!-- br -->
@@ -1338,7 +1341,7 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the number of "`TAPE`" units to "`16`" (*the default setting*):
+* Set the number of "`TAPE`" units to "`16`" (*the default number*):
         SET TAPE NUNITS=16
 
 <!------------------------------------------------------------------------------------->
@@ -1362,7 +1365,7 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the device name of **MTP`0`** to "`MTP0`" (*the default setting*).
+* Set the device name of **MTP`0`** to "`MTP0`" (*the default name*).
         SET MTP0 NAME=MTP0
 
 <!-- br -->
@@ -1376,7 +1379,7 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the number of "`MTP`" units to "`1`" (*the default setting*):
+* Set the number of "`MTP`" units to "`1`" (*the default number*):
         SET MTP NUNITS=6
 
 <!-- br -->
@@ -1413,7 +1416,7 @@ The following "**`MTP`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the device name of **`IPC0`** to "`IPC0`" (*the default setting*).
+* Set the device name of **`IPC0`** to "`IPC0`" (*the default name*).
         SET IPC0 NAME=IPC0
 
 <!-- br -->
@@ -1427,7 +1430,7 @@ The following "**`MTP`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the number of "`IPC`" units to "`2`" (*the default setting*):
+* Set the number of "`IPC`" units to "`2`" (*the default number*):
         SET IPC NUNITS=6
 
 <!------------------------------------------------------------------------------------->
@@ -1443,7 +1446,7 @@ The following "**`MTP`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the device name of **MSP`0`** to "`MSP0`" (*the default setting*).
+* Set the device name of **MSP`0`** to "`MSP0`" (*the default name*).
         SET MSP0 NAME=MSP0
 
 <!-- br -->
@@ -1457,7 +1460,7 @@ The following "**`MTP`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the number of "`MSP`" units to "`2`" (*the default setting*):
+* Set the number of "`MSP`" units to "`2`" (*the default number*):
         SET MSP NUNITS=2
 
 <!------------------------------------------------------------------------------------->
@@ -1497,7 +1500,7 @@ The following "**`MTP`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the device name of **DISK`0`** to "`disk_00`" (*the default setting*).
+* Set the device name of **DISK`0`** to "`disk_00`" (*the default name*).
         SET DISK0 NAME=disk_00
 
 <!-- br -->
@@ -1511,7 +1514,7 @@ The following "**`MTP`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the number of "`DISK`" units to "`26`" (*the default setting*):
+* Set the number of "`DISK`" units to "`26`" (*the default number*):
         SET DISK NUNITS=26
 
 <!------------------------------------------------------------------------------------->
@@ -1543,7 +1546,7 @@ The following "**`MTP`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the device name of **RDR`0`** to "`rdra`" (*the default setting*).
+* Set the device name of **RDR`0`** to "`rdra`" (*the default name*).
         SET RDR0 NAME=rdra
 
 <!-- br -->
@@ -1557,7 +1560,7 @@ The following "**`MTP`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the number of "`RDR`" units to "`3`" (*the default setting*):
+* Set the number of "`RDR`" units to "`3`" (*the default number*):
         SET RDR NUNITS=3
 
 <!------------------------------------------------------------------------------------->
@@ -1589,7 +1592,7 @@ The following "**`MTP`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the device name of **PUN`0`** to "`puna`" (*the default setting*).
+* Set the device name of **PUN`0`** to "`puna`" (*the default name*).
         SET PUN0 NAME=puna
 
 <!-- br -->
@@ -1603,7 +1606,7 @@ The following "**`MTP`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the number of "`PUN`" units to "`3`" (*the default setting*):
+* Set the number of "`PUN`" units to "`3`" (*the default number*):
         SET PUN NUNITS=2
 
 <!-- br -->
@@ -1673,7 +1676,7 @@ The following "**`PUN`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the device name of **PRT`0`** to "`prta`" (*the default setting*).
+* Set the device name of **PRT`0`** to "`prta`" (*the default name*).
         SET PRT0 NAME=prta
 
 <!-- br -->
@@ -1687,7 +1690,7 @@ The following "**`PUN`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the number of "`PRT`" units to "`4`" (*the default setting*):
+* Set the number of "`PRT`" units to "`4`" (*the default number*):
         SET PRT NUNITS=4
 
 <!-- br -->
@@ -1733,7 +1736,7 @@ The following "**`PRT`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the number of "`FNP`" units to "`8`" (*the default setting*):
+* Set the number of "`FNP`" units to "`8`" (*the default number*):
         SET FNP NUNITS=8
 
 <!-- br -->
@@ -1805,7 +1808,7 @@ The following "**`FNP`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the device name of **OPC`0`** to "`OPC0`" (*the default setting*).
+* Set the device name of **OPC`0`** to "`OPC0`" (*the default name*).
         SET OPC0 NAME=OPC0
 
 <!-- br -->
@@ -1819,7 +1822,7 @@ The following "**`FNP`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the number of "`OPC`" units to "`2`" (*the default setting*):
+* Set the number of "`OPC`" units to "`2`" (*the default number*):
         SET OPC NUNITS=2
 
 <!-- br -->
@@ -1910,7 +1913,7 @@ The following "**`OPC`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the device name of **URP`0`** to "`urpa`" (*the default setting*).
+* Set the device name of **URP`0`** to "`urpa`" (*the default name*).
         SET URP0 NAME=urpa
 
 <!-- br -->
@@ -1924,6 +1927,6 @@ The following "**`OPC`**" configuration options are associated with a specified 
 
 **Example**
 
-* Set the number of "`URP`" units to "`10`" (*the default setting*):
+* Set the number of "`URP`" units to "`10`" (*the default number*):
         SET URP NUNITS=10
 

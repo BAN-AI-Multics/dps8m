@@ -570,6 +570,7 @@ typedef struct EISstruct_s
 # define TA2 cpu.du.TAk[1]
 # define TA3 cpu.du.TAk[2]
 #else
+
     uint     TA [3];        // type alphanumeric
 # define TA1 TA [0]
 # define TA2 TA [1]
@@ -1767,7 +1768,7 @@ typedef struct
       }                                                        \
     else                                                       \
       real_addr = addr;
-#else // !SPEED
+#else
 # define SC_MAP_ADDR(addr,real_addr)                           \
    if (cpu.tweaks.useMap)                                      \
       {                                                        \
@@ -2083,7 +2084,7 @@ static inline int core_write2 (word24 addr, word36 even, word36 odd,
 # endif
     return 0;
   }
-#else  // defined(SPEED) && defined(INLINE_CORE)
+#else
 int core_read (word24 addr, word36 *data, const char * ctx);
 int core_write (word24 addr, word36 data, const char * ctx);
 int core_write_zone (word24 addr, word36 data, const char * ctx);
@@ -2130,14 +2131,14 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx);
  */
 
 // AIX_ATOMICS are SYNC_ATOMICS (for now)
-# if ( defined (AIX_ATOMICS) \
- && (! (defined (SYNC_ATOMICS))))
+# if ( defined (AIX_ATOMICS) && \
+   (! (defined (SYNC_ATOMICS))))
 #  define SYNC_ATOMICS 1
 # endif
 
 // FreeBSD atomics (default on for FreeBSD)
-# if (! defined (GNU_ATOMICS)) && (! defined (SYNC_ATOMICS)) \
- && (! defined (BSD_ATOMICS)) && (! defined (AIX_ATOMICS))
+# if (! defined (GNU_ATOMICS)) && (! defined (SYNC_ATOMICS)) && \
+     (! defined (BSD_ATOMICS)) && (! defined (AIX_ATOMICS))
 #  if defined(__FreeBSD__) \
   || defined(__FreeBSD_kernel__) \
   || defined(__DragonFly__)
@@ -2147,8 +2148,8 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx);
 # endif
 
 // Otherwise, default to GNU_ATOMICS
-# if (! defined (GNU_ATOMICS)) && (! defined (BSD_ATOMICS)) \
- && (! defined (SYNC_ATOMICS)) && (! defined (AIX_ATOMICS))
+# if (! defined (GNU_ATOMICS)) && (! defined (BSD_ATOMICS)) && \
+     (! defined (SYNC_ATOMICS)) && (! defined (AIX_ATOMICS))
 #  undef GNU_ATOMICS
 #  define GNU_ATOMICS 1
 # endif

@@ -3,23 +3,85 @@
 
 The simulator is distributed in various forms, including an easy-to-build [**source code distribution**](https://dps8m.gitlab.io/dps8m/Releases/), which can be built simply via **`make`** on *most* systems.
 
+<!-- start nopdf -->
+
 Review the complete [**DPS8M Omnibus Documentation**](https://dps8m.gitlab.io/dps8m/Documentation/) for additional details.
 
 <!-- br -->
 
-* [**General Information**](#general-information)
-* [**FreeBSD**](#freebsd)
-* [**NetBSD**](#netbsd)
-* [**OpenBSD**](#openbsd)
-* [**DragonFly BSD**](#dragonfly-bsd)
-* [**Solaris**](#solaris)
-* [**OpenIndiana**](#openindiana)
-* [**AIX**](#aix)
-* [**Haiku**](#haiku)
-* [**GNU/Hurd**](#gnuhurd)
-* [**Linux**](#linux)
-* [**macOS**](#macos)
-* [**Windows**](#windows)
+<!-- toc -->
+
+- [General Information](#general-information)
+- [FreeBSD](#freebsd)
+  * [FreeBSD prerequisites](#freebsd-prerequisites)
+  * [Standard FreeBSD compilation](#standard-freebsd-compilation)
+  * [Optimized FreeBSD compilation](#optimized-freebsd-compilation)
+  * [blinkenLights2 on FreeBSD](#blinkenlights2-on-freebsd)
+  * [Additional FreeBSD Notes](#additional-freebsd-notes)
+- [NetBSD](#netbsd)
+  * [NetBSD prerequisites](#netbsd-prerequisites)
+  * [Standard NetBSD compilation](#standard-netbsd-compilation)
+  * [Optimized NetBSD compilation](#optimized-netbsd-compilation)
+  * [Compilation using Clang](#compilation-using-clang)
+  * [blinkenLights2 on NetBSD](#blinkenlights2-on-netbsd)
+- [OpenBSD](#openbsd)
+  * [OpenBSD prerequisites](#openbsd-prerequisites)
+  * [Standard OpenBSD compilation](#standard-openbsd-compilation)
+  * [Optimized OpenBSD compilation](#optimized-openbsd-compilation)
+  * [Compilation using Clang](#compilation-using-clang-1)
+  * [Additional OpenBSD Notes](#additional-openbsd-notes)
+- [DragonFly BSD](#dragonfly-bsd)
+  * [DragonFly BSD prerequisites](#dragonfly-bsd-prerequisites)
+  * [Standard DragonFly BSD compilation](#standard-dragonfly-bsd-compilation)
+  * [Optimized DragonFly BSD compilation](#optimized-dragonfly-bsd-compilation)
+  * [Compiling using Clang](#compiling-using-clang)
+- [Solaris](#solaris)
+  * [Solaris prerequisites](#solaris-prerequisites)
+  * [Solaris compilation](#solaris-compilation)
+    + [GCC](#gcc)
+    + [Clang](#clang)
+    + [Oracle Developer Studio](#oracle-developer-studio)
+- [OpenIndiana](#openindiana)
+  * [OpenIndiana prerequisites](#openindiana-prerequisites)
+  * [OpenIndiana compilation](#openindiana-compilation)
+    + [GCC](#gcc-1)
+    + [Clang](#clang-1)
+- [AIX](#aix)
+  * [AIX prerequisites](#aix-prerequisites)
+  * [AIX compilation](#aix-compilation)
+    + [IBM XL C/C++ for AIX](#ibm-xl-cc-for-aix)
+    + [GCC](#gcc-2)
+- [Haiku](#haiku)
+- [GNU/Hurd](#gnuhurd)
+- [Linux](#linux)
+  * [Linux compilers](#linux-compilers)
+  * [Linux prerequisites](#linux-prerequisites)
+  * [Standard Linux compilation](#standard-linux-compilation)
+  * [Alternative Linux compilation](#alternative-linux-compilation)
+    + [Clang](#clang-2)
+    + [Intel oneAPI DPC++/C++](#intel-oneapi-dpcc)
+    + [AMD Optimizing C/C++](#amd-optimizing-cc)
+      - [AMD Optimized CPU Libraries](#amd-optimized-cpu-libraries)
+    + [Oracle Developer Studio](#oracle-developer-studio-1)
+    + [IBM XL C/C++ for Linux](#ibm-xl-cc-for-linux)
+    + [NVIDIA HPC SDK C Compiler](#nvidia-hpc-sdk-c-compiler)
+  * [Linux cross-compilation](#linux-cross-compilation)
+    + [IBM Advance Toolchain](#ibm-advance-toolchain)
+  * [Additional Linux Notes](#additional-linux-notes)
+- [macOS](#macos)
+  * [macOS prerequisites](#macos-prerequisites)
+  * [macOS compilation](#macos-compilation)
+    + [Xcode](#xcode)
+    + [Intel C/C++ Compiler Classic for macOS](#intel-cc-compiler-classic-for-macos)
+  * [macOS cross-compilation](#macos-cross-compilation)
+    + [ARM64](#arm64)
+    + [Intel](#intel)
+    + [Universal](#universal)
+- [Windows](#windows)
+
+<!-- tocstop -->
+
+<!-- stop nopdf -->
 
 <!-- br -->
 
@@ -488,21 +550,27 @@ If a site-provided **`libuv`** library has been installed (in the "**`/usr/local
 
 Build **`libuv`** and the simulator from the top-level source directory (using **GNU Make**):
 
-* Using **GCC**:
+#### GCC
+
+* Build using **GCC**:
 
   ```sh
   env TAR="gtar" TR="gtr" CC="gcc" gmake libuvrel && \
   env TR="gtr" CC="gcc" gmake
   ```
 
-* Using **Clang**:
+#### Clang
+
+* Build using **Clang**:
 
   ```sh
   env TAR="gtar" NO_LTO=1 TR="gtr" CC="clang" gmake libuvrel && \
   env NO_LTO=1 TR="gtr" CC="clang" gmake
   ```
 
-* Using **Oracle Developer Studio 12.6**:
+#### Oracle Developer Studio
+
+* Build using **Oracle Developer Studio 12.6**:
 
   ```sh
   env TAR="gtar" NO_LTO=1 SUNPRO=1 NEED_128=1 TR="gtr" CSTD="c11"     \
@@ -542,13 +610,17 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 
 Build the simulator from the top-level source directory (using **GNU Make**):
 
-* Using **GCC**:
+#### GCC
+
+* Build using **GCC**:
 
   ```sh
   env CC="gcc-11" gmake
   ```
 
-* Using **Clang**:
+#### Clang
+
+* Build using **Clang**:
 
   ```sh
   env NO_LTO=1 CC="clang-13" gmake
@@ -587,6 +659,8 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 Build the simulator from the top-level source directory (using **GNU Make**):
 
+#### IBM XL C/C++ for AIX
+
 * Using **IBM XL C/C++ for AIX V16.1**:
 
   ```sh
@@ -607,6 +681,8 @@ Build the simulator from the top-level source directory (using **GNU Make**):
     binaries have *not* been benchmarked or extensively tested by **The DPS8M Development Team**.
 
   * Refer to the [**IBM XL C/C++ for AIX V16.1 Optimization and Tuning Guide**](https://www.ibm.com/docs/en/xl-c-and-cpp-aix/16.1?topic=category-optimization-tuning) for additional information.
+
+#### GCC
 
 * Using **GCC 10**:
 
@@ -717,11 +793,15 @@ To use a compiler other than the default (**`cc`**) it is normally sufficient to
 
 Examples of building the simulator on **Linux** using various popular compilers follows:
 
+#### Clang
+
 * Build the simulator using **Clang** (**Clang 14** *or later recommended*):
 
   ```sh
   env CC="clang" make
   ```
+
+#### Intel oneAPI DPC++/C++
 
 * Build the simulator using **Intel oneAPI DPC++/C++** (**ICX**):
 
@@ -729,6 +809,8 @@ Examples of building the simulator on **Linux** using various popular compilers 
   source /opt/intel/oneapi/setvars.sh && \
   env CC="icx" make
   ```
+
+#### AMD Optimizing C/C++
 
 * Build the simulator using **AMD Optimizing C/C++** (**AOCC**), version 3.2.0, (with **AOCC**-provided **AMD LibM**):
 
@@ -741,7 +823,9 @@ Examples of building the simulator on **Linux** using various popular compilers 
     LOCALLIBS="-lalm" make
   ```
 
-* Build the simulator using **AMD Optimizing C/C++** (**AOCC**), version 3.2.0, with **AMD Optimizing CPU Libraries** (**AOCL**) (**AMD AOCL-LibM** and **AMD AOCL-LibMem**), version 3.2.0:
+##### AMD Optimized CPU Libraries
+
+* Build the simulator using **AMD Optimizing C/C++** (**AOCC**), version 3.2.0, with **AMD Optimized CPU Libraries** (**AOCL**) (**AMD AOCL-LibM** and **AMD AOCL-LibMem**), version 3.2.0:
 
   ```sh
   export AOCCVER="3.2.0" &&                                       \
@@ -755,6 +839,8 @@ Examples of building the simulator on **Linux** using various popular compilers 
     LOCALLIBS="-lalm -laocl-libmem" make
   ```
 
+#### Oracle Developer Studio
+
 * Build the simulator using **Oracle Developer Studio** (**SunCC**) for Linux, version 12.6:
 
   ```sh
@@ -763,6 +849,8 @@ Examples of building the simulator on **Linux** using various popular compilers 
     CC="/opt/oracle/developerstudio12.6/bin/suncc" NO_LTO=1 SUNPRO=1    \
     NEED_128=1 CSTD="c11" make
   ```
+
+#### IBM XL C/C++ for Linux
 
 * Build the simulator using **IBM XL C/C++ for Linux V16.1.1** for Linux/POWER:
 
@@ -774,6 +862,8 @@ Examples of building the simulator on **Linux** using various popular compilers 
   * When building on **POWER9** or higher systems, '`-qarch=pwr9`' should replace '`-qarch=pwr8`' in the above compiler invocation.
 
   * Compilation using higher optimization levels (*e.g.* '`-O4`', '`-O5`', '`-qhot`', *etc.*) and/or enabling automatic parallelization (*i.e.* '`-qsmp`') is possible, but the resulting binaries have *not* been benchmarked or extensively tested by **The DPS8M Development Team**.
+
+#### NVIDIA HPC SDK C Compiler
 
 * Build the simulator using **NVIDIA HPC SDK C Compiler** (**NVC**), version 22.7, for Linux/x86_64:
 
@@ -796,17 +886,19 @@ Examples of building the simulator on **Linux** using various popular compilers 
 
 The following commands will download and cross-compile a local static **`libuv`** and then cross-compile the simulator.
 
-* Using the **IBM Advance Toolchain** **V15** on Linux/x86_64 to cross-compile for Linux/POWER:
+#### IBM Advance Toolchain
+
+* Using the **IBM Advance Toolchain** **V16** on Linux/x86_64 to cross-compile for Linux/POWER:
 
   ```sh
-  env CC="/opt/at15.0/bin/powerpc64le-linux-gnu-gcc" \
+  env CC="/opt/at16.0/bin/powerpc64le-linux-gnu-gcc" \
     LOCAL_CONFOPTS="--host=powerpc64le-linux-gnu"    \
-    CFLAGS="-mcpu=power8" make libuvrel &&           \
-  env CC="/opt/at15.0/bin/powerpc64le-linux-gnu-gcc" \
-    CFLAGS="-mcpu=power8" make
+    CFLAGS="-mcpu=power8 -mtune=power8" make libuvrel &&           \
+  env CC="/opt/at16.0/bin/powerpc64le-linux-gnu-gcc" \
+    CFLAGS="-mcpu=power8 -mtune=power8" make
   ```
 
-  * When building on **POWER9** or higher systems, '`-qarch=pwr9`' should replace '`-qarch=pwr8`' in the above compiler invocation.
+  * When building for **POWER10** (or **POWER9** systems), '`power10`' (or '`power9`') should replace '`power8`' in the above compiler invocation.
 
 ### Additional Linux Notes
 
@@ -843,13 +935,17 @@ The following commands will download and cross-compile a local static **`libuv`*
 
 Build the simulator from the top-level source directory (using **GNU Make**):
 
-* Using **Xcode**:
+#### Xcode
+
+* Build using **Xcode**:
 
   ```sh
   make
   ```
 
-* Using **Intel® C++ Compiler Classic for macOS** (**`icc`**):
+#### Intel C/C++ Compiler Classic for macOS
+
+* Build using **Intel® C/C++ Compiler Classic for macOS** (**`icc`**):
 
   ```sh
   env CC="icc" CFLAGS="-xHost" make
@@ -858,7 +954,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 ### macOS cross-compilation
 
 The following commands will download and cross-compile a local static **`libuv`** and then
-cross-compile the simulator.
+cross-compile the simulator using **Xcode**.
 
 You **must** perform a '**`make distclean`**' before building for a different target.
 
@@ -869,6 +965,8 @@ You **must** perform a '**`make distclean`**' before building for a different ta
   ```
 
 Build the simulator from the top-level source directory (using **GNU Make**):
+
+#### ARM64
 
 * Cross-compilation targeting **ARM64** **macOS** 11:
 
@@ -882,6 +980,8 @@ Build the simulator from the top-level source directory (using **GNU Make**):
     make HOMEBREW_INC= HOMEBREW_LIB=
   ```
 
+#### Intel
+
 * Cross-compilation targeting **Intel** **macOS** 10.15:
 
   ```sh
@@ -893,6 +993,8 @@ Build the simulator from the top-level source directory (using **GNU Make**):
     LDFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15"  \
     make HOMEBREW_INC= HOMEBREW_LIB=
   ```
+
+#### Universal
 
 * The following more complex example builds a **macOS** Universal Binary.
   * The universal binary will support *three* architectures: **ARM64**, **Intel**, and **Intel Haswell**.
