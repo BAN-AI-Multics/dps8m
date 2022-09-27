@@ -5427,6 +5427,7 @@ ypersetup
 FILETYPE: YAML; .yml
 advzip
 aixv
+confopts
 distdir
 docsprt
 hpages
@@ -5435,6 +5436,7 @@ hugogen
 iloi
 kitname
 libcmb
+libuvrel
 lzma
 noci
 roscspell
@@ -6293,15 +6295,18 @@ executables
 findstring
 fnptelnet
 gcda
+gnuc
 gpath
 grtags
 iefp
 ifdef
 ifeq
+ififo
 ifndef
 ifneq
 infozip
 iomcmd
+isfifo
 kitname
 lgtm
 liphlpapi
@@ -6340,6 +6345,7 @@ segldr
 setv
 slte
 srcs
+stdlib
 superclean
 tarxt
 threadz
@@ -6510,6 +6516,7 @@ armv
 autoconf
 autogen
 automake
+autoreconf
 babel
 baseurl
 biber
@@ -6518,6 +6525,7 @@ bionicx
 btimestamp
 builddoc
 buildinfo
+buildlibbacktrace
 buildlibuv
 buildlibuvfedoracygwin
 buildlibuvllvmmgwaarch
@@ -6598,6 +6606,7 @@ highavailability
 href
 htags
 htmlout
+ianlancetaylor
 ibmatver
 ibmxlcver
 ibmxlmassver
@@ -6605,6 +6614,7 @@ imake
 imulator
 installrestic
 ipwd
+laocl
 latestgccver
 lbsd
 ldconfig
@@ -6614,6 +6624,7 @@ libamd
 libc
 libfaketime
 libltdl
+libmem
 libmtsk
 libstatomic
 libtool
@@ -6711,6 +6722,7 @@ upquote
 useddef
 voidlinux
 voidlsetup
+werror
 xarch
 xatomic
 xautopar
@@ -6733,6 +6745,7 @@ xvpara
 yselkowitz
 zipdist
 zref
+zxvf
 
 FILEID: c59ea528-f631-11ec-a3d7-80ee73e9b8e7
 colorcolumn
@@ -10814,6 +10827,7 @@ nonstandard
 nonzero
 noon
 noordhuis
+nopdf
 nope
 norfolk
 normalised
@@ -12176,6 +12190,7 @@ stats
 status
 staying
 stdbuf
+stdio
 steady
 steak
 stefan

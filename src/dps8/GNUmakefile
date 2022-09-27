@@ -704,12 +704,14 @@ unifdef.out: unifdef
 
 procdef.out:
 	@$(PRINTF) '%s\n' "PROCDEF: $(CPPCPP)"
-	@($(SETV); ($(CPPCPP) -dM - < /dev/null 2> /dev/null ;                    \
-      $(CPPCPP) -dD - < /dev/null 2> /dev/null ; $(CPPCPP2) ; $(CPPCPP3) ;    \
-       $(CPPCPP4)) | $(GREP) "^#define " 2> /dev/null | $(GREP) -v "^$$"      \
-        2> /dev/null | $(SORT) -u 2> /dev/null) | $(SED) 's/^#define //g'  |  \
-         $(SORT) -u > "./procdef.out" || $(TOUCH) "./procdef.out"             \
-          > /dev/null 2>&1
+	@($(SETV); ($(CPPCPP) -include stdio.h -include stdlib.h -include time.h  \
+     -include math.h -include sys/stat.h -include sys/types.h                 \
+      -include limits.h -include locale.h -dM - < /dev/null 2> /dev/null;     \
+       $(CPPCPP) -dD - < /dev/null 2> /dev/null; $(CPPCPP2); $(CPPCPP3);      \
+        $(CPPCPP4)) | $(GREP) "^#define " 2> /dev/null | $(GREP) -v "^$$"     \
+         2> /dev/null | $(SORT) -u 2> /dev/null) | $(SED) 's/^#define //g' |  \
+          $(SORT) -u > "./procdef.out" || $(TOUCH) "./procdef.out"            \
+           > /dev/null 2>&1
 
 ###############################################################################
 
@@ -731,11 +733,12 @@ compdef.out: procsrt.out unifdef.out
 useddef.txt: compdef.out
 	@$(PRINTF) '%s\n' "USEDDEF: compdef.out"
 	@$(SETV); $(SH) -c 'while read -r line; do $(GREP) -i "$${line:-}"        \
-      "./procdef.out" 2> /dev/null; done < "compdef.out" 2> /dev/null |       \
-        $(SORT) -u | $(GREP) -v -e "^__VERSION__"  -e "^__clang_version__"    \
-          -e "^__GCC_HAVE_SYNC_COMPARE_AND_SWAP_." -e "^__ORDER_.*_ENDIAN__"  \
-            2> /dev/null > "useddef.txt"' || $(TRUE) > /dev/null 2>&1;        \
-              $(TOUCH) "./useddef.txt" > /dev/null 2>&1
+     "./procdef.out" 2> /dev/null; done < "compdef.out" 2> /dev/null |        \
+      $(SORT) -u | $(GREP) -v -e "^__VERSION__"  -e "^__clang_version__"      \
+       -e "^__GCC_HAVE_SYNC_COMPARE_AND_SWAP_." -e "BIG_ENDIAN"               \
+        -e "LITTLE_ENDIAN" -e "S_ISFIFO" -e "S_IFIFO" -e "__GNUC_PREREQ"      \
+         -e "WORD_ORDER" -e "BYTE_ORDER" 2> /dev/null > "useddef.txt"' ||     \
+          $(TRUE) > /dev/null 2>&1; $(TOUCH) "./useddef.txt" > /dev/null 2>&1
 
 ###############################################################################
 
@@ -752,7 +755,7 @@ errnos.h:
 sysdefs.h: useddef.txt
 	@$(PRINTF) '%s\n' "SYSDEFS: useddef.txt"
 	@$(SETV); $(TR) -d '=' < "./useddef.txt" 2> /dev/null              |      \
-      $(TR) ' ' '=' 2> /dev/null | $(SED) -e 's/^/-D/g' 2> /dev/null   |      \
+      $(SED) 's/ /=/' 2> /dev/null | $(SED) -e 's/^/-D/g' 2> /dev/null   |      \
         $(TR) '\n' ' ' 2> /dev/null | $(SED) -e 's/ $$//'                     \
           -e 's/^-D$$//g' | $(SED) -e 's/^/#define\ SYSDEFS_USED\ \"/'        \
             -e 's/$$/\"/' 2> /dev/null > "./sysdefs.n"                 ||     \
