@@ -1008,7 +1008,9 @@ startCA:;
                     word36 indword_new;
                     core_read_lock(phys_address, &indword_new, __func__);
                     if (indword_new != indword)
-                      sim_warn("indword changed from %llo to %llo\n", indword, indword_new);
+                      sim_warn("indword changed from %llo to %llo\n",
+                               (long long unsigned int)indword,
+                               (long long unsigned int)indword_new);
 #endif
                     putbits36_18 (& indword,  0, Yi);
                     putbits36_12 (& indword, 18, tally);

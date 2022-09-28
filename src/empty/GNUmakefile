@@ -52,8 +52,16 @@ endif # WINDOWS_COMPILE
 
 ifneq ($(UNAME_S),AIX)
   ifneq ($(UNAME_S),SunOS)
-    EMPTYLIBS ?= -lutil
+    ifneq ($(UNAME_S),Haiku)
+      EMPTYLIBS ?= -lutil
+    endif
   endif
+endif
+
+###############################################################################
+
+ifeq ($(UNAME_S),Haiku)
+  EMPTYLIBS ?= -lbsd
 endif
 
 ###############################################################################
