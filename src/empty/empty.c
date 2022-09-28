@@ -116,7 +116,7 @@
 
 #define tmpdir "/tmp"
 #define program "empty"
-#define version "0.6.22f-dps"
+#define version "0.6.23f-dps"
 
 static void usage(void);
 static long toint(char *intstr);
@@ -190,10 +190,8 @@ main(int argc, char *argv[])
 
   int fl_state = 2;
 
-#if defined( __linux__ ) && defined( __GNU_LIBRARY__ ) \
-  && !defined( _SEM_SEMUN_UNDEFINED )
-#else /* if defined( __linux__ ) && defined( __GNU_LIBRARY__ )
-       *  && !defined( _SEM_SEMUN_UNDEFINED ) */
+#if defined( __linux__ ) && defined( __GNU_LIBRARY__ ) && !defined( _SEM_SEMUN_UNDEFINED )
+#else
   union semun
   {
     int val;
@@ -213,14 +211,16 @@ main(int argc, char *argv[])
         *  && !defined( _SEM_SEMUN_UNDEFINED ) */
   union semun semu;
 
-#if defined( __SVR4 ) || defined( __hpux__ ) || defined( _AIX )
+#if defined( __SVR4 ) || defined( __hpux__ ) || \
+    defined( _AIX ) || defined( __HAIKU__ )
   char *slave_name;
   int pgrp;
-#endif /* if defined( __SVR4 ) || defined( __hpux__ ) || defined( _AIX ) */
+#endif /* if defined( __SVR4 ) || defined( __hpux__ ) ||
+             defined( _AIX ) || defined( __HAIKU__ ) */
 
 #ifndef __linux__
   while (( ch = getopt(argc, argv, "Scvhfrb:kwslp:i:o:t:L:")) != -1)
-#else  /* ifndef __linux__ */
+#else
   while (( ch = getopt(argc, argv, "+Scvhfrb:kwslp:i:o:t:L:")) != -1)
 #endif /* ifndef __linux__ */
     {
@@ -716,14 +716,14 @@ main(int argc, char *argv[])
         sem);
     }
 
-#if !defined( __SVR4 ) && !defined( __hpux__ ) && !defined( _AIX )
+#if !defined( __SVR4 ) && !defined( __hpux__ ) && \
+    !defined( _AIX ) && !defined( __HAIKU__ )
   if (openpty(&master, &slave, NULL, &tt, &win) == -1)
     {
       (void)perrxslog(255, "PTY routine failed. Fatal openpty()");
     }
 
-#else /* if !defined( __SVR4 ) && !defined( __hpux__ )
-       *  && !defined( _AIX ) */
+#else
 # ifdef _AIX
   if (( master = open("/dev/ptc", O_RDWR | O_NOCTTY)) == -1)
     {
@@ -786,13 +786,13 @@ main(int argc, char *argv[])
     {
       (void)close(master);
 
-#if !defined( __SVR4 ) && !defined( __hpux__ ) && !defined( _AIX )
+#if !defined( __SVR4 ) && !defined( __hpux__ ) && \
+    !defined( _AIX ) && !defined( __HAIKU__ )
       (void)login_tty(slave);
 # ifndef __CYGWIN__
       cfmakeraw(&tt);
 # endif /* ifndef __CYGWIN__ */
-#else  /* if !defined( __SVR4 ) && !defined( __hpux__ )
-        *  && !defined( _AIX ) */
+#else
       if (( pgrp = setsid()) == -1)
         {
           (void)syslog(LOG_NOTICE, "Warning: Can't setsid(): %m");
@@ -805,9 +805,11 @@ main(int argc, char *argv[])
         }
 
 # ifndef _AIX
+#  ifndef __HAIKU__
       ioctl(slave, I_PUSH, "ptem");
       ioctl(slave, I_PUSH, "ldterm");
       ioctl(slave, I_PUSH, "ttcompat");
+#  endif /* ifndef __HAIKU__ */
 # endif /* ifndef _AIX */
 
       /* Duplicate open file descriptor */

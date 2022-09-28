@@ -115,7 +115,9 @@ static void writeOperands (void)
         word36 tmpdata;
         core_read(cpu.char_word_address, &tmpdata, __func__);
         if (tmpdata != cpu.ou.character_data)
-          sim_warn("write char: data changed from %llo to %llo at %o\n", cpu.ou.character_data, tmpdata, cpu.char_word_address);
+          sim_warn("write char: data changed from %llo to %llo at %o\n",
+                  (long long unsigned int)cpu.ou.character_data,
+                  (long long unsigned int)tmpdata, cpu.char_word_address);
 #endif
 
         switch (cpu.ou.characterOperandSize)
@@ -9158,7 +9160,7 @@ static int emCall (void)
            break;
          }
        default:
-         sim_printf ("emcall unknown op %llo\n", op);
+         sim_printf ("emcall unknown op %llo\n", (unsigned long long)op);
       }
     return 0;
 #if 0
