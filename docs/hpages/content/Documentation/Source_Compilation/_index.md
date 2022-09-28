@@ -12,47 +12,57 @@ Review the complete [**DPS8M Omnibus Documentation**](https://dps8m.gitlab.io/dp
 <!-- toc -->
 
 - [General Information](#general-information)
+
 - [FreeBSD](#freebsd)
   * [FreeBSD prerequisites](#freebsd-prerequisites)
   * [Standard FreeBSD compilation](#standard-freebsd-compilation)
   * [Optimized FreeBSD compilation](#optimized-freebsd-compilation)
   * [blinkenLights2 on FreeBSD](#blinkenlights2-on-freebsd)
   * [Additional FreeBSD Notes](#additional-freebsd-notes)
+
 - [NetBSD](#netbsd)
   * [NetBSD prerequisites](#netbsd-prerequisites)
   * [Standard NetBSD compilation](#standard-netbsd-compilation)
   * [Optimized NetBSD compilation](#optimized-netbsd-compilation)
   * [Compilation using Clang](#compilation-using-clang)
   * [blinkenLights2 on NetBSD](#blinkenlights2-on-netbsd)
+
 - [OpenBSD](#openbsd)
   * [OpenBSD prerequisites](#openbsd-prerequisites)
   * [Standard OpenBSD compilation](#standard-openbsd-compilation)
   * [Optimized OpenBSD compilation](#optimized-openbsd-compilation)
   * [Compilation using Clang](#compilation-using-clang-1)
   * [Additional OpenBSD Notes](#additional-openbsd-notes)
+
 - [DragonFly BSD](#dragonfly-bsd)
   * [DragonFly BSD prerequisites](#dragonfly-bsd-prerequisites)
   * [Standard DragonFly BSD compilation](#standard-dragonfly-bsd-compilation)
   * [Optimized DragonFly BSD compilation](#optimized-dragonfly-bsd-compilation)
   * [Compiling using Clang](#compiling-using-clang)
+
 - [Solaris](#solaris)
   * [Solaris prerequisites](#solaris-prerequisites)
   * [Solaris compilation](#solaris-compilation)
     + [GCC](#gcc)
     + [Clang](#clang)
     + [Oracle Developer Studio](#oracle-developer-studio)
+
 - [OpenIndiana](#openindiana)
   * [OpenIndiana prerequisites](#openindiana-prerequisites)
   * [OpenIndiana compilation](#openindiana-compilation)
     + [GCC](#gcc-1)
     + [Clang](#clang-1)
+
 - [AIX](#aix)
   * [AIX prerequisites](#aix-prerequisites)
   * [AIX compilation](#aix-compilation)
     + [IBM XL C/C++ for AIX](#ibm-xl-cc-for-aix)
     + [GCC](#gcc-2)
+
 - [Haiku](#haiku)
+
 - [GNU/Hurd](#gnuhurd)
+
 - [Linux](#linux)
   * [Linux compilers](#linux-compilers)
   * [Linux prerequisites](#linux-prerequisites)
@@ -61,13 +71,14 @@ Review the complete [**DPS8M Omnibus Documentation**](https://dps8m.gitlab.io/dp
     + [Clang](#clang-2)
     + [Intel oneAPI DPC++/C++](#intel-oneapi-dpcc)
     + [AMD Optimizing C/C++](#amd-optimizing-cc)
-      - [AMD Optimized CPU Libraries](#amd-optimized-cpu-libraries)
+      - [AOCC with AMD Optimized CPU Libraries](#aocc-with-amd-optimized-cpu-libraries)
     + [Oracle Developer Studio](#oracle-developer-studio-1)
     + [IBM XL C/C++ for Linux](#ibm-xl-cc-for-linux)
     + [NVIDIA HPC SDK C Compiler](#nvidia-hpc-sdk-c-compiler)
   * [Linux cross-compilation](#linux-cross-compilation)
     + [IBM Advance Toolchain](#ibm-advance-toolchain)
   * [Additional Linux Notes](#additional-linux-notes)
+
 - [macOS](#macos)
   * [macOS prerequisites](#macos-prerequisites)
   * [macOS compilation](#macos-compilation)
@@ -77,7 +88,22 @@ Review the complete [**DPS8M Omnibus Documentation**](https://dps8m.gitlab.io/dp
     + [ARM64](#arm64)
     + [Intel](#intel)
     + [Universal](#universal)
+
 - [Windows](#windows)
+  * [Cygwin](#cygwin)
+    + [Cygwin prerequisites](#cygwin-prerequisites)
+    + [Standard Cygwin compilation](#standard-cygwin-compilation)
+    + [Cygwin-based cross-compilation](#cygwin-based-cross-compilation)
+      - [Windows i686](#windows-i686)
+      - [Windows x86_64](#windows-x86_64)
+  * [LLVM-MinGW Clang cross-compilation](#llvm-mingw-clang-cross-compilation)
+    + [Windows i686](#windows-i686-1)
+    + [Windows x86_64](#windows-x86_64-1)
+    + [Windows ARMv7](#windows-armv7)
+    + [Windows ARM64](#windows-arm64)
+  * [MinGW-w64 GCC cross-compilation](#mingw-w64-gcc-cross-compilation)
+    + [Windows i686](#windows-i686-2)
+    + [Windows x86_64](#windows-x86_64-2)
 
 <!-- tocstop -->
 
@@ -823,7 +849,7 @@ Examples of building the simulator on **Linux** using various popular compilers 
     LOCALLIBS="-lalm" make
   ```
 
-##### AMD Optimized CPU Libraries
+##### AOCC with AMD Optimized CPU Libraries
 
 * Build the simulator using **AMD Optimizing C/C++** (**AOCC**), version 3.2.0, with **AMD Optimized CPU Libraries** (**AOCL**) (**AMD AOCL-LibM** and **AMD AOCL-LibMem**), version 3.2.0:
 
@@ -891,10 +917,10 @@ The following commands will download and cross-compile a local static **`libuv`*
 * Using the **IBM Advance Toolchain** **V16** on Linux/x86_64 to cross-compile for Linux/POWER:
 
   ```sh
-  env CC="/opt/at16.0/bin/powerpc64le-linux-gnu-gcc" \
-    LOCAL_CONFOPTS="--host=powerpc64le-linux-gnu"    \
-    CFLAGS="-mcpu=power8 -mtune=power8" make libuvrel &&           \
-  env CC="/opt/at16.0/bin/powerpc64le-linux-gnu-gcc" \
+  env CC="/opt/at16.0/bin/powerpc64le-linux-gnu-gcc"      \
+    LOCAL_CONFOPTS="--host=powerpc64le-linux-gnu"         \
+    CFLAGS="-mcpu=power8 -mtune=power8" make libuvrel &&  \
+  env CC="/opt/at16.0/bin/powerpc64le-linux-gnu-gcc"      \
     CFLAGS="-mcpu=power8 -mtune=power8" make
   ```
 
@@ -1039,8 +1065,143 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 ## Windows
 
-* *Details soon ...*
+* Ensure you are running a supported release of Windows **Windows** on a supported platform.
+  * Microsoft **Windows** **10** and **11** on **x86_64** and **i686** are regularly tested by **The DPS8M Development Team**.
+* Microsoft **Windows** supports various development and runtime environments, including [**MSVCRT**](https://docs.microsoft.com/en-us/cpp/)/[**MinGW**](https://www.mingw-w64.org/), [**Cygwin**](https://www.cygwin.com/), [**Midipix**](https://midipix.org/), [**MSYS2**](https://www.msys2.org/), [**UWIN**](https://github.com/att/uwin), [**UCRT**](https://docs.microsoft.com/en-us/windows/uwp/), and others.
+  * Care should be taken to avoid mixing incompatible libraries and tools.
+* Cross-compilation is supported.  Builds targeting Microsoft **Windows** (**MinGW** and **Cygwin**) running on **x86_64**, **i686**, **ARMv7**, and **ARM64** platforms are regularly cross-compiled from a variety of UNIX-like systems (using **LLVM-MinGW** and **MinGW-GCC**), and from Microsoft **Windows** using **Cygwin**.
 
-<br>
+### Cygwin
+
+* Ensure you are running a current and updated version of [**Cygwin**](https://cygwin.com/).
+* Only the **64-bit** version of **Cygwin** is regularly tested by **The DPS8M Development Team**.
+* Although the **32-bit** version of **Cygwin** is not regularly tested (*and not recommended due to suboptimal performance*), it *should* work for building **DPS8M** (with the `NEED_128=1` build option).
+
+#### Cygwin prerequisites
+
+* Compilation problems in the **Cygwin** environment are often caused by incomplete or interrupted package installations, or by the installation of packages using non-standard tools (*e.g.* `apt-cyg`), resulting in missing files and dangling or missing symbolic links.
+
+
+  * Before attempting to build **DPS8M** using **Cygwin**:
+
+    1. First, update the **Cygwin** **`setup.exe`** application to the [latest available version](https://cygwin.com/install.html).
+
+    2. Update ***all*** installed packages using the new **Cygwin** `setup.exe` application.
+
+    3. Install the required prerequisite packages using **Cygwin** `setup.exe`:
+	   * `autoconf`
+	   * `cmake`
+	   * `cygcheck`
+	   * `gcc`
+	   * `libtool`
+	   * `libuv1`
+	   * `libuv1-devel`
+	   * `make`
+	   * `pkg-config`
+	   * `unzip`
+	   * `wget`
+
+    4. **Most importantly**, invoke the `cygcheck` utility (*i.e.* `cygcheck -cv | grep -v "OK$"`) to verify the integrity of all currently installed packages and correct any problems before continuing.
+
+#### Standard Cygwin compilation
+
+* Build the simulator from the top-level source directory (using **GNU Make**):
+
+  ```sh
+  env CFLAGS="-DUSE_FLOCK=1 -DUSE_FCNTL=1" make
+  ```
+
+#### Cygwin-based cross-compilation
+
+The following commands will download and cross-compile a local native **`libuv`** library and then cross-compile the simulator.
+\
+\
+You **must** perform a '`make distclean`' followed by an '`rm -rf ${HOME}/libuv-build`' and '`rm -rf ${HOME}/libuv-win32-i686`' (or '`rm -rf ${HOME}/libuv-win32-x86_64`') before building for a different target (or changing build flags).
+\
+\
+In the following cross-compilation examples, the *latest* **`libuv`** sources (from the `v1.x` *git* branch) are used, but the current official release (available from https://libuv.org/) can also be used.
+
+##### Windows i686
+
+* Using **GCC** (*the* **Cygwin** **`mingw64-i686-gcc-core`** *package*) to cross-compile a native **32-bit** Windows executable (*not depending on Cygwin*):
+
+  ```sh
+  mkdir -p "${HOME}/libuv-build" && mkdir -p "${HOME}/libuv-win32-i686"    \
+  ( cd "${HOME}/libuv-build" &&                                            \
+    wget -v "https://github.com/libuv/libuv/archive/v1.x.zip" &&           \
+    unzip -xa "v1.x.zip" && cd "libuv-1.x" &&                              \
+    mkdir -p "build" && cd "build" &&                                      \
+    cmake .. -DCMAKE_SYSTEM_NAME="Windows"                                 \
+             -DCMAKE_SYSTEM_VERSION="6.1"                                  \
+             -DCMAKE_C_COMPILER="i686-w64-mingw32-gcc"                     \
+             -DCMAKE_INSTALL_PREFIX="${HOME}/libuv-win32-i686" &&          \
+    cmake --build . && cmake --install . ) &&                              \
+  env CFLAGS="-I${HOME}/libuv-win32-i686/include -D__MINGW64__             \
+              -DUSE_FLOCK=1 -DUSE_FCNTL=1" CC="i686-w64-mingw32-gcc"       \
+      LDFLAGS="-L${HOME}/libuv-win32-i686/lib" NEED_128=1                  \
+  make CROSS=MINGW64
+  ```
+  * The compiled native binary will require `libwinpthread-1.dll` (located at `/usr/i686-w64-mingw32/sys-root/mingw/bin/libwinpthread-1.dll`) and `libuv.dll` (located at `${HOME}/libuv-win32-i686/bin/libuv.dll`) at runtime.
+
+  * It is sufficient to copy these files into the directory containing the `dps8.exe` binary.
+
+##### Windows x86_64
+
+* Using **GCC** (*the* **Cygwin** **`mingw64-x86_64-gcc-core`** *package*) to cross-compile a native **64-bit** Windows executable (*not depending on Cygwin*):
+
+  ```sh
+  mkdir -p "${HOME}/libuv-build" && mkdir -p "${HOME}/libuv-win32-x86_64"  \
+  ( cd "${HOME}/libuv-build" &&                                            \
+    wget -v "https://github.com/libuv/libuv/archive/v1.x.zip" &&           \
+    unzip -xa "v1.x.zip" && cd "libuv-1.x" &&                              \
+    mkdir -p "build" && cd "build" &&                                      \
+    cmake .. -DCMAKE_SYSTEM_NAME="Windows"                                 \
+             -DCMAKE_SYSTEM_VERSION="6.1"                                  \
+             -DCMAKE_C_COMPILER="x86_64-w64-mingw32-gcc"                   \
+             -DCMAKE_INSTALL_PREFIX="${HOME}/libuv-win32-x86_64" &&        \
+    cmake --build . && cmake --install . ) &&                              \
+  env CFLAGS="-I${HOME}/libuv-win32-x86_64/include -D__MINGW64__           \
+              -DUSE_FLOCK=1 -DUSE_FCNTL=1" CC="x86_64-w64-mingw32-gcc"     \
+      LDFLAGS="-L${HOME}/libuv-win32-x86_64/lib"                           \
+  make CROSS=MINGW64
+  ```
+
+  * The compiled native binary will require `libwinpthread-1.dll` (located at `/usr/x86_64-w64-mingw32/sys-root/mingw/bin/libwinpthread-1.dll`) and `libuv.dll` (located at `${HOME}/libuv-win32-x86_64/bin/libuv.dll`) at runtime.
+
+  * It is sufficient to copy these files into the directory containing the `dps8.exe` binary.
+
+### LLVM-MinGW Clang cross-compilation
+
+The [**LLVM-MinGW Clang**](https://github.com/mstorsjo/llvm-mingw) toolchain supports building native Windows binaries (**i686**, **x86_64**, **ARMv7**, and **ARM64** systems) on non-Windows host systems.
+
+#### Windows i686
+
+* TBD
+
+#### Windows x86_64
+
+* TBD
+
+#### Windows ARMv7
+
+* TBD
+
+#### Windows ARM64
+
+* TBD
+
+### MinGW-w64 GCC cross-compilation
+
+The [**MinGW-w64 GCC**](https://www.mingw-w64.org/) toolchain compiler supports building native Windows binaries (**i686** and **x86_64** systems) on non-Windows host systems.
+
+#### Windows i686
+
+* TBD
+
+#### Windows x86_64
+
+* TBD
 
 ---
+
+<br>
