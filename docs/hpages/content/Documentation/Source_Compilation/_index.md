@@ -49,17 +49,20 @@ Review the complete [**DPS8M Omnibus Documentation**](https://dps8m.gitlab.io/dp
 
 - [OpenIndiana](#openindiana)
   * [OpenIndiana prerequisites](#openindiana-prerequisites)
-  * [OpenIndiana compilation](#openindiana-compilation)
-    + [GCC](#gcc-1)
-    + [Clang](#clang-1)
+  * [Standard OpenIndiana compilation](#standard-openindiana-compilation)
+  * [Compiling using Clang](#compiling-using-clang-1)
 
 - [AIX](#aix)
   * [AIX prerequisites](#aix-prerequisites)
   * [AIX compilation](#aix-compilation)
     + [IBM XL C/C++ for AIX](#ibm-xl-cc-for-aix)
-    + [GCC](#gcc-2)
+    + [GCC](#gcc-1)
 
 - [Haiku](#haiku)
+  * [Haiku prerequisites](#haiku-prerequisites)
+  * [Standard Haiku compilation](#standard-haiku-compilation)
+  * [Compiling using Clang](#compiling-using-clang-2)
+  * [Additional Haiku Notes](#additional-haiku-notes)
 
 - [GNU/Hurd](#gnuhurd)
 
@@ -68,15 +71,28 @@ Review the complete [**DPS8M Omnibus Documentation**](https://dps8m.gitlab.io/dp
   * [Linux prerequisites](#linux-prerequisites)
   * [Standard Linux compilation](#standard-linux-compilation)
   * [Alternative Linux compilation](#alternative-linux-compilation)
-    + [Clang](#clang-2)
+    + [Clang](#clang-1)
     + [Intel oneAPI DPC++/C++](#intel-oneapi-dpcc)
     + [AMD Optimizing C/C++](#amd-optimizing-cc)
       - [AOCC with AMD Optimized CPU Libraries](#aocc-with-amd-optimized-cpu-libraries)
     + [Oracle Developer Studio](#oracle-developer-studio-1)
     + [IBM XL C/C++ for Linux](#ibm-xl-cc-for-linux)
     + [NVIDIA HPC SDK C Compiler](#nvidia-hpc-sdk-c-compiler)
+    + [Arm HPC C/C++ Compiler for Linux](#arm-hpc-cc-compiler-for-linux)
   * [Linux cross-compilation](#linux-cross-compilation)
     + [IBM Advance Toolchain](#ibm-advance-toolchain)
+    + [Arm GNU Toolchain](#arm-gnu-toolchain)
+      - [Linux/ARMv7-HF](#linuxarmv7-hf)
+      - [Linux/ARM64](#linuxarm64)
+      - [Linux/ARM64BE](#linuxarm64be)
+    + [Linaro GNU Toolchain](#linaro-gnu-toolchain)
+      - [Linux/ARMv7-HF](#linuxarmv7-hf-1)
+      - [Linux/ARM64](#linuxarm64-1)
+    + [GCC (crosstool-NG)](#gcc-crosstool-ng)
+      - [Linux/RV64](#linuxrv64)
+      - [Linux/i686](#linuxi686)
+      - [Linux/ARMv6-HF](#linuxarmv6-hf)
+      - [Linux/PPC64le](#linuxppc64le)
   * [Additional Linux Notes](#additional-linux-notes)
 
 - [macOS](#macos)
@@ -496,9 +512,10 @@ Install the required prerequisites (using OpenBSD Packages or Ports):
 * Build the simulator (*standard build*) from the top-level source directory (using **GNU Make**):
 
   ```sh
-  env CFLAGS="-I/usr/local/include" \
-     LDFLAGS="-L/usr/local/lib"     \
-     ATOMICS="GNU" gmake
+  env CFLAGS="-I/usr/local/include"  \
+       LDFLAGS="-L/usr/local/lib"    \
+       ATOMICS="GNU"                 \
+    gmake
   ```
 
 ### Optimized DragonFly BSD compilation
@@ -518,9 +535,10 @@ Install the required prerequisites (using OpenBSD Packages or Ports):
 * Build the simulator from the top-level source directory (using **GNU Make**):
 
   ```sh
-  env CC="gcc11" CFLAGS="-I/usr/local/include"                 \
-    LDFLAGS="-L/usr/local/lib -Wl,-rpath=/usr/local/lib/gcc11" \
-    ATOMICS="GNU" gmake
+  env CC="gcc11" CFLAGS="-I/usr/local/include"                    \
+      LDFLAGS="-L/usr/local/lib -Wl,-rpath=/usr/local/lib/gcc11"  \
+      ATOMICS="GNU"                                               \
+    gmake
   ```
 
 ### Compiling using Clang
@@ -537,9 +555,10 @@ Install the required prerequisites (using OpenBSD Packages or Ports):
 * Build the simulator from the top-level source directory (using **GNU Make**):
 
   ```sh
-  env CC="clang14" CFLAGS="-I/usr/include -I/usr/local/include" \
-    LDFLAGS="-L/usr/lib -L/usr/local/lib -fuse-ld=lld"          \
-    ATOMICS="GNU" gmake
+  env CC="clang14" CFLAGS="-I/usr/include -I/usr/local/include"  \
+      LDFLAGS="-L/usr/lib -L/usr/local/lib -fuse-ld=lld"         \
+      ATOMICS="GNU"                                              \
+    gmake
   ```
 
 <br>
@@ -599,14 +618,16 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 * Build using **Oracle Developer Studio 12.6**:
 
   ```sh
-  env TAR="gtar" NO_LTO=1 SUNPRO=1 NEED_128=1 TR="gtr" CSTD="c11"     \
-    CFLAGS="-DNO_C_ELLIPSIS -Qy -xO5 -m64 -xlibmil -xCC -mt -xlibmopt \
-    -fno-semantic-interposition -xprefetch=auto -xprefetch_level=3"   \
-    CC="/opt/developerstudio12.6/bin/suncc" gmake libuvrel &&         \
-  env NO_LTO=1 SUNPRO=1 NEED_128=1 TR="gtr" CSTD="c11"                \
-    CFLAGS="-DNO_C_ELLIPSIS -Qy -xO5 -m64 -xlibmil -xCC -mt -xlibmopt \
-    -fno-semantic-interposition -xprefetch=auto -xprefetch_level=3"   \
-    CC="/opt/developerstudio12.6/bin/suncc" gmake
+  env TAR="gtar" NO_LTO=1 SUNPRO=1 NEED_128=1 TR="gtr" CSTD="c11"        \
+      CFLAGS="-DNO_C_ELLIPSIS -Qy -xO5 -m64 -xlibmil -xCC -mt -xlibmopt  \
+      -fno-semantic-interposition -xprefetch=auto -xprefetch_level=3"    \
+      CC="/opt/developerstudio12.6/bin/suncc"                            \
+    gmake libuvrel &&                                                    \
+  env NO_LTO=1 SUNPRO=1 NEED_128=1 TR="gtr" CSTD="c11"                   \
+      CFLAGS="-DNO_C_ELLIPSIS -Qy -xO5 -m64 -xlibmil -xCC -mt -xlibmopt  \
+      -fno-semantic-interposition -xprefetch=auto -xprefetch_level=3"    \
+      CC="/opt/developerstudio12.6/bin/suncc"                            \
+    gmake
   ```
 
 <br>
@@ -632,21 +653,17 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
   pkg install gnu-make libuv gnu-binutils gnu-coreutils
   ```
 
-### OpenIndiana compilation
+### Standard OpenIndiana compilation
 
-Build the simulator from the top-level source directory (using **GNU Make**):
-
-#### GCC
-
-* Build using **GCC**:
+* Build the simulator from the top-level source directory (using **GNU Make** and **GCC 11**):
 
   ```sh
   env CC="gcc-11" gmake
   ```
 
-#### Clang
+### Compiling using Clang
 
-* Build using **Clang**:
+* Build the simulator from the top-level source directory (using **GNU Make** and **Clang**):
 
   ```sh
   env NO_LTO=1 CC="clang-13" gmake
@@ -690,12 +707,12 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 * Using **IBM XL C/C++ for AIX V16.1**:
 
   ```sh
-  env PATH="/opt/freeware/bin:${PATH}" ATOMICS="AIX" AWK="gawk" NO_LTO=1 \
-    OBJECT_MODE=64 gmake CC="/opt/IBM/xlC/16.1.0/bin/xlc_r" NEED_128=1   \
-    USE_POPT=1 PULIBS="-lpopt" LDFLAGS="-L/opt/freeware/lib -b64"        \
-    LIBS="-luv -lbsd -lm" CFLAGS="-O3 -qhot -qarch=pwr8 -qalign=natural  \
-    -qtls -DUSE_POPT=1 -DUSE_FLOCK=1 -DUSE_FCNTL=1 -DAIX_ATOMICS=1       \
-    -DNEED_128=1 -DLOCKLESS=1 -I/opt/freeware/include -I../simh          \
+  env PATH="/opt/freeware/bin:${PATH}" ATOMICS="AIX" AWK="gawk" NO_LTO=1  \
+    OBJECT_MODE=64 gmake CC="/opt/IBM/xlC/16.1.0/bin/xlc_r" NEED_128=1    \
+    USE_POPT=1 PULIBS="-lpopt" LDFLAGS="-L/opt/freeware/lib -b64"         \
+    LIBS="-luv -lbsd -lm" CFLAGS="-O3 -qhot -qarch=pwr8 -qalign=natural   \
+    -qtls -DUSE_POPT=1 -DUSE_FLOCK=1 -DUSE_FCNTL=1 -DAIX_ATOMICS=1        \
+    -DNEED_128=1 -DLOCKLESS=1 -I/opt/freeware/include -I../simh           \
     -I../decNumber -D_GNU_SOURCE -D_ALL_SOURCE -U__STRICT_POSIX__"
   ```
 
@@ -723,7 +740,43 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 ## Haiku
 
-* *Details soon ...*
+* Ensure you are running a recent release of [**Haiku**](https://www.haiku-os.org/) on a [supported platform](https://www.haiku-os.org/guides/building/port_status).
+  * Use ***SoftwareUpdater*** to ensure your **Haiku** installation is up-to-date.
+* The **Haiku** port is regularly tested by **The DPS8M Development Team** using nightly **Haiku** **x86_64** snapshots.
+  * **Haiku** Walter **x86_64** *hrev56490* was used to verify the following instructions.
+
+### Haiku prerequisites
+
+The default **Haiku** installation includes the required header files, the recommended compiler (at the time of writing, **GCC 11**), and most of the necessary development utilities (*i.e.* **GNU Make**) required to build **DPS8M**. The remaining prerequisites are available via the standard package management tools.
+
+* Install the required prerequisites (from *HaikuPorts* using ***HaikuDepot***):
+   * `libuv`
+   * `libuv_devel`
+   * `getconf`
+
+### Standard Haiku compilation
+
+* Build the simulator (*standard build*) from the top-level source directory (using **GNU Make**):
+
+  ```sh
+  make
+  ```
+
+### Compiling using Clang
+
+* Building with **GCC** *is recommended for optimal performance*, but compilation using **Clang** is also supported, although not recommended due to the lack support for LTO optimization on **Haiku**.
+
+  * At the time of writing, **Clang 12** is available from *HaikuPorts*, as the '**`llvm12_clang`**' and '**`llvm12_lld`**' packages, installable using ***HaikuDepot***.
+
+* Build the simulator from the top-level source directory (using **GNU Make**):
+
+  ```sh
+  env CC="clang" CFLAGS="-fPIC" NO_LTO=1 make
+  ```
+
+### Additional Haiku Notes
+
+* When building on a **32-bit** version of **Haiku**, set the **`NEED_128=1`** build option (via the environment or as an argument to **`make`**).
 
 <br>
 
@@ -756,7 +809,8 @@ Build the simulator from the top-level source directory (using **GNU Make**):
   * **Canonical** similarly offers two [**Ubuntu Toolchain PPAs**](https://wiki.ubuntu.com/ToolChain#Toolchain_Updates), one providing **GCC** updates for release branches, and the other providing new **GCC** versions for both current and **LTS** releases, maintained by the Ubuntu Toolchain team.
     * For example, at the time of writing, Ubuntu 20.04 LTS ships **GCC 9.3** and **GCC 10**, and the **Toolchain PPAs** ship **GCC 9.4** and **GCC 11**. Although these packages are *not supported* by Canonical, they are regularly and successfully used by **The DPS8M Development Team**.
 
-  * **Intel®** **C++ Compiler** **Classic** (**ICC**) for Linux is ***no longer supported*** for building **DPS8M** (*as of* ***R3.0.0***).  Users should upgrade to the current version of the [**Intel® oneAPI DPC++/C++** (**ICX**) **Compiler**](https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html).
+  * **Intel®** **C++ Compiler** **Classic** (**ICC**) for Linux is ***no longer supported*** for building **DPS8M** (*as of* ***R3.0.0***):
+    * Users should upgrade to the current version of the [**Intel® oneAPI DPC++/C++** (**ICX**) **Compiler**](https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html).
     * **ICC** remains a supported compiler option for building **DPS8M** on **Intel**-based **macOS** systems.
 
 * Cross-compilation is supported. Popular targets including various **Linux** platforms, **Microsoft Windows** on **Intel** and **ARM** (using the **MinGW-w64** and **LLVM-MinGW** toolchains) and **Linux on POWER** (using the **IBM Advance Toolchain for Linux**) are regularly built and tested.
@@ -841,12 +895,13 @@ Examples of building the simulator on **Linux** using various popular compilers 
 * Build the simulator using **AMD Optimizing C/C++** (**AOCC**), version 3.2.0, (with **AOCC**-provided **AMD LibM**):
 
   ```sh
-  export AOCCVER="3.2.0" &&                              \
-  export AOCLPATH="/opt/AMD/aocc-compiler-${AOCCVER}" && \
-  source ${AOCCPATH}/setenv_AOCC.sh &&                   \
-  env CC="clang" CFLAGS="-mllvm -vector-library=AMDLIBM" \
-    LDFLAGS="-Wno-unused-command-line-argument"          \
-    LOCALLIBS="-lalm" make
+  export AOCCVER="3.2.0" &&                               \
+  export AOCLPATH="/opt/AMD/aocc-compiler-${AOCCVER}" &&  \
+  source ${AOCCPATH}/setenv_AOCC.sh &&                    \
+  env CC="clang" CFLAGS="-mllvm -vector-library=AMDLIBM"  \
+      LDFLAGS="-Wno-unused-command-line-argument"         \
+      LOCALLIBS="-lalm"                                   \
+    make
   ```
 
 ##### AOCC with AMD Optimized CPU Libraries
@@ -854,15 +909,16 @@ Examples of building the simulator on **Linux** using various popular compilers 
 * Build the simulator using **AMD Optimizing C/C++** (**AOCC**), version 3.2.0, with **AMD Optimized CPU Libraries** (**AOCL**) (**AMD AOCL-LibM** and **AMD AOCL-LibMem**), version 3.2.0:
 
   ```sh
-  export AOCCVER="3.2.0" &&                                       \
-  export AOCCPATH="/opt/AMD/aocc-compiler-${AOCCVER}" &&          \
-  export AOCLVER="3.2.0" &&                                       \
-  export AOCLPATH="/opt/AMD/aocl/aocl-linux-aocc-${AOCLVER}" &&   \
-  export LD_LIBRARY_PATH="${AOCLPATH}/lib:${LD_LIBRARY_PATH}" &&  \
-  source ${AOCCPATH}/setenv_AOCC.sh &&                            \
-  env CC="clang" CFLAGS="-mllvm -vector-library=AMDLIBM"          \
-    LDFLAGS="-Wno-unused-command-line-argument -L${AOCLPATH}/lib" \
-    LOCALLIBS="-lalm -laocl-libmem" make
+  export AOCCVER="3.2.0" &&                                          \
+  export AOCCPATH="/opt/AMD/aocc-compiler-${AOCCVER}" &&             \
+  export AOCLVER="3.2.0" &&                                          \
+  export AOCLPATH="/opt/AMD/aocl/aocl-linux-aocc-${AOCLVER}" &&      \
+  export LD_LIBRARY_PATH="${AOCLPATH}/lib:${LD_LIBRARY_PATH}" &&     \
+  source ${AOCCPATH}/setenv_AOCC.sh &&                               \
+  env CC="clang" CFLAGS="-mllvm -vector-library=AMDLIBM"             \
+      LDFLAGS="-Wno-unused-command-line-argument -L${AOCLPATH}/lib"  \
+      LOCALLIBS="-lalm -laocl-libmem"                                \
+    make
   ```
 
 #### Oracle Developer Studio
@@ -870,10 +926,12 @@ Examples of building the simulator on **Linux** using various popular compilers 
 * Build the simulator using **Oracle Developer Studio** (**SunCC**) for Linux, version 12.6:
 
   ```sh
-  env CFLAGS="-DNO_C_ELLIPSIS -Qy -xO5 -m64 -xlibmil -xCC -mt -xlibmopt \
-    -fno-semantic-interposition -xprefetch=auto -xprefetch_level=3"     \
-    CC="/opt/oracle/developerstudio12.6/bin/suncc" NO_LTO=1 SUNPRO=1    \
-    NEED_128=1 CSTD="c11" make
+  env CFLAGS="-DNO_C_ELLIPSIS -Qy -xO5 -m64 -xlibmil -xCC -mt  \
+              -xlibmopt -fno-semantic-interposition            \
+              -xprefetch=auto -xprefetch_level=3"              \
+      CC="/opt/oracle/developerstudio12.6/bin/suncc"           \
+      NO_LTO=1 SUNPRO=1 NEED_128=1 CSTD="c11"                  \
+    make
   ```
 
 #### IBM XL C/C++ for Linux
@@ -881,8 +939,10 @@ Examples of building the simulator on **Linux** using various popular compilers 
 * Build the simulator using **IBM XL C/C++ for Linux V16.1.1** for Linux/POWER:
 
   ```sh
-  env NO_LTO=1 CSTD="c11" CFLAGS="-qtls -qarch=pwr8" \
-    CC="/opt/ibm/xlC/16.1.1/bin/c99_r" make
+  env CFLAGS="-qtls -qarch=pwr8"          \
+      CC="/opt/ibm/xlC/16.1.1/bin/c99_r"  \
+      CSTD="c11" NO_LTO=1
+    make
   ```
 
   * When building on **POWER9** or higher systems, '`-qarch=pwr9`' should replace '`-qarch=pwr8`' in the above compiler invocation.
@@ -891,13 +951,13 @@ Examples of building the simulator on **Linux** using various popular compilers 
 
 #### NVIDIA HPC SDK C Compiler
 
-* Build the simulator using **NVIDIA HPC SDK C Compiler** (**NVC**), version 22.7, for Linux/x86_64:
+* Build the simulator using **NVIDIA HPC SDK C Compiler** (**NVC**), version 22.7, for Linux/**x86_64** (also available for Linux/**ARM64** and Linux/**OpenPOWER**):
 
   ```sh
-  export NVCVER="22.7" &&                                            \
-  export NVCPATH="/opt/nvidia/hpc_sdk/Linux_x86_64/${NVCVER}/bin" && \
-  env NO_LTO=1 CFLAGS="-noswitcherror" CC="${NVCPATH}/nvc" make      \
-    OPTFLAGS="-fast -O4 -Mipa=fast,inline"
+  export NVCVER="22.7" &&                                             \
+  export NVCPATH="/opt/nvidia/hpc_sdk/Linux_x86_64/${NVCVER}/bin" &&  \
+  env CFLAGS="-noswitcherror" CC="${NVCPATH}/nvc" NO_LTO=1            \
+    make OPTFLAGS="-fast -O4 -Mipa=fast,inline"
   ```
 
   * The **NVIDIA HPC SDK C Compiler** is the successor to the **PGI C Compiler** product. If you are using the earlier **PGI C Compiler** (**PGCC**), adjust paths appropriately, and replace '**`nvc`**' with '**`pgcc`**' in the above invocation.
@@ -908,23 +968,180 @@ Examples of building the simulator on **Linux** using various popular compilers 
     ```
     If you encounter this (*or similar*) compiler errors, try adding '`-Mnovect`' to '`OPTFLAGS`' as a workaround.
 
+#### Arm HPC C/C++ Compiler for Linux
+
+* TBD
+
 ### Linux cross-compilation
 
 The following commands will download and cross-compile a local static **`libuv`** and then cross-compile the simulator.
 
 #### IBM Advance Toolchain
 
-* Using the **IBM Advance Toolchain** **V16** on Linux/x86_64 to cross-compile for Linux/POWER:
+* Using the **IBM Advance Toolchain** **V16** to cross-compile for Linux/**POWER**:
 
   ```sh
-  env CC="/opt/at16.0/bin/powerpc64le-linux-gnu-gcc"      \
-    LOCAL_CONFOPTS="--host=powerpc64le-linux-gnu"         \
-    CFLAGS="-mcpu=power8 -mtune=power8" make libuvrel &&  \
-  env CC="/opt/at16.0/bin/powerpc64le-linux-gnu-gcc"      \
-    CFLAGS="-mcpu=power8 -mtune=power8" make
+  env CC="/opt/at16.0/bin/powerpc64le-linux-gnu-gcc"  \
+    LOCAL_CONFOPTS="--host=powerpc64le-linux-gnu"     \
+    CFLAGS="-mcpu=power8 -mtune=power8"               \
+    make libuvrel &&                                  \
+  env CC="/opt/at16.0/bin/powerpc64le-linux-gnu-gcc"  \
+      CFLAGS="-mcpu=power8 -mtune=power8"             \
+    make
   ```
 
-  * When building for **POWER10** (or **POWER9** systems), '`power10`' (or '`power9`') should replace '`power8`' in the above compiler invocation.
+  * When targeting **POWER9** or **POWER10** processors, '`power9`' or '`power10`' should replace '`power8`' in the above compiler invocation.
+
+  * The **IBM Advance Toolchain** versions **14**, **15**, and **16** have been extensively tested and used for cross-compiling **DPS8M**.
+
+#### Arm GNU Toolchain
+
+The [**GNU Toolchain for the Arm Architecture**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) (referred to as the “**Arm GNU Toolchain**”) provides regularly updated, high-quality, validated Linux/**ARM** cross-compilers running on Microsoft Windows, Linux, and macOS.
+
+##### Linux/ARMv7-HF
+
+* Using the [**Arm GNU Toolchain**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) on Linux/x86_64, version **11.3.Rel1**, to cross-compile for Linux/**ARMv7-HF** (*hardware floating point*):
+
+  ```sh
+  export AGTREL="arm-gnu-toolchain-11.3.rel1-x86_64" &&               \
+  export AGTPATH="/opt/${AGTREL:?}-arm-none-linux-gnueabihf/bin/" &&  \
+  env CC="${AGTPATH:?}/arm-none-linux-gnueabihf-gcc"                  \
+      CFLAGS="-march=armv7-a+fp"                                      \
+      LOCAL_CONFOPTS="--host=arm-none-linux-gnueabihf"                \
+    make libuvrel &&                                                  \
+  env CC="${AGTPATH:?}/arm-none-linux-gnueabihf-gcc"                  \
+      CFLAGS="-march=armv7-a+fp" NEED_128=1                           \
+    make
+  ```
+
+##### Linux/ARM64
+
+* Using the [**Arm GNU Toolchain**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) on Linux/x86_64, version **11.3.Rel1**, to cross-compile for Linux/**ARM64**:
+
+  ```sh
+  export AGTREL="arm-gnu-toolchain-11.3.rel1-x86_64" &&             \
+  export AGTPATH="/opt/${AGTREL:?}-aarch64-none-linux-gnu/bin/" &&  \
+  env CC="${AGTPATH:?}/aarch64-none-linux-gnu-gcc"                  \
+      LOCAL_CONFOPTS="--host=aarch64-none-linux-gnu"                \
+    make libuvrel &&                                                \
+  env CC="${AGTPATH:?}/aarch64-none-linux-gnu-gcc"                  \
+    make
+  ```
+
+##### Linux/ARM64BE
+
+* Using the [**Arm GNU Toolchain**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) on Linux/x86_64, version **11.3.Rel1**, to cross-compile for Linux/**ARM64BE** (*big endian*):
+
+  ```sh
+  export AGTREL="arm-gnu-toolchain-11.3.rel1-x86_64" &&                \
+  export AGTPATH="/opt/${AGTREL:?}-aarch64_be-none-linux-gnu/bin/" &&  \
+  env CC="${AGTPATH:?}/aarch64_be-none-linux-gnu-gcc"                  \
+      LOCAL_CONFOPTS="--host=aarch64_be-none-linux-gnu"                \
+    make libuvrel &&                                                   \
+  env CC="${AGTPATH}:?/aarch64_be-none-linux-gnu-gcc"                  \
+    make
+  ```
+
+#### Linaro GNU Toolchain
+
+The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**](https://snapshots.linaro.org/gnu-toolchain), updated monthly, provides Linux (**ARM** and **ARM64**) reference toolchains, closely tracking upstream, allowing developers to easily test new compiler and processor features before the next [**Arm GNU Toolchain**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) release.
+
+##### Linux/ARMv7-HF
+
+* Using the [**Linaro GNU Toolchain Integration Build**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) on Linux/x86_64, version **13.0.0-2022.09**, to cross-compile for Linux/**ARMv7-HF** (*hardware floating point*):
+
+  ```sh
+  export LINREL="gcc-linaro-13.0.0-2022.09-x86_64" &&            \
+  export LINPATH="/opt/${LINREL:?}_arm-linux-gnueabihf/bin/" &&  \
+  env CC="${LINPATH:?}/arm-linux-gnueabihf-gcc"                  \
+      CFLAGS="-march=armv7-a+fp"                                 \
+      LOCAL_CONFOPTS="--host=arm-linux-gnueabihf"                \
+    make libuvrel &&                                             \
+  env CC="${LINPATH:?}/arm-linux-gnueabihf-gcc"                  \
+      CFLAGS="-march=armv7-a+fp" NEED_128=1                      \
+    make
+  ```
+
+##### Linux/ARM64
+
+* Using the [**Linaro GNU Toolchain Integration Build**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) on Linux/x86_64, version **13.0.0-2022.09**, to cross-compile for Linux/**ARM64** (*static binary*):
+
+  ```sh
+  export LINREL="gcc-linaro-13.0.0-2022.09-x86_64" &&          \
+  export LINPATH="/opt/${LINREL:?}_aarch64-linux-gnu/bin/" &&  \
+  env CC="${LINPATH:?}/aarcg64-linux-gnu-gcc"                  \
+      LOCAL_CONFOPTS="--host=aarch64-linux-gnu"                \
+    make libuvrel &&                                           \
+  env CC="${LINPATH:?}/aarch64-linux-gnu-gcc"                  \
+      LDFLAGS="-static"                                        \
+    make
+  ```
+
+#### GCC (crosstool-NG)
+
+[**crosstool-NG**](https://crosstool-ng.github.io/) is a versatile cross-toolchain generator, which can be used to generate **GCC**-based toolchains for a huge variety of architectures and operating systems (*mainly* **Linux**).
+
+**DPS8M** is regularly built by **The DPS8M Development Team** for many **Linux** architectures using **crosstool-NG** generated toolchains, utilizing both the [**glibc**](https://www.gnu.org/software/libc/) and [**musl**](https://www.musl-libc.org/) C libraries. The following *CT-NG* examples are intended to be instructive, but are by no means exhaustive.
+
+##### Linux/RV64
+
+* Using a **crosstool-NG** generated **GCC**+**musl** toolchain to cross-compile for Linux/**RV64** (**64-bit RISC-V** *static binary*):
+
+  ```sh
+  export CTNG="riscv64-local-linux-musl" &&               \
+  env CC="/home/jhj/x-tools/${CTNG:?}/bin/${CTNG:?}-gcc"  \
+      LOCAL_CONFOPTS="--host=${CTNG:?}"                   \
+    make libuvrel &&                                      \
+  env CC="/home/jhj/x-tools/${CTNG:?}/bin/${CTNG:?}-gcc"  \
+      LDFLAGS="-static" LOCALLIBS="-latomic"              \
+    make
+  ```
+
+##### Linux/i686
+
+* Using a **crosstool-NG** generated **GCC**+**musl** toolchain to cross-compile for Linux/**i686** (**32-bit** *static binary*):
+
+  ```sh
+  export CTNG="i686-local-linux-musl" &&                  \
+  env CC="/home/jhj/x-tools/${CTNG:?}/bin/${CTNG:?}-gcc"  \
+      LOCAL_CONFOPTS="--host=${CTNG:?}"                   \
+    make libuvrel &&                                      \
+  env CC="/home/jhj/x-tools/${CTNG:?}/bin/${CTNG:?}-gcc"  \
+      LDFLAGS="-static" LOCALLIBS="-latomic" NEED_128=1   \
+    make
+  ```
+
+##### Linux/ARMv6-HF
+
+* Using a **crosstool-NG** generated **GCC**+**glibc** toolchain to cross-compile for Linux/**ARMv6-HF** (*hardware floating point*):
+
+  ```sh
+  export CTNG="armv6-local-linux-gnueabihf" &&            \
+  env CC="/home/jhj/x-tools/${CTNG:?}/bin/${CTNG:?}-gcc"  \
+      LOCAL_CONFOPTS="--host=${CTNG:?}"                   \
+      CFLAGS="-march=armv6+fp"                            \
+    make libuvrel &&                                      \
+  env CC="/home/jhj/x-tools/${CTNG:?}/bin/${CTNG:?}-gcc"  \
+      CFLAGS="-march=armv6+fp" LOCALLIBS="-latomic"       \
+      NEED_128=1                                          \
+    make
+  ```
+
+##### Linux/PPC64le
+
+* Using a **crosstool-NG** generated **GCC**+**musl** toolchain to cross-compile for Linux/**PPC64le** (**64-bit POWER9** *little endian static binary*):
+
+  ```sh
+  export CTNG="powerpc64le-local-linux-musl" &&           \
+  env CC="/home/jhj/x-tools/${CTNG:?}/bin/${CTNG:?}-gcc"  \
+      LOCAL_CONFOPTS="--host=${CTNG:?}"                   \
+      CFLAGS="-mcpu=power9"                               \
+    make libuvrel &&                                      \
+  env CC="/home/jhj/x-tools/${CTNG:?}/bin/${CTNG:?}-gcc"  \
+      CFLAGS="-mcpu=power9" LDFLAGS="-static"             \
+      LOCALLIBS="-latomic"                                \
+    make
+  ```
 
 ### Additional Linux Notes
 
@@ -997,12 +1214,12 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 * Cross-compilation targeting **ARM64** **macOS** 11:
 
   ```sh
-  make distclean &&                                                  \
-  env CFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0" \
-    LOCAL_CONFOPTS="--host=arm64-apple-darwin" make libuvrel         \
-    HOMEBREW_INC= HOMEBREW_LIB= &&                                   \
-  env CFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0" \
-    LDFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0"  \
+  make distclean &&                                                   \
+  env CFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0"  \
+    LOCAL_CONFOPTS="--host=arm64-apple-darwin" make libuvrel          \
+    HOMEBREW_INC= HOMEBREW_LIB= &&                                    \
+  env CFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0"  \
+     LDFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0"  \
     make HOMEBREW_INC= HOMEBREW_LIB=
   ```
 
@@ -1011,12 +1228,12 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 * Cross-compilation targeting **Intel** **macOS** 10.15:
 
   ```sh
-  make distclean &&                                                       \
-  env CFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15" \
-    LOCAL_CONFOPTS="--host=x86_64-apple-darwin" make libuvrel             \
-    HOMEBREW_INC= HOMEBREW_LIB= &&                                        \
-  env CFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15" \
-    LDFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15"  \
+  make distclean &&                                                        \
+  env CFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15"  \
+    LOCAL_CONFOPTS="--host=x86_64-apple-darwin" make libuvrel              \
+    HOMEBREW_INC= HOMEBREW_LIB= &&                                         \
+  env CFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15"  \
+     LDFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15"  \
     make HOMEBREW_INC= HOMEBREW_LIB=
   ```
 
@@ -1030,32 +1247,32 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 * Cross-compilation targeting **ARM64**, **Intel**, **Intel Haswell** **macOS**:
 
   ```sh
-  make distclean &&                                                        \
-  env CFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0"       \
-   LOCAL_CONFOPTS="--host=arm64-apple-darwin" make libuvrel                \
-    HOMEBREW_INC= HOMEBREW_LIB= &&                                         \
-  env CFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0"       \
-   LDFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0"         \
-    make HOMEBREW_INC= HOMEBREW_LIB= &&                                    \
-  cp -f "src/dps8/dps8" "dps8.arm64" &&                                    \
-  make distclean &&                                                        \
-  env CFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15"  \
-   LOCAL_CONFOPTS="--host=x86_64-apple-darwin" make libuvrel               \
-    HOMEBREW_INC= HOMEBREW_LIB= &&                                         \
-  env CFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15"  \
-   LDFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15"    \
-  make HOMEBREW_INC= HOMEBREW_LIB= &&                                      \
-  cp -f "src/dps8/dps8" "dps8.x86_64" &&                                   \
-  make distclean &&                                                        \
-  env CFLAGS="-target x86_64h-apple-macos10.15 -mmacosx-version-min=10.15  \
-   -march=haswell" LOCAL_CONFOPTS="--host=x86_64-apple-darwin"             \
-  make libuvrel HOMEBREW_INC= HOMEBREW_LIB= &&                             \
-  env CFLAGS="-target x86_64h-apple-macos10.15 -mmacosx-version-min=10.15  \
-   -march=haswell" LDFLAGS="-target x86_64h-apple-macos10.15               \
-    -mmacosx-version-min=10.15" make HOMEBREW_INC= HOMEBREW_LIB= &&        \
-  cp -f "src/dps8/dps8" "dps8.x86_64h" &&                                  \
-  lipo -create -output "dps8" "dps8.x86_64" "dps8.x86_64h" "dps8.arm64" && \
-  make distclean && rm -f "dps8.x86_64" "dps8.x86_64h" "dps8.arm64" &&     \
+  make distclean &&                                                         \
+  env CFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0"        \
+   LOCAL_CONFOPTS="--host=arm64-apple-darwin" make libuvrel                 \
+    HOMEBREW_INC= HOMEBREW_LIB= &&                                          \
+  env CFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0"        \
+     LDFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0"        \
+    make HOMEBREW_INC= HOMEBREW_LIB= &&                                     \
+  cp -f "src/dps8/dps8" "dps8.arm64" &&                                     \
+  make distclean &&                                                         \
+  env CFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15"   \
+   LOCAL_CONFOPTS="--host=x86_64-apple-darwin" make libuvrel                \
+    HOMEBREW_INC= HOMEBREW_LIB= &&                                          \
+  env CFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15"   \
+     LDFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15"   \
+  make HOMEBREW_INC= HOMEBREW_LIB= &&                                       \
+  cp -f "src/dps8/dps8" "dps8.x86_64" &&                                    \
+  make distclean &&                                                         \
+  env CFLAGS="-target x86_64h-apple-macos10.15 -mmacosx-version-min=10.15   \
+   -march=haswell" LOCAL_CONFOPTS="--host=x86_64-apple-darwin"              \
+  make libuvrel HOMEBREW_INC= HOMEBREW_LIB= &&                              \
+  env CFLAGS="-target x86_64h-apple-macos10.15 -mmacosx-version-min=10.15   \
+   -march=haswell" LDFLAGS="-target x86_64h-apple-macos10.15                \
+    -mmacosx-version-min=10.15" make HOMEBREW_INC= HOMEBREW_LIB= &&         \
+  cp -f "src/dps8/dps8" "dps8.x86_64h" &&                                   \
+  lipo -create -output "dps8" "dps8.x86_64" "dps8.x86_64h" "dps8.arm64" &&  \
+  make distclean && rm -f "dps8.x86_64" "dps8.x86_64h" "dps8.arm64" &&      \
   lipo -detailed_info "dps8"
   ```
 
@@ -1065,9 +1282,9 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 ## Windows
 
-* Ensure you are running a supported release of Windows **Windows** on a supported platform.
+* Ensure you are running a supported release of Microsoft **Windows** on a supported platform.
   * Microsoft **Windows** **10** and **11** on **x86_64** and **i686** are regularly tested by **The DPS8M Development Team**.
-* Microsoft **Windows** supports various development and runtime environments, including [**MSVCRT**](https://docs.microsoft.com/en-us/cpp/)/[**MinGW**](https://www.mingw-w64.org/), [**Cygwin**](https://www.cygwin.com/), [**Midipix**](https://midipix.org/), [**MSYS2**](https://www.msys2.org/), [**UWIN**](https://github.com/att/uwin), [**UCRT**](https://docs.microsoft.com/en-us/windows/uwp/), and others.
+* Microsoft **Windows** supports various development and runtime environments, including [**MSVCRT**](https://docs.microsoft.com/en-us/cpp/)/[**MinGW**](https://www.mingw-w64.org/), [**Cygwin**](https://www.cygwin.com/), [**Midipix**](https://midipix.org/), [**MSYS2**](https://www.msys2.org/), [**UWIN**](https://github.com/att/uwin), [**UWP**](https://docs.microsoft.com/en-us/windows/uwp/), and others.
   * Care should be taken to avoid mixing incompatible libraries and tools.
 * Cross-compilation is supported.  Builds targeting Microsoft **Windows** (**MinGW** and **Cygwin**) running on **x86_64**, **i686**, **ARMv7**, and **ARM64** platforms are regularly cross-compiled from a variety of UNIX-like systems (using **LLVM-MinGW** and **MinGW-GCC**), and from Microsoft **Windows** using **Cygwin**.
 
@@ -1089,17 +1306,17 @@ Build the simulator from the top-level source directory (using **GNU Make**):
     2. Update ***all*** installed packages using the new **Cygwin** `setup.exe` application.
 
     3. Install the required prerequisite packages using **Cygwin** `setup.exe`:
-	   * `autoconf`
-	   * `cmake`
-	   * `cygcheck`
-	   * `gcc`
-	   * `libtool`
-	   * `libuv1`
-	   * `libuv1-devel`
-	   * `make`
-	   * `pkg-config`
-	   * `unzip`
-	   * `wget`
+       * `autoconf`
+       * `cmake`
+       * `cygcheck`
+       * `gcc`
+       * `libtool`
+       * `libuv1`
+       * `libuv1-devel`
+       * `make`
+       * `pkg-config`
+       * `unzip`
+       * `wget`
 
     4. **Most importantly**, invoke the `cygcheck` utility (*i.e.* `cygcheck -cv | grep -v "OK$"`) to verify the integrity of all currently installed packages and correct any problems before continuing.
 
@@ -1126,20 +1343,20 @@ In the following cross-compilation examples, the *latest* **`libuv`** sources (f
 * Using **GCC** (*the* **Cygwin** **`mingw64-i686-gcc-core`** *package*) to cross-compile a native **32-bit** Windows executable (*not depending on Cygwin*):
 
   ```sh
-  mkdir -p "${HOME}/libuv-build" && mkdir -p "${HOME}/libuv-win32-i686"    \
-  ( cd "${HOME}/libuv-build" &&                                            \
-    wget -v "https://github.com/libuv/libuv/archive/v1.x.zip" &&           \
-    unzip -xa "v1.x.zip" && cd "libuv-1.x" &&                              \
-    mkdir -p "build" && cd "build" &&                                      \
-    cmake .. -DCMAKE_SYSTEM_NAME="Windows"                                 \
-             -DCMAKE_SYSTEM_VERSION="6.1"                                  \
-             -DCMAKE_C_COMPILER="i686-w64-mingw32-gcc"                     \
-             -DCMAKE_INSTALL_PREFIX="${HOME}/libuv-win32-i686" &&          \
-    cmake --build . && cmake --install . ) &&                              \
-  env CFLAGS="-I${HOME}/libuv-win32-i686/include -D__MINGW64__             \
-              -DUSE_FLOCK=1 -DUSE_FCNTL=1" CC="i686-w64-mingw32-gcc"       \
-      LDFLAGS="-L${HOME}/libuv-win32-i686/lib" NEED_128=1                  \
-  make CROSS=MINGW64
+  mkdir -p "${HOME}/libuv-build" && mkdir -p "${HOME}/libuv-win32-i686" &&  \
+  ( cd "${HOME}/libuv-build" &&                                             \
+    wget -v "https://github.com/libuv/libuv/archive/v1.x.zip" &&            \
+    unzip -xa "v1.x.zip" && cd "libuv-1.x" &&                               \
+    mkdir -p "build" && cd "build" &&                                       \
+    cmake .. -DCMAKE_SYSTEM_NAME="Windows"                                  \
+             -DCMAKE_SYSTEM_VERSION="6.1"                                   \
+             -DCMAKE_C_COMPILER="i686-w64-mingw32-gcc"                      \
+             -DCMAKE_INSTALL_PREFIX="${HOME}/libuv-win32-i686" &&           \
+    cmake --build . && cmake --install . ) &&                               \
+  env CFLAGS="-I${HOME}/libuv-win32-i686/include -D__MINGW64__              \
+              -DUSE_FLOCK=1 -DUSE_FCNTL=1" CC="i686-w64-mingw32-gcc"        \
+      LDFLAGS="-L${HOME}/libuv-win32-i686/lib" NEED_128=1                   \
+  make CROSS="MINGW64"
   ```
   * The compiled native binary will require `libwinpthread-1.dll` (located at `/usr/i686-w64-mingw32/sys-root/mingw/bin/libwinpthread-1.dll`) and `libuv.dll` (located at `${HOME}/libuv-win32-i686/bin/libuv.dll`) at runtime.
 
@@ -1150,20 +1367,20 @@ In the following cross-compilation examples, the *latest* **`libuv`** sources (f
 * Using **GCC** (*the* **Cygwin** **`mingw64-x86_64-gcc-core`** *package*) to cross-compile a native **64-bit** Windows executable (*not depending on Cygwin*):
 
   ```sh
-  mkdir -p "${HOME}/libuv-build" && mkdir -p "${HOME}/libuv-win32-x86_64"  \
-  ( cd "${HOME}/libuv-build" &&                                            \
-    wget -v "https://github.com/libuv/libuv/archive/v1.x.zip" &&           \
-    unzip -xa "v1.x.zip" && cd "libuv-1.x" &&                              \
-    mkdir -p "build" && cd "build" &&                                      \
-    cmake .. -DCMAKE_SYSTEM_NAME="Windows"                                 \
-             -DCMAKE_SYSTEM_VERSION="6.1"                                  \
-             -DCMAKE_C_COMPILER="x86_64-w64-mingw32-gcc"                   \
-             -DCMAKE_INSTALL_PREFIX="${HOME}/libuv-win32-x86_64" &&        \
-    cmake --build . && cmake --install . ) &&                              \
-  env CFLAGS="-I${HOME}/libuv-win32-x86_64/include -D__MINGW64__           \
-              -DUSE_FLOCK=1 -DUSE_FCNTL=1" CC="x86_64-w64-mingw32-gcc"     \
-      LDFLAGS="-L${HOME}/libuv-win32-x86_64/lib"                           \
-  make CROSS=MINGW64
+  mkdir -p "${HOME}/libuv-build" && mkdir -p "${HOME}/libuv-win32-x86_64" &&  \
+  ( cd "${HOME}/libuv-build" &&                                               \
+    wget -v "https://github.com/libuv/libuv/archive/v1.x.zip" &&              \
+    unzip -xa "v1.x.zip" && cd "libuv-1.x" &&                                 \
+    mkdir -p "build" && cd "build" &&                                         \
+    cmake .. -DCMAKE_SYSTEM_NAME="Windows"                                    \
+             -DCMAKE_SYSTEM_VERSION="6.1"                                     \
+             -DCMAKE_C_COMPILER="x86_64-w64-mingw32-gcc"                      \
+             -DCMAKE_INSTALL_PREFIX="${HOME}/libuv-win32-x86_64" &&           \
+    cmake --build . && cmake --install . ) &&                                 \
+  env CFLAGS="-I${HOME}/libuv-win32-x86_64/include -D__MINGW64__              \
+              -DUSE_FLOCK=1 -DUSE_FCNTL=1" CC="x86_64-w64-mingw32-gcc"        \
+      LDFLAGS="-L${HOME}/libuv-win32-x86_64/lib"                              \
+  make CROSS="MINGW64"
   ```
 
   * The compiled native binary will require `libwinpthread-1.dll` (located at `/usr/x86_64-w64-mingw32/sys-root/mingw/bin/libwinpthread-1.dll`) and `libuv.dll` (located at `${HOME}/libuv-win32-x86_64/bin/libuv.dll`) at runtime.
@@ -1172,27 +1389,86 @@ In the following cross-compilation examples, the *latest* **`libuv`** sources (f
 
 ### LLVM-MinGW Clang cross-compilation
 
-The [**LLVM-MinGW Clang**](https://github.com/mstorsjo/llvm-mingw) toolchain supports building native Windows binaries (**i686**, **x86_64**, **ARMv7**, and **ARM64** systems) on non-Windows host systems.
+The [**LLVM-MinGW Clang**](https://github.com/mstorsjo/llvm-mingw) toolchain supports building native Windows binaries (**i686**, **x86_64**, **ARMv7**, and **ARM64** systems) on non-Windows host systems (or using the **Windows Subsystem for Linux**).
+\
+\
+The [**LLVM-MinGW Docker Container**](https://hub.docker.com/r/mstorsjo/llvm-mingw/) provides a pre-built and fully configured **LLVM-MinGW** toolchain (including appropriate compiler symlinks) and is regularly used by **The DPS8M Development Team**.
 
 #### Windows i686
 
-* TBD
+* Using **Clang** (*the* **LLVM-MinGW** *compiler*) to cross-compile a local static `libuv` library and a native **32-bit** Windows/**i686** executable:
+
+  ```sh
+  mkdir -p "${HOME}/libuv-build" && mkdir -p "${HOME}/libuv-win32-i686" &&  \
+  ( cd "${HOME}/libuv-build" &&                                             \
+    wget -v "https://github.com/libuv/libuv/archive/v1.x.zip" &&            \
+    unzip -xa "v1.x.zip" && cd "libuv-1.x" && sh ./autogen.sh &&            \
+    ./configure --prefix="${HOME}/libuv-win32-i686"                         \
+      --enable-static --disable-shared --host="i686-w64-mingw32" &&         \
+    make && make install ) &&                                               \
+  env CC="i686-w64-mingw32-clang"                                           \
+      CFLAGS="-I${HOME}/libuv-win32-i686/include -D__MINGW64__"             \
+      LDFLAGS="-L${HOME}/libuv-win32-i686/lib" NEED_128=1                   \
+  make CROSS="MINGW64"
+  ```
 
 #### Windows x86_64
 
-* TBD
+* Using **Clang** (*the* **LLVM-MinGW** *compiler*) to cross-compile a local static `libuv` library and a native **64-bit** Windows/**x86_64** executable:
+
+  ```sh
+  mkdir -p "${HOME}/libuv-build" && mkdir -p "${HOME}/libuv-win32-x86_64" &&  \
+  ( cd "${HOME}/libuv-build" &&                                               \
+    wget -v "https://github.com/libuv/libuv/archive/v1.x.zip" &&              \
+    unzip -xa "v1.x.zip" && cd "libuv-1.x" && sh ./autogen.sh &&              \
+    ./configure --prefix="${HOME}/libuv-win32-x86_64"                         \
+      --enable-static --disable-shared --host="x86_64-w64-mingw32" &&         \
+    make && make install ) &&                                                 \
+  env CC="x86_64-w64-mingw32-clang"                                           \
+      CFLAGS="-I${HOME}/libuv-win32-x86_64/include -D__MINGW64__"             \
+      LDFLAGS="-L${HOME}/libuv-win32-x86_64/lib"                              \
+  make CROSS="MINGW64"
+  ```
 
 #### Windows ARMv7
 
-* TBD
+* Using **Clang** (*the* **LLVM-MinGW** *compiler*) to cross-compile a local static `libuv` library and a native **32-bit** Windows/**ARMv7** executable:
+
+  ```sh
+  mkdir -p "${HOME}/libuv-build" && mkdir -p "${HOME}/libuv-win32-armv7" &&  \
+  ( cd "${HOME}/libuv-build" &&                                              \
+    wget -v "https://github.com/libuv/libuv/archive/v1.x.zip" &&             \
+    unzip -xa "v1.x.zip" && cd "libuv-1.x" && sh ./autogen.sh &&             \
+    ./configure --prefix="${HOME}/libuv-win32-armv7"                         \
+      --enable-static --disable-shared --host="armv7-w64-mingw32" &&         \
+    make && make install ) &&                                                \
+  env CC="armv7-w64-mingw32-clang"                                           \
+      CFLAGS="-I${HOME}/libuv-win32-armv7/include -D__MINGW64__"             \
+      LDFLAGS="-L${HOME}/libuv-win32-armv7/lib" NEED_128=1                   \
+  make CROSS="MINGW64"
+  ```
 
 #### Windows ARM64
 
-* TBD
+* Using **Clang** (*the* **LLVM-MinGW** *compiler*) to cross-compile a local static `libuv` library and a native **64-bit** Windows/**ARM64** executable:
+
+  ```sh
+  mkdir -p "${HOME}/libuv-build" && mkdir -p "${HOME}/libuv-win32-arm64" &&  \
+  ( cd "${HOME}/libuv-build" &&                                              \
+    wget -v "https://github.com/libuv/libuv/archive/v1.x.zip" &&             \
+    unzip -xa "v1.x.zip" && cd "libuv-1.x" && sh ./autogen.sh &&             \
+    ./configure --prefix="${HOME}/libuv-win32-arm64"                         \
+      --enable-static --disable-shared --host="aarch64-w64-mingw32" &&       \
+    make && make install ) &&                                                \
+  env CC="aarch64-w64-mingw32-clang"                                         \
+      CFLAGS="-I${HOME}/libuv-win32-arm64/include -D__MINGW64__"             \
+      LDFLAGS="-L${HOME}/libuv-win32-arm64/lib"                              \
+  make CROSS="MINGW64"
+  ```
 
 ### MinGW-w64 GCC cross-compilation
 
-The [**MinGW-w64 GCC**](https://www.mingw-w64.org/) toolchain compiler supports building native Windows binaries (**i686** and **x86_64** systems) on non-Windows host systems.
+The [**MinGW-w64 GCC**](https://www.mingw-w64.org/) toolchain compiler supports building native Windows binaries (**i686** and **x86_64** systems) on non-Windows host systems (or using the **Windows Subsystem for Linux**).
 
 #### Windows i686
 
