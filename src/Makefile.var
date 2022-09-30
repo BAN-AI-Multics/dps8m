@@ -161,7 +161,9 @@ ifeq ($(THREADZ),1)
   THREADZ=1
   ifndef SUNPRO
     ifndef SUNLINT
-      CFLAGS += -pthread
+      ifndef WATCOM
+        CFLAGS += -pthread
+      endif
     endif
   endif
     CFLAGS += -DTHREADZ
@@ -183,7 +185,9 @@ ifeq ($(LOCKLESS),1)
   LOCKLESS=1
   ifndef SUNPRO
     ifndef SUNLINT
-      CFLAGS += -pthread
+      ifndef WATCOM
+        CFLAGS += -pthread
+      endif
     endif
   endif
   ifndef SUNLINT

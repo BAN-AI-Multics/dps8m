@@ -46,6 +46,7 @@ src/empty/empty.dSYM/
 .Dependency
 typescript
 *.bak
+*.err
 "__.SYMDEF SORTED"
 
 # Tags

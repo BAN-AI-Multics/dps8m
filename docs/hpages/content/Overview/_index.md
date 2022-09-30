@@ -6,10 +6,14 @@
 
 <!-- br -->
 
+<!-- start nopdf -->
+
 * [**DPS-8/M Hardware Overview**](#processor-characteristics)
 * [**DPS8M Simulator Overview**](#the-dps8m-simulator)
 
 <!-- br -->
+
+<!-- stop nopdf -->
 
 ## GE ∕ Honeywell ∕ Bull DPS-8/M Processor
 
