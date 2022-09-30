@@ -3340,7 +3340,7 @@ static void nem_check (word24 addr, const char * context)
 //   }
 
 #if !defined(SPEED) || !defined(INLINE_CORE)
-int32 core_read (word24 addr, word36 *data, const char * ctx)
+int core_read (word24 addr, word36 *data, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
     SC_MAP_ADDR (addr, addr);
@@ -3384,7 +3384,7 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
 #endif
 
 #ifdef LOCKLESS
-int32 core_read_lock (word24 addr, word36 *data, UNUSED const char * ctx)
+int core_read_lock (word24 addr, word36 *data, UNUSED const char * ctx)
 {
     SC_MAP_ADDR (addr, addr);
     LOCK_CORE_WORD(addr);

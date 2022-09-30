@@ -116,7 +116,7 @@
 
 #define tmpdir "/tmp"
 #define program "empty"
-#define version "0.6.23f-dps"
+#define version "0.6.23g-dps"
 
 static void usage(void);
 static long toint(char *intstr);
@@ -958,7 +958,7 @@ pidbyppid(pid_t ppid, int lflg)
   int header = 1;
 
   /* form this line: empty.ppid */
-  (void)sprintf(fmask, "%s%s%d.", program, sep, ppid);
+  (void)sprintf(fmask, "%s%s%llu.", program, sep, (long long unsigned int)ppid);
   len = strlen(fmask);
 
   /* cppcheck-suppress literalWithCharPtrCompare */
