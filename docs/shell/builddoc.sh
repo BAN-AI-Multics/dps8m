@@ -57,11 +57,10 @@ unset FLOCK_COMMAND > "/dev/null" 2>&1 || true
  INPUTS="yaml/docinfo-post.yml" # <---------------- Start of LaTeX document
  INPUTS="${INPUTS:-} md/authors.md" # <------------ Authors
 #INPUTS="${INPUTS:-} md/acknowledgements.md" # <--- Acknowledgements
-#INPUTS="${INPUTS:-} md/forward.md" # <------------ Forward
- INPUTS="${INPUTS:-} md/pre-overview.md" # <--------- (setup) Building from Source Code
+ INPUTS="${INPUTS:-} md/pre-overview.md" # <------- (setup) Building from Source Code
  INPUTS="${INPUTS:-} hpages/content/Overview/_index.md" # <------- Introduction
- INPUTS="${INPUTS:-} md/post-overview.md" # <-------- (finish) Building from Source Code
-#INPUTS="${INPUTS:-} md/prologue.md" # <----------- Prologue
+ INPUTS="${INPUTS:-} md/post-overview.md" # <------ (finish) Building from Source Code
+ INPUTS="${INPUTS:-} md/obtain.md" # <------------- Obtaining the simulator
  INPUTS="${INPUTS:-} md/pre-source.md" # <--------- (setup) Building from Source Code
  INPUTS="${INPUTS:-} hpages/content/Documentation/Source_Compilation/_index.md" # <-------- Building from Source Code
  INPUTS="${INPUTS:-} md/post-source.md" # <-------- (finish) Building from Source Code

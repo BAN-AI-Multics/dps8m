@@ -8084,6 +8084,7 @@ arbitrary
 architecturally
 architecture
 architectures
+archival
 archive
 archives
 ards
@@ -8312,6 +8313,7 @@ blank
 blanking
 blanks
 blast
+bleeding
 bless
 bling
 blinken
@@ -8357,6 +8359,7 @@ bracket
 bracketed
 brackets
 branch
+branches
 brand
 brands
 break
@@ -8586,6 +8589,7 @@ clipping
 clock
 clocks
 clone
+cloned
 cloning
 close
 closed
@@ -8812,6 +8816,7 @@ cooked
 cookies
 coolest
 coordinate
+coordinated
 coordinator
 cope
 copied
@@ -8909,6 +8914,7 @@ daemon
 daemonize
 daemonizing
 daemons
+daily
 dalias
 damages
 dang
@@ -9092,6 +9098,7 @@ developed
 developer
 developers
 development
+developmental
 deviation
 device
 devices
@@ -9238,6 +9245,7 @@ doubles
 doubling
 doubly
 doug
+downloadable
 downloading
 downloads
 dpsprintf
@@ -9713,6 +9721,7 @@ freebsd
 freed
 freely
 frees
+freescale
 freeware
 frequency
 frequently
@@ -9722,6 +9731,7 @@ front
 fsfap
 fsync
 fudging
+fujitsu
 full
 fullest
 fully
@@ -9947,6 +9957,8 @@ horizontal
 horner
 horrible
 host
+hosted
+hosting
 hosts
 hotlinks
 hotplug
@@ -10665,6 +10677,8 @@ minute
 minutes
 mips
 miracle
+mirrored
+mirroring
 misalignment
 misc
 miscellaneous
@@ -11145,6 +11159,7 @@ picking
 picture
 pierce
 pieter
+pine
 pings
 pipe
 pipelines
@@ -11184,6 +11199,7 @@ polygon
 pool
 pooling
 poor
+popular
 populate
 populated
 populates
@@ -11440,6 +11456,7 @@ range
 ranges
 rank
 rapid
+raptor
 rare
 rarely
 raspberry
@@ -12383,6 +12400,7 @@ taking
 talking
 tallies
 tally
+talos
 tampers
 tapes
 targeted
@@ -12737,6 +12755,7 @@ unmodified
 unmounted
 unnecessary
 unnormalized
+unofficial
 unpacked
 unpacking
 unpadded
@@ -12794,6 +12813,7 @@ upon
 upper
 uppercase
 upright
+upstream
 uptime
 upward
 urban
