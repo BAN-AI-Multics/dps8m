@@ -191,7 +191,7 @@
 
   * <u>Operating systems</u> supported are **AIX**, **FreeBSD**, **NetBSD**, **OpenBSD**, **DragonFly BSD**, **Haiku**, **GNU/Hurd**, **illumos OpenIndiana**, **Linux**, **macOS**, **Solaris**, and **Windows**.
 
-  * <u>C compilers</u> supported are **Clang**, **LLVM-MinGW**, AMD Optimizing C/C++ (**AOCC**), Arm C/C++ Compiler (**ARMClang**), GNU C (**GCC**), IBM Advance Toolchain, IBM XL C/C++ (**XLC**), Intel oneAPI DPC++/C++ (**ICX**), Intel C++ Compiler Classic for macOS (**ICC**), NVIDIA HPC SDK C Compiler (**NVC**), and Oracle Developer Studio (**SunCC**).
+  * <u>C compilers</u> supported are **Clang**, **LLVM-MinGW**, AMD Optimizing C/C++ (**AOCC**), Arm C/C++ Compiler (**ARMClang**), GNU C (**GCC**), IBM Advance Toolchain, IBM XL C/C++ (**XLC**), IBM Open XL C/C++ (**IBMClang**), Intel oneAPI DPC++/C++ (**ICX**), Intel C++ Compiler Classic for macOS (**ICC**), NVIDIA HPC SDK C Compiler (**NVC**), and Oracle Developer Studio (**SunCC**).
 
   * <u>Hardware architectures</u> supported are **Intel x86** (i686, x86_64), **ARM** (ARMv6, ARMv7, ARM64), **PowerPC** (PPC, PPC64, PPC64le), **RISC-V** (RV64), and **m68k** (68020+).
 
@@ -201,6 +201,8 @@
 
 * **DPS8M** development is hosted courtesy of [**GitLab**](https://gitlab.com/dps8m/dps8m), providing [version control](https://gitlab.com/dps8m/dps8m), [issue tracking](https://gitlab.com/dps8m/dps8m/-/issues), and [CI/CD services](https://gitlab.com/dps8m/dps8m/-/pipelines).
 
+* Static application security testing by [**PVS-Studio**](https://pvs-studio.com/en/pvs-studio/?utm_source=github&utm_medium=organic&utm_campaign=open_source), a static analyzer for **C**, **C++**, **C#**, and **Java** code.
+
 <!-- pagebreak -->
 
 <!-- br -->
@@ -209,7 +211,7 @@
 
 <!-- br -->
 
-**DPS8M** simulates not only the **DPS‑8/M** central processing unit, but an *entire* Honeywell / Bull ***Distributed Processing System*** mainframe.
+**DPS8M** simulates not only the **DPS‑8/M** CPU, but an *entire* Honeywell / Bull ***Distributed Processing System*** mainframe.
 
 <!-- br -->
 

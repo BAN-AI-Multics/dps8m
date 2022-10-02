@@ -1204,7 +1204,8 @@ The [**GNU Toolchain for the Arm Architecture**](https://developer.arm.com/Tools
 
     ```sh
     env CC="${AGTPATH}/arm-none-linux-gnueabihf-gcc"                  \
-        CFLAGS="-march=armv7-a+fp" NEED_128=1                         \
+        CFLAGS="-march=armv7-a+fp"                                    \
+         NEED_128=1                                                   \
       make
     ```
 
@@ -1273,7 +1274,8 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
 
     ```sh
     env CC="${LINPATH}/arm-linux-gnueabihf-gcc"                    \
-        CFLAGS="-march=armv7-a+fp" NEED_128=1                      \
+        CFLAGS="-march=armv7-a+fp"                                 \
+        NEED_128=1                                                 \
       make
     ```
 
@@ -1321,7 +1323,8 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
 
     ```sh
     env CC="/home/jhj/x-tools/${CTNG}/bin/${CTNG}-gcc"      \
-        LDFLAGS="-static" LOCALLIBS="-latomic"              \
+        LDFLAGS="-static"                                   \
+        LOCALLIBS="-latomic"                                \
       make
     ```
 
@@ -1342,7 +1345,9 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
 
     ```sh
     env CC="/home/jhj/x-tools/${CTNG}/bin/${CTNG}-gcc"      \
-        LDFLAGS="-static" LOCALLIBS="-latomic" NEED_128=1   \
+        LDFLAGS="-static"                                   \
+        LOCALLIBS="-latomic"                                \
+        NEED_128=1                                          \
       make
     ```
 
@@ -1364,7 +1369,8 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
 
     ```sh
     env CC="/home/jhj/x-tools/${CTNG}/bin/${CTNG}-gcc"      \
-        CFLAGS="-march=armv6+fp" LOCALLIBS="-latomic"       \
+        CFLAGS="-march=armv6+fp"                            \
+        LOCALLIBS="-latomic"                                \
         NEED_128=1                                          \
       make
     ```
@@ -1387,7 +1393,8 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
 
     ```sh
     env CC="/home/jhj/x-tools/${CTNG}/bin/${CTNG}-gcc"      \
-        CFLAGS="-mcpu=power9" LDFLAGS="-static"             \
+        CFLAGS="-mcpu=power9"                               \
+        LDFLAGS="-static"                                   \
         LOCALLIBS="-latomic"                                \
       make
     ```
