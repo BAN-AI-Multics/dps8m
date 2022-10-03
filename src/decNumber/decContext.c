@@ -123,8 +123,8 @@ decContext * decContextDefault(decContext *context, Int kind) {
       break;
 
     default:                                 // invalid Kind
-      // use defaults, and ..
-      decContextSetStatus(context, DEC_Invalid_operation); // trap
+      // use defaults, and trap
+      (void)decContextSetStatus(context, DEC_Invalid_operation);
     }
 
   return context;} // decContextDefault
@@ -381,7 +381,7 @@ Int decContextTestEndian(void) {
   Int res=0;                  // optimist
   uInt dle=(uInt)DECLITEND;   // unsign
   /* cppcheck-suppress knownConditionTrueFalse */
-  if (dle>1) dle=1;           // ensure 0 or 1
+  if (dle>1) dle=1; //-V547
 
   if (LITEND!=DECLITEND) {
     res=(Int)LITEND-dle;

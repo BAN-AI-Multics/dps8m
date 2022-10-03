@@ -17,6 +17,7 @@
  */
 
 #include <ctype.h>
+#include <signal.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -57,7 +58,20 @@ utfile_mkstemps(char *request_pattern, int suffix_length)
 {
   long pattern_length;
   char *mask_pointer;
+
   char *pattern = strdup(request_pattern);
+  if (!pattern)
+    {
+      fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+               __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+      (void)raise(SIGUSR2);
+      /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+      abort();
+    }
 
   pattern_length = (long) strlen(pattern);
 
@@ -80,6 +94,12 @@ utfile_mkstemps(char *request_pattern, int suffix_length)
   mask_pointer = &pattern[mask_offset];
 
   long valid_char_count = (long) strlen(valid_file_name_chars);
+
+  if (valid_char_count < 1)
+    {
+      FREE(pattern);
+      return ( -1 );
+    }
 
   for (int count = 0; count < MAX_MKSTEMPS_TRIES; count++)
   {

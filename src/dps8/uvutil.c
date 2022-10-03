@@ -20,6 +20,7 @@
 
 #include <uv.h>
 #include <ctype.h>
+#include <signal.h>
 #include "dps8.h"
 #include "dps8_sys.h"
 #include "dps8_cpu.h"
@@ -151,6 +152,18 @@ static void accessStartWriteActual (uv_tcp_t * client, char * data,
 /* Suppress Clang Analyzer's possible memory leak warning */
 #if !defined ( __clang_analyzer__ )
     uv_write_t * req = (uv_write_t *) malloc (sizeof (uv_write_t));
+    if (!req)
+      {
+        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+# if defined(USE_BACKTRACE)
+#  ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+#  endif /* ifdef SIGUSR2 */
+# endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
     // This makes sure that bufs*.base and bufsml*.base are NULL
     memset (req, 0, sizeof (uv_write_t));
     uv_buf_t buf = uv_buf_init ((char *) malloc ((unsigned long) datalen),
@@ -352,8 +365,15 @@ static void accessProcessInput (uv_access * access, unsigned char * buf,
                    (unsigned long) (access->inSize + nread));
         if (! new)
           {
-            sim_warn ("inBuffer realloc fail; dropping data\n");
-            goto done;
+            fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                     __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+            (void)raise(SIGUSR2);
+            /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+            abort();
           }
         memcpy (new + access->inSize, buf, (unsigned long) nread);
         access->inSize += nread;
@@ -364,15 +384,21 @@ static void accessProcessInput (uv_access * access, unsigned char * buf,
         access->inBuffer = malloc ((unsigned long) nread);
         if (! access->inBuffer)
           {
-            sim_warn ("inBuffer malloc fail;  dropping data\n");
-            goto done;
+            fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                    __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+            (void)raise(SIGUSR2);
+            /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+            abort();
           }
         memcpy (access->inBuffer, buf, (unsigned long) nread);
         access->inSize = (uint) nread;
         access->inUsed = 0;
       }
 
-done:;
     // Prevent further reading until this buffer is consumed
     //fnpuv_read_stop (client);
     //if (! client || uv_is_closing ((uv_handle_t *) client))
@@ -519,6 +545,18 @@ static void onNewAccess (uv_stream_t * server, int status)
     uv_access * access = (uv_access *) server->data;
 
     uv_tcp_t * client = (uv_tcp_t *) malloc (sizeof (uv_tcp_t));
+    if (!client)
+      {
+        fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
     uv_tcp_init (access->loop, client);
     client->data = server->data;
     if (uv_accept (server, (uv_stream_t *) client) == 0)

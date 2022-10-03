@@ -510,7 +510,7 @@ else {                                                  /* No colon in input */
     portp = gbuf;                                       /* Input is the port specifier */
     hostp = (const char *)default_host;                 /* host is defaulted if provided */
     }
-if (portp != NULL) {
+if (portp != NULL) { //-V547
     portval = strtoul(portp, &endc, 10);
     if ((*endc == '\0') && ((portval == 0) || (portval > 65535)))
         return -1;                                      /* numeric value too big */
@@ -522,7 +522,7 @@ if (portp != NULL) {
         }
     }
 if (port)                                               /* port wanted? */
-    if (portp != NULL) {
+    if (portp != NULL) { //-V547
         if (strlen(portp) >= port_len)
             return -1;                                  /* no room */
         else
@@ -534,7 +534,7 @@ if (hostp != NULL) {
             return -1;                                  /* invalid domain literal */
         /* host may be the const default_host so move to temp buffer before modifying */
         strncpy(gbuf, hostp+1, sizeof(gbuf)-1);         /* remove brackets from domain literal host */
-        gbuf[strlen(gbuf)-1] = '\0';
+        gbuf[strlen(gbuf)-1] = '\0'; //-V557
         hostp = gbuf;
         }
     }
@@ -1003,9 +1003,10 @@ if (connectaddr != NULL) {
     *connectaddr = (char *)calloc(1, NI_MAXHOST+1);
 #ifdef AF_INET6
     p_getnameinfo((struct sockaddr *)&clientname, size, *connectaddr, NI_MAXHOST, NULL, 0, NI_NUMERICHOST);
-    if (0 == memcmp("::ffff:", *connectaddr, 7))        /* is this a IPv4-mapped IPv6 address? */
-        memmove(*connectaddr, 7+*connectaddr,           /* prefer bare IPv4 address */
-                strlen(*connectaddr) - 7 + 1);          /* length to include terminating \0 */
+    if (*connectaddr)
+      if (0 == memcmp("::ffff:", *connectaddr, 7))      /* is this a IPv4-mapped IPv6 address? */
+          memmove(*connectaddr, 7+*connectaddr,         /* prefer bare IPv4 address */
+                  strlen(*connectaddr) - 7 + 1);        /* length to include terminating \0 */
 #else
     strcpy(*connectaddr, inet_ntoa(((struct sockaddr_in *)&connectaddr)->s_addr));
 #endif
@@ -1147,7 +1148,7 @@ if (rbytes == SOCKET_ERROR) {
     if (err == WSAEWOULDBLOCK)                          /* no data */
         return 0;
 #if defined(EAGAIN)
-    if (err == EAGAIN)                                  /* no data */
+    if (err == EAGAIN) //-V::547,649
         return 0;
 #endif
     if ((err != WSAETIMEDOUT) &&                        /* expected errors after a connect failure */
@@ -1171,7 +1172,7 @@ if (sbytes == SOCKET_ERROR) {
     if (err == WSAEWOULDBLOCK)                          /* no data */
         return 0;
 #if defined(EAGAIN)
-    if (err == EAGAIN)                                  /* no data */
+    if (err == EAGAIN) //-V::547,649
         return 0;
 #endif
     }

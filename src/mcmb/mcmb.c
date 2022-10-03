@@ -6,7 +6,7 @@
  * ---------------------------------------------------------------------------
  *
  * Copyright (c) 2002-2019 Devin Teske <dteske@FreeBSD.org>
- * Copyright (c) 2020-2021 Jeffrey H. Johnson <trnsz@pobox.com>
+ * Copyright (c) 2020-2022 Jeffrey H. Johnson <trnsz@pobox.com>
  * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
@@ -83,7 +83,6 @@
  */
 
 #define CMB_VERSION         0
-#define CMB_VERSION_LONG    1
 #define CMB_H_VERSION_MAJOR 3
 #define CMB_H_VERSION_MINOR 5
 #define CMB_H_VERSION_PATCH 6
@@ -290,8 +289,10 @@ static struct cmb_xitem *cmb_transform_find;
               = realloc(cmb_transform_find_buf, (unsigned long)len);          \
             if (cmb_transform_find_buf == NULL)                               \
               {                                                               \
-                (void)fprintf(stderr, "FATAL: Out of memory?!\n");            \
-                _Exit(EXIT_FAILURE);                                          \
+                (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at"  \
+                                      " %s[%s:%d]\r\n",                       \
+                              __func__, __FILE__, __LINE__);                  \
+                abort();                                                      \
                 /* NOTREACHED */                                              \
               }                                                               \
             cmb_transform_find_buf_size = len;                                \
@@ -413,14 +414,12 @@ static struct cmb_xitem *cmb_transform_find;
 
 static const char mcmbver[]         = "2120.4.13-dps";
 static const char libversion[]      = "libcmb 3.5.6";
-static const char libversion_long[] = "$Version: libcmb 3.5.6 $";
 
 /*
  * Takes one of below described type constants. Returns string version.
  *
  * TYPE                 DESCRIPTION
  * CMB_VERSION          Short version text. For example, "x.y".
- * CMB_VERSION_LONG     RCS style ($Version$).
  *
  * For unknown type, the text "not available" is returned.
  */
@@ -432,9 +431,6 @@ libcmb_version(int type)
     {
     case CMB_VERSION:
       return libversion;
-
-    case CMB_VERSION_LONG:
-      return libversion_long;
 
     default:
       return "not available";
@@ -1030,23 +1026,26 @@ cmb(struct cmb_config *config, uint32_t nitems, char *items[])
   setmax = setdone > setinit ? setdone : setinit;
   if (( curitems = (char **)malloc(sizeof ( char * ) * setmax)) == NULL)
     {
-      (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-      _Exit(EXIT_FAILURE);
+      (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
+                    __func__, __FILE__, __LINE__);
+      abort();
       /* NOTREACHED */
     }
 
   if (( setnums = (uint32_t *)malloc(sizeof ( uint32_t ) * setmax)) == NULL)
     {
-      (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-      _Exit(EXIT_FAILURE);
+      (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
+                    __func__, __FILE__, __LINE__);
+      abort();
       /* NOTREACHED */
     }
 
   if (( setnums_backend =
           (uint32_t *)malloc(sizeof ( uint32_t ) * setmax)) == NULL)
     {
-      (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-      _Exit(EXIT_FAILURE);
+      (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
+                    __func__, __FILE__, __LINE__);
+      abort();
       /* NOTREACHED */
     }
 
@@ -1152,10 +1151,11 @@ cmb(struct cmb_config *config, uint32_t nitems, char *items[])
 
       for (n = 0; n < curset; n++)
         {
-          if (setnums == NULL)
+          if (setnums == NULL) //-V547
             {
-              (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-              _Exit(EXIT_FAILURE);
+              (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
+                            __func__, __FILE__, __LINE__);
+              abort();
               /* NOTREACHED */
             }
           setnums[n] = n;
@@ -1164,10 +1164,11 @@ cmb(struct cmb_config *config, uint32_t nitems, char *items[])
       p = 0;
       for (n = curset; n > 0; n--)
         {
-          if (setnums_backend == NULL)
+          if (setnums_backend == NULL) //-V547
             {
-              (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-              _Exit(EXIT_FAILURE);
+              (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
+                            __func__, __FILE__, __LINE__);
+              abort();
               /* NOTREACHED */
             }
           setnums_backend[p++] = nitems - n;
@@ -1380,7 +1381,7 @@ CMB_ACTION(cmb_print)
 # define UINT_MAX 0xFFFFFFFF
 #endif /* ifndef UINT_MAX */
 
-static char version[] = "$Version: 3.9.5 $";
+static char version[] = "3.9.5";
 
 /*
  * Environment
@@ -1540,8 +1541,9 @@ main(int argc, char *argv[])
 
   if (( config = malloc(config_size)) == NULL)
     {
-      (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-      _Exit(EXIT_FAILURE);
+      (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
+                    __func__, __FILE__, __LINE__);
+      abort();
       /* NOTREACHED */
     }
 
@@ -1605,8 +1607,9 @@ main(int argc, char *argv[])
           if (( cmb_transform_find =
             malloc(sizeof ( struct cmb_xitem ))) == NULL)
             {
-              (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-              _Exit(EXIT_FAILURE);
+              (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
+                            __func__, __FILE__, __LINE__);
+              abort();
               /* NOTREACHED */
             }
 
@@ -1774,8 +1777,6 @@ main(int argc, char *argv[])
 
   if (opt_version)
     {
-      cmdver += 10;                      /* Seek past "$Version: " */
-      cmdver[strlen(cmdver) - 2] = '\0'; /* Place NUL before "$"   */
       (void)fprintf(stdout, "mcmb: (miniature) combinatorics utility"
         " %s (cmb %s + %s)\n", mcmbver, cmdver, libver);
 #ifdef HAVE_BUILD
@@ -1954,7 +1955,7 @@ main(int argc, char *argv[])
 
           if (items_tmp == NULL)
             {
-              (void)fprintf(stderr, "FATAL: %s\n",
+              (void)fprintf(stderr, "\rFATAL: Bugcheck! %s\r\n",
                 errno ? strerror(errno) : "Out of memory?!");
               _Exit(EXIT_FAILURE);
               /* NOTREACHED */
@@ -1973,15 +1974,17 @@ main(int argc, char *argv[])
 
           if (items == NULL)
             {
-              (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-              _Exit(EXIT_FAILURE);
+              (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
+                            __func__, __FILE__, __LINE__);
+              abort();
               /* NOTREACHED */
             }
 
-          if (items_tmp == NULL)
+          if (items_tmp == NULL) //-V547
             {
-              (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-              _Exit(EXIT_FAILURE);
+              (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
+                            __func__, __FILE__, __LINE__);
+              abort();
               /* NOTREACHED */
             }
 
@@ -2000,8 +2003,9 @@ main(int argc, char *argv[])
 
       if (( items = calloc(ritems, sizeof ( char * ))) == NULL)
         {
-          (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-          _Exit(EXIT_FAILURE);
+          (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
+                        __func__, __FILE__, __LINE__);
+          abort();
           /* NOTREACHED */
         }
 
@@ -2092,8 +2096,9 @@ main(int argc, char *argv[])
           ul = sizeof ( struct cmb_xitem * );
           if (( items_tmp = calloc(nitems, ul)) == NULL)
             {
-              (void)fprintf(stderr, "FATAL: Out of memory?!");
-              _Exit(EXIT_FAILURE);
+              (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
+                            __func__, __FILE__, __LINE__);
+              abort();
               /* NOTREACHED */
             }
 
@@ -2101,8 +2106,9 @@ main(int argc, char *argv[])
             {
               if (( xitem = malloc(sizeof ( struct cmb_xitem ))) == NULL)
                 {
-                  (void)fprintf(stderr, "FATAL: Out of memory?!");
-                  _Exit(EXIT_FAILURE);
+                  (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
+                                __func__, __FILE__, __LINE__);
+                  abort();
                   /* NOTREACHED */
                 }
 
@@ -2170,8 +2176,9 @@ main(int argc, char *argv[])
               cmb_transform_find->cp = malloc((unsigned long)len);
               if (cmb_transform_find->cp == NULL)
                 {
-                  (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-                  _Exit(EXIT_FAILURE);
+                  (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
+                                __func__, __FILE__, __LINE__);
+                  abort();
                   /* NOTREACHED */
                 }
 
@@ -2194,8 +2201,9 @@ main(int argc, char *argv[])
           cmb_transform_find->cp = malloc((unsigned long)len);
           if (cmb_transform_find->cp == NULL)
             {
-              (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-              _Exit(EXIT_FAILURE);
+              (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
+                            __func__, __FILE__, __LINE__);
+              abort();
               /* NOTREACHED */
             }
 
@@ -2296,7 +2304,7 @@ main(int argc, char *argv[])
       for (n = 0; n < nitems; n++)
         {
           (void)memcpy(&xitem, &items[n], sizeof ( char * ));
-          if (opt_range)
+          if (opt_range) //-V547
             {
               FREE(xitem->cp);
             }
@@ -2727,8 +2735,9 @@ range_char(uint32_t start, uint32_t stop, uint32_t idx, char *dst[])
           len = snprintf(NULL, 0, "%u", num) + 1;
           if (( dst[idx] = malloc((unsigned long)len)) == NULL)
             {
-              (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-              _Exit(EXIT_FAILURE);
+              (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
+                            __func__, __FILE__, __LINE__);
+              abort();
               /* NOTREACHED */
             }
 
@@ -2743,8 +2752,9 @@ range_char(uint32_t start, uint32_t stop, uint32_t idx, char *dst[])
           len = snprintf(NULL, 0, "%u", num) + 1;
           if (( dst[idx] = (char *)malloc((unsigned long)len)) == NULL)
             {
-              (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-              _Exit(EXIT_FAILURE);
+              (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
+                            __func__, __FILE__, __LINE__);
+              abort();
               /* NOTREACHED */
             }
 
@@ -2771,16 +2781,18 @@ range_float(uint32_t start, uint32_t stop, uint32_t idx, char *dst[])
         {
           if (( xitem = malloc(size)) == NULL)
             {
-              (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-              _Exit(EXIT_FAILURE);
+              (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
+                            __func__, __FILE__, __LINE__);
+              abort();
               /* NOTREACHED */
             }
 
           len = snprintf(NULL, 0, "%u", num) + 1;
           if (( xitem->cp = malloc((unsigned long)len)) == NULL)
             {
-              (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-              _Exit(EXIT_FAILURE);
+              (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
+                            __func__, __FILE__, __LINE__);
+              abort();
               /* NOTREACHED */
             }
 
@@ -2796,16 +2808,18 @@ range_float(uint32_t start, uint32_t stop, uint32_t idx, char *dst[])
         {
           if (( xitem = malloc(size)) == NULL)
             {
-              (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-              _Exit(EXIT_FAILURE);
+              (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
+                            __func__, __FILE__, __LINE__);
+              abort();
               /* NOTREACHED */
             }
 
           len = snprintf(NULL, 0, "%u", num) + 1;
           if (( xitem->cp = malloc((unsigned long)len)) == NULL)
             {
-              (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-              _Exit(EXIT_FAILURE);
+              (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
+                            __func__, __FILE__, __LINE__);
+              abort();
               /* NOTREACHED */
             }
 

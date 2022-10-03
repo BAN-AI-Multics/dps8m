@@ -1479,25 +1479,30 @@ puts ("\e[0m");
 
 /* sanity checks */
 
+# ifdef __clang_analyzer__
+fprintf (stderr, "Error: Attempting to execute a Clang Analyzer build!\n");
+return 1;
+# endif
+
 if (argc == 0) {
     fprintf (stderr, "Error: main() called directly!\n");
-    return 0;
+    return 1;
 }
 int testEndian = decContextTestEndian();
 if (testEndian != 0) {
   if (testEndian == 1) {
     fprintf (stderr,
       "Error: Compiled for big-endian, but little-endian ordering detected; aborting.\n");
-    return 0;
+    return 1;
   }
   if (testEndian == -1) {
     fprintf (stderr,
       "Error: Compiled for little-endian, but big-endian ordering detected; aborting.\n");
-    return 0;
+    return 1;
   }
   fprintf (stderr,
     "Error: Unable to determine system byte order; aborting.\n");
-  return 0;
+  return 1;
 }
 # ifdef NEED_128
 test_math128();
@@ -1516,6 +1521,18 @@ test_math128();
 
 /* Make sure that argv has at least 10 elements and that it ends in a NULL pointer */
 targv = (char **)calloc (1+MAX(10, argc), sizeof(*targv));
+if (!targv)
+  {
+    fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+             __func__, __FILE__, __LINE__);
+# if defined(USE_BACKTRACE)
+#  ifdef SIGUSR2
+    (void)raise(SIGUSR2);
+    /*NOTREACHED*/ /* unreachable */
+#  endif /* ifdef SIGUSR2 */
+# endif /* if defined(USE_BACKTRACE) */
+    abort();
+  }
 for (i=0; i<argc; i++)
     targv[i] = argv[i];
 argv = targv;
@@ -1604,15 +1621,15 @@ else
         fprintf (stdout, "\n********** LICENSE RESTRICTED BUILD ****** NOT FOR REDISTRIBUTION **********");
 }
         fprintf (stdout, "\n");
-        FREE(argv);
+        FREE(argv); //-V726
         return 0;
     }
     /* invalid arguments? */
     if ((*argv[i] == '-') && lookswitch) {              /* switch? */
         if ((sw = get_switches (argv[i])) < 0) {
             fprintf (stderr, "Invalid switch \"%s\".\nTry \"%s -h\" for help.\n", argv[i], argv[0]);
-            FREE(argv);
-            return 0;
+            FREE(argv); //-V726
+            return 1;
             }
         sim_switches = sim_switches | sw;
         }
@@ -1620,13 +1637,12 @@ else
     else {
         if ((strlen (argv[i]) + strlen (cbuf) + 3) >= sizeof(cbuf)) {
             fprintf (stderr, "Argument string too long\n");
-            FREE(argv);
-            return 0;
+            FREE(argv); //-V726
+            return 1;
             }
         if (*cbuf)                                  /* concat args */
             strcat (cbuf, " ");
-        sprintf(&cbuf[strlen(cbuf)], "%s%s%s", strchr(argv[i], ' ') ? \
-          "\"" : "", argv[i], strchr(argv[i], ' ') ? "\"" : "");
+        sprintf(&cbuf[strlen(cbuf)], "%s%s%s", strchr(argv[i], ' ') ? "\"" : "", argv[i], strchr(argv[i], ' ') ? "\"" : "");  //-V755
         lookswitch = FALSE;                         /* no more switches */
         }
     }                                               /* end for */
@@ -1653,6 +1669,18 @@ sim_finit ();                                       /* init fio package */
 for (i = 0; cmd_table[i].name; i++) {
     size_t alias_len = strlen (cmd_table[i].name);
     char *cmd_name = (char *)calloc (1 + alias_len, sizeof (*cmd_name));
+    if (!cmd_name)
+      {
+        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+# if defined(USE_BACKTRACE)
+#  ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+#  endif /* ifdef SIGUSR2 */
+# endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
 
     strcpy (cmd_name, cmd_table[i].name);
     while (alias_len > 1) {
@@ -1677,25 +1705,25 @@ sim_timer_init ();
 if ((stat = sim_ttinit ()) != SCPE_OK) {
     fprintf (stderr, "Fatal terminal initialization error\n%s\n",
         sim_error_text (stat));
-    FREE(argv);
-    return 0;
+    FREE(argv); //-V726
+    return 1;
     }
 if ((sim_eval = (t_value *) calloc (sim_emax, sizeof (t_value))) == NULL) {
     fprintf (stderr, "Unable to allocate examine buffer\n");
-    FREE(argv);
-    return 0;
+    FREE(argv); //-V726
+    return 1;
     };
 if ((stat = reset_all_p (0)) != SCPE_OK) {
     fprintf (stderr, "Fatal simulator initialization error\n%s\n",
         sim_error_text (stat));
-    FREE(argv);
-    return 0;
+    FREE(argv); //-V726
+    return 1;
     }
 if ((stat = sim_brk_init ()) != SCPE_OK) {
     fprintf (stderr, "Fatal breakpoint table initialization error\n%s\n",
         sim_error_text (stat));
-    FREE(argv);
-    return 0;
+    FREE(argv); //-V726
+    return 1;
     }
 if (!sim_quiet) {
     printf ("\n");
@@ -1820,6 +1848,18 @@ if (gbuf[0] == '\0') {                                  /* Token started with qu
         *gptr = '\0';
     }
 sim_prompt = (char *)realloc (sim_prompt, strlen (gbuf) + 2);   /* nul terminator and trailing blank */
+if (!sim_prompt)
+  {
+    fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+             __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+    (void)raise(SIGUSR2);
+    /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+    abort();
+  }
 sprintf (sim_prompt, "%s ", gbuf);
 return SCPE_OK;
 }
@@ -1869,6 +1909,18 @@ for (cmdp = sim_vm_cmd; cmdp && (cmdp->name != NULL); cmdp++) {
         if (cmd_cnt >= cmd_size) {
             cmd_size += 20;
             hlp_cmdp = (CTAB **)realloc (hlp_cmdp, sizeof(*hlp_cmdp)*cmd_size);
+            if (!hlp_cmdp)
+              {
+                fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                         __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+                (void)raise(SIGUSR2);
+                /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+                abort();
+              }
             }
         hlp_cmdp[cmd_cnt] = cmdp;
         ++cmd_cnt;
@@ -1946,6 +1998,18 @@ if (!found) {
     }
 else {
     namebuf = (char *)calloc (max_namelen + 1, sizeof (*namebuf));
+    if (!namebuf)
+      {
+        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
     fprintf (st, "\nThe %s device implements these registers:\n\n", dptr->name);
     for (rptr = dptr->registers; rptr->name != NULL; rptr++) {
         if (rptr->flags & REG_HIDDEN)
@@ -2184,7 +2248,7 @@ char gbuf[CBUFSIZE];
 CTAB *cmdp;
 
 if (*cptr) {
-    get_glyph (cptr, gbuf, 0);
+    (void)get_glyph (cptr, gbuf, 0);
     if ((cmdp = find_cmd (gbuf))) {
         if (cmdp->action == &exdep_cmd) {
             if (dptr->help) /* Shouldn't this pass cptr so the device knows which command invoked? */
@@ -2575,11 +2639,12 @@ do {
     stat_nomessage = stat & SCPE_NOMESSAGE;             /* extract possible message suppression flag */
     stat_nomessage = stat_nomessage || (!sim_show_message);/* Apply global suppression */
     stat = SCPE_BARE_STATUS(stat);                      /* remove possible flag */
-    if (((stat != SCPE_OK) && (stat != SCPE_EXPECT)) ||
-        ((cmdp->action != &return_cmd) &&
-         (cmdp->action != &goto_cmd) &&
-         (cmdp->action != &on_cmd) &&
-         (cmdp->action != &echo_cmd)))
+    if (cmdp)
+      if (((stat != SCPE_OK) && (stat != SCPE_EXPECT)) ||
+          ((cmdp->action != &return_cmd) &&
+           (cmdp->action != &goto_cmd) &&
+           (cmdp->action != &on_cmd) &&
+           (cmdp->action != &echo_cmd)))
         sim_last_cmd_stat = stat;                       /* save command error status */
     switch (stat) {
         case SCPE_AFAIL:
@@ -2625,7 +2690,7 @@ do {
         (*sim_vm_post) (TRUE);
     } while (staying);
 Cleanup_Return:
-if (fpin)
+if (fpin) //-V547
     fclose (fpin);                                      /* close file */
 sim_gotofile = NULL;
 if (flag >= 0) {
@@ -2709,6 +2774,18 @@ struct tm *tmnow;
 time(&now);
 tmnow = localtime(&now);
 tmpbuf = (char *)malloc(instr_size);
+if (!tmpbuf)
+  {
+     fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+             __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+     (void)raise(SIGUSR2);
+     /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+     abort();
+  }
 op = tmpbuf;
 oend = tmpbuf + instr_size - 2;
 while (sim_isspace (*ip))                               /* skip leading spaces */
@@ -2754,10 +2831,10 @@ for (; *ip && (op < oend); ) {
                 }
             else {                                      /* environment variable */
                 ap = NULL;
-                get_glyph_nc (ip+1, gbuf, '%');         /* first try using the literal name */
+                (void)get_glyph_nc (ip+1, gbuf, '%');   /* first try using the literal name */
                 ap = getenv(gbuf);
                 if (!ap) {
-                    get_glyph (ip+1, gbuf, '%');        /* now try using the upcased name */
+                    (void)get_glyph (ip+1, gbuf, '%');  /* now try using the upcased name */
                     ap = getenv(gbuf);
                     }
                 ip += 1 + strlen (gbuf);
@@ -3113,7 +3190,7 @@ if (*cptr == '"') {                                     /* quoted string compari
     cptr += strlen (gbuf);
     while (sim_isspace (*cptr))                     /* skip spaces */
         ++cptr;
-    get_glyph (cptr, op, '"');
+    (void)get_glyph (cptr, op, '"');
     for (optr = compare_ops; optr->op; optr++)
         if (0 == strcmp (op, optr->op))
             break;
@@ -3162,7 +3239,7 @@ else {
             return SCPE_NXREG;
         }
     if (*gptr != 0)                                     /* more? must be search */
-        get_glyph (gptr, gbuf, 0);
+        (void)get_glyph (gptr, gbuf, 0);
     else {
         if (*cptr == 0)                                 /* must be more */
             return SCPE_2FARG;
@@ -3250,7 +3327,7 @@ while (*cptr) {
     return SCPE_ARG;
     }
 if (*cptr) {
-    if ((*cptr != '"') && (*cptr != '\''))
+    if ((*cptr != '"') && (*cptr != '\'')) //-V560
         return sim_messagef (SCPE_ARG, "String must be quote delimited\n");
     cptr = get_glyph_quoted (cptr, gbuf, 0);
     if (*cptr != '\0')
@@ -3341,7 +3418,7 @@ int32 saved_do_echo = sim_do_echo;
 int32 saved_goto_line = sim_goto_line[sim_do_depth];
 
 if (NULL == sim_gotofile) return SCPE_UNK;              /* only valid inside of do_cmd */
-get_glyph (fcptr, gbuf1, 0);
+(void)get_glyph (fcptr, gbuf1, 0);
 if ('\0' == gbuf1[0]) return SCPE_ARG;                  /* unspecified goto target */
 fpos = ftell(sim_gotofile);                             /* Save start position */
 rewind(sim_gotofile);                                   /* start search for label */
@@ -3435,6 +3512,18 @@ if ((NULL == cptr) || ('\0' == *cptr)) {                /* Empty Action */
 else {
     sim_on_actions[sim_do_depth][cond] =
         (char *)realloc(sim_on_actions[sim_do_depth][cond], 1+strlen(cptr));
+    if (!sim_on_actions[sim_do_depth][cond])
+      {
+        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
     strcpy(sim_on_actions[sim_do_depth][cond], cptr);
     }
 return SCPE_OK;
@@ -3458,12 +3547,12 @@ if ((flag) && (cptr) && (*cptr)) {                      /* Set ON with arg */
 
     cptr = get_glyph (cptr, gbuf, 0);                   /* get command glyph */
     if (((MATCH_CMD(gbuf,"INHERIT")) &&
-         (MATCH_CMD(gbuf,"NOINHERIT"))) ||
+         (MATCH_CMD(gbuf,"NOINHERIT"))) || //-V600
         (*cptr))
         return SCPE_2MARG;
-    if ((gbuf[0]) && (0 == MATCH_CMD(gbuf,"INHERIT")))
+    if ((gbuf[0]) && (0 == MATCH_CMD(gbuf,"INHERIT"))) //-V560
         sim_on_inherit = 1;
-    if ((gbuf[0]) && (0 == MATCH_CMD(gbuf,"NOINHERIT")))
+    if ((gbuf[0]) && (0 == MATCH_CMD(gbuf,"NOINHERIT"))) //-V560
         sim_on_inherit = 0;
     return SCPE_OK;
     }
@@ -3617,7 +3706,7 @@ while (*cptr != 0) {                                    /* do all mods */
                         }
                     else {
                         if (cvptr && MODMASK(mptr,MTAB_NC)) {
-                            get_glyph_nc (svptr, gbuf, ',');
+                            (void)get_glyph_nc (svptr, gbuf, ',');
                             if ((cvptr = strchr (gbuf, '=')))
                                 *cvptr++ = 0;
                             }
@@ -3843,7 +3932,7 @@ else {
             *cvptr++ = 0;
         for (mptr = sim_dflt_dev->modifiers; mptr && (mptr->mask != 0); mptr++) {
             if ((((mptr->mask & MTAB_VDV) == MTAB_VDV) &&
-                 (mptr->pstring && (MATCH_CMD (gbuf, mptr->pstring) == 0))) ||
+                 (mptr->pstring && (MATCH_CMD (gbuf, mptr->pstring) == 0))) || //-V600
                 (!(mptr->mask & MTAB_VDV) && (mptr->mstring && (MATCH_CMD (gbuf, mptr->mstring) == 0)))) {
                 dptr = sim_dflt_dev;
                 lvl = MTAB_VDV;                         /* device match */
@@ -3945,7 +4034,7 @@ for (j = ucnt = udbl = 0; j < dptr->numunits; j++) {    /* count units */
     }
 //show_all_mods (st, dptr, dptr->units, MTAB_VDV, &toks); /* show dev mods */
 if (dptr->numunits == 0) {
-    if (toks)
+    if (toks) //-V547
         fprintf (st, "\n");
     }
 else {
@@ -4103,7 +4192,7 @@ t_stat show_prom (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cp
 
 t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 {
-    fprintf (st, "\r\n Build Information:\n");
+    fprintf (st, "\r\n\r Build Information:\n");
 #if defined(BUILDINFO_scp) && defined(SYSDEFS_USED)
     fprintf (st, "\r\n      Compilation info: %s\n", BUILDINFO_scp );
 # ifndef __OPEN64__
@@ -4386,14 +4475,38 @@ if (flag) {
       {
         fprintf (st, "\r\n\r\n ****** THIS BUILD IS NOT SUPPORTED BY THE DPS8M DEVELOPMENT TEAM ******");
       }
-    fprintf (st, "\n\n Build Information:");
+    fprintf (st, "\r\n\r\n Build Information:");
 #if defined (BUILD_PROM_OSV_TEXT) && defined (BUILD_PROM_OSA_TEXT)
     char build_os_version_raw[255];
     char build_os_arch_raw[255];
     sprintf(build_os_version_raw, "%.254s", BUILD_PROM_OSV_TEXT);
     sprintf(build_os_arch_raw, "%.254s", BUILD_PROM_OSA_TEXT);
     char *build_os_version = strdup(build_os_version_raw);
+    if (!build_os_version)
+      {
+        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+# if defined(USE_BACKTRACE)
+#  ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+#  endif /* ifdef SIGUSR2 */
+# endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
     char *build_os_arch = strdup(build_os_arch_raw);
+    if (!build_os_arch)
+      {
+        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+# if defined(USE_BACKTRACE)
+#  ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+#  endif /* ifdef SIGUSR2 */
+# endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
     strtrimspace(build_os_version, build_os_version_raw);
     strtrimspace(build_os_arch, build_os_arch_raw);
     fprintf (st, "\n  Build OS: %s %s", build_os_version, build_os_arch);
@@ -5429,7 +5542,7 @@ if ((flag == RU_RUN) || (flag == RU_GO)) {              /* run or go */
         put_rval (sim_PC, 0, orig_pcv);                 /* restore original PC */
         return r;
         }
-    if ((*cptr) || (MATCH_CMD (gbuf, "UNTIL") == 0)) {  /* should be end */
+    if ((*cptr) || (MATCH_CMD (gbuf, "UNTIL") == 0)) { //-V600 /* should be end */
         int32 saved_switches = sim_switches;
 
         if (MATCH_CMD (gbuf, "UNTIL") != 0)
@@ -6056,7 +6169,7 @@ if ((rptr->depth > 1) && (rptr->flags & REG_UNIT)) {
     ptr = (uint32 *)(((UNIT *) rptr->loc) + idx);
     if (sz <= sizeof (uint32))
         val = *ptr;
-    else val = *((t_uint64 *) ptr);
+    else val = *((t_uint64 *) ptr); //-V1032
     }
 else if ((rptr->depth > 1) && (rptr->flags & REG_STRUCT)) {
     ptr = (uint32 *)(((size_t) rptr->loc) + (idx * rptr->str_size));
@@ -6167,7 +6280,7 @@ if ((rptr->depth > 1) && (rptr->flags & REG_UNIT)) {
         *ptr = (*ptr &
         ~(((uint32) mask) << rptr->offset)) |
         (((uint32) val) << rptr->offset);
-    else *((t_uint64 *) ptr) = (*((t_uint64 *) ptr)
+    else *((t_uint64 *) ptr) = (*((t_uint64 *) ptr) //-V1032
         & ~(mask << rptr->offset)) | (val << rptr->offset);
     }
 else if ((rptr->depth > 1) && (rptr->flags & REG_STRUCT)) {
@@ -7027,6 +7140,18 @@ for (i = 0; i < sim_internal_device_count; i++)
         return SCPE_OK;
 ++sim_internal_device_count;
 sim_internal_devices = (DEVICE **)realloc(sim_internal_devices, (sim_internal_device_count+1)*sizeof(*sim_internal_devices));
+if (!sim_internal_devices)
+  {
+    fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+             __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+    (void)raise(SIGUSR2);
+    /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+    abort();
+  }
 sim_internal_devices[sim_internal_device_count-1] = dptr;
 sim_internal_devices[sim_internal_device_count] = NULL;
 return SCPE_OK;
@@ -7211,13 +7336,61 @@ sim_stabr.logic = sim_staba.logic = SCH_OR;             /* default search params
 sim_stabr.boolop = sim_staba.boolop = SCH_GE;
 sim_stabr.count = 1;
 sim_stabr.mask = (t_value *)realloc (sim_stabr.mask, sim_emax * sizeof(*sim_stabr.mask));
+if (!sim_stabr.mask)
+  {
+    fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+             __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+    (void)raise(SIGUSR2);
+    /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+    abort();
+  }
 memset (sim_stabr.mask, 0, sim_emax * sizeof(*sim_stabr.mask));
 sim_stabr.comp = (t_value *)realloc (sim_stabr.comp, sim_emax * sizeof(*sim_stabr.comp));
+if (!sim_stabr.comp)
+  {
+    fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+             __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+    (void)raise(SIGUSR2);
+    /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+    abort();
+  }
 memset (sim_stabr.comp, 0, sim_emax * sizeof(*sim_stabr.comp));
 sim_staba.count = sim_emax;
 sim_staba.mask = (t_value *)realloc (sim_staba.mask, sim_emax * sizeof(*sim_staba.mask));
+if (!sim_staba.mask)
+  {
+    fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+             __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+    (void)raise(SIGUSR2);
+    /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+    abort();
+  }
 memset (sim_staba.mask, 0, sim_emax * sizeof(*sim_staba.mask));
 sim_staba.comp = (t_value *)realloc (sim_staba.comp, sim_emax * sizeof(*sim_staba.comp));
+if (!sim_staba.comp)
+  {
+    fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+             __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+    (void)raise(SIGUSR2);
+    /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+    abort();
+  }
 memset (sim_staba.comp, 0, sim_emax * sizeof(*sim_staba.comp));
 if (! sim_dflt_dev)
   return NULL;
@@ -7460,7 +7633,18 @@ if (schptr == NULL)
     return ret;
 
 val = (t_value *)malloc (schptr->count * sizeof (*values));
-
+if (!val)
+  {
+    fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+            __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+    (void)raise(SIGUSR2);
+    /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+    abort();
+  }
 for (i=0; i<(int32)schptr->count; i++) {
     val[i] = values[i];
     switch (schptr->logic) {                            /* case on logical */
@@ -7699,8 +7883,8 @@ if (usecs == 1000.0) {
     }
 if ((msecs > 0.0) || (usecs > 0.0)) {
     sprintf (frac, ".%03.0f%03.0f", msecs, usecs);
-    while (frac[strlen (frac) - 1] == '0')
-        frac[strlen (frac) - 1] = '\0';
+    while (frac[strlen (frac) - 1] == '0') //-V557
+        frac[strlen (frac) - 1] = '\0'; //-V557
     if (strlen (frac) == 1)
         frac[0] = '\0';
     }
@@ -7920,9 +8104,11 @@ if (sim_clock_queue != QUEUE_LIST_END)
     sim_interval = sim_clock_queue->time;
 else sim_interval = noqueue_time = NOQUEUE_WAIT;
 if (uptr->next) {
-    sim_printf ("Cancel failed for %s\n", sim_uname(uptr));
+    sim_printf ("\rCancel failed for '%s'!\r\n", sim_uname(uptr));
     if (sim_deb)
         fclose(sim_deb);
+    fprintf (stderr, "\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
+             __func__, __FILE__, __LINE__);
     abort ();
     }
 return SCPE_OK;
@@ -8040,16 +8226,21 @@ t_stat sim_brk_init (void)
 int32 i;
 
 for (i=0; i<sim_brk_lnt; i++) {
-    BRKTAB *bp = sim_brk_tab[i];
+    BRKTAB *bp;
+    if (sim_brk_tab)
+      {
+        bp = sim_brk_tab[i];
 
-    while (bp) {
-        BRKTAB *bpt = bp->next;
+        while (bp)
+          {
+            BRKTAB *bpt = bp->next;
 
-        FREE (bp->act);
-        FREE (bp);
-        bp = bpt;
-        }
-    }
+            FREE (bp->act);
+            FREE (bp);
+            bp = bpt;
+          }
+      }
+}
 if (sim_brk_tab != NULL)
     memset (sim_brk_tab, 0, sim_brk_lnt*sizeof (BRKTAB*));
 sim_brk_lnt = SIM_BRK_INILNT;
@@ -8134,6 +8325,18 @@ if ((sim_brk_ins == sim_brk_ent) ||
     sim_brk_tab[sim_brk_ins] = NULL;
     }
 bp = (BRKTAB *)calloc (1, sizeof (*bp));
+if (!bp)
+  {
+    fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+             __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+    (void)raise(SIGUSR2);
+    /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+    abort();
+  }
 bp->next = sim_brk_tab[sim_brk_ins];
 sim_brk_tab[sim_brk_ins] = bp;
 if (bp->next == NULL)
@@ -8210,7 +8413,10 @@ while (bp) {
         if (bp == sim_brk_tab[sim_brk_ins])
             bpl = sim_brk_tab[sim_brk_ins] = bp->next;
         else
-            bpl->next = bp->next;
+          {
+            if (bpl)
+              bpl->next = bp->next;
+          }
         FREE (bp);
         bp = bpl;
         }
@@ -8435,6 +8641,18 @@ void sim_brk_setact (const char *action)
 {
 if (action) {
     sim_brk_act_buf[sim_do_depth] = (char *)realloc (sim_brk_act_buf[sim_do_depth], strlen (action) + 1);
+    if (!sim_brk_act_buf[sim_do_depth])
+      {
+        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
     strcpy (sim_brk_act_buf[sim_do_depth], action);
     sim_brk_act[sim_do_depth] = sim_brk_act_buf[sim_do_depth];
     }
@@ -8701,6 +8919,18 @@ for (i=0; i<exp->size; i++) {                           /* Make sure this rule w
 if (after && exp->size)
     return sim_messagef (SCPE_ARG, "Multiple concurrent EXPECT rules aren't valid when a HALTAFTER parameter is non-zero\n");
 exp->rules = (EXPTAB *) realloc (exp->rules, sizeof (*exp->rules)*(exp->size + 1));
+if (!exp->rules)
+  {
+    fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+             __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+    (void)raise(SIGUSR2);
+    /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+    abort();
+  }
 ep = &exp->rules[exp->size];
 exp->size += 1;
 exp->after = after;                                     /* set halt after value */
@@ -8727,6 +8957,18 @@ else {
     ep->size = match_size;
     }
 ep->match_pattern = (char *)malloc (strlen (match) + 1);
+if (!ep->match_pattern)
+  {
+    fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+             __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+    (void)raise(SIGUSR2);
+    /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+    abort();
+  }
 strcpy (ep->match_pattern, match);
 if (ep->act) {                                          /* replace old action? */
     FREE (ep->act);                                     /* deallocate */
@@ -8822,7 +9064,6 @@ t_stat sim_exp_check (EXPECT *exp, uint8 data)
 {
 int32 i;
 EXPTAB *ep = NULL;
-int regex_checks = 0;
 char *tstr = NULL;
 
 if ((!exp) || (!exp->rules))                            /* Anything to check? */
@@ -8886,20 +9127,8 @@ for (i=0; i < exp->size; i++) {
         }
     }
 if (exp->buf_ins == exp->buf_size) {                    /* At end of match buffer? */
-    if (regex_checks) {
-        /* When processing regular expressions, let the match buffer fill
-           up and then shuffle the buffer contents down by half the buffer size
-           so that the regular expression has a single contiguous buffer to
-           match against instead of the wrapping buffer paradigm which is
-           used when no regular expression rules are in effect */
-        memmove (exp->buf, &exp->buf[exp->buf_size/2], exp->buf_size-(exp->buf_size/2));
-        exp->buf_ins -= exp->buf_size/2;
-        sim_debug (exp->dbit, exp->dptr, "Buffer Full - sliding the last %d bytes to start of buffer new insert at: %d\n", (exp->buf_size/2), exp->buf_ins);
-        }
-    else {
         exp->buf_ins = 0;                               /* wrap around to beginning */
         sim_debug (exp->dbit, exp->dptr, "Buffer wrapping\n");
-        }
     }
 if ((ep != NULL) && (i != exp->size)) {                 /* Found? */
     sim_debug (exp->dbit, exp->dptr, "Matched expect pattern!\n");
@@ -9082,7 +9311,7 @@ dbits &= dptr->dctrl;                           /* Look for just the bits tha ma
 
 /* Find matching words for bitmask */
 
-while (dptr->debflags[offset].name && (offset < 32)) {
+while ((offset < 32) && dptr->debflags[offset].name) {
     if (dptr->debflags[offset].mask == dbits)   /* All Bits Match */
         return dptr->debflags[offset].name;
     if (dptr->debflags[offset].mask & dbits)
@@ -9388,69 +9617,6 @@ if (sim_deb && dptr && (dbits == 0 || (dptr->dctrl & dbits))) {
     if (buf != stackbuf)
         FREE (buf);
     }
-return;
-}
-void _sim_err (const char* fmt, ...)
-{
-
-    char stackbuf[STACKBUFSIZE];
-    int32 bufsize = sizeof(stackbuf);
-    char *buf = stackbuf;
-    va_list arglist;
-    int32 i, j, len;
-    //sprintf(debug_line_prefix, "DBG(%lld)> ERR ERR: ", sim_gtime());
-    sprintf(debug_line_prefix, "DBG(%.0f)> ERR ERR: ", sim_gtime());
-
-    buf[bufsize-1] = '\0';
-    while (1) {                                         /* format passed string, args */
-        va_start (arglist, fmt);
-        len = vsnprintf (buf, bufsize-1, fmt, arglist);
-        va_end (arglist);
-
-/* If the formatted result didn't fit into the buffer, then grow the buffer and try again */
-
-        if ((len < 0) || (len >= bufsize-1)) {
-            if (buf != stackbuf)
-                FREE (buf);
-            bufsize = bufsize * 2;
-#ifdef __clang_analyzer__
-            if (bufsize == 0) bufsize = 2;
-#endif /* ifdef __clang_analyzer__ */
-            buf = (char *) malloc (bufsize);
-            if (buf == NULL)                            /* out of memory */
-                return;
-            buf[bufsize-1] = '\0';
-            continue;
-            }
-        break;
-        }
-
-    for (i = j = 0; i < len; ++i) {
-        if ('\n' == buf[i]) {
-            if (i >= j) {
-                if ((i != j) || (i == 0)) {
-                    if (debug_unterm)
-                        fprintf (sim_deb ? sim_deb : stderr, "%.*s\r\n", i-j, &buf[j]);
-                    else                                /* print prefix when required */
-                        fprintf (sim_deb ? sim_deb : stderr, "%s%.*s\r\n", debug_line_prefix, i-j, &buf[j]);
-                    }
-                debug_unterm = 0;
-                }
-            j = i + 1;
-            }
-        }
-    if (i > j) {
-        if (debug_unterm)
-            fprintf (sim_deb ? sim_deb : stderr, "%.*s", i-j, &buf[j]);
-        else                                        /* print prefix when required */
-            fprintf (sim_deb ? sim_deb : stderr, "%s%.*s", debug_line_prefix, i-j, &buf[j]);
-        }
-
-/* Set unterminated flag for next time */
-
-    debug_unterm = (len && (buf[len-1]=='\n')) ? 0 : 1;
-    if (buf != stackbuf)
-        FREE (buf);
 return;
 }
 
@@ -10165,6 +10331,18 @@ if (dptr) {
 else
     p = sim_name;
 top.title = (char *) malloc (strlen (p) + ((flag & SCP_HELP_ATTACH)? sizeof (attach_help)-1: 0) +1);
+if (!top.title)
+  {
+    fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+             __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+    (void)raise(SIGUSR2);
+    /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+    abort();
+  }
 for (i = 0; p[i]; i++ )
     top.title[i] = (char)toupper (p[i]);
 top.title[i] = '\0';
@@ -10172,6 +10350,18 @@ if (flag & SCP_HELP_ATTACH)
     strcpy (top.title+i, attach_help);
 
 top.label = (char *) malloc (sizeof ("1"));
+if (!top.label)
+  {
+    fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+             __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+    (void)raise(SIGUSR2);
+    /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+    abort();
+  }
 strcpy (top.label, "1");
 
 flat_help = flat_help || !sim_ttisatty() || (flag & SCP_HELP_FLAT);

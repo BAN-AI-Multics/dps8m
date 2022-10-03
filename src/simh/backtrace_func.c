@@ -49,6 +49,8 @@
 #   define BACKTRACE_SKIP 1
 #  endif /* ifndef BACKTRACE_SKIP */
 
+#  include <signal.h>
+
 struct backtrace_state *state = NULL;
 volatile long bt_pid;
 int stopbt, function_count, hidden_function_count,
@@ -61,7 +63,7 @@ error_callback(void *data, const char *message, int error_number)
   sigfillset(&block); sigfillset(&block_n);
   sigprocmask(SIG_SETMASK, &block, &block_n);
   (void)data; (void)error_number;
-  (void)fprintf(stderr, "\rNo backtrace, %s.\r\n", message);
+  (void)fprintf(stderr, "\r   No backtrace (%s)\r\n", message);
   (void)fprintf(stderr,
     "\r\n****************************************************\r\n\r\n");
   abort();
@@ -120,17 +122,30 @@ backtrace_handler(int number)
   sigfillset(&block); sigfillset(&block_n);
   sigprocmask(SIG_SETMASK, &block, &block_n);
   (void)fprintf(
-    stderr, "\r\n****** FATAL ERROR *********************************\r\n");
+    stderr, "\r\n\r\n****** FATAL ERROR *********************************\r\n");
   if (bt_pid > 1)
     {
-      (void)fprintf(stderr,
-              "\r\n   PID %ld caught fatal signal %d ... \r\n\r\n",
-              (long)bt_pid, number);
+#  ifdef SIGUSR2
+      if (number == SIGUSR2)
+        {
+          (void)fprintf(stderr,
+                "\r\n   PID %ld raised SIGUSR2 (signal %d) ... :(\r\n\r\n",
+                (long)bt_pid, number);
+        }
+      else
+        {
+#  endif /* ifdef SIGUSR2 */
+          (void)fprintf(stderr,
+                "\r\n   PID %ld caught fatal signal %d ... :(\r\n\r\n",
+                (long)bt_pid, number);
+#  ifdef SIGUSR2
+        }
+#  endif /* ifdef SIGUSR2 */
     }
   else
     {
       (void)fprintf(stderr,
-              "\r\n   Caught fatal signal %d ... \r\n\r\n",
+              "\r\n   Caught fatal signal %d ... :(\r\n\r\n",
               number);
     }
   backtrace_full(state, BACKTRACE_SKIP, full_callback, error_callback, NULL);
@@ -154,6 +169,33 @@ backtrace_handler(int number)
             hidden_function_count);
         }
     }
+#  ifdef SIGUSR2
+    if (number != SIGUSR2)
+      {
+        (void)fprintf(stderr,
+          "\r\n****** BUG REPORTING *******************************\r\n\r\n");
+        (void)fprintf(stderr,
+          " URL: https://dps8m.gitlab.io/dps8m/Bug_Reporting/\r\n");
+      }
+#   if defined(__linux__)
+#    include <features.h>
+#    if !defined(__GLIBC_PREREQ)
+#     define __GLIBC_PREREQ(a, b) 0
+#    endif /* if !defined(__GLIBC_PREREQ) */
+#    if __GLIBC_PREREQ(2, 10)
+    else
+      {
+        if (number == SIGUSR2)
+          {
+#     include <malloc.h>
+            (void)fprintf(stderr,
+              "\r\n****************************************************\r\n\r\n");
+            malloc_stats();
+          }
+      }
+#    endif /* __GLIBC_PREREQ(2, 10) */
+#   endif /* if defined(__linux__) */
+#  endif /* ifdef SIGUSR2 */
   (void)fprintf(stderr,
     "\r\n****************************************************\r\n\r\n");
 #  ifdef USE_DUMA

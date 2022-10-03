@@ -868,7 +868,7 @@ if (chan == 014)
       }
 
     int rc = fseek (unitp->fileref,
-                (long) (disk_statep->seekPosition * sectorSizeBytes),
+                (long) ((long)disk_statep->seekPosition * (long)sectorSizeBytes),
                 SEEK_SET);
     if (rc)
       {
@@ -965,7 +965,7 @@ static int diskWrite (uint devUnitIdx, uint iomUnitIdx, uint chan)
       }
 
     int rc = fseek (unitp->fileref,
-                (long) (disk_statep->seekPosition * sectorSizeBytes),
+                (long) ((long)disk_statep->seekPosition * (long)sectorSizeBytes),
                 SEEK_SET);
     if (rc)
       {
@@ -1224,7 +1224,7 @@ if (chan == 014)   {if_sim_debug (DBG_TRACE, & dsk_dev) { dumpDCW (p->DCW, 0); }
   iom_cmd_rc_t rc = IOM_CMD_PROCEED;
 
 #ifdef LOCKLESS
-  lock_ptr (& dsk_states->dsk_lock);
+  lock_ptr (& dsk_states->dsk_lock); //-V619
 #endif
 
   // IDCW?
@@ -1390,6 +1390,9 @@ if (chan == 014)
         // T&D probing
         if (p->IDCW_DEV_CODE == 077) {
           p->stati = 04502; // invalid device code
+#ifdef LOCKLESS
+          unlock_ptr (& dsk_states->dsk_lock); //-V619
+#endif
           return IOM_CMD_DISCONNECT;
         }
         if (! unitp->fileref)
@@ -1606,7 +1609,7 @@ if (chan == 014)
 
 done:
 #ifdef LOCKLESS
-  unlock_ptr (& dsk_states->dsk_lock);
+  unlock_ptr (& dsk_states->dsk_lock); //-V619
 #endif
   return rc;
 }

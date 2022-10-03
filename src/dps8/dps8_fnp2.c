@@ -322,6 +322,18 @@ void fnpInit(void)
     // 0 sets set service to service_undefined
     memset(& fnpData, 0, sizeof(fnpData));
     fnpData.telnet_address  = strdup("0.0.0.0");
+    if (!fnpData.telnet_address)
+      {
+        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
     fnpData.telnet_port     = 6180;
     fnpData.telnet3270_port = 3270;
     fnpTelnetInit ();
@@ -2380,6 +2392,18 @@ t_stat set_fnp_server_address (UNUSED int32 arg, const char * buf)
     if (fnpData.telnet_address)
       FREE (fnpData.telnet_address);
     fnpData.telnet_address = strdup (buf);
+    if (!fnpData.telnet_address)
+      {
+        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
         if (!sim_quiet)
           {
             sim_printf ("[FNP emulation: FNP server address set to %s]\n", fnpData.telnet_address);

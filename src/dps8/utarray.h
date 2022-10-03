@@ -242,6 +242,18 @@ static void utarray_str_cpy(void *dst, const void *src) {
   char *const *srcc = (char *const *)src;
   char **dstc = (char**)dst;
   *dstc = (*srcc == NULL) ? NULL : strdup(*srcc);
+  if (!*dstc)
+    {
+      fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+               __func__, __FILE__, __LINE__);
+# if defined(USE_BACKTRACE)
+#  ifdef SIGUSR2
+      (void)raise(SIGUSR2);
+      /*NOTREACHED*/ /* unreachable */
+#  endif /* ifdef SIGUSR2 */
+# endif /* if defined(USE_BACKTRACE) */
+      abort();
+    }
 }
 
 static void utarray_str_dtor(void *elt) {

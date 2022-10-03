@@ -77,6 +77,7 @@
 #include "sim_tmxr.h"
 #include "sim_timer.h"
 #include <ctype.h>
+#include <signal.h>
 #include <math.h>
 
 #ifdef __HAIKU__
@@ -275,7 +276,7 @@ while (*cptr != 0) {                                    /* do all mods */
     cptr = get_glyph_nc (cptr, gbuf, ',');              /* get modifier */
     if ((cvptr = strchr (gbuf, '=')))                   /* = value? */
         *cvptr++ = 0;
-    get_glyph (gbuf, gbuf, 0);                          /* modifier to UC */
+    (void)get_glyph (gbuf, gbuf, 0);                    /* modifier to UC */
     if ((ctptr = find_ctab (set_con_tab, gbuf))) {      /* match? */
         r = ctptr->action (ctptr->arg, cvptr);          /* do the rest */
         if (r != SCPE_OK)
@@ -364,7 +365,7 @@ while (*cptr != 0) {                                    /* do all mods */
     cptr = get_glyph_nc (cptr, gbuf, ',');              /* get modifier */
     if ((cvptr = strchr (gbuf, '=')))                   /* = value? */
         *cvptr++ = 0;
-    get_glyph (gbuf, gbuf, 0);                          /* modifier to UC */
+    (void)get_glyph (gbuf, gbuf, 0);                    /* modifier to UC */
     if ((ctptr = find_ctab (set_rem_con_tab, gbuf))) {  /* match? */
         r = ctptr->action (ctptr->arg, cvptr);          /* do the rest */
         if (r != SCPE_OK)
@@ -971,7 +972,7 @@ for (i=(was_active_command ? sim_rem_cmd_active_line : 0);
                 sim_start_timer_services ();
                 }
             /* cppcheck-suppress knownConditionTrueFalse */
-            if (cmdp && (cmdp->action == &x_continue_cmd))
+            if (cmdp && (cmdp->action == &x_continue_cmd)) //-V560
                 sim_rem_single_mode[i] = TRUE;
             else {
                 if (!sim_rem_single_mode[i]) {
@@ -1087,18 +1088,102 @@ for (i=0; i<sim_rem_con_tmxr.lines; i++)
     FREE (sim_rem_buf[i]);
 sim_rem_con_tmxr.lines = lines;
 sim_rem_con_tmxr.ldsc = (TMLN *)realloc (sim_rem_con_tmxr.ldsc, sizeof(*sim_rem_con_tmxr.ldsc)*lines);
+if (!sim_rem_con_tmxr.ldsc)
+  {
+    fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+             __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+    (void)raise(SIGUSR2);
+    /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+    abort();
+  }
 memset (sim_rem_con_tmxr.ldsc, 0, sizeof(*sim_rem_con_tmxr.ldsc)*lines);
 sim_rem_buf = (char **)realloc (sim_rem_buf, sizeof(*sim_rem_buf)*lines);
+if (!sim_rem_buf)
+  {
+    fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+             __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+    (void)raise(SIGUSR2);
+    /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+    abort();
+  }
 memset (sim_rem_buf, 0, sizeof(*sim_rem_buf)*lines);
 sim_rem_buf_size = (int32 *)realloc (sim_rem_buf_size, sizeof(*sim_rem_buf_size)*lines);
+if (!sim_rem_buf_size)
+  {
+    fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+             __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+    (void)raise(SIGUSR2);
+    /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+    abort();
+  }
 memset (sim_rem_buf_size, 0, sizeof(*sim_rem_buf_size)*lines);
 sim_rem_buf_ptr = (int32 *)realloc (sim_rem_buf_ptr, sizeof(*sim_rem_buf_ptr)*lines);
+if (!sim_rem_buf_ptr)
+  {
+    fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+             __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+    (void)raise(SIGUSR2);
+    /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+    abort();
+  }
 memset (sim_rem_buf_ptr, 0, sizeof(*sim_rem_buf_ptr)*lines);
 sim_rem_single_mode = (t_bool *)realloc (sim_rem_single_mode, sizeof(*sim_rem_single_mode)*lines);
+if (!sim_rem_single_mode)
+  {
+    fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+             __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+    (void)raise(SIGUSR2);
+    /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+    abort();
+  }
 memset (sim_rem_single_mode, 0, sizeof(*sim_rem_single_mode)*lines);
 sim_rem_read_timeouts = (uint32 *)realloc (sim_rem_read_timeouts, sizeof(*sim_rem_read_timeouts)*lines);
+if (!sim_rem_read_timeouts)
+  {
+    fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+             __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+    (void)raise(SIGUSR2);
+    /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+    abort();
+  }
 memset (sim_rem_read_timeouts, 0, sizeof(*sim_rem_read_timeouts)*lines);
 sim_rem_command_buf = (char *)realloc (sim_rem_command_buf, 4*CBUFSIZE+1);
+if (!sim_rem_command_buf)
+  {
+    fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+             __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+    (void)raise(SIGUSR2);
+    /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+    abort();
+  }
 memset (sim_rem_command_buf, 0, 4*CBUFSIZE+1);
 return SCPE_OK;
 }
@@ -1381,13 +1466,13 @@ t_stat r;
 
 if ((cptr == NULL) || (*cptr == 0))
     return SCPE_2FARG;
-while (*cptr != 0) {                                    /* do all mods */
-    cptr = get_glyph_nc (cptr, gbuf, ',');              /* get modifier */
-    if ((cvptr = strchr (gbuf, '=')))                   /* = value? */
+while (*cptr != 0) {                                      /* do all mods */
+    cptr = get_glyph_nc (cptr, gbuf, ',');                /* get modifier */
+    if ((cvptr = strchr (gbuf, '=')))                     /* = value? */
         *cvptr++ = 0;
-    get_glyph (gbuf, gbuf, 0);                          /* modifier to UC */
+    (void)get_glyph (gbuf, gbuf, 0);                      /* modifier to UC */
     if ((ctptr = find_ctab (set_con_telnet_tab, gbuf))) { /* match? */
-        r = ctptr->action (ctptr->arg, cvptr);          /* do the rest */
+        r = ctptr->action (ctptr->arg, cvptr);            /* do the rest */
         if (r != SCPE_OK)
             return r;
         }
@@ -1557,7 +1642,7 @@ else {
     *pref = (FILEREF *)calloc (1, sizeof(**pref));
     if (!*pref)
         return SCPE_MEM;
-    get_glyph_nc (filename, gbuf, 0);                   /* reparse */
+    (void)get_glyph_nc (filename, gbuf, 0);             /* reparse */
     strncpy ((*pref)->name, gbuf, sizeof((*pref)->name));
     if (sim_switches & SWMASK ('N'))                    /* if a new log file is requested */
         *pf = sim_fopen (gbuf, (binary ? "w+b" : "w+"));/*   then open an empty file */
@@ -2225,9 +2310,33 @@ else {
     sim_exp_clrall (&sim_con_expect);                       /* make sure that none currently exist */
 
     mbuf = (char *)malloc (1 + strlen (cptr));
+    if (!mbuf)
+      {
+        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
     decode (mbuf, cptr);                                    /* save decoded match string */
 
     mbuf2 = (char *)malloc (3 + strlen(cptr));
+    if (!mbuf2)
+      {
+        fprintf (stderr, "\rFATAL: Out out memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
     sprintf (mbuf2, "%s%s%s", (sim_switches & SWMASK ('A')) ? "\n" : "",
                               mbuf,
                               (sim_switches & SWMASK ('I')) ? "" : "\n");
@@ -2254,6 +2363,18 @@ else {
         return SCPE_2FARG;                              /* need arg */
 
     rbuf = (uint8 *)malloc (1 + strlen(cptr));
+    if (!rbuf)
+      {
+        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
 
     decode ((char *)rbuf, cptr);                        /* decod string */
     sim_send_input (&sim_con_send, rbuf, strlen((char *)rbuf), 0, 0); /* queue it for output */

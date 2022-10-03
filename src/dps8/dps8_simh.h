@@ -159,7 +159,6 @@ void sim_printf( const char * format, ... );    // not really simh, by my impl
 void dps8_sim_debug (uint32 dbits, DEVICE* dptr, unsigned long long cnt, const char* fmt, ...);
 
 #endif
-#define sim_fatal(format, ...) { _sim_err (format, ##__VA_ARGS__); exit (1); }
 #define sim_msg sim_printf
 #define sim_warn sim_printf
 #define sim_print sim_printf

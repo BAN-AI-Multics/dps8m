@@ -65,7 +65,8 @@ static uint32_t lookup (struct system_state_s * p, uint32_t stype, char * name, 
       return * value;
     }
   }
-  fprintf (stderr, "FATAL: Lookup of '%s' failed, aborting %s()\n", name, __func__);
+  fprintf (stderr, "\rFATAL: Lookup of '%s' failed, aborting %s[%s:%d]\r\n",
+           name, __func__, __FILE__, __LINE__);
   exit (1);
 }
 

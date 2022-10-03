@@ -55,10 +55,10 @@
 #include <sys/stat.h>
 #include <termios.h>
 
-#if defined( __FreeBSD__ ) || defined( __kFreeBSD__ ) \
+#if defined( __FreeBSD__ ) || defined( __FreeBSD_kernel__ ) \
   || defined( __DragonflyBSD__ ) || defined( __DragonFly__ )
 # include <libutil.h>
-#endif /* if defined( __FreeBSD__ ) || defined( __kFreeBSD__ )
+#endif /* if defined( __FreeBSD__ ) || defined( __FreeBSD_kernel__ )
         *  || defined( __DragonflyBSD__ ) || defined( __DragonFly__ ) */
 
 #if defined( __OpenBSD__ ) || defined( __APPLE__ ) \
@@ -116,7 +116,7 @@
 
 #define tmpdir "/tmp"
 #define program "empty"
-#define version "0.6.23g-dps"
+#define version "0.6.24g-dps"
 
 static void usage(void);
 static long toint(char *intstr);
@@ -141,11 +141,19 @@ static char *in = NULL, *out = NULL, *sl = NULL, *pfile = NULL;
 static int ifd, ofd, lfd = 0, pfd = 0;
 static FILE *pf;
 static int status;
+
+#ifndef BUFSIZ
+# define BUFSIZ 4096
+#endif
+
 static char buf[BUFSIZ];
 static fd_set rfd;
 static char *argv0 = NULL;
 static int sem = -1;
-static struct sembuf free_sem = { 0, 1, 0 };
+
+static struct sembuf free_sem = {
+    0, 1, 0
+};
 
 int
 main(int argc, char *argv[])
@@ -154,22 +162,22 @@ main(int argc, char *argv[])
   struct winsize win;
   struct termios tt;
   int i, bl, cc, n, ch;
-  long bs = 1;
-  int fflg = 0;     /* spawn, fork                     */
-  int wflg = 0;     /* watch for string [respond]      */
-  int sflg = 0;     /* send                            */
-  int kflg = 0;     /* kill                            */
-  int lflg = 0;     /* list your jobs                  */
-  int iflg = 0;     /* in                              */
-  int oflg = 0;     /* out                             */
-  int Sflg = 0;     /* Strip last character from input */
-  int cflg = 0;     /* use stdin instead of FIFO       */
-  int vflg = 0;     /* verbose mode OFF                */
-  int Lflg = 0;     /* Log empty session               */
-  int rflg = 0;     /* recv output                     */
-  int bflg = 0;     /* block size for -r flag          */
-  int tflg = 0;     /* Timeout flag for -b (timeout?)  */
-  int pflg = 0;     /* Shall we save PID to a file?    */
+  long bs     = 1;
+  int fflg    = 0;     /* spawn, fork                     */
+  int wflg    = 0;     /* watch for string [respond]      */
+  int sflg    = 0;     /* send                            */
+  int kflg    = 0;     /* kill                            */
+  int lflg    = 0;     /* list your jobs                  */
+  int iflg    = 0;     /* in                              */
+  int oflg    = 0;     /* out                             */
+  int Sflg    = 0;     /* Strip last character from input */
+  int cflg    = 0;     /* use stdin instead of FIFO       */
+  int vflg    = 0;     /* verbose mode OFF                */
+  int Lflg    = 0;     /* Log empty session               */
+  int rflg    = 0;     /* recv output                     */
+  int bflg    = 0;     /* block size for -r flag          */
+  int tflg    = 0;     /* Timeout flag for -b (timeout?)  */
+  int pflg    = 0;     /* Shall we save PID to a file?    */
   int timeout = 10; /* wait N secs for the response    */
 
   int ksig = SIGTERM;
@@ -190,7 +198,8 @@ main(int argc, char *argv[])
 
   int fl_state = 2;
 
-#if defined( __linux__ ) && defined( __GNU_LIBRARY__ ) && !defined( _SEM_SEMUN_UNDEFINED )
+#if defined( __linux__ ) && defined( __GNU_LIBRARY__ ) && \
+   !defined( _SEM_SEMUN_UNDEFINED )
 #else
   union semun
   {
@@ -207,8 +216,8 @@ main(int argc, char *argv[])
     struct seminfo *__buf; /* buffer for IPC_INFO */
 # endif /* ifdef __linux__ */
   };
-#endif /* if defined( __linux__ ) && defined( __GNU_LIBRARY__ )
-        *  && !defined( _SEM_SEMUN_UNDEFINED ) */
+#endif /* if defined( __linux__ ) && defined( __GNU_LIBRARY__ ) &&
+            !defined( _SEM_SEMUN_UNDEFINED ) */
   union semun semu;
 
 #if defined( __SVR4 ) || defined( __hpux__ ) || \
@@ -372,7 +381,7 @@ main(int argc, char *argv[])
                 program,
                 (long)ppid,
                 (long)pid);
-              out = (char *)outfifo;
+              out = (char *)outfifo; //-V507
             }
           else
             {
@@ -404,7 +413,7 @@ main(int argc, char *argv[])
         {
           while (( cc = read(0, buf, sizeof ( buf ))) > 0)
             {
-              if (cc == -1)
+              if (cc == -1) //-V547
                 {
                   (void)perrx(255, "Fatal read from STDIN to buffer");
                 }
@@ -435,7 +444,7 @@ main(int argc, char *argv[])
                 program,
                 (long)ppid,
                 (long)pid);
-              in = (char *)infifo;
+              in = (char *)infifo; //-V507
             }
           else
             {
@@ -457,8 +466,8 @@ main(int argc, char *argv[])
 
       FD_ZERO(&rfd);
 
-      stime = time(0);
-      tv.tv_sec = timeout;
+      stime      = time(0);
+      tv.tv_sec  = timeout;
       tv.tv_usec = 0;
 
       cc = -1;
@@ -539,8 +548,8 @@ main(int argc, char *argv[])
                 (long)ppid,
                 (long)pid);
 
-              in = (char *)infifo;
-              out = (char *)outfifo;
+              in  = (char *)infifo; //-V507
+              out = (char *)outfifo; //-V507
             }
           else
             {
@@ -669,8 +678,8 @@ main(int argc, char *argv[])
         (long)ppid,
         (long)pid);
 
-      in = (char *)infifo;
-      out = (char *)outfifo;
+      in  = (char *)infifo; //-V507
+      out = (char *)outfifo; //-V507
     }
 
   if (Lflg)
@@ -986,10 +995,10 @@ pidbyppid(pid_t ppid, int lflg)
           (void)strncpy(fname, dent->d_name, sizeof ( fname ) - 1);
           fname[MAXPATHLEN - 1] = '\0';
 
-          (void)strtok(fname, sep);  /* empty     */
-          (void)strtok(NULL, sep);   /* PPID      */
-          chpid = strtok(NULL, sep); /* PID       */
-          tail = strtok(NULL, sep);  /* IN or OUT */
+          (void)strtok(fname, sep);   /* empty     */
+          (void)strtok(NULL, sep);    /* PPID      */
+          chpid = strtok(NULL, sep);  /* PID       */
+          tail  = strtok(NULL, sep);  /* IN or OUT */
 
           if (chpid != NULL)
             {
@@ -1096,8 +1105,7 @@ perrxslog(int ex_code, const char *err_text, ...)
 
   (void)vsprintf(err_buf, err_text, va);
   (void)syslog(LOG_NOTICE, err_buf, "");
-#endif /* if !defined( __hpux__ ) && !defined( _AIX )
-        *  && !defined( __OSF1 ) */
+#endif /* if !defined( __hpux__ ) && !defined( _AIX ) && !defined( __OSF1 ) */
 
   va_end(va);
 
@@ -1221,14 +1229,14 @@ watch4str(int ifd, int ofd, int argc, char *argv[], int Sflg, int vflg,
   time_t stime, ntime;
   struct timeval tv;
 
-  int argt = 0;
-  int largv = 0;
+  int argt   = 0;
+  int largv  = 0;
   char *resp = NULL;
 
   (void)cflg;
 
-  stime = time(0);
-  tv.tv_sec = timeout;
+  stime      = time(0);
+  tv.tv_sec  = timeout;
   tv.tv_usec = 0;
 
   FD_ZERO(&rfd);
@@ -1251,7 +1259,8 @@ watch4str(int ifd, int ofd, int argc, char *argv[], int Sflg, int vflg,
             {
               stime = time(0);
 
-              buf[cc + largv] = '\0';
+              if ( (cc + largv) <= BUFSIZ - 1)
+                buf[cc + largv] = '\0';
 
               if (vflg)
                 {
@@ -1275,7 +1284,7 @@ watch4str(int ifd, int ofd, int argc, char *argv[], int Sflg, int vflg,
                   return ( argt + 1 ) / 2;
                 }
 
-              if (largv == 0)
+              if (largv == 0) //-V547
                 {
                   largv = longargv(argc, argv);
                 }

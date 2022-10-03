@@ -49,7 +49,7 @@
 
 #define PROGNAME                       "vmpctool"
 #define PROGDESC                       "virtual memory page cache utility"
-#define VMTOUCH_VERSION                "2101.14.5-dps (2022-09-05)"
+#define VMTOUCH_VERSION                "2101.14.6-dps (2022-10-01)"
 
 #define RESIDENCY_CHART_WIDTH          41
 #define CHART_UPDATE_INTERVAL          0.37
@@ -494,7 +494,7 @@ parse_size(char *inp)
 
   val *= mult;
 
-  if ((long long)val > INT64_MAX)
+  if ((long long)val > INT64_MAX) //-V547
     {
       fatal("%s:%d: %s", __func__, __LINE__, errstr);
       /* NOTREACHED */
@@ -612,6 +612,12 @@ parse_ignore_item(char *inp)
     }
 
   ignore_list[number_of_ignores] = strdup(inp);
+  if (!ignore_list[number_of_ignores])
+    {
+      fatal("%s:%d: ignore_list: out of memory", __func__, __LINE__);
+      /* NOTREACHED */
+      return;
+    }
   number_of_ignores++;
 }
 
@@ -640,6 +646,12 @@ parse_filename_filter_item(char *inp)
     }
 
   filename_filter_list[number_of_filename_filters] = strdup(inp);
+  if (!filename_filter_list[number_of_filename_filters])
+    {
+      fatal("%s:%d: filename_filter_list: out of memory", __func__, __LINE__);
+      /* NOTREACHED */
+      return;
+    }
   number_of_filename_filters++;
 }
 
@@ -827,7 +839,7 @@ print_page_residency_chart(FILE *out, char *mincore_array,
       (void)fprintf(stderr, " ");
     }
 
-  if (pages_per_char >= 1)
+  if (pages_per_char >= 1) //-V547
     {
       (void)fprintf(stderr, " ");
     }
@@ -917,7 +929,7 @@ retry_open:
 #if defined( O_NOATIME )
   if (fd == -1 && errno == EPERM)
     {
-      open_flags &= ~O_NOATIME;
+      open_flags &= ~O_NOATIME; //-V753
       fd = open(path, open_flags, 0);
     }
 
@@ -1237,6 +1249,12 @@ is_ignored(const char *path)
     }
 
   path_copy = strdup(path);
+  if (!path_copy)
+    {
+      fatal("%s:%d: path_copy: out of memory", __func__, __LINE__);
+      /* NOTREACHED */
+      abort();
+    }
   match     = 0;
 
   char *filename = basename(path_copy);
@@ -1266,6 +1284,12 @@ is_filename_filtered(const char *path)
     }
 
   path_copy = strdup(path);
+  if (!path_copy)
+    {
+      fatal("%s:%d: path_copy: out of memory", __func__, __LINE__);
+      /* NOTREACHED */
+      abort();
+    }
   match = 0;
 
   char *filename = basename(path_copy);
@@ -1314,7 +1338,7 @@ vmpc_rdir(char *path)
       path    = *ndpath;
     }
 
-  if (path[tp_path_len - 1] == '/' && tp_path_len > 1)
+  if ((tp_path_len > 1) && path[tp_path_len - 1] == '/')
     {
       path[tp_path_len - 1] = '\0';
     }

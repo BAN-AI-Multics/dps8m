@@ -500,7 +500,7 @@ for (tmr=clocks=0; tmr<=SIM_NTIMERS; ++tmr) {
         fprintf (st, "  Peak Clock Skew:           %s%s\n", sim_fmt_secs (fabs(rtc_clock_skew_max[tmr])), (rtc_clock_skew_max[tmr] < 0) ? " fast" : " slow");
     if (rtc_calib_ticks_acked[tmr])
         fprintf (st, "  Ticks Acked:               %lu\n",   (unsigned long)rtc_calib_ticks_acked[tmr]);
-    if (rtc_calib_ticks_acked_tot[tmr]+rtc_calib_ticks_acked[tmr] != rtc_calib_ticks_acked[tmr])
+    if (rtc_calib_ticks_acked_tot[tmr]+rtc_calib_ticks_acked[tmr] != rtc_calib_ticks_acked[tmr]) //-V584
         fprintf (st, "  Total Ticks Acked:         %lu\n",   (unsigned long)rtc_calib_ticks_acked_tot[tmr]+(unsigned long)rtc_calib_ticks_acked[tmr]);
     if (rtc_calib_tick_time[tmr])
         fprintf (st, "  Tick Time:                 %s\n",   sim_fmt_secs (rtc_calib_tick_time[tmr]));
@@ -508,7 +508,7 @@ for (tmr=clocks=0; tmr<=SIM_NTIMERS; ++tmr) {
         fprintf (st, "  Total Tick Time:           %s\n",   sim_fmt_secs (rtc_calib_tick_time_tot[tmr]+rtc_calib_tick_time[tmr]));
     if (rtc_clock_catchup_ticks[tmr])
         fprintf (st, "  Catchup Ticks Sched:       %lu\n",   (unsigned long)rtc_clock_catchup_ticks[tmr]);
-    if (rtc_clock_catchup_ticks_tot[tmr]+rtc_clock_catchup_ticks[tmr] != rtc_clock_catchup_ticks[tmr])
+    if (rtc_clock_catchup_ticks_tot[tmr]+rtc_clock_catchup_ticks[tmr] != rtc_clock_catchup_ticks[tmr]) //-V584
         fprintf (st, "  Total Catchup Ticks Sched: %lu\n",   (unsigned long)rtc_clock_catchup_ticks_tot[tmr]+(unsigned long)rtc_clock_catchup_ticks[tmr]);
     clock_gettime (CLOCK_REALTIME, &now);
     time_t_now = (time_t)now.tv_sec;
@@ -542,8 +542,8 @@ for (tmr=0; tmr<=SIM_NTIMERS; ++tmr) {
         fprintf (st, "%s clock (%s) co-schedule event queue status\n",
                  sim_name, sim_uname(sim_clock_unit[tmr]));
         accum = 0;
-        for (uptr = sim_clock_cosched_queue[tmr]; uptr != QUEUE_LIST_END; uptr = uptr->next) {
-            if ((dptr = find_dev_from_unit (uptr)) != NULL) {
+        for (uptr = sim_clock_cosched_queue[tmr]; uptr != QUEUE_LIST_END; uptr = uptr->next) { //-V763
+            if ((dptr = find_dev_from_unit (uptr)) != NULL) { //-V763
                 fprintf (st, "  %s", sim_dname (dptr));
                 if (dptr->numunits > 1)
                     fprintf (st, " unit %d", (int32) (uptr - dptr->units));
@@ -848,7 +848,7 @@ if (NULL == sim_clock_unit[tmr])
     sim_clock_cosched_queue[tmr] = QUEUE_LIST_END;
 sim_clock_unit[tmr] = uptr;
 uptr->dynflags |= UNIT_TMR_UNIT;
-sim_timer_units[tmr].flags = UNIT_DIS | (sim_clock_unit[tmr] ? UNIT_IDLE : 0);
+sim_timer_units[tmr].flags = UNIT_DIS | (sim_clock_unit[tmr] ? UNIT_IDLE : 0); //-V547
 return SCPE_OK;
 }
 

@@ -36,6 +36,7 @@
 # define UTHASH_H
 
 # include <string.h>   /* memcmp,strlen */
+# include <signal.h>   /* raise */
 # include <stddef.h>   /* ptrdiff_t */
 # include <stdlib.h>
 

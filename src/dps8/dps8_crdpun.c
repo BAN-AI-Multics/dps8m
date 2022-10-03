@@ -33,6 +33,7 @@
 
 #include <stdio.h>
 #include <ctype.h>
+#include <signal.h>
 #include <unistd.h>
 
 #include "dps8.h"
@@ -830,6 +831,18 @@ static void clear_card_cache(pun_state_t * state)
 static void save_card_in_cache(pun_state_t * state, word12 tally, word36 * card_buffer)
   {
     CARD_CACHE_ENTRY *new_entry = malloc(sizeof(CARD_CACHE_ENTRY));
+    if (!new_entry)
+      {
+        fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
 
     new_entry -> tally = tally;
     memcpy(&new_entry -> card_data, card_buffer, sizeof(word36) * tally);
@@ -1081,23 +1094,23 @@ static void parse_card(pun_state_t * state, word12 tally, word36 * card_buffer)
               switch (state -> current_state)
                 {
                   case StartingJob:
-                    event = do_state_scan_card_for_glyphs(current_event, state, tally, card_buffer);
+                    event = do_state_scan_card_for_glyphs(current_event, state, tally, card_buffer); //-V1037
                     break;
 
                   case PunchGlyphLookup:
-                    event = do_state_scan_card_for_glyphs(current_event, state, tally, card_buffer);
+                    event = do_state_scan_card_for_glyphs(current_event, state, tally, card_buffer); //-V1037
                     break;
 
                   case EndOfHeader:
-                    event = do_state_cache_card(current_event, state, tally, card_buffer);
+                    event = do_state_cache_card(current_event, state, tally, card_buffer); //-V1037
                     break;
 
                   case CacheCard:
-                    event = do_state_cache_card(current_event, state, tally, card_buffer);
+                    event = do_state_cache_card(current_event, state, tally, card_buffer); //-V1037
                     break;
 
                   case EndOfDeck:
-                    event = do_state_cache_card(current_event, state, tally, card_buffer);
+                    event = do_state_cache_card(current_event, state, tally, card_buffer); //-V1037
                     break;
 
                   default:
@@ -1298,8 +1311,6 @@ static t_stat pun_set_path (UNUSED UNIT * uptr, UNUSED int32 value,
       {
         if (pun_path_prefix[len - 1] != '/')
           {
-            if (len == sizeof(pun_path_prefix) - 1)
-              return SCPE_ARG;
             pun_path_prefix[len++] = '/';
             pun_path_prefix[len] = 0;
           }

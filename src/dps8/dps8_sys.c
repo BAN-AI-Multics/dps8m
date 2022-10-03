@@ -2295,6 +2295,18 @@ static int add_book_segment (char * name, int segno)
     if (n_book_segments >= BOOT_SEGMENTS_MAX)
       return -1;
     book_segments[n_book_segments].segname = strdup (name);
+    if (!book_segments[n_book_segments].segname)
+      {
+        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+# if defined(USE_BACKTRACE)
+#  ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+#  endif /* ifdef SIGUSR2 */
+# endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
     book_segments[n_book_segments].segno   = segno;
     n = n_book_segments;
     n_book_segments ++;
@@ -2309,6 +2321,18 @@ static int add_book_component (int segnum, char * name, uint txt_start,
     if (n_book_components >= BOOT_COMPONENTS_MAX)
       return -1;
     book_components[n_book_components].compname            = strdup (name);
+    if (!book_components[n_book_components].compname)
+      {
+        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+# if defined(USE_BACKTRACE)
+#  ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+#  endif /* ifdef SIGUSR2 */
+# endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
     book_components[n_book_components].book_segment_number = segnum;
     book_components[n_book_components].txt_start           = txt_start;
     book_components[n_book_components].txt_length          = txt_length;
@@ -3301,6 +3325,18 @@ static t_stat set_search_path (UNUSED int32 arg, UNUSED const char * buf)
     if (source_search_path)
       FREE (source_search_path);
     source_search_path = strdup (buf);
+    if (!source_search_path)
+      {
+        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+#  if defined(USE_BACKTRACE)
+#   ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+#   endif /* ifdef SIGUSR2 */
+#  endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
 # endif
     return SCPE_OK;
   }
@@ -4233,12 +4269,14 @@ static void dps8_init (void) {
 
   char   rcap = 0;
   char   rnum = 0;
-  char   rssuffix[24];
-  char   statenme[32];
   struct timespec ts;
 
-  memset(statenme, 0, sizeof(&statenme));
-  memset(rssuffix, 0, sizeof(&rssuffix));
+  char   rssuffix[24];
+  memset(rssuffix, 0, 24);
+
+  char   statenme[32];
+  memset(statenme, 0, 32);
+
   (void)clock_gettime(CLOCK_REALTIME, &ts);
   srandom((unsigned int)(getpid() ^ (ts.tv_sec * ts.tv_nsec)));
 
@@ -4271,8 +4309,15 @@ static void dps8_init (void) {
   if (!system_state) {
     int svErrno = errno;
     fflush(stderr); fflush(stdout);
-    sim_warn ("FATAL: %s, aborting %s()\r\n",
-              strerror (svErrno), __func__);
+    sim_warn ("\rFATAL: %s: aborting at %s[%s:%d]\r\n",
+              strerror (svErrno),
+              __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+    (void)raise(SIGUSR2);
+    /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
     exit (svErrno);
   }
 
@@ -4282,7 +4327,7 @@ static void dps8_init (void) {
 #  define VER_H_GIT_HASH "0000000000000000000000000000000000000000"
 # endif
 
-    fflush(stdout); fflush(stderr);
+  fflush(stdout); fflush(stderr);
   if (strlen (system_state->commit_id) == 0) {
     if (!sim_quiet && sim_randstate && sim_randompst)
       sim_printf ("Initialized new system state file \"dps8m.%s\"\r\n",

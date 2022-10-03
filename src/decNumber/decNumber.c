@@ -345,7 +345,7 @@ Int decNumberToInt32(const decNumber *dn, decContext *set) {
       return i;
       }
     } // integer
-  decContextSetStatus(set, DEC_Invalid_operation); // [may not return]
+  (void)decContextSetStatus(set, DEC_Invalid_operation); // [may not return]
   return 0;
   } // decNumberToInt32
 
@@ -371,7 +371,7 @@ uInt decNumberToUInt32(const decNumber *dn, decContext *set) {
     if (hi>429496729 || (hi==429496729 && lo>5)) ; // no reprieve
      else return X10(hi)+lo;
     } // integer
-  decContextSetStatus(set, DEC_Invalid_operation); // [may not return]
+  (void)decContextSetStatus(set, DEC_Invalid_operation); // [may not return]
   return 0;
   } // decNumberToUInt32
 
@@ -2321,7 +2321,7 @@ decNumber * decNumberRotate(decNumber *res, const decNumber *lhs,
         uInt units, shift;                   // work
         uInt msudigits;                      // digits in result msu
         Unit *msu=res->lsu+D2U(res->digits)-1;    // current msu
-        Unit *msumax=res->lsu+D2U(set->digits)-1; // rotation msu
+        Unit *msumax=res->lsu+D2U(set->digits)-1; //-V778 // rotation msu
         for (msu++; msu<=msumax; msu++) *msu=0;   // ensure high units=0
         res->digits=set->digits;                  // now full-length
         msudigits=MSUDIGITS(res->digits);         // actual digits in msu
@@ -2361,7 +2361,7 @@ decNumber * decNumberRotate(decNumber *res, const decNumber *lhs,
         units=rotate/DECDPUN;           // whole units to rotate
         shift=rotate%DECDPUN;           // left-over digits count
         if (shift>0) {                  // not an exact number of units
-          uInt save=res->lsu[0]%powers[shift];    // save low digit(s)
+          uInt save=res->lsu[0]%powers[shift]; //-V557 // save low digit(s)
           decShiftToLeast(res->lsu, D2U(res->digits), shift);
           if (shift>msudigits) {        // msumax-1 needs >0 digits
             uInt rem=save%powers[shift-msudigits];// split save
@@ -4031,7 +4031,7 @@ static decNumber * decDivideOp(decNumber *res,
     // [following code does not require input rounding]
 
     bits=(lhs->bits^rhs->bits)&DECNEG;  // assumed sign for divisions
-
+    (void)bits;
     // handle infinities and NaNs
     if (SPECIALARGS) {                  // a special bit set
       if (SPECIALARGS & (DECSNAN | DECNAN)) { // one or two NaNs
@@ -4644,7 +4644,7 @@ static decNumber * decMultiplyOp(decNumber *res, const decNumber *lhs,
 
   // precalculate result sign
   bits=(uByte)((lhs->bits^rhs->bits)&DECNEG);
-
+  (void)bits;
   // handle infinities and NaNs
   if (SPECIALARGS) {               // a special bit set
     if (SPECIALARGS & (DECSNAN | DECNAN)) { // one or two NaNs
@@ -6895,7 +6895,7 @@ static void decApplyRound(decNumber *dn, decContext *set, Int residue,
         // clamped to etiny and the final 9 dropped.
         // printf(">> emin=%d exp=%d sdig=%d\n", set->emin,
         //        dn->exponent, set->digits);
-        if (dn->exponent+1==set->emin-set->digits+1) {
+        if (dn->exponent+1==set->emin-set->digits+1) { //-V584
           if (count==1 && dn->digits==1) *sup=0;  // here 9 -> 0[.9]
            else {
             *sup=(Unit)powers[count-1]-1;    // here 999.. in msu -> 99..
@@ -7060,10 +7060,10 @@ static void decSetOverflow(decNumber *dn, decContext *set, uInt *status) {
   decNumberZero(dn);
   switch (set->round) {
     case DEC_ROUND_DOWN: {
-      needmax=1;                   // never Infinity
+      needmax=1; //-V1037          // never Infinity
       break;} // r-d
     case DEC_ROUND_05UP: {
-      needmax=1;                   // never Infinity
+      needmax=1; //-V1037          // never Infinity
       break;} // r-05
     case DEC_ROUND_CEILING: {
       if (sign) needmax=1;         // Infinity if non-negative
@@ -7436,7 +7436,7 @@ static void decStatus(decNumber *dn, uInt status, decContext *set) {
       dn->bits=DECNAN;                  // and make a quiet NaN
       }
     }
-  decContextSetStatus(set, status);     // [may not return]
+  (void)decContextSetStatus(set, status);     // [may not return]
   return;
   } // decStatus
 

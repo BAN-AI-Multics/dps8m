@@ -48,6 +48,7 @@ typescript
 *.bak
 *.err
 "__.SYMDEF SORTED"
+log.txt
 
 # Tags
 tags
@@ -272,6 +273,7 @@ docs/pdf/gvsubset.pdf
 
 # Clang
 compile_commands.json
+compile_commands.events.json
 src/ci-kit/*san.txt
 QuickStart_MR*/
 

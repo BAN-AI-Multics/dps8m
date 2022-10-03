@@ -21,6 +21,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <signal.h>
 #include <ctype.h>
 
 #include "dps8.h"
@@ -1446,6 +1447,18 @@ int cfg_parse (const char * tag, const char * cptr, config_list_t * clist, confi
     if (! state -> copy)
       {
         state -> copy            = strdup (cptr);
+        if (! state->copy)
+          {
+            fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                     __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+            (void)raise(SIGUSR2);
+            /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+            abort();
+          }
         start                    = state -> copy;
         state ->  statement_save = NULL;
       }
@@ -1604,6 +1617,18 @@ void cfg_parse_done (config_state_t * state)
 char * strdupesc (const char * str)
   {
     char * buf = strdup (str);
+    if (!buf)
+      {
+        fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
     char * p = buf;
     while (* p)
       {

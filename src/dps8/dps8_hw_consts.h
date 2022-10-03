@@ -87,9 +87,9 @@ enum { IOM_CONNECT_CHAN =  2 };
 # define MAX18NEG        0400000U                 // -2**17
 # define SIGN18          0400000U
 // NB. these 2 use the wrong bit number convention
-# define BIT19          01000000U                 // carry out bit from 18 bit arithmetic
-# define BIT20          02000000U                 // carry out bit from 19 bit arithmetic
-# define MASK36         0777777777777LLU          // data mask
+# define BIT19           01000000U                // carry out bit from 18 bit arithmetic
+# define BIT20           02000000U                // carry out bit from 19 bit arithmetic
+# define MASK36          0777777777777LLU         // data mask
 # define DMASK           MASK36
 # define MASK10          0001777U                 // 10-bit data mask
 # define MASK14          0037777U                 // 14-bit data mask
@@ -105,8 +105,8 @@ enum { IOM_CONNECT_CHAN =  2 };
 # define SIGN24          040000000U
 # define SIGN36          0400000000000LLU         // sign bit of a 36-bit word
 // NB. these 3 use the wrong bit number convention
-# define BIT37          01000000000000LLU         // carry out bit from 36 bit arithmetic
-# define BIT38          02000000000000LLU         // carry out bit from 37 bit arithmetic
+# define BIT37           01000000000000LLU        // carry out bit from 36 bit arithmetic
+# define BIT38           02000000000000LLU        // carry out bit from 37 bit arithmetic
 # define BIT35           0200000000000LLU         // next to the sign bit
 # define MASK32          037777777777U
 # define MASK15          077777U
@@ -491,8 +491,8 @@ enum {
     IT_IDC      = 017U,
 
     // not really IT, but they're in it's namespace
-    SPEC_ITP  = 001U,
-    SPEC_ITS  = 003U
+    SPEC_ITP    = 001U,
+    SPEC_ITS    = 003U
 };
 
 # define GET_TB(tag)     ((tag) & 040U)
@@ -501,8 +501,8 @@ enum {
 # define _TB(tag)        GET_TB((tag))
 # define _CF(tag)        GET_CF((tag))
 
-# define TB6            000U // 6-bit characters
-# define TB9            040U // 9-bit characters
+# define TB6             000U // 6-bit characters
+# define TB9             040U // 9-bit characters
 
 /////////////////////////////////////
 //
@@ -753,58 +753,58 @@ typedef enum fault_str_subtype_
   {
     flt_str_oob,        // A BAR mode boundary violation has occurred.
     flt_str_ill_ptr,    // SPRPn illegal ptr.
-    flt_str_nea, // non-existent address
+    flt_str_nea,        // non-existent address
     flt_str_FORCE  = 0400000000000llu // Force enum size to 36 bits.
   } fault_str_subtype_;
 
 typedef enum fault_con_subtype_
   {
-    con_a = 0,      // A $CONNECT signal has been received through port A.
-    con_b = 1,      // A $CONNECT signal has been received through port B.
-    con_c = 2,      // A $CONNECT signal has been received through port C.
-    con_d = 3,      // A $CONNECT signal has been received through port D.
-    flt_con_FORCE  = 0400000000000llu // Force enum size to 36 bits.
+    con_a         = 0,  // A $CONNECT signal has been received through port A.
+    con_b         = 1,  // A $CONNECT signal has been received through port B.
+    con_c         = 2,  // A $CONNECT signal has been received through port C.
+    con_d         = 3,  // A $CONNECT signal has been received through port D.
+    flt_con_FORCE = 0400000000000llu // Force enum size to 36 bits.
   } fault_con_subtype_;
 
 typedef enum fault_acv_subtype_
   {
-    ACV0  = (1U << 15),   ///< 15.Illegal ring order (ACV0=IRO)
-    ACV1  = (1U << 14),   ///< 3. Not in execute bracket (ACV1=OEB)
-    ACV2  = (1U << 13),   ///< 6. No execute permission (ACV2=E-OFF)
-    ACV3  = (1U << 12),   ///< 1. Not in read bracket (ACV3=ORB)
-    ACV4  = (1U << 11),   ///< 4. No read permission (ACV4=R-OFF)
-    ACV5  = (1U << 10),   ///< 2. Not in write bracket (ACV5=OWB)
-    ACV6  = (1U <<  9),   ///< 5. No write permission (ACV6=W-OFF)
-    ACV7  = (1U <<  8),   ///< 8. Call limiter fault (ACV7=NO GA)
-    ACV8  = (1U <<  7),   ///< 16.Out of call brackets (ACV8=OCB)
-    ACV9  = (1U <<  6),   ///< 9. Outward call (ACV9=OCALL)
-    ACV10 = (1U <<  5),   ///< 10.Bad outward call (ACV10=BOC)
-    ACV11 = (1U <<  4),   ///< 11.Inward return (ACV11=INRET)
-    ACV12 = (1U <<  3),   ///< 7. Invalid ring crossing (ACV12=CRT)
-    ACV13 = (1U <<  2),   ///< 12.Ring alarm (ACV13=RALR)
-    ACV14 = (1U <<  1), ///< 13.Associative memory error
-    ACV15 = (1U <<  0), ///< 14.Out of segment bounds (ACV15=OOSB)
-    flt_acv_FORCE  = 0400000000000llu // Force enum size to 36 bits.
+    ACV0          = (1U << 15),   ///< 15.Illegal ring order (ACV0=IRO)
+    ACV1          = (1U << 14),   ///< 3. Not in execute bracket (ACV1=OEB)
+    ACV2          = (1U << 13),   ///< 6. No execute permission (ACV2=E-OFF)
+    ACV3          = (1U << 12),   ///< 1. Not in read bracket (ACV3=ORB)
+    ACV4          = (1U << 11),   ///< 4. No read permission (ACV4=R-OFF)
+    ACV5          = (1U << 10),   ///< 2. Not in write bracket (ACV5=OWB)
+    ACV6          = (1U <<  9),   ///< 5. No write permission (ACV6=W-OFF)
+    ACV7          = (1U <<  8),   ///< 8. Call limiter fault (ACV7=NO GA)
+    ACV8          = (1U <<  7),   ///< 16.Out of call brackets (ACV8=OCB)
+    ACV9          = (1U <<  6),   ///< 9. Outward call (ACV9=OCALL)
+    ACV10         = (1U <<  5),   ///< 10.Bad outward call (ACV10=BOC)
+    ACV11         = (1U <<  4),   ///< 11.Inward return (ACV11=INRET)
+    ACV12         = (1U <<  3),   ///< 7. Invalid ring crossing (ACV12=CRT)
+    ACV13         = (1U <<  2),   ///< 12.Ring alarm (ACV13=RALR)
+    ACV14         = (1U <<  1),   ///< 13.Associative memory error
+    ACV15         = (1U <<  0),   ///< 14.Out of segment bounds (ACV15=OOSB)
+    flt_acv_FORCE = 0400000000000llu // Force enum size to 36 bits.
   } fault_acv_subtype_;
 
 typedef enum fault_ipr_subtype_
   {
-    FR_ILL_OP    = 0400000000000llu, //  0 a ILL OP
-    FR_ILL_MOD   = 0200000000000llu, //  1 b ILL MOD
-    FR_ILL_SLV   = 0100000000000llu, //  2 c ILL SLV
-    FR_ILL_PROC  = 0040000000000llu, //  3 d ILL PROC
-    FR_ILL_PROC_MOD  = 0240000000000llu, //  1,3 d ILL PROC | ILL MOD
-    FR_NEM       = 0020000000000llu, //  4 e NEM
-    FR_OOB       = 0010000000000llu, //  5 f OOB
-    FR_ILL_DIG   = 0004000000000llu, //  6 g ILL DIG
-    FR_PROC_PARU = 0002000000000llu, //  7 h PROC PARU
-    FR_PROC_PARL = 0001000000000llu, //  8 i PROC PARU
-    FR_CON_A     = 0000400000000llu, //  9 j $CON A
-    FR_CON_B     = 0000200000000llu, // 10 k $CON B
-    FR_CON_C     = 0000100000000llu, // 11 l $CON C
-    FR_CON_D     = 0000040000000llu, // 12 m $CON D
-    FR_DA_ERR    = 0000020000000llu, // 13 n DA ERR
-    FR_DA_ERR2   = 0000010000000llu  // 14 o DA ERR2
+    FR_ILL_OP       = 0400000000000llu, //  0 a ILL OP
+    FR_ILL_MOD      = 0200000000000llu, //  1 b ILL MOD
+    FR_ILL_SLV      = 0100000000000llu, //  2 c ILL SLV
+    FR_ILL_PROC     = 0040000000000llu, //  3 d ILL PROC
+    FR_ILL_PROC_MOD = 0240000000000llu, //  1,3 d ILL PROC | ILL MOD
+    FR_NEM          = 0020000000000llu, //  4 e NEM
+    FR_OOB          = 0010000000000llu, //  5 f OOB
+    FR_ILL_DIG      = 0004000000000llu, //  6 g ILL DIG
+    FR_PROC_PARU    = 0002000000000llu, //  7 h PROC PARU
+    FR_PROC_PARL    = 0001000000000llu, //  8 i PROC PARU
+    FR_CON_A        = 0000400000000llu, //  9 j $CON A
+    FR_CON_B        = 0000200000000llu, // 10 k $CON B
+    FR_CON_C        = 0000100000000llu, // 11 l $CON C
+    FR_CON_D        = 0000040000000llu, // 12 m $CON D
+    FR_DA_ERR       = 0000020000000llu, // 13 n DA ERR
+    FR_DA_ERR2      = 0000010000000llu  // 14 o DA ERR2
   } fault_ipr_subtype_;
 
 typedef enum fault_cmd_subtype_
@@ -829,10 +829,10 @@ typedef union _fault_subtype
 enum _faultRegisterBits0
   {
     FR_IA_MASK   = 017,
-    FR_IAA_SHIFT = 16, // 0000003600000llu,
-    FR_IAB_SHIFT = 12, // 0000000170000llu,
-    FR_IAC_SHIFT = 8,  // 0000000007400llu,
-    FR_IAD_SHIFT = 4,  // 0000000000360llu,
+    FR_IAA_SHIFT =  16,  // 0000003600000llu,
+    FR_IAB_SHIFT =  12,  // 0000000170000llu,
+    FR_IAC_SHIFT =   8,  // 0000000007400llu,
+    FR_IAD_SHIFT =   4,  // 0000000000360llu,
 
     FR_CPAR_DIR  = 0000000000010llu, // 32 p CPAR DIR
     FR_CPAR_STR  = 0000000000004llu, // 33 q CPAR STR
@@ -1463,6 +1463,7 @@ enum { N_HIST_SETS       =  4 };
 enum { N_DPS8M_HIST_SIZE = 64 };
 enum { N_L68_HIST_SIZE   = 16 };
 enum { N_MAX_HIST_SIZE   = 64 };
+
 # define N_MODEL_HIST_SIZE (cpu.tweaks.l68_mode ? N_L68_HIST_SIZE : N_DPS8M_HIST_SIZE)
 
 // Bit in CU history register word 0
@@ -1470,74 +1471,74 @@ enum { N_MAX_HIST_SIZE   = 64 };
 // cu_hist_t flags
 enum
   {
-    CU_HIST_PIA =      0400000000000,  //  0   Prepare instruction address
-    CU_HIST_POA =      0200000000000,  //  1   Prepare operand address
-    CU_HIST_RIW =      0100000000000,  //  2   Request indirect word
-    CU_HIST_SIW =      0040000000000,  //  3   Restore indirect word
-    CU_HIST_POT =      0020000000000,  //  4   Prepare operand tally (indirect tally chain)
-    CU_HIST_PON =      0010000000000,  //  5   Prepare operand no tally (as for POT except no chain)
-    CU_HIST_RAW =      0004000000000,  //  6   Request read-alter-rewrite word
-    CU_HIST_SAW =      0002000000000,  //  7   Restore read-later-rewrite word
-    CU_HIST_TRGO =     0001000000000,  //  8   Transfer GO (conditions met)
-    CU_HIST_XDE =      0000400000000,  //  9   Execute XED even instruction
-    CU_HIST_XDO =      0000200000000,  // 10   Execute XED odd instruction
-    CU_HIST_IC =       0000100000000,  // 11   Execute odd instruction of the current pair
-    CU_HIST_RPTS =     0000040000000,  // 12   Execute a repeat instruction
-    CU_HIST_PORTF =    0000020000000,  // 13   Memory cycle to port on previous cycle
+    CU_HIST_PIA      = 0400000000000,  //  0   Prepare instruction address
+    CU_HIST_POA      = 0200000000000,  //  1   Prepare operand address
+    CU_HIST_RIW      = 0100000000000,  //  2   Request indirect word
+    CU_HIST_SIW      = 0040000000000,  //  3   Restore indirect word
+    CU_HIST_POT      = 0020000000000,  //  4   Prepare operand tally (indirect tally chain)
+    CU_HIST_PON      = 0010000000000,  //  5   Prepare operand no tally (as for POT except no chain)
+    CU_HIST_RAW      = 0004000000000,  //  6   Request read-alter-rewrite word
+    CU_HIST_SAW      = 0002000000000,  //  7   Restore read-later-rewrite word
+    CU_HIST_TRGO     = 0001000000000,  //  8   Transfer GO (conditions met)
+    CU_HIST_XDE      = 0000400000000,  //  9   Execute XED even instruction
+    CU_HIST_XDO      = 0000200000000,  // 10   Execute XED odd instruction
+    CU_HIST_IC       = 0000100000000,  // 11   Execute odd instruction of the current pair
+    CU_HIST_RPTS     = 0000040000000,  // 12   Execute a repeat instruction
+    CU_HIST_PORTF    = 0000020000000,  // 13   Memory cycle to port on previous cycle
     CU_HIST_INTERNAL = 0000010000000,  // 14   Memory cycle to cache or direct on previous cycle
-    CU_HIST_PAI =      0000004000000,  // 15   Prepare interrupt address
-    CU_HIST_PFA =      0000002000000,  // 16   Prepare fault address
-    CU_HIST_PRIV =     0000001000000   // 17   In privileged mode
+    CU_HIST_PAI      = 0000004000000,  // 15   Prepare interrupt address
+    CU_HIST_PFA      = 0000002000000,  // 16   Prepare fault address
+    CU_HIST_PRIV     = 0000001000000   // 17   In privileged mode
   };
 
 // cu_hist_t flags2
 enum
   {
     CU_HIST_XINT = 0100,  //  29   Execute instruction
-    CU_HIST_IFT =  0040,  //  30   Perform an instruction fetch
-    CU_HIST_CRD =  0020,  //  31   Cache read, this CU cycle
-    CU_HIST_MRD =  0010,  //  32   Memory read, this CU cycle
+    CU_HIST_IFT  = 0040,  //  30   Perform an instruction fetch
+    CU_HIST_CRD  = 0020,  //  31   Cache read, this CU cycle
+    CU_HIST_MRD  = 0010,  //  32   Memory read, this CU cycle
     CU_HIST_MSTO = 0004,  //  33   Memory store, this CU cycle
-    CU_HIST_PIB =  0002,  //  34   Memory port interface busy
+    CU_HIST_PIB  = 0002,  //  34   Memory port interface busy
    };
 
 enum
   {
-    DU_FANLD1 =  0400000000000,  //   0  Alpha-num load desc l (complemented)
-    DU_FANLD2 =  0200000000000,  //   1  Alpha-num load desc 2 (complemented)
-    DU_FANSTR =  0100000000000,  //   2  Alpha-num store (complemented)
+    DU_FANLD1  = 0400000000000,  //   0  Alpha-num load desc l (complemented)
+    DU_FANLD2  = 0200000000000,  //   1  Alpha-num load desc 2 (complemented)
+    DU_FANSTR  = 0100000000000,  //   2  Alpha-num store (complemented)
     DU_FLDWRT1 = 0040000000000,  //   3  Load re-write reg l (complemented)
     DU_FLDWRT2 = 0020000000000,  //   4  Load re-write reg 2 (complemented)
-    DU_FNLD1 =   0010000000000,  //   5  Numeric load desc l (complemented)
-    DU_FNLD2 =   0004000000000,  //   6  Numeric load desc 2 (complemented)
-    DU_NOSEQF =  0002000000000,  //   7  End sequence flag
-    DU_FDUD =    0001000000000,  //   8  Decimal unit idle (complemented)
-    DU_FGSTR =   0000400000000,  //   9  General store flag (complemented)
-    DU_NOSEQ =   0000200000000,  //  10  End of sequence (complemented)
-    DU_NINE =    0000100000000,  //  11  9-bit character operation
-    DU_SIX =     0000040000000,  //  12  6-bit character operation
-    DU_FOUR =    0000020000000,  //  13  4-bit character operation
-    DU_DUBIT =   0000010000000,  //  14  Bit operation
-    DU_UWORD =   0000004000000,  //  15  Word operation
-    DU_PTR1 =    0000002000000,  //  16  Select ptr l
-    DU_PTR2 =    0000001000000,  //  17  Select ptr 2
-    DU_PRT3 =    0000000400000,  //  18  Select ptr 3
-    DU_FPOP =    0000000200000,  //  19  Prepare operand pointer
-    DU_GEAM =    0000000100000,  //  20  Add timing gates (complemented)
-    DU_LPD12 =   0000000040000,  //  21  Load pointer l or 2 (complemented)
-    DU_GEMAE =   0000000020000,  //  22  Multiply gates A E (complemented)
-    DU_BTDS =    0000000010000,  //  23  Binary to decimal gates (complemented)
-    DU_SP15 =    0000000004000,  //  24  Align cycles (complemented)
-    DU_FSWEQ =   0000000002000,  //  25  Single word sequence flag (complemented)
-    DU_FGCH =    0000000001000,  //  26  Character cycle (complemented)
-    DU_DFRST =   0000000000400,  //  27  Processing descriptor for first time
-    DU_EXH =     0000000000200,  //  28  Exhaust
-    DU_FGADO =   0000000000100,  //  29  Add cycle (complemented)
+    DU_FNLD1   = 0010000000000,  //   5  Numeric load desc l (complemented)
+    DU_FNLD2   = 0004000000000,  //   6  Numeric load desc 2 (complemented)
+    DU_NOSEQF  = 0002000000000,  //   7  End sequence flag
+    DU_FDUD    = 0001000000000,  //   8  Decimal unit idle (complemented)
+    DU_FGSTR   = 0000400000000,  //   9  General store flag (complemented)
+    DU_NOSEQ   = 0000200000000,  //  10  End of sequence (complemented)
+    DU_NINE    = 0000100000000,  //  11  9-bit character operation
+    DU_SIX     = 0000040000000,  //  12  6-bit character operation
+    DU_FOUR    = 0000020000000,  //  13  4-bit character operation
+    DU_DUBIT   = 0000010000000,  //  14  Bit operation
+    DU_UWORD   = 0000004000000,  //  15  Word operation
+    DU_PTR1    = 0000002000000,  //  16  Select ptr l
+    DU_PTR2    = 0000001000000,  //  17  Select ptr 2
+    DU_PRT3    = 0000000400000,  //  18  Select ptr 3
+    DU_FPOP    = 0000000200000,  //  19  Prepare operand pointer
+    DU_GEAM    = 0000000100000,  //  20  Add timing gates (complemented)
+    DU_LPD12   = 0000000040000,  //  21  Load pointer l or 2 (complemented)
+    DU_GEMAE   = 0000000020000,  //  22  Multiply gates A E (complemented)
+    DU_BTDS    = 0000000010000,  //  23  Binary to decimal gates (complemented)
+    DU_SP15    = 0000000004000,  //  24  Align cycles (complemented)
+    DU_FSWEQ   = 0000000002000,  //  25  Single word sequence flag (complemented)
+    DU_FGCH    = 0000000001000,  //  26  Character cycle (complemented)
+    DU_DFRST   = 0000000000400,  //  27  Processing descriptor for first time
+    DU_EXH     = 0000000000200,  //  28  Exhaust
+    DU_FGADO   = 0000000000100,  //  29  Add cycle (complemented)
     DU_INTRPTD = 0000000000040,  //  30  Interrupted
-    DU_GLDP2 =   0000000000020,  //  31  Load DP2
-    DU_GEMC =    0000000000010,  //  32  Multiply gate C
-    DU_GBDA =    0000000000004,  //  33  Binary to decimal gate A
-    DU_GSP5 =    0000000000002   //  34  Final align cycle
+    DU_GLDP2   = 0000000000020,  //  31  Load DP2
+    DU_GEMC    = 0000000000010,  //  32  Multiply gate C
+    DU_GBDA    = 0000000000004,  //  33  Binary to decimal gate A
+    DU_GSP5    = 0000000000002   //  34  Final align cycle
   };
 
 // apu_hist_t flags
@@ -1545,35 +1546,35 @@ enum
   {
     APU_PIA_OVF = 04000000,  //  15   PIA Page overflow
     APU_PIA_OOB = 02000000,  //  16   PIA out of segment bounds
-    APU_FDSPTW =  01000000,  //  17   Fetch descriptor segment PTW
-    APU_MDSPTW =  00400000,  //  18   Descriptor segment PTW is modified
-    APU_FSDW =    00200000,  //  19   Fetch SDW
-    APU_FPTW =    00100000,  //  20   Fetch PTW
-    APU_FPTW2 =   00040000,  //  21   Fetch pre-page PTW
-    APU_MPTW =    00020000,  //  22   PTW modified
-    APU_FANP =    00010000,  //  23   Final address nonpaged
-    APU_FAP =     00004000,  //  24   Final address paged
+    APU_FDSPTW  = 01000000,  //  17   Fetch descriptor segment PTW
+    APU_MDSPTW  = 00400000,  //  18   Descriptor segment PTW is modified
+    APU_FSDW    = 00200000,  //  19   Fetch SDW
+    APU_FPTW    = 00100000,  //  20   Fetch PTW
+    APU_FPTW2   = 00040000,  //  21   Fetch pre-page PTW
+    APU_MPTW    = 00020000,  //  22   PTW modified
+    APU_FANP    = 00010000,  //  23   Final address nonpaged
+    APU_FAP     = 00004000,  //  24   Final address paged
     APU_MTCHSDW = 00002000,  //  25   SDW match found
-    APU_SDWMF =   00001000,  //  26   SDW match found and used
+    APU_SDWMF   = 00001000,  //  26   SDW match found and used
     // BSY Data source for ESN
-    APU_BSY_IC =  00000000,  // 27-28  00 = from ppr.ic
+    APU_BSY_IC  = 00000000,  // 27-28  00 = from ppr.ic
     APU_BSY_TSE = 00000200,  // 27-28  01 = from prn.tsr
     APU_BSY_SWR = 00000400,  // 27-28  10 = from tpr.swr
-    APU_BSY_CA =  00000600,  // 27-28  11 = from tpr.ca
+    APU_BSY_CA  = 00000600,  // 27-28  11 = from tpr.ca
     APU_MTCHPTW = 00000100,  //  29   PTW match found (AM)
-    //APU_PTWMF =   00000000,  // 30-31 PTW match found (AM) and used
-    //APU_PTWAM =   00000000   // 32-35 PTW AM direct address (ZCA bits 4-7)
+    //APU_PTWMF = 00000000,  // 30-31 PTW match found (AM) and used
+    //APU_PTWAM = 00000000   // 32-35 PTW AM direct address (ZCA bits 4-7)
   };
 
 // apu_hist_t flags2
 enum
   {
-    APU_SDWME =  0400, //   27   SDW match error
+    APU_SDWME    = 0400, //   27   SDW match error
     //APU_SDWLVL = 0000, // 28-29  SDW match level count (0 = Level A)
-    APU_CACHE =  0040, //   30   Cache used this cycle
-    APU_PTW =    0020, //   31   match error
+    APU_CACHE    = 0040, //   30   Cache used this cycle
+    APU_PTW      = 0020, //   31   match error
     //APU_PTWLVL = 0000, // 32-33  PTW match level count (0 = level A)
-    APU_FLTHLD = 0002, //   34   A directed fault or access violation fault is waiting
+    APU_FLTHLD   = 0002, //   34   A directed fault or access violation fault is waiting
     // bit 35 is marked 'w' but undocumented
   };
 

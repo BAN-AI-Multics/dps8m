@@ -72,6 +72,7 @@
 #include "sim_defs.h"
 #include "sim_tape.h"
 #include <ctype.h>
+#include <signal.h>
 
 struct sim_tape_fmt {
     const char          *name;                          /* name */
@@ -195,6 +196,18 @@ switch (MT_GET_FMT (uptr)) {                            /* case on format */
         }
 
 uptr->tape_ctx = ctx = (struct tape_context *)calloc(1, sizeof(struct tape_context));
+if (!ctx)
+{
+  fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+          __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+  (void)raise(SIGUSR2);
+  /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+  abort();
+}
 ctx->dptr = dptr;                                       /* save DEVICE pointer */
 ctx->dbit = dbit;                                       /* save debug bit */
 ctx->auto_format = auto_format;                         /* save that we auto selected format */
@@ -1814,10 +1827,10 @@ t_stat sim_tape_set_fmt (UNIT *uptr, int32 val, CONST char *cptr, void *desc)
 {
 uint32 f;
 
-if (uptr->flags & UNIT_ATT)
-    return SCPE_ALATT;
 if (uptr == NULL)
     return SCPE_IERR;
+if (uptr->flags & UNIT_ATT)
+    return SCPE_ALATT;
 if (cptr == NULL)
     return SCPE_ARG;
 for (f = 0; f < MTUF_N_FMT; f++) {
@@ -1859,7 +1872,31 @@ DEVICE *dptr = find_dev_from_unit (uptr);
 if ((uptr == NULL) || (uptr->fileref == NULL))
     return 0;
 countmap = (uint32 *)calloc (65536, sizeof(*countmap));
+if (!countmap)
+  {
+    fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+             __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+    (void)raise(SIGUSR2);
+    /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+    abort();
+  }
 recbuf = (uint8 *)malloc (65536);
+if (!recbuf)
+  {
+    fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+             __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+    (void)raise(SIGUSR2);
+    /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+    abort();
+  }
 tape_size = (t_addr)sim_fsize (uptr->fileref);
 sim_debug (MTSE_DBG_STR, dptr, "tpc_map: tape_size: %" T_ADDR_FMT "u\n", tape_size);
 for (objc = 0, sizec = 0, tpos = 0;; ) {
@@ -1900,8 +1937,8 @@ for (i=0; i<65535; i++) {
     }
 if (((last_bc != 0xffff) &&
      (tpos > tape_size) &&
-     (!had_double_tape_mark))    ||
-    (!had_double_tape_mark)      ||
+     (!had_double_tape_mark)) || //-V686
+    (!had_double_tape_mark) ||
     ((objc == countmap[0]) &&
      (countmap[0] != 2))) {     /* Unreasonable format? */
     if (last_bc != 0xffff)

@@ -142,13 +142,16 @@ int GLOBAL_GREEN_BAR;
    PageList *n = (PageList *)malloc(sizeof(*n));
 
    if(n == NULL) {
-      fprintf(stderr,"FATAL: Unable to allocate array for page %d.", GLOBAL_NUM_PAGES + 1);
-      _Exit(1);
+      fprintf(stderr,"\rERROR: Unable to allocate array for page %d.\r\n",
+              GLOBAL_NUM_PAGES + 1);
+      fprintf(stderr,"\r\n\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
+              __func__, __FILE__, __LINE__);
+      abort();
    }
-   n->next = NULL;
-   n->page_id = id;
+   n->next             = NULL;
+   n->page_id          = id;
    *GLOBAL_INSERT_PAGE = n;
-   GLOBAL_INSERT_PAGE = &n->next;
+   GLOBAL_INSERT_PAGE  = &n->next;
 
    GLOBAL_NUM_PAGES++;
  }
@@ -168,8 +171,10 @@ int GLOBAL_GREEN_BAR;
            new_xrefs = (long *)malloc(new_num_xrefs * sizeof(*new_xrefs));
 
            if(new_xrefs == NULL) {
-              fprintf(stderr, "FATAL: Unable to allocate array for object %d.", id);
-              _Exit(1);
+              fprintf(stderr, "\r\nERROR: Unable to allocate array for object %d.\r\n", id);
+              fprintf(stderr, "\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
+                      __func__, __FILE__, __LINE__);
+              abort();
            }
 
            memcpy(new_xrefs, GLOBAL_XREFS, GLOBAL_NUM_XREFS * sizeof(*GLOBAL_XREFS));
@@ -800,7 +805,9 @@ int main(int argc, char **argv) {
 #endif
              /*NOTREACHED*/
            default:
-             abort ();
+             fprintf (stderr, "\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
+                      __func__, __FILE__, __LINE__);
+             abort();
              /*NOTREACHED*/
 #ifndef __SUNPRO_C
 # ifndef __SUNPRO_CC

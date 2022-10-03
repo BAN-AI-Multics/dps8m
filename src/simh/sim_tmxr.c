@@ -95,6 +95,7 @@
 #include "scp.h"
 
 #include <ctype.h>
+#include <signal.h>
 #include <math.h>
 
 /* Telnet protocol constants - negatives are for init'ing signed char data */
@@ -225,13 +226,61 @@ if ((!lp->mp->buffered) && (!lp->txbfd)) {
     lp->txbfd      = 0;
     lp->txbsz      = TMXR_MAXBUF;
     lp->txb        = (char *)realloc (lp->txb, lp->txbsz);
+    if (!lp->txb)
+      {
+        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
     lp->rxbsz      = TMXR_MAXBUF;
     lp->rxb        = (char *)realloc(lp->rxb, lp->rxbsz);
+    if (!lp->rxb)
+      {
+        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
     lp->rbr        = (char *)realloc(lp->rbr, lp->rxbsz);
+    if (!lp->rbr)
+      {
+        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
     }
 if (lp->loopback) {
     lp->lpbsz      = lp->rxbsz;
     lp->lpb        = (char *)realloc(lp->lpb, lp->lpbsz);
+    if (!lp->lpb)
+      {
+        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
     lp->lpbcnt     = lp->lpbpi = lp->lpbpr = 0;
     }
 if (lp->rxpb) {
@@ -562,7 +611,31 @@ return lp;                                              /* return pointer to lin
 */
 static char *growstring(char **string, size_t growth)
 {
+if (!*string)
+  {
+    fprintf(stderr, "\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
+            __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+    abort();
+  }
 *string = (char *)realloc (*string, 1 + (*string ? strlen (*string) : 0) + growth);
+if (!*string)
+  {
+    fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+            __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+    abort();
+  }
 return *string + strlen(*string);
 }
 
@@ -574,7 +647,6 @@ TMLN *lp;
 
 FREE (old);
 tptr = (char *) calloc (1, 1);
-
 if (tptr == NULL)                                       /* no more mem? */
     return tptr;
 
@@ -624,7 +696,6 @@ char *tmxr_line_attach_string(TMLN *lp)
 char* tptr = NULL;
 
 tptr = (char *) calloc (1, 1);
-
 if (tptr == NULL)                                       /* no more mem? */
     return tptr;
 
@@ -805,6 +876,18 @@ if (mp->master) {
             if (!lp->notelnet) {
                 sim_write_sock (newsock, (char *)mantra, sizeof(mantra));
                 lp->telnet_sent_opts = (uint8 *)realloc (lp->telnet_sent_opts, 256);
+                if (!lp->telnet_sent_opts)
+                  {
+                    fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                             __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+                    (void)raise(SIGUSR2);
+                    /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+                    abort();
+                  }
                 memset (lp->telnet_sent_opts, 0, 256);
                 }
             tmxr_report_connection (mp, lp);
@@ -840,7 +923,7 @@ for (i = 0; i < mp->lines; i++) {                       /* check each line in se
        connection and the arrival of an incoming one in a random order.
      */
     for (j=0; j<2; j++)
-        switch ((j+r)&1) {
+        switch (((unsigned)j+(unsigned)r)&1) {
             case 0:
                 if (lp->connecting) {                           /* connecting? */
                     char *sockname, *peername;
@@ -855,11 +938,24 @@ for (i = 0; i < mp->lines; i++) {                       /* check each line in se
                             if (lp->destination != NULL)
                                 lpdlen = 1+strlen (lp->destination);
                             lp->ipad = (char *)realloc (lp->ipad, lpdlen);
+                            if (!lp->ipad)
+                              {
+                                fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                                        __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+                                (void)raise(SIGUSR2);
+                                /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+                                abort();
+                              }
                             if (lp->destination != NULL)
                                 strcpy (lp->ipad, lp->destination);
                             lp->cnms = sim_os_msec ();
                             sim_getnames_sock (lp->sock, &sockname, &peername);
-                            snprintf (msg, sizeof(msg)-1, "tmxr_poll_conn() - Outgoing Line Connection to %s (%s->%s) established", lp->destination, sockname, peername);
+                            if (lp->destination)
+                              snprintf (msg, sizeof(msg)-1, "tmxr_poll_conn() - Outgoing Line Connection to %s (%s->%s) established", lp->destination, sockname, peername);
                             FREE (sockname);
                             FREE (peername);
                             return i;
@@ -906,6 +1002,18 @@ for (i = 0; i < mp->lines; i++) {                       /* check each line in se
                                 if (!lp->notelnet) {
                                     sim_write_sock (newsock, (char *)mantra, sizeof(mantra));
                                     lp->telnet_sent_opts = (uint8 *)realloc (lp->telnet_sent_opts, 256);
+                                    if (!lp->telnet_sent_opts)
+                                      {
+                                        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                                                 __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+                                        (void)raise(SIGUSR2);
+                                        /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+                                        abort();
+                                      }
                                     memset (lp->telnet_sent_opts, 0, 256);
                                     }
                                 tmxr_report_connection (mp, lp);
@@ -1055,6 +1163,18 @@ else {
             if (!lp->notelnet) {
                 sim_write_sock (lp->sock, (char *)mantra, sizeof(mantra));
                 lp->telnet_sent_opts = (uint8 *)realloc (lp->telnet_sent_opts, 256);
+                if (!lp->telnet_sent_opts)
+                  {
+                    fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                             __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+                    (void)raise(SIGUSR2);
+                    /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+                    abort();
+                  }
                 memset (lp->telnet_sent_opts, 0, 256);
                 }
             tmxr_report_connection (lp->mp, lp);
@@ -1141,6 +1261,18 @@ lp->loopback = (enable_loopback != FALSE);
 if (lp->loopback) {
     lp->lpbsz = lp->rxbsz;
     lp->lpb = (char *)realloc(lp->lpb, lp->lpbsz);
+    if (!lp->lpb)
+      {
+        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
     lp->lpbcnt = lp->lpbpi = lp->lpbpr = 0;
     if (!lp->conn)
         lp->ser_connect_pending = TRUE;
@@ -1269,6 +1401,18 @@ while (TMXR_VALID & (c = tmxr_getc_ln (lp))) {
     if (lp->rxpboffset + 3 > lp->rxpbsize) {
         lp->rxpbsize += 512;
         lp->rxpb = (uint8 *)realloc (lp->rxpb, lp->rxpbsize);
+        if (!lp->rxpb)
+          {
+            fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                     __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+            (void)raise(SIGUSR2);
+            /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+            abort();
+          }
         }
     if ((lp->rxpboffset == 0) && (fc_size) && (c != frame_byte)) {
         continue;
@@ -1389,12 +1533,12 @@ for (i = 0; i < mp->lines; i++) {                       /* loop thru lines */
                     case TN_EC: case TN_AYT:
                     case TN_AO: case TN_IP:
                     case TN_NOP:
-                        lp->tsta = TNS_NORM;            /* ignore */
+                        lp->tsta = TNS_NORM; //-V1037   /* ignore */
                         break;
                     case TN_SB:                         /* IAC + SB sub-opt negotiation */
                     case TN_DATAMK:                     /* IAC + data mark */
                     case TN_SE:                         /* IAC + SE sub-opt end */
-                        lp->tsta = TNS_NORM;            /* ignore */
+                        lp->tsta = TNS_NORM; //-V1037   /* ignore */
                         break;
                         }
                     tmxr_rmvrc (lp, j);                 /* remove char */
@@ -1640,6 +1784,18 @@ if (lp->txppoffset < lp->txppsize) {
 if (lp->txpbsize < size + pktlen_size + fc_size) {
     lp->txpbsize = size + pktlen_size + fc_size;
     lp->txpb = (uint8 *)realloc (lp->txpb, lp->txpbsize);
+    if (!lp->txpb)
+      {
+        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
     }
 lp->txpb[0] = frame_byte;
 if (!lp->datagram) {
@@ -1963,8 +2119,7 @@ while (*tptr) {
                 loopback = TRUE;
                 continue;
                 }
-           if ((0 == MATCH_CMD (gbuf, "NOBUFFERED")) ||
-                (0 == MATCH_CMD (gbuf, "UNBUFFERED"))) {
+           if ((0 == MATCH_CMD (gbuf, "NOBUFFERED")) || (0 == MATCH_CMD (gbuf, "UNBUFFERED"))) { //-V600
                 if ((NULL != cptr) && ('\0' != *cptr))
                     return sim_messagef (SCPE_2MARG, "Unexpected Unbuffered Specifier: %s\n", cptr);
                 buffered[0] = '\0';
@@ -1999,7 +2154,7 @@ while (*tptr) {
                 modem_control = TRUE;
                 continue;
                 }
-            if ((0 == MATCH_CMD (gbuf, "DATAGRAM")) || (0 == MATCH_CMD (gbuf, "UDP"))) {
+            if ((0 == MATCH_CMD (gbuf, "DATAGRAM")) || (0 == MATCH_CMD (gbuf, "UDP"))) { //-V600
                 if ((NULL != cptr) && ('\0' != *cptr))
                     return sim_messagef (SCPE_2MARG, "Unexpected Datagram Specifier: %s\n", cptr);
                 notelnet = datagram = TRUE;
@@ -2011,7 +2166,7 @@ while (*tptr) {
                 packet = TRUE;
                 continue;
                 }
-            if ((0 == MATCH_CMD (gbuf, "STREAM")) || (0 == MATCH_CMD (gbuf, "TCP"))) {
+            if ((0 == MATCH_CMD (gbuf, "STREAM")) || (0 == MATCH_CMD (gbuf, "TCP"))) { //-V600
                 if ((NULL != cptr) && ('\0' != *cptr))
                     return sim_messagef (SCPE_2MARG, "Unexpected Stream Specifier: %s\n", cptr);
                 datagram = FALSE;
@@ -2035,7 +2190,7 @@ while (*tptr) {
                 return sim_messagef (SCPE_ARG, "Invalid Port Specifier: %s\n", port);
             if (cptr) {
                 char *tptr = gbuf + (cptr - gbuf);
-                get_glyph (cptr, tptr, 0);                  /* upcase this string */
+                (void)get_glyph (cptr, tptr, 0);             /* upcase this string */
                 if (0 == MATCH_CMD (cptr, "NOTELNET"))
                     listennotelnet = TRUE;
                 else
@@ -2078,7 +2233,7 @@ while (*tptr) {
             if ((eptr = strchr (hostport, ';')))
                 *(eptr++) = '\0';
             if (eptr) {
-                get_glyph (eptr, eptr, 0);          /* upcase this string */
+                (void)get_glyph (eptr, eptr, 0);     /* upcase this string */
                 if (0 == MATCH_CMD (eptr, "NOTELNET"))
                     notelnet = TRUE;
                 else
@@ -2127,6 +2282,18 @@ while (*tptr) {
                 sim_close_logfile (&lp->txlogref);
                 lp->txlog = NULL;
                 lp->txlogname = (char *)realloc(lp->txlogname, CBUFSIZE);
+                if (!lp->txlogname)
+                  {
+                    fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                             __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+                    (void)raise(SIGUSR2);
+                    /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+                    abort();
+                  }
                 if (mp->lines > 1)
                     sprintf(lp->txlogname, "%s_%d", mp->logfiletmpl, i);
                 else
@@ -2156,8 +2323,44 @@ while (*tptr) {
                 }
             lp->txbpi = lp->txbpr = 0;
             lp->txb = (char *)realloc(lp->txb, lp->txbsz);
+            if (!lp->txb)
+              {
+                fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                         __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+                (void)raise(SIGUSR2);
+                /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+                abort();
+              }
             lp->rxb = (char *)realloc(lp->rxb, lp->rxbsz);
+            if (!lp->rxb)
+              {
+                fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                         __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+                (void)raise(SIGUSR2);
+                /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+                abort();
+              }
             lp->rbr = (char *)realloc(lp->rbr, lp->rxbsz);
+            if (!lp->rbr)
+              {
+                fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                         __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+                (void)raise(SIGUSR2);
+                /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+                abort();
+              }
             }
         if (nolog) {
             mp->logfiletmpl[0] = '\0';
@@ -2185,6 +2388,18 @@ while (*tptr) {
                 }
             sim_printf ("Listening on port %s\n", listen);
             mp->port = (char *)realloc (mp->port, 1 + strlen (listen));
+            if (!mp->port)
+              {
+                fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                         __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+                (void)raise(SIGUSR2);
+                /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+                abort();
+              }
             strcpy (mp->port, listen);                      /* save port */
             mp->master = sock;                              /* save master socket */
             mp->ring_sock = INVALID_SOCKET;
@@ -2206,7 +2421,7 @@ while (*tptr) {
             if (mp->lines > 1)
                 return sim_messagef (SCPE_ARG, "Ambiguous Loopback specification\n");
             sim_printf ("Operating in loopback mode\n");
-            for (i = 0; i < mp->lines; i++) {
+            for (i = 0; i < mp->lines; i++) { //-V1008
                 lp = mp->ldsc + i;
                 tmxr_set_line_loopback (lp, loopback);
                 if (speed[0])
@@ -2221,6 +2436,18 @@ while (*tptr) {
                 if (datagram) {
                     if (listen[0]) {
                         lp->port = (char *)realloc (lp->port, 1 + strlen (listen));
+                        if (!lp->port)
+                          {
+                            fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                                    __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+                            (void)raise(SIGUSR2);
+                            /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+                            abort();
+                          }
                         strcpy (lp->port, listen);           /* save port */
                         }
                     else
@@ -2233,11 +2460,35 @@ while (*tptr) {
                 if (sock != INVALID_SOCKET) {
                     _mux_detach_line (lp, FALSE, TRUE);
                     lp->destination = (char *)malloc(1+strlen(hostport));
+                    if (!lp->destination)
+                      {
+                        fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                                __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+                        (void)raise(SIGUSR2);
+                        /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+                        abort();
+                      }
                     strcpy (lp->destination, hostport);
                     lp->mp = mp;
                     if (!lp->modem_control || (lp->modembits & TMXR_MDM_DTR)) {
                         lp->connecting = sock;
                         lp->ipad = (char *)malloc (1 + strlen (lp->destination));
+                        if (!lp->ipad)
+                          {
+                            fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                                    __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+                            (void)raise(SIGUSR2);
+                            /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+                            abort();
+                          }
                         strcpy (lp->ipad, lp->destination);
                         }
                     else
@@ -2259,6 +2510,18 @@ while (*tptr) {
             sim_close_logfile (&lp->txlogref);
             lp->txlog = NULL;
             lp->txlogname = (char *)realloc (lp->txlogname, 1 + strlen (logfiletmpl));
+            if (!lp->txlogname)
+              {
+                fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                         __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+                (void)raise(SIGUSR2);
+                /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+                abort();
+              }
             strcpy (lp->txlogname, logfiletmpl);
             r = sim_open_logfile (lp->txlogname, TRUE, &lp->txlog, &lp->txlogref);
             if (r == SCPE_OK)
@@ -2279,8 +2542,44 @@ while (*tptr) {
             }
         lp->txbpi = lp->txbpr = 0;
         lp->txb = (char *)realloc (lp->txb, lp->txbsz);
-        lp->rxb = (char *)realloc(lp->rxb, lp->rxbsz);
-        lp->rbr = (char *)realloc(lp->rbr, lp->rxbsz);
+        if (!lp->txb)
+          {
+            fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                     __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+            (void)raise(SIGUSR2);
+            /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+            abort();
+          }
+        lp->rxb = (char *)realloc (lp->rxb, lp->rxbsz);
+        if (!lp->rxb)
+          {
+            fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                     __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+            (void)raise(SIGUSR2);
+            /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+            abort();
+          }
+        lp->rbr = (char *)realloc (lp->rbr, lp->rxbsz);
+        if (!lp->rbr)
+          {
+            fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                     __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+            (void)raise(SIGUSR2);
+            /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+            abort();
+          }
         lp->packet = packet;
         if (nolog) {
             FREE(lp->txlogname);
@@ -2301,6 +2600,18 @@ while (*tptr) {
             _mux_detach_line (lp, TRUE, FALSE);
             sim_printf ("Line %d Listening on port %s\n", line, listen);
             lp->port = (char *)realloc (lp->port, 1 + strlen (listen));
+            if (!lp->port)
+              {
+                fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                         __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+                (void)raise(SIGUSR2);
+                /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+                abort();
+              }
             strcpy (lp->port, listen);                       /* save port */
             lp->master = sock;                              /* save master socket */
             if (listennotelnet != mp->notelnet)
@@ -2313,6 +2624,18 @@ while (*tptr) {
                 if (datagram) {
                     if (listen[0]) {
                         lp->port = (char *)realloc (lp->port, 1 + strlen (listen));
+                        if (!lp->port)
+                          {
+                            fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                                     __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+                            (void)raise(SIGUSR2);
+                            /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+                            abort();
+                          }
                         strcpy (lp->port, listen);          /* save port */
                         }
                     else
@@ -2322,10 +2645,34 @@ while (*tptr) {
                 if (sock != INVALID_SOCKET) {
                     _mux_detach_line (lp, FALSE, TRUE);
                     lp->destination = (char *)malloc(1+strlen(hostport));
+                    if (!lp->destination)
+                      {
+                        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                                 __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+                        (void)raise(SIGUSR2);
+                        /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+                        abort();
+                      }
                     strcpy (lp->destination, hostport);
                     if (!lp->modem_control || (lp->modembits & TMXR_MDM_DTR)) {
                         lp->connecting = sock;
                         lp->ipad = (char *)malloc (1 + strlen (lp->destination));
+                        if (!lp->ipad)
+                          {
+                            fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                                     __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+                            (void)raise(SIGUSR2);
+                            /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+                            abort();
+                          }
                         strcpy (lp->ipad, lp->destination);
                         }
                     else
@@ -2433,6 +2780,18 @@ for (i=0; i<tmxr_open_device_count; ++i)
         }
 if (!found) {
     tmxr_open_devices = (TMXR **)realloc(tmxr_open_devices, (tmxr_open_device_count+1)*sizeof(*tmxr_open_devices));
+    if (!tmxr_open_devices)
+      {
+        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
     tmxr_open_devices[tmxr_open_device_count++] = mux;
     for (i=0; i<mux->lines; i++)
         if (0 == mux->ldsc[i].send.delay)
@@ -2999,8 +3358,18 @@ while (1) {                                         /* format passed string, arg
         if (bufsize < len + 2)
             bufsize = len + 2;
         buf = (char *) malloc (bufsize);
-        if (buf == NULL)                            /* out of memory */
-            return;
+        if (!buf)                            /* out of memory */
+          {
+            fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                    __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+            (void)raise(SIGUSR2);
+            /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+            abort();
+          }
         buf[bufsize-1] = '\0';
         continue;
         }
@@ -3291,12 +3660,10 @@ else if ((carg == NULL) || (*carg == '\0'))             /* line range not suppli
     return SCPE_MISVAL;                                 /* "Missing value" error */
 
 list = (int32 *) calloc (mp->lines, sizeof (int32));    /* allocate new line order array */
-
 if (list == NULL)                                       /* allocation failed? */
     return SCPE_MEM;                                    /* report it */
 
 set = (t_bool *) calloc (mp->lines, sizeof (t_bool));   /* allocate line set tracking array */
-
 if (set == NULL) {                                      /* allocation failed? */
     FREE (list);                                        /* free successful list allocation */
     return SCPE_MEM;                                    /* report it */
