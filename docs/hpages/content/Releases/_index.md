@@ -50,15 +50,16 @@ title: DPS8M Releases
 | [**dps8m-master-linux-att.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-att.tar.gz) | PPC64le (AT16, POWER10) |
 {{< /tab >}}
 {{< tab "macOS" >}}
-| File                                                                                             | Platform       |
-|:------------------------------------------------------------------------------------------------ |:-------------- |
-| [**dps8m-master-macos-x86.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-macos-x86.tar.gz) | Intel (x86_64) |
+| File                                                                                             | Platform              |
+|:------------------------------------------------------------------------------------------------ |:--------------------- |
+| [**dps8m-master-macos-x86.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-macos-x86.tar.gz) | Intel Latest (x86_64) |
+| [**dps8m-master-mac10-x86.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-mac10-x86.tar.gz) | Intel 10.13 (x86_64)  |
 {{< /tab >}}
 {{< tab "SunOS" >}}
-| File                                                                                            | Platform                       |
-| :---------------------------------------------------------------------------------------------- | :----------------------------- |
-| [**dps8m-master-s114-x86.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-s114-x86.tar.gz)  | Oracle Solaris 11.4 (x86_64)   |
-| [**dps8m-master-iloi-x86.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-iloi-x86.tar.gz)  | illumos OpenIndiana (x86_64)   |
+| File                                                                                            | Platform                      |
+| :---------------------------------------------------------------------------------------------- | :---------------------------- |
+| [**dps8m-master-s114-x86.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-s114-x86.tar.gz)  | Oracle Solaris 11.4 (x86_64)  |
+| [**dps8m-master-iloi-x86.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-iloi-x86.tar.gz)  | illumos OpenIndiana (x86_64)  |
 {{< /tab >}}
 {{< tab "Windows" >}}
 | File                                                                                             | Platform      |

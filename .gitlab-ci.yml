@@ -1589,6 +1589,46 @@ Darwin/x86_64, macOS, Xcode:
 
 #############################################################################
 
+Darwin/x86_64, macOS, static, Xcode:
+  stage: build
+  tags:
+    - Darwin
+    - macOS
+    - amd64
+    - Xcode
+  script:
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - export DEPLOY="10.13"
+    - env CFLAGS="-target x86_64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}" LOCAL_CONFOPTS="--host=x86_64-apple-darwin" make libuvrel HOMEBREW_INC= HOMEBREW_LIB= && env CFLAGS="-target x86_64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}" LDFLAGS="-target x86_64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}" make HOMEBREW_INC= HOMEBREW_LIB=
+    - otool -l src/dps8/dps8 || true
+    - printf %s\\n "show version" | ./src/dps8/dps8
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - export DISTDIR="dps8-$(./src/dps8/dps8 --version | awk '{ print $3 }' | tr -cd '0-9A-z.\-\_\+' | tr '+' '_')"
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-mac10-x86.tar "./${DISTDIR:?}" )
+    - pigz -11 -f -m -n dps8m-master-mac10-x86.tar
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/dps8m-master-mac10-x86.tar.gz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 30 minutes
+  interruptible: true
+
+#############################################################################
+
 Option Verification Test:
   stage: cmb_test
   image: fedora:latest
@@ -1965,6 +2005,7 @@ pages:
     - job: Clang Analyzer
     - job: Cppcheck
     - job: Darwin/x86_64, macOS, Xcode
+    - job: Darwin/x86_64, macOS, static, Xcode
     - job: DPS8M Omnibus Documentation
     - job: Flawfinder
     - job: GNU GLOBAL Hypertext
@@ -1988,6 +2029,7 @@ pages:
     - "Clang Analyzer"
     - "Cppcheck"
     - "Darwin/x86_64, macOS, Xcode"
+    - "Darwin/x86_64, macOS, static, Xcode"
     - "DPS8M Omnibus Documentation"
     - "Flawfinder"
     - "GNU GLOBAL Hypertext"
@@ -2035,6 +2077,7 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-att.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-xlc.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-macos-x86.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-mac10-x86.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-s114-x86.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-iloi-x86.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-mingw-x86.zip public
