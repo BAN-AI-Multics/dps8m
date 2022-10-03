@@ -64,6 +64,7 @@
 #include "sim_disk.h"
 
 #include <ctype.h>
+#include <signal.h>
 #include <sys/stat.h>
 
 #include "../decNumber/decContext.h"
@@ -379,7 +380,7 @@ if (uptr->dynflags & UNIT_DISK_CHK) {
             uint32 save_dctrl = dptr->dctrl;
             FILE *save_sim_deb = sim_deb;
 
-            sim_printf ("\n%s%lu: Write Address Verification Error on lbn %lu(0x%X) of %lu(0x%X).\n", sim_dname (dptr), (unsigned long)(uptr-dptr->units), (unsigned long)(lba+sect), (int)(lba+sect), (unsigned long)total_sectors, (int)total_sectors);
+            sim_printf ("\n%s%lu: Write Address Verification Error on lbn %lu(0x%X) of %lu(0x%X).\n", sim_dname (dptr), (unsigned long)(uptr-dptr->units), (unsigned long)((unsigned long)lba+(unsigned long)sect), (int)((int)lba+(int)sect), (unsigned long)total_sectors, (int)total_sectors);
             dptr->dctrl = 0xFFFFFFFF;
             sim_deb = save_sim_deb ? save_sim_deb : stdout;
             sim_disk_data_trace (uptr, buf+sect*ctx->sector_size, lba+sect, ctx->sector_size,    "Found", TRUE, 1);
@@ -445,7 +446,7 @@ else { /* Unaligned and/or partial sector transfers */
             r = SCPE_NOFNC;
             break;
         }
-    if ((r == SCPE_OK) && sectswritten) {
+    if ((r == SCPE_OK) && sectswritten) { //-V560
         *sectswritten -= (lba - tlba);
         if (*sectswritten > sects)
             *sectswritten = sects;
@@ -686,12 +687,12 @@ if ((Home.hm2_l_homelbn   == 0)  ||
 if (sim_disk_rdsect (uptr, Home.hm2_l_ibmaplbn+Home.hm2_w_ibmapsize+1, (uint8 *)&Header, NULL, 1))
     goto Return_Cleanup;
 CheckSum1 = ODS2Checksum (&Header, 255);
-if (CheckSum1 != *(((uint16 *)&Header)+255)) /* Verify Checksum on BITMAP.SYS file header */
+if (CheckSum1 != *(((uint16 *)&Header)+255)) //-V1032 /* Verify Checksum on BITMAP.SYS file header */
     goto Return_Cleanup;
 Retr = (ODS2_Retreval *)(((uint16*)(&Header))+Header.fh2_b_mpoffset);
 /* The BitMap File has a single extent, which may be preceeded by a placement descriptor */
 if (Retr->fm2_r_word0_bits.fm2_v_format == 0)
-    Retr = (ODS2_Retreval *)(((uint16 *)Retr)+1); /* skip placement descriptor */
+    Retr = (ODS2_Retreval *)(((uint16 *)Retr)+1); //-V1032 /* skip placement descriptor */
 switch (Retr->fm2_r_word0_bits.fm2_v_format)
     {
     case 1:
@@ -708,7 +709,7 @@ Retr = (ODS2_Retreval *)(((uint16 *)Retr)+Retr->fm2_r_word0_bits.fm2_v_format+1)
 if (sim_disk_rdsect (uptr, ScbLbn, (uint8 *)&Scb, NULL, 1))
     goto Return_Cleanup;
 CheckSum1 = ODS2Checksum (&Scb, 255);
-if (CheckSum1 != *(((uint16 *)&Scb)+255)) /* Verify Checksum on Storage Control Block */
+if (CheckSum1 != *(((uint16 *)&Scb)+255)) //-V1032 /* Verify Checksum on Storage Control Block */
     goto Return_Cleanup;
 if ((Scb.scb_w_cluster != Home.hm2_w_cluster) ||
     (Scb.scb_b_strucver != Home.hm2_b_strucver) ||
@@ -760,6 +761,18 @@ open_function = sim_fopen;
 size_function = sim_fsize_ex;
 uptr->filename = (char *) calloc (CBUFSIZE, sizeof (char));/* alloc name buf */
 uptr->disk_ctx = ctx = (struct disk_context *)calloc(1, sizeof(struct disk_context));
+if (!ctx)
+{
+  fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+          __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+  (void)raise(SIGUSR2);
+  /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+  abort();
+}
 if ((uptr->filename == NULL) || (uptr->disk_ctx == NULL))
     return _err_return (uptr, SCPE_MEM);
 #ifdef __GNUC__
@@ -819,7 +832,7 @@ else {                                                  /* normal */
         else {                                          /* doesn't exist */
             if (sim_switches & SWMASK ('E'))            /* must exist? */
                 return _err_return (uptr, SCPE_OPENERR); /* yes, error */
-            if (create_function)
+            if (create_function) //-V547
                 uptr->fileref = create_function (cptr, ((t_offset)uptr->capac)*ctx->capac_factor*((dptr->flags & DEV_SECTORS) ? 512 : 1));/* create new file */
             else
                 uptr->fileref = open_function (cptr, "wb+");/* open new file */
@@ -835,10 +848,10 @@ uptr->flags = uptr->flags | UNIT_ATT;
 uptr->pos = 0;
 
 /* Get Device attributes if they are available */
-if (storage_function)
+if (storage_function) //-V547
     storage_function (uptr->fileref, &ctx->storage_sector_size, &ctx->removable);
 
-if ((created) && (!copied)) {
+if ((created) && (!copied)) { //-V560
     t_stat r = SCPE_OK;
     uint8 *secbuf = (uint8 *)calloc (1, ctx->sector_size);       /* alloc temp sector buf */
     if (secbuf == NULL)
@@ -924,7 +937,7 @@ if (sim_switches & SWMASK ('K')) {
                     uint32 save_dctrl = dptr->dctrl;
                     FILE *save_sim_deb = sim_deb;
 
-                    sim_printf ("\n%s%lu: Verification Error on lbn %lu(0x%X) of %lu(0x%X).\n", sim_dname (dptr), (unsigned long)(uptr-dptr->units), (unsigned long)(lba+sect), (int)(lba+sect), (unsigned long)total_sectors, (int)total_sectors);
+                    sim_printf ("\n%s%lu: Verification Error on lbn %lu(0x%X) of %lu(0x%X).\n", sim_dname (dptr), (unsigned long)(uptr-dptr->units), (unsigned long)((unsigned long)lba+(unsigned long)sect), (int)((int)lba+(int)sect), (unsigned long)total_sectors, (int)total_sectors);
                     dptr->dctrl = 0xFFFFFFFF;
                     sim_deb = stdout;
                     sim_disk_data_trace (uptr, verify_buf+sect*sector_size, lba+sect, sector_size,    "Found", TRUE, 1);

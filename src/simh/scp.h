@@ -196,7 +196,6 @@ t_stat show_dev_debug (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
 const char *sim_error_text (t_stat stat);
 t_stat sim_string_to_stat (const char *cptr, t_stat *cond);
 void sim_printf (const char *fmt, ...) GCC_FMT_ATTR(1, 2);
-void _sim_err (const char* fmt, ...);
 t_stat sim_messagef (t_stat stat, const char *fmt, ...) GCC_FMT_ATTR(2, 3);
 void sim_data_trace(DEVICE *dptr, UNIT *uptr, const uint8 *data, const char *position, size_t len, const char *txt, uint32 reason);
 void sim_debug_bits_hdr (uint32 dbits, DEVICE* dptr, const char *header,

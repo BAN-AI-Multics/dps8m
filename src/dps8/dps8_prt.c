@@ -1187,7 +1187,7 @@ iom_cmd_rc_t prt_cmd_202 (uint iomUnitIdx, uint chan) {
     case prtPrt: {
         iom_cmd_rc_t rc = print_cmd (iomUnitIdx, chan, statep->prtUnitNum, statep->isBCD,
                 statep->isEdited, statep->slew);
-        if (rc)
+        if (rc) //-V547
           return rc;
       }
       break;
@@ -1275,14 +1275,14 @@ iom_cmd_rc_t prt_cmd_300 (uint iomUnitIdx, uint chan) {
     case prtPrt: {
         iom_cmd_rc_t rc = print_cmd (iomUnitIdx, chan, statep->prtUnitNum, statep->isBCD,
                 statep->isEdited, statep->slew);
-        if (rc)
+        if (rc) //-V547
           return rc;
       }
       break;
 
     case prtLdImgBuf: {
         int rc = loadImageBuffer (iomUnitIdx, chan);
-        if (rc)
+        if (rc) //-V547
           return IOM_CMD_ERROR;
       }
       break;
@@ -1368,14 +1368,14 @@ iom_cmd_rc_t prt_cmd_300a (uint iomUnitIdx, uint chan) {
     case prtPrt: {
         iom_cmd_rc_t rc = print_cmd (iomUnitIdx, chan, statep->prtUnitNum, statep->isBCD,
                 statep->isEdited, statep->slew);
-        if (rc)
+        if (rc) //-V547
           return rc;
       }
       break;
 
     case prtLdImgBuf: {
         int rc = loadImageBuffer (iomUnitIdx, chan);
-        if (rc)
+        if (rc) //-V547
           return IOM_CMD_ERROR;
       }
       break;
@@ -1698,28 +1698,28 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
     case prtPrt: {
         iom_cmd_rc_t rc = print_cmd (iomUnitIdx, chan, statep->prtUnitNum, statep->isBCD,
                 statep->isEdited, statep->slew);
-        if (rc)
+        if (rc) //-V547
           return rc;
       }
       break;
 
     case prtLdImgBuf: {
         int rc = loadImageBuffer (iomUnitIdx, chan);
-        if (rc)
+        if (rc) //-V547
           return IOM_CMD_ERROR;
       }
       break;
 
     case prtRdStatReg: {
         int rc = readStatusRegister (iomUnitIdx, chan);
-        if (rc)
+        if (rc) //-V547
           return IOM_CMD_ERROR;
       }
       break;
 
     case prtLdVFCImg: {
         int rc = loadVFCImage (iomUnitIdx, chan);
-        if (rc)
+        if (rc) //-V547
           return IOM_CMD_ERROR;
       }
       break;

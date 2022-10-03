@@ -1246,6 +1246,18 @@ static t_stat cable_urp (int uncable, uint ctlr_unit_idx, char * * name_save)
 t_stat sys_cable (int32 arg, const char * buf)
   {
     char * copy = strdup (buf);
+    if (!copy)
+      {
+        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
     t_stat rc = SCPE_ARG;
 
     // process statement
@@ -1604,26 +1616,26 @@ t_stat sys_cable_show (int32 dump, UNUSED const char * buf)
                   p->dev_code, ctlr_type_strs[p->ctlr_type]);                   \
       }
     CTLR_DEV (MTP, mtp, TAPE, MT, tape);
-    if (dump)
+    if (dump) //-V581
       {
         DEV_CTLR (MTP, mtp, TAPE, MT, tape);
       }
     CTLR_DEV (IPC, ipc, DISK, DSK, dsk);
     CTLR_DEV (MSP, msp, DISK, DSK, dsk);
-    if (dump)
+    if (dump) //-V581
       {
         DEV_CTLR (CTLR, ctlr, DISK, DSK, dsk);
       }
     CTLR_DEV (URP, urp, URP, URP, urd);
-    if (dump)
+    if (dump) //-V581
       {
         DEV_CTLR (URP, urp, RDR, RDR, rdr);
       }
-    if (dump)
+    if (dump) //-V581
       {
         DEV_CTLR (URP, urp, PUN, PUN, pun);
       }
-    if (dump)
+    if (dump) //-V581
       {
         DEV_CTLR (URP, urp, PRT, PRT, prt);
       }
@@ -1652,7 +1664,7 @@ void sysCableInit (void)
         if (cables == NULL)
           {
             sim_printf ("create_shm cables failed\n");
-            sim_fatal ("create_shm cables failed\n");
+            sim_warn ("create_shm cables failed\n");
           }
       }
 #endif

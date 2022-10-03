@@ -1810,6 +1810,49 @@ Clang Analyzer:
 
 #############################################################################
 
+PVS-Studio:
+  image: fedora:latest
+  stage: test
+  allow_failure: true
+  needs:
+    - job: Linux/x86_64, Ubuntu LTS, Clang, GCC
+    - job: Linux/x86_64, Fedora, Clang, GCC
+    - job: Option Verification Test
+  tags:
+    - Linux
+    - Docker-x64
+    - amd64
+  script:
+    - export GLCICD_JOB="PVSStudioJob" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
+    - *scriptDnfSetup
+    - *scriptInstallNfpm
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptExtraInfo
+    - dnf -q install -y wget curl bear bzip2 || dnf -q install -y wget curl bear bzip2
+    - wget -O /etc/yum.repos.d/viva64.repo http://files.viva64.com/etc/viva64.repo
+    - curl -fsSL https://files.pvs-studio.com/beta/etc/viva64.repo | sed 's/^\[viva64\]$/\[viva64-beta\]/' | sed 's/^name=Viva64$/name=Viva64-beta/' > /etc/yum.repos.d/viva64-beta.repo
+    - dnf --refresh -y install pvs-studio || dnf --refresh -y install pvs-studio
+    - pvs-studio-analyzer credentials $PVS_STUDIO_NAME $PVS_STUDIO_KEY || true
+    - rm -f compile_commands.json
+    - rm -f compile_commands.events.json
+    - bear -- gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
+    - ./src/dps8/dps8 --version
+    - pvs-studio-analyzer analyze --intermodular -o log.pvs -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") || true
+    - plog-converter -a "GA:1,2" -t fullhtml log.pvs -o pvsreport -d V536,V629,V1048,V768,V707,V701,V677,V728,V576 || true
+    - mkdir -p pvsreport
+    - touch pvsreport/index.html
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 30 days
+    paths:
+      - ${CI_PROJECT_DIR:?}/pvsreport/*
+  timeout: 45 minutes
+  interruptible: true
+
+#############################################################################
+
 Cppcheck:
   stage: test
   allow_failure: false

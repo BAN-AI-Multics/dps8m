@@ -75,13 +75,13 @@
 
 static t_stat opc_reset (DEVICE * dptr);
 static t_stat opc_show_nunits (FILE *st, UNIT *uptr, int val,
-                                 const void *desc);
+                               const void *desc);
 static t_stat opc_set_nunits (UNIT * uptr, int32 value, const char * cptr,
-                                void * desc);
+                              void * desc);
 static t_stat opc_autoinput_set (UNIT *uptr, int32 val, const char *cptr,
-                                void *desc);
+                                 void *desc);
 static t_stat opc_autoinput_show (FILE *st, UNIT *uptr, int val,
-                                 const void *desc);
+                                  const void *desc);
 static t_stat opc_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
                               const char * cptr, UNUSED void * desc);
 static t_stat opc_show_config (UNUSED FILE * st, UNUSED UNIT * uptr,
@@ -479,6 +479,18 @@ static int opc_autoinput_set (UNIT * uptr, UNUSED int32 val,
             size_t ol = strlen ((char *) csp->auto_input);
 
             unsigned char * old = realloc (csp->auto_input, nl + ol + 1);
+            if (!old)
+              {
+                fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                        __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+                (void)raise(SIGUSR2);
+                /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+                abort();
+              }
             strcpy ((char *) old + ol, (char *) new);
             csp->auto_input = old;
             FREE (new);
@@ -516,6 +528,18 @@ int add_opc_autoinput (int32 flag, const char * cptr)
         size_t ol = strlen ((char *) csp->auto_input);
 
         unsigned char * old = realloc (csp->auto_input, nl + ol + 1);
+        if (!old)
+          {
+            fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                    __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+            (void)raise(SIGUSR2);
+            /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+            abort();
+          }
         strcpy ((char *) old + ol, (char *) new);
         csp->auto_input = old;
         FREE (new);
@@ -1810,6 +1834,18 @@ static t_stat opc_set_console_address (UNIT * uptr, UNUSED int32 value,
     if (cptr)
       {
         console_state[dev_idx].console_access.address = strdup (cptr);
+        if (!console_state[dev_idx].console_access.address)
+          {
+            fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                     __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+            (void)raise(SIGUSR2);
+            /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+            abort();
+          }
         sim_msg ("Console %d address set to %s\n",
                 dev_idx, console_state[dev_idx].console_access.address);
       }

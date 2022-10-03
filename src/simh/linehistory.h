@@ -63,6 +63,7 @@
 #  endif /* ifndef HAVE_LINEHISTORY */
 
 #  include <stddef.h>
+#  include <signal.h> /* raise */
 
 #  ifdef LH_COMPLETION
 typedef struct linenoiseCompletions

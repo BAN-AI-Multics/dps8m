@@ -49,6 +49,7 @@
 #   ifndef BACKTRACE_SKIP
 #    define BACKTRACE_SKIP 1
 #   endif /* ifndef BACKTRACE_SKIP */
+#   include <signal.h>
 #   ifdef SIGSEGV
   (void)signal(SIGSEGV, backtrace_handler);
 #   endif /* ifdef SIGSEGV */
@@ -67,6 +68,9 @@
 #   ifdef SIGSYS
   (void)signal(SIGSYS, backtrace_handler);
 #   endif /* ifdef SIGSYS */
+#   ifdef SIGUSR2
+  (void)signal(SIGUSR2, backtrace_handler);
+#   endif /* ifdef SIGUSR2 */
 #   ifdef SIGSTKFLT
   (void)signal(SIGSTKFLT, backtrace_handler);
 #   endif /* ifdef SIGSTKFLT */

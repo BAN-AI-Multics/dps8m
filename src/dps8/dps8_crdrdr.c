@@ -206,14 +206,6 @@ static char rdr_path_prefix[PATH_MAX+1];
  * rdr_init()
  */
 
-#if 0
-static void usr2signal (UNUSED int signum)
-  {
-sim_printf ("crd rdr signal caught\r\n");
-    rdrCardReady (0);
-  }
-#endif
-
 // Once-only initialization
 
 void rdr_init (void)
@@ -222,9 +214,6 @@ void rdr_init (void)
     memset (rdr_state, 0, sizeof (rdr_state));
     for (uint i = 0; i < N_RDR_UNITS_MAX; i ++)
       rdr_state [i] . deckfd = -1;
-#if 0
-    signal (SIGUSR2, usr2signal);
-#endif
   }
 
 static t_stat rdr_reset (UNUSED DEVICE * dptr)
@@ -720,8 +709,8 @@ empty:;
       // 36 bits / word
       uint tally = (nbits + 35) / 36;
 
-      if (tally > 27) {
-        sim_warn ("Whups. rdr tally %d > 27; truncating.\n", tally);
+      if (tally > 27) { //-V547
+        sim_warn ("Impossible rdr tally: %d > 27; truncating.\n", tally);
         tally = 27;
       }
 
@@ -786,7 +775,7 @@ static void submit (enum deckFormat fmt, char * fname, uint16 readerIndex)
 
 static void scanForCards(uint16 readerIndex)
   {
-    char rdr_dir [2 * PATH_MAX+1];
+    char rdr_dir [2 * PATH_MAX + 1];
 
     if (readerIndex >= N_RDR_UNITS_MAX) {
       sim_warn("crdrdr: scanForCards called with invalid reader index %d\n", readerIndex);
@@ -814,7 +803,7 @@ static void scanForCards(uint16 readerIndex)
       }
     struct dirent * entry;
     struct stat info;
-    char fqname [PATH_MAX+1];
+    char fqname [2 * PATH_MAX + 1];
     while ((entry = readdir (dp)))
       {
         strcpy (fqname, rdr_dir);

@@ -1823,7 +1823,6 @@ t_stat sim_instr (void)
           createCPUThread (0);
     do
       {
-        reason = 0;
         // Process deferred events and breakpoints
         reason = simh_hooks ();
         if (reason)
@@ -1912,7 +1911,7 @@ t_stat sim_instr (void)
         sim_usleep (1000); // 1000 us == 1 ms == 1/1000 sec.
 # endif
       }
-    while (reason == 0);
+    while (reason == 0); //-V654
 # ifdef TESTING
     HDBGPrint ();
 # endif
@@ -3000,7 +2999,6 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
           case SYNC_FAULT_RTN_cycle:
             {
               CPT (cpt1U, 29); // sync. fault return
-              cpu.wasXfer = false;
               // cu_safe_restore should have restored CU.IWB, so
               // we can determine the instruction length.
               // decode_instruction() restores ci->info->ndes
@@ -4290,11 +4288,10 @@ static const char * get_dbg_verb (uint32 dbits, DEVICE * dptr)
     if (dptr->debflags == 0)
       return debtab_none;
 
-    dbits &= dptr->dctrl;     /* Look for just the bits tha matched */
+    dbits &= dptr->dctrl;     /* Look for just the bits that matched */
 
     /* Find matching words for bitmask */
-
-    while (dptr->debflags[offset].name && (offset < 32))
+    while ((offset < 32) && dptr->debflags[offset].name)
       {
         if (dptr->debflags[offset].mask == dbits)   /* All Bits Match */
           return dptr->debflags[offset].name;
@@ -4368,8 +4365,7 @@ void dps8_sim_debug (uint32 dbits, DEVICE * dptr, unsigned long long cnt, const 
               }
           }
 
-/* Set unterminated flag for next time */
-
+        /* Set unterminated flag for next time */
         if (buf != stackbuf)
           FREE (buf);
       }

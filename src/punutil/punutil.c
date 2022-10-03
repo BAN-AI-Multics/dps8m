@@ -713,8 +713,10 @@ static card_image_t *allocate_card(void)
     card_image_t *card = malloc(sizeof(card_image_t));
     if (card == NULL)
     {
-        fprintf(stderr, "*** Error: Failed to allocate card image!\n");
-        _Exit(1);
+        fprintf(stderr, "*** Error: Failed to allocate memory for card image!\r\n");
+        fprintf(stderr, "\r\nFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
+                __func__, __FILE__, __LINE__);
+        abort();
     }
 
     memset(card, 0, sizeof(card_image_t));
@@ -780,6 +782,12 @@ static card_image_t *read_card(FILE *in_file)
 static void save_card_in_cache(CARD_CACHE *card_cache, card_image_t *card)
 {
     CARD_CACHE_ENTRY *new_entry = malloc(sizeof(CARD_CACHE_ENTRY));
+    if (!new_entry)
+      {
+        fprintf(stderr, "\rFATAL: Out of memory, aborting at %s[%s:%d]\r\n",
+                __func__, __FILE__, __LINE__);
+        abort();
+      }
 
     new_entry->card = card;
     new_entry->next_entry = NULL;
@@ -1036,23 +1044,23 @@ static void parse_card(card_image_t *card)
             switch (current_state)
             {
             case StartingJob:
-                event = do_state_scan_card_for_glyphs(current_event, card);
+                event = do_state_scan_card_for_glyphs(current_event, card); //-V1037
                 break;
 
             case PunchGlyphLookup:
-                event = do_state_scan_card_for_glyphs(current_event, card);
+                event = do_state_scan_card_for_glyphs(current_event, card); //-V1037
                 break;
 
             case EndOfHeader:
-                event = do_state_cache_card(current_event, card);
+                event = do_state_cache_card(current_event, card); //-V1037
                 break;
 
             case CacheCard:
-                event = do_state_cache_card(current_event, card);
+                event = do_state_cache_card(current_event, card); //-V1037
                 break;
 
             case EndOfDeck:
-                event = do_state_cache_card(current_event, card);
+                event = do_state_cache_card(current_event, card); //-V1037
                 break;
 
             default:

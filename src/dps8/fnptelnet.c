@@ -18,6 +18,7 @@
  */
 
 #include <stdio.h>
+#include <signal.h>
 
 #include "dps8.h"
 #include "dps8_sys.h"
@@ -181,6 +182,18 @@ static void evHandler (UNUSED telnet_t *telnet, telnet_event_t *event, void *use
               }
             uvClientData * p = (uvClientData *) client->data;
             p->ttype = strdup (event->ttype.name);
+            if (!p->ttype)
+              {
+                fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                         __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+                (void)raise(SIGUSR2);
+                /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+                abort();
+              }
           }
           break;
 
@@ -202,7 +215,15 @@ void * ltnConnect (uv_tcp_t * client)
     void * p = (void *) telnet_init (my_telopts, evHandler, 0, client);
     if (! p)
       {
-        sim_warn ("telnet_init failed\n");
+        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+        abort();
       }
     const telnet_telopt_t * q = my_telopts;
     while (q->telopt != -1)
@@ -218,12 +239,20 @@ void * ltnConnect3270 (uv_tcp_t * client)
     void * p = (void *) telnet_init (my_3270telopts, evHandler, 0, client);
     if (! p)
       {
-        sim_warn ("telnet_init failed\n");
+        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+        abort();
       }
 
     // This behavior is copied from Hercules.
     telnet_negotiate (p, TELNET_DO, (unsigned char) TELNET_TELOPT_TTYPE);
-    telnet_begin_sb (p, TELNET_TELOPT_TTYPE);
+    telnet_begin_sb  (p, TELNET_TELOPT_TTYPE);
     const char ttype [1] = { 1 };
     telnet_send (p, ttype, 1);
     telnet_finish_sb (p);
@@ -256,7 +285,7 @@ void fnpTelnetInit (void)
             fnpUnitData[fnpno].MState.line[lineno].telnetp = telnet_init (my_telopts, evHandler, 0, NULL);
             if (! fnpUnitData[fnpno].MState.line[lineno].telnetp)
               {
-                sim_fatal ("telnet_init failed\n");
+                sim_warn ("telnet_init failed\n");
               }
           }
       }

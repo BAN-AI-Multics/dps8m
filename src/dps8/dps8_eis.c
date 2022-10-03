@@ -5248,10 +5248,10 @@ static void writeToOutputBuffer (word9 **dstAddr, int szSrc, int szDst, word9 c4
                     ** dstAddr = c49 & 0xf;    // write only-4-bits
                     break;
                   case 6:
-                    ** dstAddr = c49; // XXX is this safe? shouldn't it be & 077?
+                    ** dstAddr = c49; //-V1037 // XXX is this safe? shouldn't it be & 077 ???
                     break;
                   case 9:
-                    ** dstAddr = c49;
+                    ** dstAddr = c49; //-V1037
                     break;
                 }
               break;
@@ -6917,18 +6917,18 @@ void mvne (void)
     {
         case CTN4:
             //e->srcAddr = e->YChar41;
-            e->srcSZ = 4;   // stored as 4-bit decimals
+            e->srcSZ = 4; //-V1037  // stored as 4-bit decimals
             break;
         case CTN9:
             //e->srcAddr = e->YChar91;
-            e->srcSZ = 4;   // 'cause everything is stored as 4-bit decimals
+            e->srcSZ = 4; //-V1037  // 'cause everything is stored as 4-bit decimals
             break;
     }
 
 #ifdef EIS_PTR3
-    uint dstTA = TA3;    // type of chars in dst
+    uint dstTA = TA3;     // type of chars in dst
 #else
-    uint dstTA = e->TA3;    // type of chars in dst
+    uint dstTA = e->TA3;  // type of chars in dst
 #endif
     switch(dstTA)
     {
@@ -12892,7 +12892,7 @@ void dv2d (void)
     }
 
     word9   inBufferop1 [64];
-    memcpy (inBufferop1,e->inBuffer,64); // save for clz1 calculation later
+    memcpy (inBufferop1,e->inBuffer,sizeof(inBufferop1)); // save for clz1 calculation later
 
     EISloadInputBufferNumeric (2);   // according to MF2
 
@@ -13304,7 +13304,7 @@ void dv3d (void)
     }
 
     word9   inBufferop1 [64];
-    memcpy (inBufferop1,e->inBuffer,64); // save for clz1 calculation later
+    memcpy (inBufferop1,e->inBuffer,sizeof(inBufferop1)); // save for clz1 calculation later
 
     EISloadInputBufferNumeric (2);   // according to MF2
 

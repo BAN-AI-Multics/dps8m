@@ -32,6 +32,7 @@
  */
 
 #include <stdio.h>
+#include <signal.h>
 #include <ctype.h>
 #include <dirent.h>
 
@@ -447,7 +448,7 @@ static t_stat mt_set_device_name (UNUSED UNIT * uptr, UNUSED int32 value,
 static t_stat mt_show_tape_path (UNUSED FILE * st, UNUSED UNIT * uptr,
                                  UNUSED int val, UNUSED const void * desc)
   {
-    sim_printf("Tape path <%s>\n", tape_path_prefix);
+    sim_printf("TAPE DEFAULT_PATH: %s\n", tape_path_prefix);
     return SCPE_OK;
   }
 
@@ -493,9 +494,9 @@ static t_stat mt_set_tape_path (UNUSED UNIT * uptr, UNUSED int32 value,
     dp = opendir (cptr);
     if (! dp)
       {
-        sim_warn ("mt opendir '%s' fail.\n", cptr);
+        sim_warn ("\rInvalid '%s' ", cptr);
         perror ("opendir");
-        sim_warn ("DEFAULT_PATH not set!\n");
+        sim_warn ("\r\n");
         return SCPE_ARG;
       }
 
@@ -507,8 +508,6 @@ static t_stat mt_set_tape_path (UNUSED UNIT * uptr, UNUSED int32 value,
       {
         if (tape_path_prefix[len - 1] != '/')
           {
-            if (len == sizeof(tape_path_prefix) - 1)
-              return SCPE_ARG;
             tape_path_prefix[len++] = '/';
             tape_path_prefix[len] = 0;
           }
@@ -525,7 +524,7 @@ static t_stat mt_add_tape_search_path(UNUSED UNIT * uptr, UNUSED int32 value,
 
     if (!tape_path_prefix[0])
       {
-        sim_print("ERROR: Tape DEFAULT_PATH must be set before ADD_PATH is used.\n");
+        sim_print("ERROR: DEFAULT_PATH must be set before ADD_PATH is used.\n");
         return SCPE_ARG;
       }
 
@@ -549,8 +548,8 @@ static t_stat mt_add_tape_search_path(UNUSED UNIT * uptr, UNUSED int32 value,
     token = strtok(NULL, "=");
     if (token == NULL)
       {
-        sim_print("ERROR: Tape ADD_PATH parameter must be specified as [prefix]=[dir]\n");
-        sim_print("   set tape ADD_PATH=BK=./tapes/backups\n");
+        sim_print("ERROR: ADD_PATH parameter must be specified as [prefix]=[dir]\n");
+        sim_print("   i.e. SET TAPE ADD_PATH=BK=./tapes/backups\n");
         return SCPE_ARG;
       }
 
@@ -580,15 +579,27 @@ static t_stat mt_add_tape_search_path(UNUSED UNIT * uptr, UNUSED int32 value,
     dp = opendir (dir);
     if (! dp)
       {
-        sim_warn ("mt opendir '%s' fail.\n", dir);
+        sim_warn ("\rInvalid '%s' ", dir);
         perror ("opendir");
-        sim_warn ("ADD_PATH not added!\n");
+        sim_warn ("\r\n");
         return SCPE_ARG;
       }
 
     closedir(dp);
 
     PATH_ENTRY *new_entry = malloc(sizeof(PATH_ENTRY));
+    if (!new_entry)
+      {
+        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
     new_entry->prefix_len = prefix_len;
     strcpy(new_entry->label_prefix, prefix);
     strcpy(new_entry->dir, dir);
@@ -1992,6 +2003,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
           return IOM_CMD_ERROR;
         }
         uint tally = 1;
+#if 0
         if (tally != 1) {
           sim_debug (DBG_DEBUG, & tape_dev, "%s: Back space file: setting tally %d to 1\n", __func__, tally);
           tally = 1;
@@ -1999,7 +2011,6 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
         sim_debug (DBG_DEBUG, & tape_dev, "%s: Backspace file tally %d\n", __func__, tally);
 
-#if 0
         int nbs = 0;
 
         while (tally) {

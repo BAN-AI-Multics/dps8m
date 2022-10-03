@@ -1138,7 +1138,7 @@ int telnet_vprintf(telnet_t *telnet, const char *fmt, va_list va) {
         va_copy(va2, va);
         rs = vsnprintf(buffer, sizeof(buffer), fmt, va);
         if ((unsigned long) rs >= sizeof(buffer)) {
-                output = (char*)malloc((unsigned long) (rs + 1));
+                output = (char*)malloc((unsigned long) ((unsigned long)rs + 1L));
                 if (output == 0) {
                         _error(telnet, __LINE__, __func__, TELNET_ENOMEM, 0,
                                         "malloc() failed: %s", strerror(errno));

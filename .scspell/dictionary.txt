@@ -8388,6 +8388,7 @@ bufferable
 buffered
 buffering
 buffers
+bugcheck
 bugfix
 buggy
 bugs
@@ -8450,6 +8451,7 @@ calling
 calls
 cambridge
 came
+campaign
 cancel
 canceled
 canceling
@@ -10973,6 +10975,7 @@ order
 ordered
 ordering
 ordinary
+organic
 organized
 oriented
 original
@@ -11854,6 +11857,7 @@ sanfilippo
 sanitization
 sanity
 sans
+sast
 satisfied
 satisfy
 saturday

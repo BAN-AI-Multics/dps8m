@@ -1048,6 +1048,18 @@ linenoiseEditHistoryNext(struct linenoiseState *l, int dir)
 
     FREE(history[history_len - 1 - l->history_index]);
     history[history_len - 1 - l->history_index] = strdup(l->buf);
+    if (!history[history_len - 1 - l->history_index])
+      {
+        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+# if defined(USE_BACKTRACE)
+#  ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+#  endif /* ifdef SIGUSR2 */
+# endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
     /* Show the new entry */
     l->history_index += ( dir == LINENOISE_HISTORY_PREV ) ? 1 : -1;
     if (l->history_index < 0)
@@ -1088,6 +1100,18 @@ linenoiseSearchInHistory(struct linenoiseState *l, int direction)
 
     FREE(history[history_len - 1 - l->history_index]);
     history[history_len - 1 - l->history_index] = strdup(l->buf);
+    if (!history[history_len - 1 - l->history_index])
+      {
+        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+# if defined(USE_BACKTRACE)
+#  ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+#  endif /* ifdef SIGUSR2 */
+# endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
 
     /* Search new entry */
     int cnt;

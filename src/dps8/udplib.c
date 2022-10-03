@@ -652,7 +652,8 @@ int main (int argc, char * argv [])
     rc = udp_create ("4500::4426", & linkno);
     if (rc < 0)
       {
-        fprintf (stderr, "FATAL: udp_create() failed in %s()\n", __func__);
+        fprintf (stderr, "\rFATAL: udp_create() failed in %s:%d\r\n",
+                 __func__, __LINE__);
         exit (1);
       }
 
@@ -663,12 +664,13 @@ int main (int argc, char * argv [])
         rc = udp_receive (linkno, pkt, psz);
         if (rc < 0)
           {
-            fprintf (stderr, "FATAL: udp_receive() failed in %s()\n", __func__);
+            fprintf (stderr, "\rFATAL: udp_receive() failed in %s:%d\r\n",
+                     __func__, __LINE__);
             exit (1);
           }
         else if (rc == 0)
           {
-            fprintf (stderr, "udp_receive 0\n");
+            fprintf (stderr, "\rudp_receive 0\r\n");
             sleep (1);
           }
         else
