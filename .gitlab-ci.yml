@@ -1644,10 +1644,7 @@ Darwin/ARM64, macOS, static, Xcode:
     - export DEPLOY="11.0"
     - env CFLAGS="-target arm64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}" LOCAL_CONFOPTS="--host=arm64-apple-darwin" make libuvrel HOMEBREW_INC= HOMEBREW_LIB= && env CFLAGS="-target arm64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}" LDFLAGS="-target arm64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}" make HOMEBREW_INC= HOMEBREW_LIB=
     - otool -l src/dps8/dps8 || true
-    - printf %s\\n "show version" | ./src/dps8/dps8
-    - *scriptBuildInfo
-    - *scriptVerifyVersion
-    - export DISTDIR="dps8-$(./src/dps8/dps8 --version | awk '{ print $3 }' | tr -cd '0-9A-z.\-\_\+' | tr '+' '_')"
+    - export DISTDIR="dps8-master"
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
