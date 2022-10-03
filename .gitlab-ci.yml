@@ -1602,7 +1602,7 @@ Darwin/x86_64, macOS, static, Xcode:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - export DEPLOY="10.13"
-    - env CFLAGS="-target x86_64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}" LOCAL_CONFOPTS="--host=x86_64-apple-darwin" make libuvrel HOMEBREW_INC= HOMEBREW_LIB= && env CFLAGS="-target x86_64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}" LDFLAGS="-target x86_64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}" make HOMEBREW_INC= HOMEBREW_LIB=
+    - env CFLAGS="-target x86_64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}" LOCAL_CONFOPTS="--host=x86_64-apple-darwin" make libuvrel HOMEBREW_INC= HOMEBREW_LIB= && env CFLAGS="-target x86_64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}" LDFLAGS="-target x86_64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}" make HOMEBREW_INC= HOMEBREW_LIB= WITH_BACKTRACE=1
     - otool -l src/dps8/dps8 || true
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
