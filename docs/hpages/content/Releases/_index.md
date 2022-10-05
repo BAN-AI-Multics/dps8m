@@ -52,6 +52,7 @@ title: DPS8M Releases
 {{< tab "macOS" >}}
 | File                                                                                             | Platform              |
 |:------------------------------------------------------------------------------------------------ |:--------------------- |
+| [**dps8m-master-macos-uni.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-macos-uni.tar.gz) | macOS 10.15/11 (Universal) |
 | [**dps8m-master-macos-x86.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-macos-x86.tar.gz) | macOS Latest (x86_64) |
 | [**dps8m-master-mac10-x86.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-mac10-x86.tar.gz) | macOS 10.13 (x86_64)  |
 | [**dps8m-master-mac11-a64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-mac11-a64.tar.gz) | macOS 11.00 (ARM64)   |
