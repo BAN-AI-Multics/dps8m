@@ -1663,8 +1663,55 @@ Darwin/ARM64, macOS, static, Xcode:
   retry: 2
   timeout: 30 minutes
   interruptible: true
+
 #############################################################################
 
+Darwin/Universal, macOS, static, Xcode:
+  stage: build
+  tags:
+    - Darwin
+    - macOS
+    - amd64
+    - Xcode
+  script:
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - make distclean && env CFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0" LOCAL_CONFOPTS="--host=arm64-apple-darwin" make libuvrel HOMEBREW_INC= HOMEBREW_LIB=
+    - env CFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0" LDFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0" make HOMEBREW_INC= HOMEBREW_LIB= && cp -f "src/dps8/dps8" "dps8.arm64" && cp -f "src/prt2pdf/prt2pdf" "prt2pdf.arm64" && cp -f "src/punutil/punutil" "punutil.arm64"
+    - make distclean && env CFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15" LOCAL_CONFOPTS="--host=x86_64-apple-darwin" make libuvrel HOMEBREW_INC= HOMEBREW_LIB=
+    - env CFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15" LDFLAGS="-target x86_64-apple-macos10.15 -mmacosx-version-min=10.15" make HOMEBREW_INC= HOMEBREW_LIB= && cp -f "src/dps8/dps8" "dps8.x86_64" && cp -f "src/prt2pdf/prt2pdf" "prt2pdf.x86_64" && cp -f "src/punutil/punutil" "punutil.x86_64"
+    - make distclean && env CFLAGS="-target x86_64h-apple-macos10.15 -mmacosx-version-min=10.15 -march=haswell" LOCAL_CONFOPTS="--host=x86_64-apple-darwin" make libuvrel HOMEBREW_INC= HOMEBREW_LIB=
+    - env CFLAGS="-target x86_64h-apple-macos10.15 -mmacosx-version-min=10.15 -march=haswell" LDFLAGS="-target x86_64h-apple-macos10.15 -mmacosx-version-min=10.15" make HOMEBREW_INC= HOMEBREW_LIB= && cp -f "src/dps8/dps8" "dps8.x86_64h" && cp -f "src/prt2pdf/prt2pdf" "prt2pdf.x86_64h" && cp -f "src/punutil/punutil" "punutil.x86_64h"
+    - lipo -create -output "dps8" "dps8.x86_64" "dps8.x86_64h" "dps8.arm64" && lipo -create -output "prt2pdf" "prt2pdf.x86_64" "prt2pdf.x86_64h" "prt2pdf.arm64" && lipo -create -output "punutil" "punutil.x86_64" "punutil.x86_64h" "punutil.arm64" && make distclean && env rm -f *.x86_64 *.x86_64h *.arm64
+    - lipo -detailed_info "dps8"
+    - lipo -detailed_info "prt2pdf"
+    - lipo -detailed_info "punutil"
+    - rm -f "src/dps8/dps8" && cp -f "dps8" "src/dps8/dps8"
+    - rm -f "src/prt2pdf/prt2pdf" && cp -f "prt2pdf" "src/prt2pdf/prt2pdf"
+    - rm -f "src/punutil/punutil" && cp -f "punutil" "src/punutil/punutil"
+    - export DISTDIR="dps8-master"
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-macos-uni.tar "./${DISTDIR:?}" )
+    - pigz -11 -f -m -n dps8m-master-macos-uni.tar
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/dps8m-master-macos-uni.tar.gz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 30 minutes
+  interruptible: true
+
+#############################################################################
 Option Verification Test:
   stage: cmb_test
   image: fedora:latest
@@ -2043,6 +2090,7 @@ pages:
     - job: Darwin/x86_64, macOS, Xcode
     - job: Darwin/x86_64, macOS, static, Xcode
     - job: Darwin/ARM64, macOS, static, Xcode
+    - job: Darwin/Universal, macOS, static, Xcode
     - job: DPS8M Omnibus Documentation
     - job: Flawfinder
     - job: GNU GLOBAL Hypertext
@@ -2068,6 +2116,7 @@ pages:
     - "Darwin/x86_64, macOS, Xcode"
     - "Darwin/x86_64, macOS, static, Xcode"
     - "Darwin/ARM64, macOS, static, Xcode"
+    - "Darwin/Universal, macOS, static, Xcode"
     - "DPS8M Omnibus Documentation"
     - "Flawfinder"
     - "GNU GLOBAL Hypertext"
@@ -2117,6 +2166,7 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-macos-x86.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-mac10-x86.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-mac11-a64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-macos-uni.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-s114-x86.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-iloi-x86.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-mingw-x86.zip public
