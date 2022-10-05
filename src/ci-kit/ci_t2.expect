@@ -25,13 +25,13 @@ set timeout 750000
 
 cd ./run
 
-proc   w {     } { expect -re {\nr [0-9]+:[0-9]+ .*\r}; sleep 0.2 }
-proc  wi {     } { expect -re {Input.\r}; sleep 0.2 }
-proc  wn {     } { expect -re {\n}; sleep 0.2 }
+proc   w {     } { expect -re {\nr [0-9]+:[0-9]+ .*\r}; sleep 0.1 }
+proc  wi {     } { expect -re {Input.\r}; sleep 0.1 }
+proc  wn {     } { expect -re {\n}; sleep 0.1 }
 proc  sw { txt } { send $txt; send "\r"; w  }
 proc swi { txt } { send $txt; send "\r"; wi }
 proc swn { txt } { send $txt; send "\r"; wn }
-proc  wf {     } { expect -re {\nr  [0-9]+\r}; sleep 0.4 }
+proc  wf {     } { expect -re {\nr  [0-9]+\r}; sleep 0.2 }
 proc swf { txt } { send $txt; send "\r"; wf }
 
 spawn telnet -E 127.0.0.1 "$env(FNPPORT)"
@@ -42,9 +42,9 @@ puts " "
 set channel $expect_out(1,string)
 send "$channel\r"
 
-expect "Load = "
+expect "Load = "; sleep 0.1
 send "$word $userName $projName\r"
-expect "Password:"
+expect "Password:"; sleep 0.1
 sw "$password"
 
 sw "set_tty -delay 0,0,0,0,0,0"
@@ -63,16 +63,55 @@ send "12.7LISTINGS\r"
 expect "reloaded?"; sleep 1
 sw "n"
 
-sw "eis_tester >tools>et_scripts"
+sw "eis_tester >tools>et_scripts -repeat 2"
+sw "rl -a"
+swi "edm bad_divide_et_script"
+swn "inst      dv3d      -nt \"divide using 3 args - repro zerodivide\""
+swn "          -mf1      ar"
+swn "          -mf2      ar"
+swn "          -mf3      ar;"
+swn ""
+swn "desc 1    -sd f     -nn 61;             /* float dec(59) divisor  */"
+swn "desc 2    -sd f     -nn 61;             /* float dec(59) dividend */"
+swn "desc 3    -sd l     -sf 0     -nn 60;   /* fixed dec(59,0) quotient */"
+swn ""
+swn "data 1    \"+\" (58) \"0\" \"8\" 000;         /* divisor  = 8.0  */"
+swn "data 2    \"+\" (58) \"0\" \"1\" 077;         /* dividend = 1e63 */"
+swn "data 3    \"+10097419586828951109270125635619663739817042369395494461060\";"
+swn "                                        /* quotient = 1.0097419586828951109270125635619663739817042369395494461060 */"
+swn "."
+swn "w"
+sw "q"
+sw "eis_tester bad_divide_et_script -long -repeat 2"
+sw "rl -a"
+sw "delete bad_divide_et_script"
+
+swi "edm testluf.basic"
+swn "10 PRINT \"Lockup fault test ...\""
+swn "20 PRINT \"Expect: Useless loop\""
+swn "30 GOTO 30"
+swn "40 END"
+swn "."
+swn "w"
+sw "q"
+sw "basic -compile testluf"
+sw "delete testluf.basic"
+sw "testluf"
+sw "rl -a"
+sw "delete testluf"
 
 sw "test_cpu -exclude 51"
+sw "rl -a"
 sw "test_cpu -select 51"
+sw "rl -a"
 
 sw "instr_speed"
+sw "rl -a"
+
 sw "check_cpu_speed"
+sw "rl -a"
 
 swi "edm stt.pl1"
-
 swn "stt: proc();"
 swn "  dcl  ioa_ entry() options(variable);"
 swn ""
@@ -432,7 +471,6 @@ send "q\r"
 expect "quit ?"; sleep 1
 sw "y"
 
-
 swi "edm hfp.fortran"
 swn "      double precision x"
 swn "      x = 1.0"
@@ -449,9 +487,6 @@ sw "hfp"
 sw "rl"
 sw "fortran -hfp hfp"
 sw "hfp"
-
-
-
 
 sw "cd fnp"
 sw "cwd fnp"
@@ -525,9 +560,9 @@ sw "pr spg.log"
 
 swn "logout\r"
 sleep 2
-set timeout 3
+set timeout 4
 
 # Scram
-exec kill -9 [exp_pid $telnetID]; sleep 1
+exec kill -9 [exp_pid $telnetID]; sleep 3
 close $telnetID
 exit

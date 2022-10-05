@@ -1317,6 +1317,44 @@ THE POSSIBILITY OF SUCH DAMAGE.**
 
 <!-- pagebreak -->
 
+#### novdso
+
+* **novdso** is a wrapper, originally authored by **Daniel Teunis** that,
+  forces the wrapped process to not use the Linux vDSO system call
+  acceleration library (by overwriting the `AT_SYSINFO_EHDR` tag in its
+  auxiliary vector) and allows for wrapped processes to be paused at startup
+  for easier system call tracing.  **novdso** is distributed under the terms
+  of the **MIT License**.
+
+<!-- br -->
+
+**novdso License**
+
+Copyright (c) 2020 &nbsp; **Daniel Teunis**
+Copyright (c) 2022 &nbsp; **The DPS8M Development Team**
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the “Software”),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+**THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.**
+
+----
+
+<!-- pagebreak -->
+
 #### Fair CPU Dispatch
 
 * **Fair CPU Dispatch** is a collection of routines which modify

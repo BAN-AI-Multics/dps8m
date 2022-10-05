@@ -1552,7 +1552,6 @@ void frd (void) {
     return;
   }
 
-
   // C(AQ) + (11...1)29,71 → C(AQ)
   bool ovf;
   word18 flags1 = 0;
@@ -1571,7 +1570,6 @@ void frd (void) {
 #else
   m = Add72b (m, 0177777777777777LL, carry, I_OFLOW, & flags1, & ovf);
 #endif
-
 
   // 0 -> C(AQ)28,71  (per. RJ78)
 #ifdef NEED_128
@@ -2322,7 +2320,6 @@ void dufm (bool normalize) {
 #ifndef NEED_128
   sim_debug (DBG_TRACEEXT, & cpu_dev, "dufm e2 %d %03o m2 %012"PRIo64" %012"PRIo64"\n", e2, e2, (word36) (m2 >> 36) & MASK36, (word36) m2 & MASK36);
 #endif
-
 
   if (ISZERO_128 (m1) || ISZERO_128 (m2)) {
     SET_I_ZERO;

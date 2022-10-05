@@ -1788,9 +1788,6 @@ typedef struct
       }
 #endif
 
-
-
-
 #ifdef PANEL68
     // Intermediate data collection for APU SCROLL
     word18 lastPTWOffset;

@@ -23,13 +23,13 @@ remove_nulls 1
 match_max 14096
 set timeout 750000
 
-proc   w {     } { expect -re {\nr [0-9]+:[0-9]+ .*\r}; sleep 0.2}
-proc  wi {     } { expect -re {Input.\r}; sleep 0.2}
-proc  wn {     } { expect -re {\n}; sleep 0.2}
+proc   w {     } { expect -re {\nr [0-9]+:[0-9]+ .*\r}; sleep 0.1 }
+proc  wi {     } { expect -re {Input.\r}; sleep 0.1 }
+proc  wn {     } { expect -re {\n}; sleep 0.1 }
 proc  sw { txt } { send $txt; send "\r"; w  }
 proc swi { txt } { send $txt; send "\r"; wi }
 proc swn { txt } { send $txt; send "\r"; wn }
-proc  wf {     } { expect -re {\nr  [0-9]+\r}; sleep 0.4 }
+proc  wf {     } { expect -re {\nr  [0-9]+\r}; sleep 0.2 }
 proc swf { txt } { send $txt; send "\r"; wf }
 
 spawn telnet -E 127.0.0.1 "$env(FNPPORT)"
@@ -40,13 +40,13 @@ puts " "
 set channel $expect_out(1,string)
 send "$channel\r"
 
-expect "Load = "
+expect "Load = "; sleep 0.1
 send "l Repair -cpw\r"
-expect "Password:"
+expect "Password:"; sleep 0.1
 send "repair\r"
-expect "New Password:"
+expect "New Password:"; sleep 0.1
 send "Repair\r"
-expect "New Password Again:"
+expect "New Password Again:"; sleep 0.1
 send "Repair\r"
 
 w
@@ -75,11 +75,6 @@ sw "pl1 -ot isolts_"
 sw "cp >ldd>tools>o>bound_tolts_.archive"
 sw "ac ud bound_tolts_ isolts_"
 sw "bind bound_tolts_"
-
-
-
-
-
 
 if (1) {
 send ">user_dir_dir>SysAdmin>Repair>isolts_\r"
@@ -220,9 +215,6 @@ t "tst940\r"
 sw "quit"
 }
 
-
-
-
 if (1) {
 send ">user_dir_dir>SysAdmin>Repair>isolts_\r"
 expect "\\?\\?\\?"
@@ -362,9 +354,6 @@ t "tst940\r"
 sw "quit"
 }
 
-
-
-
 if (1) {
 send ">user_dir_dir>SysAdmin>Repair>isolts_\r"
 expect "\\?\\?\\?"
@@ -502,14 +491,11 @@ t "tst940\r"
 sw "quit"
 }
 
-
-
-
 send "logout\r"
-sleep 2
-set timeout 3
+sleep 3
+set timeout 4
 
 # Scram
-exec kill -9 [exp_pid $telnetID]; sleep 1
+exec kill -9 [exp_pid $telnetID]; sleep 3
 close $telnetID
 exit
