@@ -1802,16 +1802,15 @@ Multics CI-Kit Test:
     - *scriptDnfSetup
     - dnf -q install -y telnet tmux mksh expect tcsh wget lzip dos2unix diffutils moreutils libfaketime nmap ansifilter || dnf -q install -y telnet tmux mksh expect tcsh wget lzip dos2unix diffutils moreutils libfaketime nmap ansifilter
     - *scriptSanity
-    - ( cd src/ci-kit && env NO_CI_SYMLINK_TAPES=1 STASH_CI_TAPES=1 ./init.sh ) || true
     - *scriptCommon
     - *scriptBuildlibbacktrace
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - bash -x -c '( set -o pipefail ; set -x ; cd src/ci-kit && export WITH_BACKTRACE=1 && env NO_CI_SYMLINK_TAPES=1 STASH_CI_TAPES=1 ./init.sh ; ./ci.sh ; make -f ci.makefile diff ; mv -f new.log new.txt)'
+    - bash -x -c '( set -o pipefail ; set -x ; cd src/ci-kit && export WITH_BACKTRACE=1 && env NO_CI_SYMLINK_TAPES=1 ./init.sh ; ./ci.sh ; make -f ci.makefile diff ; mv -f new.log new.txt )'
   cache:
     key: tape-cache
     paths:
-      - /var/cache/tapes
+      - ${CI_PROJECT_DIR:?}/src/ci-kit/tapes/*.tap
   dependencies: []
   artifacts:
     when: always
@@ -1819,7 +1818,7 @@ Multics CI-Kit Test:
     paths:
       - ${CI_PROJECT_DIR:?}/src/ci-kit/new.txt
   retry: 2
-  timeout: 90 minutes
+  timeout: 111 minutes
   interruptible: true
 
 ############################################################################
