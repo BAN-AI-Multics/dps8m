@@ -26,6 +26,7 @@ a.out
 
 # Data
 *.tap
+*.tpc
 
 # Config
 serial.txt
@@ -43,6 +44,7 @@ src/prt2pdf/prt2pdf.dSYM/
 src/punutil/punutil.dSYM/
 src/vmpctool/vmpctool.dSYM/
 src/empty/empty.dSYM/
+src/novdso/novdso.dSYM/
 .Dependency
 typescript
 *.bak
@@ -107,6 +109,7 @@ src/dps8/dps8.exe
 src/dps8/ver.h.*
 src/dps8/ver.h
 src/dps8/errnos.h
+src/novdso/novdso
 tags
 dps8m.state
 l68.state
@@ -176,6 +179,7 @@ dps8.xml
 dps8m.xml
 prt2pdf.xml
 vmpctool.xml
+novdso.xml
 cppcheck.xml
 
 # Oracle Performance Analyzer
@@ -186,6 +190,7 @@ src/prt2pdf/prt2pdf.analyze
 src/punutil/punutil.analyze
 src/unifdef/unifdef.analyze
 src/vmpctool/vmpctool.analyze
+src/novdso/novdso.analyze
 
 # Vim
 *.*.swp

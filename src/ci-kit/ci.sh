@@ -323,15 +323,15 @@ export TMUX='' 2> /dev/null
 
 # Run CI-Kit in background tmux session
 # shellcheck disable=SC2015,SC2048,SC2086,SC2140,SC2248
-eval tmux -u -2 new -d -s cikit-${T_JOB_ID:?}-0                        \
-  "\"export CI_JOB_ID=\"${CI_JOB_ID:?}\";                              \
-    export FNPPORT=\"${FNPPORT:?}\"; export CONPORT=\"${CONPORT:?}\";  \
-      eval ${FAKETIME:?} ${STDBUF:?} ${MAKE:-make} ${NRB:-}            \
-       --no-print-directory                                            \
-        -f "ci.makefile" ${*} \"s1\" \"s2\" \"s2p\" \"s3\" \"s3p\"     \
-          \"s4\" \"s4p\" \"s5\" \"s6\" \"s7\" 2>&1 |                   \
-            ${STDBUF:?} ${TEE:-tee} -i -a ci.log;                      \
-              tmux wait -S cikit-${T_JOB_ID:?}-1 \"" &&                \
+eval tmux -u -2 new -d -s cikit-${T_JOB_ID:?}-0                       \
+  "\"export CI_JOB_ID=\"${CI_JOB_ID:?}\";                             \
+   export FNPPORT=\"${FNPPORT:?}\"; export CONPORT=\"${CONPORT:?}\";  \
+    eval ${FAKETIME:?} ${STDBUF:?} ${MAKE:-make} ${NRB:-}             \
+     --no-print-directory                                             \
+      -f "ci.makefile" ${*} \"s1\" \"s2\" \"s2p\" \"s3\" \"s3p\"      \
+       \"s4\" \"s4p\" \"s5\" \"s6\" \"s7\" 2>&1 |                     \
+        ${STDBUF:?} ${TEE:-tee} -i -a ci.log;                         \
+         tmux wait -S cikit-${T_JOB_ID:?}-1 \"" &&                    \
   tmux wait cikit-${T_JOB_ID:?}-1 &
 BGJOB="${!}" && export BGJOB
 printf '***  %s\n' "tmux wait PID: \"${BGJOB:?}\""

@@ -72,8 +72,7 @@ all help:
 s1:
 	@printf '\n%s\n' "### Start Stage 1: Build simulator ####################"
 ifndef NOREBUILD
-	( cd ../.. && $(MAKE) superclean > /dev/null 2>&1 &&                      \
-          env NATIVE=1 $(MAKE) 2>&1 )
+	( cd ../.. && $(MAKE) superclean > /dev/null 2>&1 && env NATIVE=1 $(MAKE) 2>&1 )
 endif
 ifdef NOREBUILD
 	@printf '%s\n' "  *** NOREBUILD set - skipping simulator build ***"
@@ -84,6 +83,7 @@ endif
         exit 1; }
 	-@sleep 2 > /dev/null 2>&1 || true
 	@printf '\n%s\n' "### End Stage 1 #######################################"
+	@sleep 2 > /dev/null 2>&1 || true
 
 ### Stage 2 - Build working directory #########################################
 
@@ -105,6 +105,7 @@ s2: ../dps8/dps8
 	@cp -fp ./ini/* ./run
 	@cp -fp ./ec/*  ./run
 	@printf '\n%s\n' "### End Stage 2 #######################################"
+	@sleep 2 > /dev/null 2>&1 || true
 
 ### Stage 2p - Warm caches for s3 #############################################
 
@@ -114,6 +115,7 @@ s2p:
 	-@test -x ../vmpctool/vmpctool && printf '\n%s\n'                         \
         "### Priming caches ####################################"             \
             || true
+	-@test -x ../vmpctool/vmpctool || printf '%s\n' "" || true
 	-@test -x ../vmpctool/vmpctool && ../vmpctool/vmpctool -hft               \
         ./tapes/*.tap || true
 	-@test -x ../vmpctool/vmpctool && printf '\n%s\n'                         \
@@ -130,12 +132,12 @@ s3: ../dps8/dps8
         || true
 	@rm -f ./run/disks/root.dsk.reloaded > /dev/null 2>&1 || true
 	@rm -f ./run/disks/newinstall.dsk    > /dev/null 2>&1 || true
-	cd ./run && env CPUPROFILE=install.prof.out \
-        ./dps8 -r MR12.7_install.ini 2>&1
+	cd ./run && time env CPUPROFILE=install.prof.out ./dps8 -t MR12.7_install.ini 2>&1
 	@cp -fp ./run/disks/newinstall.dsk ./run/disks/yoyodyne.dsk
 	@printf '%s\n' ""
 	@printf '%s\n' "### End Stage 3 #######################################"  \
         || true
+	@sleep 2 > /dev/null 2>&1 || true
 
 ### Stage 3p - Warm caches for s4 #############################################
 
@@ -145,6 +147,7 @@ s3p:
 	-@test -x ../vmpctool/vmpctool && printf '\n%s\n'                         \
         "### Priming caches ####################################"             \
             || true
+	-@test -x ../vmpctool/vmpctool || printf '%s\n' "" || true
 	-@test -x ../vmpctool/vmpctool && ../vmpctool/vmpctool -hft               \
       ./tapes/*.tap ./run/disks/yoyodyne.dsk || true
 	-@test -x ../vmpctool/vmpctool && printf '\n%s\n'                         \
@@ -157,9 +160,9 @@ s3p:
 .NOTPARALLEL: s4
 s4: ./run/disks/yoyodyne.dsk ../dps8/dps8
 	@printf '\n%s\n' "### Start Stage 4: Setup Yoyodyne #####################"
-	cd ./run && env CPUPROFILE=yoyodyne.prof.out \
-        ./dps8 -r yoyodyne.ini 2>&1
+	cd ./run && time env CPUPROFILE=yoyodyne.prof.out ./dps8 -t yoyodyne.ini 2>&1
 	@printf '\n%s\n' "### End Stage 4 #######################################"
+	@sleep 2 > /dev/null 2>&1 || true
 
 ### Stage 4p - Warm caches for s5 #############################################
 
@@ -169,6 +172,7 @@ s4p:
 	-@test -x ../vmpctool/vmpctool && printf '\n%s\n'                         \
         "### Priming caches ####################################"             \
             || true
+	-@test -x ../vmpctool/vmpctool || printf '%s\n' "" || true
 	-@test -x ../vmpctool/vmpctool && ../vmpctool/vmpctool -hft               \
         ./run/tapes/* ./run/disks/yoyodyne.dsk || true
 	-@test -x ../vmpctool/vmpctool && printf '\n%s\n'                         \
@@ -181,9 +185,9 @@ s4p:
 .NOTPARALLEL: s5
 s5: ./run/disks/yoyodyne.dsk ../dps8/dps8 ./.yoyodyne.s4
 	@printf '\n%s\n' "### Start Stage 5: Run ci_t1.expect ###################"
-	env CPUPROFILE=run.prof.out \
-        ./ci_t1.sh 0 2>&1
+	time env CPUPROFILE=run.prof.out ./ci_t1.sh 0 2>&1
 	@printf '\n%s\n' "### End Stage 5 #######################################"
+	@sleep 2 > /dev/null 2>&1 || true
 
 ### Stage 6 - Run isolts.expect ###############################################
 
@@ -191,9 +195,9 @@ s5: ./run/disks/yoyodyne.dsk ../dps8/dps8 ./.yoyodyne.s4
 .NOTPARALLEL: s6
 s6: ./run/disks/yoyodyne.dsk ../dps8/dps8 ./.yoyodyne.s4
 	@printf '\n%s\n' "### Start Stage 6: Run isolts.expect ##################"
-	env CPUPROFILE=isolts.prof.out \
-        ./isolts.sh 0 2>&1
+	time env CPUPROFILE=isolts.prof.out ./isolts.sh 0 2>&1
 	@printf '\n%s\n' "### End Stage 6 #######################################"
+	@sleep 2 > /dev/null 2>&1 || true
 
 ### Stage 7 - Run performance test ############################################
 
@@ -201,9 +205,9 @@ s6: ./run/disks/yoyodyne.dsk ../dps8/dps8 ./.yoyodyne.s4
 .NOTPARALLEL: s7
 s7: ../dps8/dps8
 	@printf '\n%s\n' "### Start Stage 7: Run performance test ###############"
-	time env CPUPROFILE=perf.prof.out \
-        ./perf.sh 0 2>&1
+	time env CPUPROFILE=perf.prof.out ./perf.sh 0 2>&1
 	@printf '\n%s\n' "### End Stage 7 #######################################"
+	@sleep 2 > /dev/null 2>&1 || true
 
 ### Post-processing 1 #########################################################
 

@@ -1761,6 +1761,10 @@ Multics CI-Kit Test:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - bash -x -c '( set -o pipefail ; set -x ; cd src/ci-kit && export WITH_BACKTRACE=1 && env NO_CI_SYMLINK_TAPES=1 STASH_CI_TAPES=1 ./init.sh ; ./ci.sh ; make -f ci.makefile diff ; mv -f new.log new.txt)'
+  cache:
+    key: tape-cache
+    paths:
+      - /var/cache/tapes
   dependencies: []
   artifacts:
     when: always
@@ -2060,6 +2064,7 @@ pages:
     - job: Windows/i686, LLVM-MinGW
     - job: Windows/x86_64, Cygwin64-GCC
     - job: Windows/x86_64, MinGW64-GCC
+    - job: PVS-Studio
   dependencies:
     - "AIX/powerpc64, IBM AIX, GCC"
     - "AIX/powerpc64, IBM AIX, IBM XL C/C++ V16.1"
@@ -2085,6 +2090,7 @@ pages:
     - "Windows/i686, LLVM-MinGW"
     - "Windows/x86_64, Cygwin64-GCC"
     - "Windows/x86_64, MinGW64-GCC"
+    - "PVS-Studio"
   stage: deploy
   script:
   - apk update || true
@@ -2097,9 +2103,10 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/orstlint.txt public/master/lint/oracle/oracle.txt || true
   - mv -f ${CI_PROJECT_DIR:?}/cppcheck public/master/lint/cppcheck || true
   - mv -f ${CI_PROJECT_DIR:?}/cppcheck.txt public/master/lint/cppcheck/cppcheck.txt || true
-  - mkdir -p public/master/lint/flawfinder
+  - mkdir -p public/master/lint/flawfinder || true
   - mv -f ${CI_PROJECT_DIR:?}/flawfinder.txt public/master/lint/flawfinder/flawfinder.txt || true
   - mv -f ${CI_PROJECT_DIR:?}/out public/master/lint/clang-analyzer || true
+  - mv -f ${CI_PROJECT_DIR:?}/pvsreport public/master/lint/pvs || true
   - mv -f ${CI_PROJECT_DIR:?}/docs/hpages/public/* public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-src.tar.lz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-src.tar.gz public

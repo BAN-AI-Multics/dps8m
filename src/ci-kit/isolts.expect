@@ -24,20 +24,20 @@ match_max 14096
 set timeout 750000
 
 cd ./run
-spawn ./dps8 -r isolts.ini
+spawn ./dps8 -t isolts.ini
 set dps8ID $spawn_id
 
 expect "M-> CONSOLE: RELEASED"
 
 set spawn_id $dps8ID
 
-proc   w {     } { expect -re {\nr [0-9]+:[0-9]+ .*\r}; sleep 0.2 }
-proc  wi {     } { expect -re {Input.\r}; sleep 0.2 }
-proc  wn {     } { expect -re {\n}; sleep 0.2 }
+proc   w {     } { expect -re {\nr [0-9]+:[0-9]+ .*\r}; sleep 0.1 }
+proc  wi {     } { expect -re {Input.\r}; sleep 0.1 }
+proc  wn {     } { expect -re {\n}; sleep 0.1 }
 proc  sw { txt } { send $txt; send "\r"; w  }
 proc swi { txt } { send $txt; send "\r"; wi }
 proc swn { txt } { send $txt; send "\r"; wn }
-proc  wf {     } { expect -re {\nr  [0-9]+\r}; sleep 0.4 }
+proc  wf {     } { expect -re {\nr  [0-9]+\r}; sleep 0.2 }
 proc swf { txt } { send $txt; send "\r"; wf }
 
 if {![fork]} {
@@ -51,10 +51,10 @@ set spawn_id $dps8ID
 
 # Waiting for logout
 expect "LOGOUT"
-sleep 2
-set timeout 3
+sleep 3
+set timeout 4
 
 # Scram
-exec kill -9 [exp_pid $dps8ID]; sleep 1
+exec kill -9 [exp_pid $dps8ID]; sleep 3
 close $dps8ID
 exit

@@ -87,6 +87,7 @@ iodt
 iomcon
 lastmodv
 libfaketime
+likwid
 lister
 liststyle
 lscpu
@@ -319,6 +320,7 @@ autoaccept
 autocall
 autoinput
 autop
+auxvec
 aval
 avldu
 awca
@@ -942,6 +944,7 @@ eexist
 efault
 efbig
 egid
+ehdr
 ehuh
 eidrm
 eidx
@@ -1825,6 +1828,8 @@ mval
 mvne
 mvza
 mvzb
+myargv
+myfile
 myid
 nagle
 naks
@@ -1956,6 +1961,7 @@ notstar
 nouc
 nout
 novalue
+novdso
 noverbose
 noverify
 nowait
@@ -2115,6 +2121,8 @@ pdcw
 pdest
 pdone
 pdta
+peekdata
+peekuser
 peername
 peernamebuf
 peernamesize
@@ -2155,6 +2163,7 @@ pktsize
 plarge
 plex
 pmask
+pokedata
 popcode
 popen
 popt
@@ -2179,6 +2188,7 @@ ppos
 pprof
 praa
 pragma
+prctl
 prdml
 prdms
 preemptively
@@ -2238,6 +2248,8 @@ pstrlen
 ptem
 ptmx
 ptra
+ptrace
+ptracer
 ptrdiff
 ptro
 ptrs
@@ -2575,6 +2587,7 @@ setno
 setnodelay
 setnonblock
 setnums
+setoptions
 setown
 setpos
 setrlimit
@@ -2607,6 +2620,7 @@ sigabrt
 sigaction
 sigbus
 sigchld
+sigcont
 sigerr
 sigfillset
 sigfpe
@@ -2626,8 +2640,10 @@ sigr
 sigsegv
 sigset
 sigstkflt
+sigstop
 sigsys
 sigterm
+sigtrap
 sigunused
 sigusr
 sims
@@ -2971,7 +2987,11 @@ tpos
 tpqln
 tptr
 tqln
+traceexec
 traceext
+traceme
+tracer
+tracesysgood
 trackport
 tracksize
 tradeoff
@@ -3200,8 +3220,10 @@ wday
 werasc
 weren
 weven
+wexitstatus
 wflg
 whups
+wifexited
 wiki
 wikidot
 winachcf
@@ -4098,6 +4120,7 @@ notatt
 notelnet
 notmask
 notou
+notreached
 nouc
 nout
 novalue
@@ -4352,6 +4375,7 @@ shtab
 sigerr
 signext
 signword
+sigusr
 singlezero
 sinstruction
 sizeof
@@ -4696,6 +4720,7 @@ halfsize
 hfed
 hierarchy
 highonly
+hostid
 hpda
 hpsa
 hsla
@@ -4751,8 +4776,10 @@ parm
 parms
 pathname
 pdir
+pgid
 phcs
 portconfig
+ppid
 preempting
 priv
 proja
@@ -4871,6 +4898,7 @@ sdeck
 segs
 syserr
 sysprint
+testluf
 vols
 
 FILETYPE: Markdown; .md
@@ -4902,6 +4930,7 @@ diffutils
 dockerfile
 doesn
 egin
+ehdr
 faketime
 faultbase
 fbsd
@@ -4962,6 +4991,7 @@ sizeof
 sourcegear
 stdc
 stopnum
+sysinfo
 tapa
 tapechan
 tcblisting
@@ -5430,6 +5460,7 @@ aixv
 confopts
 distdir
 docsprt
+fullhtml
 hpages
 hugobuild
 hugogen
@@ -5438,10 +5469,15 @@ kitname
 libcmb
 libuvrel
 lzma
+mmacosx
 noci
+otool
+plog
+pvsreport
 roscspell
 sdel
 tarxt
+viva
 zpaqtmp
 ztmp
 
@@ -5575,6 +5611,7 @@ makedep
 makedepend
 mkdep
 notparallel
+novdso
 opts
 orstlint
 pipefail
@@ -6328,6 +6365,7 @@ memcpy
 mingwex
 msys
 notparallel
+novdso
 objs
 opcodetable
 ostype
@@ -6774,6 +6812,7 @@ needrebuild
 nocp
 noet
 notparallel
+novdso
 orstlint
 permille
 pgobuild
@@ -6813,6 +6852,7 @@ hpages
 iomcon
 neato
 needrebuild
+novdso
 nvimlog
 nvimsession
 nvimundo
@@ -7141,6 +7181,7 @@ libcmb
 libedit
 musl
 nolist
+novdso
 printf
 readline
 sprintf
@@ -7844,6 +7885,25 @@ showcableshowhere
 FILEID: 8108c60c-3cb2-11ed-810d-80ee73e9b8e7
 asdf
 
+FILEID: 4887ce61-435a-11ed-b4c1-80ee73e9b8e7
+cleandep
+cleandepend
+depclean
+dependclean
+distclean
+dumalibs
+endif
+findstring
+gcda
+ifeq
+ifneq
+listchars
+makecmdgoals
+notparallel
+novdso
+printf
+setv
+
 NATURAL:
 abandon
 abandoned
@@ -7865,6 +7925,7 @@ abstract
 abuse
 abutted
 academic
+acceleration
 accept
 acceptable
 accepted
@@ -8811,6 +8872,7 @@ conversion
 conversions
 convert
 converted
+converter
 converting
 converts
 convoluted
@@ -8885,6 +8947,7 @@ creates
 creating
 creation
 creator
+credentials
 criteria
 critical
 crocodile
@@ -9731,6 +9794,7 @@ friday
 from
 front
 fsfap
+fstr
 fsync
 fudging
 fujitsu
@@ -10201,6 +10265,7 @@ intermediate
 intermittent
 intermixed
 intermixing
+intermodular
 internal
 internally
 internals
@@ -10408,6 +10473,7 @@ lights
 lightweight
 like
 likely
+likwid
 limitations
 limited
 limiter
@@ -10506,6 +10572,7 @@ lose
 losing
 loss
 lost
+loud
 lower
 lowest
 lows
@@ -11164,6 +11231,7 @@ pierce
 pieter
 pine
 pings
+pinning
 pipe
 pipelines
 pizzolato
@@ -11822,6 +11890,7 @@ routines
 routing
 rows
 royalty
+rrze
 rtos
 rubbed
 rubout
@@ -12386,6 +12455,7 @@ syndrome
 synonyms
 synopsis
 syntax
+syscall
 sysdefs
 system
 systematically
@@ -12447,6 +12517,7 @@ tested
 tester
 testing
 tests
+teunis
 texlive
 text
 texts
@@ -13050,6 +13121,7 @@ zanarotti
 zapcc
 zapf
 zero
+zerodivide
 zeroed
 zeroes
 zeroing

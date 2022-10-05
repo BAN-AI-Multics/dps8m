@@ -2053,7 +2053,6 @@ restart_1:
       }
     } // rpt || rd
 
-
     // Check for termination conditions.
 
 ///////
@@ -8107,7 +8106,6 @@ elapsedtime ();
                   cpu.rA |= (word36) (cpu.switches.store_size  [7] & 07LL)
                             << (35 -  (8 + 27));
                   break;
-
 
                 case 4:
                   // I suspect the this is a L68 only, but AL39 says both

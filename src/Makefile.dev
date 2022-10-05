@@ -109,6 +109,8 @@ dep depend: predepend                                                         \
       ( $(CD) "src/unifdef"   && $(DO_MAKEDEP) )
 	@$(PRINTF) 'DEPEND: %s' "vmpctool" ;                                      \
       ( $(CD) "src/vmpctool"  && $(DO_MAKEDEP) )
+	@$(PRINTF) 'DEPEND: %s' "novdso" ;                                        \
+      ( $(CD) "src/novdso"    && $(DO_MAKEDEP) )
 
 ###############################################################################
 # Remove dependencies for untracked C files
@@ -156,6 +158,8 @@ dependclean depclean cleandepend cleandep:                                    \
       ( $(CD) "src/unifdef"   && $(DO_CLEANDEP) )
 	@$(PRINTF) 'DEPEND: %s' "vmpctool" ;                                      \
       ( $(CD) "src/vmpctool"  && $(DO_CLEANDEP) )
+	@$(PRINTF) 'DEPEND: %s' "novdso" ;                                        \
+      ( $(CD) "src/novdso"    && $(DO_CLEANDEP) )
 
 ###############################################################################
 # Displays preprocessor definitions
@@ -354,6 +358,7 @@ lmscspell:                                                                    \
      $(GREP) -Ev '(ver\.h$$)'                                               | \
      $(GREP) -Ev '(\.vim$$)'                                                | \
      $(GREP) -Ev '(/vmpctool$$)'                                            | \
+     $(GREP) -Ev '(/novdso$$)'                                              | \
      $(GREP) -Ev '(\.yml$$)'                                                | \
      $(GREP) -Ev '(\.yml\.in$$)'                                            | \
      $(GREP) -Ev '(\.zip$$)'                                                | \

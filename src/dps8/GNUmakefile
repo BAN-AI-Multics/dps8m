@@ -325,7 +325,8 @@ DECN_OBJS = ../decNumber/decContext.o  ../decNumber/decNumber.o
 
 .PHONY: all
 all:  sysdefs.h   ver.h   unifdef   locallibs_then_dps8   prt2pdf             \
-      punutil     mcmb    vmpctool  empty                 $(TAGS)
+      punutil     mcmb    vmpctool  empty                 novdso              \
+      $(TAGS)
 	-@$(TRUE)
 
 ###############################################################################
@@ -458,6 +459,12 @@ empty:
 
 ###############################################################################
 
+.PHONY: novdso
+novdso:
+	-@$(SETV); $(MAKE) -C "../novdso" "all"
+
+###############################################################################
+
 udplib$(EXE): udplib.c udplib.h
 	@$(SETV); $(CC) udplib.c -o udplib -DTEST=1
 
@@ -519,6 +526,7 @@ distclean: clean
 	@$(RMF) ../unifdef/*.gc??                2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../vmpctool/*.gc??               2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../empty/*.gc??                  2> /dev/null  ||  $(TRUE)
+	@$(RMF) ../novdso/*.gc??                 2> /dev/null  ||  $(TRUE)
 	@$(RMF) *.prof*                          2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../blinkenLights2/*.prof*        2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../decNumber/*.prof*             2> /dev/null  ||  $(TRUE)
@@ -529,6 +537,7 @@ distclean: clean
 	@$(RMF) ../vmpctool/*.prof*              2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../empty/*.prof*                 2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../punutil/*.prof*               2> /dev/null  ||  $(TRUE)
+	@$(RMF) ../novdso/*.prof*                2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../../dps8m*.state               2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../dps8m*.state                  2> /dev/null  ||  $(TRUE)
 	@$(RMF) dps8m*.state                     2> /dev/null  ||  $(TRUE)
@@ -582,6 +591,7 @@ clean:
 	@$(SETV); $(MAKE) -C "../vmpctool"       -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../empty"          -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../unifdef"        -f "GNUmakefile"  "clean"
+	@$(SETV); $(MAKE) -C "../novdso"         -f "GNUmakefile"  "clean"
 	@$(SETV); ( cd ../blinkenLights2 && $(RMF) blinkenLights2 || $(TRUE) )
 	@$(SETV); $(MAKE) -C "."                 -f "GNUmakefile"  "clean_dps8"
 	@$(SETV); $(RMF)  ../../"$(KITNAME)"."$(TARXT)"    ||  $(TRUE)
@@ -755,7 +765,7 @@ errnos.h:
 sysdefs.h: useddef.txt
 	@$(PRINTF) '%s\n' "SYSDEFS: useddef.txt"
 	@$(SETV); $(TR) -d '=' < "./useddef.txt" 2> /dev/null              |      \
-      $(SED) 's/ /=/' 2> /dev/null | $(SED) -e 's/^/-D/g' 2> /dev/null   |      \
+      $(SED) 's/ /=/' 2> /dev/null | $(SED) -e 's/^/-D/g' 2> /dev/null |      \
         $(TR) '\n' ' ' 2> /dev/null | $(SED) -e 's/ $$//'                     \
           -e 's/^-D$$//g' | $(SED) -e 's/^/#define\ SYSDEFS_USED\ \"/'        \
             -e 's/$$/\"/' 2> /dev/null > "./sysdefs.n"                 ||     \

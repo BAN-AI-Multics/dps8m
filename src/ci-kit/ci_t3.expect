@@ -23,13 +23,13 @@ remove_nulls 1
 match_max 14096
 set timeout 750000
 
-proc   w {     } { expect -re {\nr [0-9]+:[0-9]+ .*\r}; sleep 0.2 }
-proc  wi {     } { expect -re {Input.\r}; sleep 0.2 }
-proc  wn {     } { expect -re {\n}; sleep 0.2 }
+proc   w {     } { expect -re {\nr [0-9]+:[0-9]+ .*\r}; sleep 0.1 }
+proc  wi {     } { expect -re {Input.\r}; sleep 0.1 }
+proc  wn {     } { expect -re {\n}; sleep 0.1 }
 proc  sw { txt } { send $txt; send "\r"; w  }
 proc swi { txt } { send $txt; send "\r"; wi }
 proc swn { txt } { send $txt; send "\r"; wn }
-proc  wf {     } { expect -re {\nr  [0-9]+\r}; sleep 0.4 }
+proc  wf {     } { expect -re {\nr  [0-9]+\r}; sleep 0.2 }
 proc swf { txt } { send $txt; send "\r"; wf }
 
 spawn telnet -E 127.0.0.1 "$env(FNPPORT)"
@@ -41,18 +41,18 @@ set channel $expect_out(1,string)
 send "$channel\r"
 
 # Test if HFED project works (broken in 12.6d)
-expect "Load = "
+expect "Load = "; sleep 0.1
 send "l Clayton HFED\r"
-expect "Password:"
+expect "Password:"; sleep 0.1
 send "password\r"
 
 # If it works, we should get the TOLTS prompt
 expect "olts"; sleep 2
 send "quit\n"; sleep 1
-sleep 2
-set timeout 3
+sleep 3
+set timeout 4
 
 # Scram
-exec kill -9 [exp_pid $telnetID]; sleep 1
+exec kill -9 [exp_pid $telnetID]; sleep 3
 close $telnetID
 exit
