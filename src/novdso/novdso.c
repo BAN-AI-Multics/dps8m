@@ -1,5 +1,5 @@
 /*
- * vim: set filetype=c tabstop=4 autoinput expandtab
+ * vim: set filetype=c:tabstop=4:autoinput:expandtab
  * SPDX-License-Identifier: MIT
  * scspell-id: 4a19aab5-433e-11ed-ae50-80ee73e9b8e7
  *
@@ -40,7 +40,9 @@
 #include <errno.h>
 #include <unistd.h>
 
-#ifdef __linux__
+#if defined(__linux__) && \
+  ( defined(__x86_64__) || defined(__x86_64) || \
+    defined(__amd64__)  || defined(__amd64) )
 # include <linux/auxvec.h>
 # include <signal.h>
 # include <string.h>
@@ -175,8 +177,10 @@ main(int argc, char *argv[])
 int
 main(void)
 {
-  (void)fprintf(stderr, "\rError: A Linux system is required.\r\n");
+  (void)fprintf(stderr, "\rError: A Linux/x86_64 system is required.\r\n");
 
   return (EXIT_FAILURE);
 }
-#endif /* ifdef __linux__ */
+#endif /* if defined(__linux__) &&
+           ( defined(__x86_64__) || defined(__x86_64) ||
+             defined(__amd64__)  || defined(__amd64) ) */
