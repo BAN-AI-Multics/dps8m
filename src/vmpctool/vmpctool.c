@@ -49,7 +49,7 @@
 
 #define PROGNAME                       "vmpctool"
 #define PROGDESC                       "virtual memory page cache utility"
-#define VMTOUCH_VERSION                "2101.14.6-dps (2022-10-01)"
+#define VMTOUCH_VERSION                "2101.14.7-dps (2022-10-06)"
 
 #define RESIDENCY_CHART_WIDTH          41
 #define CHART_UPDATE_INTERVAL          0.37
@@ -154,11 +154,16 @@
 # endif /* ifdef NAME_MAX */
 #endif /* ifndef MAX_FILENAME_LENGTH */
 
-#define FREE(p) do  \
-  {                 \
-    free((p));      \
-    (p) = NULL;     \
+#undef FREE
+#ifdef TESTING
+# define FREE(p) free(p)
+#else
+# define FREE(p) do  \
+  {                  \
+    free((p));       \
+    (p) = NULL;      \
   } while(0)
+#endif /* ifdef TESTING */
 
 struct dev_and_inode
 {
@@ -234,7 +239,9 @@ usage(char *prog)
   (void)fprintf(stderr, "\r    -L             \t lock files pages using mlockall(2)\n");
   (void)fprintf(stderr, "\r    -d             \t daemonize %s process\n", PROGNAME);
   (void)fprintf(stderr, "\r    -m <MAXSIZE>   \t process files only up to <MAXSIZE>\n");
+#ifndef __HAIKU__
   (void)fprintf(stderr, "\r    -p <RANGE>     \t process only specified <RANGE>\n");
+#endif /* ifndef __HAIKU__ */
   (void)fprintf(stderr, "\r    -f             \t include symbolic link targets\n");
   (void)fprintf(stderr, "\r    -F             \t single filesystem mode\n");
   (void)fprintf(stderr, "\r    -h             \t include hard link targets\n");
@@ -517,6 +524,7 @@ bytes2pages(int64_t bytes)
   return ( bytes + pagesize - 1 ) / pagesize;
 }
 
+#ifndef __HAIKU__
 static void
 parse_range(char *inp)
 {
@@ -584,6 +592,7 @@ parse_range(char *inp)
       max_len = upper_range - offset;
     }
 }
+#endif /* ifndef __HAIKU__ */
 
 static void
 parse_ignore_item(char *inp)
@@ -1083,7 +1092,7 @@ retry_open:
           /* NOTREACHED */
           exit(errno);
         }
-#if !defined( __OpenBSD__ )
+#if !defined( __OpenBSD__ ) && !defined( __HAIKU__ )
       if (mincore(mem, len_of_range, (void *)mincore_array))
         {
           fatal(
@@ -1092,7 +1101,7 @@ retry_open:
           /* NOTREACHED */
           _Exit(1);
         }
-#else /* if !defined( __OpenBSD__) */
+#else /* if !defined( __OpenBSD__) && !defined( __HAIKU__ ) */
       if ( !o_quiet )
         warning(
           "%s:%d: mincore is unavailable; data will be inaccurate!",
@@ -1671,9 +1680,11 @@ main(int argc, char **argv)
           o_ignorehardlinkeduplictes = 1;
           break;
 
+#ifndef __HAIKU__
         case 'p':
           parse_range(optarg);
           break;
+#endif /* ifndef __HAIKU__ */
 
         case 'i':
           parse_ignore_item(optarg);
@@ -1877,7 +1888,7 @@ main(int argc, char **argv)
     {
       if (o_lockall)
         {
-#ifndef __CYGWIN__
+#if !defined( __CYGWIN__ ) && !defined( __HAIKU__ )
           if (mlockall(MCL_CURRENT))
             {
               fatal(
@@ -1890,11 +1901,11 @@ main(int argc, char **argv)
             }
 #else
           fatal(
-            "%s:%d: unable to mlockall on Cygwin\r\n       -> Unavailable (error -1)",
+            "%s:%d: unable to mlockall on this platform\r\n       -> Unavailable (error -1)",
             __func__, __LINE__);
           /* NOTREACHED */
           _Exit(1);
-#endif /* ifndef __CYGWIN__ */
+#endif /* if !defined( __CYGWIN__ ) && !defined( __HAIKU__ ) */
         }
 
       if (o_pidfile)

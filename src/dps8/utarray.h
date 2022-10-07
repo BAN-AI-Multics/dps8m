@@ -39,6 +39,7 @@
 #ifndef UTARRAY_H
 # define UTARRAY_H
 
+/* Derived from utarray version */
 # define UTARRAY_VERSION 21.9.8
 
 # ifdef __GNUC__
@@ -47,21 +48,45 @@
 #  define _UNUSED_
 # endif
 
-# include <stddef.h>  /* size_t      */
-# include <string.h>  /* memset, etc */
-# include <stdlib.h>  /* exit        */
+# include <stddef.h>  /* size_t       */
+# include <string.h>  /* memset, etc. */
+# include <signal.h>  /* raise        */
+# include <stdlib.h>  /* exit         */
 
-# define FREE(p) do  \
-  {                  \
-    free((p));       \
-    (p) = NULL;      \
+# include "dps8.h"
+
+# undef FREE
+# ifdef TESTING
+#  define FREE(p) free(p)
+#  undef realloc
+#  define realloc trealloc
+# else
+#  define FREE(p) do  \
+  {                   \
+    free((p));        \
+    (p) = NULL;       \
   } while(0)
+# endif /* ifdef TESTING */
 
-# define oom() abort()
+# undef oom
+# define oom() do                                                          \
+  {                                                                        \
+    fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",  \
+             __func__, __FILE__, __LINE__);                                \
+#  if defined(USE_BACKTRACE)                                               \
+#   ifdef SIGUSR2                                                          \
+    (void)raise(SIGUSR2);                                                  \
+    /*NOTREACHED*/ /* unreachable */                                       \
+#   endif /* ifdef SIGUSR2 */                                              \
+#  endif /* if defined(USE_BACKTRACE) */                                   \
+    abort();                                                               \
+    /*NOTREACHED*/ /* unreachable */                                       \
+  } while(0)
 
 typedef void (ctor_f)(void *dst, const void *src);
 typedef void (dtor_f)(void *elt);
 typedef void (init_f)(void *elt);
+
 typedef struct {
     size_t sz;
     init_f *init;

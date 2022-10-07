@@ -37,6 +37,11 @@
 
 #define DBG_CTR 1
 
+#ifdef TESTING
+# undef FREE
+# define FREE(p) free(p)
+#endif /* ifdef TESTING */
+
 /*
  * misc utility routines used by simulator
  */

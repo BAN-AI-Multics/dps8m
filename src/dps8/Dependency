@@ -539,7 +539,14 @@ hdbg.o: dps8_sys.h
 hdbg.o: dps8_utils.h
 hdbg.o: hdbg.h
 hdbg.o: uvutil.h
+libtelnet.o: dps8.h
+libtelnet.o: dps8_em_consts.h
+libtelnet.o: dps8_hw_consts.h
+libtelnet.o: dps8_math128.h
+libtelnet.o: dps8_simh.h
+libtelnet.o: dps8_sys.h
 libtelnet.o: libtelnet.h
+libtelnet.o: uvutil.h
 segldr.o: dps8.h
 segldr.o: dps8_cable.h
 segldr.o: dps8_cpu.h

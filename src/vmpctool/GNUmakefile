@@ -63,9 +63,6 @@ endif # MINGW32
 ifeq ($(CYGWIN_MINGW_CROSS),1)
   SKIP_COMPILATION=1
 endif # CYGWIN_MINGW_CROSS
-ifeq ($(UNAME_S),Haiku)
-  SKIP_COMPILATION=1
-endif # Haiku
 ifneq (,$(findstring CYGWIN,$(UNAME_S)))
   SKIP_COMPILATION=1
 endif # Cygwin

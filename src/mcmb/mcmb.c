@@ -72,11 +72,16 @@
 # define FALSE 0
 #endif /* ifndef FALSE */
 
-#define FREE(p) do  \
-  {                 \
-    free((p));      \
-    (p) = NULL;     \
+#undef FREE
+#ifdef TESTING
+# define FREE(p) free(p)
+#else
+# define FREE(p) do  \
+  {                  \
+    free((p));       \
+    (p) = NULL;      \
   } while(0)
+#endif /* ifdef TESTING */
 
 /*
  * Version information
@@ -152,6 +157,57 @@ static int cmb_print(struct cmb_config *_config, uint64_t _seq,
                      uint32_t _nitems, char *_items[]);
 
 static const char *libcmb_version(int _type);
+
+/*
+ * TESTING realloc
+ */
+
+void *trealloc(void *ptr, size_t size);
+
+void *
+trealloc(void *ptr, size_t size)
+{
+  void *r = realloc(ptr, size);
+
+  if (r != ptr)
+    {
+      return r;
+    }
+  else if (r)
+    {
+      void *rm = malloc(size);
+      if (!rm)
+        {
+          (void)fprintf(
+            stderr,
+            "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
+            __func__, __FILE__, __LINE__);
+          abort();
+          /* NOTREACHED */
+        }
+
+      if (!memcpy(rm, r, size))
+        {
+          (void)fprintf(
+            stderr,
+            "\rFATAL: Impossible memcpy result! Aborting at %s[%s:%d]\r\n",
+            __func__, __FILE__, __LINE__);
+          abort();
+          /* NOTREACHED */
+        }
+      FREE(r);
+      return rm;
+    }
+  else
+    {
+      return r;
+    }
+}
+
+#ifdef TESTING
+# undef realloc
+# define realloc trealloc
+#endif /* ifdef TESTING */
 
 /*
  * Inline functions
@@ -412,7 +468,7 @@ static struct cmb_xitem *cmb_transform_find;
 # define CMB_PARSE_FRAGSIZE 512
 #endif /* ifndef CMB_PARSE_FRAGSIZE */
 
-static const char mcmbver[]         = "2120.4.13-dps";
+static const char mcmbver[]         = "2120.4.14-dps";
 static const char libversion[]      = "libcmb 3.5.6";
 
 /*

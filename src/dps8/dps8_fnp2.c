@@ -108,6 +108,13 @@
 # endif /* ifndef CROSS_MINGW32 */
 #endif /* ifndef CROSS_MINGW64 */
 
+#ifdef TESTING
+# undef realloc
+# undef FREE
+# define FREE(p) free(p)
+# define realloc trealloc
+#endif /* ifdef TESTING */
+
 #define DBG_CTR 1
 
 #if defined(THREADZ) || defined(LOCKLESS)
@@ -1634,7 +1641,7 @@ void fnpProcessEvent (void)
 
             // Need to send an 'accept_input' or 'input_in_mailbox' command to CS?
 
-            else if (linep->accept_input && ! linep->waitForMbxDone)
+            else if (linep->accept_input && ! linep->waitForMbxDone) //-V560
               {
                 if (linep->accept_input == 1)
                   {
@@ -2788,7 +2795,7 @@ void processUserInput (uv_tcp_t * client, unsigned char * buf, ssize_t nread)
                 case '\b':  // backspace
                 case 127:   // delete
                   {
-                    if (p->nPos)
+                    if (p->nPos) //-V547
                       {
                         fnpuv_start_writestr (client, (unsigned char *) "\b \b");
                                                      // removes char from line

@@ -34,6 +34,9 @@
 
 # include "dps8_faults.h"
 
+# undef FREE
+# define FREE(p) free(p)
+
 enum hevtType {
   hevtEmpty = 0,
   hevtTrace,

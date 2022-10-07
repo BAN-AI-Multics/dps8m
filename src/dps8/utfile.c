@@ -39,11 +39,16 @@
 # define srandom bsd_srandom
 #endif /* if defined(__MINGW64__) || defined(__MINGW32__) */
 
-#define FREE(p) do  \
-  {                 \
-    free((p));      \
-    (p) = NULL;     \
+#undef FREE
+#ifdef TESTING
+# define FREE(p) free(p)
+#else
+# define FREE(p) do  \
+  {                  \
+    free((p));       \
+    (p) = NULL;      \
   } while(0)
+#endif /* ifdef TESTING */
 
 static char valid_file_name_chars[]
   = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";

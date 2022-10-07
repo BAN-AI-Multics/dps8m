@@ -1319,6 +1319,7 @@ highmap
 highr
 highresult
 highwater
+hinfo
 hinstance
 hintlen
 hintmaxlen
@@ -8322,6 +8323,7 @@ behind
 being
 believe
 believed
+believes
 bell
 belly
 belonging
@@ -9945,6 +9947,7 @@ hashes
 hashing
 haskell
 hasp
+haswell
 have
 having
 haystack
@@ -10496,6 +10499,7 @@ links
 linter
 linus
 linux
+lipo
 lisp
 list
 listed
@@ -12672,6 +12676,7 @@ traps
 trashed
 traversal
 traverse
+trealloc
 treat
 treated
 treating

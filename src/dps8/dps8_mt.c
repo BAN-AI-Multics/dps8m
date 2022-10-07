@@ -48,6 +48,11 @@
 
 #define DBG_CTR 1
 
+#ifdef TESTING
+# undef FREE
+# define FREE(p) free(p)
+#endif /* ifdef TESTING */
+
 /*
  * mt.c -- mag tape
  * See manual AN87

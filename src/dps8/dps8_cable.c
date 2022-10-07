@@ -141,6 +141,11 @@
 
 #define DBG_CTR 1
 
+#ifdef TESTING
+# undef FREE
+# define FREE(p) free(p)
+#endif /* ifdef TESTING */
+
 struct cables_s * cables = NULL;
 
 char * ctlr_type_strs [/* enum ctlr_type_e */] =

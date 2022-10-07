@@ -93,6 +93,11 @@
 
 #define ASSUME0 0
 
+#ifdef TESTING
+# undef FREE
+# define FREE(p) free(p)
+#endif /* ifdef TESTING */
+
 // Strictly speaking, memory belongs in the SCU.
 // We will treat memory as viewed from the CPU and elide the
 // SCU configuration that maps memory across multiple SCUs.
@@ -4155,7 +4160,7 @@ static struct symbol_s symbols [] = {
 static void systabInit (void) {
   strncpy (system_state->symbolTable.symtabHdr, SYMTAB_HDR, sizeof (system_state->symbolTable.symtabHdr));
   system_state->symbolTable.symtabVer = SYMTAB_VER;
-  memcpy (system_state->symbolTable.symbols, symbols, sizeof (symbols));
+  memcpy (system_state->symbolTable.symbols, symbols, sizeof (symbols)); //-V1086
 }
 #endif /* ifndef PERF_STRIP */
 

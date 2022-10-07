@@ -540,7 +540,7 @@ else if (faultNumber == FAULT_ACV)
     // fixes 890-04a and 791 / 792
     SC_I_MIF (cpu.cycle == EXEC_cycle &&
               (cpu.currentInstruction.info->ndes > 0 ||
-               (faultNumber == FAULT_IPR && (subFault.fault_ipr_subtype & FR_ILL_OP) &&
+               (faultNumber == FAULT_IPR && (subFault.fault_ipr_subtype & FR_ILL_OP_CONST) &&
                 cpu.currentInstruction.opcodeX &&
                 (cpu.currentInstruction.opcode & 0410) == 0)));
     sim_debug (DBG_TRACEEXT, & cpu_dev, "MIF %o\n", TST_I_MIF);
@@ -607,11 +607,11 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle,
       }
     else if (faultNumber == FAULT_IPR)
       {
-        if (subFault.fault_ipr_subtype & FR_ILL_OP)
+        if (subFault.fault_ipr_subtype & FR_ILL_OP_CONST)
           cpu . cu . OEB_IOC   = 1;
-        if (subFault.fault_ipr_subtype & FR_ILL_MOD)
+        if (subFault.fault_ipr_subtype & FR_ILL_MOD_CONST)
           cpu . cu . EOFF_IAIM = 1;
-        if (subFault.fault_ipr_subtype & FR_ILL_SLV)
+        if (subFault.fault_ipr_subtype & FR_ILL_SLV_CONST)
           cpu . cu . ORB_ISP   = 1;
         if (subFault.fault_ipr_subtype & FR_ILL_DIG)
           cpu . cu . ROFF_IPR  = 1;

@@ -5074,7 +5074,7 @@ static void EISloadInputBufferNumeric (int k)
                 {
                     c &= 0xf;   // hack off all but lower 4 bits
 
-                    if (c < 012 || c > 017)
+                    if (c < 012 || c > 017) //-V560
                       doFault (FAULT_IPR,
                                fst_ill_dig,
                                "loadInputBufferNumeric(1): illegal char in "
@@ -5121,16 +5121,16 @@ static void EISloadInputBufferNumeric (int k)
 
                 if (n == 0) // first had better be a sign ....
                 {
-                    if (c < 012 || c > 017)
+                    if (c < 012 || c > 017) //-V560
                         doFault(FAULT_IPR, fst_ill_dig, "loadInputBufferNumeric(3): illegal char in input"); // TODO: generate ill proc fault
 
-                    if (c == 015)   // '-'
+                    if (c == 015)  // '-'
                         e->sign = -1;
                     e->srcTally -= 1;   // 1 less source char
                 }
                 else
                 {
-                    if (c > 011)
+                    if (c > 011) //-V560
                         doFault(FAULT_IPR, fst_ill_dig, "loadInputBufferNumeric(4): illegal char in input");
                     *p++ = c; // store 4-bit char in buffer
                 }
@@ -5141,7 +5141,7 @@ static void EISloadInputBufferNumeric (int k)
 
                 if (n == N-1) // last had better be a sign ....
                 {
-                    if (c < 012 || c > 017)
+                    if (c < 012 || c > 017) //-V560
                          doFault(FAULT_IPR, fst_ill_dig, "loadInputBufferNumeric(5): illegal char in input");
                     if (c == 015)   // '-'
                         e->sign = -1;
@@ -6450,7 +6450,7 @@ static MOP_struct* EISgetMop (void)
     //static word18 lastAddress;  // try to keep memory access' down
     //static word36 data;
 
-    if (e == NULL)
+    if (e == NULL) //-V547
     //{
     //    p->lastAddress = -1;
     //    p->data = 0;
@@ -6552,8 +6552,9 @@ static void mopExecutor (int kMop)
           }
         int mres = m->f();    // execute mop
 
-        if (e->_faults & FAULT_IPR) // hard IPR raised by a MOP
-            break;
+        // PVS-Studio claims: Expression 'e->_faults & FAULT_IPR' is always false.
+        if (e->_faults & FAULT_IPR) //-V547
+            break; // hard IPR raised by a MOP
 
         // RJ78 specifies "if at completion of a move (L1 exhausted)", AL39
         // doesn't define "completion of a move".
@@ -6588,7 +6589,7 @@ static void mopExecutor (int kMop)
                     writeToOutputBuffer(&e->out, 9, e->dstSZ, e->editInsertionTable[0]);
                   }
               }
-            else if (mres || e->dstTally)
+            else if (mres || e->dstTally) //-V560
               { // N1 or N2 exhausted and BZ wasn't enabled
                 e->_faults |= FAULT_IPR;
               } // otherwise normal termination
@@ -8159,14 +8160,15 @@ static bool EISgetBitRWNR (EISaddr * p, bool flush)
         bitPosn += 36;
         woff -= 1;
       }
-if (bitPosn < 0) {
-sim_printf ("cPos %d bPos %d\n", p->cPos, p->bPos);
-sim_printf ("baseCharPosn %d baseBitPosn %d\n", baseCharPosn, baseBitPosn);
-sim_printf ("CHTALLY %d baseBitPosn %d\n", cpu.du.CHTALLY, baseBitPosn);
-sim_printf ("bitPosn %d woff %d\n", bitPosn, woff);
-sim_warn ("EISgetBitRWNR oops\n");
-return false;
-}
+
+/* if (bitPosn < 0) { */
+/* sim_printf ("cPos %d bPos %d\n", p->cPos, p->bPos); */
+/* sim_printf ("baseCharPosn %d baseBitPosn %d\n", baseCharPosn, baseBitPosn); */
+/* sim_printf ("CHTALLY %d baseBitPosn %d\n", cpu.du.CHTALLY, baseBitPosn); */
+/* sim_printf ("bitPosn %d woff %d\n", bitPosn, woff); */
+/* sim_warn ("EISgetBitRWNR oops\n"); */
+/* return false; */
+/* } */
 
 #ifdef EIS_PTR
     long eisaddr_idx = EISADDR_IDX (p);

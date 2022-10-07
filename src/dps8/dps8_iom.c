@@ -1772,7 +1772,8 @@ static int status_service (uint iom_unit_idx, uint chan, bool marker)
       }
     iom_core_write2 (iom_unit_idx, addr, word1, word2, __func__);
 
-    if (tally > 0 || (tally == 0 && lq != 0))
+    // XXX: PVS-Studio believes that tally is always == 0!?
+    if (tally > 0 || (tally == 0 && lq != 0)) //-V560
       {
         switch (lq)
           {

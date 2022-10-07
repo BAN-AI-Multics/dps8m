@@ -57,11 +57,16 @@
 # define NI_MAXHOST 1025
 #endif
 
-#define FREE(p) do  \
-  {                 \
-    free((p));      \
-    (p) = NULL;     \
+#undef FREE
+#ifdef TESTING
+# define FREE(p) free(p)
+#else
+# define FREE(p) do  \
+  {                  \
+    free((p));       \
+    (p) = NULL;      \
   } while(0)
+#endif /* ifdef TESTING */
 
 /*
  * OS dependent routines

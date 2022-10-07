@@ -94,9 +94,21 @@
 #include "sim_tmxr.h"
 #include "scp.h"
 
+#define DBG_CTR 0
+
+#include "../dps8/dps8.h"
+
 #include <ctype.h>
 #include <signal.h>
 #include <math.h>
+
+#ifdef TESTING
+# include "../dps8/dps8_cpu.h"
+# undef realloc
+# undef FREE
+# define FREE(p) free(p)
+# define realloc trealloc
+#endif /* ifdef TESTING */
 
 /* Telnet protocol constants - negatives are for init'ing signed char data */
 

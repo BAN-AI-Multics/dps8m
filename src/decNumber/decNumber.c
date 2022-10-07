@@ -158,11 +158,16 @@
 #include "decNumber.h"             // base number library
 #include "decNumberLocal.h"        // decNumber local types, etc.
 
-#define FREE(p) do  \
-  {                 \
-    free((p));      \
-    (p) = NULL;     \
+#undef FREE
+#ifdef TESTING
+# define FREE(p) free(p)
+#else
+# define FREE(p) do  \
+  {                  \
+    free((p));       \
+    (p) = NULL;      \
   } while(0)
+#endif
 
 /* Constants */
 // Public lookup table used by the D2U macro

@@ -149,51 +149,51 @@ typedef long        int64;
 
 /* Data types */
 
-typedef uint8       word1;
-typedef uint8       word2;
-typedef uint8       word3;
-typedef uint8       word4;
-typedef uint8       word5;
-typedef uint8       word6;
-typedef uint8       word7;
-typedef uint8       word8;
-typedef int8        word8s; // signed 8-bit quantity
-typedef uint16      word9;
-typedef uint16      word10;
-typedef uint16      word11;
-typedef uint16      word12;
-typedef int16       word12s;
-typedef uint16      word13;
-typedef uint16      word14;
-typedef uint16      word15;
-typedef uint16      word16;
-typedef uint32      word17;
-typedef uint32      word18;
-typedef uint32      word19;
-typedef int32       word18s;
-typedef uint32      word20;
-typedef int32       word20s;
-typedef uint32      word21;
-typedef uint32      word22;
-typedef uint32      word23;
-typedef uint32      word24;
-typedef uint32      word27;
-typedef int32       word27s;
-typedef uint32      word28;
-typedef uint32      word32;
-typedef uint64      word34;
-typedef uint64      word36;
-typedef uint64      word37;
-typedef uint64      word38;
-typedef int64       word38s;
-typedef int64       word36s;
+typedef uint8        word1;
+typedef uint8        word2;
+typedef uint8        word3;
+typedef uint8        word4;
+typedef uint8        word5;
+typedef uint8        word6;
+typedef uint8        word7;
+typedef uint8        word8;
+typedef int8         word8s; // signed 8-bit quantity
+typedef uint16       word9;
+typedef uint16       word10;
+typedef uint16       word11;
+typedef uint16       word12;
+typedef int16        word12s;
+typedef uint16       word13;
+typedef uint16       word14;
+typedef uint16       word15;
+typedef uint16       word16;
+typedef uint32       word17;
+typedef uint32       word18;
+typedef uint32       word19;
+typedef int32        word18s;
+typedef uint32       word20;
+typedef int32        word20s;
+typedef uint32       word21;
+typedef uint32       word22;
+typedef uint32       word23;
+typedef uint32       word24;
+typedef uint32       word27;
+typedef int32        word27s;
+typedef uint32       word28;
+typedef uint32       word32;
+typedef uint64       word34;
+typedef uint64       word36;
+typedef uint64       word37;
+typedef uint64       word38;
+typedef int64        word38s;
+typedef int64        word36s;
 # ifndef NEED_128
-typedef __uint128_t word72;
-typedef __int128_t  word72s;
-typedef __uint128_t word73;
-typedef __uint128_t word74;
-typedef __uint128_t uint128;
-typedef __int128_t  int128;
+typedef __uint128_t  word72;
+typedef __int128_t   word72s;
+typedef __uint128_t  word73;
+typedef __uint128_t  word74;
+typedef __uint128_t  uint128;
+typedef __int128_t   int128;
 # else
 typedef x__uint128_t word72;
 typedef x__int128_t  word72s;
@@ -203,8 +203,8 @@ typedef x__uint128_t uint128;
 typedef x__int128_t  int128;
 # endif
 
-typedef word36      float36;    // single precision float
-typedef word72      float72;    // double precision float
+typedef word36       float36;   // single precision float
+typedef word72       float72;   // double precision float
 
 typedef unsigned int uint;      // efficient unsigned int, at least 32 bits
 
@@ -214,14 +214,14 @@ typedef unsigned int uint;      // efficient unsigned int, at least 32 bits
 # include "dps8_hw_consts.h"
 # include "dps8_em_consts.h"
 
-# define SETF(flags, x)         flags = ((flags) |  (x))
-# define CLRF(flags, x)         flags = ((flags) & ~(x))
-# define TSTF(flags, x)         (((flags) & (x)) ? 1 : 0)
-# define SCF(cond, flags, x)    { if (cond) SETF((flags), x); else CLRF((flags), x); }
+# define SETF(flags, x)       flags = ((flags) |  (x))
+# define CLRF(flags, x)       flags = ((flags) & ~(x))
+# define TSTF(flags, x)       (((flags) & (x)) ? 1 : 0)
+# define SCF(cond, flags, x)  { if (cond) SETF((flags), x); else CLRF((flags), x); }
 
-# define SETBIT(dst, bitno)      ((dst)  |  (1LLU << (bitno)))
-# define CLRBIT(dst, bitno)      ((dst)  & ~(1LLU << (bitno)))
-# define TSTBIT(dst, bitno)      (((dst) &  (1LLU << (bitno))) ? 1: 0)
+# define SETBIT(dst, bitno)   ((dst)  |  (1LLU << (bitno)))
+# define CLRBIT(dst, bitno)   ((dst)  & ~(1LLU << (bitno)))
+# define TSTBIT(dst, bitno)   (((dst) &  (1LLU << (bitno))) ? 1: 0)
 
 typedef enum
   {
@@ -262,25 +262,25 @@ typedef enum
 # define GETBYTE(src, pos) (word9)(((word36)src >> (word36)((3 - pos) * 9)) & 0777)
 
 # ifdef NEED_128
-#  define YPAIRTO72(ypair) construct_128 ((ypair[0] >> 28) & MASK8,       \
-                                       ((ypair[0] & MASK28) << 36)    | \
-                                        (ypair[1] & MASK36));
+#  define YPAIRTO72(ypair) construct_128 ((ypair[0] >> 28) & MASK8,    \
+                                         ((ypair[0] & MASK28) << 36) | \
+                                          (ypair[1] & MASK36));
 # else
-#  define YPAIRTO72(ypair)    (((((word72)(ypair[0] & DMASK)) << 36)    | \
-                                        (ypair[1] & DMASK)) & MASK72)
+#  define YPAIRTO72(ypair)    (((((word72)(ypair[0] & DMASK)) << 36) | \
+                                          (ypair[1] & DMASK)) & MASK72)
 # endif
 
 # define GET_TALLY(src) (((src) >> 6) & MASK12)   // 12-bits
 # define GET_DELTA(src)  ((src) & MASK6)          // 6-bits
 
 # ifndef max
-#  define max(a,b)    max2((a),(b))
+#  define max(a,b)   max2((a),(b))
 # endif
 # define max2(a,b)   ((a) > (b) ? (a) : (b))
 # define max3(a,b,c) max((a), max((b),(c)))
 
 # ifndef min
-#  define min(a,b)    min2((a),(b))
+#  define min(a,b)   min2((a),(b))
 # endif
 # define min2(a,b)   ((a) < (b) ? (a) : (b))
 # define min3(a,b,c) min((a), min((b),(c)))
@@ -338,19 +338,19 @@ typedef enum
 // opcode metadata (disallowed) modifications
 enum opc_mod
   {
-    NO_DU                 = (1U << 0),   // No DU modification allowed (Can these 2 be combined into 1?)
-    NO_DL                 = (1U << 1),   // No DL modification allowed
-# define NO_DUDL         (NO_DU | NO_DL)
+    NO_DU           = (1U << 0),   // No DU modification allowed (Can these 2 be combined into 1?)
+    NO_DL           = (1U << 1),   // No DL modification allowed
+# define NO_DUDL    (NO_DU | NO_DL)
 
-    NO_CI                 = (1U << 2),   // No character indirect modification (can these next 3 be combined?_
-    NO_SC                 = (1U << 3),   // No sequence character modification
-    NO_SCR                = (1U << 4),   // No sequence character reverse modification
-# define NO_CSS          (NO_CI | NO_SC | NO_SCR)
+    NO_CI           = (1U << 2),   // No character indirect modification (can these next 3 be combined?_
+    NO_SC           = (1U << 3),   // No sequence character modification
+    NO_SCR          = (1U << 4),   // No sequence character reverse modification
+# define NO_CSS     (NO_CI | NO_SC | NO_SCR)
 
-# define NO_DLCSS        (NO_DU   | NO_CSS)
-# define NO_DDCSS        (NO_DUDL | NO_CSS)
+# define NO_DLCSS   (NO_DU   | NO_CSS)
+# define NO_DDCSS   (NO_DUDL | NO_CSS)
 
-    ONLY_AU_QU_AL_QL_XN   = (1U << 5)    // None except au, qu, al, ql, xn
+    ONLY_AU_QU_AL_QL_XN = (1U << 5)    // None except au, qu, al, ql, xn
   };
 
 // None except au, qu, al, ql, xn for MF1 and REG
@@ -454,18 +454,18 @@ enum eCAFoper {
 };
 typedef enum eCAFoper eCAFoper;
 
-# define READOP(i) ((bool) (i->info->flags     &  \
-                           (READ_OPERAND       |  \
-                            READ_YPAIR         |  \
-                            READ_YBLOCK8       |  \
-                            READ_YBLOCK16      |  \
+# define READOP(i) ((bool) (i->info->flags    &  \
+                           (READ_OPERAND      |  \
+                            READ_YPAIR        |  \
+                            READ_YBLOCK8      |  \
+                            READ_YBLOCK16     |  \
                             READ_YBLOCK32)))
 
-# define WRITEOP(i) ((bool) (i->info->flags    &  \
-                            (STORE_OPERAND     |  \
-                             STORE_YPAIR       |  \
-                             STORE_YBLOCK8     |  \
-                             STORE_YBLOCK16    |  \
+# define WRITEOP(i) ((bool) (i->info->flags   &  \
+                            (STORE_OPERAND    |  \
+                             STORE_YPAIR      |  \
+                             STORE_YBLOCK8    |  \
+                             STORE_YBLOCK16   |  \
                              STORE_YBLOCK32)))
 
 // if it's both read and write it's a RMW
@@ -482,10 +482,10 @@ typedef enum eCAFoper eCAFoper;
 // AL39 Table 4-3. Alphanumeric Data Type (TA) Codes
 enum
   {
-    CTA9 = 0U,       // 9-bit bytes
-    CTA6 = 1U,       // 6-bit characters
-    CTA4 = 2U,       // 4-bit decimal
-    CTAILL = 3U      // Illegal
+    CTA9   = 0U, // 9-bit bytes
+    CTA6   = 1U, // 6-bit characters
+    CTA4   = 2U, // 4-bit decimal
+    CTAILL = 3U  // Illegal
   };
 
 // TN - Type Numeric AL39 Table 4-3. Alphanumeric Data Type (TN) Codes
@@ -499,10 +499,10 @@ enum
 
 enum
   {
-    CSFL = 0U,  // Floating-point, leading sign
-    CSLS = 1U,  // Scaled fixed-point, leading sign
-    CSTS = 2U,  // Scaled fixed-point, trailing sign
-    CSNS = 3U   // Scaled fixed-point, unsigned
+    CSFL = 0U,   // Floating-point, leading sign
+    CSLS = 1U,   // Scaled fixed-point, leading sign
+    CSTS = 2U,   // Scaled fixed-point, trailing sign
+    CSNS = 3U    // Scaled fixed-point, unsigned
   };
 
 enum
@@ -532,10 +532,10 @@ enum
 // RNR/SNR/BAR etc.
 typedef enum
   {
-    eisUnknown = 0, // uninitialized
-    eisTA = 1,      // type alphanumeric
-    eisTN = 2,      // type numeric
-    eisBIT = 3      // bit string
+    eisUnknown = 0,  // uninitialized
+    eisTA      = 1,  // type alphanumeric
+    eisTN      = 2,  // type numeric
+    eisBIT     = 3   // bit string
   } eisDataType;
 
 typedef enum
@@ -548,11 +548,16 @@ typedef enum
 
 # define ARRAY_SIZE(a) ( sizeof(a) / sizeof((a)[0]) )
 
-# define FREE(p) do  \
-  {                  \
-    free((p));       \
-    (p) = NULL;      \
+# undef FREE
+# ifdef TESTING
+#  define FREE(p) free(p)
+# else
+#  define FREE(p) do  \
+  {                   \
+    free((p));        \
+    (p) = NULL;       \
   } while(0)
+# endif /* ifdef TESTING */
 
 # if defined (__MINGW64__) || \
     defined (__MINGW32__)  || \
@@ -567,4 +572,8 @@ typedef enum
 
 # define MAX_DEV_NAME_LEN 64
 
+// TESTING realloc wrapper function
+# ifdef TESTING
+void * trealloc(void *ptr, size_t size);
+# endif /* ifdef TESTING */
 #endif // ifdef DPS8_H

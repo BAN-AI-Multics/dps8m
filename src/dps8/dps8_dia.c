@@ -51,6 +51,11 @@
 # include "threadz.h"
 #endif
 
+#ifdef TESTING
+# undef FREE
+# define FREE(p) free(p)
+#endif /* ifdef TESTING */
+
 static inline void fnp_core_read (word24 addr, word36 *data, UNUSED const char * ctx)
   {
 #ifdef THREADZ

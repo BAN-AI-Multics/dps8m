@@ -35,6 +35,11 @@
 
 #include "udplib.h"
 
+#ifdef TESTING
+# undef FREE
+# define FREE(p) free(p)
+#endif /* ifdef TESTING */
+
 #ifdef WITH_ABSI_DEV
 # define DBG_CTR 1
 
