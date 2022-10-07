@@ -90,6 +90,10 @@
 # include <signal.h>
 #endif
 
+#ifdef __HAIKU__
+# include <OS.h>
+#endif /* ifdef __HAIKU__ */
+
 #define DBG_CTR 0
 
 #include "../dps8/dps8.h"
@@ -110,6 +114,11 @@
 #ifndef MAX
 # define MAX(a,b)  (((a) >= (b)) ? (a) : (b))
 #endif
+
+#ifdef TESTING
+# undef FREE
+# define FREE(p) free(p)
+#endif /* ifdef TESTING */
 
 /* search logical and boolean ops */
 
@@ -1294,6 +1303,46 @@ return 0;
 }
 #endif
 
+/* Testing realloc */
+
+#ifdef TESTING
+void *
+trealloc(void *ptr, size_t size)
+{
+  void *r = realloc(ptr, size);
+
+  if (r != ptr) return r;
+  else if (r)
+    {
+      void *rm = malloc(size);
+      if (!rm)
+        {
+          (void)fprintf(
+            stderr,
+            "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
+            __func__, __FILE__, __LINE__);
+# if defined(USE_BACKTRACE)
+#  ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+#  endif /* ifdef SIGUSR2 */
+# endif /* if defined(USE_BACKTRACE) */
+        abort();
+        /* NOTREACHED */ /* unreachable */
+        }
+      memcpy(rm, r, size);
+      free(r);
+      return rm;
+    }
+  else return r;
+}
+#endif /* ifdef TESTING */
+
+#ifdef TESTING
+# undef realloc
+# define realloc trealloc
+#endif /* ifdef TESTING */
+
 t_stat process_stdin_commands (t_stat stat, char *argv[]);
 
 /* Check if running on Rosetta 2 */
@@ -1476,6 +1525,10 @@ if (handle != INVALID_HANDLE_VALUE)
   }
 puts ("\e[0m");
 # endif /* NEED_CONSOLE_SETUP */
+
+# ifdef __HAIKU__
+(void)disable_debugger(1);
+# endif /* ifdef __HAIKU__ */
 
 /* sanity checks */
 
@@ -3095,6 +3148,11 @@ for (; *ip && (op < oend); ) {
                       || (!strcmp("PROCESSORS", gbuf) ) ) {
 #if defined(LINUX_OS)
                         sprintf(rbuf, "%ld", (long)get_nprocs());
+#elif defined ( __HAIKU__ )
+                        system_info hinfo;
+                        get_system_info(&hinfo);
+                        sprintf (rbuf, "%llu",
+                            (long long unsigned int)hinfo.cpu_count);
 #else
                         sprintf(rbuf, "1");
 #endif /* if defined(LINUX_OS) */

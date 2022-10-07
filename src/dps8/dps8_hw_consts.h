@@ -787,11 +787,15 @@ typedef enum fault_acv_subtype_
     flt_acv_FORCE = 0400000000000llu // Force enum size to 36 bits.
   } fault_acv_subtype_;
 
+# define FR_ILL_OP_CONST  0400000000000llu
+# define FR_ILL_MOD_CONST 0200000000000llu
+# define FR_ILL_SLV_CONST 0100000000000llu
+
 typedef enum fault_ipr_subtype_
   {
-    FR_ILL_OP       = 0400000000000llu, //  0 a ILL OP
-    FR_ILL_MOD      = 0200000000000llu, //  1 b ILL MOD
-    FR_ILL_SLV      = 0100000000000llu, //  2 c ILL SLV
+    FR_ILL_OP       = FR_ILL_OP_CONST,  //  0 a ILL OP
+    FR_ILL_MOD      = FR_ILL_MOD_CONST, //  1 b ILL MOD
+    FR_ILL_SLV      = FR_ILL_SLV_CONST, //  2 c ILL SLV
     FR_ILL_PROC     = 0040000000000llu, //  3 d ILL PROC
     FR_ILL_PROC_MOD = 0240000000000llu, //  1,3 d ILL PROC | ILL MOD
     FR_NEM          = 0020000000000llu, //  4 e NEM

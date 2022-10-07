@@ -65,6 +65,7 @@
 #  include <sys/termiox.h>
 # endif /* if defined( __sun ) && defined( __SVR4 ) */
 # include "linehistory.h"
+# include "../dps8/dps8.h"
 # include <ctype.h>
 # include <errno.h>
 # include <stdio.h>
@@ -76,11 +77,19 @@
 # include <sys/types.h>
 # include <unistd.h>
 
+# undef FREE
 # define FREE(p) do  \
   {                  \
     free((p));       \
     (p) = NULL;      \
   } while(0)
+
+# ifdef TESTING
+#  undef realloc
+#  undef FREE
+#  define FREE(p) free(p)
+#  define realloc trealloc
+# endif /* ifdef TESTING */
 
 # define LINENOISE_DEFAULT_HISTORY_MAX_LEN  100
 # define LINENOISE_MAX_LINE                4096

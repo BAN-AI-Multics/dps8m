@@ -1369,7 +1369,10 @@ A:;
     //
 
 #ifdef LOCKLESS
-    if (!StrOp || thisCycle == OPERAND_RMW || thisCycle == APU_DATA_RMW)
+    // PVS-Studio reports ...
+    // V560 A part of conditional expression is always false: thisCycle == OPERAND_RMW.
+    // V560 A part of conditional expression is always false: thisCycle == APU_DATA_RMW.
+    if (!StrOp || thisCycle == OPERAND_RMW || thisCycle == APU_DATA_RMW) // -V560
 #else
     if (!StrOp)
 #endif

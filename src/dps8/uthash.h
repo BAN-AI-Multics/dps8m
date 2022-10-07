@@ -85,11 +85,16 @@ typedef unsigned char uint8_t;
 
 # define UTHASH_VERSION 21.9.8
 
-# define FREE(p) do  \
-  {                  \
-    free((p));       \
-    (p) = NULL;      \
+# undef FREE
+# ifdef TESTING
+#  define FREE(p) free(p)
+# else
+#  define FREE(p) do  \
+  {                   \
+    free((p));        \
+    (p) = NULL;       \
   } while(0)
+# endif /* ifdef TESTING */
 
 # ifndef uthash_fatal
 #  define uthash_fatal(msg) abort()         /* fatal error (out of memory,etc) */

@@ -74,6 +74,11 @@
 # include <windows.h>
 #endif /* ifdef _WIN32 */
 
+#ifdef TESTING
+# undef FREE
+# define FREE(p) free(p)
+#endif /* ifdef TESTING */
+
 #ifndef DECLITEND
 # error Unknown platform endianness
 #endif /* ifndef DECLITEND */

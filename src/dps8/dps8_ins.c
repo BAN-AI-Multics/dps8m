@@ -1531,7 +1531,8 @@ t_stat executeInstruction (void) {
     )
   }
 
-  if (unlikely (RPx_fault != 0))
+  // PVS-Studio says: Expression 'RPx_fault != 0' is always false.
+  if (unlikely (RPx_fault != 0)) //-V547
     doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=RPx_fault}, "RPx test fail");
 
   ///                     check for illegal addressing mode(s) ...

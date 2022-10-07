@@ -74,6 +74,11 @@
 #include <ctype.h>
 #include <signal.h>
 
+#ifdef TESTING
+# undef FREE
+# define FREE(p) free(p)
+#endif /* ifdef TESTING */
+
 struct sim_tape_fmt {
     const char          *name;                          /* name */
     int32               uflags;                         /* unit flags */

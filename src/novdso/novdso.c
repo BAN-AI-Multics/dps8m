@@ -36,18 +36,18 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <unistd.h>
 
 #ifdef __linux__
-# include <errno.h>
 # include <linux/auxvec.h>
 # include <signal.h>
-# include <stdlib.h>
 # include <string.h>
 # include <sys/prctl.h>
 # include <sys/ptrace.h>
 # include <sys/reg.h>
 # include <sys/wait.h>
-# include <unistd.h>
 
 static void
 removeVDSO(int pid)

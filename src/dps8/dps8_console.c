@@ -68,6 +68,13 @@
 #define DBG_CTR 1
 #define ASSUME0 0
 
+#ifdef TESTING
+# undef realloc
+# undef FREE
+# define FREE(p) free(p)
+# define realloc trealloc
+#endif /* ifdef TESTING */
+
 // config switch -- The bootload console has a 30-second timer mechanism. When
 // reading from the console, if no character is typed within 30 seconds, the
 // read operation is terminated. The timer is controlled by an enable switch,

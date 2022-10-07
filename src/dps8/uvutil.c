@@ -28,6 +28,13 @@
 #include "libtelnet.h"
 #include "uvutil.h"
 
+#ifdef TESTING
+# undef realloc
+# undef FREE
+# define FREE(p) free(p)
+# define realloc trealloc
+#endif /* ifdef TESTING */
+
 #define USE_REQ_DATA
 
 static void accessTelnetReadCallback (uv_tcp_t * client,

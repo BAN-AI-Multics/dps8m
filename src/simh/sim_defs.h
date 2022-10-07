@@ -786,11 +786,16 @@ struct FILEREF {
 # include "sim_timer.h"
 # include "sim_fio.h"
 
-# define FREE(p) do  \
-  {                  \
-    free((p));       \
-    (p) = NULL;      \
+# undef FREE
+# ifdef TESTING
+#  define FREE(p) free(p)
+# else
+#  define FREE(p) do  \
+  {                   \
+    free((p));        \
+    (p) = NULL;       \
   } while(0)
+# endif /* ifdef TESTING */
 
 /* Macro to ALWAYS execute the specified expression and fail if it evaluates to false. */
 

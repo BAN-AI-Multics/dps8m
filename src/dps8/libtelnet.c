@@ -79,11 +79,19 @@
 
 #include "libtelnet.h"
 
+#undef FREE
 #define FREE(p) do  \
   {                 \
     free((p));      \
     (p) = NULL;     \
   } while(0)
+
+#ifdef TESTING
+# undef realloc
+# undef FREE
+# define FREE(p) free(p)
+# define realloc trealloc
+#endif /* ifdef TESTING */
 
 /* helper for Q-method option tracking */
 #define Q_US(q)    ((q).state & 0x0F)

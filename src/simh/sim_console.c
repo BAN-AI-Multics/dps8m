@@ -80,9 +80,21 @@
 #include <signal.h>
 #include <math.h>
 
+#define DBG_CTR 0
+
+#include "../dps8/dps8.h"
+
 #ifdef __HAIKU__
 # define nice(n) ({})
-#endif
+#endif /* ifdef __HAIKU__ */
+
+#ifdef TESTING
+# include "../dps8/dps8_cpu.h"
+# undef realloc
+# undef FREE
+# define FREE(p) free(p)
+# define realloc trealloc
+#endif /* ifdef TESTING */
 
 /* Forward Declarations of Platform specific routines */
 

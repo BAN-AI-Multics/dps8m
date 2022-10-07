@@ -951,38 +951,41 @@ static int wcd (struct decoded_t *decoded_p)
 //      2 saved_meters like fnp_channel_meters;
 //
 
+
+/*NOTREACHED*/ /* unreachable */
+
 //  dcl 1 fnp_channel_meters based aligned,
-struct fnp_channel_meters
+struct fnp_channel_meters //-V779
   {
 //      2 header,
-struct header
-  {
+struct header //-V779
+  { //-V779
 //        3 dia_request_q_len fixed bin (35),                             /* cumulative */
-word36 dia_request_q_len;
+word36 dia_request_q_len; //-V779
 //        3 dia_rql_updates fixed bin (35),                     /* updates to above */
-word36 dia_rql_updates;
+word36 dia_rql_updates; //-V779
 //        3 pending_status fixed bin (35),                      /* cumulative */
-word36 pending_status;
+word36 pending_status; //-V779
 //        3 pending_status_updates fixed bin (35),              /* updates to above */
-word36 pending_status_updates;
+word36 pending_status_updates; //-V779
 //        3 output_overlaps fixed bin (18) unsigned unaligned,  /* output chained to already-existing chain */
 //        3 parity_errors fixed bin (18) unsigned unaligned,    /* parity on the channel */
-word36 output_overlaps___parity_errors;
+word36 output_overlaps___parity_errors; //-V779
 //        3 software_status_overflows fixed bin (18) unsigned unaligned,
 //        3 hardware_status_overflows fixed bin (18) unsigned unaligned,
-word36 software_status_overflows___hardware_status_overflows;
+word36 software_status_overflows___hardware_status_overflows; //-V779
 //        3 input_alloc_failures fixed bin (18) unsigned unaligned,
 //        3 dia_current_q_len fixed bin (18) unsigned unaligned,          /* current length of dia request queue */
-word36 input_alloc_failures___dia_current_q_len;
+word36 input_alloc_failures___dia_current_q_len; //-V779
 //        3 exhaust fixed bin (35),
-word36 exhaust;
+word36 exhaust; //-V779
 //        3 software_xte fixed bin (18) unsigned unaligned,
 //        3 pad bit (18) unaligned,
-word36 software_xte___sync_or_async;
-  } header;
+word36 software_xte___sync_or_async; //-V779
+  } header; //-V779
 //      2 sync_or_async (17) fixed bin;                         /* placeholder for meters for sync or async channels */
-word36 sync_or_async;
-  };
+word36 sync_or_async; //-V779
+  }; //-V779
 
 //
 //  dcl 1 fnp_sync_meters based aligned,
@@ -997,19 +1000,19 @@ word36 sync_or_async;
 //      2 pad (3) fixed bin;
 //
 //  dcl 1 fnp_async_meters based aligned,
-struct fnp_async_meters
-  {
+struct fnp_async_meters //-V779
+  { //-V779
 //      2 header like fnp_channel_meters.header,
 //      2 pre_exhaust fixed bin (35),
-word36 pre_exhaust;
+word36 pre_exhaust; //-V779
 //      2 echo_buf_overflow fixed bin (35),                     /* number of times echo buffer has overflowed */
-word36 echo_buf_overflow;
+word36 echo_buf_overflow; //-V779
 //      2 bell_quits fixed bin (18) unsigned unaligned,
 //      2 padb bit (18) unaligned,
-word36 bell_quits___pad;
+word36 bell_quits___pad; //-V779
 //      2 pad (14) fixed bin;
-word36 pad;
-  };
+word36 pad; //-V779
+  }; //-V779
 //
         case 36: // report_meters
           {
@@ -1172,7 +1175,7 @@ sim_printf ("']\n");
 #endif
     if (tally > 0 && linep->line_client)
       {
-        if (! linep->line_client || ! linep->line_client->data)
+        if (! linep->line_client || ! linep->line_client->data) //-V560
           {
             sim_warn ("fnp_wtx_output bad client data\r\n");
             return;
@@ -1298,7 +1301,7 @@ sim_printf ("']\n");
         for (uint i = 0; i < n_chars_in_buf; i += 4)
           {
             word36 v = 0;
-            if (i < n_chars_in_buf)
+            if (i < n_chars_in_buf) //-V547
               putbits36_9 (& v, 0, data_p [off++]);
             if (i + 1 < n_chars_in_buf)
               putbits36_9 (& v, 9, data_p [off++]);
@@ -1654,11 +1657,11 @@ static int interruptL66 (uint iomUnitIdx, uint chan)
       {
         interruptL66_CS_to_FNP (decoded_p);
       }
-    else if (decoded_p->cell >= 8 && decoded_p->cell <= 11)
+    else if (decoded_p->cell >= 8 && decoded_p->cell <= 11) //-V560
       {
         interruptL66_FNP_to_CS (decoded_p);
       }
-    else if (decoded_p->cell >= 12 && decoded_p->cell <= 15)
+    else if (decoded_p->cell >= 12 && decoded_p->cell <= 15) //-V560
       {
         interruptL66_CS_done (decoded_p);
       }

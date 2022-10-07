@@ -86,6 +86,9 @@
 #if !defined(LIBTELNET_INCLUDE)
 # define LIBTELNET_INCLUDE 1
 
+/* local definitions */
+# include "dps8.h"
+
 /* standard C headers necessary for the libTELNET API */
 # include <stdarg.h>
 # include <stddef.h>

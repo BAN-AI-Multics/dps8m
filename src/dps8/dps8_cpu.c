@@ -70,6 +70,11 @@ __thread uint current_running_cpu_idx;
 
 #define ASSUME0 0
 
+#ifdef TESTING
+# undef FREE
+# define FREE(p) free(p)
+#endif /* ifdef TESTING */
+
 // CPU data structures
 
 static UNIT cpu_unit [N_CPU_UNITS_MAX] = {

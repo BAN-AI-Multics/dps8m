@@ -38,8 +38,9 @@
 #endif /* FreeBSD || OpenBSD */
 
 #if defined ( __HAIKU__ )
+# include <OS.h>
 # undef pthread_setname_np
-# define pthread_setname_np(x,y)
+# define pthread_setname_np(x,y) rename_thread(find_thread(NULL),y)
 #endif /* Haiku */
 
 //
