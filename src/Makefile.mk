@@ -151,7 +151,7 @@ ifneq ($(OS),Windows_NT)
   ifeq ($(UNAME_S),Darwin)
     OS = OSX
     ifneq "$(findstring gcc,$(CC))" ""
-      CFLAGS += -D__thread=
+      CFLAGS += -fpie
     endif
   endif
 endif
