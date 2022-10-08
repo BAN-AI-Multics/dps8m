@@ -523,9 +523,11 @@ static const telnet_telopt_t my_telopts[] =
 static void * accessTelnetConnect (uv_tcp_t * client)
   {
     void * p = (void *) telnet_init (my_telopts, evHandler, 0, client);
-    if (! p)
+    if (!p)
       {
-        sim_warn ("telnet_init failed\n");
+        fprintf(stderr, "\rtelnet_init failed at %s[%s:%d]\r\n",
+                __func__, __FILE__, __LINE__);
+        return NULL;
       }
     const telnet_telopt_t * q = my_telopts;
     while (q->telopt != -1)
@@ -595,7 +597,7 @@ static void onNewAccess (uv_stream_t * server, int status)
         if (access->useTelnet)
           {
             access->telnetp = accessTelnetConnect (access->client);
-            if (! access->telnetp)
+            if (!access->telnetp)
               {
                  sim_warn ("ltnConnect failed\n");
                  return;

@@ -166,12 +166,12 @@
     (w)=u1*v1 + w2 + (w1>>16);}
 
   /* ROUNDUP -- round an integer up to a multiple of n                */
-# define ROUNDUP(i, n) ((((i)+(n)-1)/n)*n)
-# define ROUNDUP4(i)   (((i)+3)&~3)     /* special for n=4            */
+# define ROUNDUP(i, n) ((((i)+(n)-1)/n)*n) //-V1003
+# define ROUNDUP4(i)   (((i)+3)&~3)        /* special for n=4         */
 
   /* ROUNDDOWN -- round an integer down to a multiple of n            */
-# define ROUNDDOWN(i, n) (((i)/n)*n)
-# define ROUNDDOWN4(i)   ((i)&~3)       /* special for n=4            */
+# define ROUNDDOWN(i, n) (((i)/n)*n)       //-V1003
+# define ROUNDDOWN4(i)   ((i)&~3)          /* special for n=4         */
 
   /* References to multi-byte sequences under different sizes; these  */
   /* require locally declared variables, but do not violate strict    */
@@ -345,8 +345,8 @@
 
   /* Test if exponent or bcdnum exponent must be a special, etc.      */
 # define EXPISSPECIAL(exp) ((exp)>=DECFLOAT_MinSp)
-# define EXPISINF(exp) (exp==DECFLOAT_Inf)
-# define EXPISNAN(exp) (exp==DECFLOAT_qNaN || exp==DECFLOAT_sNaN)
+# define EXPISINF(exp) (exp==DECFLOAT_Inf) //-V1003
+# define EXPISNAN(exp) (exp==DECFLOAT_qNaN || exp==DECFLOAT_sNaN) //-V1003
 # define NUMISSPECIAL(num) (EXPISSPECIAL((num)->exponent))
 
   /* Refer to a 32-bit word or byte in a decFloat (df) by big-endian  */

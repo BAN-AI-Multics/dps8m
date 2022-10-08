@@ -16,6 +16,8 @@
  * -------------------------------------------------------------------------
  */
 
+//-V::1048
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -45,7 +47,7 @@
 typedef unsigned char uint8;
 typedef unsigned short uint16;
 typedef uint16 word12;
-typedef unsigned int uint;
+typedef unsigned int uint; //-V677
 
 typedef struct
 {
@@ -1048,7 +1050,7 @@ static void parse_card(card_image_t *card)
                 break;
 
             case PunchGlyphLookup:
-                event = do_state_scan_card_for_glyphs(current_event, card); //-V1037
+                event = do_state_scan_card_for_glyphs(current_event, card);
                 break;
 
             case EndOfHeader:
@@ -1056,11 +1058,11 @@ static void parse_card(card_image_t *card)
                 break;
 
             case CacheCard:
-                event = do_state_cache_card(current_event, card); //-V1037
+                event = do_state_cache_card(current_event, card);
                 break;
 
             case EndOfDeck:
-                event = do_state_cache_card(current_event, card); //-V1037
+                event = do_state_cache_card(current_event, card);
                 break;
 
             default:

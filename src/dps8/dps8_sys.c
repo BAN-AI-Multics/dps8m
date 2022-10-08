@@ -107,7 +107,7 @@
 
 struct system_state_s * system_state;
 
-vol word36 * M = NULL;  // memory
+vol word36 * M = NULL;  //-V707   // memory
 
 //
 // These are part of the scp interface
@@ -1829,7 +1829,7 @@ static t_stat do_restart (UNUSED int32 arg,  UNUSED const char * buf)
         sim_printf ("Don't restart a running system....\r\n");
         return SCPE_ARG;
       }
-    int n = 010000;
+    int n = 010000; //-V536
     if (buf)
       {
         n = (int) strtol (buf, NULL, 0);
@@ -3866,7 +3866,7 @@ t_stat ready_media (int32 arg, const char * buf) {
 
   for (uint i = 0; i < N_MT_UNITS_MAX; i ++) {
     if (strcmp (tape_states[i].device_name, name) == 0) {
-      return signal_tape (i, 0, 020 /* tape drive to ready */);
+      return signal_tape (i, 0, 020 /* tape drive to ready */); //-V536
     }
   }
 

@@ -309,7 +309,7 @@ iom_cmd_rc_t urp_iom_cmd (uint iomUnitIdx, uint chan) {
   if (! cmd) {
     //sim_warn ("URP can't find device handler\n");
     //return IOM_CMD_ERROR;
-    p->stati = 04502; // invalid device code
+    p->stati = 04502; //-V536  // invalid device code
     return IOM_CMD_DISCONNECT;
   }
   return cmd (iomUnitIdx, chan);

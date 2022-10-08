@@ -30,6 +30,8 @@
  * ---------------------------------------------------------------------------
  */
 
+//-V536
+
 /*
  * scu.c -- System Controller
  *
@@ -2561,14 +2563,14 @@ gotit:;
       }
     mask_contents &= MASK32;
 
-    * rega = 0;
+    * rega = 0;  //-V1048
     putbits36_16 (rega,  0, (mask_contents >> 16) & MASK16);
     putbits36_1  (rega, 32,  (word1) up -> port_enable [0]);
     putbits36_1  (rega, 33,  (word1) up -> port_enable [1]);
     putbits36_1  (rega, 34,  (word1) up -> port_enable [2]);
     putbits36_1  (rega, 35,  (word1) up -> port_enable [3]);
 
-    * regq = 0;
+    * regq = 0;  //-V1048
     putbits36_16 (regq,  0, (mask_contents >>  0) & MASK16);
     putbits36_1  (regq, 32,  (word1) up -> port_enable [4]);
     putbits36_1  (regq, 33,  (word1) up -> port_enable [5]);

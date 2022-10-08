@@ -746,7 +746,7 @@ decNumber * decNumberAnd(decNumber *res, const decNumber *lhs,
     *uc=0;                              // can now write back
     if (a|b) {                          // maybe 1 bits to examine
       Int i, j;
-      *uc=0;                            // can now write back
+      *uc=0;  //-V1048                  // can now write back
       // This loop could be unrolled and/or use BIN2BCD tables
       for (i=0; i<DECDPUN; i++) {
         if (a&b&1) *uc=*uc+(Unit)powers[i];  // effect AND

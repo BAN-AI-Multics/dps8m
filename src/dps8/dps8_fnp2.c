@@ -30,6 +30,8 @@
  * ---------------------------------------------------------------------------
  */
 
+//-V::536
+
 // There is a lurking bug in fnpProcessEvent(). A second 'input' messages
 // from a particular line could be placed in mailbox before the first is
 // processed. This could lead to the messages being picked up by MCS in

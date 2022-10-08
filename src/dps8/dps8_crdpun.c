@@ -31,6 +31,8 @@
  * ---------------------------------------------------------------------------
  */
 
+//-V::1048
+
 #include <stdio.h>
 #include <ctype.h>
 #include <signal.h>
@@ -1095,7 +1097,7 @@ static void parse_card(pun_state_t * state, word12 tally, word36 * card_buffer)
                     break;
 
                   case PunchGlyphLookup:
-                    event = do_state_scan_card_for_glyphs(current_event, state, tally, card_buffer); //-V1037
+                    event = do_state_scan_card_for_glyphs(current_event, state, tally, card_buffer);
                     break;
 
                   case EndOfHeader:
@@ -1103,11 +1105,11 @@ static void parse_card(pun_state_t * state, word12 tally, word36 * card_buffer)
                     break;
 
                   case CacheCard:
-                    event = do_state_cache_card(current_event, state, tally, card_buffer); //-V1037
+                    event = do_state_cache_card(current_event, state, tally, card_buffer);
                     break;
 
                   case EndOfDeck:
-                    event = do_state_cache_card(current_event, state, tally, card_buffer); //-V1037
+                    event = do_state_cache_card(current_event, state, tally, card_buffer);
                     break;
 
                   default:
@@ -1151,7 +1153,7 @@ static int punWriteRecord (uint iomUnitIdx, uint chan)
       {
         sim_warn ("%s expected tally of 27\n", __func__);
         p -> chanStatus = chanStatIncorrectDCW;
-        p -> stati = 05001; // BUG: arbitrary error code; config switch
+        p -> stati = 05001; //-V536  // BUG: arbitrary error code; config switch
         return -1;
       }
 
@@ -1172,7 +1174,7 @@ static int punWriteRecord (uint iomUnitIdx, uint chan)
 
     parse_card( &pun_state [pun_unit_num], p -> DDCW_TALLY, buffer);
 
-    p -> stati = 04000;
+    p -> stati = 04000; //-V536
     return 0;
   }
 

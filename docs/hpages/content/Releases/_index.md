@@ -71,6 +71,7 @@ title: DPS8M Releases
 | [**dps8m-master-mingw-a64.zip**](https://dps8m.gitlab.io/dps8m/dps8m-master-mingw-a64.zip)       | ARM64         |
 | [**dps8m-master-mingw-av7.zip**](https://dps8m.gitlab.io/dps8m/dps8m-master-mingw-av7.zip)       | ARMv7         |
 | [**dps8m-master-cygwin-64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-cygwin-64.tar.gz) | Cygwin/x86_64 |
+| [**dps8m-master-cygwin-32.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-cygwin-32.tar.gz) | Cygwin/i686   |
 {{< /tab >}}
 {{< /tabs >}}
 

@@ -426,6 +426,7 @@ static int getCardLine (int fd, unsigned char * buffer)
         if (n > 79)
           return 0;
       }
+    /*NOTREACHED*/ /* unreachable */
     return 0;
   }
 
@@ -743,7 +744,7 @@ empty:;
 
   iom_indirect_data_service (iomUnitIdx, chan, buffer, & tally, true);
   p->initiate     = false;
-  p->stati        = 04000; // ok
+  p->stati        = 04000; //-V1048  // ok
   p->tallyResidue = (word12) tally & MASK12;
   p->charPos      = 0;
 
@@ -891,7 +892,7 @@ void rdrCardReady (int unitNum)
     uint iom_unit_idx  = cables->urp_to_iom[ctlr_unit_idx][ctlr_port_num].iom_unit_idx;
     uint chan_num      = cables->urp_to_iom[ctlr_unit_idx][ctlr_port_num].chan_num;
     uint dev_code      = cables->rdr_to_urp[unitNum].dev_code;
-    send_special_interrupt (iom_unit_idx, chan_num, dev_code, 0377, 0377 /* card reader to ready */);
+    send_special_interrupt (iom_unit_idx, chan_num, dev_code, 0377, 0377 /* card reader to ready */); //-V536
   }
 
 iom_cmd_rc_t rdr_iom_cmd (uint iomUnitIdx, uint chan) {

@@ -712,7 +712,7 @@ void telnet_free(telnet_t *telnet) {
         /* free sub-request buffer */
         if (telnet->buffer != 0) {
                 FREE(telnet->buffer);
-                telnet->buffer      = 0;
+                telnet->buffer      = 0; //-V1048
                 telnet->buffer_size = 0;
                 telnet->buffer_pos  = 0;
         }

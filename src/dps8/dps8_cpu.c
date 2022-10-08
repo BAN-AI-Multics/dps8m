@@ -924,7 +924,7 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
       set_cpu_cycle (FETCH_cycle);
     } else {
       set_cpu_cycle (EXEC_cycle);
-      cpu.cu.IWB = 0000000616000; // Stuff DIS instruction in instruction buffer
+      cpu.cu.IWB = 0000000616000; //-V536  // Stuff DIS instruction in instruction buffer
     }
 #ifdef PERF_STRIP
     set_cpu_cycle (FETCH_cycle);
@@ -3714,7 +3714,7 @@ void decode_instruction (word36 inst, DCDstruct * p)
 
     p->opcode   = GET_OP (inst);   // get opcode
     p->opcodeX  = GET_OPX(inst);   // opcode extension
-    p->opcode10 = p->opcode | (p->opcodeX ? 01000 : 0);
+    p->opcode10 = p->opcode | (p->opcodeX ? 01000 : 0); //-V536
     p->address  = GET_ADDR (inst); // address field from instruction
     p->b29      = GET_A (inst);    // "A" the indirect via pointer register flag
     p->i        = GET_I (inst);    // "I" inhibit interrupt flag

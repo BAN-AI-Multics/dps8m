@@ -36,6 +36,8 @@
  * ---------------------------------------------------------------------------
  */
 
+//-V::701
+
 /*
  * Based on the original DZ11 simulator by Thord Nilson, as updated by
  * Arthur Krewat.
@@ -235,7 +237,7 @@ if (!lp->txbfd || lp->notelnet)                                   /* if not buff
 lp->txdrp          = 0;
 tmxr_set_get_modem_bits (lp, 0, 0, NULL);
 if ((!lp->mp->buffered) && (!lp->txbfd)) {
-    lp->txbfd      = 0;
+    lp->txbfd      = 0; //-V1048
     lp->txbsz      = TMXR_MAXBUF;
     lp->txb        = (char *)realloc (lp->txb, lp->txbsz);
     if (!lp->txb)
@@ -2415,7 +2417,7 @@ while (*tptr) {
             strcpy (mp->port, listen);                      /* save port */
             mp->master = sock;                              /* save master socket */
             mp->ring_sock = INVALID_SOCKET;
-            FREE (mp->ring_ipad);
+            if (mp->ring_ipad) FREE (mp->ring_ipad);
             mp->ring_ipad = NULL;
             mp->ring_start_time = 0;
             mp->notelnet = listennotelnet;                  /* save desired telnet behavior flag */
@@ -3683,7 +3685,6 @@ if (set == NULL) {                                      /* allocation failed? */
 
 tbuf = (char *) calloc (strlen(carg)+2, sizeof(*carg));
 if (tbuf == NULL) {
-  FREE(tbuf);
   FREE(set);
   FREE(list);
   return SCPE_MEM;

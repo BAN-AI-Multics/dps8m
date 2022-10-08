@@ -775,7 +775,7 @@ static void sendConsole (int conUnitIdx, word12 stati)
                     if (i >= 64)
                       {
                         sim_warn ("Character %o does not map to BCD; replacing with '?'\n", c);
-                        i = 017;
+                        i = 017; //-V536
                       }
                     putbits36_6 (bufp, charno * 6, (word6) i);
                   }
@@ -1956,7 +1956,7 @@ static void console_putchar (int conUnitIdx, char ch) {
   } else if (ch == '\f' || ch == '\r') { // Formfeed, Carriage return
       consolePutchar0 (conUnitIdx, ch);
       csp->carrierPosition = 1;
-  } else if (ch == '\033') { // Escape
+  } else if (ch == '\033') { //-V536  // Escape
       csp->escapeSequence = true;
   } else { // Non-printing and we don't recognize a carriage motion character, so just print it...
       consolePutchar0 (conUnitIdx, ch);
