@@ -36,26 +36,32 @@
  * ---------------------------------------------------------------------------
  */
 
+//-V::547,649
+
 #include "sim_sock.h"
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef __CYGWIN__
+# include <dlfcn.h>
+#endif /* ifdef __CYGWIN__ */
+
 #if defined(AF_INET6) && defined(_WIN32)
 # include <ws2tcpip.h>
-#endif
+#endif /* if defined(AF_INET6) && defined(_WIN32) */
 
 #ifndef WSAAPI
 # define WSAAPI
-#endif
+#endif /* ifndef WSAAPI */
 
 #if defined(SHUT_RDWR) && !defined(SD_BOTH)
 # define SD_BOTH SHUT_RDWR
-#endif
+#endif /* if defined(SHUT_RDWR) && !defined(SD_BOTH) */
 
 #ifndef NI_MAXHOST
 # define NI_MAXHOST 1025
-#endif
+#endif /* ifndef NI_MAXHOST */
 
 #undef FREE
 #ifdef TESTING
@@ -101,7 +107,7 @@ static struct sock_errors {
         {WSAEADDRINUSE,   "Address already in use"},
 #if defined (WSAEAFNOSUPPORT)
         {WSAEAFNOSUPPORT, "Address family not supported by protocol"},
-#endif
+#endif /* if defined (WSAEAFNOSUPPORT) */
         {WSAEACCES,       "Permission denied"},
         {0, NULL}
     };
@@ -121,7 +127,7 @@ else
     sprintf (err_buf, "Sockets: %s error %d\n", emsg, err);
 #else
     sprintf (err_buf, "Sockets: %s error %d - %s\n", emsg, err, strerror(err));
-#endif
+#endif /* if defined(_WIN32) */
 return err_buf;
 }
 
@@ -1153,7 +1159,7 @@ if (rbytes == SOCKET_ERROR) {
     if (err == WSAEWOULDBLOCK)                          /* no data */
         return 0;
 #if defined(EAGAIN)
-    if (err == EAGAIN) //-V::547,649
+    if (err == EAGAIN)
         return 0;
 #endif
     if ((err != WSAETIMEDOUT) &&                        /* expected errors after a connect failure */
@@ -1177,7 +1183,7 @@ if (sbytes == SOCKET_ERROR) {
     if (err == WSAEWOULDBLOCK)                          /* no data */
         return 0;
 #if defined(EAGAIN)
-    if (err == EAGAIN) //-V::547,649
+    if (err == EAGAIN)
         return 0;
 #endif
     }

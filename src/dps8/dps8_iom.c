@@ -2656,8 +2656,8 @@ static void iom_fault (uint iom_unit_idx, uint chan, UNUSED const char * who,
     uint tally = dcw & MASK12;
     if (tally > 1)
       {
-        dcw -= 01llu;  // tally --
-        dcw += 01000000llu; // addr ++
+        dcw -= 01llu;        //-V536  // tally --
+        dcw += 01000000llu;  //-V536  // addr ++
       }
     else
       dcw = scw; // reset to beginning of queue
@@ -2666,7 +2666,7 @@ static void iom_fault (uint iom_unit_idx, uint chan, UNUSED const char * who,
     send_general_interrupt (iom_unit_idx, IOM_SYSTEM_FAULT_CHAN, imwSystemFaultPic);
   }
 
-// 0 ok
+//  0 ok
 // -1 fault
 // There is a path through the code where no DCW is sent (IDCW && LPW_18_RES)
 // Does the -1 return cover that?

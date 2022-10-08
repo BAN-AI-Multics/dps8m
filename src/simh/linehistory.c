@@ -1545,7 +1545,7 @@ linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen,
       break;
     }
   }
- /* NOTREACHED */ /* unreachable */
+ /*NOTREACHED*/ /* unreachable */
  return ( -1 );
 }
 
@@ -1601,7 +1601,7 @@ linenoiseNoTTY(void)
 
       maxlen *= 2;
       char *oldval = line;
-      line = realloc(line, maxlen);
+      line = realloc(line, maxlen); //-V701
       if (line == NULL)
       {
         if (oldval)
@@ -1633,7 +1633,7 @@ linenoiseNoTTY(void)
       len++;
     }
   }
- /* NOTREACHED */ /* unreachable */
+ /*NOTREACHED*/ /* unreachable */
  return ( NULL );
 }
 
@@ -1862,9 +1862,9 @@ pstrlen(const char *s)
 
   while (s[i] != '\0')
   {
-    if (s[i] == '\033')
+    if (s[i] == '\033') //-V536
     {
-      i = strpbrk(s + i, "m") - s + 1;
+      i = strpbrk(s + i, "m") - s + 1; //-V769
       continue;
     }
 

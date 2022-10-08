@@ -2116,7 +2116,7 @@ main(int argc, char *argv[])
           /* NOTREACHED */
         }
 
-      ch = -1;
+      ch = -1; //-V1048
       while (( cp = cmb_xforms[++ch].opname ) != NULL)
         {
           if (strncmp(cp, opt_transform, optlen) != 0)
@@ -2737,7 +2737,7 @@ parse_urange(const char *s, uint32_t *min, uint32_t *max)
   cp = &s[nlen];
   if (*cp == '\0')
     {
-      *max = *min;
+      *max = *min; //-V1048
     }
   else if (( strncmp(cp, "..", 2)) == 0)
     {

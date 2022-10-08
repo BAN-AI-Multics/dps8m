@@ -151,11 +151,11 @@ char *get_mod_string(char * msg, word6 tag)
 {
     strcpy(msg, "none");
 
-    if (tag >= 0100)
+    if (tag >= 0100) //-V536
     {
         sprintf(msg, "getModReg(tag out-of-range %o)", tag);
     } else {
-        for(uint n = 0 ; n < 0100 ; n++)
+        for(uint n = 0 ; n < 0100 ; n++) //-V536
             if (extMods[n].mod)
                 if(n == tag)
                 {
@@ -1276,6 +1276,7 @@ int strmask (char * str, char * mask)
               break;
           } // switch (* mp)
       } // while (1)
+    /*NOTREACHED*/ /* unreachable */
     return false;
   }
 
@@ -1643,11 +1644,11 @@ char * strdupesc (const char * str)
             continue;
           }
         if (p [1] == '\\')           //   \\    backslash
-          * p = '\\';
+          * p = '\\'; //-V1048
         else if (p [1] == 'a')       //   \a    ^A
           * p = '\001';
         else if (p [1] == 'w')       //   \w    backslash
-          * p = '\\';
+          * p = '\\'; //-V1048
         else if (p [1] == 'n')       //   \n    newline
           * p = '\n';
         else if (p [1] == 't')       //  \t    tab

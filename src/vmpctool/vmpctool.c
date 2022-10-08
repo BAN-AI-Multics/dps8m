@@ -1996,6 +1996,6 @@ main(int argc, char **argv)
   }
 
   _Exit(0);
-  /* NOTREACHED */
+  /*NOTREACHED*/ /* unreachable */
   return 0;
 }

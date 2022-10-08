@@ -145,6 +145,22 @@
 
 ############################################################################
 
+.scriptBuildlibuvFCygwin32: &scriptBuildlibuvFCygwin32 |
+    # *scriptBuildlibuvFCygwin32 - Build static libuv from git with Fedora Cygwin32 cross-compiler ...
+    echo -e "section_start:`date +%s`:buildlibuvfedoracygwin32_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with Fedora Cygwin32 cross-compiler ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    echo "Getting libuv from GitHub ..."
+    wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
+    echo "Preparing libuv ..."
+    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
+    echo "Configuring libuv ..."
+    cygwin32-configure --disable-shared --enable-static --disable-dependency-tracking
+    echo "Compiling libuv ..."
+    cygwin32-make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && cygwin32-make install && cd ..
+    echo -e "section_end:`date +%s`:buildlibuvfedoracygwin32_section\r\e[0K" || true
+
+############################################################################
 .scriptBuildlibuvLLVMMGW64-aarch64: &scriptBuildlibuvLLVMMGW64-aarch64 |
     # *scriptBuildlibuvLLVMMGW64-aarch64 - Build static libuv from git with LLVM-MinGW-Aarch64 cross-compiler ...
     echo -e "section_start:`date +%s`:buildlibuvllvmmgwaarch64_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with LLVM-MinGW-Aarch64 cross-compiler ...\033[0m" || true
@@ -312,7 +328,7 @@
 ############################################################################
 
 .scriptInstallDnfCoprCygwin: &scriptInstallDnfCoprCygwin |
-    # *scriptInstallDnfCoprCygwin - Enable and install Fedora Cygwin64 from Fedora Copr ...
+    # *scriptInstallDnfCoprCygwin - Enable and install Fedora Cygwin from Fedora Copr ...
     echo -e "section_start:`date +%s`:coprcygwinstall_section[collapsed=true]\r\e[0K\033[0;36mInstalling Fedora Cygwin64 ...\033[0m" || true
     echo "Checking for Docker ..."
     test -f /.dockerenv || exit 1
@@ -321,7 +337,7 @@
     echo "Enabling Cygwin repo ..."
     dnf -y copr enable yselkowitz/cygwin || dnf -y copr enable yselkowitz/cygwin
     echo "Installing Cygwin software ..."
-    dnf --best install -y cygport cygwin64-binutils cygwin64-w32api-headers cygwin64-w32api-runtime cygwin64-libltdl cygwin64-cpp cygwin64-gcc cygwin64-libtool cygwin64-filesystem cygwin64 || dnf --skip-broken --nobest install -y cygport cygwin64-binutils cygwin64-w32api-headers cygwin64-w32api-runtime cygwin64-libltdl cygwin64-cpp cygwin64-gcc cygwin64-libtool cygwin64-filesystem cygwin64 cygwin64
+    dnf --best install -y cygport cygwin32-binutils cygwin32-w32api-headers cygwin32-w32api-runtime cygwin32-libltdl cygwin32-cpp cygwin32-gcc cygwin32-libtool cygwin32-filesystem cygwin32 cygwin64-binutils cygwin64-w32api-headers cygwin64-w32api-runtime cygwin64-libltdl cygwin64-cpp cygwin64-gcc cygwin64-libtool cygwin64-filesystem cygwin64 || dnf --skip-broken --nobest install -y cygport cygwin64-binutils cygwin64-w32api-headers cygwin64-w32api-runtime cygwin64-libltdl cygwin64-cpp cygwin64-gcc cygwin64-libtool cygwin64-filesystem cygwin64 cygwin32-binutils cygwin32-w32api-headers cygwin32-w32api-runtime cygwin32-libltdl cygwin32-cpp cygwin32-gcc cygwin32-libtool cygwin32-filesystem cygwin32
     echo -e "section_end:`date +%s`:coprcygwinstall_section\r\e[0K" || true
 
 ############################################################################
@@ -591,6 +607,46 @@ Windows/x86_64, Cygwin64-GCC:
     expire_in: 1 day
     paths:
       - ${CI_PROJECT_DIR:?}/dps8m-master-cygwin-64.tar.gz
+      - ${CI_PROJECT_DIR:?}/dps8m.zip
+  retry: 2
+  timeout: 30 minutes
+  interruptible: true
+
+############################################################################
+
+Windows/i686, Cygwin32-GCC:
+  image: fedora:latest
+  stage: build
+  tags:
+    - Docker-x64
+    - amd64
+    - Linux
+  script:
+    - export GLCICD_JOB="CYGWIN32GCC" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
+    - dnf -q install -y bzip2 || dnf -q install -y bzip2
+    - *scriptDnfSetup
+    - *scriptInstallDnfCoprCygwin
+    - *scriptBuildlibuvFCygwin32
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - cygwin32-make NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - *scriptBuildInfo
+    - cp -vf /usr/i686-pc-cygwin/sys-root/usr/bin/cygwin1.dll ${CI_PROJECT_DIR:?}
+    - rm -f "${CI_PROJECT_DIR:?}/cygwin1.dll"
+    - export DISTDIR="dps8-master-cygwin-32"
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8.exe src/prt2pdf/prt2pdf.exe src/punutil/punutil.exe "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-cygwin-32.tar "./${DISTDIR:?}" )
+    - pigz -11 -f -m -n dps8m-master-cygwin-32.tar
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/dps8m-master-cygwin-32.tar.gz
       - ${CI_PROJECT_DIR:?}/dps8m.zip
   retry: 2
   timeout: 30 minutes
@@ -1965,7 +2021,7 @@ PVS-Studio:
     - bear -- gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
     - ./src/dps8/dps8 --version
     - pvs-studio-analyzer analyze --intermodular -o log.pvs -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") || true
-    - plog-converter -a "GA:1,2" -t fullhtml log.pvs -o pvsreport -d V536,V629,V1048,V768,V707,V701,V677,V728,V576 || true
+    - plog-converter -a "GA:1,2" -t fullhtml log.pvs -o pvsreport -d V576,V629,V701,V768 || true
     - mkdir -p pvsreport
     - touch pvsreport/index.html
     - grep -q 'PVS-Studio has not found any issues' pvsreport/index.html
@@ -2111,6 +2167,7 @@ pages:
     - job: Windows/ARMv7, LLVM-MinGW
     - job: Windows/i686, LLVM-MinGW
     - job: Windows/x86_64, Cygwin64-GCC
+    - job: Windows/i686, Cygwin32-GCC
     - job: Windows/x86_64, MinGW64-GCC
     - job: PVS-Studio
   dependencies:
@@ -2138,6 +2195,7 @@ pages:
     - "Windows/ARMv7, LLVM-MinGW"
     - "Windows/i686, LLVM-MinGW"
     - "Windows/x86_64, Cygwin64-GCC"
+    - "Windows/i686, Cygwin32-GCC"
     - "Windows/x86_64, MinGW64-GCC"
     - "PVS-Studio"
   stage: deploy
@@ -2185,6 +2243,7 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-mingw-av7.zip public
   - advzip -z4 public/dps8m-master-mingw-av7.zip
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-cygwin-64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-cygwin-32.tar.gz public
   artifacts:
     paths:
     - public

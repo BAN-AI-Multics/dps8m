@@ -36,6 +36,8 @@
  * ---------------------------------------------------------------------------
  */
 
+//-V::701
+
 /*
  * This module implements the following routines to support terminal and
  * Remote Console I/O:
@@ -1229,7 +1231,7 @@ if ((cptr == NULL) || (*cptr == 0))
     return SCPE_2FARG;
 if (dptr->dradix == 16) rdx = 16;
 else rdx = 8;
-val = (int32) get_uint (cptr, rdx, 0177, &r);
+val = (int32) get_uint (cptr, rdx, 0177, &r); //-V536
 if ((r != SCPE_OK) ||
     ((val == 0) && (flag & KMAP_NZ)))
     return SCPE_ARG;

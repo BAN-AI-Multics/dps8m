@@ -1189,7 +1189,7 @@ static int wtx (struct decoded_t *decoded_p)
   {
     sim_debug (DBG_TRACE, & fnp_dev, "[%u]wtx op_code %u 0%o\n", decoded_p->slot_no, decoded_p->op_code, decoded_p->op_code);
 //sim_printf ("wtx op_code %o (%d.) %c.h%03d\n", decoded_p->op_code, decoded_p->op_code, decoded_p->devUnitIdx+'a', decoded_p->slot_no);
-    if (decoded_p->op_code != 012 && decoded_p->op_code != 014)
+    if (decoded_p->op_code != 012 && decoded_p->op_code != 014) //-V536
       {
         sim_debug (DBG_TRACE, & fnp_dev, "[%u]     unimplemented opcode\n", decoded_p->slot_no);
         sim_debug (DBG_ERR, & fnp_dev, "[%u]fnp wtx unimplemented opcode %d (%o)\n", decoded_p->slot_no, decoded_p->op_code, decoded_p->op_code);

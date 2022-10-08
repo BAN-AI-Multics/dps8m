@@ -1528,8 +1528,8 @@ if (check_leot) {
     if ((st == MTSE_OK) || (st == MTSE_TMK))
         sim_tape_rdlntf (uptr, &rbc);
     }
-*skipped = 0;
-*recsskipped = 0;
+*skipped = 0;     //-V1048
+*recsskipped = 0; //-V1048
 while (*skipped < count) {                              /* loopo */
     while (1) {
         st = sim_tape_sprecsf (uptr, 0x1ffffff, &filerecsskipped);/* spc recs */

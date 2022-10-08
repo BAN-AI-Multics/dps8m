@@ -37,6 +37,8 @@
  * ---------------------------------------------------------------------------
  */
 
+//-V::701
+
 /* Macros and data structures */
 
 #include "sim_defs.h"
@@ -8376,7 +8378,7 @@ if (sim_brk_ent >= sim_brk_lnt) {                       /* out of space? */
     sim_brk_lnt = t;
     }
 if ((sim_brk_ins == sim_brk_ent) ||
-    ((sim_brk_ins != sim_brk_ent) &&
+    ((sim_brk_ins != sim_brk_ent) && //-V728
      (sim_brk_tab[sim_brk_ins]->addr != loc))) {        /* need to open a hole? */
     for (i = sim_brk_ent; i > sim_brk_ins; --i)
         sim_brk_tab[i] = sim_brk_tab[i - 1];
@@ -9219,7 +9221,8 @@ if ((ep != NULL) && (i != exp->size)) {                 /* Found? */
     /* Matched data is no longer available for future matching */
     exp->buf_ins = 0;
     }
-FREE (tstr);
+if (tstr)  //-V547
+  FREE (tstr);
 return SCPE_OK;
 }
 

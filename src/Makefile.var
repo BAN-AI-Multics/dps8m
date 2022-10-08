@@ -293,12 +293,11 @@ ifeq (,$(wildcard ../dps8/make_ver.sh))
 endif
 
 ###############################################################################
-# Oracle Developer Studio
+# GCC
 
 ifndef SUNPRO
   ifndef SUNLINT
     ifneq "$(findstring gcc,$(CC))" ""
-      CFLAGS += -fno-delete-null-pointer-checks
       CFLAGS += -Wno-maybe-uninitialized
       CFLAGS += -Wno-unknown-warning-option
     endif

@@ -438,7 +438,7 @@ static int openPrtFile (int prt_unit_num, word36 * buffer, uint tally)
 // The first (spooled) write is a formfeed; special case it and delay opening
 //  until the next line
 
-    if (tally == 1 && buffer[0] == 0014013000000llu)
+    if (tally == 1 && buffer[0] == 0014013000000llu) //-V536
       {
         prt_state[prt_unit_num].cachedFF = true;
         return -3;
@@ -959,7 +959,7 @@ static int loadImageBuffer (uint iom_unit_idx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
     // We don't actually have a print chain, so just pretend we loaded the image data
-    p->stati = 04000;
+    p->stati = 04000; //-V536
     return 0;
   }
 
@@ -1007,7 +1007,7 @@ static int readStatusRegister (uint iom_unit_idx, uint chan)
     iom_indirect_data_service (iom_unit_idx, chan, buffer,
                             & wordsProcessed, true);
     p->charPos = 0;
-    p->stati = 04000;
+    p->stati = 04000; //-V536
     return 0;
   }
 
@@ -1015,7 +1015,7 @@ static int loadVFCImage (uint iom_unit_idx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
     // We don't actually have a VFC, so just pretend we loaded the image data
-    p->stati = 04000;
+    p->stati = 04000; //-V536
     return 0;
   }
 
@@ -1752,7 +1752,7 @@ iom_cmd_rc_t prt_iom_cmd (uint iomUnitIdx, uint chan) {
     case 4: // 401, 402, 901, 1000, 1200, 1201, 1600
       return prt_cmd_400 (iomUnitIdx, chan);
   }
-  p->stati = 04502; // invalid device code
+  p->stati = 04502; //-V536  // invalid device code
   return IOM_CMD_DISCONNECT;
 }
 

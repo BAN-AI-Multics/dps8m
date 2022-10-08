@@ -6582,8 +6582,8 @@ static void mopExecutor (int kMop)
 #endif
             if (e->mopZ && e->mopBZ)
               {
-                e->out = e->outBuffer;  // reset output buffer pointer
-                e->dstTally = (int) e->N3;  // number of chars in dst (max 63)
+                e->out = e->outBuffer; //-V1048  // reset output buffer pointer
+                e->dstTally = (int) e->N3;       // number of chars in dst (max 63)
                 while (e->dstTally)
                   {
                     writeToOutputBuffer(&e->out, 9, e->dstSZ, e->editInsertionTable[0]);

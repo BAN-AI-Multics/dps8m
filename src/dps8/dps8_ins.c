@@ -260,7 +260,7 @@ static void read_tra_op (void)
         if (cpu.currentInstruction.info->flags & TSPN_INS)
           {
             word3 n;
-            if (cpu.currentInstruction.opcode <= 0273)
+            if (cpu.currentInstruction.opcode <= 0273)  //-V536
               n = (cpu.currentInstruction.opcode & 3);
             else
               n = (cpu.currentInstruction.opcode & 3) + 4;

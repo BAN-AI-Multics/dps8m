@@ -137,9 +137,9 @@ static int parsestr(char *dst, char *src, int len, int Sflg);
 static int master, slave;
 static int child;
 static long pid = -1;
-static char *in = NULL, *out = NULL, *sl = NULL, *pfile = NULL;
+static char *in = NULL, *out = NULL, *sl = NULL, *pfile = NULL; //-V707
 static int ifd, ofd, lfd = 0, pfd = 0;
-static FILE *pf;
+static FILE *pf; //-V707
 static int status;
 
 #ifndef BUFSIZ
@@ -495,7 +495,7 @@ main(int argc, char *argv[])
                   (void)perrx(255, "Fatal write to STDOUT");
                 }
 
-              if (( !bflg && buf[0] == '\n' ) || bflg)
+              if (( !bflg && buf[0] == '\n' ) || bflg) //-V728
                 {
                   break;
                 }

@@ -31,6 +31,8 @@
  * ---------------------------------------------------------------------------
  */
 
+//-V::536
+
 #include <stdio.h>
 #include <signal.h>
 #include <ctype.h>
@@ -1445,7 +1447,7 @@ static int surveyDevices (uint iomUnitIdx, uint chan)
         cnt ++;
       }
     iom_indirect_data_service (iomUnitIdx, chan, buffer, & bufsz, true);
-    p -> stati = 04000;
+    p -> stati = 04000; //-V1048
     return 0;
   }
 
