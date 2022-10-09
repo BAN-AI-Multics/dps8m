@@ -116,7 +116,7 @@
 
 #define tmpdir "/tmp"
 #define program "empty"
-#define version "0.6.24g-dps"
+#define version "0.6.24h-dps"
 
 static void usage(void);
 static long toint(char *intstr);
@@ -143,10 +143,10 @@ static FILE *pf; //-V707
 static int status;
 
 #ifndef BUFSIZ
-# define BUFSIZ 4096
+# define BUFSIZ 8192
 #endif
 
-static char buf[BUFSIZ];
+static char buf[BUFSIZ + 1];
 static fd_set rfd;
 static char *argv0 = NULL;
 static int sem = -1;
