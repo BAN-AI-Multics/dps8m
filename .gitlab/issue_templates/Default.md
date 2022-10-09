@@ -1,5 +1,6 @@
 <!-- scspell-id: 050905c8-4812-11ed-9ae9-80ee73e9b8e7 -->
 <!-- SPDX-License-Identifier: FSFAP -->
+<!-- Copyright (c) 2022-current The DPS8M Development Team and contributors -->
 
 ## Simulator Information
 
