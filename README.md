@@ -11,6 +11,8 @@
 
 [![Pipelines](https://gitlab.com/dps8m/dps8m/badges/master/pipeline.svg?ignore_skipped=true)](https://gitlab.com/dps8m/dps8m/pipelines/latest/)
 &nbsp;
+[![Best Practices](https://bestpractices.coreinfrastructure.org/projects/6229/badge.svg)](https://bestpractices.coreinfrastructure.org/projects/6229)
+&nbsp;
 [![Website](https://img.shields.io/website?up_message=online&url=https%3A%2F%2Fdps8m.gitlab.io)](https://dps8m.gitlab.io/)
 &nbsp;
 
