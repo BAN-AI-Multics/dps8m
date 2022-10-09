@@ -15,10 +15,11 @@ SHOW VERSION
 SHOW BUILDINFO
 ```
 
-<--
+<!--
       Users of UNIX-like operating systems should provide the
       following extra information, replacing the '(extra info)'
       text in the section delimited by ``` characters below.
+
 
       $ uname -a
       $ cat /etc/*eleas
@@ -42,20 +43,19 @@ SHOW BUILDINFO
       If a backtrace was printed, add the text here.
   -->
 
-
+...
 
 ## Expected result
 
 <!--  What do you think should have happened? -->
 
-
+...
 
 ## Steps to reproduce
 
 <!--  List the steps required to produce the problem. -->
 
-
-
+...
 
 <!--  External reporters, leave the lines below intact. -->
 
