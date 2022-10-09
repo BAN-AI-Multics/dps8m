@@ -828,6 +828,7 @@ dkuf
 dlast
 dlcss
 dlen
+dlfcn
 dlopen
 dlsym
 dlvl
@@ -4911,6 +4912,7 @@ araxis
 attn
 autoaccept
 basedir
+bestpractices
 buildsource
 cardchan
 cikit
@@ -4919,6 +4921,7 @@ codebeat
 codecompare
 colback
 configures
+coreinfrastructure
 coreutils
 dandavison
 datadiode
@@ -4932,6 +4935,7 @@ dockerfile
 doesn
 egin
 ehdr
+eleas
 faketime
 faultbase
 fbsd
@@ -4950,6 +4954,7 @@ inetutils
 initenable
 interlace
 iomcon
+isainfo
 jmeld
 joeyh
 kdiff
@@ -4983,6 +4988,7 @@ perforce
 plasticscm
 prestosoft
 prta
+prtconf
 puna
 rdra
 saalen
@@ -10236,6 +10242,7 @@ instruction
 instructions
 instrumentation
 insufficient
+intact
 integer
 integers
 integral
@@ -10307,6 +10314,7 @@ inversion
 invert
 inverted
 inverting
+investigation
 investigator
 invisible
 invocation
@@ -11318,6 +11326,7 @@ powerpc
 powers
 practical
 practice
+practices
 preadjust
 preamble
 precalculate
@@ -11741,6 +11750,7 @@ replication
 reply
 report
 reported
+reporters
 reporting
 reports
 reposition
