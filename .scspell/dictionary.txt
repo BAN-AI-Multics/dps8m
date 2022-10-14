@@ -1292,6 +1292,7 @@ grantpt
 growstring
 gstr
 gtime
+gtod
 gtrc
 guint
 halfduplex

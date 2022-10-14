@@ -601,6 +601,8 @@ static struct config_switches
 
 enum { MODE_MANUAL = 0, MODE_PROGRAM = 1 };
 
+unsigned int gtod_warned = 0;
+
 // ============================================================================
 
 static t_stat scu_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr,
@@ -1301,10 +1303,20 @@ static uint64 set_SCU_clock (uint scu_unit_idx)
     uint64 UNIX_usecs = UNIX_secs * 1000000LL + (uint64) now.tv_usec;
 
     static uint64 last_UNIX_usecs = 0;
-    if (UNIX_usecs < last_UNIX_usecs)
+    if ( (!sim_quiet) && (UNIX_usecs < last_UNIX_usecs))
       {
-        sim_warn ("gettimeofday() went backwards %llu uS\n",
-                  (unsigned long long)(last_UNIX_usecs - UNIX_usecs));
+        if (gtod_warned < 11)
+          {
+            sim_warn ("\rHost clock went backwards %llu uS!\r\n",
+                      (unsigned long long)(last_UNIX_usecs - UNIX_usecs));
+            gtod_warned++;
+          }
+        else if (gtod_warned == 11)
+          {
+            sim_warn ("\rHost clock went backwards %llu uS!  Suppressing further warnings.\r\n",
+                      (unsigned long long)(last_UNIX_usecs - UNIX_usecs));
+            gtod_warned++;
+          }
       }
     last_UNIX_usecs = UNIX_usecs;
 
