@@ -576,4 +576,12 @@ typedef enum
 # ifdef TESTING
 void * trealloc(void *ptr, size_t size);
 # endif /* ifdef TESTING */
+
+// Basic STDIO for MinGW
+# ifndef __CYGWIN__
+#  if defined( __MINGW32__ ) || defined( __MINGW64__ ) || defined( CROSS_MINGW32 ) || defined( CROSS_MINGW64 )
+#   define WIN_STDIO    1
+#  endif /* if defined( __MINGW32__ ) || defined( __MINGW64__ ) || defined( CROSS_MINGW32 ) || defined( CROSS_MINGW64 ) */
+# endif /* ifndef __CYGWIN__ */
+
 #endif // ifdef DPS8_H

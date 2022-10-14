@@ -1812,6 +1812,9 @@ t_stat sim_poll_kbd (void)
 {
 t_stat c;
 
+if (!sim_localopc)
+  return SCPE_OK;
+
 if (sim_send_poll_data (&sim_con_send, &c))                 /* injected input characters available? */
     return c;
 if (!sim_rem_master_mode) {
@@ -2057,6 +2060,9 @@ static t_stat sim_os_putchar (int32 c)
 DWORD unused;
 static uint32 last_bell_time;
 
+if (!sim_localopc)
+  return SCPE_OK;
+
 if (c != 0177) {
     if (c == BELL_CHAR) {
         uint32 now = sim_os_msec ();
@@ -2167,6 +2173,9 @@ static t_stat sim_os_putchar (int32 out)
 {
 char c;
 
+if (!sim_localopc)
+  return SCPE_OK;
+
 c = out;
 if (write (1, &c, 1)) {};
 return SCPE_OK;
@@ -2271,6 +2280,9 @@ return (buf[0] | SCPE_KFLAG);
 static t_stat sim_os_putchar (int32 out)
 {
 char c;
+
+if (!sim_localopc)
+  return SCPE_OK;
 
 c = out;
 (void)!write (1, &c, 1);

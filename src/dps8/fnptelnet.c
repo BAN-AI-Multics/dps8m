@@ -128,7 +128,8 @@ static void evHandler (UNUSED telnet_t *telnet, telnet_event_t *event, void *use
               }
             else
               {
-                sim_printf ("evHandler WILL %d\n", event->neg.telopt);
+                if (event->neg.telopt != 3)
+                  sim_printf ("evHandler WILL %d\n", event->neg.telopt);
               }
           }
           break;

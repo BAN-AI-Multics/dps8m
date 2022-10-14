@@ -226,6 +226,7 @@ extern int32 sim_iglock;
 extern int32 sim_nolock;
 extern int32 sim_randompst;
 extern int32 sim_quiet;
+extern int32 sim_localopc;
 extern int32 sim_randstate;
 extern int32 sim_nostate;
 extern int32 sim_step;

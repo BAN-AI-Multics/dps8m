@@ -318,6 +318,7 @@ check:;
     if (strcmp (cpy, access->pw) == 0)
       {
         accessPutStrForce (access, "ok\r\n");
+        sim_printf ("\r[OPC emulation: ACCESS GRANTED]\r\n");
         goto associate;
       }
     else
@@ -326,6 +327,7 @@ check:;
         //accessPutStrForce (access->pwBuffer);
         //accessPutStrForce (">\r\n");
         accessPutStrForce (access, "nope\r\n");
+        sim_printf ("\r[OPC emulation: INVALID PASSWORD]\r\n");
         goto reprompt;
       }
 
@@ -334,7 +336,6 @@ reprompt:;
     return;
 
 associate:;
-
     access->loggedOn = true;
     if (access->connected)
       access->connected (access->client);
@@ -349,7 +350,7 @@ static void accessCloseCallback (uv_handle_t * stream)
 void accessCloseConnection (uv_stream_t* stream)
   {
     uv_access * access = (uv_access *) stream->data;
-    // sim_printf ("access disconnect\n");
+    sim_printf ("\r[OPC emulation: DISCONNECT]\r\n");
     // Clean up allocated data
     if (access->telnetp)
       {
@@ -474,7 +475,8 @@ static void evHandler (UNUSED telnet_t *telnet, telnet_event_t *event,
 
         case TELNET_EV_WILL:
           {
-            sim_printf ("evHandler WILL %d\n", event->neg.telopt);
+            if (event->neg.telopt != 3)
+              sim_printf ("evHandler WILL %d\n", event->neg.telopt);
           }
           break;
 
@@ -493,7 +495,7 @@ static void evHandler (UNUSED telnet_t *telnet, telnet_event_t *event,
         case TELNET_EV_IAC:
           {
             if (event->iac.cmd == 243 || // BRK
-                event->iac.cmd == 244) // IP
+                event->iac.cmd == 244)   // IP
               {
                 sim_warn ("libtelnet dropping unassociated BRK/IP\n");
               }
@@ -515,7 +517,8 @@ static const telnet_telopt_t my_telopts[] =
     { TELNET_TELOPT_SGA,       TELNET_WILL, TELNET_DO   },
     { TELNET_TELOPT_ECHO,      TELNET_WILL, TELNET_DONT },
   //{ TELNET_TELOPT_TTYPE,     TELNET_WONT, TELNET_DONT },
-    { TELNET_TELOPT_BINARY,    TELNET_WILL, TELNET_DO   },
+ //   { TELNET_TELOPT_BINARY,    TELNET_WILL, TELNET_DO   },
+    { TELNET_TELOPT_BINARY,    TELNET_WONT, TELNET_DONT   },
   //{ TELNET_TELOPT_NAWS,      TELNET_WONT, TELNET_DONT },
     { -1, 0, 0 }
   };
@@ -546,7 +549,7 @@ static void onNewAccess (uv_stream_t * server, int status)
   {
     if (status < 0)
       {
-        fprintf (stderr, "[FNP emulation: new connection error %s]\n", uv_strerror (status));
+        fprintf (stderr, "\r[OPC emulation: new connection error %s]\r\n", uv_strerror (status));
         // error!
         return;
       }
@@ -573,8 +576,10 @@ static void onNewAccess (uv_stream_t * server, int status)
         // Only a single connection at a time
         if (access->client)
           {
-            // sim_printf ("access cutting in\r\n");
+            sim_printf ("\r\n[OPC emulation: BUMPED]\r\n\r\n");
+            accessPutStrForce (access, "\r[OPC emulation: BUMPED]\r\n");
             access->loggedOn = false;
+            sim_printf ("\rMultics has disconnected you\r\n");
             accessCloseConnection ((uv_stream_t *) access->client);
           }
         access->client = client;
@@ -584,15 +589,13 @@ static void onNewAccess (uv_stream_t * server, int status)
         int ret = uv_tcp_getpeername (access->client, & name, & namelen);
         if (ret < 0)
           {
-            sim_printf ("access connect;addr err %d\n", ret);
+            sim_printf ("\r[OPC emulation: CONNECT; addr err %d]\r\n", ret);
           }
-#if 0
         else
           {
-            // struct sockaddr_in * p = (struct sockaddr_in *) & name;
-            // sim_printf ("access connect %s\n", inet_ntoa (p->sin_addr));
+            struct sockaddr_in * p = (struct sockaddr_in *) & name;
+            sim_printf ("\r[OPC emulation: CONNECT %s]\r\n", inet_ntoa (p -> sin_addr));
           }
-#endif
 
         if (access->useTelnet)
           {
@@ -623,6 +626,11 @@ static void onNewAccess (uv_stream_t * server, int status)
 
 void uv_open_access (uv_access * access)
   {
+    if (access->open == true)
+      {
+        sim_printf ("\r[OPC emulation: OPC already initialized]\r\n");
+      }
+
     if (! access->port)
       {
         //sim_printf ("access port disabled\n");
@@ -647,9 +655,13 @@ void uv_open_access (uv_access * access)
                        onNewAccess);
     if (r)
      {
-        fprintf (stderr, "[FNP emulation: listen error %s\n", uv_strerror (r));
+        fprintf (stderr, "\r[OPC emulation: listen error: %s:%ld: %s]\r\n", access->address, (long) access->port, uv_strerror (r));
       }
     access->open = true;
+    if (access->address != NULL)
+      sim_printf ("\r[OPC emulation: TELNET server listening on %s:%ld]\r\n", access->address, (long) access->port);
+    else
+      sim_printf ("\r[OPC emulation: TELNET server listening on 0.0.0.0:%ld]\r\n", (long) access->port);
   }
 
 #ifndef QUIET_UNUSED

@@ -294,3 +294,10 @@ docs/hpages/.hugo_build.lock
 # Distkit build
 src/LICENSE.txt
 src/README.txt
+
+# NSIS
+.nsis/bin/??-bit/*.exe
+.nsis/*.exe
+.nsis/share/*.pdf
+.nsis/share/LICENSE.md
+.nsis/dps8m-master-win-setup.exe

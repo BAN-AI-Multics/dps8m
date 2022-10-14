@@ -391,7 +391,11 @@ static t_stat mrestore (char * p2)
 #endif /* ifdef PERF_STRIP */
         return SCPE_ARG;
       }
+#ifdef WIN_STDIO
+    sim_printf ("Read %llu bytes (%llu pages, %llu segments)\n",
+#else
     sim_printf ("Read %'llu bytes (%'llu pages, %'llu segments)\n",
+#endif /* ifdef WIN_STDIO */
                 (unsigned long long) n,
                 (unsigned long long) (n / sizeof (word36)),
                 (unsigned long long) (n / sizeof (36) / 1024));

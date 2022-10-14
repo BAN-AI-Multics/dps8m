@@ -1,0 +1,54 @@
+COPYRIGHT AND PERMISSION NOTICE
+
+Copyright (c) 2006-2022 Michael Mondy, Harry Reed, Charles Anthony, and others
+Copyright (c) 2012 Dave Jordan
+Copyright (c) 2015-2016 Craig Ruff
+Copyright (c) 2015-2022 Eric Swenson
+Copyright (c) 2016 Jean-Michel Merliot
+Copyright (c) 2017-2022 Jeffrey H. Johnson
+Copyright (c) 2018-2021 Juergen Weiss
+Copyright (c) 2021 Dean S. Anderson
+Copyright (c) 2021-2022 The DPS8M Development Team
+
+All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, provided that the above copyright notice(s) and this permission notice appear in all copies of the Software and that both the above copyright notice(s) and this permission notice appear in supporting documentation.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF THIRD PARTY RIGHTS. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR HOLDERS INCLUDED IN THIS NOTICE BE LIABLE FOR ANY CLAIM, OR ANY SPECIAL INDIRECT OR CONSEQUENTIAL DAMAGES, OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+Except as contained in this notice, the name of a copyright holder shall not be used in advertising or otherwise to promote the sale, use or other dealings in this Software without prior written authorization of the copyright holder.
+
+All trademarks and registered trademarks mentioned herein are the property of their respective owners.
+
+----
+
+The DPS8M Simulator source distribution includes various build, configuration, and miscellaneous files. These supporting files are distributed under the terms of the following FSF All Permissive License:
+
+Copying and distribution of this file, with or without modification, are permitted in any medium without royalty provided the copyright notice and this notice are preserved.  This file is offered "AS-IS", without any warranty.
+
+----
+
+The DPS8M Simulator source code may contain code comments that adapt, include, and/or incorporate Multics program code and/or documentation distributed under the Multics License. The Multics License covers only these source code comments, and is not applicable to any compiled object code or binary distributions of the simulator:
+
+Multics License
+
+Copyright (c) 1972 The Massachusetts Institute of Technology
+Copyright (c) 1972 Honeywell Information Systems, Inc.
+Copyright (c) 2006 Bull HN Information Systems, Inc.
+Copyright (c) 2006 Bull SAS
+
+All rights reserved.
+
+ * This edition of the Multics software materials and documentation is provided and donated to The Massachusetts Institute of Technology by Group BULL including BULL HN Information Systems, Inc. as a contribution to computer science knowledge.
+
+ * This donation is made also to give evidence of the common contributions of The Massachusetts Institute of Technology, Bell Laboratories, General Electric, Honeywell Information Systems, Inc., Honeywell BULL, Inc., Groupe BULL and BULL HN Information Systems, Inc. to the development of this operating system.
+
+ * Multics development was initiated by The Massachusetts Institute of Technology Project MAC (1963-1970), renamed the MIT Laboratory for Computer Science and Artificial Intelligence in the mid 1970s, under the leadership of Professor Fernando José Corbató. Users consider that Multics provided the best software architecture for managing computer hardware properly and for executing programs. Many subsequent operating systems incorporated Multics principles.
+
+ * Multics was distributed in 1975 to 2000 by Group Bull in Europe, and in the U.S. by Bull HN Information Systems, Inc., as successor in interest by change in name only to Honeywell Bull, Inc. and Honeywell Information Systems, Inc.
+
+Permission to use, copy, modify, and distribute these programs and their documentation for any purpose and without fee is hereby granted, provided that this copyright notice and the above historical background appear in all copies and that both the copyright notice and historical background and this permission notice appear in supporting documentation, and that the names of MIT, HIS, BULL, or BULL HN not be used in advertising or publicity pertaining to distribution of the programs without specific prior written permission.
+
+----
+
+DPS8M may incorporate, adapt, or utilize software from third-parties. Third-party software is copyrighted by their respective owners and may be made available under different license terms. See the Third-party Software section in the Legal chapter of the DPS8M Omnibus Documentation for authoritative information.

@@ -648,15 +648,44 @@ sim_timer_activate_after (uptr, 1000000/rtc_hz[tmr]);
 return stat;
 }
 
+#if !defined(__CYGWIN__) && \
+  ( defined(_WIN32) || defined(__MINGW32__) || defined(__MINGW64__) || \
+    defined(CROSS_MINGW32) || defined(CROSS_MINGW64) )
+void win32_usleep(__int64 usec)
+{
+  HANDLE timer;
+  LARGE_INTEGER ft;
+
+  ft.QuadPart = -(10*usec);
+
+  timer = CreateWaitableTimer(NULL, TRUE, NULL);
+  SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
+  WaitForSingleObject(timer, INFINITE);
+  CloseHandle(timer);
+}
+#endif /* if !defined(__CYGWIN__) &&
+            ( defined(_WIN32) || defined(__MINGW32__) || defined(__MINGW64__) ||
+             defined(CROSS_MINGW32) || defined(CROSS_MINGW64) ) */
+
 int
 sim_usleep(useconds_t tusleep)
 {
 #if ( !defined(__APPLE__) && !defined(__OpenBSD__) )
-  struct timespec rqt;
+# if !defined(__CYGWIN__) && \
+  ( defined(_WIN32) || defined(__MINGW32__) || defined(__MINGW64__) || \
+    defined(CROSS_MINGW32) || defined(CROSS_MINGW64) )
+  win32_usleep(tusleep);
 
+  return 0;
+# else
+  struct timespec rqt;
   rqt.tv_sec  = tusleep / 1000000;
   rqt.tv_nsec = (tusleep % 1000000) * 1000;
+
   return clock_nanosleep(CLOCK_MONOTONIC, 0, &rqt, NULL);
+# endif /* if !defined(__CYGWIN__) &&
+            ( defined(_WIN32) || defined(__MINGW32__) || defined(__MINGW64__) ||
+             defined(CROSS_MINGW32) || defined(CROSS_MINGW64) ) */
 #else
   return usleep(tusleep);
 #endif /* if ( !defined(__APPLE__) && !defined(__OpenBSD__) ) */

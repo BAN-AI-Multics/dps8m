@@ -1853,7 +1853,7 @@ static t_stat opc_set_console_address (UNIT * uptr, UNUSED int32 value,
 #endif /* if defined(USE_BACKTRACE) */
             abort();
           }
-        sim_msg ("Console %d address set to %s\n",
+        sim_msg ("\r[OPC emulation: OPC%d server address set to %s]\r\n",
                 dev_idx, console_state[dev_idx].console_access.address);
       }
 
