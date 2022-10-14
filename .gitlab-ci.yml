@@ -818,7 +818,7 @@ GNU GLOBAL Hypertext:
     - *scriptExtraInfo
     - make distclean
     - *scriptDPS8Mods
-    - make CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env CC=gcc make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync && sh -c 'OUT=$(find ./src -name "*.[ch]" -exec ./src/unifdef/unifdef -U0 -b -k -m {} \; 2>&1); test -z "${OUT:-}" && exit 0; echo "${OUT:?}"; exit 1'
     - htags --map-file --auto-completion --colorize-warned-line -h -I --tabs 4 -v -n -o -s --tabs 4 --table-flist --statistics
   dependencies: []
   artifacts:
@@ -832,7 +832,7 @@ GNU GLOBAL Hypertext:
 ############################################################################
 
 Hugo:
-  image: fedora:latest
+  image: fedora:37
   stage: docs
   tags:
     - Docker-x64
