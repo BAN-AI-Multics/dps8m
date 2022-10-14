@@ -363,6 +363,8 @@ lmscspell:                                                                    \
      $(GREP) -Ev '(\.yml\.in$$)'                                            | \
      $(GREP) -Ev '(\.zip$$)'                                                | \
      $(GREP) -Ev '(docs/hpages/)'                                           | \
+     $(GREP) -Ev '(icon/icon\.ico$$)'                                       | \
+     $(GREP) -Ev '(\.hpkg/\.PackageInfo\.tmpl$$)'                           | \
      $(GREP) -Ev '(\.reuse/)'                                               | \
       { $(GREP) "." && { exit 9 ; } ; } && exit 0 ) ; X=$$? ;                 \
 	  $(TEST) "$${X:?}" -ne "9" > /dev/null 2>&1

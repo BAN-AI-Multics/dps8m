@@ -8326,9 +8326,17 @@ elapsedtime ();
             {
               sim_printf ("DIS@0%06o with no interrupts pending and"
                           " no events in queue\n", cpu.PPR.IC);
+#ifdef WIN_STDIO
+              sim_printf ("\nCycles = %llu\n",
+#else
               sim_printf ("\nCycles = %'llu\n",
+#endif /* ifdef WIN_STDIO */
                           (unsigned long long)cpu.cycleCnt);
+#ifdef WIN_STDIO
+              sim_printf ("\nInstructions = %llu\n",
+#else
               sim_printf ("\nInstructions = %'llu\n",
+#endif /* ifdef WIN_STDIO */
                           (unsigned long long)cpu.cycleCnt);
               longjmp (cpu.jmpMain, JMP_STOP);
             }
@@ -9149,13 +9157,22 @@ static int emCall (void)
            long double ips           = (long double)(((long double) nInsts) / ((long double) secs));
            long double mips          = ips / 1000000.0L;
 
+#ifdef WIN_STDIO
+           sim_printf ("CPU time %llu.%03llu,%03llu,%03llu\n",
+#else
            sim_printf ("CPU time %'llu.%03llu,%03llu,%03llu\n",
+#endif /* ifdef WIN_STDIO */
                        (unsigned long long) seconds,
                        (unsigned long long) milliseconds,
                        (unsigned long long) microseconds,
                        (unsigned long long) nanoseconds);
+#ifdef WIN_STDIO
+           sim_printf ("%llu instructions\n", (unsigned long long) nInsts);
+           sim_printf ("%f MIPS\n", (double) mips);
+#else
            sim_printf ("%'llu instructions\n", (unsigned long long) nInsts);
            sim_printf ("%'f MIPS\n", (double) mips);
+#endif /* ifdef WIN_STDIO */
            break;
          }
        default:

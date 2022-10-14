@@ -301,6 +301,7 @@ t_stat set_on (int32 flag, CONST char *cptr);
 t_stat set_verify (int32 flag, CONST char *cptr);
 t_stat set_message (int32 flag, CONST char *cptr);
 t_stat set_quiet (int32 flag, CONST char *cptr);
+t_stat set_localopc (int32 flag, CONST char *cptr);
 t_stat set_asynch (int32 flag, CONST char *cptr);
 t_stat sim_show_asynch (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr);
 t_stat do_cmd_label (int32 flag, CONST char *cptr, CONST char *label);
@@ -341,6 +342,7 @@ int32 sim_brk_ins                = 0;
 int32 sim_iglock                 = 0;
 int32 sim_nolock                 = 0;
 int32 sim_quiet                  = 0;
+int32 sim_localopc               = 1;
 int32 sim_randompst              = 0;
 int32 sim_randstate              = 0;
 int32 sim_step                   = 0;
@@ -826,6 +828,10 @@ static const char simh_help[] =
       "3Command Error Status Display\n"
       "+SET MESSAGE                 Re-enables display of script error messages\n"
       "+SET NOMESSAGE               Disables display of script error messages\n"
+#define HLP_SET_LOCALOPC "*Commands SET Local_Operator_Console"
+      "3Local Operator Console\n"
+      "+SET LOCALOPC                Enables local operator console\n"
+      "+SET NOLOCALOPC              Disables local operator console\n"
 #define HLP_SET_QUIET "*Commands SET Command_Output_Display"
       "3Command Output Display\n"
       "+SET QUIET                   Disables suppression of some messages\n"
@@ -1224,6 +1230,8 @@ static CTAB set_glob_tab[] = {
     { "NOMESSAGE",   &set_message,              0, HLP_SET_MESSAGE },
     { "QUIET",       &set_quiet,                1, HLP_SET_QUIET },
     { "NOQUIET",     &set_quiet,                0, HLP_SET_QUIET },
+    { "LOCALOPC",    &set_localopc,             1, HLP_SET_LOCALOPC },
+    { "NOLOCALOPC",  &set_localopc,             0, HLP_SET_LOCALOPC },
     { "PROMPT",      &set_prompt,               0, HLP_SET_PROMPT },
     { NULL,          NULL,                      0 }
     };
@@ -1461,28 +1469,42 @@ t_bool lookswitch;
 t_stat stat;
 
 # ifdef __MINGW32__
+#  undef IS_WINDOWS
+#  define IS_WINDOWS 1
 #  ifndef NEED_CONSOLE_SETUP
 #   define NEED_CONSOLE_SETUP
 #  endif
 # endif /* ifdef __MINGW32__ */
 
 # ifdef CROSS_MINGW32
+#  undef IS_WINDOWS
+#  define IS_WINDOWS 1
 #  ifndef NEED_CONSOLE_SETUP
 #   define NEED_CONSOLE_SETUP
 #  endif
 # endif /* ifdef CROSS_MINGW32 */
 
 # ifdef __MINGW64__
+#  undef IS_WINDOWS
+#  define IS_WINDOWS 1
 #  ifndef NEED_CONSOLE_SETUP
 #   define NEED_CONSOLE_SETUP
 #  endif
 # endif /* ifdef __MINGW64__ */
 
 # ifdef CROSS_MINGW64
+#  undef IS_WINDOWS
+#  define IS_WINDOWS 1
 #  ifndef NEED_CONSOLE_SETUP
 #   define NEED_CONSOLE_SETUP
 #  endif
 # endif /* ifdef CROSS_MINGW64 */
+
+# ifdef __CYGWIN__
+#  ifdef IS_WINDOWS
+#   undef IS_WINDOWS
+#  endif /* ifdef IS_WINDOWS */
+# endif /* ifdef __CYGWIN__ */
 
 # ifdef USE_DUMA
 #  ifdef DUMA_EXPLICIT_INIT
@@ -3020,6 +3042,10 @@ for (; *ip && (op < oend); ) {
                         sprintf (rbuf, "%s", sim_do_echo ? "-V" : "");
                         ap = rbuf;
                         }
+                    else if (!strcmp ("SIM_LOCALOPC", gbuf)) {
+                        sprintf (rbuf, "%s", sim_localopc ? "1" : "");
+                        ap = rbuf;
+                        }
                     else if (!strcmp ("SIM_QUIET", gbuf)) {
                         sprintf (rbuf, "%s", sim_quiet ? "-Q" : "");
                         ap = rbuf;
@@ -3658,6 +3684,17 @@ sim_show_message = flag;
 return SCPE_OK;
 }
 
+/* Set localopc/nolocalopc routine */
+
+t_stat set_localopc (int32 flag, CONST char *cptr)
+{
+if (cptr && (*cptr != 0))                               /* now eol? */
+    return SCPE_2MARG;
+if (flag == sim_localopc)                               /* already set correctly? */
+    return SCPE_OK;
+sim_localopc = flag;
+return SCPE_OK;
+}
 /* Set quiet/noquiet routine */
 
 t_stat set_quiet (int32 flag, CONST char *cptr)
@@ -5354,7 +5391,7 @@ if ((sim_switches & SWMASK ('R')) ||                    /* read only? */
         return attach_err (uptr, SCPE_OPENERR);         /* yes, error */
     uptr->flags = uptr->flags | UNIT_RO;                /* set rd only */
     if (!sim_quiet && !(sim_switches & SWMASK ('Q'))) {
-        sim_printf ("%s: unit is read only\n", sim_dname (dptr));
+        sim_printf ("%s: unit is read only (%s)\n", sim_dname (dptr), cptr);
         }
     }
 else {
@@ -5363,7 +5400,7 @@ else {
         if (uptr->fileref == NULL)                      /* open fail? */
             return attach_err (uptr, SCPE_OPENERR);     /* yes, error */
         if (!sim_quiet && !(sim_switches & SWMASK ('Q'))) {
-            sim_printf ("%s: creating new file\n", sim_dname (dptr));
+            sim_printf ("%s: creating new file (%s)\n", sim_dname (dptr), cptr);
             }
         }
     else {                                              /* normal */
@@ -5388,7 +5425,7 @@ else {
                     return attach_err (uptr, SCPE_OPENERR); /* yes, error */
                 uptr->flags = uptr->flags | UNIT_RO;    /* set rd only */
                 if (!sim_quiet) {
-                    sim_printf ("%s: unit is read only\n", sim_dname (dptr));
+                    sim_printf ("%s: unit is read only (%s)\n", sim_dname (dptr), cptr);
                     }
                 }
             else {                                      /* doesn't exist */
@@ -5398,7 +5435,7 @@ else {
                 if (uptr->fileref == NULL)              /* open fail? */
                     return attach_err (uptr, SCPE_OPENERR); /* yes, error */
                 if (!sim_quiet) {
-                    sim_printf ("%s: creating new file\n", sim_dname (dptr));
+                    sim_printf ("%s: creating new file (%s)\n", sim_dname (dptr), cptr);
                     }
                 }
             }                                           /* end if null */
@@ -5724,23 +5761,33 @@ if ((r = sim_check_console (30)) != SCPE_OK) {          /* check console, error?
     sim_ttcmd ();
     return r;
     }
+#ifndef IS_WINDOWS
+# ifdef SIGINT
 if (signal (SIGINT, int_handler) == SIG_ERR) {          /* set WRU */
     sim_is_running = 0;                                 /* flag idle */
     sim_ttcmd ();
     return SCPE_SIGERR;
     }
-#ifdef SIGHUP
+# endif
+#endif
+#ifndef IS_WINDOWS
+# ifdef SIGHUP
 if (signal (SIGHUP, int_handler) == SIG_ERR) {          /* set WRU */
     sim_is_running = 0;                                 /* flag idle */
     sim_ttcmd ();
     return SCPE_SIGERR;
     }
+# endif
 #endif
+#ifndef IS_WINDOWS
+# ifdef SIGTERM
 if (signal (SIGTERM, int_handler) == SIG_ERR) {         /* set WRU */
     sim_is_running = 0;                                 /* flag idle */
     sim_ttcmd ();
     return SCPE_SIGERR;
     }
+# endif
+#endif
 if (sim_step)                                           /* set step timer */
     sim_activate (&sim_step_unit, sim_step);
 fflush(stdout);                                         /* flush stdout */
@@ -5833,11 +5880,19 @@ run_cmd_message (const char *unechoed_cmdline, t_stat r)
 {
 if (unechoed_cmdline && (r >= SCPE_BASE) && (r != SCPE_STEP) && (r != SCPE_STOP) && (r != SCPE_EXPECT))
     sim_printf("%s> %s\n", do_position(), unechoed_cmdline);
+#ifdef WIN_STDIO
+(void)fflush(stderr);
+(void)fflush(stdout);
+#endif /* ifdef WIN_STDIO */
 fprint_stopped (stdout, r);                         /* print msg */
 if (sim_log && (sim_log != stdout))                 /* log if enabled */
     fprint_stopped (sim_log, r);
 if (sim_deb && (sim_deb != stdout) && (sim_deb != sim_log))/* debug if enabled */
     fprint_stopped (sim_deb, r);
+#ifdef WIN_STDIO
+(void)fflush(stderr);
+(void)fflush(stdout);
+#endif /* ifdef WIN_STDIO */
 }
 
 /* Common setup for RUN or BOOT */
@@ -5918,6 +5973,10 @@ return;
 
 void fprint_stopped (FILE *st, t_stat v)
 {
+#ifdef WIN_STDIO
+(void)fflush(stderr);
+(void)fflush(stdout);
+#endif /* ifdef WIN_STDIO */
 fprint_stopped_gen (st, v, sim_PC, sim_dflt_dev);
 return;
 }
@@ -7994,7 +8053,13 @@ UNIT *uptr;
 t_stat reason;
 
 if (stop_cpu)                                           /* stop CPU? */
+  {
+#ifdef WIN_STDIO
+    (void)fflush(stdout);
+    (void)fflush(stderr);
+#endif /* ifdef WIN_STDIO */
     return SCPE_STOP;
+  }
 UPDATE_SIM_TIME;                                        /* update sim time */
 
 if (sim_clock_queue == QUEUE_LIST_END) {                /* queue empty? */
@@ -8031,7 +8096,13 @@ else
     sim_debug (SIM_DBG_EVENT, sim_dflt_dev, "Processing Queue Complete New Interval = %d(%s)\n", sim_interval, sim_uname(sim_clock_queue));
 
 if ((reason == SCPE_OK) && stop_cpu)
+  {
+#ifdef WIN_STDIO
+    (void)fflush(stdout);
+    (void)fflush(stderr);
+#endif /* ifdef WIN_STDIO */
     reason = SCPE_STOP;
+  }
 sim_processing_event = FALSE;
 return reason;
 }

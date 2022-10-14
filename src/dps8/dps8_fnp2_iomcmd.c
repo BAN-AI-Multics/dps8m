@@ -1677,7 +1677,7 @@ static int interruptL66 (uint iomUnitIdx, uint chan)
 
 static void fnpcmdBootload (uint devUnitIdx)
   {
-    sim_printf("Received BOOTLOAD command...\n");
+    sim_printf("\r[FNP emulation: FNP %c received BOOTLOAD command]\r\n", (int)('a' + (int)devUnitIdx));
     fnpData.fnpUnitData[devUnitIdx].MState.accept_calls = false;
     bool have3270 = false;
     for (uint lineno = 0; lineno < MAX_LINES; lineno ++)
@@ -1686,7 +1686,7 @@ static void fnpcmdBootload (uint devUnitIdx)
         if (fnpData.fnpUnitData[devUnitIdx].MState.line [lineno].line_client)
           {
             fnpuv_start_writestr (fnpData.fnpUnitData[devUnitIdx].MState.line [lineno].line_client,
-              (unsigned char *) "The FNP has been restarted\r\n");
+              (unsigned char *) "\r[FNP emulation: FNP restarted]\r\n");
           }
         if (fnpData.fnpUnitData[devUnitIdx].MState.line[lineno].service == service_3270)
           {

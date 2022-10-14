@@ -50,12 +50,12 @@ title: DPS8M Releases
 | [**dps8m-master-linux-att.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-att.tar.gz) | PPC64le (AT16, POWER10) |
 {{< /tab >}}
 {{< tab "macOS" >}}
-| File                                                                                             | Platform              |
-|:------------------------------------------------------------------------------------------------ |:--------------------- |
-| [**dps8m-master-macos-uni.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-macos-uni.tar.gz) | macOS 10.15/11 (Universal) |
-| [**dps8m-master-macos-x86.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-macos-x86.tar.gz) | macOS Latest (x86_64) |
-| [**dps8m-master-mac10-x86.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-mac10-x86.tar.gz) | macOS 10.13 (x86_64)  |
-| [**dps8m-master-mac11-a64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-mac11-a64.tar.gz) | macOS 11.00 (ARM64)   |
+| File                                                                                             | Platform                 |
+|:------------------------------------------------------------------------------------------------ |:------------------------ |
+| [**dps8m-master-macos-uni.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-macos-uni.tar.gz) | Universal (macOS 10.13+) |
+| [**dps8m-master-mac10-x86.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-mac10-x86.tar.gz) | Intel (macOS 10.13+)     |
+| [**dps8m-master-mac11-a64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-mac11-a64.tar.gz) | ARM64 (macOS 11.00+)     |
+| [**dps8m-master-macos-x86.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-macos-x86.tar.gz) | Intel (Latest SDK)       |
 {{< /tab >}}
 {{< tab "SunOS" >}}
 | File                                                                                            | Platform                      |
@@ -66,6 +66,7 @@ title: DPS8M Releases
 {{< tab "Windows" >}}
 | File                                                                                             | Platform      |
 |:------------------------------------------------------------------------------------------------ |:------------- |
+| [**dps8m-master-win-setup.exe**](https://dps8m.gitlab.io/dps8m/dps8m-master-win-setup.exe)       | i686/x86_64   |
 | [**dps8m-master-mingw-x86.zip**](https://dps8m.gitlab.io/dps8m/dps8m-master-mingw-x86.zip)       | x86_64        |
 | [**dps8m-master-mingw-x32.zip**](https://dps8m.gitlab.io/dps8m/dps8m-master-mingw-x32.zip)       | i686          |
 | [**dps8m-master-mingw-a64.zip**](https://dps8m.gitlab.io/dps8m/dps8m-master-mingw-a64.zip)       | ARM64         |

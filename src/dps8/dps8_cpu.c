@@ -1432,7 +1432,11 @@ static void do_stats (void)
         sim_msg ("Instruction counts\r\n");
         for (uint i = 0; i < 8; i ++)
           {
+# ifdef WIN_STDIO
+            sim_msg (" %9lld\r\n", (long long int) cpus[i].instrCnt);
+# else
             sim_msg (" %'9lld\r\n", (long long int) cpus[i].instrCnt);
+# endif /* ifdef WIN_STDIO */
             cpus[i].instrCnt = 0;
           }
         sim_msg ("\r\n");
@@ -1440,7 +1444,7 @@ static void do_stats (void)
   }
 #endif
 
-// The 100Hz timer as expired; poll I/O
+// The 100Hz timer has expired; poll I/O
 
 #ifndef PERF_STRIP
 static void ev_poll_cb (UNUSED uv_timer_t * handle)
@@ -1642,6 +1646,16 @@ DEVICE cpu_dev =
     NULL,           // description
     NULL
   };
+
+void printPtid(pthread_t pt)
+{
+  unsigned char *ptc = (unsigned char*)(void*)(&pt);
+  fprintf(stderr, "\rThread ID: 0x");
+  for (size_t i=0; i < sizeof(pt); i++) {
+    fprintf(stderr, "%02x", (unsigned)(ptc[i]));
+  }
+  fprintf(stderr, "\r\n");
+}
 
 #ifdef M_SHARED
 cpu_state_t * cpus = NULL;
@@ -1983,7 +1997,10 @@ void * cpu_thread_main (void * arg)
     set_cpu_idx ((uint) myid);
     unsigned char umyid = (unsigned char)toupper('a' + (int)myid);
 
-    sim_msg ("CPU %c thread created.\n", (unsigned int)umyid);
+    sim_msg ("\rCPU %c thread created.\r\n", (unsigned int)umyid);
+# ifdef TESTING
+    printPtid(pthread_self());
+# endif /* ifdef TESTING */
 
     setSignals ();
     threadz_sim_instr ();
@@ -2771,7 +2788,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   req.tv_nsec    = nsec;
                   req.tv_sec    += req.tv_nsec / 1000000000;
                   req.tv_nsec   %= 1000000000;
-                  int rc         = nanosleep (& req, & rem);
+                  int rc         = nanosleep (& req, & rem); // XXX Does this work on Windows ???
                   // Awakened early?
                   if (rc == -1)
                     {
@@ -3123,6 +3140,19 @@ leave:
     HDBGPrint ();
 #endif
     sim_msg ("\r\n");
+#ifdef WIN_STDIO
+    (void)fflush(stderr);
+    (void)fflush(stdout);
+    sim_msg ("cycles        %15llu\r\n", (unsigned long long)cpu.cycleCnt);
+    sim_msg ("instructions  %15llu\r\n", (unsigned long long)cpu.instrCnt);
+    sim_msg ("lockCnt       %15llu\r\n", (unsigned long long)cpu.lockCnt);
+    sim_msg ("lockImmediate %15llu\r\n", (unsigned long long)cpu.lockImmediate);
+    sim_msg ("lockWait      %15llu\r\n", (unsigned long long)cpu.lockWait);
+    sim_msg ("lockWaitMax   %15llu\r\n", (unsigned long long)cpu.lockWaitMax);
+    sim_msg ("lockYield     %15llu\r\n", (unsigned long long)cpu.lockYield);
+    (void)fflush(stdout);
+    (void)fflush(stderr);
+#else
     sim_msg ("cycles        %'15llu\r\n", (unsigned long long)cpu.cycleCnt);
     sim_msg ("instructions  %'15llu\r\n", (unsigned long long)cpu.instrCnt);
     sim_msg ("lockCnt       %'15llu\r\n", (unsigned long long)cpu.lockCnt);
@@ -3130,6 +3160,7 @@ leave:
     sim_msg ("lockWait      %'15llu\r\n", (unsigned long long)cpu.lockWait);
     sim_msg ("lockWaitMax   %'15llu\r\n", (unsigned long long)cpu.lockWaitMax);
     sim_msg ("lockYield     %'15llu\r\n", (unsigned long long)cpu.lockYield);
+#endif /* ifdef WIN_STDIO */
 #if 0
     for (int i = 0; i < N_FAULTS; i ++)
       {

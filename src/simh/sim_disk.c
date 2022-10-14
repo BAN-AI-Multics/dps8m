@@ -818,7 +818,7 @@ if ((sim_switches & SWMASK ('R')) ||                    /* read only? */
         return _err_return (uptr, SCPE_OPENERR);        /* yes, error */
     uptr->flags = uptr->flags | UNIT_RO;                /* set rd only */
     if (!sim_quiet) {
-        sim_printf ("%s%lu: unit is read only\n", sim_dname (dptr), (unsigned long)(uptr-dptr->units));
+        sim_printf ("%s%lu: unit is read only (%s)\n", sim_dname (dptr), (unsigned long)(uptr-dptr->units), cptr);
         }
     }
 else {                                                  /* normal */
@@ -832,7 +832,7 @@ else {                                                  /* normal */
                 return _err_return (uptr, SCPE_OPENERR);/* yes, error */
             uptr->flags = uptr->flags | UNIT_RO;        /* set rd only */
             if (!sim_quiet)
-                sim_printf ("%s%lu: unit is read only\n", sim_dname (dptr), (unsigned long)(uptr-dptr->units));
+                sim_printf ("%s%lu: unit is read only (%s)\n", sim_dname (dptr), (unsigned long)(uptr-dptr->units), cptr);
             }
         else {                                          /* doesn't exist */
             if (sim_switches & SWMASK ('E'))            /* must exist? */
@@ -844,7 +844,7 @@ else {                                                  /* normal */
             if (uptr->fileref == NULL)                  /* open fail? */
                 return _err_return (uptr, SCPE_OPENERR);/* yes, error */
             if (!sim_quiet)
-                sim_printf ("%s%lu: creating new file\n", sim_dname (dptr), (unsigned long)(uptr-dptr->units));
+                sim_printf ("%s%lu: creating new file (%s)\n", sim_dname (dptr), (unsigned long)(uptr-dptr->units), cptr);
             created = TRUE;
             }
         }                                               /* end if null */
