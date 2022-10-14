@@ -29,6 +29,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
+#include <sys/time.h>
 #include <unistd.h>
 
 #define MAX_MKSTEMPS_TRIES 10000
@@ -62,7 +63,9 @@ int
 utfile_mkstemps(char *request_pattern, int suffix_length)
 {
   long pattern_length;
+  int st1ret;
   char *mask_pointer;
+  struct timespec st1;
 
   char *pattern = strdup(request_pattern);
   if (!pattern)
@@ -80,7 +83,25 @@ utfile_mkstemps(char *request_pattern, int suffix_length)
 
   pattern_length = (long) strlen(pattern);
 
-  srandom((unsigned int)time(NULL));
+#ifdef USE_MONOTONIC
+  st1ret = clock_gettime(CLOCK_MONOTONIC, &st1);
+#else
+  st1ret = clock_gettime(CLOCK_REALTIME, &st1);
+#endif /* ifdef USE_MONOTONIC */
+  if (st1ret != 0)
+    {
+      fprintf (stderr, "\rFATAL: clock_gettime failure! Aborting at %s[%s:%d]\r\n",
+               __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+      (void)raise(SIGUSR2);
+      /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+      abort();
+    }
+
+  srandom((unsigned int)(getpid() ^ (long)((1LL + (long long)st1.tv_nsec) * (1LL + (long long)st1.tv_sec))));
 
   if (( (long) pattern_length - 6 ) < (long) suffix_length)
   {

@@ -183,7 +183,7 @@ trealloc(void *ptr, size_t size)
             "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
             __func__, __FILE__, __LINE__);
           abort();
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
         }
 
       if (!memcpy(rm, r, size))
@@ -193,7 +193,7 @@ trealloc(void *ptr, size_t size)
             "\rFATAL: Impossible memcpy result! Aborting at %s[%s:%d]\r\n",
             __func__, __FILE__, __LINE__);
           abort();
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
         }
       FREE(r);
       return rm;
@@ -349,7 +349,7 @@ static struct cmb_xitem *cmb_transform_find;
                                       " %s[%s:%d]\r\n",                       \
                               __func__, __FILE__, __LINE__);                  \
                 abort();                                                      \
-                /* NOTREACHED */                                              \
+                /*NOTREACHED*/ /* unreachable */                              \
               }                                                               \
             cmb_transform_find_buf_size = len;                                \
           }                                                                   \
@@ -468,7 +468,7 @@ static struct cmb_xitem *cmb_transform_find;
 # define CMB_PARSE_FRAGSIZE 512
 #endif /* ifndef CMB_PARSE_FRAGSIZE */
 
-static const char mcmbver[]         = "2120.4.14-dps";
+static const char mcmbver[]         = "2120.4.15-dps";
 static const char libversion[]      = "libcmb 3.5.6";
 
 /*
@@ -1085,7 +1085,7 @@ cmb(struct cmb_config *config, uint32_t nitems, char *items[])
       (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
                     __func__, __FILE__, __LINE__);
       abort();
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
     }
 
   if (( setnums = (uint32_t *)malloc(sizeof ( uint32_t ) * setmax)) == NULL)
@@ -1093,7 +1093,7 @@ cmb(struct cmb_config *config, uint32_t nitems, char *items[])
       (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
                     __func__, __FILE__, __LINE__);
       abort();
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
     }
 
   if (( setnums_backend =
@@ -1102,7 +1102,7 @@ cmb(struct cmb_config *config, uint32_t nitems, char *items[])
       (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
                     __func__, __FILE__, __LINE__);
       abort();
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
     }
 
   /*
@@ -1212,7 +1212,7 @@ cmb(struct cmb_config *config, uint32_t nitems, char *items[])
               (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
                             __func__, __FILE__, __LINE__);
               abort();
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
             }
           setnums[n] = n;
         }
@@ -1225,7 +1225,7 @@ cmb(struct cmb_config *config, uint32_t nitems, char *items[])
               (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
                             __func__, __FILE__, __LINE__);
               abort();
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
             }
           setnums_backend[p++] = nitems - n;
         }
@@ -1600,7 +1600,7 @@ main(int argc, char *argv[])
       (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
                     __func__, __FILE__, __LINE__);
       abort();
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
     }
 
 #ifndef bzero
@@ -1629,7 +1629,7 @@ main(int argc, char *argv[])
               (void)fprintf(stderr, "Error: -c: %s `%s'\n",
                 strerror(EINVAL), optarg);
               _Exit(EXIT_FAILURE);
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
             }
 
           errno = 0;
@@ -1639,7 +1639,7 @@ main(int argc, char *argv[])
               (void)fprintf(stderr, "Error: -c: %s `%s'\n",
                 strerror(errno), optarg);
               _Exit(EXIT_FAILURE);
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
             }
 
           break;
@@ -1666,7 +1666,7 @@ main(int argc, char *argv[])
               (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
                             __func__, __FILE__, __LINE__);
               abort();
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
             }
 
           cmb_transform_find->cp = optarg;
@@ -1683,7 +1683,7 @@ main(int argc, char *argv[])
               (void)fprintf(stderr, "Error: -F: %s `%s'\n",
                 strerror(errno), optarg);
               _Exit(EXIT_FAILURE);
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
             }
 
           break;
@@ -1696,7 +1696,7 @@ main(int argc, char *argv[])
         case 'h': /* help */
           FREE(config);
           cmb_usage();
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
           break;
 
         case 'i': /* start */
@@ -1710,7 +1710,7 @@ main(int argc, char *argv[])
               (void)fprintf(stderr, "Error: -i: %s `%s'\n",
                 strerror(EINVAL), optarg);
               _Exit(EXIT_FAILURE);
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
             }
 
           if (!opt_randi)
@@ -1730,7 +1730,7 @@ main(int argc, char *argv[])
                   (void)fprintf(stderr, "Error: -i: %s `%s'\n",
                     strerror(errno), optarg);
                   _Exit(EXIT_FAILURE);
-                  /* NOTREACHED */
+                  /*NOTREACHED*/ /* unreachable */
                 }
             }
 
@@ -1743,7 +1743,7 @@ main(int argc, char *argv[])
               (void)fprintf(stderr, "Error: -k: %s `%s'\n",
                 strerror(errno), optarg);
               _Exit(EXIT_FAILURE);
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
             }
 
           break;
@@ -1758,7 +1758,7 @@ main(int argc, char *argv[])
               (void)fprintf(stderr, "Error: -n: %s `%s'\n",
                 strerror(errno), optarg);
               _Exit(EXIT_FAILURE);
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
             }
 
           break;
@@ -1769,7 +1769,7 @@ main(int argc, char *argv[])
               (void)fprintf(stderr, "Error: -n: %s `%s'\n",
                 strerror(errno), optarg);
               _Exit(EXIT_FAILURE);
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
             }
 
           opt_precision = TRUE;
@@ -1821,7 +1821,7 @@ main(int argc, char *argv[])
 
         default: /* unhandled argument (based on switch) */
           cmb_usage();
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
         }
     }
   argc -= optind;
@@ -1841,7 +1841,7 @@ main(int argc, char *argv[])
 #endif /* ifdef HAVE_BUILD */
           FREE(config);
           exit(EXIT_SUCCESS);
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
 #ifdef HAVE_BUILD
         }
 #endif /* ifdef HAVE_BUILD */
@@ -1872,7 +1872,7 @@ main(int argc, char *argv[])
 # endif /* ifdef __VERSION__ */
       FREE(config);
       exit(EXIT_SUCCESS);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
     }
 #endif /* ifdef HAVE_BUILD */
 
@@ -1883,7 +1883,7 @@ main(int argc, char *argv[])
   if (argc == 0 && !opt_empty)
     {
       cmb_usage();
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
     }
 
   /*
@@ -1894,7 +1894,7 @@ main(int argc, char *argv[])
     {
       (void)fprintf(stderr, "Error: `-X op' required when using `-F num'\n");
       _Exit(EXIT_FAILURE);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
     }
 
   /*
@@ -1905,7 +1905,7 @@ main(int argc, char *argv[])
     {
       (void)fprintf(stderr, "Error: `-X op' required when using `-P num'\n");
       _Exit(EXIT_FAILURE);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
     }
 
   /*
@@ -1916,7 +1916,7 @@ main(int argc, char *argv[])
     {
       (void)fprintf(stderr, "Error: `-f' required when using `-0'\n");
       _Exit(EXIT_FAILURE);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
     }
 
   /*
@@ -1937,7 +1937,7 @@ main(int argc, char *argv[])
               (void)fprintf(stderr, "Error: -r: %s `%s'\n",
                 strerror(errno), argv[n]);
               _Exit(EXIT_FAILURE);
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
             }
 
           if (unumlen(argv[n]) == strlen(argv[n]))
@@ -1959,7 +1959,7 @@ main(int argc, char *argv[])
             {
               (void)fprintf(stderr, "Error: -r: Too many items\n");
               _Exit(EXIT_FAILURE);
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
             }
 
           ritems += ull;
@@ -1977,19 +1977,19 @@ main(int argc, char *argv[])
         {
           FREE(config);
           exit(EXIT_SUCCESS);
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
         }
 
       if (errno)
         {
           (void)fprintf(stderr, "Error: %s\n", strerror(errno));
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
         }
 
       (void)fprintf(stdout, "%" PRIu64 "%s", count, opt_nulprint ? "" : "\n");
       FREE(config);
       exit(EXIT_SUCCESS);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
     }
 
   /*
@@ -2014,7 +2014,7 @@ main(int argc, char *argv[])
               (void)fprintf(stderr, "\rFATAL: Bugcheck! %s\r\n",
                 errno ? strerror(errno) : "Out of memory?!");
               _Exit(EXIT_FAILURE);
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
             }
 
           if (fitems + i > UINT_MAX)
@@ -2022,7 +2022,7 @@ main(int argc, char *argv[])
               FREE(items_tmp);
               (void)fprintf(stderr, "FATAL: -f: Too many items\n");
               _Exit(EXIT_FAILURE);
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
             }
 
           fitems += (uint64_t)i;
@@ -2033,7 +2033,7 @@ main(int argc, char *argv[])
               (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
                             __func__, __FILE__, __LINE__);
               abort();
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
             }
 
           if (items_tmp == NULL) //-V547
@@ -2041,7 +2041,7 @@ main(int argc, char *argv[])
               (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
                             __func__, __FILE__, __LINE__);
               abort();
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
             }
 
           (void)memcpy(&items[fitems - i], items_tmp, i * cp_size);
@@ -2062,7 +2062,7 @@ main(int argc, char *argv[])
           (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
                         __func__, __FILE__, __LINE__);
           abort();
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
         }
 
       i = 0;
@@ -2113,7 +2113,7 @@ main(int argc, char *argv[])
         {
           (void)fprintf(stderr, "Error: -X %s\n", strerror(EINVAL));
           _Exit(EXIT_FAILURE);
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
         }
 
       ch = -1; //-V1048
@@ -2140,7 +2140,7 @@ main(int argc, char *argv[])
           (void)fprintf(stderr, "Error: -X: %s `%s'\n",
             strerror(EINVAL), opt_transform);
           _Exit(EXIT_FAILURE);
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
         }
 
       /*
@@ -2155,7 +2155,7 @@ main(int argc, char *argv[])
               (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
                             __func__, __FILE__, __LINE__);
               abort();
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
             }
 
           for (n = 0; n < nitems; n++)
@@ -2165,7 +2165,7 @@ main(int argc, char *argv[])
                   (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
                                 __func__, __FILE__, __LINE__);
                   abort();
-                  /* NOTREACHED */
+                  /*NOTREACHED*/ /* unreachable */
                 }
 
               xitem->cp = items[n];
@@ -2182,7 +2182,7 @@ main(int argc, char *argv[])
                   (void)fprintf(stderr, "Error: -X: %s `%s'\n",
                     strerror(errno), items[n]);
                   _Exit(EXIT_FAILURE);
-                  /* NOTREACHED */
+                  /*NOTREACHED*/ /* unreachable */
                 }
 
               items_tmp[n] = (char *)xitem;
@@ -2235,7 +2235,7 @@ main(int argc, char *argv[])
                   (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
                                 __func__, __FILE__, __LINE__);
                   abort();
-                  /* NOTREACHED */
+                  /*NOTREACHED*/ /* unreachable */
                 }
 
               free_find = TRUE;
@@ -2260,7 +2260,7 @@ main(int argc, char *argv[])
               (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
                             __func__, __FILE__, __LINE__);
               abort();
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
             }
 
           free_find = TRUE;
@@ -2283,14 +2283,14 @@ main(int argc, char *argv[])
         {
           FREE(config);
           exit(EXIT_SUCCESS);
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
         }
 
       if (errno)
         {
           (void)fprintf(stderr, "FATAL: %s\n", strerror(errno));
           _Exit(EXIT_FAILURE);
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
         }
 
       (void)fprintf(stdout, "%" PRIu64 "%s", count, opt_nulprint ? "" : "\n");
@@ -2304,13 +2304,19 @@ main(int argc, char *argv[])
             {
               (void)fprintf(stderr, "FATAL: %s\n", strerror(errno));
               _Exit(EXIT_FAILURE);
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
             }
 
           if (gettimeofday(&tv, NULL) == 0)
             {
-              srand48((long)tv.tv_usec);
+              srand48((long)( getpid() ^ (long)(1LL + (long long)tv.tv_usec)));
               config->start = cmb_rand_range(count) + 1;
+            }
+          else
+            {
+              (void)fprintf(stderr, "FATAL: %s\n", strerror(errno));
+              _Exit(EXIT_FAILURE);
+              /*NOTREACHED*/ /* unreachable */
             }
         }
       else if (nstart != 0)
@@ -2320,7 +2326,7 @@ main(int argc, char *argv[])
             {
               (void)fprintf(stderr, "FATAL: %s\n", strerror(errno));
               _Exit(EXIT_FAILURE);
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
             }
 
           if (count > nstart)
@@ -2338,7 +2344,7 @@ main(int argc, char *argv[])
         {
           (void)fprintf(stderr, "FATAL: %s\n", strerror(errno));
           _Exit(EXIT_FAILURE);
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
         }
     }
 
@@ -2467,7 +2473,7 @@ cmb_rand_range(uint64_t range)
     {
       (void)fprintf(stderr, "FATAL: Range cannot be zero!\n");
       _Exit(EXIT_FAILURE);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
     }
 
   uint64_t exclusion = p2(range) ? 0 : M % range + 1;
@@ -2794,7 +2800,7 @@ range_char(uint32_t start, uint32_t stop, uint32_t idx, char *dst[])
               (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
                             __func__, __FILE__, __LINE__);
               abort();
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
             }
 
           (void)sprintf(dst[idx], "%u", num);
@@ -2811,7 +2817,7 @@ range_char(uint32_t start, uint32_t stop, uint32_t idx, char *dst[])
               (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
                             __func__, __FILE__, __LINE__);
               abort();
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
             }
 
           (void)sprintf(dst[idx], "%u", num);
@@ -2840,7 +2846,7 @@ range_float(uint32_t start, uint32_t stop, uint32_t idx, char *dst[])
               (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
                             __func__, __FILE__, __LINE__);
               abort();
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
             }
 
           len = snprintf(NULL, 0, "%u", num) + 1;
@@ -2849,7 +2855,7 @@ range_float(uint32_t start, uint32_t stop, uint32_t idx, char *dst[])
               (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
                             __func__, __FILE__, __LINE__);
               abort();
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
             }
 
           (void)sprintf(xitem->cp, "%u", num);
@@ -2867,7 +2873,7 @@ range_float(uint32_t start, uint32_t stop, uint32_t idx, char *dst[])
               (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
                             __func__, __FILE__, __LINE__);
               abort();
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
             }
 
           len = snprintf(NULL, 0, "%u", num) + 1;
@@ -2876,7 +2882,7 @@ range_float(uint32_t start, uint32_t stop, uint32_t idx, char *dst[])
               (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
                             __func__, __FILE__, __LINE__);
               abort();
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
             }
 
           (void)sprintf(xitem->cp, "%u", num);
