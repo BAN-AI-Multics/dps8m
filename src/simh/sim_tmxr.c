@@ -101,7 +101,10 @@
 #include "../dps8/dps8.h"
 
 #include <ctype.h>
+#include <time.h>
+#include <sys/time.h>
 #include <signal.h>
+#include <unistd.h>
 #include <math.h>
 
 #ifdef TESTING
@@ -763,9 +766,11 @@ SOCKET newsock;
 TMLN *lp = NULL;
 int32 *op;
 int32 i, j;
+int st1ret;
 char *address;
 char msg[512];
 uint32 poll_time = sim_os_msec ();
+struct timespec ts;
 
 (void)lp;
 memset (msg, 0, sizeof (msg));
@@ -795,7 +800,25 @@ if (mp->last_poll_time == 0) {                          /* first poll initializa
 if ((poll_time - mp->last_poll_time) < mp->poll_interval*1000)
     return -1;                                          /* too soon to try */
 
-srand((unsigned int)poll_time);
+#ifdef USE_MONOTONIC
+  st1ret = clock_gettime(CLOCK_MONOTONIC, &ts);
+#else
+  st1ret = clock_gettime(CLOCK_REALTIME, &ts);
+#endif /*ifdef USE_MONOTONIC */
+  if (st1ret != 0)
+    {
+      fprintf (stderr, "\rFATAL: clock_gettime failure! Aborting at %s[%s:%d]\r\n",
+               __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+      (void)raise(SIGUSR2);
+      /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+      abort();
+    }
+
+srand((unsigned int)((poll_time + getpid()) ^ (long)((1LL + (long long)ts.tv_nsec) * (1LL + (long long)ts.tv_sec))));
 
 mp->last_poll_time = poll_time;
 

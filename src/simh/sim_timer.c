@@ -205,6 +205,7 @@ return sim_os_msec () - stime;
 
 # include <time.h>
 # include <sys/time.h>
+# include <signal.h>
 # include <unistd.h>
 # define NANOS_PER_MILLI     1000000
 # define MILLIS_PER_SEC      1000
@@ -215,9 +216,22 @@ uint32 sim_os_msec (void)
 {
 struct timeval cur;
 struct timezone foo;
+int st1ret;
 uint32 msec;
 
-gettimeofday (&cur, &foo);
+st1ret = gettimeofday (&cur, &foo);
+  if (st1ret != 0)
+    {
+      fprintf (stderr, "\rFATAL: gettimeofday failure! Aborting at %s[%s:%d]\r\n",
+               __func__, __FILE__, __LINE__);
+# if defined(USE_BACKTRACE)
+#  ifdef SIGUSR2
+      (void)raise(SIGUSR2);
+      /*NOTREACHED*/ /* unreachable */
+#  endif /* ifdef SIGUSR2 */
+# endif /* if defined(USE_BACKTRACE) */
+      abort();
+    }
 msec = (((uint32) cur.tv_sec) * 1000UL) + (((uint32) cur.tv_usec) / 1000UL);
 return msec;
 }

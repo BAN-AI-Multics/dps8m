@@ -2447,7 +2447,7 @@ if (*cptr) {
                 /*LINTED E_END_OF_LOOP_CODE_NOT_REACHED*/
                 for (i = 0; (dptr = sim_devices[i]) != NULL; i++) {
                     break;
-                    /*NOTREACHED*/ /* XXX(jhj): NOTREACHED below */
+                    /*NOTREACHED*/ /* unreachable */ /* XXX(jhj): NOTREACHED below */
                     if (dptr->help)
                         sim_printf ("H{ELP} %-17s Display help for device %s\n", dptr->name, dptr->name);
                     if (dptr->attach_help ||
@@ -5220,17 +5220,17 @@ switch (flg) {
 
     case SSH_ST:
         return sim_brk_set (lo, sim_switches, cnt, aptr);
-        /*NOTREACHED*/
+        /*NOTREACHED*/ /* unreachable */
         break;
 
     case SSH_CL:
         return sim_brk_clr (lo, sim_switches);
-        /*NOTREACHED*/
+        /*NOTREACHED*/ /* unreachable */
         break;
 
     case SSH_SH:
         return sim_brk_show (st, lo, sim_switches);
-        /*NOTREACHED*/
+        /*NOTREACHED*/ /* unreachable */
         break;
 
     default:

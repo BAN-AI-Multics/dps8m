@@ -4167,6 +4167,7 @@ static void systabInit (void) {
 // Once-only initialization; invoked via SCP
 
 static void dps8_init (void) {
+  int st1ret;
   fflush(stderr); fflush(stdout);
 #ifndef PERF_STRIP
   if (!sim_quiet) {
@@ -4282,8 +4283,25 @@ static void dps8_init (void) {
   char   statenme[32];
   memset(statenme, 0, 32);
 
-  (void)clock_gettime(CLOCK_REALTIME, &ts);
-  srandom((unsigned int)(getpid() ^ (ts.tv_sec * ts.tv_nsec)));
+#ifdef USE_MONOTONIC
+  st1ret = clock_gettime(CLOCK_MONOTONIC, &ts);
+#else
+  st1ret = clock_gettime(CLOCK_REALTIME, &ts);
+#endif /*ifdef USE_MONOTONIC */
+  if (st1ret != 0)
+    {
+      fprintf (stderr, "\rFATAL: clock_gettime failure! Aborting at %s[%s:%d]\r\n",
+               __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+      (void)raise(SIGUSR2);
+      /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+      abort();
+    }
+
+  srandom((unsigned int)(getpid() ^ (long)((1LL + (long long)ts.tv_nsec) * (1LL + (long long)ts.tv_sec))));
 
   for (int i = 1; i < 21; ++i) {
     rcap = (int)random() % 2;
