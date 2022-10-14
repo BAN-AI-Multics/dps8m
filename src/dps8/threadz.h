@@ -23,6 +23,11 @@
 
 // Wrapper around pthreads
 
+#ifdef __APPLE__
+# include <mach/mach.h>
+# include <mach/mach_time.h>
+#endif /* ifdef __APPLE__ */
+
 #include <pthread.h>
 
 #if 0
@@ -129,6 +134,10 @@ void lock_tst (void);
 void unlock_tst (void);
 bool test_tst_lock (void);
 #endif
+
+#ifdef __APPLE__
+int rtsched_thread(pthread_t pthread);
+#endif /* ifdef __APPLE__ */
 
 // CPU threads
 struct cpuThreadz_t

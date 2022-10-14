@@ -334,6 +334,47 @@ bool test_tst_lock (void)
   }
 #endif
 
+#ifdef __APPLE__
+
+/*
+ * Request RT sheduling class and ask the Mach kernel to
+ * not preempt our threads when running under Darwin/macOS.
+ */
+
+int
+rtsched_thread(pthread_t pthread)
+{
+  mach_timebase_info_data_t timebase_info;
+  mach_timebase_info(&timebase_info);
+
+  const uint64_t NANOS_PER_MSEC = 1000000ULL;
+  double mach_clock2abs =
+      ((double)timebase_info.denom / (double)timebase_info.numer) * NANOS_PER_MSEC;
+
+  thread_time_constraint_policy_data_t policy;
+
+  policy.period      = 0;
+  policy.computation = (uint32_t)( 5 * mach_clock2abs);
+  policy.constraint  = (uint32_t)(10 * mach_clock2abs);
+  policy.preemptible = FALSE;
+
+  int kr = thread_policy_set(pthread_mach_thread_np(pthread_self()),
+             THREAD_TIME_CONSTRAINT_POLICY, (thread_policy_t)&policy,
+             THREAD_TIME_CONSTRAINT_POLICY_COUNT);
+
+  if (kr != KERN_SUCCESS)
+    {
+      sim_warn("\rMach thread_policy_set error %d at %s[%s:%d]\r\n",
+               (int)kr, __FILE__, __func__, __LINE__);
+      return 1;
+    }
+# ifdef TESTING
+  sim_warn("\rMach: rtsched_thread realtime scheduling class request successful.\r\n");
+# endif /* ifdef TESTING */
+  return 0;
+}
+#endif /* ifdef __APPLE__ */
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // CPU threads
@@ -440,7 +481,13 @@ void createCPUThread (uint cpuNum)
           sim_printf ("pthread_setaffinity_np %u on CPU %u returned %d\n",
                       cpus[cpuNum].affinity, cpuNum, s);
       }
-#endif
+#endif /* ifdef AFFINITY */
+
+#ifdef __APPLE__
+    if (rtsched_thread(p->cpuThread) != 0)
+      sim_printf ("\rrtsched_thread failed %s[%s:%d]!\r\n",
+                  __func__, __FILE__, __LINE__);
+#endif /* ifdef __APPLE__ */
   }
 
 void stopCPUThread(void)
