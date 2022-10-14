@@ -2128,7 +2128,7 @@ if (ioctl (0, TIOCSETC, &runtchars) < 0)
     return SCPE_TTIERR;
 if (ioctl (0, TIOCSLTC, &runltchars) < 0)
     return SCPE_TTIERR;
-sim_os_set_thread_priority (PRIORITY_BELOW_NORMAL)l      /* lower priority */
+sim_os_set_thread_priority (PRIORITY_BELOW_NORMAL);      /* lower priority */
 return SCPE_OK;
 }
 
