@@ -35,7 +35,7 @@
     sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-appstream.repo || true
     sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-resilientstorage.repo || true
     dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update
-    dnf -y install rpmconf || dnf -y install rpmconf
+    dnf -y install xz xz-libs xz-devel rpmconf || dnf -y install xz xz-libs xz-devel rpmconf
     yes | rpmconf -a -u use_maintainer || true
     dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update
     echo -e "section_end:`date +%s`:alma9install_section\r\e[0K" || true
@@ -83,7 +83,7 @@
     echo "Running apt-get dist-upgrade ..."
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq
     echo "Installing additional software ..."
-    export ARGS="lzip bash wget gcc libtool unzip autoconf-archive util-linux psmisc clang zip pigz make"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
+    export ARGS="xz-utils liblzma-dev lzip bash wget gcc libtool unzip autoconf-archive util-linux psmisc clang zip pigz make"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
     echo -e "section_end:`date +%s`:aptgetinstall_section\r\e[0K" || true
 
 ############################################################################
@@ -124,6 +124,8 @@
     echo "Compiling libbacktrace ..."
     make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && make install && cd ..
     ldconfig || true
+    echo "Cleaning up after libbacktrace build ..."
+    rm -rf libbacktrace-master || true
     echo -e "section_end:`date +%s`:buildlibbacktrace_section\r\e[0K" || true
 
 ############################################################################
@@ -293,7 +295,7 @@
     echo "Updating system ..."
     dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update
     echo "Installing software ..."
-    export ARGS="ccache lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make gnupg2 bash curl wget git time gcc clang"; dnf -y --allowerasing --best install ${ARGS:?} || dnf -y --allowerasing --nobest install ${ARGS:?}
+    export ARGS="ccache lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make gnupg2 bash curl wget git time gcc clang xz xz-libs xz-devel"; dnf -y --allowerasing --best install ${ARGS:?} || dnf -y --allowerasing --nobest install ${ARGS:?}
     echo -e "section_end:`date +%s`:dnfuinstall_section\r\e[0K" || true
 
 ############################################################################
