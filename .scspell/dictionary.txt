@@ -2211,6 +2211,7 @@ pragma
 prctl
 prdml
 prdms
+preemptible
 preemptively
 prefixnl
 premote
@@ -2471,6 +2472,7 @@ rtime
 rtld
 rtrim
 rtrr
+rtsched
 rubouts
 rulez
 runfl
@@ -2949,6 +2951,7 @@ thrds
 threadz
 thru
 ticksper
+timebase
 timecaps
 timedwait
 timerr
@@ -4321,6 +4324,7 @@ rtcn
 rticks
 rtrim
 rtrr
+rtsched
 runout
 rwlock
 rxbpi
@@ -5593,6 +5597,7 @@ hugogen
 iloi
 kitname
 libcmb
+liblzma
 libuvrel
 lzma
 mmacosx
