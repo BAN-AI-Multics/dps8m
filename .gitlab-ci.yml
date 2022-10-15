@@ -2052,8 +2052,8 @@ PVS-Studio:
     - *scriptCommon
     - *scriptExtraInfo
     - dnf -q install -y wget curl bear bzip2 || dnf -q install -y wget curl bear bzip2
-    - wget -O /etc/yum.repos.d/viva64.repo http://files.viva64.com/etc/viva64.repo
-    - curl -fsSL https://files.pvs-studio.com/beta/etc/viva64.repo | sed 's/^\[viva64\]$/\[viva64-beta\]/' | sed 's/^name=Viva64$/name=Viva64-beta/' > /etc/yum.repos.d/viva64-beta.repo
+    - wget -O /etc/yum.repos.d/viva64.repo https://dps8m.gitlab.io/dps8m-archive/CI/viva64.repo
+      wget -O /etc/yum.repos.d/viva64-beta.repo https://dps8m.gitlab.io/dps8m-archive/CI/viva64-beta.repo
     - dnf --refresh -y install pvs-studio || dnf --refresh -y install pvs-studio
     - pvs-studio-analyzer credentials $PVS_STUDIO_NAME $PVS_STUDIO_KEY || true
     - rm -f compile_commands.json
