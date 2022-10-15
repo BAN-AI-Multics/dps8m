@@ -1155,30 +1155,30 @@ static struct poptOption long_options[] = {
 static struct option long_options[] = {
 #endif /* ifdef USE_POPT */
 #ifdef USE_POPT
-    {"7punch",  '7', POPT_ARG_NONE, NULL, '7', "7punch",  "7PUNCH"},
-    {"auto",    'a', POPT_ARG_NONE, NULL, 'a', "auto",    "AUTO"},
-    {"cards",   'c', POPT_ARG_NONE, NULL, 'c', "cards",   "CARDS"},
-    {"debug",   'd', POPT_ARG_NONE, NULL, 'd', "debug",   "DEBUG"},
-    {"flip",    'f', POPT_ARG_NONE, NULL, 'f', "flip",    "FLIP"},
-    {"glyphs",  'g', POPT_ARG_NONE, NULL, 'g', "glyphs",  "GLYPHS"},
-    {"help",    'h', POPT_ARG_NONE, NULL, 'h', "help",    "HELP"},
-    {"mcc",     'm', POPT_ARG_NONE, NULL, 'm', "mcc",     "MCC"},
-    {"no-auto", 'n', POPT_ARG_NONE, NULL, 'n', "no-auto", "NOAUTO"},
-    {"raw",     'r', POPT_ARG_NONE, NULL, 'r', "raw",     "RAW"},
-    {"version", 'v', POPT_ARG_NONE, NULL, 'v', "version", "VERSION"}
+    { "7punch",  '7', POPT_ARG_NONE, NULL, '7', "7punch",  "7PUNCH"  },
+    { "auto",    'a', POPT_ARG_NONE, NULL, 'a', "auto",    "AUTO"    },
+    { "cards",   'c', POPT_ARG_NONE, NULL, 'c', "cards",   "CARDS"   },
+    { "debug",   'd', POPT_ARG_NONE, NULL, 'd', "debug",   "DEBUG"   },
+    { "flip",    'f', POPT_ARG_NONE, NULL, 'f', "flip",    "FLIP"    },
+    { "glyphs",  'g', POPT_ARG_NONE, NULL, 'g', "glyphs",  "GLYPHS"  },
+    { "help",    'h', POPT_ARG_NONE, NULL, 'h', "help",    "HELP"    },
+    { "mcc",     'm', POPT_ARG_NONE, NULL, 'm', "mcc",     "MCC"     },
+    { "no-auto", 'n', POPT_ARG_NONE, NULL, 'n', "no-auto", "NOAUTO"  },
+    { "raw",     'r', POPT_ARG_NONE, NULL, 'r', "raw",     "RAW"     },
+    { "version", 'v', POPT_ARG_NONE, NULL, 'v', "version", "VERSION" }
 #else
-    {"7punch",  no_argument, 0, '7'},
-    {"auto",    no_argument, 0, 'a'},
-    {"cards",   no_argument, 0, 'c'},
-    {"debug",   no_argument, 0, 'd'},
-    {"flip",    no_argument, 0, 'f'},
-    {"glyphs",  no_argument, 0, 'g'},
-    {"help",    no_argument, 0, 'h'},
-    {"mcc",     no_argument, 0, 'm'},
-    {"no-auto", no_argument, 0, 'n'},
-    {"raw",     no_argument, 0, 'r'},
-    {"version", no_argument, 0, 'v'},
-    {0,         0,           0,  0 }
+    { "7punch",  no_argument, 0, '7' },
+    { "auto",    no_argument, 0, 'a' },
+    { "cards",   no_argument, 0, 'c' },
+    { "debug",   no_argument, 0, 'd' },
+    { "flip",    no_argument, 0, 'f' },
+    { "glyphs",  no_argument, 0, 'g' },
+    { "help",    no_argument, 0, 'h' },
+    { "mcc",     no_argument, 0, 'm' },
+    { "no-auto", no_argument, 0, 'n' },
+    { "raw",     no_argument, 0, 'r' },
+    { "version", no_argument, 0, 'v' },
+    { 0,         0,           0,  0  }
 #endif /* ifdef USE_POPT */
 };
 

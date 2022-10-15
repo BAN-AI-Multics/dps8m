@@ -337,7 +337,7 @@ bool test_tst_lock (void)
 #ifdef __APPLE__
 
 /*
- * Request RT sheduling class and ask the Mach kernel to
+ * Request RT scheduling class and ask the Mach kernel to
  * not preempt our threads when running under Darwin/macOS.
  */
 
