@@ -170,31 +170,13 @@ backtrace_handler(int number)
         }
     }
 #  ifdef SIGUSR2
-    if (number != SIGUSR2)
-      {
-        (void)fprintf(stderr,
-          "\r\n****** BUG REPORTING *******************************\r\n\r\n");
-        (void)fprintf(stderr,
-          " URL: https://dps8m.gitlab.io/dps8m/Bug_Reporting/\r\n");
-      }
-#   if defined(__linux__)
-#    include <features.h>
-#    if !defined(__GLIBC_PREREQ)
-#     define __GLIBC_PREREQ(a, b) 0
-#    endif /* if !defined(__GLIBC_PREREQ) */
-#    if __GLIBC_PREREQ(2, 10)
-    else
-      {
-        if (number == SIGUSR2)
-          {
-#     include <malloc.h>
-            (void)fprintf(stderr,
-              "\r\n****************************************************\r\n\r\n");
-            malloc_stats();
-          }
-      }
-#    endif /* __GLIBC_PREREQ(2, 10) */
-#   endif /* if defined(__linux__) */
+  if (number != SIGUSR2)
+    {
+      (void)fprintf(stderr,
+        "\r\n****** BUG REPORTING *******************************\r\n\r\n");
+      (void)fprintf(stderr,
+        " URL: https://dps8m.gitlab.io/dps8m/Bug_Reporting/\r\n");
+    }
 #  endif /* ifdef SIGUSR2 */
   (void)fprintf(stderr,
     "\r\n****************************************************\r\n\r\n");

@@ -29,6 +29,7 @@ scp.o: ../dps8/libtelnet.h
 scp.o: ../dps8/sysdefs.h
 scp.o: ../dps8/uvutil.h
 scp.o: ../dps8/ver.h
+scp.o: ../simh/sim_timer.h
 scp.o: dispatch.h
 scp.o: linehistory.h
 scp.o: scp.h
@@ -48,6 +49,7 @@ sim_console.o: ../dps8/dps8_simh.h
 sim_console.o: ../dps8/dps8_sys.h
 sim_console.o: ../dps8/hdbg.h
 sim_console.o: ../dps8/uvutil.h
+sim_console.o: ../simh/sim_timer.h
 sim_console.o: scp.h
 sim_console.o: sim_console.h
 sim_console.o: sim_defs.h
@@ -92,6 +94,7 @@ sim_tmxr.o: ../dps8/dps8_simh.h
 sim_tmxr.o: ../dps8/dps8_sys.h
 sim_tmxr.o: ../dps8/hdbg.h
 sim_tmxr.o: ../dps8/uvutil.h
+sim_tmxr.o: ../simh/sim_timer.h
 sim_tmxr.o: scp.h
 sim_tmxr.o: sim_console.h
 sim_tmxr.o: sim_defs.h

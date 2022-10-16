@@ -701,7 +701,14 @@ sim_usleep(useconds_t tusleep)
             ( defined(_WIN32) || defined(__MINGW32__) || defined(__MINGW64__) ||
              defined(CROSS_MINGW32) || defined(CROSS_MINGW64) ) */
 #else
+# ifdef __APPLE__
+  struct timespec rqt;
+  rqt.tv_sec  = tusleep / 1000000;
+  rqt.tv_nsec = (tusleep % 1000000) * 1000;
+  return nanosleep(&rqt, NULL);
+# else
   return usleep(tusleep);
+# endif /* ifdef __APPLE__ */
 #endif /* if ( !defined(__APPLE__) && !defined(__OpenBSD__) ) */
 }
 

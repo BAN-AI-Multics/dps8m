@@ -65,6 +65,9 @@
 #endif
 #include <sys/stat.h>
 #include <sys/types.h>
+#if !defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64)
+# include <sys/resource.h>
+#endif /* if !defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) */
 #include <setjmp.h>
 #include <limits.h>
 #include <locale.h>
@@ -1341,7 +1344,7 @@ trealloc(void *ptr, size_t size)
         /* NOTREACHED */ /* unreachable */
         }
       memcpy(rm, r, size);
-      free(r);
+      FREE(r);
       return rm;
     }
   else return r;
@@ -1349,8 +1352,10 @@ trealloc(void *ptr, size_t size)
 #endif /* ifdef TESTING */
 
 #ifdef TESTING
-# undef realloc
-# define realloc trealloc
+# ifdef USE_TREALLOC
+#  undef realloc
+#  define realloc trealloc
+# endif /* ifdef USE_TREALLOC */
 #endif /* ifdef TESTING */
 
 t_stat process_stdin_commands (t_stat stat, char *argv[]);
@@ -1400,6 +1405,39 @@ void strtrimspace (char *str_trimmed, const char *str_untrimmed)
     }
     *str_trimmed = '\0';
 }
+
+#if !defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64)
+void allowCores(void)
+{
+  int ret;
+  struct rlimit limit;
+# ifdef RLIMIT_CORE
+  ret = getrlimit(RLIMIT_CORE, &limit);
+  (void)ret;
+#  ifdef TESTING
+  if (ret != 0)
+    {
+      sim_warn ("Failed to query core dump configuration.");
+      return;
+    }
+#  endif /* ifdef TESTING */
+  limit.rlim_cur = limit.rlim_max;
+  ret = setrlimit(RLIMIT_CORE, &limit);
+#  ifdef TESTING
+  if (ret != 0)
+    {
+      sim_warn ("Failed to enable unlimited core dumps.");
+      return;
+    }
+#  endif /* ifdef TESTING */
+# else
+#  ifdef TESTING
+  sim_warn ("Unable to query core dump configuration.");
+#  endif /* ifdef TESTING */
+# endif /* ifdef RLIMIT_CORE */
+  return;
+}
+#endif /* if !defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) */
 
 #ifdef USE_DUMA
 void CleanDUMA(void)
@@ -1565,6 +1603,12 @@ if (argc == 0) {
     fprintf (stderr, "Error: main() called directly!\n");
     return 1;
 }
+
+/* Enable unlimited core dumps */
+# if !defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64)
+allowCores();
+# endif /* !defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) */
+
 int testEndian = decContextTestEndian();
 if (testEndian != 0) {
   if (testEndian == 1) {
@@ -2010,6 +2054,18 @@ for (cmdp = cmd_table; cmdp && (cmdp->name != NULL); cmdp++) {
         if (cmd_cnt >= cmd_size) {
             cmd_size += 20;
             hlp_cmdp = (CTAB **)realloc (hlp_cmdp, sizeof(*hlp_cmdp)*cmd_size);
+            if (!hlp_cmdp)
+              {
+                fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                         __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+                (void)raise(SIGUSR2);
+                /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+                abort();
+              }
             }
         hlp_cmdp[cmd_cnt] = cmdp;
         ++cmd_cnt;
@@ -9310,6 +9366,18 @@ if (snd->extoff != 0) {
 if (snd->insoff+size > snd->bufsize) {
     snd->bufsize = snd->insoff+size;
     snd->buffer  = (uint8 *)realloc(snd->buffer, snd->bufsize);
+    if (!snd->buffer)
+      {
+        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                 __func__, __FILE__, __LINE__);
+#if defined(USE_BACKTRACE)
+# ifdef SIGUSR2
+        (void)raise(SIGUSR2);
+        /*NOTREACHED*/ /* unreachable */
+# endif /* ifdef SIGUSR2 */
+#endif /* if defined(USE_BACKTRACE) */
+        abort();
+      }
     }
 memcpy(snd->buffer+snd->insoff, data, size);
 snd->insoff += size;
