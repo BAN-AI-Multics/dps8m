@@ -550,12 +550,12 @@
 //
 
 #include "dps8.h"
+#include "dps8_cpu.h"
 #include "dps8_sys.h"
 #include "dps8_faults.h"
 #include "dps8_scu.h"
 #include "dps8_iom.h"
 #include "dps8_cable.h"
-#include "dps8_cpu.h"
 #include "dps8_console.h"
 #include "dps8_fnp2.h"
 #include "dps8_utils.h"
@@ -3497,7 +3497,11 @@ void * chan_thread_main (void * arg)
 
     set_cpu_idx (0);
 
-    sim_printf("IOM %c Channel %u thread created\n", this_iom_idx + 'a', this_chan_num);
+    sim_msg ("\rIOM %c Channel %u thread created\r\n", this_iom_idx + 'a', this_chan_num);
+# ifdef TESTING
+    printPtid(pthread_self());
+# endif /* ifdef TESTING */
+    sim_os_set_thread_priority (PRIORITY_ABOVE_NORMAL);
 
     setSignals ();
     while (1)

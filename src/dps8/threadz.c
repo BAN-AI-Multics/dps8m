@@ -344,6 +344,8 @@ bool test_tst_lock (void)
 int
 rtsched_thread(pthread_t pthread)
 {
+  int kr;
+
   mach_timebase_info_data_t timebase_info;
   mach_timebase_info(&timebase_info);
 
@@ -351,16 +353,20 @@ rtsched_thread(pthread_t pthread)
   double mach_clock2abs =
       ((double)timebase_info.denom / (double)timebase_info.numer) * NANOS_PER_MSEC;
 
-  thread_time_constraint_policy_data_t policy;
+  thread_time_constraint_policy_data_t tpolicy;
 
-  policy.period      = 0;
-  policy.computation = (uint32_t)( 5 * mach_clock2abs);
-  policy.constraint  = (uint32_t)(10 * mach_clock2abs);
-  policy.preemptible = FALSE;
+  tpolicy.period      = 0;
+  tpolicy.computation = (uint32_t)( 5 * mach_clock2abs);
+  tpolicy.constraint  = (uint32_t)(10 * mach_clock2abs);
+  tpolicy.preemptible = FALSE;
 
-  int kr = thread_policy_set(pthread_mach_thread_np(pthread_self()),
-             THREAD_TIME_CONSTRAINT_POLICY, (thread_policy_t)&policy,
-             THREAD_TIME_CONSTRAINT_POLICY_COUNT);
+  mach_port_t target_thread = pthread_mach_thread_np(pthread);
+
+  kr = thread_policy_set(
+          target_thread,
+          THREAD_TIME_CONSTRAINT_POLICY,
+          (thread_policy_t)&tpolicy,
+          THREAD_TIME_CONSTRAINT_POLICY_COUNT);
 
   if (kr != KERN_SUCCESS)
     {
@@ -368,8 +374,9 @@ rtsched_thread(pthread_t pthread)
                (int)kr, __FILE__, __func__, __LINE__);
       return 1;
     }
+
 # ifdef TESTING
-  sim_warn("\rMach: rtsched_thread realtime scheduling class request successful.\r\n");
+  sim_warn("\rMach realtime thread scheduling policy request was successful.\r\n");
 # endif /* ifdef TESTING */
   return 0;
 }
@@ -402,6 +409,35 @@ rtsched_thread(pthread_t pthread)
 //      }
 
 struct cpuThreadz_t cpuThreadz [N_CPU_UNITS_MAX];
+
+// Create a thread with Mach CPU policy
+
+#ifdef __APPLE__
+int pthread_create_with_cpu_policy(
+        pthread_t *restrict thread,
+        int policy_group,
+        const pthread_attr_t *restrict attr,
+        void *(*start_routine)(void *), void *restrict arg)
+{
+# ifdef TESTING
+  sim_msg ("\rAffinity policy group %d requested for thread.\r\n", policy_group);
+# endif /* ifdef TESTING */
+  thread_affinity_policy_data_t policy_data = { policy_group };
+  int rv = pthread_create_suspended_np(thread, attr, start_routine, arg);
+  mach_port_t mach_thread = pthread_mach_thread_np(*thread);
+  if (rv != 0)
+    {
+      return rv;
+    }
+  thread_policy_set(
+          mach_thread,
+          THREAD_AFFINITY_POLICY,
+          (thread_policy_t)&policy_data,
+          THREAD_AFFINITY_POLICY_COUNT);
+  thread_resume(mach_thread);
+  return 0;
+}
+#endif /* ifdef __APPLE__ */
 
 // Create CPU thread
 
@@ -448,7 +484,20 @@ void createCPUThread (uint cpuNum)
     if (rc)
       sim_printf ("createCPUThread pthread_cond_init sleepCond %d\n", rc);
 
-    rc = pthread_create (& p->cpuThread, NULL, cpu_thread_main, & p->cpuThreadArg);
+#ifdef __APPLE__
+    rc = pthread_create_with_cpu_policy(
+            & p->cpuThread,
+            cpuNum,
+            NULL,
+            cpu_thread_main,
+            & p->cpuThreadArg);
+#else
+    rc = pthread_create(
+            & p->cpuThread,
+            NULL,
+            cpu_thread_main,
+            & p->cpuThreadArg);
+#endif /* ifdef __APPLE__ */
     if (rc)
       sim_printf ("createCPUThread pthread_create %d\n", rc);
 
@@ -622,8 +671,20 @@ void createIOMThread (uint iomNum)
     if (rc)
       sim_printf ("createIOMThread pthread_cond_init intrCond %d\n", rc);
 
-    rc = pthread_create (& p->iomThread, NULL, iom_thread_main,
-                    & p->iomThreadArg);
+# ifdef __APPLE__
+    rc = pthread_create_with_cpu_policy(
+            & p->iomThread,
+            iomNum,
+            NULL,
+            iom_thread_main,
+            & p->iomThreadArg);
+# else
+    rc = pthread_create(
+            & p->iomThread,
+            NULL,
+            iom_thread_main,
+            & p->iomThreadArg);
+# endif /* ifdef __APPLE__ */
     if (rc)
       sim_printf ("createIOMThread pthread_create %d\n", rc);
 
@@ -777,8 +838,20 @@ void createChnThread (uint iomNum, uint chnNum, const char * devTypeStr)
     if (rc)
       sim_printf ("createChnThread pthread_cond_init connectCond %d\n", rc);
 
-    rc = pthread_create (& p->chnThread, NULL, chan_thread_main,
-                    & p->chnThreadArg);
+# ifdef __APPLE__
+    rc = pthread_create_with_cpu_policy(
+            & p->chnThread,
+            iomNum
+            NULL,
+            chan_thread_main,
+            & p->chnThreadArg);
+# else
+    rc = pthread_create(
+            & p->chnThread,
+            NULL,
+            chan_thread_main,
+            & p->chnThreadArg);
+# endif /* ifdef __APPLE__ */
     if (rc)
       sim_printf ("createChnThread pthread_create %d\n", rc);
 

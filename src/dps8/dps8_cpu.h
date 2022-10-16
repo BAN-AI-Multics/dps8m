@@ -25,6 +25,19 @@
 #endif /* ifndef __STDC_WANT_IEC_60559_BFP_EXT__ */
 
 #include <sys/types.h>
+
+#ifdef __APPLE__
+# undef SCHED_NEVER_YIELD
+# define SCHED_NEVER_YIELD 1
+# include <mach/thread_policy.h>
+# include <mach/task_info.h>
+# include <sys/types.h>
+# include <sys/sysctl.h>
+# include <mach/thread_policy.h>
+# include <mach/thread_act.h>
+#endif /* ifdef __APPLE__ */
+
+#include "../simh/sim_timer.h"
 #include "hdbg.h"
 
 #define N_CPU_UNITS 1 // Default
@@ -1524,7 +1537,9 @@ typedef struct
     unsigned long long lockImmediate;
     unsigned long long lockWait;
     unsigned long long lockWaitMax;
+#ifndef SCHED_NEVER_YIELD
     unsigned long long lockYield;
+#endif /* ifndef SCHED_NEVER_YIELD */
 
     // From the control unit history register:
     _fault_subtype subFault; // saved by doFault
@@ -2159,6 +2174,27 @@ int core_unlock_all(void);
 # define MEM_LOCKED_BIT    61
 # define MEM_LOCKED        (1LLU<<MEM_LOCKED_BIT)
 
+# ifndef SCHED_NEVER_YIELD
+#  undef SCHED_YIELD
+#  define SCHED_YIELD                                                    \
+  do                                                                     \
+    {                                                                    \
+      if ((i & 0xff) == 0)                                               \
+        {                                                                \
+          sched_yield();                                                 \
+          cpu.lockYield++;                                               \
+        }                                                                \
+    }                                                                    \
+  while(0)
+# else
+#  undef SCHED_YIELD
+#  define SCHED_YIELD                                                    \
+  do                                                                     \
+    {                                                                    \
+    }                                                                    \
+  while(0)
+# endif /* ifndef SCHED_NEVER_YIELD */
+
 # if defined (BSD_ATOMICS)
 #  include <machine/atomic.h>
 
@@ -2170,14 +2206,11 @@ int core_unlock_all(void);
             MEM_LOCKED_BIT) == 1 && i > 0)                               \
         {                                                                \
           i--;                                                           \
-          if ((i & 0xff) == 0) {                                         \
-            sched_yield();                                               \
-            cpu.lockYield++;                                             \
-          }                                                              \
+          SCHED_YIELD;                                                   \
         }                                                                \
       if (i == 0)                                                        \
         {                                                                \
-          sim_warn ("%s: locked %x addr %x deadlock\n", __FUNCTION__,    \
+          sim_warn ("%s: locked %x addr %x deadlock\n", __func__,        \
               cpu.locked_addr, addr);                                    \
         }                                                                \
       cpu.lockCnt++;                                                     \
@@ -2216,15 +2249,12 @@ int core_unlock_all(void);
                 && i > 0)                                                \
     {                                                                    \
       i--;                                                               \
-      if ((i & 0xff) == 0) {                                             \
-        sched_yield();                                                   \
-        cpu.lockYield++;                                                 \
-      }                                                                  \
+      SCHED_YIELD;                                                       \
     }                                                                    \
       if (i == 0)                                                        \
         {                                                                \
           sim_warn ("%s: locked %x addr %x deadlock\n",                  \
-            __FUNCTION__, cpu.locked_addr, addr);                        \
+            __func__, cpu.locked_addr, addr);                            \
         }                                                                \
       cpu.lockCnt++;                                                     \
       if (i == DEADLOCK_DETECT)                                          \
@@ -2269,14 +2299,11 @@ int core_unlock_all(void);
              MEM_LOCKED) & MEM_LOCKED) && i > 0)                         \
            {                                                             \
             i--;                                                         \
-            if ((i & 0xff) == 0) {                                       \
-              sched_yield();                                             \
-              cpu.lockYield++;                                           \
-            }                                                            \
+            SCHED_YIELD;                                                 \
            }                                                             \
          if (i == 0)                                                     \
            {                                                             \
-            sim_warn ("%s: locked %x addr %x deadlock\n", __FUNCTION__,  \
+            sim_warn ("%s: locked %x addr %x deadlock\n", __func__,      \
                 cpu.locked_addr, addr);                                  \
             }                                                            \
          cpu.lockCnt++;                                                  \
@@ -2351,6 +2378,7 @@ void add_l68_OU_history (void);
 void add_l68_DU_history (void);
 void add_l68_APU_history (enum APUH_e op);
 void add_history_force (uint hset, word36 w0, word36 w1);
+void printPtid(pthread_t pt);
 word18 get_BAR_address(word18 addr);
 #if defined(THREADZ) || defined(LOCKLESS)
 t_stat threadz_sim_instr (void);

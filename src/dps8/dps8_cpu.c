@@ -1650,11 +1650,16 @@ DEVICE cpu_dev =
 void printPtid(pthread_t pt)
 {
   unsigned char *ptc = (unsigned char*)(void*)(&pt);
-  fprintf(stderr, "\rThread ID: 0x");
-  for (size_t i=0; i < sizeof(pt); i++) {
-    fprintf(stderr, "%02x", (unsigned)(ptc[i]));
-  }
-  fprintf(stderr, "\r\n");
+  sim_msg ("\r  Thread ID: 0x");
+  for (size_t i=0; i < sizeof( pt ); i++)
+    {
+      sim_msg ("%02x", (unsigned)(ptc[i]));
+    }
+  sim_msg ("\r\n");
+#ifdef __APPLE__
+  sim_msg ("\r   Mach TID: 0x%x\r\n",
+           pthread_mach_thread_np( pt ));
+#endif /* ifdef __APPLE__ */
 }
 
 #ifdef M_SHARED
@@ -2002,6 +2007,7 @@ void * cpu_thread_main (void * arg)
     printPtid(pthread_self());
 # endif /* ifdef TESTING */
 
+    sim_os_set_thread_priority (PRIORITY_ABOVE_NORMAL);
     setSignals ();
     threadz_sim_instr ();
     return NULL;
@@ -2625,7 +2631,6 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                           fprintf (stderr, "%10lu %s stall %d\n", seqno (), cpunstr[current_running_cpu_idx], i);
 # endif
                           //sim_printf ("stall %2d %05o:%06o\n", i, stall_points[i].segno, stall_points[i].offset);
-                          //sched_yield ();
                           sim_usleep(stall_points[i].time);
                           break;
                         }
@@ -3149,7 +3154,9 @@ leave:
     sim_msg ("lockImmediate %15llu\r\n", (unsigned long long)cpu.lockImmediate);
     sim_msg ("lockWait      %15llu\r\n", (unsigned long long)cpu.lockWait);
     sim_msg ("lockWaitMax   %15llu\r\n", (unsigned long long)cpu.lockWaitMax);
+# ifndef SCHED_NEVER_YIELD
     sim_msg ("lockYield     %15llu\r\n", (unsigned long long)cpu.lockYield);
+# endif /* ifndef SCHED_NEVER_YIELD */
     (void)fflush(stdout);
     (void)fflush(stderr);
 #else
@@ -3159,7 +3166,9 @@ leave:
     sim_msg ("lockImmediate %'15llu\r\n", (unsigned long long)cpu.lockImmediate);
     sim_msg ("lockWait      %'15llu\r\n", (unsigned long long)cpu.lockWait);
     sim_msg ("lockWaitMax   %'15llu\r\n", (unsigned long long)cpu.lockWaitMax);
+# ifndef SCHED_NEVER_YIELD
     sim_msg ("lockYield     %'15llu\r\n", (unsigned long long)cpu.lockYield);
+# endif /* ifndef SCHED_NEVER_YIELD */
 #endif /* ifdef WIN_STDIO */
 #if 0
     for (int i = 0; i < N_FAULTS; i ++)

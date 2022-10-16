@@ -3007,6 +3007,7 @@ tpbusyln
 tpcbc
 tpclnt
 tpnz
+tpolicy
 tpos
 tpqln
 tptr
@@ -4245,6 +4246,7 @@ psdw
 psia
 psize
 pstring
+ptid
 ptmf
 ptra
 ptrdiff
@@ -12640,6 +12642,7 @@ synonyms
 synopsis
 syntax
 syscall
+sysctl
 sysdefs
 system
 systematically
