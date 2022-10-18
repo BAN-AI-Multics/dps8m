@@ -201,7 +201,7 @@
 
 * **DPS8M** development is hosted courtesy of [**GitLab**](https://gitlab.com/dps8m/dps8m), providing [version control](https://gitlab.com/dps8m/dps8m), [issue tracking](https://gitlab.com/dps8m/dps8m/-/issues), and [CI/CD services](https://gitlab.com/dps8m/dps8m/-/pipelines).
 
-* Static application security testing by [**PVS-Studio**](https://pvs-studio.com/en/pvs-studio/?utm_source=github&utm_medium=organic&utm_campaign=open_source), a static analyzer for **C**, **C++**, **C#**, and **Java** code.
+* Static application security testing by [**PVS-Studio**](https://pvs-studio.com/en/pvs-studio/?utm_source=github&utm_medium=organic&utm_campaign=open_source), a static analysis tool for code quality, security, and safety.
 
 <!-- pagebreak -->
 
