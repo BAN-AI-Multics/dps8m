@@ -63,7 +63,7 @@ error_callback(void *data, const char *message, int error_number)
   sigfillset(&block); sigfillset(&block_n);
   sigprocmask(SIG_SETMASK, &block, &block_n);
   (void)data; (void)error_number;
-  (void)fprintf(stderr, "\r   No backtrace (%s)\r\n", message);
+  (void)fprintf(stderr, "\r No backtrace: %s\r\n", message);
   (void)fprintf(stderr,
     "\r\n****************************************************\r\n\r\n");
   abort();
@@ -149,12 +149,7 @@ backtrace_handler(int number)
               number);
     }
   backtrace_full(state, BACKTRACE_SKIP, full_callback, error_callback, NULL);
-  if (!backtrace_reported)
-    {
-      (void)fprintf(stderr,
-        "\r Unable to backtrace!  Are debug symbols available?\r\n");
-    }
-  else
+  if (backtrace_reported)
     {
       if (hidden_function_count > 1)
         {

@@ -97,6 +97,7 @@ Review the complete [**DPS8M Omnibus Documentation**](https://dps8m.gitlab.io/dp
     + [AMD Optimizing C/C++](#amd-optimizing-cc)
       - [AOCC with AMD Optimized CPU Libraries](#aocc-with-amd-optimized-cpu-libraries)
     + [Oracle Developer Studio](#oracle-developer-studio-1)
+    + [IBM Open XL C/C++ for Linux](#ibm-xl-cc-for-linux)
     + [IBM XL C/C++ for Linux](#ibm-xl-cc-for-linux)
     + [NVIDIA HPC SDK C Compiler](#nvidia-hpc-sdk-c-compiler)
     + [Arm HPC C/C++ Compiler for Linux](#arm-hpc-cc-compiler-for-linux)
@@ -934,7 +935,7 @@ The default **Haiku** installation includes the required header files, the recom
 ### Linux compilers
 
 * **GCC** **12** or later is recommended for optimal performance on most architectures including **Intel** and **ARM**.
-  * **The DPS8M Development Team** regularly tests and supports a wide range of Linux compilers, including **Clang**, AMD Optimizing C/C++ (**AOCC**), Arm C/C++ Compiler (**ARMClang**), GNU C (**GCC**) (*version* **8**+), IBM Advance Toolchain for Linux, IBM XL C/C++ for Linux (**XLC**), Intel oneAPI DPC++/C++ (**ICX**), NVIDIA HPC SDK C Compiler (**NVC**), and Oracle Developer Studio (**SunCC**).
+  * **The DPS8M Development Team** regularly tests and supports a wide range of Linux compilers, including **Clang**, AMD Optimizing C/C++ (**AOCC**), Arm C/C++ Compiler (**ARMClang**), GNU C (**GCC**) (*version* **8**+), IBM Advance Toolchain for Linux, IBM XL C/C++ for Linux (**XLC**), IBM Open XL C/C++ for Linux (**IBMClang**), Intel oneAPI DPC++/C++ (**ICX**), NVIDIA HPC SDK C Compiler (**NVC**), and Oracle Developer Studio (**SunCC**).
 
   * **Red Hat** offers the [**Red Hat Developer Toolset**](https://developers.redhat.com/products/developertoolset/) for **Red Hat Enterprise Linux** and **CentOS Stream**, which provides up-to-date versions of **GCC** on a rapid release cycle, with *full support*.
     * The *Toolset* packages are also included in various downstream distributions such as **AlmaLinux**. These tools are regularly tested and highly recommended by **The DPS8M Development Team**. Check your distribution packager manager (*i.e.* '**`dnf search`**') for packages named '**`gcc-toolset-12`**' (or similar).
@@ -1067,9 +1068,23 @@ Examples of building the simulator on **Linux** using various popular compilers 
     make
   ```
 
+#### IBM Open XL C/C++ for Linux
+
+* Build the simulator using **IBM Open XL C/C++ for Linux V17.1.1** for Linux on POWER:
+
+  ```sh
+  env CFLAGS="-mcpu=power8"                         \
+      CC="/opt/ibm/openxlC/17.1.1/bin/ibm-clang_r"  \
+    make
+  ```
+
+* When building on **POWER9** (or **POWER10**) systems, ‘-mcpu=power9’ (*or* ‘-mcpu=power10’) should replace ‘-mcpu=power8’ in the above compiler invocation.
+
+* Refer to the [**IBM Open XL C/C++ for Linux V17.1.1 documentation**](https://www.ibm.com/docs/en/openxl-c-and-cpp-lop/17.1.1) for additional information.
+
 #### IBM XL C/C++ for Linux
 
-* Build the simulator using **IBM XL C/C++ for Linux V16.1.1** for Linux/POWER:
+* Build the simulator using **IBM XL C/C++ for Linux V16.1.1** for Linux on POWER:
 
   ```sh
   env CFLAGS="-qtls -qarch=pwr8"          \
@@ -1628,7 +1643,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 ### Cygwin
 
-* Ensure you are running a current and updated version of [**Cygwin**](https://cygwin.com/).
+* Ensure you are running a current and up-to-date version of [**Cygwin**](https://cygwin.com/).
 
 []()
 
