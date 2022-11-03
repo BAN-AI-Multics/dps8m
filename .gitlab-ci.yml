@@ -466,10 +466,10 @@ Linux/x86_64, AlmaLinux 9, Clang, GCC:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+      - src/dps8/dps8.lz
+      - src/prt2pdf/prt2pdf.lz
+      - src/punutil/punutil.lz
+      - src/dps8/useddef.txt.lz
   retry: 2
   timeout: 30 minutes
   interruptible: true
@@ -513,11 +513,11 @@ Linux/x86_64, Alpine Edge, Clang, GCC:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/dps8m-master-linux-x86.tar.gz
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+      - dps8m-master-linux-x86.tar.gz
+      - src/dps8/dps8.lz
+      - src/prt2pdf/prt2pdf.lz
+      - src/punutil/punutil.lz
+      - src/dps8/useddef.txt.lz
   retry: 2
   timeout: 30 minutes
   interruptible: true
@@ -568,9 +568,9 @@ Linux/powerpc64el, IBM Advance Toolchain 16:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/dps8m-master-linux-ate.tar.gz
-      - ${CI_PROJECT_DIR:?}/dps8m-master-linux-atn.tar.gz
-      - ${CI_PROJECT_DIR:?}/dps8m-master-linux-att.tar.gz
+      - dps8m-master-linux-ate.tar.gz
+      - dps8m-master-linux-atn.tar.gz
+      - dps8m-master-linux-att.tar.gz
   retry: 2
   timeout: 30 minutes
   interruptible: true
@@ -609,8 +609,8 @@ Windows/x86_64, Cygwin64-GCC:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/dps8m-master-cygwin-64.tar.gz
-      - ${CI_PROJECT_DIR:?}/dps8m.zip
+      - dps8m-master-cygwin-64.tar.gz
+      - dps8m.zip
   retry: 2
   timeout: 30 minutes
   interruptible: true
@@ -649,8 +649,8 @@ Windows/i686, Cygwin32-GCC:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/dps8m-master-cygwin-32.tar.gz
-      - ${CI_PROJECT_DIR:?}/dps8m.zip
+      - dps8m-master-cygwin-32.tar.gz
+      - dps8m.zip
   retry: 2
   timeout: 30 minutes
   interruptible: true
@@ -680,10 +680,10 @@ Linux/x86_64, Fedora, Intel oneAPI DPC++/C++:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+      - src/dps8/dps8.lz
+      - src/prt2pdf/prt2pdf.lz
+      - src/punutil/punutil.lz
+      - src/dps8/useddef.txt.lz
   retry: 2
   timeout: 30 minutes
   interruptible: true
@@ -718,13 +718,13 @@ Linux/x86_64, Fedora, Oracle Developer Studio:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-      - ${CI_PROJECT_DIR:?}/libstatomic.so.1.lz
-      - ${CI_PROJECT_DIR:?}/libmtsk_crt.so.1.lz
-      - ${CI_PROJECT_DIR:?}/libmtsk.so.1.lz
+      - src/dps8/dps8.lz
+      - src/prt2pdf/prt2pdf.lz
+      - src/punutil/punutil.lz
+      - src/dps8/useddef.txt.lz
+      - libstatomic.so.1.lz
+      - libmtsk_crt.so.1.lz
+      - libmtsk.so.1.lz
   retry: 2
   timeout: 30 minutes
   interruptible: true
@@ -753,10 +753,10 @@ Linux/x86_64, Fedora, AOCC, AOCL:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+      - src/dps8/dps8.lz
+      - src/prt2pdf/prt2pdf.lz
+      - src/punutil/punutil.lz
+      - src/dps8/useddef.txt.lz
   retry: 2
   timeout: 30 minutes
   interruptible: true
@@ -794,10 +794,10 @@ Linux/x86_64, Fedora, Clang, GCC:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+      - src/dps8/dps8.lz
+      - src/prt2pdf/prt2pdf.lz
+      - src/punutil/punutil.lz
+      - src/dps8/useddef.txt.lz
   retry: 2
   timeout: 30 minutes
   interruptible: true
@@ -827,7 +827,7 @@ GNU GLOBAL Hypertext:
   artifacts:
     expire_in: 30 days
     paths:
-      - ${CI_PROJECT_DIR:?}/HTML
+      - HTML
   retry: 1
   timeout: 30 minutes
   interruptible: true
@@ -855,7 +855,7 @@ Hugo:
   artifacts:
     expire_in: 30 days
     paths:
-      - ${CI_PROJECT_DIR:?}/docs/hpages/public
+      - docs/hpages/public
   retry: 1
   timeout: 30 minutes
   interruptible: true
@@ -892,10 +892,10 @@ Linux/x86_64, Fedora Rawhide, Clang, GCC:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+      - src/dps8/dps8.lz
+      - src/prt2pdf/prt2pdf.lz
+      - src/punutil/punutil.lz
+      - src/dps8/useddef.txt.lz
   retry: 2
   timeout: 30 minutes
   interruptible: true
@@ -928,11 +928,11 @@ AIX/powerpc64, IBM AIX, GCC:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/dps8m-master-aixv7-gcc.tar.gz
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+      - dps8m-master-aixv7-gcc.tar.gz
+      - src/dps8/dps8.lz
+      - src/prt2pdf/prt2pdf.lz
+      - src/punutil/punutil.lz
+      - src/dps8/useddef.txt.lz
   retry: 2
   timeout: 60 minutes
   interruptible: true
@@ -965,11 +965,11 @@ AIX/powerpc64, IBM AIX, IBM XL C/C++ V16.1:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/dps8m-master-aixv7-xlc.tar.gz
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+      - dps8m-master-aixv7-xlc.tar.gz
+      - src/dps8/dps8.lz
+      - src/prt2pdf/prt2pdf.lz
+      - src/punutil/punutil.lz
+      - src/dps8/useddef.txt.lz
   retry: 2
   timeout: 60 minutes
   interruptible: true
@@ -996,10 +996,10 @@ AIX/powerpc64, IBM AIX, IBM XL Clang V16.1:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+      - src/dps8/dps8.lz
+      - src/prt2pdf/prt2pdf.lz
+      - src/punutil/punutil.lz
+      - src/dps8/useddef.txt.lz
   retry: 2
   timeout: 60 minutes
   interruptible: true
@@ -1034,11 +1034,11 @@ Linux/powerpc64el, Ubuntu LTS, IBM XL C/C++:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/dps8m-master-linux-xlc.tar.gz
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+      - dps8m-master-linux-xlc.tar.gz
+      - src/dps8/dps8.lz
+      - src/prt2pdf/prt2pdf.lz
+      - src/punutil/punutil.lz
+      - src/dps8/useddef.txt.lz
   retry: 2
   timeout: 60 minutes
   interruptible: true
@@ -1072,11 +1072,11 @@ Linux/powerpc64el, IBM Advance Toolchain 15:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/dps8m-master-linux-at8.tar.gz
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+      - dps8m-master-linux-at8.tar.gz
+      - src/dps8/dps8.lz
+      - src/prt2pdf/prt2pdf.lz
+      - src/punutil/punutil.lz
+      - src/dps8/useddef.txt.lz
   retry: 2
   timeout: 60 minutes
   interruptible: true
@@ -1109,8 +1109,8 @@ Windows/ARM64, LLVM-MinGW:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/dps8m-master-mingw-a64.zip
-      - ${CI_PROJECT_DIR:?}/dps8m.zip
+      - dps8m-master-mingw-a64.zip
+      - dps8m.zip
   retry: 2
   timeout: 30 minutes
   interruptible: true
@@ -1143,8 +1143,8 @@ Windows/ARMv7, LLVM-MinGW:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/dps8m-master-mingw-av7.zip
-      - ${CI_PROJECT_DIR:?}/dps8m.zip
+      - dps8m-master-mingw-av7.zip
+      - dps8m.zip
   retry: 2
   timeout: 30 minutes
   interruptible: true
@@ -1177,8 +1177,8 @@ Windows/i686, LLVM-MinGW:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/dps8m-master-mingw-x32.zip
-      - ${CI_PROJECT_DIR:?}/dps8m.zip
+      - dps8m-master-mingw-x32.zip
+      - dps8m.zip
   retry: 2
   timeout: 30 minutes
   interruptible: true
@@ -1207,7 +1207,7 @@ Windows/x86_64, LLVM-MinGW:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/dps8m.zip
+      - dps8m.zip
   retry: 2
   timeout: 30 minutes
   interruptible: true
@@ -1243,8 +1243,8 @@ Windows/x86_64, MinGW64-GCC:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/dps8m-master-mingw-x86.zip
-      - ${CI_PROJECT_DIR:?}/dps8m.zip
+      - dps8m-master-mingw-x86.zip
+      - dps8m.zip
   retry: 2
   timeout: 30 minutes
   interruptible: true
@@ -1283,10 +1283,10 @@ Linux/x86_64, Oracle Linux 8, Clang, GCC:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+      - src/dps8/dps8.lz
+      - src/prt2pdf/prt2pdf.lz
+      - src/punutil/punutil.lz
+      - src/dps8/useddef.txt.lz
   retry: 2
   timeout: 30 minutes
   interruptible: true
@@ -1320,11 +1320,11 @@ Source Kits:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/dps8m-master-src.tar.lz
-      - ${CI_PROJECT_DIR:?}/dps8m-master-src.tar.gz
-      - ${CI_PROJECT_DIR:?}/dps8m-master-src.7z
-      - ${CI_PROJECT_DIR:?}/dps8m-master-src.zip
-      - ${CI_PROJECT_DIR:?}/dps8m-master-src.zpaq
+      - dps8m-master-src.tar.lz
+      - dps8m-master-src.tar.gz
+      - dps8m-master-src.7z
+      - dps8m-master-src.zip
+      - dps8m-master-src.zpaq
   retry: 2
   timeout: 45 minutes
   interruptible: true
@@ -1363,10 +1363,10 @@ Linux/x86_64, Ubuntu, Clang, GCC:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+      - src/dps8/dps8.lz
+      - src/prt2pdf/prt2pdf.lz
+      - src/punutil/punutil.lz
+      - src/dps8/useddef.txt.lz
   retry: 2
   timeout: 30 minutes
   interruptible: true
@@ -1405,10 +1405,10 @@ Linux/x86_64, Ubuntu LTS, Clang, GCC:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+      - src/dps8/dps8.lz
+      - src/prt2pdf/prt2pdf.lz
+      - src/punutil/punutil.lz
+      - src/dps8/useddef.txt.lz
   retry: 2
   timeout: 30 minutes
   interruptible: true
@@ -1447,10 +1447,10 @@ Linux/x86_64, Void glibc, Clang, GCC:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+      - src/dps8/dps8.lz
+      - src/prt2pdf/prt2pdf.lz
+      - src/punutil/punutil.lz
+      - src/dps8/useddef.txt.lz
   retry: 2
   timeout: 45 minutes
   interruptible: true
@@ -1489,10 +1489,10 @@ Linux/x86_64, Void musl, static, Clang, GCC:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+      - src/dps8/dps8.lz
+      - src/prt2pdf/prt2pdf.lz
+      - src/punutil/punutil.lz
+      - src/dps8/useddef.txt.lz
   retry: 2
   timeout: 45 minutes
   interruptible: true
@@ -1525,11 +1525,11 @@ Solaris/x86_64, Oracle Solaris 11.4, GCC:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/dps8m-master-s114-x86.tar.gz
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+      - dps8m-master-s114-x86.tar.gz
+      - src/dps8/dps8.lz
+      - src/prt2pdf/prt2pdf.lz
+      - src/punutil/punutil.lz
+      - src/dps8/useddef.txt.lz
   retry: 2
   timeout: 30 minutes
   interruptible: true
@@ -1556,11 +1556,11 @@ Solaris/x86_64, Oracle Solaris 11.4, Oracle Developer Studio:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-      - ${CI_PROJECT_DIR:?}/libstatomic.so.1.lz
+      - src/dps8/dps8.lz
+      - src/prt2pdf/prt2pdf.lz
+      - src/punutil/punutil.lz
+      - src/dps8/useddef.txt.lz
+      - libstatomic.so.1.lz
   retry: 2
   timeout: 30 minutes
   interruptible: true
@@ -1599,11 +1599,11 @@ illumos/x86_64, OpenIndiana Hipster, Clang, GCC:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/dps8m-master-iloi-x86.tar.gz
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+      - dps8m-master-iloi-x86.tar.gz
+      - src/dps8/dps8.lz
+      - src/prt2pdf/prt2pdf.lz
+      - src/punutil/punutil.lz
+      - src/dps8/useddef.txt.lz
   retry: 2
   timeout: 30 minutes
   interruptible: true
@@ -1637,11 +1637,11 @@ Darwin/x86_64, macOS, Xcode:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/dps8m-master-macos-x86.tar.gz
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+      - dps8m-master-macos-x86.tar.gz
+      - src/dps8/dps8.lz
+      - src/prt2pdf/prt2pdf.lz
+      - src/punutil/punutil.lz
+      - src/dps8/useddef.txt.lz
   retry: 2
   timeout: 30 minutes
   interruptible: true
@@ -1677,11 +1677,11 @@ Darwin/x86_64, macOS, static, Xcode:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/dps8m-master-mac10-x86.tar.gz
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+      - dps8m-master-mac10-x86.tar.gz
+      - src/dps8/dps8.lz
+      - src/prt2pdf/prt2pdf.lz
+      - src/punutil/punutil.lz
+      - src/dps8/useddef.txt.lz
   retry: 2
   timeout: 30 minutes
   interruptible: true
@@ -1714,11 +1714,11 @@ Darwin/ARM64, macOS, static, Xcode:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/dps8m-master-mac11-a64.tar.gz
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+      - dps8m-master-mac11-a64.tar.gz
+      - src/dps8/dps8.lz
+      - src/prt2pdf/prt2pdf.lz
+      - src/punutil/punutil.lz
+      - src/dps8/useddef.txt.lz
   retry: 2
   timeout: 30 minutes
   interruptible: true
@@ -1761,11 +1761,11 @@ Darwin/Universal, macOS, static, Xcode:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/dps8m-master-macos-uni.tar.gz
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+      - dps8m-master-macos-uni.tar.gz
+      - src/dps8/dps8.lz
+      - src/prt2pdf/prt2pdf.lz
+      - src/punutil/punutil.lz
+      - src/dps8/useddef.txt.lz
   retry: 2
   timeout: 30 minutes
   interruptible: true
@@ -1801,7 +1801,7 @@ NSIS Installer:
     when: always
     expire_in: 30 days
     paths:
-      - ${CI_PROJECT_DIR:?}/.nsis/dps8m-master-win-setup.exe
+      - .nsis/dps8m-master-win-setup.exe
   retry: 2
   timeout: 180 minutes
   interruptible: true
@@ -1841,7 +1841,7 @@ Option Verification Test:
     when: always
     expire_in: 30 days
     paths:
-      - ${CI_PROJECT_DIR:?}/options-test.txt
+      - options-test.txt
   retry: 2
   timeout: 180 minutes
   interruptible: true
@@ -1869,13 +1869,14 @@ DPS8M Omnibus Documentation:
     - *scriptBuildlibbacktrace
     - *scriptExtraInfo
     - *scriptDPS8Mods
-    - env WITH_BACKTRACE=1 NATIVE=1 gmake && env WITH_BACKTRACE=1 NATIVE=1 gmake docspdf
+    - env NATIVE=1 gmake && env NATIVE=1 gmake docspdf
+    - test -f ${CI_PROJECT_DIR:?}/docs/dps8-omnibus.pdf
   dependencies: []
   artifacts:
     when: always
     expire_in: 30 days
     paths:
-      - ${CI_PROJECT_DIR:?}/docs/dps8-omnibus.pdf
+      - docs/dps8-omnibus.pdf
   retry: 2
   timeout: 45 minutes
   interruptible: true
@@ -1906,13 +1907,13 @@ Multics CI-Kit Test:
   cache:
     key: tape-cache
     paths:
-      - ${CI_PROJECT_DIR:?}/src/ci-kit/tapes/*.tap
+      - src/ci-kit/tapes/*.tap
   dependencies: []
   artifacts:
     when: always
     expire_in: 30 days
     paths:
-      - ${CI_PROJECT_DIR:?}/src/ci-kit/new.txt
+      - src/ci-kit/new.txt
   retry: 2
   timeout: 111 minutes
   interruptible: true
@@ -1954,10 +1955,10 @@ Linux/x86_64, Ubuntu 18.04, Clang, GCC:
   artifacts:
     expire_in: 1 day
     paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+      - src/dps8/dps8.lz
+      - src/prt2pdf/prt2pdf.lz
+      - src/punutil/punutil.lz
+      - src/dps8/useddef.txt.lz
   retry: 2
   timeout: 30 minutes
   interruptible: true
@@ -1989,7 +1990,7 @@ Flawfinder:
     when: always
     expire_in: 30 days
     paths:
-      - ${CI_PROJECT_DIR:?}/flawfinder.txt
+      - flawfinder.txt
   retry: 1
   timeout: 30 minutes
   interruptible: true
@@ -2026,7 +2027,7 @@ Clang Analyzer:
     when: always
     expire_in: 30 days
     paths:
-      - ${CI_PROJECT_DIR:?}/out/*
+      - out/*
   timeout: 45 minutes
   interruptible: true
 
@@ -2070,7 +2071,7 @@ PVS-Studio:
     when: always
     expire_in: 30 days
     paths:
-      - ${CI_PROJECT_DIR:?}/pvsreport/*
+      - pvsreport/*
   timeout: 45 minutes
   interruptible: true
 
@@ -2104,9 +2105,9 @@ Cppcheck:
     when: always
     expire_in: 30 days
     paths:
-      - ${CI_PROJECT_DIR:?}/cppcheck.txt
-      - ${CI_PROJECT_DIR:?}/cppcheck/index.html
-      - ${CI_PROJECT_DIR:?}/cppcheck/*/*
+      - cppcheck.txt
+      - cppcheck/index.html
+      - cppcheck/*/*
   timeout: 120 minutes
   interruptible: true
 
@@ -2141,7 +2142,7 @@ Oracle Developer Studio Lint:
     when: always
     expire_in: 30 days
     paths:
-      - ${CI_PROJECT_DIR:?}/orstlint.txt
+      - orstlint.txt
   timeout: 30 minutes
   interruptible: true
 
@@ -2168,7 +2169,7 @@ Source Tree Checks:
     when: always
     expire_in: 30 days
     paths:
-      - ${CI_PROJECT_DIR:?}/pre-commit-test.txt
+      - pre-commit-test.txt
   retry: 2
   timeout: 45 minutes
   interruptible: true
