@@ -533,9 +533,11 @@ void createCPUThread (uint cpuNum)
 #endif /* ifdef AFFINITY */
 
 #ifdef __APPLE__
+# ifdef USE_RTSCHED_THREAD
     if (rtsched_thread(p->cpuThread) != 0)
       sim_printf ("\rrtsched_thread failed %s[%s:%d]!\r\n",
                   __func__, __FILE__, __LINE__);
+# endif /* ifdef USE_RTSCHED_THREAD */
 #endif /* ifdef __APPLE__ */
   }
 
