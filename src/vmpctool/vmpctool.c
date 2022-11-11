@@ -467,7 +467,7 @@ parse_size(char *inp)
       switch (mult_char)
         {
         case 'b':
-          mult = 1;
+          mult = 1; //-V1048
           break;
 
         case 'k':

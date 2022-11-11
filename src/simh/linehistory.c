@@ -14,6 +14,7 @@
  *
  * Copyright (c) 2010-2014 Salvatore Sanfilippo <antirez@gmail.com>
  * Copyright (c) 2010-2013 Pieter Noordhuis <pcnoordhuis@gmail.com>
+ * Copyright (c) 2020-2021 Jeffrey H. Johnson <trnsz@pobox.com>
  * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
@@ -65,7 +66,9 @@
 #  include <sys/termiox.h>
 # endif /* if defined( __sun ) && defined( __SVR4 ) */
 # include "linehistory.h"
-# include "../dps8/dps8.h"
+# ifndef __NetBSD__
+#  include "../dps8/dps8.h"
+# endif /* ifndef __NetBSD__ */
 # include <ctype.h>
 # include <errno.h>
 # include <stdio.h>

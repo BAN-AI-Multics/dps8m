@@ -3111,11 +3111,11 @@ for (; *ip && (op < oend); ) {
                         ap = rbuf;
                         }
                     else if (!strcmp ("HOSTID", gbuf)) {
-#if defined( HAVE_UNISTD ) && !defined ( __HAIKU__ )
+#if defined( HAVE_UNISTD ) && !defined ( __HAIKU__ ) && !defined ( __ANDROID__ )
                         sprintf (rbuf, "%ld", (long)gethostid());
 #else
                         sprintf (rbuf, "00000000");
-#endif /* if defined( HAVE_UNISTD ) && !defined ( __HAIKU__ ) */
+#endif /* if defined( HAVE_UNISTD ) && !defined ( __HAIKU__ ) && !defined ( __ANDROID__ ) */
                         ap = rbuf;
                         }
                     else if (!strcmp ("UID", gbuf)) {
@@ -3230,7 +3230,7 @@ for (; *ip && (op < oend); ) {
                         }
                     else if ( (!strcmp("CPUS", gbuf)) \
                       || (!strcmp("PROCESSORS", gbuf) ) ) {
-#if defined(LINUX_OS)
+#if defined(LINUX_OS) && !defined(__ANDROID__)
                         sprintf(rbuf, "%ld", (long)get_nprocs());
 #elif defined ( __HAIKU__ )
                         system_info hinfo;
@@ -3239,7 +3239,7 @@ for (; *ip && (op < oend); ) {
                             (long long unsigned int)hinfo.cpu_count);
 #else
                         sprintf(rbuf, "1");
-#endif /* if defined(LINUX_OS) */
+#endif /* if defined(LINUX_OS) && !defined(__ANDROID__) */
                         ap = rbuf;
                         }
                     }

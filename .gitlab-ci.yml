@@ -471,7 +471,7 @@ Linux/x86_64, AlmaLinux 9, Clang, GCC:
       - src/punutil/punutil.lz
       - src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 30 minutes
+  timeout: 45 minutes
   interruptible: true
 
 ############################################################################
@@ -507,7 +507,7 @@ Linux/x86_64, Alpine Edge, Clang, GCC:
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
     - ( cd src && tar cvf ../dps8m-master-linux-x86.tar "./${DISTDIR:?}" )
-    - pigz -11 -f -m -n dps8m-master-linux-x86.tar
+    - pigz -9 -f -m -n dps8m-master-linux-x86.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
@@ -519,7 +519,7 @@ Linux/x86_64, Alpine Edge, Clang, GCC:
       - src/punutil/punutil.lz
       - src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 30 minutes
+  timeout: 45 minutes
   interruptible: true
 
 ############################################################################
@@ -543,7 +543,7 @@ Linux/powerpc64el, IBM Advance Toolchain 16:
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
     - ( cd src && tar cvf ../dps8m-master-linux-ate.tar "./${DISTDIR:?}" )
-    - pigz -11 -f -m -n dps8m-master-linux-ate.tar
+    - pigz -9 -f -m -n dps8m-master-linux-ate.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -553,7 +553,7 @@ Linux/powerpc64el, IBM Advance Toolchain 16:
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
     - ( cd src && tar cvf ../dps8m-master-linux-atn.tar "./${DISTDIR:?}" )
-    - pigz -11 -f -m -n dps8m-master-linux-atn.tar
+    - pigz -9 -f -m -n dps8m-master-linux-atn.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -563,7 +563,7 @@ Linux/powerpc64el, IBM Advance Toolchain 16:
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
     - ( cd src && tar cvf ../dps8m-master-linux-att.tar "./${DISTDIR:?}" )
-    - pigz -11 -f -m -n dps8m-master-linux-att.tar
+    - pigz -9 -f -m -n dps8m-master-linux-att.tar
   dependencies: []
   artifacts:
     expire_in: 1 day
@@ -572,7 +572,1167 @@ Linux/powerpc64el, IBM Advance Toolchain 16:
       - dps8m-master-linux-atn.tar.gz
       - dps8m-master-linux-att.tar.gz
   retry: 2
-  timeout: 30 minutes
+  timeout: 45 minutes
+  interruptible: true
+
+############################################################################
+
+Cross-compiled release binaries:
+  image: fedora:36
+  stage: build
+  tags:
+    - Docker-x64
+    - amd64
+    - Linux
+  script:
+    - export GLCICD_JOB="ReleaseCross" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
+    - *scriptDnfSetup
+    - *scriptInstallNfpm
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptExtraInfo
+    - export DISTDIR="dps8m-master"
+    - export JOB_PKGS="tar bzip2 lzip wget zlib zlib-devel zstd libzstd libzstd-devel brotli-devel brotli libbrotli libcom_err libxcrypt openssl-devel openssl libcurl libcurl-devel elfutils-debuginfod-client elfutils-debuginfod expat-devel expat libffi libffi-devel gc-devel libevent-devel libgcc gmp-devel krb5-devel compat-guile18 guile-devel guile22-devel libidn2-devel libidn libidn-devel keyutils-libs-devel openldap-devel libtool-ltdl-devel xz-devel mpfr-devel msgpack-devel pcre2-devel libselinux-devel libssh-devel libssh2-devel ncurses-devel libunistring xxhash-devel"
+    - dnf -v -y install --best ${JOB_PKGS:?} || dnf -v -y install --nobest ${JOB_PKGS:?}
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/powerpc-ibm-aix7.2.tar.lz" -O /powerpc-ibm-aix7.2.tar.lz
+    - ( cd / && tar axf powerpc-ibm-aix7.2.tar.lz )
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=power6
+    - env PATH=/home/jhj/src/AIX-crossgcc/out/bin:$PATH CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-maix64 -Wl,-b64 -static-libgcc" NO_LTO=1 LOCAL_CONFOPTS="--host=powerpc-ibm-aix7.2.0.0" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake NO_LTO=1 libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - ( cd libuv-local/libuv && env PATH=/home/jhj/src/AIX-crossgcc/out/bin:$PATH gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync )
+    - env LOCALLIBS="-ldl -lrt -lbsd -lpthread -lm -lc -lperfstat" PATH=/home/jhj/src/AIX-crossgcc/out/bin:$PATH CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-static-libgcc -maix64 -Wl,-b64" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync NO_LTO=1 MATHLIB="-lm -lpthread" LOCALOBJS="../../libuv-local/libuv/src/*.o ../../libuv-local/libuv/src/unix/*.o" LIBUV="" PULIBS="-lpopt" EMPTYLIBS=""
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-aixv7-pw6.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-aixv7-pw6.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=power7
+    - env PATH=/home/jhj/src/AIX-crossgcc/out/bin:$PATH CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-maix64 -Wl,-b64 -static-libgcc" NO_LTO=1 LOCAL_CONFOPTS="--host=powerpc-ibm-aix7.2.0.0" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake NO_LTO=1 libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - ( cd libuv-local/libuv && env PATH=/home/jhj/src/AIX-crossgcc/out/bin:$PATH gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync )
+    - env LOCALLIBS="-ldl -lrt -lbsd -lpthread -lm -lc -lperfstat" PATH=/home/jhj/src/AIX-crossgcc/out/bin:$PATH CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-static-libgcc -maix64 -Wl,-b64" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync NO_LTO=1 MATHLIB="-lm -lpthread" LOCALOBJS="../../libuv-local/libuv/src/*.o ../../libuv-local/libuv/src/unix/*.o" LIBUV="" PULIBS="-lpopt" EMPTYLIBS=""
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-aixv7-pw7.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-aixv7-pw7.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=power8
+    - env PATH=/home/jhj/src/AIX-crossgcc/out/bin:$PATH CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-maix64 -Wl,-b64 -static-libgcc" NO_LTO=1 LOCAL_CONFOPTS="--host=powerpc-ibm-aix7.2.0.0" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake NO_LTO=1 libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - ( cd libuv-local/libuv && env PATH=/home/jhj/src/AIX-crossgcc/out/bin:$PATH gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync )
+    - env LOCALLIBS="-ldl -lrt -lbsd -lpthread -lm -lc -lperfstat" PATH=/home/jhj/src/AIX-crossgcc/out/bin:$PATH CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-static-libgcc -maix64 -Wl,-b64" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync NO_LTO=1 MATHLIB="-lm -lpthread" LOCALOBJS="../../libuv-local/libuv/src/*.o ../../libuv-local/libuv/src/unix/*.o" LIBUV="" PULIBS="-lpopt" EMPTYLIBS=""
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-aixv7-pw8.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-aixv7-pw8.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=power9
+    - env PATH=/home/jhj/src/AIX-crossgcc/out/bin:$PATH CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-maix64 -Wl,-b64 -static-libgcc" NO_LTO=1 LOCAL_CONFOPTS="--host=powerpc-ibm-aix7.2.0.0" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake NO_LTO=1 libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - ( cd libuv-local/libuv && env PATH=/home/jhj/src/AIX-crossgcc/out/bin:$PATH gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync )
+    - env LOCALLIBS="-ldl -lrt -lbsd -lpthread -lm -lc -lperfstat" PATH=/home/jhj/src/AIX-crossgcc/out/bin:$PATH CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-static-libgcc -maix64 -Wl,-b64" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync NO_LTO=1 MATHLIB="-lm -lpthread" LOCALOBJS="../../libuv-local/libuv/src/*.o ../../libuv-local/libuv/src/unix/*.o" LIBUV="" PULIBS="-lpopt" EMPTYLIBS=""
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-aixv7-pw9.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-aixv7-pw9.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=power10
+    - env PATH=/home/jhj/src/AIX-crossgcc/out/bin:$PATH CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-maix64 -Wl,-b64 -static-libgcc" NO_LTO=1 LOCAL_CONFOPTS="--host=powerpc-ibm-aix7.2.0.0" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake NO_LTO=1 libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - ( cd libuv-local/libuv && env PATH=/home/jhj/src/AIX-crossgcc/out/bin:$PATH gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync )
+    - env LOCALLIBS="-ldl -lrt -lbsd -lpthread -lm -lc -lperfstat" PATH=/home/jhj/src/AIX-crossgcc/out/bin:$PATH CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-static-libgcc -maix64 -Wl,-b64" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync NO_LTO=1 MATHLIB="-lm -lpthread" LOCALOBJS="../../libuv-local/libuv/src/*.o ../../libuv-local/libuv/src/unix/*.o" LIBUV="" PULIBS="-lpopt" EMPTYLIBS=""
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-aixv7-p10.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-aixv7-p10.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/src/AIX-crossgcc/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/m68k-local-linux-musl.tar.lz" -O /m68k-local-linux-musl.tar.lz
+    - ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /m68k-local-linux-musl.tar.lz )
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=68060
+    - env PATH=/home/jhj/x-tools/m68k-local-linux-musl/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-static" LOCAL_CONFOPTS="--host=m68k-local-linux-musl" CC=/home/jhj/x-tools/m68k-local-linux-musl/bin/m68k-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/m68k-local-linux-musl/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Dfopen64=fopen -Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko" LDFLAGS="-static" CC=/home/jhj/x-tools/m68k-local-linux-musl/bin/m68k-local-linux-musl-gcc gmake NEED_128=1 LOCALLIBS="-latomic" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-060.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-060.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=68040
+    - env PATH=/home/jhj/x-tools/m68k-local-linux-musl/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-static" LOCAL_CONFOPTS="--host=m68k-local-linux-musl" CC=/home/jhj/x-tools/m68k-local-linux-musl/bin/m68k-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/m68k-local-linux-musl/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Dfopen64=fopen -Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko" LDFLAGS="-static" CC=/home/jhj/x-tools/m68k-local-linux-musl/bin/m68k-local-linux-musl-gcc gmake NEED_128=1 LOCALLIBS="-latomic" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-040.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-040.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=68030
+    - env PATH=/home/jhj/x-tools/m68k-local-linux-musl/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-static" LOCAL_CONFOPTS="--host=m68k-local-linux-musl" CC=/home/jhj/x-tools/m68k-local-linux-musl/bin/m68k-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/m68k-local-linux-musl/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Dfopen64=fopen -Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko" LDFLAGS="-static" CC=/home/jhj/x-tools/m68k-local-linux-musl/bin/m68k-local-linux-musl-gcc gmake NEED_128=1 LOCALLIBS="-latomic" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-030.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-030.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=68020
+    - env PATH=/home/jhj/x-tools/m68k-local-linux-musl/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-static" LOCAL_CONFOPTS="--host=m68k-local-linux-musl" CC=/home/jhj/x-tools/m68k-local-linux-musl/bin/m68k-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/m68k-local-linux-musl/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Dfopen64=fopen -Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko" LDFLAGS="-static" CC=/home/jhj/x-tools/m68k-local-linux-musl/bin/m68k-local-linux-musl-gcc gmake NEED_128=1 LOCALLIBS="-latomic" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-020.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-020.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/x-tools/m68k-local-linux-musl
+    - *scriptDPS8Mods
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/x86_64-unknown-haiku.tar.lz" -O /x86_64-unknown-haiku.tar.lz
+    - ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /x86_64-unknown-haiku.tar.lz )
+    - unset DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - unexport DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - env PATH=/home/jhj/x-tools/x86_64-unknown-haiku/generated/cross-tools-x86_64/bin/:$PATH LOCAL_CONFOPTS="--host=x86_64-unknown-haiku" CC=/home/jhj/x-tools/x86_64-unknown-haiku/generated/cross-tools-x86_64/bin//x86_64-unknown-haiku-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env CC=/home/jhj/x-tools/x86_64-unknown-haiku/generated/cross-tools-x86_64/bin/x86_64-unknown-haiku-gcc gmake LIBS="../../libuv-local/local/lib/libuv.a -lnetwork" EMPTYLIBS="-lbsd" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-haiku-x64.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-haiku-x64.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/x-tools/x86_64-unknown-haiku/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/android-ndk-r25b.tar.lz" -O /android-ndk-r25b.tar.lz
+    - ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /android-ndk-r25b.tar.lz )
+    - *scriptDPS8Mods
+    - unset DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - unexport DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - ln -fs /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android24-clang /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android24-gcc
+    - ln -fs /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android24-clang /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android24-cc
+    - env PATH=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH LOCAL_CONFOPTS="--host=x86_64-linux-android24" CC=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android24-clang gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH CC=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android24-clang LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync LIBS="../../libuv-local/libuv/../local/lib/libuv.a -ldl"
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-ndk24-x64.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-ndk24-x64.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - unset DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - unexport DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - ln -fs /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android24-clang /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android24-gcc
+    - ln -fs /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android24-clang /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android24-cc
+    - env PATH=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH LOCAL_CONFOPTS="--host=i686-linux-android24" CC=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android24-clang gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH CC=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android24-clang LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync LIBS="../../libuv-local/libuv/../local/lib/libuv.a -ldl" NEED_128=1
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-ndk24-x32.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-ndk24-x32.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - unset DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - unexport DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - ln -fs /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android29-clang /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android29-gcc
+    - ln -fs /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android29-clang /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android29-cc
+    - env PATH=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH CFLAGS="-fno-emulated-tls" LOCAL_CONFOPTS="--host=i686-linux-android29" CC=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android29-clang gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH CFLAGS="-fno-emulated-tls" CC=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android29-clang LDFLAGS="-fno-emulated-tls -static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync LIBS="../../libuv-local/libuv/../local/lib/libuv.a -ldl" NEED_128=1
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-ndk29-x32.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-ndk29-x32.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - unset DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - unexport DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - ln -fs /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi24-clang /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi24-gcc
+    - ln -fs /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi24-clang /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi24-cc
+    - env PATH=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH LOCAL_CONFOPTS="--host=armv7a-linux-androideabi24" CC=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi24-clang gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH CC=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi24-clang LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync LIBS="../../libuv-local/libuv/../local/lib/libuv.a -ldl" NEED_128=1
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-ndk24-a32.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-ndk24-a32.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - unset DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - unexport DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - ln -fs /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi29-clang /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi29-gcc
+    - ln -fs /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi29-clang /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi29-cc
+    - env PATH=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH CFLAGS="-fno-emulated-tls" LOCAL_CONFOPTS="--host=armv7a-linux-androideabi29" CC=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi29-clang gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH CFLAGS="-fno-emulated-tls" CC=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi29-clang LDFLAGS="-fno-emulated-tls -static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync LIBS="../../libuv-local/libuv/../local/lib/libuv.a -ldl" NEED_128=1
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-ndk29-a32.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-ndk29-a32.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - unset DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - unexport DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - ln -fs /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-gcc
+    - ln -fs /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-cc
+    - env PATH=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH LOCAL_CONFOPTS="--host=aarch64-linux-android24" CC=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH CC=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync LIBS="../../libuv-local/libuv/../local/lib/libuv.a -ldl"
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-ndk24-a64.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-ndk24-a64.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - unset DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - unexport DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - ln -fs /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android29-clang /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android29-gcc
+    - ln -fs /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android29-clang /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android29-cc
+    - env PATH=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH LOCAL_CONFOPTS="--host=aarch64-linux-android29" CFLAGS="-fno-emulated-tls" CC=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android29-clang gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH CFLAGS="-fno-emulated-tls" CC=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android29-clang LDFLAGS="-fno-emulated-tls -static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync LIBS="../../libuv-local/libuv/../local/lib/libuv.a -ldl"
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-ndk29-a64.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-ndk29-a64.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - unset DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - unexport DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - ln -fs /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android29-clang /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android29-gcc
+    - ln -fs /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android29-clang /home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android29-cc
+    - env PATH=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH CFLAGS="-fno-emulated-tls" LOCAL_CONFOPTS="--host=x86_64-linux-android29" CC=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android29-clang gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH CFLAGS="-fno-emulated-tls" CC=/home/jhj/x-tools/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android29-clang LDFLAGS="-fno-emulated-tls -static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync LIBS="../../libuv-local/libuv/../local/lib/libuv.a -ldl"
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-ndk29-x64.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-ndk29-x64.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/x-tools/android-ndk-r25b/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/s390x-local-linux-musl.tar.lz" -O /s390x-local-linux-musl.tar.lz
+    - ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /s390x-local-linux-musl.tar.lz )
+    - *scriptDPS8Mods
+    - unset DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - unexport DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - env PATH=/home/jhj/x-tools/s390x-local-linux-musl/bin:$PATH LOCAL_CONFOPTS="--host=s390x-local-linux-musl" CC=/home/jhj/x-tools/s390x-local-linux-musl/bin/s390x-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/s390x-local-linux-musl/bin:$PATH CC=/home/jhj/x-tools/s390x-local-linux-musl/bin/s390x-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-390.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-390.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/x-tools/s390x-local-linux-musl
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/riscv64-local-linux-musl.tar.lz" -O /riscv64-local-linux-musl.tar.lz
+    - ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /riscv64-local-linux-musl.tar.lz )
+    - *scriptDPS8Mods
+    - unset DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - unexport DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - env PATH=/home/jhj/x-tools/riscv64-local-linux-musl/bin:$PATH LOCAL_CONFOPTS="--host=riscv64-local-linux-musl" CC=/home/jhj/x-tools/riscv64-local-linux-musl/bin/riscv64-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/riscv64-local-linux-musl/bin:$PATH CC=/home/jhj/x-tools/riscv64-local-linux-musl/bin/riscv64-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-r64.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-r64.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/x-tools/riscv64-local-linux-musl/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/powerpc-local-linux-musl.tar.lz" -O /powerpc-local-linux-musl.tar.lz
+    - ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /powerpc-local-linux-musl.tar.lz )
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=601
+    - env PATH=/home/jhj/x-tools/powerpc-local-linux-musl/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=powerpc-local-linux-musl" CC=/home/jhj/x-tools/powerpc-local-linux-musl/bin/powerpc-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/powerpc-local-linux-musl/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?}" CC=/home/jhj/x-tools/powerpc-local-linux-musl/bin/powerpc-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync NEED_128=1 LOCALLIBS="-latomic"
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-601.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-601.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=603
+    - env PATH=/home/jhj/x-tools/powerpc-local-linux-musl/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=powerpc-local-linux-musl" CC=/home/jhj/x-tools/powerpc-local-linux-musl/bin/powerpc-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/powerpc-local-linux-musl/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?}" CC=/home/jhj/x-tools/powerpc-local-linux-musl/bin/powerpc-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync NEED_128=1 LOCALLIBS="-latomic"
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-603.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-603.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=740
+    - env PATH=/home/jhj/x-tools/powerpc-local-linux-musl/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=powerpc-local-linux-musl" CC=/home/jhj/x-tools/powerpc-local-linux-musl/bin/powerpc-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/powerpc-local-linux-musl/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?}" CC=/home/jhj/x-tools/powerpc-local-linux-musl/bin/powerpc-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync NEED_128=1 LOCALLIBS="-latomic"
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-740.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-740.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=7400
+    - env PATH=/home/jhj/x-tools/powerpc-local-linux-musl/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=powerpc-local-linux-musl" CC=/home/jhj/x-tools/powerpc-local-linux-musl/bin/powerpc-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/powerpc-local-linux-musl/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?}" CC=/home/jhj/x-tools/powerpc-local-linux-musl/bin/powerpc-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync NEED_128=1 LOCALLIBS="-latomic"
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-g4a.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-g4a.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=7450
+    - env PATH=/home/jhj/x-tools/powerpc-local-linux-musl/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=powerpc-local-linux-musl" CC=/home/jhj/x-tools/powerpc-local-linux-musl/bin/powerpc-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/powerpc-local-linux-musl/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?}" CC=/home/jhj/x-tools/powerpc-local-linux-musl/bin/powerpc-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync NEED_128=1 LOCALLIBS="-latomic"
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-g4e.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-g4e.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/x-tools/powerpc-local-linux-musl/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/arm-local-linux-musleabi.tar.lz" -O /arm-local-linux-musleabi.tar.lz
+    - ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /arm-local-linux-musleabi.tar.lz )
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE="armv5t"
+    - env PATH=/home/jhj/x-tools/arm-local-linux-musleabi/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=arm-local-linux-musleabi" CC=/home/jhj/x-tools/arm-local-linux-musleabi/bin/arm-local-linux-musleabi-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/arm-local-linux-musleabi/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/x-tools/arm-local-linux-musleabi/bin/arm-local-linux-musleabi-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync NEED_128=1 LOCALLIBS="-latomic"
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-a5s.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-a5s.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE="armv6"
+    - env PATH=/home/jhj/x-tools/arm-local-linux-musleabi/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=arm-local-linux-musleabi" CC=/home/jhj/x-tools/arm-local-linux-musleabi/bin/arm-local-linux-musleabi-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/arm-local-linux-musleabi/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/x-tools/arm-local-linux-musleabi/bin/arm-local-linux-musleabi-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync NEED_128=1 LOCALLIBS="-latomic"
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-a6s.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-a6s.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE="armv6+fp"
+    - env PATH=/home/jhj/x-tools/arm-local-linux-musleabi/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=arm-local-linux-musleabi" CC=/home/jhj/x-tools/arm-local-linux-musleabi/bin/arm-local-linux-musleabi-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/arm-local-linux-musleabi/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/x-tools/arm-local-linux-musleabi/bin/arm-local-linux-musleabi-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync NEED_128=1 LOCALLIBS="-latomic"
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-a6f.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-a6f.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE="armv7-a"
+    - env PATH=/home/jhj/x-tools/arm-local-linux-musleabi/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=arm-local-linux-musleabi" CC=/home/jhj/x-tools/arm-local-linux-musleabi/bin/arm-local-linux-musleabi-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/arm-local-linux-musleabi/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/x-tools/arm-local-linux-musleabi/bin/arm-local-linux-musleabi-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync NEED_128=1 LOCALLIBS="-latomic"
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-a7s.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-a7s.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE="armv7-a+fp"
+    - env PATH=/home/jhj/x-tools/arm-local-linux-musleabi/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=arm-local-linux-musleabi" CC=/home/jhj/x-tools/arm-local-linux-musleabi/bin/arm-local-linux-musleabi-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/arm-local-linux-musleabi/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/x-tools/arm-local-linux-musleabi/bin/arm-local-linux-musleabi-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync NEED_128=1 LOCALLIBS="-latomic"
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-a7f.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-a7f.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/x-tools/arm-local-linux-musleabi/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/aarch64-local-linux-musl.tar.lz" -O /aarch64-local-linux-musl.tar.lz
+    - ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /aarch64-local-linux-musl.tar.lz )
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE="armv8-a"
+    - env PATH=/home/jhj/x-tools/aarch64-local-linux-musl/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=aarch64-local-linux-musl" CC=/home/jhj/x-tools/aarch64-local-linux-musl/bin/aarch64-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/aarch64-local-linux-musl/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/x-tools/aarch64-local-linux-musl/bin/aarch64-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-a8a.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-a8a.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE="armv8-r"
+    - env PATH=/home/jhj/x-tools/aarch64-local-linux-musl/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=aarch64-local-linux-musl" CC=/home/jhj/x-tools/aarch64-local-linux-musl/bin/aarch64-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/aarch64-local-linux-musl/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/x-tools/aarch64-local-linux-musl/bin/aarch64-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-a8r.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-a8r.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/x-tools/aarch64-local-linux-musl/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/aarch64_be-local-linux-musl.tar.lz" -O /aarch64_be-local-linux-musl.tar.lz
+    - ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /aarch64_be-local-linux-musl.tar.lz )
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE="armv8-a"
+    - env PATH=/home/jhj/x-tools/aarch64_be-local-linux-musl/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=aarch64_be-local-linux-musl" CC=/home/jhj/x-tools/aarch64_be-local-linux-musl/bin/aarch64_be-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/aarch64_be-local-linux-musl/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/x-tools/aarch64_be-local-linux-musl/bin/aarch64_be-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-a8b.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-a8b.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/x-tools/aarch64_be-local-linux-musl/
+    - *scriptDPS8Mods
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/i386-local-linux-musl.tar.lz" -O /i386-local-linux-musl.tar.lz
+    - ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /i386-local-linux-musl.tar.lz )
+    - unset DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - unexport DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - env PATH=/home/jhj/x-tools/i386-local-linux-musl/bin:$PATH CFLAGS="-march=i686" LOCAL_CONFOPTS="--host=i386-local-linux-musl" CC=/home/jhj/x-tools/i386-local-linux-musl/bin/i386-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/i386-local-linux-musl/bin:$PATH CFLAGS="-march=i686" CC=/home/jhj/x-tools/i386-local-linux-musl/bin/i386-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync NEED_128=1
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-686.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-686.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - unset DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - unexport DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - env PATH=/home/jhj/x-tools/i386-local-linux-musl/bin:$PATH CFLAGS="-march=i586" LOCAL_CONFOPTS="--host=i386-local-linux-musl" CC=/home/jhj/x-tools/i386-local-linux-musl/bin/i386-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/i386-local-linux-musl/bin:$PATH CFLAGS="-march=i586" CC=/home/jhj/x-tools/i386-local-linux-musl/bin/i386-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync NEED_128=1 LOCALLIBS="-latomic"
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-586.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-586.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/x-tools/i386-local-linux-musl/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/x86_64-local-linux-musl.tar.lz" -O /x86_64-local-linux-musl.tar.lz
+    - ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /x86_64-local-linux-musl.tar.lz )
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=x86-64
+    - env PATH=/home/jhj/x-tools/x86_64-local-linux-musl/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE}" LOCAL_CONFOPTS="--host=x86_64-local-linux-musl" CC=/home/jhj/x-tools/x86_64-local-linux-musl/bin/x86_64-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/x86_64-local-linux-musl/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE}" CC=/home/jhj/x-tools/x86_64-local-linux-musl/bin/x86_64-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-641.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-641.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=x86-64-v2
+    - env PATH=/home/jhj/x-tools/x86_64-local-linux-musl/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE}" LOCAL_CONFOPTS="--host=x86_64-local-linux-musl" CC=/home/jhj/x-tools/x86_64-local-linux-musl/bin/x86_64-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/x86_64-local-linux-musl/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE}" CC=/home/jhj/x-tools/x86_64-local-linux-musl/bin/x86_64-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-642.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-642.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=x86-64-v3
+    - env PATH=/home/jhj/x-tools/x86_64-local-linux-musl/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE}" LOCAL_CONFOPTS="--host=x86_64-local-linux-musl" CC=/home/jhj/x-tools/x86_64-local-linux-musl/bin/x86_64-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/x86_64-local-linux-musl/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE}" CC=/home/jhj/x-tools/x86_64-local-linux-musl/bin/x86_64-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-643.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-643.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=x86-64-v4
+    - env PATH=/home/jhj/x-tools/x86_64-local-linux-musl/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE}" LOCAL_CONFOPTS="--host=x86_64-local-linux-musl" CC=/home/jhj/x-tools/x86_64-local-linux-musl/bin/x86_64-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/x86_64-local-linux-musl/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE}" CC=/home/jhj/x-tools/x86_64-local-linux-musl/bin/x86_64-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-644.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-644.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/x-tools/x86_64-local-linux-musl/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/powerpc64le-local-linux-musl.tar.lz" -O /powerpc64le-local-linux-musl.tar.lz
+    - ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /powerpc64le-local-linux-musl.tar.lz )
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=power8
+    - env PATH=/home/jhj/x-tools/powerpc64le-local-linux-musl/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE}" LOCAL_CONFOPTS="--host=powerpc64le-local-linux-musl" CC=/home/jhj/x-tools/powerpc64le-local-linux-musl/bin/powerpc64le-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/powerpc64le-local-linux-musl/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE}" CC=/home/jhj/x-tools/powerpc64le-local-linux-musl/bin/powerpc64le-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-pw8.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-pw8.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=power9
+    - env PATH=/home/jhj/x-tools/powerpc64le-local-linux-musl/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE}" LOCAL_CONFOPTS="--host=powerpc64le-local-linux-musl" CC=/home/jhj/x-tools/powerpc64le-local-linux-musl/bin/powerpc64le-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/powerpc64le-local-linux-musl/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE}" CC=/home/jhj/x-tools/powerpc64le-local-linux-musl/bin/powerpc64le-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-pw9.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-pw9.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=power10
+    - env PATH=/home/jhj/x-tools/powerpc64le-local-linux-musl/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE}" LOCAL_CONFOPTS="--host=powerpc64le-local-linux-musl" CC=/home/jhj/x-tools/powerpc64le-local-linux-musl/bin/powerpc64le-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/powerpc64le-local-linux-musl/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE}" CC=/home/jhj/x-tools/powerpc64le-local-linux-musl/bin/powerpc64le-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-p10.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-p10.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/x-tools/powerpc64le-local-linux-musl/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/or1k-linux-musl.tar.lz" -O /or1k-linux-musl.tar.lz
+    - ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /or1k-linux-musl.tar.lz )
+    - *scriptDPS8Mods
+    - unset DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - unexport DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - env PATH=/home/jhj/x-tools/or1k-linux-musl/bin:$PATH LOCAL_CONFOPTS="--host=or1k-buildroot-linux-musl" CC=/home/jhj/x-tools/or1k-linux-musl/bin/or1k-buildroot-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/or1k-linux-musl/bin:$PATH CC=/home/jhj/x-tools/or1k-linux-musl/bin/or1k-buildroot-linux-musl-gcc CFLAGS="-fpic" LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NEED_128=1 --output-sync LOCALLIBS="-latomic"
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-ork.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-ork.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/x-tools/or1k-linux-musl/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/mips-local-linux-musl.tar.lz" -O /mips-local-linux-musl.tar.lz
+    - ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /mips-local-linux-musl.tar.lz )
+    - *scriptDPS8Mods
+    - unset DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - unexport DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - env PATH=/home/jhj/x-tools/mips-local-linux-musl/bin:$PATH LOCAL_CONFOPTS="--host=mips-local-linux-musl" CC=/home/jhj/x-tools/mips-local-linux-musl/bin/mips-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/mips-local-linux-musl/bin:$PATH CC=/home/jhj/x-tools/mips-local-linux-musl/bin/mips-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync NEED_128=1 LOCALLIBS="-latomic"
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-mps.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-mps.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/x-tools/mips-local-linux-musl/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/mipsel-local-linux-musl.tar.lz" -O /mipsel-local-linux-musl.tar.lz
+    - ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /mipsel-local-linux-musl.tar.lz )
+    - *scriptDPS8Mods
+    - unset DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - unexport DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - env PATH=/home/jhj/x-tools/mipsel-local-linux-musl/bin:$PATH LOCAL_CONFOPTS="--host=mipsel-local-linux-musl" CC=/home/jhj/x-tools/mipsel-local-linux-musl/bin/mipsel-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/mipsel-local-linux-musl/bin:$PATH CC=/home/jhj/x-tools/mipsel-local-linux-musl/bin/mipsel-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync NEED_128=1 LOCALLIBS="-latomic"
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-mpl.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-mpl.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/x-tools/mipsel-local-linux-musl/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/mips64-local-linux-musl.tar.lz" -O /mips64-local-linux-musl.tar.lz
+    - ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /mips64-local-linux-musl.tar.lz )
+    - *scriptDPS8Mods
+    - unset DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - unexport DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - env PATH=/home/jhj/x-tools/mips64-local-linux-musl/bin:$PATH LOCAL_CONFOPTS="--host=mips64-local-linux-musl" CC=/home/jhj/x-tools/mips64-local-linux-musl/bin/mips64-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/mips64-local-linux-musl/bin:$PATH CC=/home/jhj/x-tools/mips64-local-linux-musl/bin/mips64-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-m64.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-m64.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/x-tools/mips64-local-linux-musl/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/mips64el-local-linux-musl.tar.lz" -O /mips64el-local-linux-musl.tar.lz
+    - ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /mips64el-local-linux-musl.tar.lz )
+    - *scriptDPS8Mods
+    - unset DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - unexport DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - env PATH=/home/jhj/x-tools/mips64el-local-linux-musl/bin:$PATH LOCAL_CONFOPTS="--host=mips64el-local-linux-musl" CC=/home/jhj/x-tools/mips64el-local-linux-musl/bin/mips64el-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/mips64el-local-linux-musl/bin:$PATH CC=/home/jhj/x-tools/mips64el-local-linux-musl/bin/mips64el-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-m6l.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-m6l.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/x-tools/mips64el-local-linux-musl/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/sparc64-local-linux-gnu.tar.lz" -O /sparc64-local-linux-gnu.tar.lz
+    - ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /sparc64-local-linux-gnu.tar.lz )
+    - *scriptDPS8Mods
+    - unset DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - unexport DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - env PATH=/home/jhj/x-tools/sparc64-local-linux-gnu/bin:$PATH LOCAL_CONFOPTS="--host=sparc64-local-linux-gnu" CC=/home/jhj/x-tools/sparc64-local-linux-gnu/bin/sparc64-local-linux-gnu-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/sparc64-local-linux-gnu/bin:$PATH CC=/home/jhj/x-tools/sparc64-local-linux-gnu/bin/sparc64-local-linux-gnu-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-s64.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-s64.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/x-tools/sparc64-local-linux-gnu/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/sparc-local-linux-gnu.tar.lz" -O /sparc-local-linux-gnu.tar.lz
+    - ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /sparc-local-linux-gnu.tar.lz )
+    - *scriptDPS8Mods
+    - unset DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - unexport DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - env PATH=/home/jhj/x-tools/sparc-local-linux-gnu/bin:$PATH LOCAL_CONFOPTS="--host=sparc-local-linux-gnu" CC=/home/jhj/x-tools/sparc-local-linux-gnu/bin/sparc-local-linux-gnu-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/sparc-local-linux-gnu/bin:$PATH CC=/home/jhj/x-tools/sparc-local-linux-gnu/bin/sparc-local-linux-gnu-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync NEED_128=1 LOCALLIBS="-latomic"
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-s32.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-s32.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/x-tools/sparc-local-linux-gnu/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/loongarch64-local-linux-gnu.tar.lz" -O /loongarch64-local-linux-gnu.tar.lz
+    - ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /loongarch64-local-linux-gnu.tar.lz )
+    - *scriptDPS8Mods
+    - unset DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - unexport DPS8_CPUTYPE > /dev/null 2>&1 || true
+    - env PATH=/home/jhj/x-tools/loongarch64-local-linux-gnu/bin:$PATH LOCAL_CONFOPTS="--host=loongarch64-local-linux-gnu" CC=/home/jhj/x-tools/loongarch64-local-linux-gnu/bin/loongarch64-local-linux-gnu-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/x-tools/loongarch64-local-linux-gnu/bin:$PATH CC=/home/jhj/x-tools/loongarch64-local-linux-gnu/bin/loongarch64-local-linux-gnu-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-linux-l64.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-linux-l64.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/x-tools/loongarch64-local-linux-gnu
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/amd64-unknown-freebsd13.tar.lz" -O /amd64-unknown-freebsd13.tar.lz
+    - ( cd / && tar axf /amd64-unknown-freebsd13.tar.lz )
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=x86-64-v4
+    - env PATH=/home/jhj/src/FreeBSD-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=amd64-unknown-freebsd13" CC=/home/jhj/src/FreeBSD-AMD64-crossgcc/out/bin/amd64-unknown-freebsd13-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/FreeBSD-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/src/FreeBSD-AMD64-crossgcc/out/bin/amd64-unknown-freebsd13-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-fbd13-x64.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-fbd13-x64.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=x86-64-v3
+    - env PATH=/home/jhj/src/FreeBSD-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=amd64-unknown-freebsd13" CC=/home/jhj/src/FreeBSD-AMD64-crossgcc/out/bin/amd64-unknown-freebsd13-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/FreeBSD-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/src/FreeBSD-AMD64-crossgcc/out/bin/amd64-unknown-freebsd13-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-fbd13-x63.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-fbd13-x63.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=x86-64-v2
+    - env PATH=/home/jhj/src/FreeBSD-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=amd64-unknown-freebsd13" CC=/home/jhj/src/FreeBSD-AMD64-crossgcc/out/bin/amd64-unknown-freebsd13-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/FreeBSD-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/src/FreeBSD-AMD64-crossgcc/out/bin/amd64-unknown-freebsd13-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-fbd13-x62.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-fbd13-x62.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=x86-64
+    - env PATH=/home/jhj/src/FreeBSD-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=amd64-unknown-freebsd13" CC=/home/jhj/src/FreeBSD-AMD64-crossgcc/out/bin/amd64-unknown-freebsd13-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/FreeBSD-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/src/FreeBSD-AMD64-crossgcc/out/bin/amd64-unknown-freebsd13-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-fbd13-x61.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-fbd13-x61.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/src/FreeBSD-AMD64-crossgcc/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/i386-unknown-freebsd13.tar.lz" -O /i386-unknown-freebsd13.tar.lz
+    - ( cd / && tar axf /i386-unknown-freebsd13.tar.lz )
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=i686
+    - env PATH=/home/jhj/src/FreeBSD-i386-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=i386-unknown-freebsd13" CC=/home/jhj/src/FreeBSD-i386-crossgcc/out/bin/i386-unknown-freebsd13-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/FreeBSD-i386-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/src/FreeBSD-i386-crossgcc/out/bin/i386-unknown-freebsd13-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NEED_128=1 ATOMICS=GNU LOCALLIBS="-latomic" --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-fbd13-x32.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-fbd13-x32.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/src/FreeBSD-i386-crossgcc/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/powerpc-unknown-freebsd13.tar.lz" -O /powerpc-unknown-freebsd13.tar.lz
+    - ( cd / && tar axf /powerpc-unknown-freebsd13.tar.lz )
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=740
+    - env PATH=/home/jhj/src/FreeBSD-powerpc-crossgcc/out/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=powerpc-unknown-freebsd13" CC=/home/jhj/src/FreeBSD-powerpc-crossgcc/out/bin/powerpc-unknown-freebsd13-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/FreeBSD-powerpc-crossgcc/out/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?}" CC=/home/jhj/src/FreeBSD-powerpc-crossgcc/out/bin/powerpc-unknown-freebsd13-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NEED_128=1 LOCALLIBS="-latomic" ATOMICS=GNU --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-fbd13-a32.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-fbd13-a32.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/src/FreeBSD-powerpc-crossgcc/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/aarch64-local-freebsd13.tar.lz" -O /aarch64-local-freebsd13.tar.lz
+    - ( cd / && tar axf /aarch64-local-freebsd13.tar.lz )
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=armv8-a
+    - env PATH=/home/jhj/src/FreeBSD-ARM64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=aarch64-local-freebsd13" CC=/home/jhj/src/FreeBSD-ARM64-crossgcc/out/bin/aarch64-local-freebsd13-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/FreeBSD-ARM64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/src/FreeBSD-ARM64-crossgcc/out/bin/aarch64-local-freebsd13-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-fbd13-a64.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-fbd13-a64.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/src/FreeBSD-ARM64-crossgcc/
+    - *scriptDPS8Mods
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/x86_64-local-netbsd9.tar.lz" -O /x86_64-local-netbsd9.tar.lz
+    - ( cd / && tar axf /x86_64-local-netbsd9.tar.lz )
+    - touch /home/jhj/src/NetBSD-AMD64-crossgcc/sysroot/usr/include/sys/cpuset.h
+    - export DPS8_CPUTYPE=x86-64
+    - env PATH=/home/jhj/src/NetBSD-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=x86_64-local-netbsd9" CC=/home/jhj/src/NetBSD-AMD64-crossgcc/out/bin/x86_64-local-netbsd9-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/NetBSD-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?} -Wno-char-subscripts" CC=/home/jhj/src/NetBSD-AMD64-crossgcc/out/bin/x86_64-local-netbsd9-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBDL="" --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-nbd93-x61.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-nbd93-x61.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=x86-64-v2
+    - env PATH=/home/jhj/src/NetBSD-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=x86_64-local-netbsd9" CC=/home/jhj/src/NetBSD-AMD64-crossgcc/out/bin/x86_64-local-netbsd9-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/NetBSD-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?} -Wno-char-subscripts" CC=/home/jhj/src/NetBSD-AMD64-crossgcc/out/bin/x86_64-local-netbsd9-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBDL="" --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-nbd93-x62.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-nbd93-x62.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=x86-64-v3
+    - env PATH=/home/jhj/src/NetBSD-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=x86_64-local-netbsd9" CC=/home/jhj/src/NetBSD-AMD64-crossgcc/out/bin/x86_64-local-netbsd9-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/NetBSD-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?} -Wno-char-subscripts" CC=/home/jhj/src/NetBSD-AMD64-crossgcc/out/bin/x86_64-local-netbsd9-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBDL="" --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-nbd93-x63.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-nbd93-x63.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=x86-64-v4
+    - env PATH=/home/jhj/src/NetBSD-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=x86_64-local-netbsd9" CC=/home/jhj/src/NetBSD-AMD64-crossgcc/out/bin/x86_64-local-netbsd9-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/NetBSD-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?} -Wno-char-subscripts" CC=/home/jhj/src/NetBSD-AMD64-crossgcc/out/bin/x86_64-local-netbsd9-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBDL="" --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-nbd93-x64.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-nbd93-x64.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/src/NetBSD-AMD64-crossgcc/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/i386-unknown-netbsdelf.tar.lz" -O /i386-unknown-netbsdelf.tar.lz
+    - ( cd / && tar axf /i386-unknown-netbsdelf.tar.lz )
+    - touch /home/jhj/src/NetBSD-i386-crossgcc/sysroot/usr/include/sys/cpuset.h
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=i586
+    - env PATH=/home/jhj/src/NetBSD-i386-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=i386-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-i386-crossgcc/out/bin/i386-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/NetBSD-i386-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?} -Wno-char-subscripts" CC=/home/jhj/src/NetBSD-i386-crossgcc/out/bin/i386-unknown-netbsdelf-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NEED_128=1 LIBDL="" --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-nbd93-586.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-nbd93-586.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=i686
+    - env PATH=/home/jhj/src/NetBSD-i386-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=i386-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-i386-crossgcc/out/bin/i386-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/NetBSD-i386-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?} -Wno-char-subscripts" CC=/home/jhj/src/NetBSD-i386-crossgcc/out/bin/i386-unknown-netbsdelf-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NEED_128=1 LIBDL="" --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-nbd93-686.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-nbd93-686.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/src/NetBSD-i386-crossgcc/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/vax-unknown-netbsdelf.tar.lz" -O /vax-unknown-netbsdelf.tar.lz
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/vax-netbsdelf-libatomic.a.lz" -O /libatomic.a.lz
+    - ( cd / && tar axf /vax-unknown-netbsdelf.tar.lz )
+    - ( cd / && lzip -dv /libatomic.a.lz && mv -f /libatomic.a /home/jhj/src/NetBSD-VAX-crossgcc/out/lib/gcc/vax-unknown-netbsdelf/12.2.1/../../../../vax-unknown-netbsdelf/lib/libatomic.a )
+    - touch /home/jhj/src/NetBSD-VAX-crossgcc/sysroot/usr/include/sys/cpuset.h
+    - *scriptDPS8Mods
+    - env PATH=/home/jhj/src/NetBSD-VAX-crossgcc/out/bin:$PATH CFLAGS="-Wno-char-subscripts" LOCAL_CONFOPTS="--host=vax-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-VAX-crossgcc/out/bin/vax-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/NetBSD-VAX-crossgcc/out/bin:$PATH CFLAGS="-Wno-char-subscripts" CC=/home/jhj/src/NetBSD-VAX-crossgcc/out/bin/vax-unknown-netbsdelf-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NEED_128=1 LIBDL="" OPTFLAGS="-O2" ATOMICS=GNU LOCALLIBS="-latomic" --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-nbd93-vax.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-nbd93-vax.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/src/NetBSD-VAX-crossgcc/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/alpha-unknown-netbsdelf.tar.lz" -O /alpha-unknown-netbsdelf.tar.lz
+    - ( cd / && tar axf /alpha-unknown-netbsdelf.tar.lz )
+    - touch /home/jhj/src/NetBSD-alpha-crossgcc/sysroot/usr/include/sys/cpuset.h
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=ev4
+    - env PATH=/home/jhj/src/NetBSD-alpha-crossgcc/out/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" LOCAL_CONFOPTS="--host=alpha-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-alpha-crossgcc/out/bin/alpha-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/NetBSD-alpha-crossgcc/out/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" CC=/home/jhj/src/NetBSD-alpha-crossgcc/out/bin/alpha-unknown-netbsdelf-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBDL="" --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-nbd93-axp.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-nbd93-axp.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=ev5
+    - env PATH=/home/jhj/src/NetBSD-alpha-crossgcc/out/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" LOCAL_CONFOPTS="--host=alpha-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-alpha-crossgcc/out/bin/alpha-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/NetBSD-alpha-crossgcc/out/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" CC=/home/jhj/src/NetBSD-alpha-crossgcc/out/bin/alpha-unknown-netbsdelf-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBDL="" --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-nbd93-ax5.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-nbd93-ax5.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=ev6
+    - env PATH=/home/jhj/src/NetBSD-alpha-crossgcc/out/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" LOCAL_CONFOPTS="--host=alpha-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-alpha-crossgcc/out/bin/alpha-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/NetBSD-alpha-crossgcc/out/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" CC=/home/jhj/src/NetBSD-alpha-crossgcc/out/bin/alpha-unknown-netbsdelf-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBDL="" --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-nbd93-ax6.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-nbd93-ax6.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/src/NetBSD-alpha-crossgcc/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/powerpc-unknown-netbsdelf.tar.lz" -O /powerpc-unknown-netbsdelf.tar.lz
+    - ( cd / && tar axf /powerpc-unknown-netbsdelf.tar.lz )
+    - touch /home/jhj/src/NetBSD-powerpc-crossgcc/sysroot/usr/include/sys/cpuset.h
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=970
+    - env PATH=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin:$PATH CFLAGS="-m32 -mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" LDFLAGS="-m32" LOCAL_CONFOPTS="--host=powerpc-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin/powerpc-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin:$PATH CFLAGS="-m32 -mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" CC=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin/powerpc-unknown-netbsdelf-gcc LDFLAGS="-m32 -static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBDL="" NEED_128=1 LOCALLIBS="-latomic" --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-nbd93-970.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-nbd93-970.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=7400
+    - env PATH=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" LOCAL_CONFOPTS="--host=powerpc-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin/powerpc-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" CC=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin/powerpc-unknown-netbsdelf-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBDL="" NEED_128=1 LOCALLIBS="-latomic" --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-nbd93-pg4.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-nbd93-pg4.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=740
+    - env PATH=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" LOCAL_CONFOPTS="--host=powerpc-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin/powerpc-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" CC=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin/powerpc-unknown-netbsdelf-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBDL="" NEED_128=1 LOCALLIBS="-latomic" --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-nbd93-740.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-nbd93-740.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=603
+    - env PATH=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" LOCAL_CONFOPTS="--host=powerpc-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin/powerpc-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" CC=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin/powerpc-unknown-netbsdelf-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBDL="" NEED_128=1 LOCALLIBS="-latomic" --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-nbd93-603.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-nbd93-603.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=601
+    - env PATH=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" LOCAL_CONFOPTS="--host=powerpc-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin/powerpc-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin:$PATH CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" CC=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin/powerpc-unknown-netbsdelf-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBDL="" NEED_128=1 LOCALLIBS="-latomic" --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-nbd93-601.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-nbd93-601.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/src/NetBSD-powerpc-crossgcc/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/sparc64-unknown-netbsdelf.tar.lz" -O /sparc64-unknown-netbsdelf.tar.lz
+    - ( cd / && tar axf /sparc64-unknown-netbsdelf.tar.lz )
+    - touch /home/jhj/src/NetBSD-sparc64-crossgcc/sysroot/usr/include/sys/cpuset.h
+    - *scriptDPS8Mods
+    - env PATH=/home/jhj/src/NetBSD-sparc64-crossgcc/out/bin:$PATH CFLAGS="-Wno-char-subscripts" LOCAL_CONFOPTS="--host=sparc64-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-sparc64-crossgcc/out/bin/sparc64-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/NetBSD-sparc64-crossgcc/out/bin:$PATH CFLAGS="-Wno-char-subscripts" CC=/home/jhj/src/NetBSD-sparc64-crossgcc/out/bin/sparc64-unknown-netbsdelf-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBDL="" --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-nbd93-s64.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-nbd93-s64.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/src/NetBSD-sparc64-crossgcc/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/sparc-unknown-netbsdelf.tar.lz" -O /sparc-unknown-netbsdelf.tar.lz
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/sparc-netbsdelf-libatomic.a.lz" -O /libatomic.a.lz
+    - ( cd / && tar axf /sparc-unknown-netbsdelf.tar.lz )
+    - ( cd / && lzip -dv /libatomic.a.lz && mv -f /libatomic.a /home/jhj/src/NetBSD-sparc-crossgcc/out/lib/gcc/sparc-unknown-netbsdelf/12.2.1/../../../../sparc-unknown-netbsdelf/lib/libatomic.a )
+    - touch /home/jhj/src/NetBSD-sparc-crossgcc/sysroot/usr/include/sys/cpuset.h
+    - *scriptDPS8Mods
+    - env PATH=/home/jhj/src/NetBSD-sparc-crossgcc/out/bin:$PATH CFLAGS="-Wno-char-subscripts" LOCAL_CONFOPTS="--host=sparc-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-sparc-crossgcc/out/bin/sparc-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/NetBSD-sparc-crossgcc/out/bin:$PATH CFLAGS="-Wno-char-subscripts" CC=/home/jhj/src/NetBSD-sparc-crossgcc/out/bin/sparc-unknown-netbsdelf-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBDL="" NEED_128=1 LOCALLIBS="-latomic" --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-nbd93-s32.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-nbd93-s32.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - rm -rf /home/jhj/src/NetBSD-sparc-crossgcc/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/x86_64-pc-illumos.tar.lz" -O /x86_64-pc-illumos.tar.lz
+    - ( cd / && tar axf /x86_64-pc-illumos.tar.lz )
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=x86-64
+    - env PATH=/home/jhj/src/OI-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=x86_64-pc-solaris2.11" CC=/home/jhj/src/OI-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/OI-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/src/OI-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LOCALLIBS="-lmtmalloc -lmp -lmd -lsocket -lnsl -lm -lpthread" --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-iloi-641.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-iloi-641.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=x86-64-v2
+    - env PATH=/home/jhj/src/OI-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=x86_64-pc-solaris2.11" CC=/home/jhj/src/OI-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/OI-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/src/OI-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LOCALLIBS="-lmtmalloc -lmp -lmd -lsocket -lnsl -lm -lpthread" --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-iloi-642.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-iloi-642.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=x86-64-v3
+    - env PATH=/home/jhj/src/OI-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=x86_64-pc-solaris2.11" CC=/home/jhj/src/OI-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/OI-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/src/OI-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LOCALLIBS="-lmtmalloc -lmp -lmd -lsocket -lnsl -lm -lpthread" --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-iloi-643.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-iloi-643.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=x86-64-v4
+    - env PATH=/home/jhj/src/OI-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=x86_64-pc-solaris2.11" CC=/home/jhj/src/OI-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/OI-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/src/OI-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LOCALLIBS="-lmtmalloc -lmp -lmd -lsocket -lnsl -lm -lpthread" --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-iloi-644.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-iloi-644.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - chmod u+rwx /home/jhj/src/OI-AMD64-crossgcc/ || true
+    - rm -rf /home/jhj/src/OI-AMD64-crossgcc/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/x86_64-pc-solaris2.11.tar.lz" -O /x86_64-pc-solaris2.11.tar.lz
+    - ( cd / && tar axf /x86_64-pc-solaris2.11.tar.lz )
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=x86-64
+    - env PATH=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=x86_64-pc-solaris2.11" CC=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LOCALLIBS="-lmtmalloc -lmp -lmd -lsocket -lnsl -lm -lpthread" OVR_FLOCK="" --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-s114-641.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-s114-641.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=x86-64-v2
+    - env PATH=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=x86_64-pc-solaris2.11" CC=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LOCALLIBS="-lmtmalloc -lmp -lmd -lsocket -lnsl -lm -lpthread" OVR_FLOCK="" --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-s114-642.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-s114-642.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=x86-64-v3
+    - env PATH=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=x86_64-pc-solaris2.11" CC=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LOCALLIBS="-lmtmalloc -lmp -lmd -lsocket -lnsl -lm -lpthread" OVR_FLOCK="" --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-s114-643.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-s114-643.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=x86-64-v4
+    - env PATH=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=x86_64-pc-solaris2.11" CC=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin:$PATH CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LOCALLIBS="-lmtmalloc -lmp -lmd -lsocket -lnsl -lm -lpthread" OVR_FLOCK="" --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-s114-644.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-s114-644.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - chmod -R u+rwx /home/jhj/src/Solaris-AMD64-crossgcc/ || true
+    - rm -rf /home/jhj/src/Solaris-AMD64-crossgcc/
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - dps8m-master-iloi-644.tar.gz
+      - dps8m-master-iloi-643.tar.gz
+      - dps8m-master-iloi-642.tar.gz
+      - dps8m-master-iloi-641.tar.gz
+      - dps8m-master-s114-644.tar.gz
+      - dps8m-master-s114-643.tar.gz
+      - dps8m-master-s114-642.tar.gz
+      - dps8m-master-s114-641.tar.gz
+      - dps8m-master-nbd93-s32.tar.gz
+      - dps8m-master-nbd93-s64.tar.gz
+      - dps8m-master-nbd93-970.tar.gz
+      - dps8m-master-nbd93-pg4.tar.gz
+      - dps8m-master-nbd93-740.tar.gz
+      - dps8m-master-nbd93-603.tar.gz
+      - dps8m-master-nbd93-601.tar.gz
+      - dps8m-master-nbd93-ax6.tar.gz
+      - dps8m-master-nbd93-ax5.tar.gz
+      - dps8m-master-nbd93-axp.tar.gz
+      - dps8m-master-nbd93-vax.tar.gz
+      - dps8m-master-nbd93-686.tar.gz
+      - dps8m-master-nbd93-586.tar.gz
+      - dps8m-master-fbd13-a64.tar.gz
+      - dps8m-master-fbd13-x61.tar.gz
+      - dps8m-master-fbd13-x62.tar.gz
+      - dps8m-master-fbd13-x63.tar.gz
+      - dps8m-master-fbd13-x64.tar.gz
+      - dps8m-master-fbd13-x32.tar.gz
+      - dps8m-master-fbd13-a32.tar.gz
+      - dps8m-master-nbd93-x61.tar.gz
+      - dps8m-master-nbd93-x62.tar.gz
+      - dps8m-master-nbd93-x63.tar.gz
+      - dps8m-master-nbd93-x64.tar.gz
+      - dps8m-master-linux-l64.tar.gz
+      - dps8m-master-linux-s32.tar.gz
+      - dps8m-master-linux-s64.tar.gz
+      - dps8m-master-linux-m6l.tar.gz
+      - dps8m-master-linux-m64.tar.gz
+      - dps8m-master-linux-mpl.tar.gz
+      - dps8m-master-linux-mps.tar.gz
+      - dps8m-master-linux-ork.tar.gz
+      - dps8m-master-linux-641.tar.gz
+      - dps8m-master-linux-642.tar.gz
+      - dps8m-master-linux-643.tar.gz
+      - dps8m-master-linux-644.tar.gz
+      - dps8m-master-linux-a8r.tar.gz
+      - dps8m-master-linux-a8b.tar.gz
+      - dps8m-master-linux-a8a.tar.gz
+      - dps8m-master-linux-a7f.tar.gz
+      - dps8m-master-linux-a7s.tar.gz
+      - dps8m-master-linux-a6f.tar.gz
+      - dps8m-master-linux-a6s.tar.gz
+      - dps8m-master-linux-a5s.tar.gz
+      - dps8m-master-linux-601.tar.gz
+      - dps8m-master-linux-603.tar.gz
+      - dps8m-master-linux-740.tar.gz
+      - dps8m-master-linux-g4a.tar.gz
+      - dps8m-master-linux-g4e.tar.gz
+      - dps8m-master-linux-r64.tar.gz
+      - dps8m-master-linux-390.tar.gz
+      - dps8m-master-ndk29-a64.tar.gz
+      - dps8m-master-ndk29-a32.tar.gz
+      - dps8m-master-ndk29-x64.tar.gz
+      - dps8m-master-ndk29-x32.tar.gz
+      - dps8m-master-ndk24-a64.tar.gz
+      - dps8m-master-ndk24-a32.tar.gz
+      - dps8m-master-ndk24-x64.tar.gz
+      - dps8m-master-ndk24-x32.tar.gz
+      - dps8m-master-haiku-x64.tar.gz
+      - dps8m-master-linux-060.tar.gz
+      - dps8m-master-linux-040.tar.gz
+      - dps8m-master-linux-030.tar.gz
+      - dps8m-master-linux-020.tar.gz
+      - dps8m-master-aixv7-pw6.tar.gz
+      - dps8m-master-aixv7-pw7.tar.gz
+      - dps8m-master-aixv7-pw8.tar.gz
+      - dps8m-master-aixv7-pw9.tar.gz
+      - dps8m-master-aixv7-p10.tar.gz
+  retry: 2
+  timeout: 300 minutes
   interruptible: true
 
 ############################################################################
@@ -603,7 +1763,7 @@ Windows/x86_64, Cygwin64-GCC:
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8.exe src/prt2pdf/prt2pdf.exe src/punutil/punutil.exe "src/${DISTDIR:?}"
     - ( cd src && tar cvf ../dps8m-master-cygwin-64.tar "./${DISTDIR:?}" )
-    - pigz -11 -f -m -n dps8m-master-cygwin-64.tar
+    - pigz -9 -f -m -n dps8m-master-cygwin-64.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
@@ -612,7 +1772,7 @@ Windows/x86_64, Cygwin64-GCC:
       - dps8m-master-cygwin-64.tar.gz
       - dps8m.zip
   retry: 2
-  timeout: 30 minutes
+  timeout: 45 minutes
   interruptible: true
 
 ############################################################################
@@ -643,7 +1803,7 @@ Windows/i686, Cygwin32-GCC:
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8.exe src/prt2pdf/prt2pdf.exe src/punutil/punutil.exe "src/${DISTDIR:?}"
     - ( cd src && tar cvf ../dps8m-master-cygwin-32.tar "./${DISTDIR:?}" )
-    - pigz -11 -f -m -n dps8m-master-cygwin-32.tar
+    - pigz -9 -f -m -n dps8m-master-cygwin-32.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
@@ -652,7 +1812,7 @@ Windows/i686, Cygwin32-GCC:
       - dps8m-master-cygwin-32.tar.gz
       - dps8m.zip
   retry: 2
-  timeout: 30 minutes
+  timeout: 45 minutes
   interruptible: true
 
 ############################################################################
@@ -685,7 +1845,7 @@ Linux/x86_64, Fedora, Intel oneAPI DPC++/C++:
       - src/punutil/punutil.lz
       - src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 30 minutes
+  timeout: 45 minutes
   interruptible: true
 
 ############################################################################
@@ -726,7 +1886,7 @@ Linux/x86_64, Fedora, Oracle Developer Studio:
       - libmtsk_crt.so.1.lz
       - libmtsk.so.1.lz
   retry: 2
-  timeout: 30 minutes
+  timeout: 45 minutes
   interruptible: true
 
 ############################################################################
@@ -758,7 +1918,7 @@ Linux/x86_64, Fedora, AOCC, AOCL:
       - src/punutil/punutil.lz
       - src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 30 minutes
+  timeout: 45 minutes
   interruptible: true
 
 ############################################################################
@@ -799,7 +1959,7 @@ Linux/x86_64, Fedora, Clang, GCC:
       - src/punutil/punutil.lz
       - src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 30 minutes
+  timeout: 45 minutes
   interruptible: true
 
 ############################################################################
@@ -828,8 +1988,8 @@ GNU GLOBAL Hypertext:
     expire_in: 30 days
     paths:
       - HTML
-  retry: 1
-  timeout: 30 minutes
+  retry: 2
+  timeout: 45 minutes
   interruptible: true
 
 ############################################################################
@@ -856,8 +2016,8 @@ Hugo:
     expire_in: 30 days
     paths:
       - docs/hpages/public
-  retry: 1
-  timeout: 30 minutes
+  retry: 2
+  timeout: 45 minutes
   interruptible: true
 
 ############################################################################
@@ -897,7 +2057,7 @@ Linux/x86_64, Fedora Rawhide, Clang, GCC:
       - src/punutil/punutil.lz
       - src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 30 minutes
+  timeout: 45 minutes
   interruptible: true
 
 ############################################################################
@@ -922,7 +2082,7 @@ AIX/powerpc64, IBM AIX, GCC:
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
     - ( cd src && tar cvf ../dps8m-master-aixv7-gcc.tar "./${DISTDIR:?}" )
-    - pigz -11 -f -m -n dps8m-master-aixv7-gcc.tar
+    - pigz -9 -f -m -n dps8m-master-aixv7-gcc.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
@@ -959,7 +2119,7 @@ AIX/powerpc64, IBM AIX, IBM XL C/C++ V16.1:
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
     - ( cd src && tar cvf ../dps8m-master-aixv7-xlc.tar "./${DISTDIR:?}" )
-    - pigz -11 -f -m -n dps8m-master-aixv7-xlc.tar
+    - pigz -9 -f -m -n dps8m-master-aixv7-xlc.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
@@ -977,6 +2137,7 @@ AIX/powerpc64, IBM AIX, IBM XL C/C++ V16.1:
 ############################################################################
 
 AIX/powerpc64, IBM AIX, IBM XL Clang V16.1:
+  when: manual
   stage: build
   tags:
     - AIX
@@ -1028,7 +2189,7 @@ Linux/powerpc64el, Ubuntu LTS, IBM XL C/C++:
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
     - ( cd src && tar cvf ../dps8m-master-linux-xlc.tar "./${DISTDIR:?}" )
-    - pigz -11 -f -n dps8m-master-linux-xlc.tar
+    - pigz -9 -f -n dps8m-master-linux-xlc.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
@@ -1046,6 +2207,7 @@ Linux/powerpc64el, Ubuntu LTS, IBM XL C/C++:
 ############################################################################
 
 Linux/powerpc64el, IBM Advance Toolchain 15:
+  when: manual
   stage: build
   tags:
     - Shell-Linux
@@ -1066,7 +2228,7 @@ Linux/powerpc64el, IBM Advance Toolchain 15:
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
     - ( cd src && tar cvf ../dps8m-master-linux-at8.tar "./${DISTDIR:?}" )
-    - pigz -11 -f -n dps8m-master-linux-at8.tar
+    - pigz -9 -f -n dps8m-master-linux-at8.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
@@ -1112,7 +2274,7 @@ Windows/ARM64, LLVM-MinGW:
       - dps8m-master-mingw-a64.zip
       - dps8m.zip
   retry: 2
-  timeout: 30 minutes
+  timeout: 45 minutes
   interruptible: true
 
 ############################################################################
@@ -1146,7 +2308,7 @@ Windows/ARMv7, LLVM-MinGW:
       - dps8m-master-mingw-av7.zip
       - dps8m.zip
   retry: 2
-  timeout: 30 minutes
+  timeout: 45 minutes
   interruptible: true
 
 ############################################################################
@@ -1180,7 +2342,7 @@ Windows/i686, LLVM-MinGW:
       - dps8m-master-mingw-x32.zip
       - dps8m.zip
   retry: 2
-  timeout: 30 minutes
+  timeout: 45 minutes
   interruptible: true
 
 ############################################################################
@@ -1209,7 +2371,7 @@ Windows/x86_64, LLVM-MinGW:
     paths:
       - dps8m.zip
   retry: 2
-  timeout: 30 minutes
+  timeout: 45 minutes
   interruptible: true
 
 ############################################################################
@@ -1246,7 +2408,7 @@ Windows/x86_64, MinGW64-GCC:
       - dps8m-master-mingw-x86.zip
       - dps8m.zip
   retry: 2
-  timeout: 30 minutes
+  timeout: 45 minutes
   interruptible: true
 
 ############################################################################
@@ -1288,7 +2450,7 @@ Linux/x86_64, Oracle Linux 8, Clang, GCC:
       - src/punutil/punutil.lz
       - src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 30 minutes
+  timeout: 45 minutes
   interruptible: true
 
 ###########################################################################
@@ -1304,7 +2466,7 @@ Source Kits:
     - ( (apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null); apt-get -qq -y install zpaq zip advancecomp pigz tar make git lzip 7zip > /dev/null || apt-get -qq -y install zpaq zip advancecomp pigz tar make git lzip 7zip > /dev/null )
     - *scriptSanity
     - *scriptCommon
-    - make distclean && make dist COMPRESS="pigz -11 -f -m -n" COMPRESSXT="gz"
+    - make distclean && make dist COMPRESS="pigz -9 -f -m -n" COMPRESSXT="gz"
     - cp -vf sources.tar.gz /tmp
     - make distclean && make zipdist
     - cp -vf /tmp/sources.tar.gz .
@@ -1368,7 +2530,7 @@ Linux/x86_64, Ubuntu, Clang, GCC:
       - src/punutil/punutil.lz
       - src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 30 minutes
+  timeout: 45 minutes
   interruptible: true
 
 ############################################################################
@@ -1410,12 +2572,13 @@ Linux/x86_64, Ubuntu LTS, Clang, GCC:
       - src/punutil/punutil.lz
       - src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 30 minutes
+  timeout: 45 minutes
   interruptible: true
 
 ############################################################################
 
 Linux/x86_64, Void glibc, Clang, GCC:
+  when: manual
   image:
     name: voidlinux/voidlinux:latest
     entrypoint: [ '/bin/sh', '-c', 'xbps-install -Suy xbps; xbps-install -Suy xbps; xbps-install -Suy bash; xbps-install -Suy bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
@@ -1458,6 +2621,7 @@ Linux/x86_64, Void glibc, Clang, GCC:
 ############################################################################
 
 Linux/x86_64, Void musl, static, Clang, GCC:
+  when: manual
   image:
     name: voidlinux/voidlinux-musl:latest
     entrypoint: [ '/bin/sh', '-c', 'xbps-install -Suy xbps; xbps-install -Suy xbps; xbps-install -Suy bash; xbps-install -Suy bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
@@ -1500,6 +2664,7 @@ Linux/x86_64, Void musl, static, Clang, GCC:
 ############################################################################
 
 Solaris/x86_64, Oracle Solaris 11.4, GCC:
+  when: manual
   stage: build
   tags:
     - Solaris
@@ -1519,7 +2684,7 @@ Solaris/x86_64, Oracle Solaris 11.4, GCC:
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
     - ( cd src && tar cvf ../dps8m-master-s114-x86.tar "./${DISTDIR:?}" )
-    - pigz -11 -f -n dps8m-master-s114-x86.tar
+    - pigz -9 -f -n dps8m-master-s114-x86.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
@@ -1531,12 +2696,13 @@ Solaris/x86_64, Oracle Solaris 11.4, GCC:
       - src/punutil/punutil.lz
       - src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 30 minutes
+  timeout: 45 minutes
   interruptible: true
 
 ############################################################################
 
 Solaris/x86_64, Oracle Solaris 11.4, Oracle Developer Studio:
+  when: manual
   stage: build
   tags:
     - Solaris
@@ -1562,12 +2728,13 @@ Solaris/x86_64, Oracle Solaris 11.4, Oracle Developer Studio:
       - src/dps8/useddef.txt.lz
       - libstatomic.so.1.lz
   retry: 2
-  timeout: 30 minutes
+  timeout: 45 minutes
   interruptible: true
 
 ############################################################################
 
 illumos/x86_64, OpenIndiana Hipster, Clang, GCC:
+  when: manual
   stage: build
   tags:
     - OpenIndiana
@@ -1593,7 +2760,7 @@ illumos/x86_64, OpenIndiana Hipster, Clang, GCC:
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
     - ( cd src && tar cvf ../dps8m-master-iloi-x86.tar "./${DISTDIR:?}" )
-    - pigz -11 -f -m -n dps8m-master-iloi-x86.tar
+    - pigz -9 -f -m -n dps8m-master-iloi-x86.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
@@ -1605,7 +2772,7 @@ illumos/x86_64, OpenIndiana Hipster, Clang, GCC:
       - src/punutil/punutil.lz
       - src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 30 minutes
+  timeout: 45 minutes
   interruptible: true
 
 #############################################################################
@@ -1631,7 +2798,7 @@ Darwin/x86_64, macOS, Xcode:
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
     - ( cd src && tar cvf ../dps8m-master-macos-x86.tar "./${DISTDIR:?}" )
-    - pigz -11 -f -m -n dps8m-master-macos-x86.tar
+    - pigz -9 -f -m -n dps8m-master-macos-x86.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
@@ -1643,7 +2810,7 @@ Darwin/x86_64, macOS, Xcode:
       - src/punutil/punutil.lz
       - src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 30 minutes
+  timeout: 45 minutes
   interruptible: true
 
 #############################################################################
@@ -1671,7 +2838,7 @@ Darwin/x86_64, macOS, static, Xcode:
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
     - ( cd src && tar cvf ../dps8m-master-mac10-x86.tar "./${DISTDIR:?}" )
-    - pigz -11 -f -m -n dps8m-master-mac10-x86.tar
+    - pigz -9 -f -m -n dps8m-master-mac10-x86.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
@@ -1683,7 +2850,7 @@ Darwin/x86_64, macOS, static, Xcode:
       - src/punutil/punutil.lz
       - src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 30 minutes
+  timeout: 45 minutes
   interruptible: true
 
 #############################################################################
@@ -1708,7 +2875,7 @@ Darwin/ARM64, macOS, static, Xcode:
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
     - ( cd src && tar cvf ../dps8m-master-mac11-a64.tar "./${DISTDIR:?}" )
-    - pigz -11 -f -m -n dps8m-master-mac11-a64.tar
+    - pigz -9 -f -m -n dps8m-master-mac11-a64.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
@@ -1720,7 +2887,7 @@ Darwin/ARM64, macOS, static, Xcode:
       - src/punutil/punutil.lz
       - src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 30 minutes
+  timeout: 45 minutes
   interruptible: true
 
 #############################################################################
@@ -1755,7 +2922,7 @@ Darwin/Universal, macOS, static, Xcode:
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
     - ( cd src && tar cvf ../dps8m-master-macos-uni.tar "./${DISTDIR:?}" )
-    - pigz -11 -f -m -n dps8m-master-macos-uni.tar
+    - pigz -9 -f -m -n dps8m-master-macos-uni.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
@@ -1767,7 +2934,7 @@ Darwin/Universal, macOS, static, Xcode:
       - src/punutil/punutil.lz
       - src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 30 minutes
+  timeout: 45 minutes
   interruptible: true
 
 #############################################################################
@@ -1960,7 +3127,7 @@ Linux/x86_64, Ubuntu 18.04, Clang, GCC:
       - src/punutil/punutil.lz
       - src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 30 minutes
+  timeout: 45 minutes
   interruptible: true
 
 #############################################################################
@@ -1991,8 +3158,8 @@ Flawfinder:
     expire_in: 30 days
     paths:
       - flawfinder.txt
-  retry: 1
-  timeout: 30 minutes
+  retry: 2
+  timeout: 45 minutes
   interruptible: true
 
 #############################################################################
@@ -2143,7 +3310,7 @@ Oracle Developer Studio Lint:
     expire_in: 30 days
     paths:
       - orstlint.txt
-  timeout: 30 minutes
+  timeout: 45 minutes
   interruptible: true
 
 #############################################################################
@@ -2186,6 +3353,7 @@ pages:
   needs:
     - job: AIX/powerpc64, IBM AIX, GCC
     - job: AIX/powerpc64, IBM AIX, IBM XL C/C++ V16.1
+    - job: Cross-compiled release binaries
     - job: Clang Analyzer
     - job: Cppcheck
     - job: Darwin/x86_64, macOS, Xcode
@@ -2196,13 +3364,11 @@ pages:
     - job: Flawfinder
     - job: GNU GLOBAL Hypertext
     - job: Hugo
-    - job: illumos/x86_64, OpenIndiana Hipster, Clang, GCC
     - job: Linux/powerpc64el, IBM Advance Toolchain 15
     - job: Linux/powerpc64el, IBM Advance Toolchain 16
     - job: Linux/powerpc64el, Ubuntu LTS, IBM XL C/C++
     - job: Linux/x86_64, Alpine Edge, Clang, GCC
     - job: Oracle Developer Studio Lint
-    - job: Solaris/x86_64, Oracle Solaris 11.4, GCC
     - job: Source Kits
     - job: Windows/ARM64, LLVM-MinGW
     - job: Windows/ARMv7, LLVM-MinGW
@@ -2215,6 +3381,7 @@ pages:
   dependencies:
     - "AIX/powerpc64, IBM AIX, GCC"
     - "AIX/powerpc64, IBM AIX, IBM XL C/C++ V16.1"
+    - "Cross-compiled release binaries"
     - "Clang Analyzer"
     - "Cppcheck"
     - "Darwin/x86_64, macOS, Xcode"
@@ -2225,13 +3392,11 @@ pages:
     - "Flawfinder"
     - "GNU GLOBAL Hypertext"
     - "Hugo"
-    - "illumos/x86_64, OpenIndiana Hipster, Clang, GCC"
     - "Linux/powerpc64el, IBM Advance Toolchain 15"
     - "Linux/powerpc64el, IBM Advance Toolchain 16"
     - "Linux/powerpc64el, Ubuntu LTS, IBM XL C/C++"
     - "Linux/x86_64, Alpine Edge, Clang, GCC"
     - "Oracle Developer Studio Lint"
-    - "Solaris/x86_64, Oracle Solaris 11.4, GCC"
     - "Source Kits"
     - "Windows/ARM64, LLVM-MinGW"
     - "Windows/ARMv7, LLVM-MinGW"
@@ -2263,8 +3428,77 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-src.7z public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-src.zip public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-src.zpaq public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-s32.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-s64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-970.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-pg4.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-740.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-603.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-601.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-ax6.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-ax5.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-vax.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-axp.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-686.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-586.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-fbd13-a64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-fbd13-x61.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-fbd13-x62.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-fbd13-x63.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-fbd13-x64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-fbd13-x32.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-fbd13-a32.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-x61.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-x62.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-x63.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-x64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-l64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-s64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-s32.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-m6l.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-m64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-mpl.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-mps.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-ork.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-641.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-642.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-643.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-644.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-a8r.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-a8b.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-a8a.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-a7f.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-a7s.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-a6f.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-a6s.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-a5s.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-601.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-603.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-740.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-g4a.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-g4e.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-r64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-390.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-ndk29-a64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-ndk29-a32.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-ndk29-x64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-ndk29-x32.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-ndk24-a64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-ndk24-a32.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-ndk24-x64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-ndk24-x32.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-haiku-x64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-060.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-040.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-030.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-020.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-aixv7-xlc.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-aixv7-gcc.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-aixv7-pw6.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-aixv7-pw7.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-aixv7-pw8.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-aixv7-pw9.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-aixv7-p10.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-x86.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-at8.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-ate.tar.gz public
@@ -2275,9 +3509,15 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-mac10-x86.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-mac11-a64.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-macos-uni.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-s114-x86.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-iloi-x86.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-s114-644.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-s114-643.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-s114-642.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-s114-641.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-mingw-x86.zip public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-iloi-644.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-iloi-643.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-iloi-642.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-iloi-641.tar.gz public
   - advzip -z4 public/dps8m-master-mingw-x86.zip
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-mingw-x32.zip public
   - advzip -z4 public/dps8m-master-mingw-x32.zip
@@ -2295,7 +3535,7 @@ pages:
   only:
     - master
   retry: 2
-  timeout: 30 minutes
+  timeout: 45 minutes
   interruptible: false
 
 ############################################################################
