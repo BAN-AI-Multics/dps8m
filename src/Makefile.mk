@@ -157,17 +157,22 @@ ifneq ($(OS),Windows_NT)
 endif
 
 ###############################################################################
+# Allow override of -DUSE_FLOCK=1 BSD extension detection logic
+
+OVR_FLOCK ?= -DUSE_FLOCK=1
+
+###############################################################################
 
 ifeq ($(UNAME_S),Haiku)
   OS = Haiku
-  CFLAGS += -DUSE_FLOCK=1 -DUSE_FCNTL=1
+  CFLAGS += $(OVR_FLOCK) -DUSE_FCNTL=1
 endif
 
 ###############################################################################
 
 ifeq ($(UNAME_S),OpenBSD)
   OS = OpenBSD
-  CFLAGS += -DUSE_FLOCK=1 -DUSE_FCNTL=1 -I/usr/local/include
+  CFLAGS += $(OVR_FLOCK) -DUSE_FCNTL=1 -I/usr/local/include
   LDFLAGS += -L/usr/local/lib
 endif
 
@@ -176,7 +181,7 @@ endif
 ifeq ($(UNAME_S),NetBSD)
   OS = NetBSD
   CFLAGS  += -Wno-char-subscripts -I/usr/pkg/include                          \
-                 -DUSE_FLOCK=1 -DUSE_FCNTL=1
+                 $(OVR_FLOCK) -DUSE_FCNTL=1
   LDFLAGS += -L/usr/pkg/lib -Wl,-R/usr/pkg/lib
 endif
 
@@ -306,7 +311,7 @@ else
         export NO_HOMEBREW_LIBS
       endif
     endif
-  CFLAGS += -DUSE_FLOCK=1 -DUSE_FCNTL=1 $(HOMEBREW_INC)
+  CFLAGS += $(OVR_FLOCK) -DUSE_FCNTL=1 $(HOMEBREW_INC)
   LDFLAGS += $(HOMEBREW_LIB)
   endif
 
@@ -314,7 +319,7 @@ else
 # FreeBSD
 
   ifeq ($(UNAME_S),FreeBSD)
-    CFLAGS += -I/usr/local/include -DUSE_FLOCK=1 -DUSE_FCNTL=1 -pthread
+    CFLAGS += -I/usr/local/include $(OVR_FLOCK) -DUSE_FCNTL=1 -pthread
     LDFLAGS += -L/usr/local/lib
   endif
 
@@ -327,7 +332,7 @@ else
 
   ifeq ($(UNAME_S),AIX)
     KRNBITS=$(shell getconf KERNEL_BITMODE 2> /dev/null || printf '%s' "64")
-    CFLAGS += -DUSE_FLOCK=1 -DUSE_FCNTL=1 -DHAVE_POPT=1 -maix$(KRNBITS)       \
+    CFLAGS += $(OVR_FLOCK) -DUSE_FCNTL=1 -DHAVE_POPT=1 -maix$(KRNBITS)        \
               -Wl,-b$(KRNBITS)
     LDFLAGS += $(MATHLIB) -lpthread -lpopt -lbsd -maix$(KRNBITS)              \
                -Wl,-b$(KRNBITS)
@@ -386,7 +391,7 @@ endif
 ifeq ($(UNAME_S),Linux)
   ifeq ($(CROSS),)
     ifneq ($(CYGWIN_MINGW_CROSS),1)
-      CFLAGS += -DUSE_FLOCK=1 -DUSE_FCNTL=1
+      CFLAGS += $(OVR_FLOCK) -DUSE_FCNTL=1
     endif
   endif
   ifndef UNAME_M

@@ -166,19 +166,20 @@ ifneq ($(MINGW_CROSS),1)
 endif
 
 ###############################################################################
-# What has -ldl?
+# What needs -ldl?
 
+LIBDL ?= -ldl
 OSTYPE = $(shell $(UNAME) -s 2> /dev/null)
 ifeq ($(OSTYPE),AIX)
-  LIBS += -ldl
+  LIBS += $(LIBDL)
 endif
 ifeq ($(OSTYPE),FreeBSD)
-  LIBS += -ldl -pthread
+  LIBS += $(LIBDL) -pthread
 endif
 ifeq ($(OSTYPE),Linux)
   ifndef CROSS
     ifndef MINGW_CROSS
-      LIBS += -ldl
+      LIBS += $(LIBDL)
     endif
   endif
 endif
@@ -766,7 +767,7 @@ sysdefs.h: useddef.txt
 	@$(PRINTF) '%s\n' "SYSDEFS: useddef.txt"
 	@$(SETV); $(TR) -d '=' < "./useddef.txt" 2> /dev/null              |      \
       $(SED) 's/ /=/' 2> /dev/null | $(SED) -e 's/^/-D/g' 2> /dev/null |      \
-        $(TR) '\n' ' ' 2> /dev/null | $(SED) -e 's/ $$//'                     \
+        $(TR) '\n' ' ' 2> /dev/null | $(SED) -e 's/ $$//' -e 's/\"//g'        \
           -e 's/^-D$$//g' | $(SED) -e 's/^/#define\ SYSDEFS_USED\ \"/'        \
             -e 's/$$/\"/' 2> /dev/null > "./sysdefs.n"                 ||     \
               $(TOUCH) "./sysdefs.n" > /dev/null 2>&1

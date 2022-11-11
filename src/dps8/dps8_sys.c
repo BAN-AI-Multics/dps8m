@@ -39,7 +39,9 @@
 #   ifndef CROSS_MINGW32
 #    ifndef __OpenBSD__
 #     ifndef __HAIKU__
-#      include <wordexp.h>
+#      ifndef __ANDROID__
+#       include <wordexp.h>
+#      endif /* ifndef __ANDROID__ */
 #     endif /* ifndef __HAIKU__ */
 #    endif /* ifndef __OpenBSD__ */
 #    include <signal.h>

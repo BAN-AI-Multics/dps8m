@@ -495,7 +495,7 @@ empty:;
 #endif
       strcpy ((char *) cardImage, "++EOF");
       l = strlen ((char *) cardImage);
-      thisCard = cardDeck;
+      thisCard = cardDeck; //-V1048
       rdr_state [unitIdx].deckState = eof1Sent;
       jobNo ++;
     }
@@ -507,7 +507,7 @@ empty:;
 #endif
       sprintf ((char *) cardImage, "++UID %d", jobNo);
       l = strlen ((char *) cardImage);
-      thisCard = cardDeck;
+      thisCard = cardDeck; //-V1048
       rdr_state [unitIdx].deckState = uid1Sent;
     }
     break;
@@ -535,7 +535,7 @@ empty:;
   sim_printf ("uid1Sent: getCardLine returned <%s>\r\n", cardImage);
 #endif
       l = strlen ((char *) cardImage);
-      thisCard = cardDeck;
+      thisCard = cardDeck; //-V1048
       if (strncasecmp ((char *) cardImage, "++input", 7) == 0) {
 #ifdef TESTING
   sim_printf ("uid1Sent: switching to inputSent <%s>\r\n", cardImage);
@@ -563,7 +563,7 @@ empty:;
           }
           l = strlen ((char *) cardImage);
         }
-        thisCard = cardDeck;
+        thisCard = cardDeck; //-V1048
         break;
 
         case streamDeck: {
@@ -577,7 +577,7 @@ empty:;
             strcpy ((char *) cardImage, "++EOF");
             l = strlen ((char *) cardImage);
             rdr_state [unitIdx].deckState = eof2Sent;
-            thisCard = cardDeck;
+            thisCard = cardDeck; //-V1048
           }
 #ifdef TESTING
   sim_printf ("inputSent: getCardLine returned <%s>\r\n", cardImage);
@@ -596,7 +596,7 @@ empty:;
             strcpy ((char *) cardImage, "++EOF");
             l = strlen ((char *) cardImage);
             rdr_state [unitIdx].deckState = eof2Sent;
-            thisCard = cardDeck;
+            thisCard = cardDeck; //-V1048
           }
         }
         break;
@@ -613,7 +613,7 @@ empty:;
 # endif
       sprintf ((char *) cardImage, "++UID %d", jobNo);
       l = strlen ((char *) cardImage);
-      thisCard = cardDeck;
+      thisCard = cardDeck; //-V1048
       rdr_state [unitIdx].deckState = deckStart;
       close (rdr_state [unitIdx].deckfd);
       // Windows can't unlink open files; do it now...
