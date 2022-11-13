@@ -592,8 +592,10 @@ Cross-compiled release binaries:
     - *scriptCommon
     - *scriptExtraInfo
     - export DISTDIR="dps8m-master"
-    - export JOB_PKGS="tar bzip2 lzip wget zlib zlib-devel zstd libzstd libzstd-devel brotli-devel brotli libbrotli libcom_err libxcrypt openssl-devel openssl libcurl libcurl-devel elfutils-debuginfod-client elfutils-debuginfod expat-devel expat libffi libffi-devel gc-devel libevent-devel libgcc gmp-devel krb5-devel compat-guile18 guile-devel guile22-devel libidn2-devel libidn libidn-devel keyutils-libs-devel openldap-devel libtool-ltdl-devel xz-devel mpfr-devel msgpack-devel pcre2-devel libselinux-devel libssh-devel libssh2-devel ncurses-devel libunistring xxhash-devel"
+    - export JOB_PKGS="clang tar bzip2 lzip wget zlib zlib-devel zstd libzstd libzstd-devel brotli-devel brotli libbrotli libcom_err libxcrypt openssl-devel openssl libcurl libcurl-devel elfutils-debuginfod-client elfutils-debuginfod expat-devel expat libffi libffi-devel gc-devel libevent-devel libgcc gmp-devel krb5-devel compat-guile18 guile-devel guile22-devel libidn2-devel libidn libidn-devel keyutils-libs-devel openldap-devel libtool-ltdl-devel xz-devel mpfr-devel msgpack-devel pcre2-devel libselinux-devel libssh-devel libssh2-devel ncurses-devel libunistring xxhash-devel"
     - dnf -v -y install --best ${JOB_PKGS:?} || dnf -v -y install --nobest ${JOB_PKGS:?}
+    - unset JOB_PKGS > /dev/null 2>&1 || true
+    - unexport JOB_PKGS > /dev/null 2>&1 || true
     - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/powerpc-ibm-aix7.2.tar.lz" -O /powerpc-ibm-aix7.2.tar.lz
     - ( cd / && tar axf powerpc-ibm-aix7.2.tar.lz )
     - *scriptDPS8Mods
@@ -1650,10 +1652,62 @@ Cross-compiled release binaries:
     - gmake distclean
     - chmod -R u+rwx /home/jhj/src/Solaris-AMD64-crossgcc/ || true
     - rm -rf /home/jhj/src/Solaris-AMD64-crossgcc/
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/dfly-6.2.2.tar.lz" -O /dfly-6.2.2.tar.lz
+    - ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /dfly-6.2.2.tar.lz )
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=x86-64-v4
+    - env CFLAGS="-m64 -march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=x86_64-pc-dragonfly_elf" LDFLAGS="-static" CSTD="gnu11" CC="clang -Wno-unused-command-line-argument -I/home/jhj/x-tools/dfly-6.2.2/usr/include -L/home/jhj/x-tools/dfly-6.2.2/usr/lib -L/home/jhj/x-tools/dfly-6.2.2/usr/lib/gcc80 -B/home/jhj/x-tools/dfly-6.2.2/usr/lib -B/home/jhj/x-tools/dfly-6.2.2/usr/lib/gcc80 -target x86_64-pc-dragonfly-elf" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env CFLAGS="-m64 -march=${DPS8_CPUTYPE:?}" LDFLAGS="-static" CSTD="gnu11" CC="clang -Wno-unused-command-line-argument -I/home/jhj/x-tools/dfly-6.2.2/usr/include -L/home/jhj/x-tools/dfly-6.2.2/usr/lib -L/home/jhj/x-tools/dfly-6.2.2/usr/lib/gcc80 -B/home/jhj/x-tools/dfly-6.2.2/usr/lib -B/home/jhj/x-tools/dfly-6.2.2/usr/lib/gcc80 -target x86_64-pc-dragonfly-elf" ATOMICS=GNU NO_LTO=1 LOCALLIBS="-lm -ldl -lrt" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-df622-644.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-df622-644.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=x86-64-v3
+    - env CFLAGS="-m64 -march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=x86_64-pc-dragonfly_elf" LDFLAGS="-static" CSTD="gnu11" CC="clang -Wno-unused-command-line-argument -I/home/jhj/x-tools/dfly-6.2.2/usr/include -L/home/jhj/x-tools/dfly-6.2.2/usr/lib -L/home/jhj/x-tools/dfly-6.2.2/usr/lib/gcc80 -B/home/jhj/x-tools/dfly-6.2.2/usr/lib -B/home/jhj/x-tools/dfly-6.2.2/usr/lib/gcc80 -target x86_64-pc-dragonfly-elf" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env CFLAGS="-m64 -march=${DPS8_CPUTYPE:?}" LDFLAGS="-static" CSTD="gnu11" CC="clang -Wno-unused-command-line-argument -I/home/jhj/x-tools/dfly-6.2.2/usr/include -L/home/jhj/x-tools/dfly-6.2.2/usr/lib -L/home/jhj/x-tools/dfly-6.2.2/usr/lib/gcc80 -B/home/jhj/x-tools/dfly-6.2.2/usr/lib -B/home/jhj/x-tools/dfly-6.2.2/usr/lib/gcc80 -target x86_64-pc-dragonfly-elf" ATOMICS=GNU NO_LTO=1 LOCALLIBS="-lm -ldl -lrt" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-df622-643.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-df622-643.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=x86-64-v2
+    - env CFLAGS="-m64 -march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=x86_64-pc-dragonfly_elf" LDFLAGS="-static" CSTD="gnu11" CC="clang -Wno-unused-command-line-argument -I/home/jhj/x-tools/dfly-6.2.2/usr/include -L/home/jhj/x-tools/dfly-6.2.2/usr/lib -L/home/jhj/x-tools/dfly-6.2.2/usr/lib/gcc80 -B/home/jhj/x-tools/dfly-6.2.2/usr/lib -B/home/jhj/x-tools/dfly-6.2.2/usr/lib/gcc80 -target x86_64-pc-dragonfly-elf" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env CFLAGS="-m64 -march=${DPS8_CPUTYPE:?}" LDFLAGS="-static" CSTD="gnu11" CC="clang -Wno-unused-command-line-argument -I/home/jhj/x-tools/dfly-6.2.2/usr/include -L/home/jhj/x-tools/dfly-6.2.2/usr/lib -L/home/jhj/x-tools/dfly-6.2.2/usr/lib/gcc80 -B/home/jhj/x-tools/dfly-6.2.2/usr/lib -B/home/jhj/x-tools/dfly-6.2.2/usr/lib/gcc80 -target x86_64-pc-dragonfly-elf" ATOMICS=GNU NO_LTO=1 LOCALLIBS="-lm -ldl -lrt" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-df622-642.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-df622-642.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=x86-64
+    - env CFLAGS="-m64 -march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=x86_64-pc-dragonfly_elf" LDFLAGS="-static" CSTD="gnu11" CC="clang -Wno-unused-command-line-argument -I/home/jhj/x-tools/dfly-6.2.2/usr/include -L/home/jhj/x-tools/dfly-6.2.2/usr/lib -L/home/jhj/x-tools/dfly-6.2.2/usr/lib/gcc80 -B/home/jhj/x-tools/dfly-6.2.2/usr/lib -B/home/jhj/x-tools/dfly-6.2.2/usr/lib/gcc80 -target x86_64-pc-dragonfly-elf" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env CFLAGS="-m64 -march=${DPS8_CPUTYPE:?}" LDFLAGS="-static" CSTD="gnu11" CC="clang -Wno-unused-command-line-argument -I/home/jhj/x-tools/dfly-6.2.2/usr/include -L/home/jhj/x-tools/dfly-6.2.2/usr/lib -L/home/jhj/x-tools/dfly-6.2.2/usr/lib/gcc80 -B/home/jhj/x-tools/dfly-6.2.2/usr/lib -B/home/jhj/x-tools/dfly-6.2.2/usr/lib/gcc80 -target x86_64-pc-dragonfly-elf" ATOMICS=GNU NO_LTO=1 LOCALLIBS="-lm -ldl -lrt" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-master-df622-641.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-master-df622-641.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - chmod u+rwx /home/jhj/x-tools/dfly-6.2.2 || true
+    - rm -rf /home/jhj/x-tools/dfly-6.2.2 || true
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
+      - dps8m-master-df622-644.tar.gz
+      - dps8m-master-df622-643.tar.gz
+      - dps8m-master-df622-642.tar.gz
+      - dps8m-master-df622-641.tar.gz
       - dps8m-master-iloi-644.tar.gz
       - dps8m-master-iloi-643.tar.gz
       - dps8m-master-iloi-642.tar.gz
@@ -3514,6 +3568,10 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-s114-642.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-s114-641.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-mingw-x86.zip public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-df622-644.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-df622-643.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-df622-642.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-df622-641.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-iloi-644.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-iloi-643.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-iloi-642.tar.gz public

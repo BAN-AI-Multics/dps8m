@@ -27,8 +27,8 @@ title: DPS8M Releases
 {{< tab "Source" >}}
 | File                                                                                 | Format        |
 |:------------------------------------------------------------------------------------ |:------------- |
-| [**dps8m-master-src.tar.lz**](https://dps8m.gitlab.io/dps8m/dps8m-master-src.tar.lz) | tar + lzip    |
-| [**dps8m-master-src.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-src.tar.gz) | tar + gzip    |
+| [**dps8m-master-src.tar.lz**](https://dps8m.gitlab.io/dps8m/dps8m-master-src.tar.lz) | tar&nbsp;+&nbsp;lzip    |
+| [**dps8m-master-src.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-src.tar.gz) | tar&nbsp;+&nbsp;gzip    |
 | [**dps8m-master-src.7z**](https://dps8m.gitlab.io/dps8m/dps8m-master-src.7z)         | 7-Zip (LZMA)  |
 | [**dps8m-master-src.zip**](https://dps8m.gitlab.io/dps8m/dps8m-master-src.zip)       | ZIP (DEFLATE) |
 | [**dps8m-master-src.zpaq**](https://dps8m.gitlab.io/dps8m/dps8m-master-src.zpaq)     | ZPAQ7         |
@@ -36,53 +36,57 @@ title: DPS8M Releases
 {{< tab "AIX" >}}
 | File                                                                                             | Platform                |
 |:------------------------------------------------------------------------------------------------ |:----------------------- |
-| [**dps8m-master-aixv7-p10.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-aixv7-p10.tar.gz) | AIX 7 (GCC 12, POWER10) |
-| [**dps8m-master-aixv7-pw9.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-aixv7-pw9.tar.gz) | AIX 7 (GCC 12, POWER9)  |
-| [**dps8m-master-aixv7-pw8.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-aixv7-pw8.tar.gz) | AIX 7 (GCC 12, POWER8)  |
-| [**dps8m-master-aixv7-gcc.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-aixv7-gcc.tar.gz) | AIX 7 (GCC 10, POWER8)  |
-| [**dps8m-master-aixv7-xlc.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-aixv7-xlc.tar.gz) | AIX 7 (XLC 16, POWER8)  |
-| [**dps8m-master-aixv7-pw7.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-aixv7-pw7.tar.gz) | AIX 7 (GCC 12, POWER7)  |
-| [**dps8m-master-aixv7-pw6.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-aixv7-pw6.tar.gz) | AIX 7 (GCC 12, POWER6)  |
+| [**dps8m-master-aixv7-p10.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-aixv7-p10.tar.gz) | AIX&nbsp;7 (GCC&nbsp;12, Power&nbsp;10) |
+| [**dps8m-master-aixv7-pw9.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-aixv7-pw9.tar.gz) | AIX&nbsp;7 (GCC&nbsp;12, POWER9)  |
+| [**dps8m-master-aixv7-pw8.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-aixv7-pw8.tar.gz) | AIX&nbsp;7 (GCC&nbsp;12, POWER8)  |
+| [**dps8m-master-aixv7-gcc.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-aixv7-gcc.tar.gz) | AIX&nbsp;7 (GCC&nbsp;10, POWER8)  |
+| [**dps8m-master-aixv7-xlc.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-aixv7-xlc.tar.gz) | AIX&nbsp;7 (XLC&nbsp;16, POWER8)  |
+| [**dps8m-master-aixv7-pw7.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-aixv7-pw7.tar.gz) | AIX&nbsp;7 (GCC&nbsp;12, POWER7)  |
+| [**dps8m-master-aixv7-pw6.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-aixv7-pw6.tar.gz) | AIX&nbsp;7 (GCC&nbsp;12, POWER6)  |
 {{< /tab >}}
 {{< tab "Android" >}}
 | File                                                                                             | Platform              |
 |:------------------------------------------------------------------------------------------------ |:--------------------- |
-| [**dps8m-master-ndk29-a64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-ndk29-a64.tar.gz) | Android 10.0 (ARM64)  |
-| [**dps8m-master-ndk29-a32.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-ndk29-a32.tar.gz) | Android 10.0 (ARMv7)  |
-| [**dps8m-master-ndk29-x64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-ndk29-x64.tar.gz) | Android 10.0 (x86_64) |
-| [**dps8m-master-ndk29-x32.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-ndk29-x32.tar.gz) | Android 10.0 (i686)   |
-| [**dps8m-master-ndk24-a64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-ndk24-a64.tar.gz) | Android 7.0 (ARM64)   |
-| [**dps8m-master-ndk24-a32.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-ndk24-a32.tar.gz) | Android 7.0 (ARMv7)   |
-| [**dps8m-master-ndk24-x64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-ndk24-x64.tar.gz) | Android 7.0 (x86_64)  |
-| [**dps8m-master-ndk24-x32.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-ndk24-x32.tar.gz) | Android 7.0 (i686)    |
+| [**dps8m-master-ndk29-a64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-ndk29-a64.tar.gz) | Android&nbsp;10.0 (ARM64)  |
+| [**dps8m-master-ndk29-a32.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-ndk29-a32.tar.gz) | Android&nbsp;10.0 (ARMv7)  |
+| [**dps8m-master-ndk29-x64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-ndk29-x64.tar.gz) | Android&nbsp;10.0 (x86_64) |
+| [**dps8m-master-ndk29-x32.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-ndk29-x32.tar.gz) | Android&nbsp;10.0 (i686)   |
+| [**dps8m-master-ndk24-a64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-ndk24-a64.tar.gz) | Android&nbsp;7.0 (ARM64)   |
+| [**dps8m-master-ndk24-a32.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-ndk24-a32.tar.gz) | Android&nbsp;7.0 (ARMv7)   |
+| [**dps8m-master-ndk24-x64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-ndk24-x64.tar.gz) | Android&nbsp;7.0 (x86_64)  |
+| [**dps8m-master-ndk24-x32.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-ndk24-x32.tar.gz) | Android&nbsp;7.0 (i686)    |
 {{< /tab >}}
 {{< tab "BSD" >}}
 | File                                                                                             | Platform                               |
 |:------------------------------------------------------------------------------------------------ |:-------------------------------------- |
-| [**dps8m-master-fbd13-x64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-fbd13-x64.tar.gz) | FreeBSD 13.1 (x86_64-v4, AVX-512)      |
-| [**dps8m-master-fbd13-x63.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-fbd13-x63.tar.gz) | FreeBSD 13.1 (x86_64-v3, AVX2 + FMA)   |
-| [**dps8m-master-fbd13-x62.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-fbd13-x62.tar.gz) | FreeBSD 13.1 (x86_64-v2, SSE4 + SSSE3) |
-| [**dps8m-master-fbd13-x61.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-fbd13-x61.tar.gz) | FreeBSD 13.1 (x86_64)                  |
-| [**dps8m-master-fbd13-x32.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-fbd13-x32.tar.gz) | FreeBSD 13.1 (i686)                    |
-| [**dps8m-master-fbd13-a64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-fbd13-a64.tar.gz) | FreeBSD 13.1 (ARM64, ARMv8-A)          |
-| [**dps8m-master-fbd13-a32.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-fbd13-a32.tar.gz) | FreeBSD 13.1 (PowerPC, G3/PPC740+)     |
-| [**dps8m-master-nbd93-x64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-x64.tar.gz) | NetBSD 9.3 (x86_64-v4, AVX-512)        |
-| [**dps8m-master-nbd93-x63.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-x63.tar.gz) | NetBSD 9.3 (x86_64-v3, AVX2 + FMA)     |
-| [**dps8m-master-nbd93-x62.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-x62.tar.gz) | NetBSD 9.3 (x86_64-v2, SSE4 + SSSE3)   |
-| [**dps8m-master-nbd93-x61.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-x61.tar.gz) | NetBSD 9.3 (x86_64)                    |
-| [**dps8m-master-nbd93-686.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-686.tar.gz) | NetBSD 9.3 (i686)                      |
-| [**dps8m-master-nbd93-586.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-586.tar.gz) | NetBSD 9.3 (i586)                      |
-| [**dps8m-master-nbd83-s64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-s64.tar.gz) | NetBSD 9.3 (UltraSPARC)                |
-| [**dps8m-master-nbd93-s32.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-s32.tar.gz) | NetBSD 9.3 (SPARC)                     |
-| [**dps8m-master-nbd93-970.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-970.tar.gz) | NetBSD 9.3 (PowerPC, G5/PPC970)        |
-| [**dps8m-master-nbd93-pg4.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-pg4.tar.gz) | NetBSD 9.3 (PowerPC, G4/PPC7400)       |
-| [**dps8m-master-nbd93-740.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-740.tar.gz) | NetBSD 9.3 (PowerPC, G3/PPC740)        |
-| [**dps8m-master-nbd93-603.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-603.tar.gz) | NetBSD 9.3 (PowerPC, G2/PPC603)        |
-| [**dps8m-master-nbd93-601.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-601.tar.gz) | NetBSD 9.3 (PowerPC, G1/PPC601)        |
-| [**dps8m-master-nbd93-ax6.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-ax6.tar.gz) | NetBSD 9.3 (Alpha, EV6)                |
-| [**dps8m-master-nbd93-ax5.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-ax5.tar.gz) | NetBSD 9.3 (Alpha, EV5)                |
-| [**dps8m-master-nbd93-axp.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-axp.tar.gz) | NetBSD 9.3 (Alpha, EV4)                |
-| [**dps8m-master-nbd93-vax.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-vax.tar.gz) | NetBSD 9.3 (VAX)                       |
+| [**dps8m-master-fbd13-x64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-fbd13-x64.tar.gz) | FreeBSD&nbsp;13.1 (x86_64‑v4, AVX‑512)      |
+| [**dps8m-master-fbd13-x63.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-fbd13-x63.tar.gz) | FreeBSD&nbsp;13.1 (x86_64‑v3, AVX2&nbsp;+&nbsp;FMA)   |
+| [**dps8m-master-fbd13-x62.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-fbd13-x62.tar.gz) | FreeBSD&nbsp;13.1 (x86_64‑v2, SSE4&nbsp;+&nbsp;SSSE3) |
+| [**dps8m-master-fbd13-x61.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-fbd13-x61.tar.gz) | FreeBSD&nbsp;13.1 (x86_64)                  |
+| [**dps8m-master-fbd13-x32.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-fbd13-x32.tar.gz) | FreeBSD&nbsp;13.1 (i686)                    |
+| [**dps8m-master-fbd13-a64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-fbd13-a64.tar.gz) | FreeBSD&nbsp;13.1 (ARM64, ARMv8‑A)          |
+| [**dps8m-master-fbd13-a32.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-fbd13-a32.tar.gz) | FreeBSD&nbsp;13.1 (PowerPC, G3/PPC740+)     |
+| [**dps8m-master-nbd93-x64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-x64.tar.gz) | NetBSD&nbsp;9.3 (x86_64‑v4, AVX‑512)        |
+| [**dps8m-master-nbd93-x63.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-x63.tar.gz) | NetBSD&nbsp;9.3 (x86_64‑v3, AVX2&nbsp;+&nbsp;FMA)     |
+| [**dps8m-master-nbd93-x62.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-x62.tar.gz) | NetBSD&nbsp;9.3 (x86_64‑v2, SSE4&nbsp;+&nbsp;SSSE3)   |
+| [**dps8m-master-nbd93-x61.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-x61.tar.gz) | NetBSD&nbsp;9.3 (x86_64)                    |
+| [**dps8m-master-nbd93-686.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-686.tar.gz) | NetBSD&nbsp;9.3 (i686)                      |
+| [**dps8m-master-nbd93-586.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-586.tar.gz) | NetBSD&nbsp;9.3 (i586)                      |
+| [**dps8m-master-nbd83-s64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-s64.tar.gz) | NetBSD&nbsp;9.3 (UltraSPARC)                |
+| [**dps8m-master-nbd93-s32.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-s32.tar.gz) | NetBSD&nbsp;9.3 (SPARC)                     |
+| [**dps8m-master-nbd93-970.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-970.tar.gz) | NetBSD&nbsp;9.3 (PowerPC, G5/PPC970)        |
+| [**dps8m-master-nbd93-pg4.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-pg4.tar.gz) | NetBSD&nbsp;9.3 (PowerPC, G4/PPC7400)       |
+| [**dps8m-master-nbd93-740.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-740.tar.gz) | NetBSD&nbsp;9.3 (PowerPC, G3/PPC740)        |
+| [**dps8m-master-nbd93-603.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-603.tar.gz) | NetBSD&nbsp;9.3 (PowerPC, G2/PPC603)        |
+| [**dps8m-master-nbd93-601.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-601.tar.gz) | NetBSD&nbsp;9.3 (PowerPC, G1/PPC601)        |
+| [**dps8m-master-nbd93-ax6.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-ax6.tar.gz) | NetBSD&nbsp;9.3 (Alpha, EV6)                |
+| [**dps8m-master-nbd93-ax5.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-ax5.tar.gz) | NetBSD&nbsp;9.3 (Alpha, EV5)                |
+| [**dps8m-master-nbd93-axp.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-axp.tar.gz) | NetBSD&nbsp;9.3 (Alpha, EV4)                |
+| [**dps8m-master-nbd93-vax.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-nbd93-vax.tar.gz) | NetBSD&nbsp;9.3 (VAX)                       |
+| [**dps8m-master-df622-644.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-df622-644.tar.gz) | DragonFly&nbsp;BSD&nbsp;6.2.2 (x86_64‑v4, AVX‑512)                       |
+| [**dps8m-master-df622-643.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-df622-643.tar.gz) | DragonFly&nbsp;BSD&nbsp;6.2.2 (x86_64‑v3, AVX2&nbsp;+&nbsp;FMA)                       |
+| [**dps8m-master-df622-642.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-df622-642.tar.gz) | DragonFly&nbsp;BSD&nbsp;6.2.2 (x86_64‑v2, SSE4&nbsp;+&nbsp;SSSE3)                       |
+| [**dps8m-master-df622-641.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-df622-641.tar.gz) | DragonFly&nbsp;BSD&nbsp;6.2.2 (x86_64)                       |
 {{< /tab >}}
 {{< tab "Haiku" >}}
 | File                                                                                             | Platform       |
@@ -92,39 +96,39 @@ title: DPS8M Releases
 {{< tab "Linux" >}}
 | File                                                                                             | Platform                      |
 | :----------------------------------------------------------------------------------------------  | :---------------------------- |
-| [**dps8m-master-linux-644.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-644.tar.gz) | x86_64-v4 (AVX-512)           |
-| [**dps8m-master-linux-643.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-643.tar.gz) | x86_64-v3 (AVX2 + FMA)        |
-| [**dps8m-master-linux-642.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-642.tar.gz) | x86_64-v2 (SSE4 + SSSE3)      |
+| [**dps8m-master-linux-644.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-644.tar.gz) | x86_64‑v4 (AVX‑512)           |
+| [**dps8m-master-linux-643.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-643.tar.gz) | x86_64‑v3 (AVX2&nbsp;+&nbsp;FMA)        |
+| [**dps8m-master-linux-642.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-642.tar.gz) | x86_64‑v2 (SSE4&nbsp;+&nbsp;SSSE3)      |
 | [**dps8m-master-linux-641.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-641.tar.gz) | x86_64                        |
 | [**dps8m-master-linux-686.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-686.tar.gz) | i686                          |
 | [**dps8m-master-linux-586.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-586.tar.gz) | i586                          |
-| [**dps8m-master-linux-p10.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-p10.tar.gz) | PPC64le (GCC 12, POWER10)     |
-| [**dps8m-master-linux-att.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-att.tar.gz) | PPC64le (AT 16, POWER10)      |
-| [**dps8m-master-linux-pw9.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-pw9.tar.gz) | PPC64le (GCC 12, POWER9)      |
-| [**dps8m-master-linux-atn.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-atn.tar.gz) | PPC64le (AT 16, POWER9)       |
-| [**dps8m-master-linux-pw8.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-pw8.tar.gz) | PPC64le (GCC 12, POWER8)      |
-| [**dps8m-master-linux-ate.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-ate.tar.gz) | PPC64le (AT 16, POWER8)       |
-| [**dps8m-master-linux-xlc.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-xlc.tar.gz) | PPC64le (XLC 16, POWER8)      |
+| [**dps8m-master-linux-p10.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-p10.tar.gz) | PPC64le (GCC&nbsp;12, Power&nbsp;10)     |
+| [**dps8m-master-linux-att.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-att.tar.gz) | PPC64le (AT&nbsp;16, Power&nbsp;10)      |
+| [**dps8m-master-linux-pw9.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-pw9.tar.gz) | PPC64le (GCC&nbsp;12, POWER9)      |
+| [**dps8m-master-linux-atn.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-atn.tar.gz) | PPC64le (AT&nbsp;16, POWER9)       |
+| [**dps8m-master-linux-pw8.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-pw8.tar.gz) | PPC64le (GCC&nbsp;12, POWER8)      |
+| [**dps8m-master-linux-ate.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-ate.tar.gz) | PPC64le (AT&nbsp;16, POWER8)       |
+| [**dps8m-master-linux-xlc.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-xlc.tar.gz) | PPC64le (XLC&nbsp;16, POWER8)      |
 | [**dps8m-master-linux-g4e.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-g4e.tar.gz) | PowerPC (G4e, PPC7450)        |
 | [**dps8m-master-linux-g4a.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-g4a.tar.gz) | PowerPC (G4, PPC7400)         |
 | [**dps8m-master-linux-740.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-740.tar.gz) | PowerPC (G3, PPC740)          |
 | [**dps8m-master-linux-603.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-603.tar.gz) | PowerPC (G2, PPC603)          |
 | [**dps8m-master-linux-601.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-601.tar.gz) | PowerPC (G1, PPC601)          |
-| [**dps8m-master-linux-a8a.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-a8a.tar.gz) | ARM64 (ARMv8-A)               |
-| [**dps8m-master-linux-a8r.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-a8r.tar.gz) | ARM64 (ARMv8-R)               |
-| [**dps8m-master-linux-a8b.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-a8b.tar.gz) | ARM64be (ARMv8-A BE8)         |
-| [**dps8m-master-linux-a7f.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-a7f.tar.gz) | ARM (ARMv7-HF)                |
-| [**dps8m-master-linux-a7s.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-a7s.tar.gz) | ARM (ARMv7-A)                 |
+| [**dps8m-master-linux-a8a.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-a8a.tar.gz) | ARM64 (ARMv8‑A)               |
+| [**dps8m-master-linux-a8r.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-a8r.tar.gz) | ARM64 (ARMv8‑R)               |
+| [**dps8m-master-linux-a8b.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-a8b.tar.gz) | ARM64be (ARMv8‑A BE8)         |
+| [**dps8m-master-linux-a7f.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-a7f.tar.gz) | ARM (ARMv7‑HF)                |
+| [**dps8m-master-linux-a7s.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-a7s.tar.gz) | ARM (ARMv7‑A)                 |
 | [**dps8m-master-linux-a6f.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-a6f.tar.gz) | ARM (ARMv6+FP)                |
 | [**dps8m-master-linux-a6s.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-a6s.tar.gz) | ARM (ARMv6)                   |
-| [**dps8m-master-linux-a5s.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-a5s.tar.gz) | ARM (ARMv5-T)                 |
+| [**dps8m-master-linux-a5s.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-a5s.tar.gz) | ARM (ARMv5‑T)                 |
 | [**dps8m-master-linux-060.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-060.tar.gz) | m68k (68060)                  |
 | [**dps8m-master-linux-040.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-040.tar.gz) | m68k (68040)                  |
 | [**dps8m-master-linux-030.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-030.tar.gz) | m68k (68030)                  |
 | [**dps8m-master-linux-020.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-020.tar.gz) | m68k (68020)                  |
-| [**dps8m-master-linux-s64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-s64.tar.gz) | UltraSPARC (glibc 2.12+)      |
-| [**dps8m-master-linux-s32.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-s32.tar.gz) | SPARC (glibc 2.12+)           |
-| [**dps8m-master-linux-l64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-l64.tar.gz) | LoongArch (LA64, glibc 2.12+) |
+| [**dps8m-master-linux-s64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-s64.tar.gz) | UltraSPARC (glibc&nbsp;2.12+)      |
+| [**dps8m-master-linux-s32.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-s32.tar.gz) | SPARC (glibc&nbsp;2.12+)           |
+| [**dps8m-master-linux-l64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-l64.tar.gz) | LoongArch (LA64, glibc&nbsp;2.12+) |
 | [**dps8m-master-linux-ork.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-ork.tar.gz) | OpenRISC 1200                 |
 | [**dps8m-master-linux-r64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-r64.tar.gz) | RISC-V (RV64)                 |
 | [**dps8m-master-linux-m6l.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-linux-m6l.tar.gz) | MIPS64el                      |
@@ -136,27 +140,27 @@ title: DPS8M Releases
 {{< tab "macOS" >}}
 | File                                                                                             | Platform                 |
 |:------------------------------------------------------------------------------------------------ |:------------------------ |
-| [**dps8m-master-macos-uni.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-macos-uni.tar.gz) | Universal (macOS 10.13+) |
-| [**dps8m-master-mac10-x86.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-mac10-x86.tar.gz) | Intel (macOS 10.13+)     |
-| [**dps8m-master-mac11-a64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-mac11-a64.tar.gz) | ARM64 (macOS 11.00+)     |
-| [**dps8m-master-macos-x86.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-macos-x86.tar.gz) | Intel (Latest SDK)       |
+| [**dps8m-master-macos-uni.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-macos-uni.tar.gz) | Universal (macOS&nbsp;10.13+) |
+| [**dps8m-master-mac10-x86.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-mac10-x86.tar.gz) | Intel (macOS&nbsp;10.13+)     |
+| [**dps8m-master-mac11-a64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-mac11-a64.tar.gz) | ARM64 (macOS&nbsp;11.00+)     |
+| [**dps8m-master-macos-x86.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-macos-x86.tar.gz) | Intel (Latest&nbsp;SDK)       |
 {{< /tab >}}
 {{< tab "SunOS" >}}
 | File                                                                                            | Platform                                      |
 | :---------------------------------------------------------------------------------------------- |:--------------------------------------------- |
-| [**dps8m-master-s114-644.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-s114-644.tar.gz)  | Oracle Solaris 11.4 (x86_64-v4, AVX=512)      |
-| [**dps8m-master-s114-643.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-s114-643.tar.gz)  | Oracle Solaris 11.4 (x86_64-v3, AVX2 + FMA)   |
-| [**dps8m-master-s114-642.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-s114-642.tar.gz)  | Oracle Solaris 11.4 (x86_64-v2, SSE4 + SSSE3) |
+| [**dps8m-master-s114-644.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-s114-644.tar.gz)  | Oracle Solaris 11.4 (x86_64‑v4, AVX‑512)      |
+| [**dps8m-master-s114-643.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-s114-643.tar.gz)  | Oracle Solaris 11.4 (x86_64‑v3, AVX2&nbsp;+&nbsp;FMA)   |
+| [**dps8m-master-s114-642.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-s114-642.tar.gz)  | Oracle Solaris 11.4 (x86_64‑v2, SSE4&nbsp;+&nbsp;SSSE3) |
 | [**dps8m-master-s114-641.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-s114-641.tar.gz)  | Oracle Solaris 11.4 (x86_64)                  |
-| [**dps8m-master-iloi-644.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-iloi-644.tar.gz)  | illumos OpenIndiana (x86_64-v4, AVX-512)      |
-| [**dps8m-master-iloi-643.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-iloi-643.tar.gz)  | illumos OpenIndiana (x86_64-v3, AVX2 + FMA)   |
-| [**dps8m-master-iloi-642.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-iloi-642.tar.gz)  | illumos OpenIndiana (x86_64-v2, SSE4 + SSSE3) |
+| [**dps8m-master-iloi-644.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-iloi-644.tar.gz)  | illumos OpenIndiana (x86_64‑v4, AVX‑512)      |
+| [**dps8m-master-iloi-643.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-iloi-643.tar.gz)  | illumos OpenIndiana (x86_64‑v3, AVX2&nbsp;+&nbsp;FMA)   |
+| [**dps8m-master-iloi-642.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-iloi-642.tar.gz)  | illumos OpenIndiana (x86_64‑v2, SSE4&nbsp;+&nbsp;SSSE3) |
 | [**dps8m-master-iloi-641.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-master-iloi-641.tar.gz)  | illumos OpenIndiana (x86_64)                  |
 {{< /tab >}}
 {{< tab "Windows" >}}
 | File                                                                                             | Platform                  |
 |:------------------------------------------------------------------------------------------------ |:------------------------- |
-| [**dps8m-master-win-setup.exe**](https://dps8m.gitlab.io/dps8m/dps8m-master-win-setup.exe)       | x86_64 + i686             |
+| [**dps8m-master-win-setup.exe**](https://dps8m.gitlab.io/dps8m/dps8m-master-win-setup.exe)       | x86_64&nbsp;+&nbsp;i686             |
 | [**dps8m-master-mingw-x86.zip**](https://dps8m.gitlab.io/dps8m/dps8m-master-mingw-x86.zip)       | x86_64                    |
 | [**dps8m-master-mingw-x32.zip**](https://dps8m.gitlab.io/dps8m/dps8m-master-mingw-x32.zip)       | i686                      |
 | [**dps8m-master-mingw-a64.zip**](https://dps8m.gitlab.io/dps8m/dps8m-master-mingw-a64.zip)       | ARM64                     |
