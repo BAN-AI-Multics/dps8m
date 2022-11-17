@@ -41,7 +41,7 @@ OUTPUT_NSIS="dps8m-setup.exe"
 export OUTPUT_NSIS
 
 # Final filename
-FINAL_NSIS="dps8m-master-win-setup.exe"
+FINAL_NSIS="dps8m-git-win-setup.exe"
 export FINAL_NSIS
 
 # Global CFLAGS
@@ -312,7 +312,7 @@ test -z "${USE_CI:-}" ||
     mkdir -p "share" &&                                                \
       cp -f "../docs/dps8-omnibus.pdf" "./share/dps8m-omnibus.pdf" &&  \
     mkdir -p "source" &&                                               \
-      cp -f "../dps8m-master-src.tar.gz" "./source/dps8m-sources.zip"
+      cp -f "../dps8m-git-src.tar.gz" "./source/dps8m-sources.zip"
   }
 
 # Clean-up

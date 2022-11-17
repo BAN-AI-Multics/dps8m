@@ -502,18 +502,18 @@ Linux/x86_64, Alpine Edge, Clang, GCC:
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
-    - export DISTDIR="dps8-$(./src/dps8/dps8 --version | awk '{ print $3 }' | tr -cd '0-9A-z.\-\_\+' | tr '+' '_')"
+    - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-x86.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-x86.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-x86.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-x86.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - dps8m-master-linux-x86.tar.gz
+      - dps8m-git-linux-x86.tar.gz
       - src/dps8/dps8.lz
       - src/prt2pdf/prt2pdf.lz
       - src/punutil/punutil.lz
@@ -534,7 +534,7 @@ Linux/powerpc64el, IBM Advance Toolchain 16:
     - export GLCICD_JOB="crossAT16job" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
     - *scriptSanity
     - *scriptCommon
-    - export DISTDIR="dps8m-master"
+    - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - *scriptExtraInfo
     - *scriptDPS8Mods
     - env LOCAL_CONFOPTS="--host=powerpc64le-linux-gnu" CC="/opt/at16.0/bin/powerpc64le-linux-gnu-gcc" CFLAGS="-DNO_WARN_X86_INTRINSICS -ftree-vectorize -fpeel-loops -mcpu=power8 -mtune=power8 -fsigned-char -flto" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") libuvrel --output-sync
@@ -542,8 +542,8 @@ Linux/powerpc64el, IBM Advance Toolchain 16:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-ate.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-ate.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-ate.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-ate.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -552,8 +552,8 @@ Linux/powerpc64el, IBM Advance Toolchain 16:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-atn.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-atn.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-atn.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-atn.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -562,15 +562,15 @@ Linux/powerpc64el, IBM Advance Toolchain 16:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-att.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-att.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-att.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-att.tar
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - dps8m-master-linux-ate.tar.gz
-      - dps8m-master-linux-atn.tar.gz
-      - dps8m-master-linux-att.tar.gz
+      - dps8m-git-linux-ate.tar.gz
+      - dps8m-git-linux-atn.tar.gz
+      - dps8m-git-linux-att.tar.gz
   retry: 2
   timeout: 45 minutes
   interruptible: true
@@ -586,13 +586,15 @@ Cross-compiled release binaries:
     - Linux
   script:
     - export GLCICD_JOB="ReleaseCross" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
+    - export FF_USE_FASTZIP="true"
+    - export FF_SCRIPT_SECTIONS="true"
     - *scriptDnfSetup
     - *scriptInstallNfpm
     - *scriptSanity
     - *scriptCommon
     - *scriptExtraInfo
-    - export DISTDIR="dps8m-master"
-    - export JOB_PKGS="clang tar bzip2 lzip wget zlib zlib-devel zstd libzstd libzstd-devel brotli-devel brotli libbrotli libcom_err libxcrypt openssl-devel openssl libcurl libcurl-devel elfutils-debuginfod-client elfutils-debuginfod expat-devel expat libffi libffi-devel gc-devel libevent-devel libgcc gmp-devel krb5-devel compat-guile18 guile-devel guile22-devel libidn2-devel libidn libidn-devel keyutils-libs-devel openldap-devel libtool-ltdl-devel xz-devel mpfr-devel msgpack-devel pcre2-devel libselinux-devel libssh-devel libssh2-devel ncurses-devel libunistring xxhash-devel"
+    - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
+    - export JOB_PKGS="clang tar bzip2 lzip wget zlib zlib-devel zstd libzstd libzstd-devel brotli-devel brotli libbrotli libcom_err libxcrypt openssl-devel openssl libcurl libcurl-devel elfutils-debuginfod-client elfutils-debuginfod expat-devel expat libffi libffi-devel gc-devel libevent-devel libgcc gmp-devel krb5-devel compat-guile18 guile-devel guile22-devel libidn2-devel libidn libidn-devel keyutils-libs-devel openldap-devel libtool-ltdl-devel xz-devel mpfr-devel msgpack-devel pcre2-devel libselinux-devel libssh-devel libssh2-devel ncurses-devel libunistring xxhash-devel qemu-user-binfmt qemu qemu-tools qemu-common qemu-user qemu-img qemu-user-static"
     - dnf -v -y install --best ${JOB_PKGS:?} || dnf -v -y install --nobest ${JOB_PKGS:?}
     - unset JOB_PKGS > /dev/null 2>&1 || true
     - unexport JOB_PKGS > /dev/null 2>&1 || true
@@ -606,8 +608,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-aixv7-pw6.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-aixv7-pw6.tar
+    - ( cd src && tar cvf ../dps8m-git-aixv7-pw6.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-aixv7-pw6.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -618,8 +620,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-aixv7-pw7.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-aixv7-pw7.tar
+    - ( cd src && tar cvf ../dps8m-git-aixv7-pw7.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-aixv7-pw7.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -630,8 +632,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-aixv7-pw8.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-aixv7-pw8.tar
+    - ( cd src && tar cvf ../dps8m-git-aixv7-pw8.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-aixv7-pw8.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -642,8 +644,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-aixv7-pw9.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-aixv7-pw9.tar
+    - ( cd src && tar cvf ../dps8m-git-aixv7-pw9.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-aixv7-pw9.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -654,8 +656,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-aixv7-p10.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-aixv7-p10.tar
+    - ( cd src && tar cvf ../dps8m-git-aixv7-p10.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-aixv7-p10.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/src/AIX-crossgcc/
@@ -668,8 +670,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-060.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-060.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-060.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-060.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -679,8 +681,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-040.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-040.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-040.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-040.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -690,8 +692,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-030.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-030.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-030.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-030.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -701,8 +703,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-020.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-020.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-020.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-020.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/x-tools/m68k-local-linux-musl
@@ -716,8 +718,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-haiku-x64.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-haiku-x64.tar
+    - ( cd src && tar cvf ../dps8m-git-haiku-x64.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-haiku-x64.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/x-tools/x86_64-unknown-haiku/
@@ -733,8 +735,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-ndk24-x64.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-ndk24-x64.tar
+    - ( cd src && tar cvf ../dps8m-git-ndk24-x64.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-ndk24-x64.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -747,8 +749,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-ndk24-x32.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-ndk24-x32.tar
+    - ( cd src && tar cvf ../dps8m-git-ndk24-x32.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-ndk24-x32.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -761,8 +763,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-ndk29-x32.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-ndk29-x32.tar
+    - ( cd src && tar cvf ../dps8m-git-ndk29-x32.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-ndk29-x32.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -775,8 +777,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-ndk24-a32.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-ndk24-a32.tar
+    - ( cd src && tar cvf ../dps8m-git-ndk24-a32.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-ndk24-a32.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -789,8 +791,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-ndk29-a32.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-ndk29-a32.tar
+    - ( cd src && tar cvf ../dps8m-git-ndk29-a32.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-ndk29-a32.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -803,8 +805,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-ndk24-a64.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-ndk24-a64.tar
+    - ( cd src && tar cvf ../dps8m-git-ndk24-a64.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-ndk24-a64.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -817,8 +819,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-ndk29-a64.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-ndk29-a64.tar
+    - ( cd src && tar cvf ../dps8m-git-ndk29-a64.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-ndk29-a64.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -831,8 +833,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-ndk29-x64.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-ndk29-x64.tar
+    - ( cd src && tar cvf ../dps8m-git-ndk29-x64.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-ndk29-x64.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/x-tools/android-ndk-r25b/
@@ -846,8 +848,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-390.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-390.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-390.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-390.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/x-tools/s390x-local-linux-musl
@@ -861,8 +863,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-r64.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-r64.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-r64.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-r64.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/x-tools/riscv64-local-linux-musl/
@@ -875,8 +877,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-601.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-601.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-601.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-601.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -886,8 +888,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-603.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-603.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-603.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-603.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -897,8 +899,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-740.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-740.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-740.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-740.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -908,8 +910,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-g4a.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-g4a.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-g4a.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-g4a.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -919,8 +921,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-g4e.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-g4e.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-g4e.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-g4e.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/x-tools/powerpc-local-linux-musl/
@@ -933,8 +935,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-a5s.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-a5s.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-a5s.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-a5s.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -944,8 +946,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-a6s.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-a6s.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-a6s.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-a6s.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -955,8 +957,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-a6f.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-a6f.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-a6f.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-a6f.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -966,8 +968,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-a7s.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-a7s.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-a7s.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-a7s.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -977,8 +979,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-a7f.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-a7f.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-a7f.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-a7f.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/x-tools/arm-local-linux-musleabi/
@@ -991,8 +993,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-a8a.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-a8a.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-a8a.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-a8a.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1002,8 +1004,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-a8r.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-a8r.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-a8r.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-a8r.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/x-tools/aarch64-local-linux-musl/
@@ -1016,8 +1018,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-a8b.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-a8b.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-a8b.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-a8b.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/x-tools/aarch64_be-local-linux-musl/
@@ -1031,8 +1033,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-686.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-686.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-686.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-686.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1043,8 +1045,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-586.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-586.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-586.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-586.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/x-tools/i386-local-linux-musl/
@@ -1057,8 +1059,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-641.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-641.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-641.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-641.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1068,8 +1070,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-642.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-642.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-642.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-642.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1079,8 +1081,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-643.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-643.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-643.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-643.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1090,8 +1092,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-644.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-644.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-644.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-644.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/x-tools/x86_64-local-linux-musl/
@@ -1104,8 +1106,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-pw8.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-pw8.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-pw8.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-pw8.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1115,8 +1117,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-pw9.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-pw9.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-pw9.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-pw9.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1126,8 +1128,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-p10.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-p10.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-p10.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-p10.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/x-tools/powerpc64le-local-linux-musl/
@@ -1141,8 +1143,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-ork.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-ork.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-ork.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-ork.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/x-tools/or1k-linux-musl/
@@ -1156,8 +1158,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-mps.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-mps.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-mps.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-mps.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/x-tools/mips-local-linux-musl/
@@ -1171,8 +1173,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-mpl.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-mpl.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-mpl.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-mpl.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/x-tools/mipsel-local-linux-musl/
@@ -1186,8 +1188,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-m64.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-m64.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-m64.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-m64.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/x-tools/mips64-local-linux-musl/
@@ -1201,8 +1203,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-m6l.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-m6l.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-m6l.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-m6l.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/x-tools/mips64el-local-linux-musl/
@@ -1216,8 +1218,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-s64.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-s64.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-s64.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-s64.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/x-tools/sparc64-local-linux-gnu/
@@ -1231,8 +1233,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-s32.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-s32.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-s32.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-s32.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/x-tools/sparc-local-linux-gnu/
@@ -1246,8 +1248,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-l64.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-linux-l64.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-l64.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-l64.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/x-tools/loongarch64-local-linux-gnu
@@ -1260,8 +1262,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-fbd13-x64.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-fbd13-x64.tar
+    - ( cd src && tar cvf ../dps8m-git-fbd13-x64.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-fbd13-x64.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1271,8 +1273,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-fbd13-x63.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-fbd13-x63.tar
+    - ( cd src && tar cvf ../dps8m-git-fbd13-x63.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-fbd13-x63.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1282,8 +1284,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-fbd13-x62.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-fbd13-x62.tar
+    - ( cd src && tar cvf ../dps8m-git-fbd13-x62.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-fbd13-x62.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1293,8 +1295,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-fbd13-x61.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-fbd13-x61.tar
+    - ( cd src && tar cvf ../dps8m-git-fbd13-x61.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-fbd13-x61.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/src/FreeBSD-AMD64-crossgcc/
@@ -1307,8 +1309,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-fbd13-x32.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-fbd13-x32.tar
+    - ( cd src && tar cvf ../dps8m-git-fbd13-x32.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-fbd13-x32.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/src/FreeBSD-i386-crossgcc/
@@ -1321,8 +1323,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-fbd13-a32.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-fbd13-a32.tar
+    - ( cd src && tar cvf ../dps8m-git-fbd13-a32.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-fbd13-a32.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/src/FreeBSD-powerpc-crossgcc/
@@ -1335,8 +1337,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-fbd13-a64.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-fbd13-a64.tar
+    - ( cd src && tar cvf ../dps8m-git-fbd13-a64.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-fbd13-a64.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/src/FreeBSD-ARM64-crossgcc/
@@ -1350,8 +1352,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-nbd93-x61.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-nbd93-x61.tar
+    - ( cd src && tar cvf ../dps8m-git-nbd93-x61.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-nbd93-x61.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1361,8 +1363,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-nbd93-x62.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-nbd93-x62.tar
+    - ( cd src && tar cvf ../dps8m-git-nbd93-x62.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-nbd93-x62.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1372,8 +1374,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-nbd93-x63.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-nbd93-x63.tar
+    - ( cd src && tar cvf ../dps8m-git-nbd93-x63.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-nbd93-x63.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1383,8 +1385,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-nbd93-x64.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-nbd93-x64.tar
+    - ( cd src && tar cvf ../dps8m-git-nbd93-x64.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-nbd93-x64.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/src/NetBSD-AMD64-crossgcc/
@@ -1398,8 +1400,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-nbd93-586.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-nbd93-586.tar
+    - ( cd src && tar cvf ../dps8m-git-nbd93-586.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-nbd93-586.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1409,8 +1411,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-nbd93-686.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-nbd93-686.tar
+    - ( cd src && tar cvf ../dps8m-git-nbd93-686.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-nbd93-686.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/src/NetBSD-i386-crossgcc/
@@ -1425,8 +1427,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-nbd93-vax.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-nbd93-vax.tar
+    - ( cd src && tar cvf ../dps8m-git-nbd93-vax.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-nbd93-vax.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/src/NetBSD-VAX-crossgcc/
@@ -1440,8 +1442,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-nbd93-axp.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-nbd93-axp.tar
+    - ( cd src && tar cvf ../dps8m-git-nbd93-axp.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-nbd93-axp.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1451,8 +1453,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-nbd93-ax5.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-nbd93-ax5.tar
+    - ( cd src && tar cvf ../dps8m-git-nbd93-ax5.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-nbd93-ax5.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1462,8 +1464,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-nbd93-ax6.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-nbd93-ax6.tar
+    - ( cd src && tar cvf ../dps8m-git-nbd93-ax6.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-nbd93-ax6.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/src/NetBSD-alpha-crossgcc/
@@ -1477,8 +1479,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-nbd93-970.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-nbd93-970.tar
+    - ( cd src && tar cvf ../dps8m-git-nbd93-970.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-nbd93-970.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1488,8 +1490,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-nbd93-pg4.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-nbd93-pg4.tar
+    - ( cd src && tar cvf ../dps8m-git-nbd93-pg4.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-nbd93-pg4.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1499,8 +1501,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-nbd93-740.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-nbd93-740.tar
+    - ( cd src && tar cvf ../dps8m-git-nbd93-740.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-nbd93-740.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1510,8 +1512,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-nbd93-603.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-nbd93-603.tar
+    - ( cd src && tar cvf ../dps8m-git-nbd93-603.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-nbd93-603.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1521,8 +1523,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-nbd93-601.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-nbd93-601.tar
+    - ( cd src && tar cvf ../dps8m-git-nbd93-601.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-nbd93-601.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/src/NetBSD-powerpc-crossgcc/
@@ -1535,8 +1537,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-nbd93-s64.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-nbd93-s64.tar
+    - ( cd src && tar cvf ../dps8m-git-nbd93-s64.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-nbd93-s64.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/src/NetBSD-sparc64-crossgcc/
@@ -1551,8 +1553,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-nbd93-s32.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-nbd93-s32.tar
+    - ( cd src && tar cvf ../dps8m-git-nbd93-s32.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-nbd93-s32.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - rm -rf /home/jhj/src/NetBSD-sparc-crossgcc/
@@ -1565,8 +1567,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-iloi-641.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-iloi-641.tar
+    - ( cd src && tar cvf ../dps8m-git-iloi-641.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-iloi-641.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1576,8 +1578,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-iloi-642.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-iloi-642.tar
+    - ( cd src && tar cvf ../dps8m-git-iloi-642.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-iloi-642.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1587,8 +1589,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-iloi-643.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-iloi-643.tar
+    - ( cd src && tar cvf ../dps8m-git-iloi-643.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-iloi-643.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1598,8 +1600,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-iloi-644.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-iloi-644.tar
+    - ( cd src && tar cvf ../dps8m-git-iloi-644.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-iloi-644.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - chmod u+rwx /home/jhj/src/OI-AMD64-crossgcc/ || true
@@ -1613,8 +1615,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-s114-641.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-s114-641.tar
+    - ( cd src && tar cvf ../dps8m-git-s114-641.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-s114-641.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1624,8 +1626,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-s114-642.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-s114-642.tar
+    - ( cd src && tar cvf ../dps8m-git-s114-642.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-s114-642.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1635,8 +1637,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-s114-643.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-s114-643.tar
+    - ( cd src && tar cvf ../dps8m-git-s114-643.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-s114-643.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1646,8 +1648,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-s114-644.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-s114-644.tar
+    - ( cd src && tar cvf ../dps8m-git-s114-644.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-s114-644.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - chmod -R u+rwx /home/jhj/src/Solaris-AMD64-crossgcc/ || true
@@ -1661,8 +1663,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-df622-644.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-df622-644.tar
+    - ( cd src && tar cvf ../dps8m-git-df622-644.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-df622-644.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1672,8 +1674,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-df622-643.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-df622-643.tar
+    - ( cd src && tar cvf ../dps8m-git-df622-643.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-df622-643.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1683,8 +1685,8 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-df622-642.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-df622-642.tar
+    - ( cd src && tar cvf ../dps8m-git-df622-642.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-df622-642.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - *scriptDPS8Mods
@@ -1694,97 +1696,248 @@ Cross-compiled release binaries:
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-df622-641.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-df622-641.tar
+    - ( cd src && tar cvf ../dps8m-git-df622-641.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-df622-641.tar
     - rm -rf "src/${DISTDIR:?}"
     - gmake distclean
     - chmod u+rwx /home/jhj/x-tools/dfly-6.2.2 || true
     - rm -rf /home/jhj/x-tools/dfly-6.2.2 || true
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/powerpc64-local-linux-musl.tar.lz" -O /powerpc64-local-linux-musl.tar.lz
+    - ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /powerpc64-local-linux-musl.tar.lz )
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=970
+    - env PATH="/home/jhj/x-tools/powerpc64-local-linux-musl/bin:${PATH}" CC="/home/jhj/x-tools/powerpc64-local-linux-musl/bin/powerpc64-local-linux-musl-gcc" CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko -Dfopen64=fopen" LOCAL_CONFOPTS="--host=powerpc64-local-linux-musl" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH="/home/jhj/x-tools/powerpc64-local-linux-musl/bin:${PATH}" CC="/home/jhj/x-tools/powerpc64-local-linux-musl/bin/powerpc64-local-linux-musl-gcc" CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko -Dfopen64=fopen" LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-git-linux-970.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-970.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=power3
+    - env PATH="/home/jhj/x-tools/powerpc64-local-linux-musl/bin:${PATH}" CC="/home/jhj/x-tools/powerpc64-local-linux-musl/bin/powerpc64-local-linux-musl-gcc" CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko -Dfopen64=fopen" LOCAL_CONFOPTS="--host=powerpc64-local-linux-musl" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH="/home/jhj/x-tools/powerpc64-local-linux-musl/bin:${PATH}" CC="/home/jhj/x-tools/powerpc64-local-linux-musl/bin/powerpc64-local-linux-musl-gcc" CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko -Dfopen64=fopen" LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-git-linux-bp3.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-bp3.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=e6500
+    - env PATH="/home/jhj/x-tools/powerpc64-local-linux-musl/bin:${PATH}" CC="/home/jhj/x-tools/powerpc64-local-linux-musl/bin/powerpc64-local-linux-musl-gcc" CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko -Dfopen64=fopen" LOCAL_CONFOPTS="--host=powerpc64-local-linux-musl" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH="/home/jhj/x-tools/powerpc64-local-linux-musl/bin:${PATH}" CC="/home/jhj/x-tools/powerpc64-local-linux-musl/bin/powerpc64-local-linux-musl-gcc" CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko -Dfopen64=fopen" LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-git-linux-e65.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-e65.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=rs64
+    - env PATH="/home/jhj/x-tools/powerpc64-local-linux-musl/bin:${PATH}" CC="/home/jhj/x-tools/powerpc64-local-linux-musl/bin/powerpc64-local-linux-musl-gcc" CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko -Dfopen64=fopen" LOCAL_CONFOPTS="--host=powerpc64-local-linux-musl" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH="/home/jhj/x-tools/powerpc64-local-linux-musl/bin:${PATH}" CC="/home/jhj/x-tools/powerpc64-local-linux-musl/bin/powerpc64-local-linux-musl-gcc" CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko -Dfopen64=fopen" LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-git-linux-rs6.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-rs6.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=power4
+    - env PATH="/home/jhj/x-tools/powerpc64-local-linux-musl/bin:${PATH}" CC="/home/jhj/x-tools/powerpc64-local-linux-musl/bin/powerpc64-local-linux-musl-gcc" CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko -Dfopen64=fopen" LOCAL_CONFOPTS="--host=powerpc64-local-linux-musl" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH="/home/jhj/x-tools/powerpc64-local-linux-musl/bin:${PATH}" CC="/home/jhj/x-tools/powerpc64-local-linux-musl/bin/powerpc64-local-linux-musl-gcc" CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko -Dfopen64=fopen" LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-git-linux-bp4.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-bp4.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=power5
+    - env PATH="/home/jhj/x-tools/powerpc64-local-linux-musl/bin:${PATH}" CC="/home/jhj/x-tools/powerpc64-local-linux-musl/bin/powerpc64-local-linux-musl-gcc" CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko -Dfopen64=fopen" LOCAL_CONFOPTS="--host=powerpc64-local-linux-musl" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH="/home/jhj/x-tools/powerpc64-local-linux-musl/bin:${PATH}" CC="/home/jhj/x-tools/powerpc64-local-linux-musl/bin/powerpc64-local-linux-musl-gcc" CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko -Dfopen64=fopen" LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-git-linux-bp5.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-bp5.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=power6
+    - env PATH="/home/jhj/x-tools/powerpc64-local-linux-musl/bin:${PATH}" CC="/home/jhj/x-tools/powerpc64-local-linux-musl/bin/powerpc64-local-linux-musl-gcc" CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko -Dfopen64=fopen" LOCAL_CONFOPTS="--host=powerpc64-local-linux-musl" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH="/home/jhj/x-tools/powerpc64-local-linux-musl/bin:${PATH}" CC="/home/jhj/x-tools/powerpc64-local-linux-musl/bin/powerpc64-local-linux-musl-gcc" CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko -Dfopen64=fopen" LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-git-linux-bp6.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-bp6.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=power7
+    - env PATH="/home/jhj/x-tools/powerpc64-local-linux-musl/bin:${PATH}" CC="/home/jhj/x-tools/powerpc64-local-linux-musl/bin/powerpc64-local-linux-musl-gcc" CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko -Dfopen64=fopen" LOCAL_CONFOPTS="--host=powerpc64-local-linux-musl" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH="/home/jhj/x-tools/powerpc64-local-linux-musl/bin:${PATH}" CC="/home/jhj/x-tools/powerpc64-local-linux-musl/bin/powerpc64-local-linux-musl-gcc" CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko -Dfopen64=fopen" LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-git-linux-bp7.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-bp7.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=power8
+    - env PATH="/home/jhj/x-tools/powerpc64-local-linux-musl/bin:${PATH}" CC="/home/jhj/x-tools/powerpc64-local-linux-musl/bin/powerpc64-local-linux-musl-gcc" CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko -Dfopen64=fopen" LOCAL_CONFOPTS="--host=powerpc64-local-linux-musl" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH="/home/jhj/x-tools/powerpc64-local-linux-musl/bin:${PATH}" CC="/home/jhj/x-tools/powerpc64-local-linux-musl/bin/powerpc64-local-linux-musl-gcc" CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko -Dfopen64=fopen" LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-git-linux-bp8.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-bp8.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=power9
+    - env PATH="/home/jhj/x-tools/powerpc64-local-linux-musl/bin:${PATH}" CC="/home/jhj/x-tools/powerpc64-local-linux-musl/bin/powerpc64-local-linux-musl-gcc" CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko -Dfopen64=fopen" LOCAL_CONFOPTS="--host=powerpc64-local-linux-musl" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH="/home/jhj/x-tools/powerpc64-local-linux-musl/bin:${PATH}" CC="/home/jhj/x-tools/powerpc64-local-linux-musl/bin/powerpc64-local-linux-musl-gcc" CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko -Dfopen64=fopen" LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-git-linux-bp9.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-bp9.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=power10
+    - env PATH="/home/jhj/x-tools/powerpc64-local-linux-musl/bin:${PATH}" CC="/home/jhj/x-tools/powerpc64-local-linux-musl/bin/powerpc64-local-linux-musl-gcc" CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko -Dfopen64=fopen" LOCAL_CONFOPTS="--host=powerpc64-local-linux-musl" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH="/home/jhj/x-tools/powerpc64-local-linux-musl/bin:${PATH}" CC="/home/jhj/x-tools/powerpc64-local-linux-musl/bin/powerpc64-local-linux-musl-gcc" CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko -Dfopen64=fopen" LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-git-linux-bpt.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-bpt.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - chmod -R u+rwx /home/jhj/x-tools/powerpc64-local-linux-musl || true
+    - rm -rf /home/jhj/x-tools/powerpc64-local-linux-musl || true
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/powerpcle-local-linux-musl.tar.lz" -O /powerpcle-local-linux-musl.tar.lz
+    - ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /powerpcle-local-linux-musl.tar.lz )
+    - *scriptDPS8Mods
+    - env PATH="/home/jhj/x-tools/powerpcle-local-linux-musl/bin:${PATH}" CC="/home/jhj/x-tools/powerpcle-local-linux-musl/bin/powerpcle-local-linux-musl-gcc" LOCAL_CONFOPTS="--host=powerpcle-local-linux-musl" LDFLAGS="-static" CFLAGS="-Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko -Dfopen64=fopen -mcpu=powerpc" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH="/home/jhj/x-tools/powerpcle-local-linux-musl/bin:${PATH}" CC="/home/jhj/x-tools/powerpcle-local-linux-musl/bin/powerpcle-local-linux-musl-gcc" LDFLAGS="-static" CFLAGS="-Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko -Dfopen64=fopen -mcpu=powerpc" gmake NEED_128=1 ATOMICS="GNU" LOCALLIBS="-latomic" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-git-linux-ple.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-linux-ple.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - chmod -R u+rwx /home/jhj/x-tools/powerpcle-local-linux-musl || true
+    - rm -rf /home/jhj/x-tools/powerpcle-local-linux-musl || true
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - dps8m-master-df622-644.tar.gz
-      - dps8m-master-df622-643.tar.gz
-      - dps8m-master-df622-642.tar.gz
-      - dps8m-master-df622-641.tar.gz
-      - dps8m-master-iloi-644.tar.gz
-      - dps8m-master-iloi-643.tar.gz
-      - dps8m-master-iloi-642.tar.gz
-      - dps8m-master-iloi-641.tar.gz
-      - dps8m-master-s114-644.tar.gz
-      - dps8m-master-s114-643.tar.gz
-      - dps8m-master-s114-642.tar.gz
-      - dps8m-master-s114-641.tar.gz
-      - dps8m-master-nbd93-s32.tar.gz
-      - dps8m-master-nbd93-s64.tar.gz
-      - dps8m-master-nbd93-970.tar.gz
-      - dps8m-master-nbd93-pg4.tar.gz
-      - dps8m-master-nbd93-740.tar.gz
-      - dps8m-master-nbd93-603.tar.gz
-      - dps8m-master-nbd93-601.tar.gz
-      - dps8m-master-nbd93-ax6.tar.gz
-      - dps8m-master-nbd93-ax5.tar.gz
-      - dps8m-master-nbd93-axp.tar.gz
-      - dps8m-master-nbd93-vax.tar.gz
-      - dps8m-master-nbd93-686.tar.gz
-      - dps8m-master-nbd93-586.tar.gz
-      - dps8m-master-fbd13-a64.tar.gz
-      - dps8m-master-fbd13-x61.tar.gz
-      - dps8m-master-fbd13-x62.tar.gz
-      - dps8m-master-fbd13-x63.tar.gz
-      - dps8m-master-fbd13-x64.tar.gz
-      - dps8m-master-fbd13-x32.tar.gz
-      - dps8m-master-fbd13-a32.tar.gz
-      - dps8m-master-nbd93-x61.tar.gz
-      - dps8m-master-nbd93-x62.tar.gz
-      - dps8m-master-nbd93-x63.tar.gz
-      - dps8m-master-nbd93-x64.tar.gz
-      - dps8m-master-linux-l64.tar.gz
-      - dps8m-master-linux-s32.tar.gz
-      - dps8m-master-linux-s64.tar.gz
-      - dps8m-master-linux-m6l.tar.gz
-      - dps8m-master-linux-m64.tar.gz
-      - dps8m-master-linux-mpl.tar.gz
-      - dps8m-master-linux-mps.tar.gz
-      - dps8m-master-linux-ork.tar.gz
-      - dps8m-master-linux-641.tar.gz
-      - dps8m-master-linux-642.tar.gz
-      - dps8m-master-linux-643.tar.gz
-      - dps8m-master-linux-644.tar.gz
-      - dps8m-master-linux-a8r.tar.gz
-      - dps8m-master-linux-a8b.tar.gz
-      - dps8m-master-linux-a8a.tar.gz
-      - dps8m-master-linux-a7f.tar.gz
-      - dps8m-master-linux-a7s.tar.gz
-      - dps8m-master-linux-a6f.tar.gz
-      - dps8m-master-linux-a6s.tar.gz
-      - dps8m-master-linux-a5s.tar.gz
-      - dps8m-master-linux-601.tar.gz
-      - dps8m-master-linux-603.tar.gz
-      - dps8m-master-linux-740.tar.gz
-      - dps8m-master-linux-g4a.tar.gz
-      - dps8m-master-linux-g4e.tar.gz
-      - dps8m-master-linux-r64.tar.gz
-      - dps8m-master-linux-390.tar.gz
-      - dps8m-master-ndk29-a64.tar.gz
-      - dps8m-master-ndk29-a32.tar.gz
-      - dps8m-master-ndk29-x64.tar.gz
-      - dps8m-master-ndk29-x32.tar.gz
-      - dps8m-master-ndk24-a64.tar.gz
-      - dps8m-master-ndk24-a32.tar.gz
-      - dps8m-master-ndk24-x64.tar.gz
-      - dps8m-master-ndk24-x32.tar.gz
-      - dps8m-master-haiku-x64.tar.gz
-      - dps8m-master-linux-060.tar.gz
-      - dps8m-master-linux-040.tar.gz
-      - dps8m-master-linux-030.tar.gz
-      - dps8m-master-linux-020.tar.gz
-      - dps8m-master-aixv7-pw6.tar.gz
-      - dps8m-master-aixv7-pw7.tar.gz
-      - dps8m-master-aixv7-pw8.tar.gz
-      - dps8m-master-aixv7-pw9.tar.gz
-      - dps8m-master-aixv7-p10.tar.gz
+      - dps8m-git-linux-ple.tar.gz
+      - dps8m-git-linux-bpt.tar.gz
+      - dps8m-git-linux-bp9.tar.gz
+      - dps8m-git-linux-bp8.tar.gz
+      - dps8m-git-linux-bp7.tar.gz
+      - dps8m-git-linux-bp6.tar.gz
+      - dps8m-git-linux-bp5.tar.gz
+      - dps8m-git-linux-bp4.tar.gz
+      - dps8m-git-linux-bp3.tar.gz
+      - dps8m-git-linux-rs6.tar.gz
+      - dps8m-git-linux-e65.tar.gz
+      - dps8m-git-linux-970.tar.gz
+      - dps8m-git-df622-644.tar.gz
+      - dps8m-git-df622-643.tar.gz
+      - dps8m-git-df622-642.tar.gz
+      - dps8m-git-df622-641.tar.gz
+      - dps8m-git-iloi-644.tar.gz
+      - dps8m-git-iloi-643.tar.gz
+      - dps8m-git-iloi-642.tar.gz
+      - dps8m-git-iloi-641.tar.gz
+      - dps8m-git-s114-644.tar.gz
+      - dps8m-git-s114-643.tar.gz
+      - dps8m-git-s114-642.tar.gz
+      - dps8m-git-s114-641.tar.gz
+      - dps8m-git-nbd93-s32.tar.gz
+      - dps8m-git-nbd93-s64.tar.gz
+      - dps8m-git-nbd93-970.tar.gz
+      - dps8m-git-nbd93-pg4.tar.gz
+      - dps8m-git-nbd93-740.tar.gz
+      - dps8m-git-nbd93-603.tar.gz
+      - dps8m-git-nbd93-601.tar.gz
+      - dps8m-git-nbd93-ax6.tar.gz
+      - dps8m-git-nbd93-ax5.tar.gz
+      - dps8m-git-nbd93-axp.tar.gz
+      - dps8m-git-nbd93-vax.tar.gz
+      - dps8m-git-nbd93-686.tar.gz
+      - dps8m-git-nbd93-586.tar.gz
+      - dps8m-git-fbd13-a64.tar.gz
+      - dps8m-git-fbd13-x61.tar.gz
+      - dps8m-git-fbd13-x62.tar.gz
+      - dps8m-git-fbd13-x63.tar.gz
+      - dps8m-git-fbd13-x64.tar.gz
+      - dps8m-git-fbd13-x32.tar.gz
+      - dps8m-git-fbd13-a32.tar.gz
+      - dps8m-git-nbd93-x61.tar.gz
+      - dps8m-git-nbd93-x62.tar.gz
+      - dps8m-git-nbd93-x63.tar.gz
+      - dps8m-git-nbd93-x64.tar.gz
+      - dps8m-git-linux-l64.tar.gz
+      - dps8m-git-linux-s32.tar.gz
+      - dps8m-git-linux-s64.tar.gz
+      - dps8m-git-linux-m6l.tar.gz
+      - dps8m-git-linux-m64.tar.gz
+      - dps8m-git-linux-mpl.tar.gz
+      - dps8m-git-linux-mps.tar.gz
+      - dps8m-git-linux-ork.tar.gz
+      - dps8m-git-linux-641.tar.gz
+      - dps8m-git-linux-642.tar.gz
+      - dps8m-git-linux-643.tar.gz
+      - dps8m-git-linux-644.tar.gz
+      - dps8m-git-linux-a8r.tar.gz
+      - dps8m-git-linux-a8b.tar.gz
+      - dps8m-git-linux-a8a.tar.gz
+      - dps8m-git-linux-a7f.tar.gz
+      - dps8m-git-linux-a7s.tar.gz
+      - dps8m-git-linux-a6f.tar.gz
+      - dps8m-git-linux-a6s.tar.gz
+      - dps8m-git-linux-a5s.tar.gz
+      - dps8m-git-linux-601.tar.gz
+      - dps8m-git-linux-603.tar.gz
+      - dps8m-git-linux-740.tar.gz
+      - dps8m-git-linux-g4a.tar.gz
+      - dps8m-git-linux-g4e.tar.gz
+      - dps8m-git-linux-r64.tar.gz
+      - dps8m-git-linux-390.tar.gz
+      - dps8m-git-ndk29-a64.tar.gz
+      - dps8m-git-ndk29-a32.tar.gz
+      - dps8m-git-ndk29-x64.tar.gz
+      - dps8m-git-ndk29-x32.tar.gz
+      - dps8m-git-ndk24-a64.tar.gz
+      - dps8m-git-ndk24-a32.tar.gz
+      - dps8m-git-ndk24-x64.tar.gz
+      - dps8m-git-ndk24-x32.tar.gz
+      - dps8m-git-haiku-x64.tar.gz
+      - dps8m-git-linux-060.tar.gz
+      - dps8m-git-linux-040.tar.gz
+      - dps8m-git-linux-030.tar.gz
+      - dps8m-git-linux-020.tar.gz
+      - dps8m-git-aixv7-pw6.tar.gz
+      - dps8m-git-aixv7-pw7.tar.gz
+      - dps8m-git-aixv7-pw8.tar.gz
+      - dps8m-git-aixv7-pw9.tar.gz
+      - dps8m-git-aixv7-p10.tar.gz
   retry: 2
   timeout: 300 minutes
   interruptible: true
@@ -1812,18 +1965,18 @@ Windows/x86_64, Cygwin64-GCC:
     - *scriptBuildInfo
     - cp -vf /usr/x86_64-pc-cygwin/sys-root/usr/bin/cygwin1.dll ${CI_PROJECT_DIR:?}
     - rm -f "${CI_PROJECT_DIR:?}/cygwin1.dll"
-    - export DISTDIR="dps8-master-cygwin-64"
+    - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8.exe src/prt2pdf/prt2pdf.exe src/punutil/punutil.exe "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-cygwin-64.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-cygwin-64.tar
+    - ( cd src && tar cvf ../dps8m-git-cygwin-64.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-cygwin-64.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - dps8m-master-cygwin-64.tar.gz
+      - dps8m-git-cygwin-64.tar.gz
       - dps8m.zip
   retry: 2
   timeout: 45 minutes
@@ -1852,18 +2005,18 @@ Windows/i686, Cygwin32-GCC:
     - *scriptBuildInfo
     - cp -vf /usr/i686-pc-cygwin/sys-root/usr/bin/cygwin1.dll ${CI_PROJECT_DIR:?}
     - rm -f "${CI_PROJECT_DIR:?}/cygwin1.dll"
-    - export DISTDIR="dps8-master-cygwin-32"
+    - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8.exe src/prt2pdf/prt2pdf.exe src/punutil/punutil.exe "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-cygwin-32.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-cygwin-32.tar
+    - ( cd src && tar cvf ../dps8m-git-cygwin-32.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-cygwin-32.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - dps8m-master-cygwin-32.tar.gz
+      - dps8m-git-cygwin-32.tar.gz
       - dps8m.zip
   retry: 2
   timeout: 45 minutes
@@ -2131,18 +2284,18 @@ AIX/powerpc64, IBM AIX, GCC:
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
-    - export DISTDIR="dps8-$(./src/dps8/dps8 --version | awk '{ print $3 }' | tr -cd '0-9A-z.\-\_\+' | tr '+' '_')"
+    - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-aixv7-gcc.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-aixv7-gcc.tar
+    - ( cd src && tar cvf ../dps8m-git-aixv7-gcc.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-aixv7-gcc.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - dps8m-master-aixv7-gcc.tar.gz
+      - dps8m-git-aixv7-gcc.tar.gz
       - src/dps8/dps8.lz
       - src/prt2pdf/prt2pdf.lz
       - src/punutil/punutil.lz
@@ -2168,18 +2321,18 @@ AIX/powerpc64, IBM AIX, IBM XL C/C++ V16.1:
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
-    - export DISTDIR="dps8-$(./src/dps8/dps8 --version | awk '{ print $3 }' | tr -cd '0-9A-z.\-\_\+' | tr '+' '_')"
+    - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-aixv7-xlc.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-aixv7-xlc.tar
+    - ( cd src && tar cvf ../dps8m-git-aixv7-xlc.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-aixv7-xlc.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - dps8m-master-aixv7-xlc.tar.gz
+      - dps8m-git-aixv7-xlc.tar.gz
       - src/dps8/dps8.lz
       - src/prt2pdf/prt2pdf.lz
       - src/punutil/punutil.lz
@@ -2191,7 +2344,6 @@ AIX/powerpc64, IBM AIX, IBM XL C/C++ V16.1:
 ############################################################################
 
 AIX/powerpc64, IBM AIX, IBM XL Clang V16.1:
-  when: manual
   stage: build
   tags:
     - AIX
@@ -2238,18 +2390,18 @@ Linux/powerpc64el, Ubuntu LTS, IBM XL C/C++:
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
-    - export DISTDIR="dps8-$(./src/dps8/dps8 --version | awk '{ print $3 }' | tr -cd '0-9A-z.\-\_\+' | tr '+' '_')"
+    - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-xlc.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -n dps8m-master-linux-xlc.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-xlc.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -n dps8m-git-linux-xlc.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - dps8m-master-linux-xlc.tar.gz
+      - dps8m-git-linux-xlc.tar.gz
       - src/dps8/dps8.lz
       - src/prt2pdf/prt2pdf.lz
       - src/punutil/punutil.lz
@@ -2261,7 +2413,6 @@ Linux/powerpc64el, Ubuntu LTS, IBM XL C/C++:
 ############################################################################
 
 Linux/powerpc64el, IBM Advance Toolchain 15:
-  when: manual
   stage: build
   tags:
     - Shell-Linux
@@ -2277,18 +2428,18 @@ Linux/powerpc64el, IBM Advance Toolchain 15:
     - export IBMATVER="15.0" && export PATH="/opt/at${IBMATVER:?}/bin:/opt/at${IBMATVER:?}/sbin:/opt/at${IBMATVER:?}/powerpc64le-linux-gnu/bin:${PATH:?}" && cc --version 2>&1 | grep "Advance" && make CC="gcc -DNO_WARN_X86_INTRINSICS -ftree-vectorize -fpeel-loops -mcpu=power8 -mtune=power8 -fsigned-char -Ofast -flto" LIBS="-L/opt/at${IBMATVER:?}/lib64 -luv -ldl -lrt -lm -flto" -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptVerifyVersion
-    - export DISTDIR="dps8-$(./src/dps8/dps8 --version | awk '{ print $3 }' | tr -cd '0-9A-z.\-\_\+' | tr '+' '_')"
+    - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-linux-at8.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -n dps8m-master-linux-at8.tar
+    - ( cd src && tar cvf ../dps8m-git-linux-at8.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -n dps8m-git-linux-at8.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - dps8m-master-linux-at8.tar.gz
+      - dps8m-git-linux-at8.tar.gz
       - src/dps8/dps8.lz
       - src/prt2pdf/prt2pdf.lz
       - src/punutil/punutil.lz
@@ -2319,13 +2470,13 @@ Windows/ARM64, LLVM-MinGW:
     - mkdir -p src/dps8-master-mingw-a64
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt src/dps8-master-mingw-a64
     - cp -f src/dps8/dps8.exe src/prt2pdf/prt2pdf.exe src/punutil/punutil.exe src/dps8-master-mingw-a64
-    - ( cd src && zip -9 ../dps8m-master-mingw-a64.zip ./dps8-master-mingw-a64/* )
+    - ( cd src && zip -9 ../dps8m-git-mingw-a64.zip ./dps8-master-mingw-a64/* )
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - dps8m-master-mingw-a64.zip
+      - dps8m-git-mingw-a64.zip
       - dps8m.zip
   retry: 2
   timeout: 45 minutes
@@ -2353,13 +2504,13 @@ Windows/ARMv7, LLVM-MinGW:
     - mkdir -p src/dps8-master-mingw-av7
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt src/dps8-master-mingw-av7
     - cp -f src/dps8/dps8.exe src/prt2pdf/prt2pdf.exe src/punutil/punutil.exe src/dps8-master-mingw-av7
-    - ( cd src && zip -9 ../dps8m-master-mingw-av7.zip ./dps8-master-mingw-av7/* )
+    - ( cd src && zip -9 ../dps8m-git-mingw-av7.zip ./dps8-master-mingw-av7/* )
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - dps8m-master-mingw-av7.zip
+      - dps8m-git-mingw-av7.zip
       - dps8m.zip
   retry: 2
   timeout: 45 minutes
@@ -2387,13 +2538,13 @@ Windows/i686, LLVM-MinGW:
     - mkdir -p src/dps8-master-mingw-x32
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt src/dps8-master-mingw-x32
     - cp -f src/dps8/dps8.exe src/prt2pdf/prt2pdf.exe src/punutil/punutil.exe src/dps8-master-mingw-x32
-    - ( cd src && zip -9 ../dps8m-master-mingw-x32.zip ./dps8-master-mingw-x32/* )
+    - ( cd src && zip -9 ../dps8m-git-mingw-x32.zip ./dps8-master-mingw-x32/* )
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - dps8m-master-mingw-x32.zip
+      - dps8m-git-mingw-x32.zip
       - dps8m.zip
   retry: 2
   timeout: 45 minutes
@@ -2453,13 +2604,13 @@ Windows/x86_64, MinGW64-GCC:
     - mkdir -p src/dps8-master-mingw-x86
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt src/dps8-master-mingw-x86
     - cp -f src/dps8/dps8.exe src/prt2pdf/prt2pdf.exe src/punutil/punutil.exe src/dps8-master-mingw-x86
-    - ( cd src && zip -9 ../dps8m-master-mingw-x86.zip ./dps8-master-mingw-x86/* )
+    - ( cd src && zip -9 ../dps8m-git-mingw-x86.zip ./dps8-master-mingw-x86/* )
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - dps8m-master-mingw-x86.zip
+      - dps8m-git-mingw-x86.zip
       - dps8m.zip
   retry: 2
   timeout: 45 minutes
@@ -2524,23 +2675,23 @@ Source Kits:
     - cp -vf sources.tar.gz /tmp
     - make distclean && make zipdist
     - cp -vf /tmp/sources.tar.gz .
-    - mv sources.zip dps8m-master-src.zip
-    - mv sources.tar.gz dps8m-master-src.tar.gz
+    - mv sources.zip dps8m-git-src.zip
+    - mv sources.tar.gz dps8m-git-src.tar.gz
     - make distclean && make dist COMPRESS="lzip -9 -s 512Mi" COMPRESSXT="lz"
-    - mv sources.tar.lz dps8m-master-src.tar.lz
+    - mv sources.tar.lz dps8m-git-src.tar.lz
     - make distclean && env COMPRESSXT="7z" COMPRESS='( mkdir -p 7ztmp && cd 7ztmp && tar xf ../../../$(KITNAME).$(TARXT) && 7zz a -y -m0=lzma -mx=9 -mfb=273 -ssc -ssw -spf -snl -md=512m -ms=on -stl -sdel ../../../$(KITNAME).$(COMPRESSXT) . ) && $(RMDIR) 7ztmp && $(RMF) $(KITNAME).$(TARXT)' make dist
-    - mv sources.7z dps8m-master-src.7z
+    - mv sources.7z dps8m-git-src.7z
     - make distclean && env COMPRESSXT="zpaq" COMPRESS='( mkdir -p zpaqtmp && cd zpaqtmp && tar xf ../../../$(KITNAME).$(TARXT) && zpaq -f add ../../../$(KITNAME).$(COMPRESSXT) . -m5 ) && $(RMF) -r ./zpaqtmp && $(RMF) $(KITNAME).$(TARXT)' make dist
-    - mv sources.zpaq dps8m-master-src.zpaq
+    - mv sources.zpaq dps8m-git-src.zpaq
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - dps8m-master-src.tar.lz
-      - dps8m-master-src.tar.gz
-      - dps8m-master-src.7z
-      - dps8m-master-src.zip
-      - dps8m-master-src.zpaq
+      - dps8m-git-src.tar.lz
+      - dps8m-git-src.tar.gz
+      - dps8m-git-src.7z
+      - dps8m-git-src.zip
+      - dps8m-git-src.zpaq
   retry: 2
   timeout: 45 minutes
   interruptible: true
@@ -2632,7 +2783,6 @@ Linux/x86_64, Ubuntu LTS, Clang, GCC:
 ############################################################################
 
 Linux/x86_64, Void glibc, Clang, GCC:
-  when: manual
   image:
     name: voidlinux/voidlinux:latest
     entrypoint: [ '/bin/sh', '-c', 'xbps-install -Suy xbps; xbps-install -Suy xbps; xbps-install -Suy bash; xbps-install -Suy bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
@@ -2675,7 +2825,6 @@ Linux/x86_64, Void glibc, Clang, GCC:
 ############################################################################
 
 Linux/x86_64, Void musl, static, Clang, GCC:
-  when: manual
   image:
     name: voidlinux/voidlinux-musl:latest
     entrypoint: [ '/bin/sh', '-c', 'xbps-install -Suy xbps; xbps-install -Suy xbps; xbps-install -Suy bash; xbps-install -Suy bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
@@ -2718,7 +2867,6 @@ Linux/x86_64, Void musl, static, Clang, GCC:
 ############################################################################
 
 Solaris/x86_64, Oracle Solaris 11.4, GCC:
-  when: manual
   stage: build
   tags:
     - Solaris
@@ -2733,18 +2881,18 @@ Solaris/x86_64, Oracle Solaris 11.4, GCC:
     - echo "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
-    - export DISTDIR="dps8-$(./src/dps8/dps8 --version | gawk '{ print $3 }' | gtr -cd '0-9A-z.\-\_\+' | gtr '+' '_')"
+    - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-s114-x86.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -n dps8m-master-s114-x86.tar
+    - ( cd src && tar cvf ../dps8m-git-s114-x86.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -n dps8m-git-s114-x86.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - dps8m-master-s114-x86.tar.gz
+      - dps8m-git-s114-x86.tar.gz
       - src/dps8/dps8.lz
       - src/prt2pdf/prt2pdf.lz
       - src/punutil/punutil.lz
@@ -2756,7 +2904,6 @@ Solaris/x86_64, Oracle Solaris 11.4, GCC:
 ############################################################################
 
 Solaris/x86_64, Oracle Solaris 11.4, Oracle Developer Studio:
-  when: manual
   stage: build
   tags:
     - Solaris
@@ -2788,7 +2935,6 @@ Solaris/x86_64, Oracle Solaris 11.4, Oracle Developer Studio:
 ############################################################################
 
 illumos/x86_64, OpenIndiana Hipster, Clang, GCC:
-  when: manual
   stage: build
   tags:
     - OpenIndiana
@@ -2809,18 +2955,18 @@ illumos/x86_64, OpenIndiana Hipster, Clang, GCC:
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
-    - export DISTDIR="dps8-$(./src/dps8/dps8 --version | awk '{ print $3 }' | tr -cd '0-9A-z.\-\_\+' | tr '+' '_')"
+    - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-iloi-x86.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-iloi-x86.tar
+    - ( cd src && tar cvf ../dps8m-git-iloi-x86.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-iloi-x86.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - dps8m-master-iloi-x86.tar.gz
+      - dps8m-git-iloi-x86.tar.gz
       - src/dps8/dps8.lz
       - src/prt2pdf/prt2pdf.lz
       - src/punutil/punutil.lz
@@ -2847,18 +2993,18 @@ Darwin/x86_64, macOS, Xcode:
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
-    - export DISTDIR="dps8-$(./src/dps8/dps8 --version | awk '{ print $3 }' | tr -cd '0-9A-z.\-\_\+' | tr '+' '_')"
+    - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-macos-x86.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-macos-x86.tar
+    - ( cd src && tar cvf ../dps8m-git-macos-x86.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-macos-x86.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - dps8m-master-macos-x86.tar.gz
+      - dps8m-git-macos-x86.tar.gz
       - src/dps8/dps8.lz
       - src/prt2pdf/prt2pdf.lz
       - src/punutil/punutil.lz
@@ -2887,18 +3033,18 @@ Darwin/x86_64, macOS, static, Xcode:
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
-    - export DISTDIR="dps8-$(./src/dps8/dps8 --version | awk '{ print $3 }' | tr -cd '0-9A-z.\-\_\+' | tr '+' '_')"
+    - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-mac10-x86.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-mac10-x86.tar
+    - ( cd src && tar cvf ../dps8m-git-mac10-x86.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-mac10-x86.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - dps8m-master-mac10-x86.tar.gz
+      - dps8m-git-mac10-x86.tar.gz
       - src/dps8/dps8.lz
       - src/prt2pdf/prt2pdf.lz
       - src/punutil/punutil.lz
@@ -2924,18 +3070,18 @@ Darwin/ARM64, macOS, static, Xcode:
     - export DEPLOY="11.0"
     - env CFLAGS="-target arm64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}" LOCAL_CONFOPTS="--host=arm64-apple-darwin" make libuvrel HOMEBREW_INC= HOMEBREW_LIB= && env CFLAGS="-target arm64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}" LDFLAGS="-target arm64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}" make HOMEBREW_INC= HOMEBREW_LIB=
     - otool -l src/dps8/dps8 || true
-    - export DISTDIR="dps8-master"
+    - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-mac11-a64.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-mac11-a64.tar
+    - ( cd src && tar cvf ../dps8m-git-mac11-a64.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-mac11-a64.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - dps8m-master-mac11-a64.tar.gz
+      - dps8m-git-mac11-a64.tar.gz
       - src/dps8/dps8.lz
       - src/prt2pdf/prt2pdf.lz
       - src/punutil/punutil.lz
@@ -2971,18 +3117,18 @@ Darwin/Universal, macOS, static, Xcode:
     - rm -f "src/dps8/dps8" && cp -f "dps8" "src/dps8/dps8"
     - rm -f "src/prt2pdf/prt2pdf" && cp -f "prt2pdf" "src/prt2pdf/prt2pdf"
     - rm -f "src/punutil/punutil" && cp -f "punutil" "src/punutil/punutil"
-    - export DISTDIR="dps8-master"
+    - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cvf ../dps8m-master-macos-uni.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-master-macos-uni.tar
+    - ( cd src && tar cvf ../dps8m-git-macos-uni.tar "./${DISTDIR:?}" )
+    - pigz -9 -f -m -n dps8m-git-macos-uni.tar
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - dps8m-master-macos-uni.tar.gz
+      - dps8m-git-macos-uni.tar.gz
       - src/dps8/dps8.lz
       - src/prt2pdf/prt2pdf.lz
       - src/punutil/punutil.lz
@@ -3017,12 +3163,12 @@ NSIS Installer:
     - *scriptExtraInfo
     - cd "${CI_PROJECT_DIR:?}/.nsis" && env USE_CI=1 ./build-nsis.sh
     - cd "${CI_PROJECT_DIR:?}" && make distclean
-    - test -f "${CI_PROJECT_DIR:?}/.nsis/dps8m-master-win-setup.exe"
+    - test -f "${CI_PROJECT_DIR:?}/.nsis/dps8m-git-win-setup.exe"
   artifacts:
     when: always
     expire_in: 30 days
     paths:
-      - .nsis/dps8m-master-win-setup.exe
+      - .nsis/dps8m-git-win-setup.exe
   retry: 2
   timeout: 180 minutes
   interruptible: true
@@ -3477,115 +3623,127 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/out public/master/lint/clang-analyzer || true
   - mv -f ${CI_PROJECT_DIR:?}/pvsreport public/master/lint/pvs || true
   - mv -f ${CI_PROJECT_DIR:?}/docs/hpages/public/* public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-src.tar.lz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-src.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-src.7z public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-src.zip public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-src.zpaq public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-s32.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-s64.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-970.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-pg4.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-740.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-603.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-601.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-ax6.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-ax5.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-vax.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-axp.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-686.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-586.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-fbd13-a64.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-fbd13-x61.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-fbd13-x62.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-fbd13-x63.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-fbd13-x64.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-fbd13-x32.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-fbd13-a32.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-x61.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-x62.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-x63.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-nbd93-x64.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-l64.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-s64.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-s32.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-m6l.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-m64.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-mpl.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-mps.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-ork.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-641.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-642.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-643.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-644.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-a8r.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-a8b.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-a8a.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-a7f.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-a7s.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-a6f.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-a6s.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-a5s.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-601.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-603.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-740.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-g4a.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-g4e.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-r64.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-390.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-ndk29-a64.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-ndk29-a32.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-ndk29-x64.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-ndk29-x32.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-ndk24-a64.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-ndk24-a32.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-ndk24-x64.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-ndk24-x32.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-haiku-x64.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-060.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-040.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-030.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-020.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-aixv7-xlc.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-aixv7-gcc.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-aixv7-pw6.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-aixv7-pw7.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-aixv7-pw8.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-aixv7-pw9.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-aixv7-p10.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-x86.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-at8.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-ate.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-atn.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-att.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-linux-xlc.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-macos-x86.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-mac10-x86.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-mac11-a64.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-macos-uni.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-s114-644.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-s114-643.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-s114-642.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-s114-641.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-mingw-x86.zip public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-df622-644.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-df622-643.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-df622-642.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-df622-641.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-iloi-644.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-iloi-643.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-iloi-642.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-iloi-641.tar.gz public
-  - advzip -z4 public/dps8m-master-mingw-x86.zip
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-mingw-x32.zip public
-  - advzip -z4 public/dps8m-master-mingw-x32.zip
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-mingw-a64.zip public
-  - advzip -z4 public/dps8m-master-mingw-a64.zip
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-mingw-av7.zip public
-  - advzip -z4 public/dps8m-master-mingw-av7.zip
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-cygwin-64.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-master-cygwin-32.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/.nsis/dps8m-master-win-setup.exe public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-src.tar.lz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-src.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-src.7z public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-src.zip public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-src.zpaq public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-nbd93-s32.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-nbd93-s64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-nbd93-970.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-nbd93-pg4.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-nbd93-740.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-nbd93-603.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-nbd93-601.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-nbd93-ax6.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-nbd93-ax5.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-nbd93-vax.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-nbd93-axp.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-nbd93-686.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-nbd93-586.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-fbd13-a64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-fbd13-x61.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-fbd13-x62.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-fbd13-x63.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-fbd13-x64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-fbd13-x32.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-fbd13-a32.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-nbd93-x61.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-nbd93-x62.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-nbd93-x63.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-nbd93-x64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-l64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-s64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-s32.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-m6l.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-m64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-mpl.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-mps.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-ork.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-641.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-642.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-643.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-644.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-a8r.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-a8b.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-a8a.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-a7f.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-a7s.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-a6f.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-a6s.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-a5s.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-601.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-603.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-740.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-g4a.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-g4e.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-r64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-390.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-ndk29-a64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-ndk29-a32.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-ndk29-x64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-ndk29-x32.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-ndk24-a64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-ndk24-a32.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-ndk24-x64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-ndk24-x32.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-haiku-x64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-060.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-040.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-030.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-020.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-aixv7-xlc.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-aixv7-gcc.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-aixv7-pw6.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-aixv7-pw7.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-aixv7-pw8.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-aixv7-pw9.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-aixv7-p10.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-x86.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-at8.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-ate.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-atn.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-att.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-xlc.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-macos-x86.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-mac10-x86.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-mac11-a64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-macos-uni.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-s114-644.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-s114-643.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-s114-642.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-s114-641.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-mingw-x86.zip public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-df622-644.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-df622-643.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-df622-642.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-df622-641.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-iloi-644.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-iloi-643.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-iloi-642.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-iloi-641.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-bpt.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-ple.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-bp9.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-bp8.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-bp7.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-bp6.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-bp5.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-bp4.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-bp3.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-rs6.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-e65.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-970.tar.gz public
+  - advzip -z4 public/dps8m-git-mingw-x86.zip
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-mingw-x32.zip public
+  - advzip -z4 public/dps8m-git-mingw-x32.zip
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-mingw-a64.zip public
+  - advzip -z4 public/dps8m-git-mingw-a64.zip
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-mingw-av7.zip public
+  - advzip -z4 public/dps8m-git-mingw-av7.zip
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-cygwin-64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-cygwin-32.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/.nsis/dps8m-git-win-setup.exe public
   artifacts:
     paths:
     - public

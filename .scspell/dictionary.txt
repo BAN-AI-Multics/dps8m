@@ -5587,6 +5587,7 @@ advzip
 aecf
 aixv
 androideabi
+binfmt
 buildroot
 confopts
 cpuset
@@ -5655,6 +5656,7 @@ otool
 pcre
 pkgs
 plog
+powerpcle
 pvsreport
 roscspell
 sdel
