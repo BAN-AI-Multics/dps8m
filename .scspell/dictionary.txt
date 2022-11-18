@@ -5605,6 +5605,7 @@ doff
 elfutils
 emptylibs
 faceb
+fastzip
 fbea
 fopen
 fpic
@@ -5663,6 +5664,7 @@ sdel
 srvany
 sysroot
 tarxt
+uclibc
 viva
 xxhash
 zpaqtmp
