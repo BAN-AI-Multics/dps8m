@@ -40,7 +40,9 @@
 #    ifndef __OpenBSD__
 #     ifndef __HAIKU__
 #      ifndef __ANDROID__
-#       include <wordexp.h>
+#       ifndef __sh__
+#        include <wordexp.h>
+#       endif /* ifndef __sh__ */
 #      endif /* ifndef __ANDROID__ */
 #     endif /* ifndef __HAIKU__ */
 #    endif /* ifndef __OpenBSD__ */
