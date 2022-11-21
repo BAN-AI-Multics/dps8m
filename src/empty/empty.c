@@ -64,7 +64,10 @@
 #if defined( __OpenBSD__ ) || defined( __APPLE__ ) \
   || defined( __NetBSD__ )
 # include <util.h>
-# define EIDRM EINVAL
+# include <errno.h>
+# ifndef EIDRM
+#  define EIDRM EINVAL
+# endif /* ifndef EIDRN */
 #endif /* if defined( __OpenBSD__ ) || defined( __APPLE__ )
         *  || defined( __NetBSD__ ) */
 

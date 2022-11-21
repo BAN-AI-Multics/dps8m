@@ -592,10 +592,24 @@ Cross-compiled release binaries:
     - *scriptCommon
     - *scriptExtraInfo
     - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
-    - export JOB_PKGS="clang tar bzip2 lzip wget zlib zlib-devel zstd libzstd libzstd-devel brotli-devel brotli libbrotli libcom_err libxcrypt openssl-devel openssl libcurl libcurl-devel elfutils-debuginfod-client elfutils-debuginfod expat-devel expat libffi libffi-devel gc-devel libevent-devel libgcc gmp-devel krb5-devel compat-guile18 guile-devel guile22-devel libidn2-devel libidn libidn-devel keyutils-libs-devel openldap-devel libtool-ltdl-devel xz-devel mpfr-devel msgpack-devel pcre2-devel libselinux-devel libssh-devel libssh2-devel ncurses-devel libunistring xxhash-devel qemu-user-binfmt qemu qemu-tools qemu-common qemu-user qemu-img qemu-user-static"
+    - export JOB_PKGS="clang tar bzip2 lzip wget zlib zlib-devel zstd libzstd libzstd-devel brotli-devel brotli libbrotli libcom_err libxcrypt openssl-devel openssl libcurl libcurl-devel elfutils-debuginfod-client elfutils-debuginfod expat-devel expat libffi libffi-devel gc-devel libevent-devel libgcc gmp-devel krb5-devel compat-guile18 guile-devel guile22-devel libidn2-devel libidn libidn-devel keyutils-libs-devel openldap-devel libtool-ltdl-devel xz-devel mpfr-devel msgpack-devel pcre2-devel libselinux-devel libssh-devel libssh2-devel ncurses-devel libunistring xxhash-devel qemu-user-binfmt qemu qemu-tools qemu-common qemu-user qemu-img qemu-user-static sudo lld lld-devel llvm llvm-devel clang clang-devel"
     - dnf -v -y install --best ${JOB_PKGS:?} || dnf -v -y install --nobest ${JOB_PKGS:?}
     - unset JOB_PKGS > /dev/null 2>&1 || true
     - unexport JOB_PKGS > /dev/null 2>&1 || true
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/arm64-unknown-netbsdelf9.3.tar.lz" -O /arm64-unknown-netbsdelf9.3.tar.lz
+    - tar axf /arm64-unknown-netbsdelf9.3.tar.lz
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=armv8-a
+    - env CFLAGS="-m64 -fpic -fPIC -march=${DPS8_CPUTYPE} -Wno-unused-command-line-argument -Wno-char-subscripts" LOCAL_CONFOPTS="--host=arm64-unknown-netbsdelf9.3" CSTD="gnu11" CC="clang -I$(pwd)/arm64-unknown-netbsdelf9.3/usr/include -L$(pwd)/arm64-unknown-netbsdelf9.3/usr/lib -B$(pwd)/arm64-unknown-netbsdelf9.3/usr/lib --target=arm64-unknown-netbsdelf9.3 -fuse-ld=lld" gmake libuvdev LIBDL="" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync && env CFLAGS="-m64 -fpic -fPIC -march=${DPS8_CPUTYPE} -Wno-unused-command-line-argument -Wno-char-subscripts" CSTD="gnu11" LDFLAGS="-static -lgcc -lm" CC="clang -I$(pwd)/arm64-unknown-netbsdelf9.3/usr/include -L$(pwd)/arm64-unknown-netbsdelf9.3/usr/lib -B$(pwd)/arm64-unknown-netbsdelf9.3/usr/lib --target=arm64-unknown-netbsdelf9.3 -fuse-ld=lld" NO_LTO=1 gmake LIBDL="" LOCALLIBS="-lm" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-git-nbd93-a64.tar "./${DISTDIR:?}" )
+    - pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-nbd93-a64.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - chmod -R u+rwx arm64-unknown-netbsdelf9.3 || true
+    - rm -rf arm64-unknown-netbsdelf9.3 || true
     - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/powerpc-ibm-aix7.2.tar.lz" -O /powerpc-ibm-aix7.2.tar.lz
     - ( cd / && tar axf powerpc-ibm-aix7.2.tar.lz )
     - *scriptDPS8Mods
@@ -1868,6 +1882,50 @@ Cross-compiled release binaries:
     - gmake distclean
     - chmod -R u+rwx /home/jhj/x-tools/sh4a-local-linux-uclibc || true
     - rm -rf /home/jhj/x-tools/sh4a-local-linux-uclibc || true
+    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/amd64-unknown-openbsd7.2.tar.lz" -O /amd64-unknown-openbsd7.2.tar.lz
+    - tar axf /amd64-unknown-openbsd7.2.tar.lz
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=x86-64-v4
+    - env CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-unused-command-line-argument -Wno-char-subscripts -Wno-typedef-redefinition" LOCAL_CONFOPTS="--host=amd64-unknown-openbsd7.2" CC="clang -I$(pwd)/amd64-unknown-openbsd7.2/usr/include -L$(pwd)/amd64-unknown-openbsd7.2/usr/lib -B$(pwd)/amd64-unknown-openbsd7.2/usr/lib --target=amd64-unknown-openbsd7.2" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync && env CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-unused-command-line-argument -Wno-char-subscripts -Wno-typedef-redefinition" CC="clang -I$(pwd)/amd64-unknown-openbsd7.2/usr/include -L$(pwd)/amd64-unknown-openbsd7.2/usr/lib -B$(pwd)/amd64-unknown-openbsd7.2/usr/lib --target=amd64-unknown-openbsd7.2" NO_LTO=1 gmake LOCALLIBS="-lm" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-git-obd72-x64.tar "./${DISTDIR:?}" )
+    - pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-obd72-x64.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=x86-64-v3
+    - env CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-unused-command-line-argument -Wno-char-subscripts -Wno-typedef-redefinition" LOCAL_CONFOPTS="--host=amd64-unknown-openbsd7.2" CC="clang -I$(pwd)/amd64-unknown-openbsd7.2/usr/include -L$(pwd)/amd64-unknown-openbsd7.2/usr/lib -B$(pwd)/amd64-unknown-openbsd7.2/usr/lib --target=amd64-unknown-openbsd7.2" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync && env CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-unused-command-line-argument -Wno-char-subscripts -Wno-typedef-redefinition" CC="clang -I$(pwd)/amd64-unknown-openbsd7.2/usr/include -L$(pwd)/amd64-unknown-openbsd7.2/usr/lib -B$(pwd)/amd64-unknown-openbsd7.2/usr/lib --target=amd64-unknown-openbsd7.2" NO_LTO=1 gmake LOCALLIBS="-lm" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-git-obd72-x63.tar "./${DISTDIR:?}" )
+    - pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-obd72-x63.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=x86-64-v2
+    - env CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-unused-command-line-argument -Wno-char-subscripts -Wno-typedef-redefinition" LOCAL_CONFOPTS="--host=amd64-unknown-openbsd7.2" CC="clang -I$(pwd)/amd64-unknown-openbsd7.2/usr/include -L$(pwd)/amd64-unknown-openbsd7.2/usr/lib -B$(pwd)/amd64-unknown-openbsd7.2/usr/lib --target=amd64-unknown-openbsd7.2" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync && env CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-unused-command-line-argument -Wno-char-subscripts -Wno-typedef-redefinition" CC="clang -I$(pwd)/amd64-unknown-openbsd7.2/usr/include -L$(pwd)/amd64-unknown-openbsd7.2/usr/lib -B$(pwd)/amd64-unknown-openbsd7.2/usr/lib --target=amd64-unknown-openbsd7.2" NO_LTO=1 gmake LOCALLIBS="-lm" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-git-obd72-x62.tar "./${DISTDIR:?}" )
+    - pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-obd72-x62.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - *scriptDPS8Mods
+    - export DPS8_CPUTYPE=x86-64
+    - env CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-unused-command-line-argument -Wno-char-subscripts -Wno-typedef-redefinition" LOCAL_CONFOPTS="--host=amd64-unknown-openbsd7.2" CC="clang -I$(pwd)/amd64-unknown-openbsd7.2/usr/include -L$(pwd)/amd64-unknown-openbsd7.2/usr/lib -B$(pwd)/amd64-unknown-openbsd7.2/usr/lib --target=amd64-unknown-openbsd7.2" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync && env CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-unused-command-line-argument -Wno-char-subscripts -Wno-typedef-redefinition" CC="clang -I$(pwd)/amd64-unknown-openbsd7.2/usr/include -L$(pwd)/amd64-unknown-openbsd7.2/usr/lib -B$(pwd)/amd64-unknown-openbsd7.2/usr/lib --target=amd64-unknown-openbsd7.2" NO_LTO=1 gmake LOCALLIBS="-lm" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-git-obd72-x61.tar "./${DISTDIR:?}" )
+    - pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-obd72-x61.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - gmake distclean
+    - chmod -R u+rwx amd64-unknown-openbsd7.2 || true
+    - rm -rf amd64-unknown-openbsd7.2 || true
   dependencies: []
   artifacts:
     expire_in: 1 day
@@ -1912,6 +1970,7 @@ Cross-compiled release binaries:
       - dps8m-git-nbd93-686.tar.gz
       - dps8m-git-nbd93-586.tar.gz
       - dps8m-git-fbd13-a64.tar.gz
+      - dps8m-git-nbd93-a64.tar.gz
       - dps8m-git-fbd13-x61.tar.gz
       - dps8m-git-fbd13-x62.tar.gz
       - dps8m-git-fbd13-x63.tar.gz
@@ -1922,6 +1981,10 @@ Cross-compiled release binaries:
       - dps8m-git-nbd93-x62.tar.gz
       - dps8m-git-nbd93-x63.tar.gz
       - dps8m-git-nbd93-x64.tar.gz
+      - dps8m-git-obd72-x64.tar.gz
+      - dps8m-git-obd72-x63.tar.gz
+      - dps8m-git-obd72-x62.tar.gz
+      - dps8m-git-obd72-x61.tar.gz
       - dps8m-git-linux-l64.tar.gz
       - dps8m-git-linux-pw9.tar.gz
       - dps8m-git-linux-p10.tar.gz
@@ -3665,6 +3728,7 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-src.zpaq public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-b4a.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-l4a.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-nbd93-a64.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-nbd93-s32.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-nbd93-s64.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-nbd93-970.tar.gz public
@@ -3690,6 +3754,10 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-nbd93-x63.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-nbd93-x64.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-l64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-obd72-x64.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-obd72-x63.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-obd72-x62.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-obd72-x61.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-s64.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-s32.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-m6l.tar.gz public

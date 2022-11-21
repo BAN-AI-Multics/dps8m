@@ -963,6 +963,7 @@ egid
 ehdr
 ehuh
 eidrm
+eidrn
 eidx
 eima
 eindex
@@ -5619,6 +5620,7 @@ iloi
 keyutils
 kitname
 latomic
+lgcc
 libatomic
 libcmb
 libcom
@@ -11258,6 +11260,7 @@ oops
 ooxml
 opacity
 open
+openbsd
 opendocument
 opened
 opening
