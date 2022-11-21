@@ -165,6 +165,12 @@ title: DPS8M Releases
 {{< /expand >}}
 {{< /expand >}}
 
+{{< expand "ARM64 (little-endian)" "…" >}}
+| File                                                                                       | Platform |
+| :----------------------------------------------------------------------------------------- | :------- |
+| [**dps8m-git-nbd13-a64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd13-a64.tar.gz) | ARMv8‑A  |
+{{< /expand >}}
+
 {{< expand "SPARC" "…" >}}
 {{< expand "UltraSPARC" "…" >}}
 | File                                                                                       |
@@ -201,6 +207,17 @@ title: DPS8M Releases
 | File                                                                                       |
 |:------------------------------------------------------------------------------------------ |
 | [**dps8m-git-nbd93-vax.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-vax.tar.gz) |
+{{< /expand >}}
+{{< /expand >}}
+
+{{< expand "OpenBSD 7.2" "…" >}}
+{{< expand "Intel x86_64 (AMD64)" "…" >}}
+| File                                                                                       | Platform                           |
+|:------------------------------------------------------------------------------------------ |:---------------------------------- |
+| [**dps8m-git-obd72-x64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-obd72-x64.tar.gz) | x86_64‑v4 (AVX‑512)                |
+| [**dps8m-git-obd72-x63.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-obd72-x63.tar.gz) | x86_64‑v3 (AVX2&nbsp;+&nbsp;FMA)   |
+| [**dps8m-git-obd72-x62.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-obd72-x62.tar.gz) | x86_64‑v2 (SSE4&nbsp;+&nbsp;SSSE3) |
+| [**dps8m-git-obd72-x61.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-obd72-x61.tar.gz) | x86_64                             |
 {{< /expand >}}
 {{< /expand >}}
 

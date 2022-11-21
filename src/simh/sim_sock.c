@@ -986,16 +986,11 @@ SOCKET sim_accept_conn_ex (SOCKET master, char **connectaddr, int opt_flags)
 {
 int sta = 0, err;
 int keepalive = 1;
-#if defined (__linux)    || defined (__linux__)   || \
-    defined (__APPLE__)  || defined (__OpenBSD__) || \
-    defined (__NetBSD__) || defined(__FreeBSD__)  || \
-    defined (__FreeBSD_kernel__) || defined (__HAIKU__)
-socklen_t size;
-#elif defined (_WIN32)
+#ifdef _WIN32
 int size;
 #else
-size_t size;
-#endif
+socklen_t size;
+#endif /* ifdef _WIN32 */
 SOCKET newsock;
 struct sockaddr_storage clientname;
 
@@ -1050,16 +1045,11 @@ fd_set *rw_p = &rw_set;
 fd_set *er_p = &er_set;
 struct timeval zero;
 struct sockaddr_storage peername;
-#if defined (__linux)    || defined (__linux__)   || \
-    defined (__APPLE__)  || defined (__OpenBSD__) || \
-    defined (__NetBSD__) || defined(__FreeBSD__)  || \
-    defined (__FreeBSD_kernel__) || defined (__HAIKU__)
-socklen_t peernamesize = (socklen_t)sizeof(peername);
-#elif defined (_WIN32)
+#ifdef _WIN32
 int peernamesize = (int)sizeof(peername);
 #else
-size_t peernamesize = sizeof(peername);
-#endif
+socklen_t peernamesize = (socklen_t)sizeof(peername);
+#endif /* ifdef _WIN32 */
 
 memset (&zero, 0, sizeof(zero));
 FD_ZERO (rw_p);
@@ -1086,16 +1076,11 @@ static int _sim_getaddrname (struct sockaddr *addr, size_t addrsize, char *hostn
 int ret = 0;
 
 #ifdef AF_INET6
-# if defined (__linux)    || defined (__linux__)   || \
-     defined (__APPLE__)  || defined (__OpenBSD__) || \
-     defined (__NetBSD__) || defined(__FreeBSD__)  || \
-     defined (__FreeBSD_kernel__) || defined (__HAIKU__)
-socklen_t size = (socklen_t)addrsize;
-# elif defined (_WIN32)
+# ifdef _WIN32
 int size = (int)addrsize;
 # else
-size_t size = addrsize;
-# endif
+socklen_t size = (socklen_t)addrsize;
+# endif /* ifdef _WIN32 */
 *hostnamebuf = '\0';
 *portnamebuf = '\0';
 ret = p_getnameinfo(addr, size, hostnamebuf, NI_MAXHOST, NULL, 0, NI_NUMERICHOST);
@@ -1114,19 +1099,13 @@ return ret;
 int sim_getnames_sock (SOCKET sock, char **socknamebuf, char **peernamebuf)
 {
 struct sockaddr_storage sockname, peername;
-#if defined (__linux)    || defined (__linux__)   || \
-    defined (__APPLE__)  || defined (__OpenBSD__) || \
-    defined (__NetBSD__) || defined(__FreeBSD__)  || \
-    defined (__FreeBSD_kernel__) || defined (__HAIKU__)
-socklen_t socknamesize = (socklen_t)sizeof(sockname);
-socklen_t peernamesize = (socklen_t)sizeof(peername);
-#elif defined (_WIN32)
+#ifdef _WIN32
 int socknamesize = (int)sizeof(sockname);
 int peernamesize = (int)sizeof(peername);
 #else
-size_t socknamesize = sizeof(sockname);
-size_t peernamesize = sizeof(peername);
-#endif
+socklen_t socknamesize = (socklen_t)sizeof(sockname);
+socklen_t peernamesize = (socklen_t)sizeof(peername);
+#endif /* ifdef _WIN32 */
 char hostbuf[NI_MAXHOST+1];
 char portbuf[NI_MAXSERV+1];
 
