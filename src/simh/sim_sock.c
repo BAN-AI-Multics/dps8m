@@ -51,7 +51,9 @@
 # include <ws2tcpip.h>
 #endif /* if defined(AF_INET6) && defined(_WIN32) */
 
-#include <sys/select.h>
+#if !defined(_WIN32) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) && !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(__CYGWIN__)
+# include <sys/select.h>
+#endif /* if !defined(_WIN32) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) && !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(__CYGWIN__) */
 
 #ifndef WSAAPI
 # define WSAAPI
