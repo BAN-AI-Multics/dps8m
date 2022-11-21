@@ -2210,8 +2210,9 @@ Linux/x86_64, Fedora, AOCC, AOCL:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - ( . /opt/AMD/aocc-latest/setenv_AOCC.sh 2> /dev/null && export PATH="/opt/AMD/aocc-latest/bin:${PATH:?}" && export LD_LIBRARY_PATH="/opt/AMD/aocc-latest/lib:/opt/AMD/aocl/latest/lib:${LD_LIBRARY_PATH:-}" && clang --version && export CFLAGS="-Wno-unused-command-line-argument -I/usr/local/include -Ofast -ffast-math"; make WITH_BACKTRACE=1 CC="clang -mllvm -vector-library=AMDLIBM" LIBS="-L/opt/AMD/aocl/latest/lib -L/opt/AMD/aocc-latest/lib -L/usr/local/lib /opt/AMD/aocl/latest/lib/libalm.a -laocl-libmem /usr/local/lib/libbacktrace.a -lpthread -luv -lm" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync )
-    - printf %s\\n "SHOW VERSION" | env LD_LIBRARY_PATH="/opt/AMD/aocc-latest/lib:/opt/AMD/aocl/latest/lib:${LD_LIBRARY_PATH:-}" ./src/dps8/dps8
-    - printf %s\\n "SHOW BUILDINFO" | env LD_LIBRARY_PATH="/opt/AMD/aocc-latest/lib:/opt/AMD/aocl/latest/lib:${LD_LIBRARY_PATH:-}" ./src/dps8/dps8
+    - test -f ./src/dps8/dps8
+    - test -f ./src/prt2pdf/prt2pdf
+    - test -f ./src/punutil/punutil
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:

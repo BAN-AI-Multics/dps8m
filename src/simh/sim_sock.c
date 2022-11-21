@@ -51,6 +51,8 @@
 # include <ws2tcpip.h>
 #endif /* if defined(AF_INET6) && defined(_WIN32) */
 
+#include <sys/select.h>
+
 #ifndef WSAAPI
 # define WSAAPI
 #endif /* ifndef WSAAPI */
@@ -722,9 +724,11 @@ sta = fcntl (sock, F_SETFL, fl | O_NONBLOCK);           /* set nonblock */
 if (sta == -1)
     return SOCKET_ERROR;
 # if !defined (__HAIKU__)                               /* Unix only */
+#  if !defined (__serenity__)
 sta = fcntl (sock, F_SETOWN, getpid());                 /* set ownership */
 if (sta == -1)
     return SOCKET_ERROR;
+#  endif
 # endif
 return 0;
 }

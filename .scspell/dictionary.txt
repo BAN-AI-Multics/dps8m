@@ -5664,6 +5664,7 @@ pvsreport
 roscspell
 sdel
 srvany
+sudo
 sysroot
 tarxt
 uclibc
@@ -12280,6 +12281,7 @@ sequence
 sequences
 sequential
 sequentially
+serenity
 serial
 serialize
 serializer
