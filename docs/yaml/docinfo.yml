@@ -84,6 +84,7 @@ include-before: |
 \hyphenation{advertising}
 \hyphenation{although}
 \hyphenation{applications}
+\hyphenation{appropriate}
 \hyphenation{arising}
 \hyphenation{ARPAnet}
 \hyphenation{assemblers}
@@ -92,15 +93,20 @@ include-before: |
 \hyphenation{Attribution}
 \hyphenation{authors}
 \hyphenation{AUTHORS}
+\hyphenation{automatically}
 \hyphenation{available}
 \hyphenation{background}
 \hyphenation{Berkeley}
 \hyphenation{Bull}
 \hyphenation{California}
 \hyphenation{combinatorics}
+\hyphenation{command}
+\hyphenation{compiler}
 \hyphenation{COMPLETENESS}
 \hyphenation{computer}
 \hyphenation{concentric}
+\hyphenation{configuration}
+\hyphenation{configures}
 \hyphenation{CONNECTION}
 \hyphenation{consoles}
 \hyphenation{contained}
@@ -117,6 +123,7 @@ include-before: |
 \hyphenation{decimal}
 \hyphenation{Definition}
 \hyphenation{DEVELOPMENT}
+\hyphenation{directory}
 \hyphenation{disclaimer}
 \hyphenation{disclaims}
 \hyphenation{DISCLOSURES}
@@ -135,6 +142,7 @@ include-before: |
 \hyphenation{endorse}
 \hyphenation{Engineering}
 \hyphenation{ENHANCEMENTS}
+\hyphenation{executable}
 \hyphenation{EXPRESS}
 \hyphenation{external}
 \hyphenation{Fernando}
@@ -167,6 +175,8 @@ include-before: |
 \hyphenation{Information}
 \hyphenation{infringement}
 \hyphenation{INFRINGEMENT}
+\hyphenation{installations}
+\hyphenation{installed}
 \hyphenation{Institute}
 \hyphenation{Intel}
 \hyphenation{internet}
@@ -184,6 +194,7 @@ include-before: |
 \hyphenation{mainframes}
 \hyphenation{Markdown}
 \hyphenation{Massachusetts}
+\hyphenation{microseconds}
 \hyphenation{MIT}
 \hyphenation{MODIFICATIONS}
 \hyphenation{modified}
@@ -212,11 +223,13 @@ include-before: |
 \hyphenation{Professor}
 \hyphenation{protection}
 \hyphenation{provided}
+\hyphenation{providing}
 \hyphenation{publicity}
 \hyphenation{purpose}
 \hyphenation{QuickStart}
 \hyphenation{recommend}
 \hyphenation{Regents}
+\hyphenation{replace}
 \hyphenation{required}
 \hyphenation{Research}
 \hyphenation{respect}
@@ -228,6 +241,7 @@ include-before: |
 \hyphenation{series}
 \hyphenation{similar}
 \hyphenation{simply}
+\hyphenation{simulator}
 \hyphenation{Software}
 \hyphenation{Source}
 \hyphenation{specification}

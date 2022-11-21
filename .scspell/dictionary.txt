@@ -9020,6 +9020,7 @@ configuration
 configurations
 configure
 configured
+configures
 configuring
 confirm
 confirms
@@ -10454,6 +10455,7 @@ insists
 inspect
 inspected
 installation
+installations
 installed
 installer
 installing
