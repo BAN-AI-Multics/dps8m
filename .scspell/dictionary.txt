@@ -963,6 +963,7 @@ egid
 ehdr
 ehuh
 eidrm
+eidrn
 eidx
 eima
 eindex
@@ -5619,6 +5620,7 @@ iloi
 keyutils
 kitname
 latomic
+lgcc
 libatomic
 libcmb
 libcom
@@ -5662,6 +5664,7 @@ pvsreport
 roscspell
 sdel
 srvany
+sudo
 sysroot
 tarxt
 uclibc
@@ -11258,6 +11261,7 @@ oops
 ooxml
 opacity
 open
+openbsd
 opendocument
 opened
 opening
@@ -12277,6 +12281,7 @@ sequence
 sequences
 sequential
 sequentially
+serenity
 serial
 serialize
 serializer

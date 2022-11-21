@@ -64,7 +64,10 @@
 #if defined( __OpenBSD__ ) || defined( __APPLE__ ) \
   || defined( __NetBSD__ )
 # include <util.h>
-# define EIDRM EINVAL
+# include <errno.h>
+# ifndef EIDRM
+#  define EIDRM EINVAL
+# endif /* ifndef EIDRN */
 #endif /* if defined( __OpenBSD__ ) || defined( __APPLE__ )
         *  || defined( __NetBSD__ ) */
 
@@ -90,10 +93,10 @@
 #endif /* ifndef __hpux__ */
 
 #if !defined( __SVR4 ) && !defined( __hpux__ ) && !defined( _AIX ) \
-  && !defined( __OSF1 )
+  && !defined( __OSF1 ) && !defined( __serenity__ )
 # include <err.h>
 #endif /* if !defined( __SVR4 ) && !defined( __hpux__ ) && !defined( _AIX )
-        *  && !defined( __OSF1 ) */
+        *  && !defined( __OSF1 ) && !defined( __serenity__ ) */
 
 #include <dirent.h>
 #include <errno.h>
@@ -104,9 +107,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
-#include <sys/ipc.h>
 #include <sys/param.h>
 #include <sys/resource.h>
+#include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -116,7 +119,7 @@
 
 #define tmpdir "/tmp"
 #define program "empty"
-#define version "0.6.24h-dps"
+#define version "0.6.24i-dps"
 
 static void usage(void);
 static long toint(char *intstr);

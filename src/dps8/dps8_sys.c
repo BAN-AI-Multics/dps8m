@@ -41,7 +41,9 @@
 #     ifndef __HAIKU__
 #      ifndef __ANDROID__
 #       ifndef __sh__
-#        include <wordexp.h>
+#        ifndef __serenity__
+#         include <wordexp.h>
+#        endif /* ifndef __serenity__ */
 #       endif /* ifndef __sh__ */
 #      endif /* ifndef __ANDROID__ */
 #     endif /* ifndef __HAIKU__ */

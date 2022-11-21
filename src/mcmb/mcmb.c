@@ -468,7 +468,7 @@ static struct cmb_xitem *cmb_transform_find;
 # define CMB_PARSE_FRAGSIZE 512
 #endif /* ifndef CMB_PARSE_FRAGSIZE */
 
-static const char mcmbver[]         = "2120.4.15-dps";
+static const char mcmbver[]         = "2120.4.16-dps";
 static const char libversion[]      = "libcmb 3.5.6";
 
 /*
@@ -586,11 +586,13 @@ cmb_parse(struct cmb_config *config, int fd, uint32_t *nitems, uint32_t max)
     {
       if (S_ISREG(sb.st_mode))
         {
+#ifndef __serenity__
           if (sysconf(_SC_PHYS_PAGES) > PHYSPAGES_THRESHOLD)
             {
               bufsize = MIN(BUFSIZE_MAX, MAXPHYS * 8);
             }
           else
+#endif /* ifndef __serenity__ */
             {
               bufsize = BUFSIZE_SMALL;
             }

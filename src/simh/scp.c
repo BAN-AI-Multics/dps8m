@@ -3111,11 +3111,11 @@ for (; *ip && (op < oend); ) {
                         ap = rbuf;
                         }
                     else if (!strcmp ("HOSTID", gbuf)) {
-#if defined( HAVE_UNISTD ) && !defined ( __HAIKU__ ) && !defined ( __ANDROID__ )
+#if defined( HAVE_UNISTD ) && !defined ( __HAIKU__ ) && !defined ( __ANDROID__ ) && !defined ( __serenity__  )
                         sprintf (rbuf, "%ld", (long)gethostid());
 #else
                         sprintf (rbuf, "00000000");
-#endif /* if defined( HAVE_UNISTD ) && !defined ( __HAIKU__ ) && !defined ( __ANDROID__ ) */
+#endif /* if defined( HAVE_UNISTD ) && !defined ( __HAIKU__ ) && !defined ( __ANDROID__ ) && !defined ( __serenity__ ) */
                         ap = rbuf;
                         }
                     else if (!strcmp ("UID", gbuf)) {

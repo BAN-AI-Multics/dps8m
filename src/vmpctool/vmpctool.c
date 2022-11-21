@@ -49,7 +49,7 @@
 
 #define PROGNAME                       "vmpctool"
 #define PROGDESC                       "virtual memory page cache utility"
-#define VMTOUCH_VERSION                "2101.14.7-dps (2022-10-06)"
+#define VMTOUCH_VERSION                "2101.14.8-dps (2022-11-20)"
 
 #define RESIDENCY_CHART_WIDTH          41
 #define CHART_UPDATE_INTERVAL          0.37
@@ -1092,7 +1092,7 @@ retry_open:
           /* NOTREACHED */
           exit(errno);
         }
-#if !defined( __OpenBSD__ ) && !defined( __HAIKU__ )
+#if !defined( __OpenBSD__ ) && !defined( __HAIKU__ ) && !defined( __serenity__ )
       if (mincore(mem, len_of_range, (void *)mincore_array))
         {
           fatal(
@@ -1101,12 +1101,12 @@ retry_open:
           /* NOTREACHED */
           _Exit(1);
         }
-#else /* if !defined( __OpenBSD__) && !defined( __HAIKU__ ) */
+#else
       if ( !o_quiet )
         warning(
           "%s:%d: mincore is unavailable; data will be inaccurate!",
           __func__, __LINE__);
-#endif /* if !defined( __OpenBSD__) */
+#endif /* if !defined( __OpenBSD__) && !defined( __HAIKU__ ) && !defined( __serenity__ ) */
 
       for (i = 0; i < pages_in_range; i++)
         {
@@ -1888,7 +1888,7 @@ main(int argc, char **argv)
     {
       if (o_lockall)
         {
-#if !defined( __CYGWIN__ ) && !defined( __HAIKU__ )
+#if !defined( __CYGWIN__ ) && !defined( __HAIKU__ ) && !defined( __serenity__ )
           if (mlockall(MCL_CURRENT))
             {
               fatal(
@@ -1905,7 +1905,7 @@ main(int argc, char **argv)
             __func__, __LINE__);
           /* NOTREACHED */
           _Exit(1);
-#endif /* if !defined( __CYGWIN__ ) && !defined( __HAIKU__ ) */
+#endif /* if !defined( __CYGWIN__ ) && !defined( __HAIKU__ ) && !defined( __serenity__ ) */
         }
 
       if (o_pidfile)
