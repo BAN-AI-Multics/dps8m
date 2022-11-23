@@ -80,7 +80,7 @@ title: Historical Archives
 {{< expand "Intel x86 (AMD64)" "…" >}}
 | File                                                                                              | Platform | Verification                                                                                                                                                                              |
 |:--------------------------------------------------------------------------------------------- | :----- |:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [**dps8m-r1.0.0-macos_1012-x86.zip**](/dps8m-archive/R1.0.0/dps8m-r1.0.0-macos_1012-x86.zip) | macOS 10.12+ | <small>\[&nbsp;[SHA256](/dps8m-archive/R1.0.0/dps8m-r1.0.0-macos_1012-x86.zip.sha256)&nbsp;\|&nbsp;[PGP](/dps8m-archive/R1.0.0/dps8m-r1.0.0-macos_1012-x86.zip.asc)&nbsp;\]</small> |
+| [**dps8m-r1.0.0-macos_1012-x86.zip**](/dps8m-archive/R1.0.0/dps8m-r1.0.0-macos_1012-x86.zip) | macOS&nbsp;10.12+ | <small>\[&nbsp;[SHA256](/dps8m-archive/R1.0.0/dps8m-r1.0.0-macos_1012-x86.zip.sha256)&nbsp;\|&nbsp;[PGP](/dps8m-archive/R1.0.0/dps8m-r1.0.0-macos_1012-x86.zip.asc)&nbsp;\]</small> |
 {{< /expand >}}
 {{< /tab >}}
 {{< tab "Windows" >}}
@@ -88,7 +88,7 @@ title: Historical Archives
 | File                                                                                | Platform     | Verification                                                                                                                                                              |
 | :---------------------------------------------------------------------------------- | :----------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | [**dps8m-r1.0.0-mingw-x86.zip**](/dps8m-archive/R1.0.0/dps8m-r1.0.0-mingw-x86.zip)  | x86_64       | <small>\[&nbsp;[SHA256](/dps8m-archive/R1.0.0/dps8m-r1.0.0-mingw-x86.zip.sha256)&nbsp;\|&nbsp;[PGP](/dps8m-archive/R1.0.0/dps8m-r1.0.0-mingw-x86.zip.asc)&nbsp;\]</small> |
-| [**dps8m-r1.0.0-msys2-x86.zip**](/dps8m-archive/R1.0.0/dps8m-r1.0.0-msys2-x86.zip)  | MSYS2/x86_64 | <small>\[&nbsp;[SHA256](/dps8m-archive/R1.0.0/dps8m-r1.0.0-msys2-x86.zip.sha256)&nbsp;\|&nbsp;[PGP](/dps8m-archive/R1.0.0/dps8m-r1.0.0-msys2-x86.zip.asc)&nbsp;\]</small> |
+| [**dps8m-r1.0.0-msys2-x86.zip**](/dps8m-archive/R1.0.0/dps8m-r1.0.0-msys2-x86.zip)  | MSYS2&nbsp;/&nbsp;x86_64 | <small>\[&nbsp;[SHA256](/dps8m-archive/R1.0.0/dps8m-r1.0.0-msys2-x86.zip.sha256)&nbsp;\|&nbsp;[PGP](/dps8m-archive/R1.0.0/dps8m-r1.0.0-msys2-x86.zip.asc)&nbsp;\]</small> |
 {{< /expand >}}
 {{< /tab >}}
 {{< /tabs >}}

@@ -46,7 +46,7 @@ title: DPS8M Releases
 | [**dps8m-git-aixv7-pw9.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-pw9.tar.gz) | POWER9               |
 | [**dps8m-git-aixv7-pw8.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-pw8.tar.gz) | POWER8 (GCC&nbsp;12) |
 | [**dps8m-git-aixv7-gcc.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-gcc.tar.gz) | POWER8 (GCC&nbsp;10) |
-| [**dps8m-git-aixv7-xlc.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-xlc.tar.gz) | POWER8 (XLC&nbsp;16) |
+| [**dps8m-git-aixv7-xlc.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-xlc.tar.gz) | POWER8 (XL&nbsp;C&nbsp;16) |
 | [**dps8m-git-aixv7-pw7.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-pw7.tar.gz) | POWER7               |
 | [**dps8m-git-aixv7-pw6.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-pw6.tar.gz) | POWER6               |
 {{< /expand >}}
@@ -268,9 +268,11 @@ title: DPS8M Releases
 | [**dps8m-git-linux-att.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-att.tar.gz) | Power10 (AT&nbsp;16) |
 | [**dps8m-git-linux-pw9.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-pw9.tar.gz) | POWER9               |
 | [**dps8m-git-linux-atn.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-atn.tar.gz) | POWER9 (AT&nbsp;16)  |
+| [**dps8m-git-linux-oxl.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-oxl.tar.gz) | POWER9 (Open&nbsp;XL&nbsp;C&nbsp;17 + AT&nbsp;16) |
 | [**dps8m-git-linux-pw8.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-pw8.tar.gz) | POWER8               |
 | [**dps8m-git-linux-ate.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-ate.tar.gz) | POWER8 (AT&nbsp;16)  |
-| [**dps8m-git-linux-xlc.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-xlc.tar.gz) | POWER8 (XLC&nbsp;16) |
+| [**dps8m-git-linux-ox8.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-ox8.tar.gz) | POWER8 (Open&nbsp;XL&nbsp;C&nbsp;17 + glibc&nbsp;2.36+) |
+| [**dps8m-git-linux-xlc.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-xlc.tar.gz) | POWER8 (XL&nbsp;C&nbsp;16 + glibc&nbsp;2.36+) |
 {{< /expand >}}
 
 {{< expand "Power ISA (64-bit, big-endian)" "…" >}}

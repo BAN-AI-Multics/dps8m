@@ -2471,7 +2471,7 @@ AIX/powerpc64, IBM AIX, IBM XL Clang V16.1:
 
 ############################################################################
 
-Linux/powerpc64el, Ubuntu LTS, IBM XL C/C++:
+Linux/powerpc64el, Ubuntu, IBM XL C/C++:
   stage: build
   tags:
     - Shell-Linux
@@ -2500,6 +2500,61 @@ Linux/powerpc64el, Ubuntu LTS, IBM XL C/C++:
     expire_in: 1 day
     paths:
       - dps8m-git-linux-xlc.tar.gz
+      - src/dps8/dps8.lz
+      - src/prt2pdf/prt2pdf.lz
+      - src/punutil/punutil.lz
+      - src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 60 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/powerpc64el, Ubuntu, IBM Open XL C/C++:
+  stage: build
+  tags:
+    - Shell-Linux
+    - Linux
+    - XLC-POWER
+    - OXLC-POWER
+    - IBM
+    - ppc64le
+  script:
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - ( export IBMOXLCVER="latest" && /opt/ibm/openxlC/"${IBMOXLCVER:?}"/bin/ibm-clang_at --version && CFLAGS="-mcpu=pwr9" make CC=/opt/ibm/openxlC/"${IBMOXLCVER:?}"/bin/ibm-clang_at -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync )
+    - printf %s\\n "show version" | ./src/dps8/dps8
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-git-linux-oxl.tar "./${DISTDIR:?}" )
+    - pigz -C "${CI_COMMIT_SHA:?}" -9 -f -n dps8m-git-linux-oxl.tar
+    - make distclean
+    - rm -rf "src/${DISTDIR:?}"
+    - mkdir -p "src/${DISTDIR:?}"
+    - *scriptDPS8Mods
+    - ( export IBMOXLCVER="latest" && /opt/ibm/openxlC/"${IBMOXLCVER:?}"/bin/ibm-clang_r --version && CFLAGS="-mcpu=pwr8" make CC=/opt/ibm/openxlC/"${IBMOXLCVER:?}"/bin/ibm-clang_r -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync )
+    - printf %s\\n "show version" | ./src/dps8/dps8
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cvf ../dps8m-git-linux-ox8.tar "./${DISTDIR:?}" )
+    - pigz -C "${CI_COMMIT_SHA:?}" -9 -f -n dps8m-git-linux-ox8.tar
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - dps8m-git-linux-ox8.tar.gz
+      - dps8m-git-linux-oxl.tar.gz
       - src/dps8/dps8.lz
       - src/prt2pdf/prt2pdf.lz
       - src/punutil/punutil.lz
@@ -3665,7 +3720,8 @@ pages:
     - job: Hugo
     - job: Linux/powerpc64el, IBM Advance Toolchain 15
     - job: Linux/powerpc64el, IBM Advance Toolchain 16
-    - job: Linux/powerpc64el, Ubuntu LTS, IBM XL C/C++
+    - job: Linux/powerpc64el, Ubuntu, IBM XL C/C++
+    - job: Linux/powerpc64el, Ubuntu, IBM Open XL C/C++
     - job: Linux/x86_64, Alpine Edge, Clang, GCC
     - job: Oracle Developer Studio Lint
     - job: Source Kits
@@ -3693,7 +3749,8 @@ pages:
     - "Hugo"
     - "Linux/powerpc64el, IBM Advance Toolchain 15"
     - "Linux/powerpc64el, IBM Advance Toolchain 16"
-    - "Linux/powerpc64el, Ubuntu LTS, IBM XL C/C++"
+    - "Linux/powerpc64el, Ubuntu, IBM XL C/C++"
+    - "Linux/powerpc64el, Ubuntu, IBM Open XL C/C++"
     - "Linux/x86_64, Alpine Edge, Clang, GCC"
     - "Oracle Developer Studio Lint"
     - "Source Kits"
@@ -3816,6 +3873,8 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-atn.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-att.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-xlc.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-oxl.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-ox8.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-macos-x86.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-mac10-x86.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-mac11-a64.tar.gz public
