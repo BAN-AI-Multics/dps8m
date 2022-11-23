@@ -5590,6 +5590,7 @@ aixv
 androideabi
 binfmt
 buildroot
+clangarm
 confopts
 cpuset
 cputype
@@ -5616,6 +5617,7 @@ fullhtml
 hpages
 hugobuild
 hugogen
+ibmoxlcver
 iloi
 keyutils
 kitname
@@ -5656,6 +5658,7 @@ noci
 nsiswrapper
 optflags
 otool
+oxlc
 pcre
 pkgs
 plog
@@ -8311,6 +8314,7 @@ analyzed
 analyzer
 anatomy
 anderson
+andes
 android
 angle
 annotating
@@ -10892,6 +10896,7 @@ markers
 marketing
 marking
 marks
+marocchino
 maroon
 mars
 masked
@@ -11119,6 +11124,7 @@ negotiations
 neighbor
 neighboring
 neither
+neoverse
 nervous
 ness
 nested
@@ -11270,6 +11276,7 @@ opening
 openldap
 openrisc
 openssl
+openxl
 openxml
 operand
 operands

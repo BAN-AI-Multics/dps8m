@@ -175,7 +175,7 @@ title: DPS8M Releases
 {{< expand "UltraSPARC" "…" >}}
 | File                                                                                       |
 |:------------------------------------------------------------------------------------------ |
-| [**dps8m-git-nbd83-s64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-s64.tar.gz) |
+| [**dps8m-git-nbd93-s64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-s64.tar.gz) |
 {{< /expand >}}
 
 {{< expand "SPARC (32-bit)" "…" >}}
@@ -268,11 +268,11 @@ title: DPS8M Releases
 | [**dps8m-git-linux-att.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-att.tar.gz) | Power10 (AT&nbsp;16) |
 | [**dps8m-git-linux-pw9.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-pw9.tar.gz) | POWER9               |
 | [**dps8m-git-linux-atn.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-atn.tar.gz) | POWER9 (AT&nbsp;16)  |
-| [**dps8m-git-linux-oxl.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-oxl.tar.gz) | POWER9 (Open&nbsp;XL&nbsp;C&nbsp;17 + AT&nbsp;16) |
+| [**dps8m-git-linux-oxl.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-oxl.tar.gz) | POWER9 (OXLC&nbsp;17 + AT&nbsp;16) |
 | [**dps8m-git-linux-pw8.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-pw8.tar.gz) | POWER8               |
 | [**dps8m-git-linux-ate.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-ate.tar.gz) | POWER8 (AT&nbsp;16)  |
-| [**dps8m-git-linux-ox8.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-ox8.tar.gz) | POWER8 (Open&nbsp;XL&nbsp;C&nbsp;17 + glibc&nbsp;2.36+) |
-| [**dps8m-git-linux-xlc.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-xlc.tar.gz) | POWER8 (XL&nbsp;C&nbsp;16 + glibc&nbsp;2.36+) |
+| [**dps8m-git-linux-ox8.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-ox8.tar.gz) | POWER8 (OXLC&nbsp;17 + glibc&nbsp;2.36+) |
+| [**dps8m-git-linux-xlc.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-xlc.tar.gz) | POWER8 (XLC&nbsp;16 + glibc&nbsp;2.36+) |
 {{< /expand >}}
 
 {{< expand "Power ISA (64-bit, big-endian)" "…" >}}
@@ -363,9 +363,9 @@ title: DPS8M Releases
 {{< /expand >}}
 
 {{< expand "OpenRISC" "…" >}}
-| File                                                                                       | Platform           |
-| :----------------------------------------------------------------------------------------- | :----------------- |
-| [**dps8m-git-linux-ork.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-ork.tar.gz) | OpenRISC&nbsp;1200 |
+| File                                                                                       | Platform             |
+| :----------------------------------------------------------------------------------------- | :------------------- |
+| [**dps8m-git-linux-ork.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-ork.tar.gz) | OpenRISC&nbsp;OR1200 |
 {{< /expand >}}
 
 {{< expand "RISC-V" "…" >}}

@@ -85,6 +85,7 @@ include-before: |
 \hyphenation{although}
 \hyphenation{applications}
 \hyphenation{appropriate}
+\hyphenation{argument}
 \hyphenation{arising}
 \hyphenation{ARPAnet}
 \hyphenation{assemblers}
@@ -99,6 +100,7 @@ include-before: |
 \hyphenation{Berkeley}
 \hyphenation{Bull}
 \hyphenation{California}
+\hyphenation{CLANGARM}
 \hyphenation{combinatorics}
 \hyphenation{command}
 \hyphenation{compiler}
@@ -227,6 +229,7 @@ include-before: |
 \hyphenation{publicity}
 \hyphenation{purpose}
 \hyphenation{QuickStart}
+\hyphenation{quiescent}
 \hyphenation{recommend}
 \hyphenation{Regents}
 \hyphenation{replace}
@@ -244,6 +247,7 @@ include-before: |
 \hyphenation{simulator}
 \hyphenation{Software}
 \hyphenation{Source}
+\hyphenation{specific}
 \hyphenation{specification}
 \hyphenation{spreadsheet}
 \hyphenation{standard}
@@ -265,5 +269,6 @@ include-before: |
 \hyphenation{WARRANTIES}
 \hyphenation{WARRANTY}
 \hyphenation{WHATSOEVER}
+\hyphenation{Windows/}
 \hyphenation{Windows}
 \hyphenation{without}

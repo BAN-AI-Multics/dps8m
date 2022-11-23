@@ -903,7 +903,7 @@ The following "**`IOM`**" configuration options are associated with a specified 
 ##### MODEL
 \
 \
-"**`MODEL`**" configures the IOM model, where "**`<model>`**" is one of "`iom`" or "`imu`".
+"**`MODEL`**" configures the IOM model, where "**`<model>`**" is **`iom`** or **`imu`**.
 
         MODEL=<model>
 
@@ -919,7 +919,7 @@ The following "**`IOM`**" configuration options are associated with a specified 
 ##### OS
 \
 \
-"**`OS`**" configures the allowed operating system for the `IOM` unit specified, where "**`<os>`**" is one of **`gcos`**, **`gcosext`**, or **`multics`**.
+"**`OS`**" configures the allowed operating system for the `IOM` unit specified, where "**`<os>`**" is **`gcos`**, **`gcosext`**, or **`multics`**.
 
         OS=<os>
 
@@ -935,7 +935,7 @@ The following "**`IOM`**" configuration options are associated with a specified 
 ##### BOOT
 \
 \
-"**`BOOT`**" configures the device to boot from for the `IOM` unit specified, where "**`<value>`**" is one of **`disk`** or **`tape`**.
+"**`BOOT`**" configures the device to boot from for the `IOM` unit specified, where "**`<value>`**" is **`disk`** or **`tape`**.
 
         BOOT=<value>
 
@@ -951,7 +951,7 @@ The following "**`IOM`**" configuration options are associated with a specified 
 ##### IOM_BASE
 \
 \
-"**`IOM_BASE`**" configures the base address for the `IOM` unit specified, where "**`<base_value>`**" is one of **`Multics`** (`014`), **`Multics1`** (`014`), **`Multics2`** (`020`), **`Multics3`** (`024`), or **`Multics4`** (`030`).
+"**`IOM_BASE`**" configures the base address for the `IOM` unit specified, where "**`<base_value>`**" is **`Multics`** (`014`), **`Multics1`** (`014`), **`Multics2`** (`020`), **`Multics3`** (`024`), or **`Multics4`** (`030`).
 
         IOM_BASE=<base_value>
 
@@ -967,7 +967,7 @@ The following "**`IOM`**" configuration options are associated with a specified 
 ##### MULTIPLEX_BASE
 \
 \
-"**`MULTIPLEX_BASE`**" configures the multiplex base address for the `IOM` unit specified, where "**`<n>`**" is one of "`0120`" (for **IOM`0`**) or "`0121`" (for **IOM`1`**).
+"**`MULTIPLEX_BASE`**" configures the multiplex base address for the `IOM` unit specified, where "**`<n>`**" is "`0120`" (for **IOM`0`**) or "`0121`" (for **IOM`1`**).
 
         MULTIPLEX_BASE=<n>
 
