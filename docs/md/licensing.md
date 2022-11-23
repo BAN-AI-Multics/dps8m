@@ -1330,8 +1330,8 @@ THE POSSIBILITY OF SUCH DAMAGE.**
 
 **novdso License**
 
-Copyright (c) 2020 &nbsp; **Daniel Teunis**
-Copyright (c) 2022 &nbsp; **The DPS8M Development Team**
+* Copyright © 2020 &nbsp; **Daniel Teunis**
+* Copyright © 2022 &nbsp; **The DPS8M Development Team**
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the “Software”),

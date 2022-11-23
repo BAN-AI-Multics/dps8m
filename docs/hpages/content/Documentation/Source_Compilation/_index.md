@@ -761,9 +761,9 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 []()
 
 * The simulator can be built for **64-bit** **AIX** using [**IBM XL C/C++ for AIX**](https://www.ibm.com/products/xl-c-aix-compiler-power) (**`xlc`**), [**IBM Open XL C/C++ for AIX**](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) (**`ibm-clang`**), or **GNU C** (**`gcc`**).  **The DPS8M Development Team** recommends building with **IBM Open XL C/C++ V17.1** (or later) or **GCC 10** (or later) for optimal performance.
-* [**IBM Open XL C/C++ for AIX V17.1** (*5725-C72, 5765-J18*)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the *minimum* recommended version of the **Open XL C/C++** compiler on **POWER8**, **POWER9**, and **POWER10** systems.
+* [**IBM Open XL C/C++ for AIX V17.1** (*5725-C72, 5765-J18*)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the *minimum* recommended version of the **Open XL C/C++** compiler on **POWER8**, **POWER9**, and **Power10** systems.
 * [**IBM XL C/C++ for AIX V16.1 Service Pack 10** (*IJ36514*)](https://www.ibm.com/support/pages/ibm-xl-cc-aix-161) is the *minimum* recommended version of the **IBM XL C/C++** compiler on **POWER8** and **POWER9** systems.
-* Verify via [**IBM Preventive Service Planning**](https://www.ibm.com/support/pages/aix-os-levels-supported-xl-compilers) that you are using the latest available **XL** compiler PTF for your IBM AIX OS level.
+* Verify via [**IBM Preventive Service Planning**](https://www.ibm.com/support/pages/aix-os-levels-supported-xl-compilers) that you are using the latest available **XL** compiler PTF for your **IBM AIX** OS level.
 * When building the simulator using **GNU C**, it recommended to use **GCC 10** or later for optimal performance.
   * **GCC 10** can be installed from the [IBM AIX® Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository.
 
@@ -811,7 +811,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
                   -U__STRICT_POSIX__ -fno-strict-aliasing -mcpu=power8"
   ```
 
-  * When building on **POWER9** (or **POWER10**) systems, '`-mcpu=power9`' (*or* '`-mcpu=power10`') should replace '`-mcpu=power8`' in the above compiler invocation.
+  * When building on IBM **POWER9** (or **Power10**) systems, ‘`-mcpu=power9`’ (*or* ‘`-mcpu=power10`’) should replace ‘`-mcpu=power8`’ in the above compiler invocation.
 
   * Refer to the [**IBM Open XL C/C++ for AIX V17.1.0 documentation**](https://www.ibm.com/docs/en/openxl-c-and-cpp-aix/17.1.0) for additional information.
 
@@ -899,7 +899,7 @@ The default **Haiku** installation includes the required header files, the recom
 
 ### Additional Haiku Notes
 
-* **Haiku** on **32-bit** platforms (*i.e.* **x86**, **x86_gcc2**) is **not** supported at this time.
+* **Haiku** on **32-bit** platforms (*i.e.* **x86**, **x86_gcc2**) is **not** officially supported at this time.
   * Support for **Haiku** on **32-bit** platforms is planned for a future release of the simulator.
 
 <br>
@@ -929,7 +929,7 @@ The default **Haiku** installation includes the required header files, the recom
 
 ## Linux
 
-* Most major **Linux** distributions using the [**GNU C Library**](https://www.gnu.org/software/libc/), [**Bionic**](https://developer.android.com/), and [**musl-libc**](https://www.musl-libc.org/) are supported.
+* Most major **Linux** distributions using the [**GNU C Library**](https://www.gnu.org/software/libc/), [**Bionic**](https://developer.android.com/), [**uClibc-ng**](https://uclibc-ng.org/), and [**musl-libc**](https://www.musl-libc.org/) are supported.
   * [**Debian GNU/Linux**](https://www.debian.org/) and derivatives ([**Raspberry Pi OS**](https://www.raspberrypi.com/software/)), **Red Hat** variants ([**Fedora**](https://fedoraproject.org/), [**CentOS Stream**](https://www.centos.org/centos-stream/), [**RHEL**](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux)) and compatibles ([**AlmaLinux**](https://almalinux.org/), [**Amazon Linux**](https://aws.amazon.com/amazon-linux-2/), [**Oracle Linux**](https://www.oracle.com/linux/)),  [**Alpine**](https://www.alpinelinux.org/), **SUSE** ([**SLES**](https://www.suse.com/products/server/), [**OpenSUSE**](https://www.opensuse.org/)), [**Void**](https://voidlinux.org/), and [**Ubuntu**](https://ubuntu.com/) are regularly tested on **Intel**, **ARM**, and **POWER** systems.
 
 ### Linux compilers
@@ -1026,10 +1026,10 @@ Examples of building the simulator on **Linux** using various popular compilers 
 
 #### AMD Optimizing C/C++
 
-* Build the simulator using **AMD Optimizing C/C++** (**AOCC**), version 3.2.0, (with **AOCC**-provided **AMD LibM**):
+* Build the simulator using **AMD Optimizing C/C++** (**AOCC**), version 4.0.0, (with **AOCC**-provided **AMD LibM**):
 
   ```sh
-  export AOCCVER="3.2.0" &&                               \
+  export AOCCVER="4.0.0" &&                               \
   export AOCLPATH="/opt/AMD/aocc-compiler-${AOCCVER}" &&  \
   source ${AOCCPATH}/setenv_AOCC.sh &&                    \
   env CC="clang" CFLAGS="-mllvm -vector-library=AMDLIBM"  \
@@ -1040,12 +1040,12 @@ Examples of building the simulator on **Linux** using various popular compilers 
 
 ##### AOCC with AMD Optimized CPU Libraries
 
-* Build the simulator using **AMD Optimizing C/C++** (**AOCC**), version 3.2.0, with **AMD Optimized CPU Libraries** (**AOCL**) (**AMD AOCL-LibM** and **AMD AOCL-LibMem**), version 3.2.0:
+* Build the simulator using **AMD Optimizing C/C++** (**AOCC**), version 4.0.0, with **AMD Optimized CPU Libraries** (**AOCL**) (**AMD AOCL-LibM** and **AMD AOCL-LibMem**), version 4.0:
 
   ```sh
-  export AOCCVER="3.2.0" &&                                          \
+  export AOCCVER="4.0.0" &&                                          \
   export AOCCPATH="/opt/AMD/aocc-compiler-${AOCCVER}" &&             \
-  export AOCLVER="3.2.0" &&                                          \
+  export AOCLVER="4.0" &&                                            \
   export AOCLPATH="/opt/AMD/aocl/aocl-linux-aocc-${AOCLVER}" &&      \
   export LD_LIBRARY_PATH="${AOCLPATH}/lib:${LD_LIBRARY_PATH}" &&     \
   source ${AOCCPATH}/setenv_AOCC.sh &&                               \
@@ -1078,7 +1078,7 @@ Examples of building the simulator on **Linux** using various popular compilers 
     make
   ```
 
-* When building on **POWER9** (or **POWER10**) systems, ‘-mcpu=power9’ (*or* ‘-mcpu=power10’) should replace ‘-mcpu=power8’ in the above compiler invocation.
+* When building on IBM **POWER9** (or **Power10**) systems, ‘`-mcpu=power9`’ (*or* ‘`-mcpu=power10`’) should replace ‘`-mcpu=power8`’ in the above compiler invocation.
 
 * Refer to the [**IBM Open XL C/C++ for Linux V17.1.1 documentation**](https://www.ibm.com/docs/en/openxl-c-and-cpp-lop/17.1.1) for additional information.
 
@@ -1192,7 +1192,7 @@ The following commands will download and cross-compile a local static **`libuv`*
       make
     ```
 
-  * When targeting **POWER9** or **POWER10** processors, '`power9`' or '`power10`' should replace '`power8`' in the above compiler invocation.
+  * When targeting **POWER9** or **Power10** processors, '`power9`' or '`power10`' should replace '`power8`' in the above compiler invocation.
 
   * The **IBM Advance Toolchain** versions **14**, **15**, and **16** have been extensively tested and used for cross-compiling **DPS8M**.
 
@@ -1927,7 +1927,7 @@ In the following cross-compilation examples, the *latest* **`libuv`** sources (f
 The [**MinGW-w64 GCC**](https://www.mingw-w64.org/) toolchain supports building native Windows (**i686** and **x86_64**) executables on *non*-**Windows** host systems (or **Windows** using the **Windows Subsystem for Linux**).
 
 * [Many **MinGW-w64 toolchains** are available](https://www.mingw-w64.org/downloads/) for a wide variety of host platforms and operating systems.
-* Version **9.0** is the *minimum* recommended version of **MinGW-w64** for use with **DPS8M**.
+* Version **9.0** is the *minimum* version of **MinGW-w64** tested with **DPS8M**; version **10.0** is *recommended*.
 * **The DPS8M Development Team** regularly cross-compiles **Windows** executables using **GCC**-based **MinGW-w64** toolchains on **Alpine Linux** and **Fedora Linux** host systems.
 
 In the following cross-compilation examples, the *latest* **`libuv`** sources (from the `v1.x` *git* branch) are used, but the current official release (available from https://libuv.org/) can also be used.

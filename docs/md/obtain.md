@@ -29,9 +29,13 @@ Official releases of the simulator are available from:
   * **AIX**
   * **Linux**
   * **macOS**
+  * **FreeBSD**
+  * **NetBSD**
+  * **OpenBSD**
   * **Windows**
   * **Solaris**
   * **illumos**
+  * **Haiku**
   * *and others* …
 
 <!-- br -->
@@ -40,9 +44,12 @@ Official releases of the simulator are available from:
 
   * **POWER** &nbsp; (*e.g.* IBM Power Systems, Raptor Talos™, Freescale PowerPC …)
   * **ARM** &nbsp; (*e.g.* Raspberry Pi, Pine64, Orange Pi …)
-  * **ARM64** / **AArch64** &nbsp; (*e.g.* Apple M1, Fujitsu A64FX …)
+  * **ARM64** / **AArch64** &nbsp; (*e.g.* Apple M1, Fujitsu A64FX, Arm Neoverse N1 …)
+  * **RISC-V** &nbsp; (*e.g.* SiFive HiFive, AndesCore™ AX25/AX27 …)
+  * **OpenRISC** &nbsp; (*e.g.* OpenRISC OR1200, mor1kx, marocchino …)
   * **x86** / **ix86**
   * **x86_64** / **AMD64**
+  * *and others* …
 
 []()
 
@@ -87,8 +94,8 @@ Most development takes place on branches in the **`git`** repository, which are 
   * After cloning the repository, it can be updated by executing the following command from the repository directory:
 
     ```sh
-	git pull
-	```
+    git pull
+    ```
 <!-- br -->
 
 #### Git mirroring
