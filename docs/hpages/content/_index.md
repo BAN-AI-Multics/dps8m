@@ -10,11 +10,6 @@
 |:--:|:--:|
 | <img src="6180.jpg" size=50%> | <img src="dps8.jpg"> |
 ### Project News
-{{< hint type="warning" icon="gdoc_fire" title=" DPS8M Release 2.0.0 (2019-08-27)" >}}
-* [**DPS8M R2.0.0**](/dps8m/Releases/Historical_Archives/#dps8m-r200--2019-08-27) released featuring many stability and performance improvements.
-* New functionality includes support for **multiple processors** and **new disk types**.
-* Dozens of bugs – major and minor – have been fixed since the previous release.
-{{< /hint >}}
-{{< hint type="info" icon="gdoc_fire" title=" DPS8M Release 1.0.0 (2017-05-25)" >}}
-* [**DPS8M R1.0.0**](/dps8m/Releases/Historical_Archives/#dps8m-r100--2017-05-25) released — two and a half years after first booting Multics!
+{{< hint type="warning" icon="gdoc_fire" title=" DPS8M Release 3.0.0 (2022-11-23)" >}}
+* [**DPS8M R3.0.0**](https://dps8m.gitlab.io/dps8m/Releases/#stable-release) released, featuring improved performance and functionality.
 {{< /hint >}}
