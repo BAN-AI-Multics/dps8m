@@ -2,7 +2,9 @@
  * vim: filetype=c:tabstop=4:ai:expandtab
  * SPDX-License-Identifier: BSD-2-Clause
  * scspell-id: 8ce0c4f6-f631-11ec-a3f0-80ee73e9b8e7
- *
+ */
+
+/*
  * -------------------------------------------------------------------------
  *
  * Copyright (c) 2012-2013 Tony Finch <dot@dotat.at>
@@ -13,12 +15,12 @@
  * modification, are permitted provided that the following conditions
  * are met:
  *
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ *  1. Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
  *
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ *  2. Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -35,6 +37,8 @@
  * -------------------------------------------------------------------------
  */
 
+/* ######################################################################### */
+
 #include <sys/stat.h>
 #include <errno.h>
 #include <ctype.h>
@@ -45,29 +49,36 @@
 #include <string.h>
 #include <unistd.h>
 
-/* portability stubs */
+/* ######################################################################### */
 
-#define fbinmode(fp) ( fp )
+/* Portability stubs */
 
-#define replace(old, new) rename(old, new)
+#define fbinmode(fp)        ( fp )
+
+#define replace(old, new)   rename(old, new)
+
+/* ######################################################################### */
 
 static FILE *
 mktempmode(char *tmp, int mode)
 {
-  int fd = mkstemp(tmp);
-  (void)mode;
+ int fd = mkstemp(tmp);
 
-  if (fd < 0)
-  {
-    return ( NULL );
-  }
+ (void)mode;
+
+ if (fd < 0)
+   {
+    return NULL;
+   }
 
 #ifdef _WIN32
 # ifndef __MINGW64__
 #  ifndef __MINGW32__
-  fchmod(fd, mode & ( S_IRWXU | S_IRWXG | S_IRWXO ));
+    fchmod(fd, mode & ( S_IRWXU | S_IRWXG | S_IRWXO ));
 #  endif /* ifndef __MINGW64__ */
 # endif /* ifndef __MINGW32__ */
 #endif /* ifdef _WIN32 */
-  return ( fdopen(fd, "wb"));
+ return fdopen(fd, "wb");
 }
+
+/* ######################################################################### */

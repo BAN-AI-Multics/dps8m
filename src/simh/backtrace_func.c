@@ -42,143 +42,187 @@
  * -------------------------------------------------------------------------
  */
 
+/* ######################################################################### */
+
 #ifdef USE_BACKTRACE
 # ifndef _INC_BACKTRACE_FUNC
+
+/* ######################################################################### */
+
 #  define _INC_BACKTRACE_FUNC
+
+/* ######################################################################### */
+
 #  ifndef BACKTRACE_SKIP
-#   define BACKTRACE_SKIP 1
+#   define BACKTRACE_SKIP  1
 #  endif /* ifndef BACKTRACE_SKIP */
+
+/* ######################################################################### */
 
 #  include <signal.h>
 
-struct backtrace_state *state = NULL;
-volatile long bt_pid;
-int stopbt, function_count, hidden_function_count,
-    unknown_function_count, backtrace_reported = 0;
+/* ######################################################################### */
 
-_Noreturn void
-error_callback(void *data, const char *message, int error_number)
-{
-  sigset_t block; sigset_t block_n;
-  sigfillset(&block); sigfillset(&block_n);
-  sigprocmask(SIG_SETMASK, &block, &block_n);
-  (void)data; (void)error_number;
-  (void)fprintf(stderr, "\r No backtrace: %s\r\n", message);
-  (void)fprintf(stderr,
-    "\r\n****************************************************\r\n\r\n");
-  abort();
-}
+  struct backtrace_state * state = NULL;
+  volatile long            bt_pid;
+  int                      stopbt, function_count, hidden_function_count,
+                           unknown_function_count, backtrace_reported = 0;
 
-int
-full_callback(void *data, uintptr_t pc, const char *pathname,
-              int line_number, const char *function)
-{
-  (void)data; (void)pc;
-  function_count++;
-  if (pathname != NULL || function != NULL || line_number != 0)
-    {
-      if (!stopbt)
-        {
-          (void)fprintf(stderr, "\r %-.3d: %s()\r\n       %s:%d\r\n",
-            function_count, function, pathname, line_number);
-          backtrace_reported++;
-          int n = strcmp(function, BACKTRACE_MAIN);
-          if (n == 0)
+/* ######################################################################### */
+
+  _Noreturn void
+  error_callback(void *data, const char *message, int error_number)
+  {
+    sigset_t  block;
+    sigset_t  block_n;
+
+    sigfillset(&block);
+    sigfillset(&block_n);
+    sigprocmask(SIG_SETMASK, &block, &block_n);
+
+    (void)data;
+    (void)error_number;
+
+    (void)fprintf(stderr, "\r No backtrace: %s\r\n", message);
+    (void)fprintf(stderr,
+      "\r\n****************************************************\r\n\r\n");
+    abort();
+  }
+
+/* ######################################################################### */
+
+  int
+  full_callback(void *data, uintptr_t pc, const char *pathname, int line_number,
+                const char *function)
+  {
+    (void)data;
+    (void)pc;
+    function_count++;
+    if (pathname != NULL || function != NULL || line_number != 0)
+      {
+        if (!stopbt)
+          {
+            (void)fprintf(stderr, "\r %-.3d: %s()\r\n       %s:%d\r\n",
+              function_count, function, pathname, line_number);
+            backtrace_reported++;
+            int n = strcmp(function, BACKTRACE_MAIN);
+            if (n == 0)
+              {
+                stopbt = 1;
+              }
+          }
+        else
+          {
+            return 0;
+          }
+      }
+    else
+      {
+        if (function_count > 1)
+          {
+            if (!stopbt)
+              {
+                (void)fprintf(stderr, "\r %-.3d: ???\r\n", function_count);
+              }
+            else
+              {
+                hidden_function_count++;
+              }
+
+            unknown_function_count++;
+          }
+        else
+          {
+            function_count--;
+          }
+      }
+
+    return 0;
+  }
+
+/* ######################################################################### */
+
+  _Noreturn void
+  backtrace_handler(int number)
+  {
+    sigset_t  block;
+    sigset_t  block_n;
+
+    sigfillset(&block);
+    sigfillset(&block_n);
+    sigprocmask(SIG_SETMASK, &block, &block_n);
+
+    (void)fprintf(stderr,
+      "\r\n\r\n****** FATAL ERROR *********************************\r\n");
+
+    if (bt_pid > 1)
+      {
+#  ifdef SIGUSR2
+          if (number == SIGUSR2)
             {
-              stopbt = 1;
-            }
-        }
-      else
-        {
-          return 0;
-        }
-    }
-  else
-    {
-      if (function_count > 1)
-        {
-          if (!stopbt)
-            {
-              (void)fprintf(stderr, "\r %-.3d: ???\r\n", function_count);
+              (void)fprintf(stderr,
+                "\r\n   PID %ld raised SIGUSR2 (signal %d) ... :(\r\n\r\n",
+                (long)bt_pid, number);
             }
           else
             {
-              hidden_function_count++;
+#  endif /* ifdef SIGUSR2 */
+        (void)fprintf(stderr,
+          "\r\n   PID %ld caught fatal signal %d ... :(\r\n\r\n",
+          (long)bt_pid, number);
+#  ifdef SIGUSR2
             }
-          unknown_function_count++;
-        }
-      else
-        {
-          function_count--;
-        }
-    }
-  return 0;
-}
+#  endif /* ifdef SIGUSR2 */
+      }
+    else
+      {
+        (void)fprintf(stderr,
+          "\r\n   Caught fatal signal %d ... :(\r\n\r\n",
+          number);
+      }
 
-_Noreturn void
-backtrace_handler(int number)
-{
-  sigset_t block; sigset_t block_n;
-  sigfillset(&block); sigfillset(&block_n);
-  sigprocmask(SIG_SETMASK, &block, &block_n);
-  (void)fprintf(
-    stderr, "\r\n\r\n****** FATAL ERROR *********************************\r\n");
-  if (bt_pid > 1)
-    {
+    backtrace_full(state, BACKTRACE_SKIP, full_callback, error_callback, NULL);
+
+    if (backtrace_reported)
+      {
+        if (hidden_function_count > 1)
+          {
+            (void)fprintf(stderr,
+              "\r        (%d earlier callers not shown)\r\n",
+              hidden_function_count);
+          }
+
+        if (hidden_function_count == 1)
+          {
+            (void)fprintf(
+              stderr,
+              "\r        (%d earlier caller not shown)\r\n",
+              hidden_function_count);
+          }
+      }
+
 #  ifdef SIGUSR2
-      if (number == SIGUSR2)
+      if (number != SIGUSR2)
         {
           (void)fprintf(stderr,
-                "\r\n   PID %ld raised SIGUSR2 (signal %d) ... :(\r\n\r\n",
-                (long)bt_pid, number);
-        }
-      else
-        {
-#  endif /* ifdef SIGUSR2 */
+            "\r\n****** BUG REPORTING *******************************\r\n\r\n");
           (void)fprintf(stderr,
-                "\r\n   PID %ld caught fatal signal %d ... :(\r\n\r\n",
-                (long)bt_pid, number);
-#  ifdef SIGUSR2
+            " URL: https://dps8m.gitlab.io/dps8m/Bug_Reporting/\r\n");
         }
 #  endif /* ifdef SIGUSR2 */
-    }
-  else
-    {
-      (void)fprintf(stderr,
-              "\r\n   Caught fatal signal %d ... :(\r\n\r\n",
-              number);
-    }
-  backtrace_full(state, BACKTRACE_SKIP, full_callback, error_callback, NULL);
-  if (backtrace_reported)
-    {
-      if (hidden_function_count > 1)
-        {
-          (void)fprintf(stderr,
-            "\r        (%d earlier callers not shown)\r\n",
-            hidden_function_count);
-        }
-      if (hidden_function_count == 1)
-        {
-          (void)fprintf(stderr,
-            "\r        (%d earlier caller not shown)\r\n",
-            hidden_function_count);
-        }
-    }
-#  ifdef SIGUSR2
-  if (number != SIGUSR2)
-    {
-      (void)fprintf(stderr,
-        "\r\n****** BUG REPORTING *******************************\r\n\r\n");
-      (void)fprintf(stderr,
-        " URL: https://dps8m.gitlab.io/dps8m/Bug_Reporting/\r\n");
-    }
-#  endif /* ifdef SIGUSR2 */
-  (void)fprintf(stderr,
-    "\r\n****************************************************\r\n\r\n");
+
+    (void)fprintf(stderr,
+      "\r\n****************************************************\r\n\r\n");
+
 #  ifdef USE_DUMA
-  DUMA_CHECKALL();
+      DUMA_CHECKALL();
 #  endif /* ifdef USE_DUMA */
-  abort();
-}
+    abort();
+  }
+
+/* ######################################################################### */
+
 # endif /* ifndef _INC_BACKTRACE_FUNC */
 #endif /* ifdef USE_BACKTRACE */
+
+/* ######################################################################### */

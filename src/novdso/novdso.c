@@ -2,7 +2,9 @@
  * vim: set filetype=c:tabstop=4:autoinput:expandtab
  * SPDX-License-Identifier: MIT
  * scspell-id: 4a19aab5-433e-11ed-ae50-80ee73e9b8e7
- *
+ */
+
+/*
  * Copyright (c) 2020 Daniel Teunis
  * Copyright (c) 2022 The DPS8M Development Team
  *
@@ -35,14 +37,21 @@
  * ----------------------------------------------------------------------------
  */
 
+/* ######################################################################### */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <unistd.h>
 
-#if defined(__linux__) && \
-  ( defined(__x86_64__) || defined(__x86_64) || \
-    defined(__amd64__)  || defined(__amd64) )
+/* ######################################################################### */
+
+#if defined( __linux__ ) \
+   && ( defined( __x86_64__ ) || defined( __x86_64 ) \
+     || defined( __amd64__ )  || defined( __amd64 ) )
+
+/* ######################################################################### */
+
 # include <linux/auxvec.h>
 # include <signal.h>
 # include <string.h>
@@ -51,136 +60,144 @@
 # include <sys/reg.h>
 # include <sys/wait.h>
 
-static void
-removeVDSO(int pid)
-{
-  size_t pos;
-  int zeroCount;
-  long val;
+/* ######################################################################### */
 
-  pos = (size_t)ptrace(PTRACE_PEEKUSER, pid, sizeof ( long ) * RSP, NULL);
+ static void
+ removeVDSO(int pid)
+ {
+  size_t  pos;
+  int     zeroCount;
+  long    val;
+
+  pos       = (size_t)ptrace(PTRACE_PEEKUSER, pid, sizeof ( long ) * RSP, NULL);
   zeroCount = 0;
 
   while (zeroCount < 2)
     {
-      val = ptrace(PTRACE_PEEKDATA, pid, pos += 8, NULL);
-      if (val == 0)
-        {
-          zeroCount++;
-        }
+     val = ptrace(PTRACE_PEEKDATA, pid, pos += 8, NULL);
+     if (val == 0)
+       {
+        zeroCount++;
+       }
     }
   val = ptrace(PTRACE_PEEKDATA, pid, pos += 8, NULL);
 
   while (1)
     {
-      if (val == AT_NULL)
-        {
-          break;
-        }
+     if (val == AT_NULL)
+       {
+        break;
+       }
 
-      if (val == AT_SYSINFO_EHDR)
-        {
-          (void)ptrace(PTRACE_POKEDATA, pid, pos, AT_IGNORE);
-          break;
-        }
+     if (val == AT_SYSINFO_EHDR)
+       {
+        (void)ptrace(PTRACE_POKEDATA, pid, pos, AT_IGNORE);
+        break;
+       }
 
-      val = ptrace(PTRACE_PEEKDATA, pid, pos += 16, NULL);
+     val = ptrace(PTRACE_PEEKDATA, pid, pos += 16, NULL);
     }
-}
+ }
 
-static int
-traceProcess(int pid)
-{
+/* ######################################################################### */
+
+ static int
+ traceProcess(int pid)
+ {
   int status;
   int exitStatus = 0;
 
   (void)waitpid(pid, &status, 0);
-  (void)ptrace(
-    PTRACE_SETOPTIONS,
-    pid,
-    0,
-    PTRACE_O_TRACESYSGOOD | PTRACE_O_TRACEEXEC);
+  (void)ptrace(PTRACE_SETOPTIONS, pid, 0,
+   PTRACE_O_TRACESYSGOOD | PTRACE_O_TRACEEXEC);
   (void)ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
 
   while (1)
     {
-      (void)waitpid(pid, &status, 0);
-      if (WIFEXITED(status))
-        {
-          break;
-        }
+     (void)waitpid(pid, &status, 0);
+     if (WIFEXITED(status))
+       {
+        break;
+       }
 
-      if (status >> 8 == ( SIGTRAP | ( PTRACE_EVENT_EXEC << 8 )))
-        {
-          removeVDSO(pid);
-          if (getenv("NOVDSO_PAUSE"))
-            {
-              (void)kill(pid, SIGSTOP);
-              (void)ptrace(PTRACE_DETACH, pid, NULL, NULL);
-              (void)fprintf(
-                stderr,
-                "\r--- PID %llu paused waiting for tracing attachment ---\n",
-                (long long unsigned int)pid);
-              while (waitpid(pid, &status, 0) > 0)
-                {
-                  (void)0;
-                }
-              break;
-            }
-        }
+     if (status >> 8 == ( SIGTRAP | ( PTRACE_EVENT_EXEC << 8 )))
+       {
+        removeVDSO(pid);
+        if (getenv("NOVDSO_PAUSE"))
+          {
+           (void)kill(pid, SIGSTOP);
+           (void)ptrace(PTRACE_DETACH, pid, NULL, NULL);
+           (void)fprintf(stderr,
+            "\r--- PID %llu paused waiting for tracing attachment ---\n",
+            (long long unsigned int)pid);
+           while (waitpid(pid, &status, 0) > 0)
+             {
+              (void)0;
+             }
+           break;
+          }
+       }
 
-      (void)ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
+     (void)ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
     }
   exitStatus = WEXITSTATUS(status);
-  return (exitStatus);
-}
+  return exitStatus;
+ }
 
-int
-main(int argc, char *argv[])
-{
-  char *myfile;
-  char **myargv;
-  int exitStatus = 0;
-  pid_t child;
+/* ######################################################################### */
+
+ int
+ main(int argc, char *argv[])
+ {
+  char *  myfile;
+  char ** myargv;
+  int     exitStatus = 0;
+  pid_t   child;
 
   if (argc < 2)
     {
-      (void)fprintf(
-        stderr,
-        "\rUsage: env [NOVDSO_PAUSE=] novdso <command> [arguments ...]\r\n");
-      return (EXIT_FAILURE);
+     (void)fprintf(stderr,
+      "\rUsage: env [NOVDSO_PAUSE=] novdso <command> [arguments ...]\r\n");
+     return EXIT_FAILURE;
     }
 
-  myfile = argv[1];
-  myargv = &argv[1];
-  child  = fork();
+  myfile  = argv[1];
+  myargv  = &argv[1];
+  child   = fork();
 
   if (child == 0)
     {
-      (void)prctl(PR_SET_PTRACER, PR_SET_PTRACER_ANY);
-      (void)ptrace(PTRACE_TRACEME, 0, NULL, NULL);
-      (void)kill(getpid(), SIGSTOP);
-      if (execvp(myfile, myargv))
-        {
-          (void)fprintf(stderr, "\r%s: %s\r\n", myfile, strerror(errno));
-        }
+     (void)prctl(PR_SET_PTRACER, PR_SET_PTRACER_ANY);
+     (void)ptrace(PTRACE_TRACEME, 0, NULL, NULL);
+     (void)kill(getpid(), SIGSTOP);
+     if (execvp(myfile, myargv))
+       {
+        (void)fprintf(stderr, "\r%s: %s\r\n", myfile, strerror(errno));
+       }
     }
   else
     {
-      exitStatus = traceProcess(child);
+     exitStatus = traceProcess(child);
     }
 
-  return (exitStatus);
-}
+  return exitStatus;
+ }
+
+/* ######################################################################### */
 
 #else  /* ifdef __linux__ */
-int
-main(void)
-{
+ int
+ main(void)
+ {
   (void)fprintf(stderr, "\rError: A Linux/x86_64 system is required.\r\n");
 
-  return (EXIT_FAILURE);
-}
+  return EXIT_FAILURE;
+ }
+
+/* ######################################################################### */
+
 #endif /* if defined(__linux__) &&
            ( defined(__x86_64__) || defined(__x86_64) ||
              defined(__amd64__)  || defined(__amd64) ) */
+
+/* ######################################################################### */

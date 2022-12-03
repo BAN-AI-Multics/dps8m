@@ -42,50 +42,102 @@
  * -------------------------------------------------------------------------
  */
 
+/* ######################################################################### */
+
 #ifdef USE_BACKTRACE
 # ifdef _INC_BACKTRACE_FUNC
 #  ifndef _INC_BACKTRACE_MAIN
+
+/* ######################################################################### */
+
 #   define _INC_BACKTRACE_MAIN
+
+/* ######################################################################### */
+
 #   ifndef BACKTRACE_SKIP
-#    define BACKTRACE_SKIP 1
+#    define BACKTRACE_SKIP  1
 #   endif /* ifndef BACKTRACE_SKIP */
+
+/* ######################################################################### */
+
 #   include <signal.h>
+
+/* ######################################################################### */
+
 #   ifdef SIGSEGV
-  (void)signal(SIGSEGV, backtrace_handler);
+      (void)signal(SIGSEGV, backtrace_handler);
 #   endif /* ifdef SIGSEGV */
+
+/* ######################################################################### */
+
 #   ifdef SIGILL
-  (void)signal(SIGILL, backtrace_handler);
+      (void)signal(SIGILL, backtrace_handler);
 #   endif /* ifdef SIGILL */
+
+/* ######################################################################### */
+
 #   ifdef SIGFPE
-  (void)signal(SIGFPE, backtrace_handler);
+      (void)signal(SIGFPE, backtrace_handler);
 #   endif /* ifdef SIGFPE */
+
+/* ######################################################################### */
+
 #   ifdef SIGBUS
-  (void)signal(SIGBUS, backtrace_handler);
+      (void)signal(SIGBUS, backtrace_handler);
 #   endif /* ifdef SIGBUS */
+
+/* ######################################################################### */
+
 #   ifdef SIGUNUSED
-  (void)signal(SIGUNUSED, backtrace_handler);
+      (void)signal(SIGUNUSED, backtrace_handler);
 #   endif /* ifdef SIGUNUSED */
+
+/* ######################################################################### */
+
 #   ifdef SIGSYS
-  (void)signal(SIGSYS, backtrace_handler);
+      (void)signal(SIGSYS, backtrace_handler);
 #   endif /* ifdef SIGSYS */
+
+/* ######################################################################### */
+
 #   ifdef SIGUSR2
-  (void)signal(SIGUSR2, backtrace_handler);
+      (void)signal(SIGUSR2, backtrace_handler);
 #   endif /* ifdef SIGUSR2 */
+
+/* ######################################################################### */
+
 #   ifdef SIGSTKFLT
-  (void)signal(SIGSTKFLT, backtrace_handler);
+      (void)signal(SIGSTKFLT, backtrace_handler);
 #   endif /* ifdef SIGSTKFLT */
+
+/* ######################################################################### */
+
 #   ifdef SIGPOWER
 #    ifdef SIG_IGN
-  (void)signal(SIGPOWER, SIG_IGN);
+        (void)signal(SIGPOWER, SIG_IGN);
 #    endif /* ifdef SIG_IGN */
 #   endif /* ifdef SIGPOWER */
+
+/* ######################################################################### */
+
 #   ifdef SIGPWR
 #    ifdef SIG_IGN
-  (void)signal(SIGPWR, SIG_IGN);
+        (void)signal(SIGPWR, SIG_IGN);
 #    endif /* ifdef SIG_IGN */
 #   endif /* ifdef SIGPWR */
-state = backtrace_create_state(
-  NULL, BACKTRACE_SUPPORTS_THREADS, error_callback, NULL);
+
+/* ######################################################################### */
+
+    state = backtrace_create_state(
+      NULL,
+      BACKTRACE_SUPPORTS_THREADS,
+      error_callback,
+      NULL);
+
+/* ######################################################################### */
+
 #  endif /* ifdef _INC_BACKTRACE_FUNC */
 # endif /* ifdef _INC_BACKTRACE_MAIN */
 #endif /* ifdef USE_BACKTRACE */
+
+/* ######################################################################### */

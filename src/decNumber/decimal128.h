@@ -1,6 +1,9 @@
 // vim: filetype=c:tabstop=4:ai:expandtab
 // SPDX-License-Identifier: ICU
 // scspell-id: b69cc81e-f62c-11ec-a05b-80ee73e9b8e7
+
+/* ######################################################################### */
+
 /* ------------------------------------------------------------------ */
 /* Decimal 128-bit format module header                               */
 /* ------------------------------------------------------------------ */
@@ -20,67 +23,102 @@
 /*   IBM UK, PO Box 31, Birmingham Road, Warwick CV34 5JL, UK         */
 /* ------------------------------------------------------------------ */
 
-#if !defined(DECIMAL128)
+/* ######################################################################### */
+
+#if !defined( DECIMAL128 )
 # define DECIMAL128
-# define DEC128NAME     "decimal128"                  /* Short name   */
-# define DEC128FULLNAME "Decimal 128-bit Number"      /* Verbose name */
-# define DEC128AUTHOR   "Mike Cowlishaw"              /* Who to blame */
+# define DEC128NAME      "decimal128"             /* Short name   */
+# define DEC128FULLNAME  "Decimal 128-bit Number" /* Verbose name */
+# define DEC128AUTHOR    "Mike Cowlishaw"         /* Who to blame */
 
-  /* parameters for decimal128s */
-# define DECIMAL128_Bytes  16           /* length                     */
-# define DECIMAL128_Pmax   34           /* maximum precision (digits) */
-# define DECIMAL128_Emax   6144         /* maximum adjusted exponent  */
-# define DECIMAL128_Emin  -6143         /* minimum adjusted exponent  */
-# define DECIMAL128_Bias   6176         /* bias for the exponent      */
-# define DECIMAL128_String 43           /* maximum string length, +1  */
-# define DECIMAL128_EconL  12           /* exp. continuation length   */
-  /* highest biased exponent (Elimit-1)                               */
-# define DECIMAL128_Ehigh                                              \
-    (DECIMAL128_Emax+DECIMAL128_Bias-DECIMAL128_Pmax+1)
+/* ######################################################################### */
 
-  /* check enough digits, if pre-defined                              */
-# if defined(DECNUMDIGITS)
-#  if (DECNUMDIGITS<DECIMAL128_Pmax)
+/* Parameters for decimal128s */
+
+# define DECIMAL128_Bytes    16     /* length                     */
+# define DECIMAL128_Pmax     34     /* maximum precision (digits) */
+# define DECIMAL128_Emax     6144   /* maximum adjusted exponent  */
+# define DECIMAL128_Emin     -6143  /* minimum adjusted exponent  */
+# define DECIMAL128_Bias     6176   /* bias for the exponent      */
+# define DECIMAL128_String   43     /* maximum string length, +1  */
+# define DECIMAL128_EconL    12     /* exp. continuation length   */
+
+/* ######################################################################### */
+
+/* Highest biased exponent (Elimit-1) */
+
+# define DECIMAL128_Ehigh \
+ ( DECIMAL128_Emax + DECIMAL128_Bias - DECIMAL128_Pmax + 1 )
+
+/* ######################################################################### */
+
+/* Check enough digits, if pre-defined */
+
+# if defined( DECNUMDIGITS )
+#  if ( DECNUMDIGITS < DECIMAL128_Pmax )
 #   error decimal128.h needs pre-defined DECNUMDIGITS>=34 for safe use
-#  endif
-# endif
+#  endif /* if ( DECNUMDIGITS < DECIMAL128_Pmax ) */
+# endif /* if defined( DECNUMDIGITS ) */
+
+/* ######################################################################### */
 
 # ifndef DECNUMDIGITS
-#  define DECNUMDIGITS DECIMAL128_Pmax /* size if not already defined */
-# endif
+#  define DECNUMDIGITS  DECIMAL128_Pmax /* size if not already defined */
+# endif /* ifndef DECNUMDIGITS */
 # ifndef DECNUMBER
-#  include "decNumber.h"                /* context and number library */
-# endif
+#  include "decNumber.h" /* context and number library */
+# endif /* ifndef DECNUMBER */
 
-  /* Decimal 128-bit type, accessible by bytes                        */
-  typedef struct {
-    uint8_t bytes[DECIMAL128_Bytes]; /* decimal128: 1, 5, 12, 110 bits*/
-    } decimal128;
+/* ######################################################################### */
 
-  /* special values [top byte excluding sign bit; last two bits are   */
-  /* don't-care for Infinity on input, last bit don't-care for NaN]   */
-# if !defined(DECIMAL_NaN)
-#  define DECIMAL_NaN     0x7c          /* 0 11111 00 NaN             */
-#  define DECIMAL_sNaN    0x7e          /* 0 11111 10 sNaN            */
-#  define DECIMAL_Inf     0x78          /* 0 11110 00 Infinity        */
-# endif
+/* Decimal 128-bit type, accessible by bytes */
 
-  /* ---------------------------------------------------------------- */
-  /* Routines                                                         */
-  /* ---------------------------------------------------------------- */
-  /* String conversions                                               */
-  decimal128 * decimal128FromString(decimal128 *, const char *,
-    decContext *);
-  char * decimal128ToString(const decimal128 *, char *);
-  char * decimal128ToEngString(const decimal128 *, char *);
+typedef struct
+{
+ uint8_t bytes[DECIMAL128_Bytes]; /* decimal128: 1, 5, 12, 110 bits */
+} decimal128;
 
-  /* decNumber conversions                                            */
-  decimal128 * decimal128FromNumber(decimal128 *, const decNumber *,
-                                    decContext *);
-  decNumber * decimal128ToNumber(const decimal128 *, decNumber *);
+/* ######################################################################### */
 
-  /* Format-dependent utilities                                       */
-  uint32_t    decimal128IsCanonical(const decimal128 *);
-  decimal128 * decimal128Canonical(decimal128 *, const decimal128 *);
+/* Special values [top byte excluding sign bit; last two bits are */
+/* don't-care for Infinity on input, last bit don't-care for NaN] */
 
-#endif
+# if !defined( DECIMAL_NaN )
+#  define DECIMAL_NaN   0x7c /* 0 11111 00 NaN      */
+#  define DECIMAL_sNaN  0x7e /* 0 11111 10 sNaN     */
+#  define DECIMAL_Inf   0x78 /* 0 11110 00 Infinity */
+# endif /* if !defined( DECIMAL_NaN ) */
+
+/* ######################################################################### */
+
+/* ---------------------------------------------------------------- */
+/* Routines                                                         */
+/* ---------------------------------------------------------------- */
+
+/* ######################################################################### */
+
+/* String conversions                                               */
+
+decimal128 *decimal128FromString(decimal128 *, const char *, decContext *);
+char *decimal128ToString(const decimal128 *, char *);
+char *decimal128ToEngString(const decimal128 *, char *);
+
+/* ######################################################################### */
+
+/* decNumber conversions */
+
+decimal128 *decimal128FromNumber(decimal128 *, const decNumber *, decContext *);
+decNumber *decimal128ToNumber(const decimal128 *, decNumber *);
+
+/* ######################################################################### */
+
+/* Format-dependent utilities */
+
+uint32_t decimal128IsCanonical(const decimal128 *);
+decimal128 *decimal128Canonical(decimal128 *, const decimal128 *);
+
+/* ######################################################################### */
+
+#endif /* if !defined( DECIMAL128 ) */
+
+/* ######################################################################### */

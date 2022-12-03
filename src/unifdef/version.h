@@ -2,7 +2,9 @@
  * vim: filetype=c:tabstop=4:ai:expandtab
  * SPDX-License-Identifier: BSD-2-Clause
  * scspell-id: 990af04f-f631-11ec-9c08-80ee73e9b8e7
- *
+ */
+
+/*
  * -------------------------------------------------------------------------
  *
  * Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
@@ -12,12 +14,12 @@
  * modification, are permitted provided that the following conditions
  * are met:
  *
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ *  1. Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
  *
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ *  2. Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -34,5 +36,9 @@
  * -------------------------------------------------------------------------
  */
 
-"@(#) $ Version: 2120.2.16-dps $\n"
-"@(#) $    Date: 2022-10-07 12:13:14 +0000 $\n"
+/* ######################################################################### */
+
+"@(#) $ Version: 2120.2.17-dps $\n"
+"@(#) $    Date: 2022-12-01 03:35:44 +0000 $\n"
+
+/* ######################################################################### */
