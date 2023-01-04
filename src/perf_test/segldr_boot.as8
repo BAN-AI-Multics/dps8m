@@ -1,5 +1,5 @@
 " SPDX-License-Identifier: ICU
-" SPDX-FileCopyrightText: 2021-2022 The DPS8M Development Team
+" SPDX-FileCopyrightText: 2021-2023 The DPS8M Development Team
 " scspell-id: e3aaa820-f776-11ec-b757-80ee73e9b8e7
 "
 " * 0000   Interrupt and fault vectors
@@ -211,7 +211,7 @@ start:
 "apptra:	vfd	3/0,15/0,3/4,9/0,6/043
 "	vfd	18/apptar,3/0,6/0,3/0,6/0
 
-apptar:	
+apptar:
 
 " Register usage
 
@@ -263,7 +263,7 @@ apptar:
 	spri0	pr6|stack_frame.prev_sp
 	epp0	pr6|stack_frame_min_length
 	spri0	pr6|stack_frame.next_sp
-	
+
 " Set up dummy lp
 
 	epp0	our_lp,*

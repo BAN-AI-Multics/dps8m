@@ -3,7 +3,7 @@ weight: 3500
 title: Documentation
 ---
 <!-- SPDX-License-Identifier: ICU -->
-<!-- Copyright (c) 2022 The DPS8M Development Team -->
+<!-- Copyright (c) 2022-2023 The DPS8M Development Team -->
 The **DPS8M Development Team** provides documentation useful to simulator users and developers.
 
 * [**DPS8M Omnibus Documentation**](#dps8m-omnibus-documentation)

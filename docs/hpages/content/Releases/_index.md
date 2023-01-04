@@ -3,7 +3,7 @@ weight: 3000
 title: DPS8M Releases
 ---
 <!-- SPDX-License-Identifier: ICU -->
-<!-- Copyright (c) 2022 The DPS8M Development Team -->
+<!-- Copyright (c) 2022-2023 The DPS8M Development Team -->
 ### Current Releases
 * [**Stable Release**](#stable-release)
 * [**Bleeding Edge**](#bleeding-edge)
@@ -159,7 +159,7 @@ title: DPS8M Releases
 {{< expand "ARM64 (little-endian)" "…" >}}
 | File                                                                                       | Platform | Verification |
 | :----------------------------------------------------------------------------------------- | :------- |:------------ |
-| [**dps8m-r3.0.0-nbd13-a64.tar.gz**](https://dps8m.gitlab.io/dps8m-archive/R3.0.0/dps8m-r3.0.0-nbd13-a64.tar.gz) | ARMv8‑A  | <small>\[&nbsp;[SHA256](https://dps8m.gitlab.io/dps8m-archive/R3.0.0/dps8m-r3.0.0-nbd13-a64.tar.gz.sha256)&nbsp;\|&nbsp;[PGP](https://dps8m.gitlab.io/dps8m-archive/R3.0.0/dps8m-r3.0.0-nbd13-a64.tar.gz.asc)&nbsp;\]</small>  |
+| [**dps8m-r3.0.0-nbd93-a64.tar.gz**](https://dps8m.gitlab.io/dps8m-archive/R3.0.0/dps8m-r3.0.0-nbd93-a64.tar.gz) | ARMv8‑A  | <small>\[&nbsp;[SHA256](https://dps8m.gitlab.io/dps8m-archive/R3.0.0/dps8m-r3.0.0-nbd93-a64.tar.gz.sha256)&nbsp;\|&nbsp;[PGP](https://dps8m.gitlab.io/dps8m-archive/R3.0.0/dps8m-r3.0.0-nbd93-a64.tar.gz.asc)&nbsp;\]</small>  |
 {{< /expand >}}
 
 {{< expand "SPARC" "…" >}}
@@ -197,7 +197,7 @@ title: DPS8M Releases
 {{< expand "VAX" "…" >}}
 | File                                                                                       | Verification |
 |:------------------------------------------------------------------------------------------ |:------------ |
-| [**dps8m-r3.0.0-nbd93-vax.tar.gz**](https://dps8m.gitlab.io/dps8m-archive/R3.0.0/dps8m-r3.0.0-nbd93-vax.tar.gz) | <small>\[&nbsp;[SHA256](.sha256)&nbsp;\|&nbsp;[PGP](.asc)&nbsp;\]</small>  |
+| [**dps8m-r3.0.0-nbd93-vax.tar.gz**](https://dps8m.gitlab.io/dps8m-archive/R3.0.0/dps8m-r3.0.0-nbd93-vax.tar.gz) | <small>\[&nbsp;[SHA256](https://dps8m.gitlab.io/dps8m-archive/R3.0.0/dps8m-r3.0.0-nbd93-vax.tar.gz.sha256)&nbsp;\|&nbsp;[PGP](https://dps8m.gitlab.io/dps8m-archive/R3.0.0/dps8m-r3.0.0-nbd93-vax.tar.gz.asc)&nbsp;\]</small>  |
 {{< /expand >}}
 {{< /expand >}}
 
@@ -650,7 +650,7 @@ title: DPS8M Releases
 {{< expand "ARM64 (little-endian)" "…" >}}
 | File                                                                                       | Platform |
 | :----------------------------------------------------------------------------------------- | :------- |
-| [**dps8m-git-nbd13-a64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd13-a64.tar.gz) | ARMv8‑A  |
+| [**dps8m-git-nbd93-a64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-a64.tar.gz) | ARMv8‑A  |
 {{< /expand >}}
 
 {{< expand "SPARC" "…" >}}

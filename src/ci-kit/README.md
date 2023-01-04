@@ -1,6 +1,6 @@
 <!-- SPDX-License-Identifier: FSFAP -->
 <!-- scspell-id: ebdd502d-f777-11ec-9466-80ee73e9b8e7 -->
-<!-- Copyright (c) 2021-2022 The DPS8M Development Team
+<!-- Copyright (c) 2021-2023 The DPS8M Development Team
      Copying and distribution of this file, with or without modification,
      are permitted in any medium without royalty provided the copyright
      notice and this notice are preserved.  This file is offered "AS-IS",
@@ -37,10 +37,8 @@
    * [tmux](https://tmux.github.io/)
 
  A BSD-derived `telnet` client is required, such as:
-   * [BAN Telnet](https://github.com/BAN-AI-Multics/ban-telnet/)
    * [GNU Inetutils](https://www.gnu.org/software/inetutils/)
    * [illumos Telnet](https://github.com/illumos/illumos-gate/tree/master/usr/src/cmd/cmd-inet/)
-   * [NetKit Telnet-SSL](https://github.com/marado/netkit-telnet-ssl/)
 
  The following packages are optional, but highly recommended:
    * [mksh](http://www.mirbsd.org/mksh.htm), the MirBSD™ Korn Shell, a
@@ -56,10 +54,8 @@
  are known to be sufficient for this task:
    * [Beyond Compare](https://www.scootersoftware.com/)
    * [Code Compare](https://www.devart.com/codecompare/)
-   * [Delta](https://github.com/dandavison/delta/)
    * [Diffinity](https://truehumandesign.se/)
    * [DiffMerge](https://sourcegear.com/diffmerge/)
-   * [diffoscope](https://diffoscope.org/)
    * [ExamDiff](https://www.prestosoft.com/)
    * [Guiffy](https://www.guiffy.com/)
    * [jMeld](https://github.com/albfan/jmeld/)
@@ -69,8 +65,6 @@
    * [P4Merge](https://www.perforce.com/downloads/visual-merge-tool/)
    * [UltraCompare](https://www.ultraedit.com/products/ultracompare/)
    * [WinMerge](https://github.com/winmerge/winmerge/)
-   * [WinMerge2011](https://github.com/datadiode/winmerge2011/)
-   * [Xcode FileMerge](https://developer.apple.com/xcode/)
    * [Xdiff](https://www.plasticscm.com/features/xmerge/)
    * [xxdiff](https://furius.ca/xxdiff/)
    * Vim/NeoVim

@@ -11,7 +11,7 @@
  * Copyright (c) 2013-2016 Charles Anthony
  * Copyright (c) 2015 Eric Swenson
  * Copyright (c) 2017 Michal Tomek
- * Copyright (c) 2021-2022 The DPS8M Development Team
+ * Copyright (c) 2021-2023 The DPS8M Development Team
  *
  * All rights reserved.
  *

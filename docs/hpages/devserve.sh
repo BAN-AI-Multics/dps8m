@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 # SPDX-License-Identifier: FSFAP
 # scspell-id: 6727225e-25f8-11ed-bafc-80ee73e9b8e7
-# Copyright (c) 2022 The DPS8M Development Team
+# Copyright (c) 2022-2023 The DPS8M Development Team
 
 ##########################################################################
 # Copying and distribution of this file, with or without

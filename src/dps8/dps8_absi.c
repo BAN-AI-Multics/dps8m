@@ -7,7 +7,7 @@
  *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2015-2018 Charles Anthony
- * Copyright (c) 2021-2022 The DPS8M Development Team
+ * Copyright (c) 2021-2023 The DPS8M Development Team
  *
  * All rights reserved.
  *

@@ -9,7 +9,7 @@
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2013-2022 Charles Anthony
  * Copyright (c) 2015-2021 Eric Swenson
- * Copyright (c) 2021-2022 The DPS8M Development Team
+ * Copyright (c) 2021-2023 The DPS8M Development Team
  *
  * All rights reserved.
  *

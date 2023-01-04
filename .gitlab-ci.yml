@@ -1857,7 +1857,7 @@ Cross-compiled release binaries:
     - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/sh4aeb-local-linux-uclibc.tar.lz" -O /sh4aeb-local-linux-uclibc.tar.lz
     - ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /sh4aeb-local-linux-uclibc.tar.lz )
     - *scriptDPS8Mods
-    - env PATH="/home/jhj/x-tools/sh4aeb-local-linux-uclibc/bin:${PATH}" CC="/home/jhj/x-tools/sh4aeb-local-linux-uclibc/bin/sh4aeb-local-linux-uclibc-gcc" LOCAL_CONFOPTS="--host=sh4aeb-local-linux-uclibc" LDFLAGS="-static" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH="/home/jhj/x-tools/sh4aeb-local-linux-uclibc/bin:${PATH}" CC="/home/jhj/x-tools/sh4aeb-local-linux-uclibc/bin/sh4aeb-local-linux-uclibc-gcc" LOCAL_CONFOPTS="--host=sh4aeb-local-linux-uclibc" LDFLAGS="-static" gmake libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - env PATH="/home/jhj/x-tools/sh4aeb-local-linux-uclibc/bin:${PATH}" CC="/home/jhj/x-tools/sh4aeb-local-linux-uclibc/bin/sh4aeb-local-linux-uclibc-gcc" LDFLAGS="-static" gmake NEED_128=1 ATOMICS="GNU" LOCALLIBS="-latomic" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
@@ -1871,7 +1871,7 @@ Cross-compiled release binaries:
     - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/sh4a-local-linux-uclibc.tar.lz" -O /sh4a-local-linux-uclibc.tar.lz
     - ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /sh4a-local-linux-uclibc.tar.lz )
     - *scriptDPS8Mods
-    - env PATH="/home/jhj/x-tools/sh4a-local-linux-uclibc/bin:${PATH}" CC="/home/jhj/x-tools/sh4a-local-linux-uclibc/bin/sh4a-local-linux-uclibc-gcc" LOCAL_CONFOPTS="--host=sh4a-local-linux-uclibc" LDFLAGS="-static" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH="/home/jhj/x-tools/sh4a-local-linux-uclibc/bin:${PATH}" CC="/home/jhj/x-tools/sh4a-local-linux-uclibc/bin/sh4a-local-linux-uclibc-gcc" LOCAL_CONFOPTS="--host=sh4a-local-linux-uclibc" LDFLAGS="-static" gmake libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - env PATH="/home/jhj/x-tools/sh4a-local-linux-uclibc/bin:${PATH}" CC="/home/jhj/x-tools/sh4a-local-linux-uclibc/bin/sh4a-local-linux-uclibc-gcc" LDFLAGS="-static" gmake NEED_128=1 ATOMICS="GNU" LOCALLIBS="-latomic" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
@@ -3575,8 +3575,10 @@ PVS-Studio:
     - *scriptExtraInfo
     - dnf -q install -y wget curl bear bzip2 || dnf -q install -y wget curl bear bzip2
     - wget -O /etc/yum.repos.d/viva64.repo https://dps8m.gitlab.io/dps8m-archive/CI/viva64.repo
-    - wget -O /etc/yum.repos.d/viva64-beta.repo https://dps8m.gitlab.io/dps8m-archive/CI/viva64-beta.repo
     - dnf --refresh -y install pvs-studio || dnf --refresh -y install pvs-studio
+    - wget -O /etc/yum.repos.d/viva64-beta.repo https://dps8m.gitlab.io/dps8m-archive/CI/viva64-beta.repo || true
+    - dnf --refresh -y install pvs-studio || dnf --refresh -y install pvs-studio || true
+    - dnf upgrade -y || dnf upgrade -y || true
     - pvs-studio-analyzer credentials $PVS_STUDIO_NAME $PVS_STUDIO_KEY || true
     - rm -f compile_commands.json
     - rm -f compile_commands.events.json
