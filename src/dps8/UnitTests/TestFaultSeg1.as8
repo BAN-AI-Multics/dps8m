@@ -5,7 +5,7 @@
 " SPDX-FileCopyrightText: 2006 Bull SAS
 " SPDX-FileCopyrightText: 2019-2021 Juergen Weiss
 " SPDX-FileCopyrightText: 2021 Eric Swenson
-" SPDX-FileCopyrightText: 2021-2022 The DPS8M Development Team
+" SPDX-FileCopyrightText: 2021-2023 The DPS8M Development Team
 " scspell-id: 4f01f04f-f776-11ec-9602-80ee73e9b8e7
 "
 """
@@ -479,7 +479,7 @@ t19_pass:
 " Set up snapped link
 " 2:2048 -> PR0
 	lprp0	t20_link_ptr_3
-	ldaq	t20_snapped_init	
+	ldaq	t20_snapped_init
 	staq	0|0
 
 " Through the link
@@ -565,7 +565,7 @@ t7_p1_init:
 
 	equ	TB6, 0
 	equ	TB9, 1
-	
+
 t8_p1_init:
 	" initial tally 0, 9-bit chars, start at character 3
 	vfd	18/t8_a1, 12/0, 1/TB9, 2/MBZ, 3/3
@@ -879,7 +879,7 @@ t7_a1:	oct	0	" subtract delta will back up one word to the data
 t8_a1:	vfd	9/-1, 9/-1, 9/t8_data, 9/-1
 
 " Test 9
-	
+
 	vfd	9/-1, 9/-1, 9/-1, 9/t9_data
 t9_a1:	vfd	9/-1, 9/-1, 9/-1, 9/-1
 
@@ -938,4 +938,3 @@ t21_a1:	dec	t21_data
 " Test 22
 
 t22_a1:	dec	t22_data
-

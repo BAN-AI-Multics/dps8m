@@ -3,7 +3,7 @@ weight: 3100
 title: Historical Archives
 ---
 <!-- SPDX-License-Identifier: ICU -->
-<!-- Copyright (c) 2022 The DPS8M Development Team -->
+<!-- Copyright (c) 2022-2023 The DPS8M Development Team -->
 ## About Archived Releases
 
 * Current users should upgrade to [**the most recently released stable version**](..).

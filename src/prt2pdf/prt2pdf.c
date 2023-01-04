@@ -8,7 +8,7 @@
  * Copyright (c) 1998 P. G. Womack, Diss, Norfolk, UK.
  * Copyright (c) 2006 John S. Urban <urbanjost@comcast.net>
  * Copyright (c) 2013-2016 Charles Anthony
- * Copyright (c) 2021-2022 The DPS8M Development Team
+ * Copyright (c) 2021-2023 The DPS8M Development Team
  *
  * All rights reserved.
  *

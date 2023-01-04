@@ -5,7 +5,7 @@
 
 ####################################################################################################
 #
-# Copyright (c) 2021-2022 The DPS8M Development Team
+# Copyright (c) 2021-2023 The DPS8M Development Team
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright

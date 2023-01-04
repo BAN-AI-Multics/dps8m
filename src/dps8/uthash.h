@@ -7,7 +7,7 @@
  *
  * Copyright (c) 2003-2021 Troy D. Hanson
  *     https://troydhanson.github.io/uthash/
- * Copyright (c) 2021-2022 The DPS8M Development Team
+ * Copyright (c) 2021-2023 The DPS8M Development Team
  *
  * All rights reserved.
  *
@@ -36,8 +36,8 @@
 # define UTHASH_H
 
 # include <string.h>   /* memcmp,strlen */
-# include <signal.h>   /* raise */
-# include <stddef.h>   /* ptrdiff_t */
+# include <signal.h>   /* raise         */
+# include <stddef.h>   /* ptrdiff_t     */
 # include <stdlib.h>
 
  /*

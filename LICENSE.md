@@ -4,7 +4,7 @@
 <!-- NOTE: The FSF All Permissive License (FSFAP) is NOT applicable to
            the text of other licenses reproduced within this document. -->
 <!-- NOTE: Licenses in this file are UTF-8 text within fenced code blocks. -->
-<!-- Copyright (c) 2006-2022 The DPS8M Development Team
+<!-- Copyright (c) 2006-2023 The DPS8M Development Team
      Copying and distribution of this file, with or without modification,
      are permitted in any medium without royalty provided the copyright
      notice and this notice are preserved.  This file is offered "AS-IS",
@@ -43,10 +43,10 @@ Copyright © 2012 Dave Jordan
 Copyright © 2015-2016 Craig Ruff
 Copyright © 2015-2022 Eric Swenson
 Copyright © 2016 Jean-Michel Merliot
-Copyright © 2017-2022 Jeffrey H. Johnson
+Copyright © 2017-2023 Jeffrey H. Johnson
 Copyright © 2018-2021 Juergen Weiss
 Copyright © 2021 Dean S. Anderson
-Copyright © 2021-2022 The DPS8M Development Team
+Copyright © 2021-2023 The DPS8M Development Team
 
 All rights reserved.
 

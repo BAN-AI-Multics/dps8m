@@ -1,5 +1,5 @@
 " SPDX-License-Identifier: ICU
-" SPDX-FileCopyrightText: 2021-2022 The DPS8M Development Team
+" SPDX-FileCopyrightText: 2021-2023 The DPS8M Development Team
 " scspell-id: c11ee994-f776-11ec-96f3-80ee73e9b8e7
 "
 " STORAGE FOR AUTOMATIC VARIABLES.
@@ -39,7 +39,7 @@ nqueens:	spri4	pr6|nqueens_ret
 
 	ldq	11,dl
 	stq	pr6|queen_arg_1
-	epp2	l174	
+	epp2	l174
 	tsp4	queen
 
 " return;

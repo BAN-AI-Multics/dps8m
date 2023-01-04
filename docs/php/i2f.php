@@ -12,7 +12,7 @@
  * ---------------------------------------------------------------------------
  *
  * Copyright (c) 2016 Tobias Potocek <tobiaspotocek@gmail.com>
- * Copyright (c) 2021-2022 The DPS8M Development Team
+ * Copyright (c) 2021-2023 The DPS8M Development Team
  *
  * All rights reserved.
  *

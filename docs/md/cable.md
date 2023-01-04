@@ -1,5 +1,5 @@
 <!-- SPDX-License-Identifier: LicenseRef-DPS8M-Doc OR LicenseRef-CF-GAL -->
-<!-- SPDX-FileCopyrightText: 2022 The DPS8M Development Team -->
+<!-- SPDX-FileCopyrightText: 2022-2023 The DPS8M Development Team -->
 <!-- scspell-id: 7988dd71-3344-11ed-8b11-80ee73e9b8e7 -->
 The `CABLE` command (*abbreviated* `C`) connects (or "*strings*") a simulated cable between devices.
 

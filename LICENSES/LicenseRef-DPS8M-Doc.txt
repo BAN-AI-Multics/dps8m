@@ -2,7 +2,7 @@ The DPS8M Documentation License
 
 Version 0.954 of 3 July 2022
 
-Copyright (c) 2006-2022 The DPS8M Development Team
+Copyright (c) 2006-2023 The DPS8M Development Team
 
 All rights reserved.
 

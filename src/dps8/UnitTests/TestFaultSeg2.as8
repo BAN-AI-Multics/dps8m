@@ -5,7 +5,7 @@
 " SPDX-FileCopyrightText: 2006 Bull SAS
 " SPDX-FileCopyrightText: 2019-2021 Juergen Weiss
 " SPDX-FileCopyrightText: 2021 Eric Swenson
-" SPDX-FileCopyrightText: 2021-2022 The DPS8M Development Team
+" SPDX-FileCopyrightText: 2021-2023 The DPS8M Development Team
 " scspell-id: 46f0d458-f776-11ec-927b-80ee73e9b8e7
 "
 " copied from seg1, since we don't have a linker
@@ -13,7 +13,7 @@
 	bool	t6_data,670006001
 	bool	t20_data,670123456
 	bool	t21_data,701234567
-	
+
 t6_p2:	arg	t6_a1
 
 	org	1*1024
@@ -36,4 +36,3 @@ t20_link:  " 2|2048
 	dec	t20_data
 " 2|2053
 	dec	t21_data
-
