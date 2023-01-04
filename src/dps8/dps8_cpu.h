@@ -2152,8 +2152,7 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx);
 # if (! defined (GNU_ATOMICS)) && (! defined (SYNC_ATOMICS)) && \
      (! defined (BSD_ATOMICS)) && (! defined (AIX_ATOMICS))
 #  if defined(__FreeBSD__) \
-  || defined(__FreeBSD_kernel__) \
-  || defined(__DragonFly__)
+   || defined(__DragonFly__)
 #   undef BSD_ATOMICS
 #   define BSD_ATOMICS 1
 #  endif

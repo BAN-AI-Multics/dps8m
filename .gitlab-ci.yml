@@ -1857,7 +1857,7 @@ Cross-compiled release binaries:
     - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/sh4aeb-local-linux-uclibc.tar.lz" -O /sh4aeb-local-linux-uclibc.tar.lz
     - ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /sh4aeb-local-linux-uclibc.tar.lz )
     - *scriptDPS8Mods
-    - env PATH="/home/jhj/x-tools/sh4aeb-local-linux-uclibc/bin:${PATH}" CC="/home/jhj/x-tools/sh4aeb-local-linux-uclibc/bin/sh4aeb-local-linux-uclibc-gcc" LOCAL_CONFOPTS="--host=sh4aeb-local-linux-uclibc" LDFLAGS="-static" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH="/home/jhj/x-tools/sh4aeb-local-linux-uclibc/bin:${PATH}" CC="/home/jhj/x-tools/sh4aeb-local-linux-uclibc/bin/sh4aeb-local-linux-uclibc-gcc" LOCAL_CONFOPTS="--host=sh4aeb-local-linux-uclibc" LDFLAGS="-static" gmake libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - env PATH="/home/jhj/x-tools/sh4aeb-local-linux-uclibc/bin:${PATH}" CC="/home/jhj/x-tools/sh4aeb-local-linux-uclibc/bin/sh4aeb-local-linux-uclibc-gcc" LDFLAGS="-static" gmake NEED_128=1 ATOMICS="GNU" LOCALLIBS="-latomic" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
@@ -1871,7 +1871,7 @@ Cross-compiled release binaries:
     - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/sh4a-local-linux-uclibc.tar.lz" -O /sh4a-local-linux-uclibc.tar.lz
     - ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /sh4a-local-linux-uclibc.tar.lz )
     - *scriptDPS8Mods
-    - env PATH="/home/jhj/x-tools/sh4a-local-linux-uclibc/bin:${PATH}" CC="/home/jhj/x-tools/sh4a-local-linux-uclibc/bin/sh4a-local-linux-uclibc-gcc" LOCAL_CONFOPTS="--host=sh4a-local-linux-uclibc" LDFLAGS="-static" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
+    - env PATH="/home/jhj/x-tools/sh4a-local-linux-uclibc/bin:${PATH}" CC="/home/jhj/x-tools/sh4a-local-linux-uclibc/bin/sh4a-local-linux-uclibc-gcc" LOCAL_CONFOPTS="--host=sh4a-local-linux-uclibc" LDFLAGS="-static" gmake libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - env PATH="/home/jhj/x-tools/sh4a-local-linux-uclibc/bin:${PATH}" CC="/home/jhj/x-tools/sh4a-local-linux-uclibc/bin/sh4a-local-linux-uclibc-gcc" LDFLAGS="-static" gmake NEED_128=1 ATOMICS="GNU" LOCALLIBS="-latomic" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"

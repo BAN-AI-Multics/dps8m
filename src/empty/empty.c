@@ -55,21 +55,17 @@
 #include <sys/stat.h>
 #include <termios.h>
 
-#if defined( __FreeBSD__ ) || defined( __FreeBSD_kernel__ ) \
-  || defined( __DragonflyBSD__ ) || defined( __DragonFly__ )
+#if defined( __FreeBSD__ ) || defined( __DragonflyBSD__ ) || defined( __DragonFly__ )
 # include <libutil.h>
-#endif /* if defined( __FreeBSD__ ) || defined( __FreeBSD_kernel__ )
-        *  || defined( __DragonflyBSD__ ) || defined( __DragonFly__ ) */
+#endif /* if defined( __FreeBSD__ ) defined( __DragonflyBSD__ ) || defined( __DragonFly__ ) */
 
-#if defined( __OpenBSD__ ) || defined( __APPLE__ ) \
-  || defined( __NetBSD__ )
+#if defined( __OpenBSD__ ) || defined( __APPLE__ ) || defined( __NetBSD__ )
 # include <util.h>
 # include <errno.h>
 # ifndef EIDRM
 #  define EIDRM EINVAL
 # endif /* ifndef EIDRN */
-#endif /* if defined( __OpenBSD__ ) || defined( __APPLE__ )
-        *  || defined( __NetBSD__ ) */
+#endif /* if defined( __OpenBSD__ ) || defined( __APPLE__ ) || defined( __NetBSD__ ) */
 
 #if defined( __linux__ ) || defined( __CYGWIN__ )
 # include <pty.h>
@@ -92,11 +88,11 @@
 # include <sys/select.h>
 #endif /* ifndef __hpux__ */
 
-#if !defined( __SVR4 ) && !defined( __hpux__ ) && !defined( _AIX ) \
-  && !defined( __OSF1 ) && !defined( __serenity__ )
+#if !defined( __SVR4 ) && !defined( __hpux__ ) && !defined( _AIX ) && \
+    !defined( __OSF1 ) && !defined( __serenity__ )
 # include <err.h>
-#endif /* if !defined( __SVR4 ) && !defined( __hpux__ ) && !defined( _AIX )
-        *  && !defined( __OSF1 ) && !defined( __serenity__ ) */
+#endif /* if !defined( __SVR4 ) && !defined( __hpux__ ) && !defined( _AIX ) &&
+        *    !defined( __OSF1 ) && !defined( __serenity__ ) */
 
 #include <dirent.h>
 #include <errno.h>
@@ -181,7 +177,7 @@ main(int argc, char *argv[])
   int bflg    = 0;     /* block size for -r flag          */
   int tflg    = 0;     /* Timeout flag for -b (timeout?)  */
   int pflg    = 0;     /* Shall we save PID to a file?    */
-  int timeout = 10; /* wait N secs for the response    */
+  int timeout = 10;    /* wait N secs for the response    */
 
   int ksig = SIGTERM;
 
@@ -835,8 +831,8 @@ main(int argc, char *argv[])
           (void)perrxslog(255, "Fatal tcsetpgrp()");
         }
 
-#endif /* if !defined( __SVR4 ) && !defined( __hpux__ )
-        *  && !defined( _AIX ) */
+#endif /* if !defined( __SVR4 ) && !defined( __hpux__ ) &&
+        *    !defined( _AIX ) */
 
 #if defined( __SVR4 ) || defined( _AIX )
       tt.c_lflag = ISIG | ICANON | ECHOE | ECHOK | ECHOCTL | ECHOKE | IEXTEN;
