@@ -1065,8 +1065,8 @@ retry_open:
         }
 # endif /* ifdef POSIX_FADV_DONTNEED */
 
-#elif defined( __OpenBSD__ ) || defined( __FreeBSD_kernel__ ) || \
-      defined( __FreeBSD__ ) || defined( __sun__ ) || defined( __APPLE__ )
+#elif defined( __OpenBSD__ ) || defined( __FreeBSD__ ) || \
+          defined( __sun__ ) || defined( __APPLE__ )
       if (msync(mem, len_of_range, MS_INVALIDATE))
         {
           warning(

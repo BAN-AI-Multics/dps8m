@@ -54,7 +54,6 @@ int32 sim_finit (void);
          defined (__APPLE__)            || \
          defined (__CYGWIN__)           || \
          defined (__FreeBSD__)          || \
-         defined (__FreeBSD_kernel__)   || \
          defined (__NetBSD__)           || \
          defined (__OpenBSD__) )        && \
         !defined (DONT_DO_LARGEFILE)

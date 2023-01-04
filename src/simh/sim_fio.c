@@ -373,7 +373,6 @@ return (t_offset)(ftello64 (st));
 
 # if defined (__APPLE__)          || \
     defined (__FreeBSD__)         || \
-    defined (__FreeBSD_kernel__)  || \
     defined (__NetBSD__)          || \
     defined (__OpenBSD__)         || \
     defined (__CYGWIN__)
