@@ -40,16 +40,12 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // scspell-id: 8a648643-f630-11ec-afc6-80ee73e9b8e7
 
-#ifdef __SCO_VERSION__
-# define __SVR4
-#endif /* ifdef __SCO_VERSION__ */
-
 #include <sys/types.h>
 #include <unistd.h>
 
-#if defined( __SVR4 ) || defined( __hpux__ )
+#if defined( __SVR4 )
 # include <stropts.h>
-#endif /* if defined( __SVR4 ) || defined( __hpux__ ) */
+#endif /* if defined( __SVR4 ) */
 
 #include <sys/ioctl.h>
 #include <sys/stat.h>
@@ -79,20 +75,13 @@
 # include <utmp.h>
 #endif /* ifdef _AIX */
 
-#ifdef __OSF1
-# include <sys/termios.h>
-# include <varargs.h>
-#endif /* ifdef __OSF1 */
+#include <sys/select.h>
 
-#ifndef __hpux__
-# include <sys/select.h>
-#endif /* ifndef __hpux__ */
-
-#if !defined( __SVR4 ) && !defined( __hpux__ ) && !defined( _AIX ) && \
-    !defined( __OSF1 ) && !defined( __serenity__ )
+#if !defined( __SVR4 ) && !defined( _AIX ) && \
+    !defined( __serenity__ )
 # include <err.h>
-#endif /* if !defined( __SVR4 ) && !defined( __hpux__ ) && !defined( _AIX ) &&
-        *    !defined( __OSF1 ) && !defined( __serenity__ ) */
+#endif /* if !defined( __SVR4 ) && !defined( _AIX ) && \
+             !defined( __serenity__ ) */
 
 #include <dirent.h>
 #include <errno.h>
@@ -115,7 +104,7 @@
 
 #define tmpdir "/tmp"
 #define program "empty"
-#define version "0.6.24i-dps"
+#define version "0.6.24j-dps"
 
 static void usage(void);
 static long toint(char *intstr);
@@ -207,9 +196,6 @@ main(int argc, char *argv[])
 # ifdef __SVR4
     ushort_t *array;
 # endif /* ifdef __SVR4 */
-# ifdef __hpux__
-    ushort *array;
-# endif /* ifdef __hpux__ */
 # ifdef __linux__
     unsigned short *array;
     struct seminfo *__buf; /* buffer for IPC_INFO */
@@ -219,12 +205,10 @@ main(int argc, char *argv[])
             !defined( _SEM_SEMUN_UNDEFINED ) */
   union semun semu;
 
-#if defined( __SVR4 ) || defined( __hpux__ ) || \
-    defined( _AIX ) || defined( __HAIKU__ )
+#if defined( __SVR4 ) || defined( _AIX ) || defined( __HAIKU__ )
   char *slave_name;
   int pgrp;
-#endif /* if defined( __SVR4 ) || defined( __hpux__ ) ||
-             defined( _AIX ) || defined( __HAIKU__ ) */
+#endif /* if defined( __SVR4 ) || defined( _AIX ) || defined( __HAIKU__ ) */
 
 #ifndef __linux__
   while (( ch = getopt(argc, argv, "Scvhfrb:kwslp:i:o:t:L:")) != -1)
@@ -724,8 +708,7 @@ main(int argc, char *argv[])
         sem);
     }
 
-#if !defined( __SVR4 ) && !defined( __hpux__ ) && \
-    !defined( _AIX ) && !defined( __HAIKU__ )
+#if !defined( __SVR4 ) && !defined( _AIX ) && !defined( __HAIKU__ )
   if (openpty(&master, &slave, NULL, &tt, &win) == -1)
     {
       (void)perrxslog(255, "PTY routine failed. Fatal openpty()");
@@ -748,15 +731,6 @@ main(int argc, char *argv[])
 
 # endif /* ifdef _AIX */
 
-# ifdef __hpux__
-  /* See the same definition for Solaris & UW several lines below */
-  if (grantpt(master) == -1)
-    {
-      (void)perrxslog(255, "Can't grant access to slave part of PTY: %m");
-    }
-
-# endif /* ifdef __hpux__ */
-
   if (unlockpt(master) == -1)
     {
       (void)perrxslog(255, "PTY routine failed. Fatal unlockpt()");
@@ -768,15 +742,13 @@ main(int argc, char *argv[])
     }
 
 # ifdef __SVR4
-#  ifndef __SCO_VERSION__
   if (grantpt(master) == -1)
     {
       (void)perrxslog(255, "Can't grant access to slave part of PTY: %m");
     }
 
-#  endif /* ifndef __SCO_VERSION__ */
 # endif /* ifdef __SVR4 */
-#endif /* !defined(__SVR4) && !defined(__hpux__) && !defined(_AIX) */
+#endif /* !defined(__SVR4) && !defined(_AIX) */
 
   for (i = 1; i < 32; i++)
     {
@@ -794,8 +766,7 @@ main(int argc, char *argv[])
     {
       (void)close(master);
 
-#if !defined( __SVR4 ) && !defined( __hpux__ ) && \
-    !defined( _AIX ) && !defined( __HAIKU__ )
+#if !defined( __SVR4 ) && !defined( _AIX ) && !defined( __HAIKU__ )
       (void)login_tty(slave);
 # ifndef __CYGWIN__
       cfmakeraw(&tt);
@@ -831,8 +802,7 @@ main(int argc, char *argv[])
           (void)perrxslog(255, "Fatal tcsetpgrp()");
         }
 
-#endif /* if !defined( __SVR4 ) && !defined( __hpux__ ) &&
-        *    !defined( _AIX ) */
+#endif /* if !defined( __SVR4 ) && !defined( _AIX ) */
 
 #if defined( __SVR4 ) || defined( _AIX )
       tt.c_lflag = ISIG | ICANON | ECHOE | ECHOK | ECHOCTL | ECHOKE | IEXTEN;
@@ -1097,14 +1067,14 @@ perrxslog(int ex_code, const char *err_text, ...)
   va_list va;
 
   va_start(va, err_text);
-#if !defined( __hpux__ ) && !defined( _AIX ) && !defined( __OSF1 )
+#if !defined( _AIX )
   (void)vsyslog(LOG_NOTICE, err_text, va);
 #else
   char err_buf[BUFSIZ];
 
   (void)vsprintf(err_buf, err_text, va);
   (void)syslog(LOG_NOTICE, err_buf, "");
-#endif /* if !defined( __hpux__ ) && !defined( _AIX ) && !defined( __OSF1 ) */
+#endif /* if !defined( _AIX ) */
 
   va_end(va);
 
