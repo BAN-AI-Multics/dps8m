@@ -197,7 +197,7 @@
 
 * Various releases of **DPS8M** have been ported to **embedded systems**, **cell phones**, **tablets**, **handheld gaming consoles**, **wireless routers**, and even modern **mainframes**.  A full-featured port should be possible for any 32- or 64-bit platform with appropriate hardware atomic operations and able to support the [**libuv**](https://libuv.org/) asynchronous I/O library.
 
-* The simulator is distributed as an [**easy-to-build**](https://dps8m.gitlab.io/dps8m/Documentation/Source_Compilation) source code [**distribution**](https://dps8m.gitlab.io/dps8m/Releases) (buildable simply via **`make`** on most systems) or as ready-to-run [**pre-compiled binaries**](https://dps8m.gitlab.io/dps8m/Releases) for several popular platforms.
+* The simulator is distributed as an [**easy-to-build**](https://dps8m.gitlab.io/dps8m/Documentation/Source_Compilation) source code [**distribution**](https://dps8m.gitlab.io/dps8m/Releases) (buildable simply via '**`make`**' on most systems) or as ready-to-run [**pre-compiled binaries**](https://dps8m.gitlab.io/dps8m/Releases) for several popular platforms.
 
 * **DPS8M** development is hosted courtesy of [**GitLab**](https://gitlab.com/dps8m/dps8m), providing [version control](https://gitlab.com/dps8m/dps8m), [issue tracking](https://gitlab.com/dps8m/dps8m/-/issues), and [CI/CD services](https://gitlab.com/dps8m/dps8m/-/pipelines).
 

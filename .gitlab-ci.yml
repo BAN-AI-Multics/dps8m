@@ -3399,7 +3399,7 @@ DPS8M Omnibus Documentation:
     paths:
       - docs/dps8-omnibus.pdf
   retry: 2
-  timeout: 45 minutes
+  timeout: 180 minutes
   interruptible: true
 
 ############################################################################
