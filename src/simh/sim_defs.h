@@ -798,6 +798,20 @@ struct FILEREF {
   } while(0)
 # endif /* ifdef TESTING */
 
+/* Consistent PATH_MAX */
+
+# ifndef MAXPATHLEN
+#  if defined(PATH_MAX) && PATH_MAX > 1024
+#   define MAXPATHLEN PATH_MAX
+#  else
+#   define MAXPATHLEN 1024
+#  endif /* if defined(PATH_MAX) && PATH_MAX > 1024 */
+# endif /* ifndef MAXPATHLEN */
+
+# ifndef PATH_MAX
+#  define PATH_MAX MAXPATHLEN
+# endif /* ifndef PATH_MAX */
+
 /* Macro to ALWAYS execute the specified expression and fail if it evaluates to false. */
 
 /* This replaces any references to "assert()" which should never be invoked */

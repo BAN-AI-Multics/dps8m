@@ -169,8 +169,16 @@ main(int argc, char *argv[])
   int timeout = 10;    /* wait N secs for the response    */
 
   int ksig = SIGTERM;
-
   pid_t ppid; /* Shell's PID */
+
+#ifndef MAXPATHLEN
+# if defined(PATH_MAX) && PATH_MAX > 1024
+#  define MAXPATHLEN PATH_MAX
+# else
+#  define MAXPATHLEN 1024
+# endif /* if defined(PATH_MAX) && PATH_MAX > 1024 */
+#endif /* ifndef MAXPATHLEN */
+
   char infifo[MAXPATHLEN];
   char outfifo[MAXPATHLEN];
 

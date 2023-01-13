@@ -761,7 +761,7 @@ static void submit (enum deckFormat fmt, char * fname, uint16 readerIndex)
     int deckfd = open (fname, O_RDONLY);
     if (deckfd < 0)
       perror ("card reader deck open\n");
-// Windows can't unlink open files; save the file name and unlink on close.
+    // Windows can't unlink open files; save the file name and unlink on close.
     // int rc = unlink (fname); // this only works on UNIX
 #ifdef TESTING
     sim_printf ("submit %s\r\n", fname);
@@ -784,14 +784,18 @@ static void scanForCards(uint16 readerIndex)
     }
 
 #if !defined(__MINGW64__) || !defined(__MINGW32__)
-    sprintf(rdr_dir, "/tmp/%s%c", rdr_name, 'a' + readerIndex);
+    const char* r_tmpdir = getenv("TMPDIR") ? getenv("TMPDIR") : "/tmp";
 #else
-    sprintf(rdr_dir, "%s/%s%c", getenv("TEMP"), rdr_name, 'a' + readerIndex);
+    const char* r_tmpdir = getenv("TEMP") ? getenv("TEMP") : \
+                           getenv("TMP")  ? getenv("TMP")  : ".";
 #endif /* if !defined(__MINGW64__) || !defined(__MINGW32__) */
+    snprintf(rdr_dir, PATH_MAX + 1, "%s/%s%c",
+             r_tmpdir, rdr_name, 'a' + readerIndex);
 
     if (rdr_path_prefix [0])
       {
-        sprintf(rdr_dir, "%s%s%c", rdr_path_prefix, rdr_name, 'a' + readerIndex);
+        snprintf(rdr_dir, PATH_MAX + 1, "%s%s%c",
+                 rdr_path_prefix, rdr_name, 'a' + readerIndex);
       }
 
     DIR * dp;
@@ -843,7 +847,7 @@ static void scanForCards(uint16 readerIndex)
           }
         if (strcmp (entry -> d_name, "discard") == 0)
           {
-// Windows can't unlink open files; do it now...
+            // Windows can't unlink open files; do it now...
             int rc = unlink (fqname);
             if (rc)
               perror ("crdrdr discard unlink\n");
@@ -922,7 +926,7 @@ iom_cmd_rc_t rdr_iom_cmd (uint iomUnitIdx, uint chan) {
         //if (rdr_state[unitIdx].deckfd < 0)
           //p->stati = 04201; // hopper empty
 #ifdef TESTING
-sim_printf ("Request status %04o\r\n", p->stati);
+        sim_printf ("Request status %04o\r\n", p->stati);
 #endif
         break;
 
@@ -1078,6 +1082,13 @@ static t_stat rdr_set_path (UNUSED UNIT * uptr, UNUSED int32 value,
 static t_stat rdr_show_path (UNUSED FILE * st, UNUSED UNIT * uptr,
                              UNUSED int val, UNUSED const void * desc)
   {
-    sim_printf("Path to card reader directories is %s\n", rdr_path_prefix);
+    if (rdr_path_prefix [0])
+      {
+        sim_printf("\rPath to card reader directories is \"%s\".\r\n", rdr_path_prefix);
+      }
+    else
+      {
+        sim_printf("\rPath to card reader directories is unset.\r\n");
+      }
     return SCPE_OK;
   }
