@@ -4049,6 +4049,7 @@ maxbuf
 maxbufg
 maxlen
 maxneg
+maxpathlen
 maxpos
 mbxes
 mchar

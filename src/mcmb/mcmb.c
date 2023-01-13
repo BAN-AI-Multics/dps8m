@@ -460,8 +460,16 @@ static struct cmb_xitem *cmb_transform_find;
 #endif /* ifdef MAX */
 #define MAX(x, y) (( x ) > ( y ) ? ( x ) : ( y ))
 
+#ifndef MAXPATHLEN
+# if defined(PATH_MAX) && PATH_MAX > 1024
+#  define MAXPATHLEN PATH_MAX
+# else
+#  define MAXPATHLEN 1024
+# endif /* if defined(PATH_MAX) && PATH_MAX > 1024 */
+#endif /* ifndef MAXPATHLEN */
+
 #ifndef PATH_MAX
-# define PATH_MAX 1024
+# define PATH_MAX MAXPATHLEN
 #endif /* ifndef PATH_MAX */
 
 #ifndef CMB_PARSE_FRAGSIZE

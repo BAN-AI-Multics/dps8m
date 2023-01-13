@@ -138,9 +138,24 @@
 # include <sys/utsname.h>
 #endif /* if defined( __linux__ ) */
 
+#ifndef MAXPATHLEN
+# if defined(PATH_MAX) && PATH_MAX > 1024
+#  define MAXPATHLEN PATH_MAX
+# else
+#  define MAXPATHLEN 1024
+# endif /* if defined(PATH_MAX) && PATH_MAX > 1024 */
+#endif /* ifndef MAXPATHLEN */
+
 #ifndef PATH_MAX
-# define PATH_MAX 4 * KiB
+# define PATH_MAX MAXPATHLEN
 #endif /* ifndef PATH_MAX */
+
+#ifdef __linux__
+# if ( PATH_MAX < (4 * KiB) )
+#  undef PATH_MAX
+#  define PATH_MAX 4 * KiB
+# endif /* if ( PATH_MAX < (4 * KiB) ) */
+#endif /* ifdef __linux__ */
 
 #ifndef MAX_FILENAME_LENGTH
 # ifdef NAME_MAX

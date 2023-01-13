@@ -1318,9 +1318,16 @@ static t_stat pun_set_path (UNUSED UNIT * uptr, UNUSED int32 value,
   }
 
 static t_stat pun_show_path (UNUSED FILE * st, UNUSED UNIT * uptr,
-                                       UNUSED int val, UNUSED const void * desc)
+                             UNUSED int val, UNUSED const void * desc)
   {
-    sim_printf("Path to card punch directories is %s\n", pun_path_prefix);
+    if (pun_path_prefix [0])
+      {
+        sim_printf("\rPath to card punch directories is \"%s\".\r\n", pun_path_prefix);
+      }
+    else
+      {
+        sim_printf("\rPath to card punch directories is unset.\r\n");
+      }
     return SCPE_OK;
   }
 
