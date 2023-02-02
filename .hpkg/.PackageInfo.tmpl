@@ -1,0 +1,28 @@
+name          "dps8m"
+version       ###DPS8_VERSION###-###UTIME###
+architecture  ###ARCHITECTURE###
+summary       "DPS-8/M mainframe simulator"
+description   "DPS8M is a simulator of the 36‑bit GE Large Systems / Honeywell / Bull 600/6000‑series mainframe computers (Honeywell 6180, Honeywell Series‑60 / Level‑68, and Honeywell / Bull DPS‑8/M) descended from the GE‑645 and engineered to support the Multics operating system
+SPDX-License-Identifier: ICU
+"
+packager      "The DPS8M Development Team <contact-project+dps8m-dps8m-10664906-issue-@incoming.gitlab.com>"
+urls {
+              "https://dps8m.gitlab.io/"
+}
+source-urls {
+              "https://gitlab.com/dps8m/dps8m"
+}
+vendor        "The DPS8M Development Team"
+copyrights {  "
+Copyright (c) 2006-2022 The DPS8M Development Team et al.
+"
+}
+licenses "ICU"
+provides {
+              dps8     = ###DPS8_VERSION###-###UTIME###
+              prt2pdf  = ###PRT2PDF_VERSION###-###UTIME###
+              punutil  = ###PUNUTIL_VERSION###-###UTIME###
+}
+requires {
+              libuv
+}

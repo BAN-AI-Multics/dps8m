@@ -1,0 +1,60 @@
+# SPDX-License-Identifier: FSFAP
+# scspell-id: 2cd14f94-f62c-11ec-b427-80ee73e9b8e7
+
+############################################################################
+#
+# Copyright (c) 2021-2023 The DPS8M Development Team
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered "AS-IS",
+# without any warranty.
+#
+############################################################################
+
+set word enterp
+set userName \*
+set projName HFED
+set password fed
+
+#exp_internal -f isolts.debug.log 1
+
+remove_nulls 1
+match_max 14096
+set timeout 750000
+
+cd ./run
+spawn ./dps8 -t isolts.ini
+set dps8ID $spawn_id
+
+expect "M-> CONSOLE: RELEASED"
+
+set spawn_id $dps8ID
+
+proc   w {     } { expect -re {\nr [0-9]+:[0-9]+ .*\r}; sleep 0.1 }
+proc  wi {     } { expect -re {Input.\r}; sleep 0.1 }
+proc  wn {     } { expect -re {\n}; sleep 0.1 }
+proc  sw { txt } { send $txt; send "\r"; w  }
+proc swi { txt } { send $txt; send "\r"; wi }
+proc swn { txt } { send $txt; send "\r"; wn }
+proc  wf {     } { expect -re {\nr  [0-9]+\r}; sleep 0.2 }
+proc swf { txt } { send $txt; send "\r"; wf }
+
+if {![fork]} {
+    cd ..
+    exec ./isolts_run.sh >isolts.log
+    exit
+}
+
+sleep 2
+set spawn_id $dps8ID
+
+# Waiting for logout
+expect "LOGOUT"
+sleep 3
+set timeout 4
+
+# Scram
+exec kill -9 [exp_pid $dps8ID]; sleep 3
+close $dps8ID
+exit

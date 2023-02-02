@@ -1,0 +1,351 @@
+COMPILATION LISTING OF SEGMENT nqueens
+          Compiled by: Multics PL/I Compiler, Release 33f, of February 11, 2017
+          Compiled at: Installation and location
+          Compiled on: 08/24/21  1617.6 pst Tue
+              Options: optimize list
+
+        1 nqueens: proc;
+        2     dcl a(11) bin fixed(35);
+        3     dcl count bin fixed(35);
+        4     dcl abs builtin;
+        5     declare n binary fixed (35); /* Counter */
+        6     count = 0;
+        7     call queen(11);
+        8     return;
+        9
+       10     place: procedure (ps) returns (fixed bin (35));
+       11         dcl ps bin fixed(35);
+       12         dcl i  bin fixed(35) init(0);
+       13         do i=1 to ps-1;
+       14             if a(i) = a(ps) then  return(0);
+       15             if abs ( a(i) - a(ps) ) = (ps-i) then return(0);
+       16         end;
+       17         return (1);
+       18     end place;
+       19
+       20     queen: procedure (n);
+       21         dcl n bin fixed (35);
+       22         dcl k bin fixed (35);
+       23         k = 1;
+       24         a(k) = 0;
+       25         do while (k > 0);
+       26             a(k) = a(k) + 1;
+       27             do while ( ( a(k)<= n) & (place(k) =0) );
+       28              a(k) = a(k) +1;
+       29             end;
+       30             if (a(k) <= n) then do;
+       31                 if (k = n ) then do;
+       32                     count = count + 1;
+       33                 end;
+       34                 else do;
+       35                     k= k +1;
+       36                     a(k) = 0;
+       37                 end; /* of inside else */
+       38             end; /* of first if */
+       39             else do;
+       40                k = k -1;
+       41             end;
+       42         end;  /* of external while loop  */
+       43     end queen;
+       44
+       45 end nqueens;
+
+          SOURCE FILES USED IN THIS COMPILATION.
+
+LINE      NUMBER  DATE MODIFIED     NAME                              PATHNAME
+             0    08/14/21  1008.5  nqueens.pl1                       >user_dir_dir>SysAdmin>Repair>nqueens.pl1
+
+          NAMES DECLARED IN THIS COMPILATION.
+
+IDENTIFIER               OFFSET    LOC STORAGE CLASS   DATA TYPE                ATTRIBUTES AND REFERENCES
+                                                                                (* indicates a set context)
+
+NAMES DECLARED BY DECLARE STATEMENT.
+a                               000100 automatic       fixed bin(35,0)          array dcl 2 set ref 14 14 15 15 24* 26* 26 27 28* 28
+                                                                                  30 36*
+abs                                                    builtin function         dcl 4 ref 15
+count                           000113 automatic       fixed bin(35,0)          dcl 3 set ref 6* 32* 32
+i                               000122 automatic       fixed bin(35,0)          initial dcl 12 set ref 12* 13* 14 15 15*
+k                               000134 automatic       fixed bin(35,0)          dcl 22 set ref 23* 24 25 26 26 27 27* 28 28 30 31
+                                                                                  35* 35 36 40* 40
+n                                      parameter       fixed bin(35,0)          dcl 21 ref 20 27 30 31
+ps                                     parameter       fixed bin(35,0)          dcl 11 ref 10 13 14 15 15
+
+NAME DECLARED BY DECLARE STATEMENT AND NEVER REFERENCED.
+n                                      automatic       fixed bin(35,0)          dcl 5
+
+NAMES DECLARED BY EXPLICIT CONTEXT.
+nqueens                         000002 constant        entry                    external dcl 1
+place                           000015 constant        entry                    internal dcl 10 ref 27
+queen                           000076 constant        entry                    internal dcl 20 ref 7
+
+THERE WERE NO NAMES DECLARED BY CONTEXT OR IMPLICATION.
+
+STORAGE REQUIREMENTS FOR THIS PROGRAM.
+
+          Object    Text      Link      Symbol    Defs      Static
+Start          0       0       224         234     200         234
+Length       376     200        10         125      23           0
+
+BLOCK NAME                   STACK SIZE     TYPE            WHY NONQUICK/WHO SHARES STACK FRAME
+nqueens                              97 external procedure  is an external procedure.
+place                                   internal procedure  shares stack frame of external procedure nqueens.
+queen                                   internal procedure  shares stack frame of external procedure nqueens.
+
+STORAGE FOR AUTOMATIC VARIABLES.
+
+STACK FRAME                 LOC IDENTIFIER                  BLOCK NAME
+nqueens                  000100 a                           nqueens
+                         000113 count                       nqueens
+                         000122 i                           place
+                         000134 k                           queen
+
+THE FOLLOWING EXTERNAL OPERATORS ARE USED BY THIS PROGRAM.
+r_e_as              r_le_a              return_mac          ext_entry
+
+NO EXTERNAL ENTRIES ARE CALLED BY THIS PROGRAM.
+
+NO EXTERNAL VARIABLES ARE USED BY THIS PROGRAM.
+
+
+
+CONSTANTS
+000166  aa     000004000000
+000167  aa     000000000000
+000170  aa     600000000041
+000171  aa     000134000000
+000172  aa     600000000041
+000173  aa     000140000000
+
+000174  aa     000002000000
+000175  aa     000000000000
+000176  aa     600000000041
+000177  aa     000135000000
+
+000000  aa     404000000043
+
+BEGIN PROCEDURE nqueens
+ENTRY TO nqueens                                            STATEMENT 1 ON LINE 1
+nqueens: proc;
+
+000001  da     000017200000
+000002  aa   000160 6270 00   eax7      112
+000003  aa  7 00034 3521 20   epp2      pr7|28,*
+000004  aa  2 01045 2721 00   tsp2      pr2|549             ext_entry
+000005  aa     000000000000
+000006  aa     000000000000
+                                                            STATEMENT 1 ON LINE 6
+    count = 0;
+
+000007  aa  6 00113 4501 00   stz       pr6|75              count
+                                                            STATEMENT 1 ON LINE 7
+    call queen(11);
+
+000010  aa   000013 2360 07   ldq       11,dl
+000011  aa  6 00135 7561 00   stq       pr6|93
+000012  aa   000162 3520 04   epp2      114,ic              000174 = 000002000000
+000013  aa   000063 6700 04   tsp4      51,ic               000076
+                                                            STATEMENT 1 ON LINE 8
+    return;
+
+000014  aa  0 00631 7101 00   tra       pr0|409             return_mac
+                                                            STATEMENT 1 ON LINE 45
+end nqueens;
+
+BEGIN PROCEDURE place
+ENTRY TO place                                              STATEMENT 1 ON LINE 10
+    place: procedure (ps) returns (fixed bin (35));
+
+000015  aa  6 00114 6501 00   spri4     pr6|76
+000016  aa  6 00116 2521 00   spri2     pr6|78
+                                                            STATEMENT 1 ON LINE 12
+000017  aa  6 00122 4501 00   stz       pr6|82              i
+                                                            STATEMENT 1 ON LINE 13
+        do i=1 to ps-1;
+
+000020  aa  2 00002 3361 20   lcq       pr2|2,*             ps
+000021  aa   000044 7770 00   llr       36
+000022  aa   000044 7330 00   lrs       36
+000023  aa   000001 0330 07   adl       1,dl
+000024  aa   000000 5330 00   negl      0
+000025  aa  6 00124 7571 00   staq      pr6|84
+000026  aa   000001 2360 07   ldq       1,dl
+000027  aa  6 00122 7561 00   stq       pr6|82              i
+000030  aa  6 00122 2351 00   lda       pr6|82              i
+000031  aa   000044 7330 00   lrs       36
+000032  aa  6 00124 1171 00   cmpaq     pr6|84
+000033  aa   000037 6054 04   tpnz      31,ic               000072
+                                                            STATEMENT 1 ON LINE 14
+            if a(i) = a(ps) then  return(0);
+
+000034  aa  6 00122 7271 00   lxl7      pr6|82              i
+000035  aa  6 00077 2361 17   ldq       pr6|63,7            a
+000036  aa  6 00116 3735 20   epp7      pr6|78,*
+000037  aa  7 00002 7261 20   lxl6      pr7|2,*             ps
+000040  aa  6 00077 1161 16   cmpq      pr6|63,6            a
+000041  aa   000003 6010 04   tnz       3,ic                000044
+000042  aa  7 00004 4501 20   stz       pr7|4,*
+000043  aa  6 00114 6101 00   rtcd      pr6|76
+                                                            STATEMENT 1 ON LINE 15
+            if abs ( a(i) - a(ps) ) = (ps-i) then return(0);
+
+000044  aa  7 00002 3361 20   lcq       pr7|2,*             ps
+000045  aa   000044 7770 00   llr       36
+000046  aa   000044 7330 00   lrs       36
+000047  aa  6 00122 0331 00   adl       pr6|82              i
+000050  aa   000000 5330 00   negl      0
+000051  aa  6 00136 7571 00   staq      pr6|94
+000052  aa  6 00077 3361 17   lcq       pr6|63,7            a
+000053  aa   000044 7770 00   llr       36
+000054  aa   000044 7330 00   lrs       36
+000055  aa  6 00077 0331 16   adl       pr6|63,6            a
+000056  aa   000000 5330 00   negl      0
+000057  aa   000002 6050 04   tpl       2,ic                000061
+000060  aa   000000 5330 00   negl      0
+000061  aa  6 00136 1171 00   cmpaq     pr6|94
+000062  aa   000003 6010 04   tnz       3,ic                000065
+000063  aa  7 00004 4501 20   stz       pr7|4,*
+000064  aa  6 00114 6101 00   rtcd      pr6|76
+                                                            STATEMENT 1 ON LINE 16
+        end;
+
+000065  aa  6 00122 2351 00   lda       pr6|82              i
+000066  aa   000044 7330 00   lrs       36
+000067  aa   000001 0330 07   adl       1,dl
+000070  aa  6 00122 7561 00   stq       pr6|82              i
+000071  aa   777737 7100 04   tra       -33,ic              000030
+                                                            STATEMENT 1 ON LINE 17
+        return (1);
+
+000072  aa   000001 2360 07   ldq       1,dl
+000073  aa  6 00116 3735 20   epp7      pr6|78,*
+000074  aa  7 00004 7561 20   stq       pr7|4,*
+000075  aa  6 00114 6101 00   rtcd      pr6|76
+                                                            STATEMENT 1 ON LINE 18
+    end place;
+
+  END PROCEDURE place
+BEGIN PROCEDURE queen
+ENTRY TO queen                                              STATEMENT 1 ON LINE 20
+    queen: procedure (n);
+000076  aa  6 00126 6501 00   spri4     pr6|86
+000077  aa  6 00130 2521 00   spri2     pr6|88
+                                                            STATEMENT 1 ON LINE 23
+        k = 1;
+
+000100  aa   000001 2360 07   ldq       1,dl
+000101  aa  6 00134 7561 00   stq       pr6|92              k
+                                                            STATEMENT 1 ON LINE 24
+        a(k) = 0;
+
+000102  aa  6 00077 4501 06   stz       pr6|63,ql           a
+                                                            STATEMENT 1 ON LINE 25
+        do while (k > 0);
+
+000103  aa   000000 0110 03   nop       0,du
+000104  aa  6 00134 2361 00   ldq       pr6|92              k
+000105  aa   000060 6044 04   tmoz      48,ic               000165
+                                                            STATEMENT 1 ON LINE 26
+            a(k) = a(k) + 1;
+
+000106  aa  6 00077 2351 06   lda       pr6|63,ql           a
+000107  aa   000044 7330 00   lrs       36
+000110  aa   000001 0330 07   adl       1,dl
+000111  aa  6 00134 7271 00   lxl7      pr6|92              k
+000112  aa  6 00077 7561 17   stq       pr6|63,7            a
+                                                            STATEMENT 1 ON LINE 27
+            do while ( ( a(k)<= n) & (place(k) =0) );
+
+000113  aa   000000 0110 03   nop       0,du
+000114  aa   000052 3520 04   epp2      42,ic               000166 = 000004000000
+000115  aa   777700 6700 04   tsp4      -64,ic              000015
+000116  aa  6 00140 2361 00   ldq       pr6|96
+000117  aa  0 00512 7001 00   tsx0      pr0|330             r_e_as
+000120  aa  6 00140 7551 00   sta       pr6|96
+000121  aa  6 00134 7271 00   lxl7      pr6|92              k
+000122  aa  6 00077 2361 17   ldq       pr6|63,7            a
+000123  aa  6 00130 3735 20   epp7      pr6|88,*
+000124  aa  7 00002 1161 20   cmpq      pr7|2,*             n
+000125  aa  0 00520 7001 00   tsx0      pr0|336             r_le_a
+000126  aa  6 00140 3151 00   cana      pr6|96
+000127  aa   000006 6000 04   tze       6,ic                000135
+                                                            STATEMENT 1 ON LINE 28
+             a(k) = a(k) +1;
+
+000130  aa  6 00077 2351 17   lda       pr6|63,7            a
+000131  aa   000044 7330 00   lrs       36
+000132  aa   000001 0330 07   adl       1,dl
+000133  aa  6 00077 7561 17   stq       pr6|63,7            a
+                                                            STATEMENT 1 ON LINE 29
+            end;
+
+000134  aa   777760 7100 04   tra       -16,ic              000114
+                                                            STATEMENT 1 ON LINE 30
+            if (a(k) <= n) then do;
+
+000135  aa  6 00077 2361 17   ldq       pr6|63,7            a
+000136  aa  7 00002 1161 20   cmpq      pr7|2,*             n
+000137  aa   000017 6054 04   tpnz      15,ic               000156
+                                                            STATEMENT 1 ON LINE 31
+                if (k = n ) then do;
+
+000140  aa  6 00134 2361 00   ldq       pr6|92              k
+000141  aa  7 00002 1161 20   cmpq      pr7|2,*             n
+000142  aa   000006 6010 04   tnz       6,ic                000150
+                                                            STATEMENT 1 ON LINE 32
+                    count = count + 1;
+
+000143  aa  6 00113 2351 00   lda       pr6|75              count
+000144  aa   000044 7330 00   lrs       36
+000145  aa   000001 0330 07   adl       1,dl
+000146  aa  6 00113 7561 00   stq       pr6|75              count
+                                                            STATEMENT 1 ON LINE 33
+                end;
+
+000147  aa   777735 7100 04   tra       -35,ic              000104
+                                                            STATEMENT 1 ON LINE 34
+                else do;
+
+                                                            STATEMENT 1 ON LINE 35
+                    k= k +1;
+
+000150  aa   000044 7770 00   llr       36
+000151  aa   000044 7330 00   lrs       36
+000152  aa   000001 0330 07   adl       1,dl
+000153  aa  6 00134 7561 00   stq       pr6|92              k
+                                                            STATEMENT 1 ON LINE 36
+                    a(k) = 0;
+
+000154  aa  6 00077 4501 06   stz       pr6|63,ql           a
+                                                            STATEMENT 1 ON LINE 37
+                end;
+
+                                                            STATEMENT 1 ON LINE 38
+            end;
+
+000155  aa   777727 7100 04   tra       -41,ic              000104
+                                                            STATEMENT 1 ON LINE 39
+            else do;
+
+                                                            STATEMENT 1 ON LINE 40
+               k = k -1;
+
+000156  aa  6 00134 3361 00   lcq       pr6|92              k
+000157  aa   000044 7770 00   llr       36
+000160  aa   000044 7330 00   lrs       36
+000161  aa   000001 0330 07   adl       1,dl
+000162  aa   000000 5330 00   negl      0
+000163  aa  6 00134 7561 00   stq       pr6|92              k
+                                                            STATEMENT 1 ON LINE 41
+            end;
+
+                                                            STATEMENT 1 ON LINE 42
+        end;
+
+000164  aa   777720 7100 04   tra       -48,ic              000104
+                                                            STATEMENT 1 ON LINE 43
+    end queen;
+
+000165  aa  6 00126 6101 00   rtcd      pr6|86
+  END PROCEDURE queen
+  END PROCEDURE nqueens

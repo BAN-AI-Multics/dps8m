@@ -1,0 +1,274 @@
+---
+# SPDX-License-Identifier: LicenseRef-DPS8M-Doc OR LicenseRef-CF-GAL
+# SPDX-FileCopyrightText: 2021-2023 The DPS8M Development Team
+# scspell-id: 554a8331-f8f2-11ec-9f86-80ee73e9b8e7
+title: "DPS8M: GE™ / Honeywell™ / Bull™ 6000-series & DPS‑8 ∕ M simulator"
+subtitle: "DPS8M ##PROMVERX##: Omnibus Documentation"
+author: "The DPS8M Development Team and contributors"
+date: "DPS8M ##PROMVERX##: ##LASTMODV##"
+subject: "DPS8M"
+keywords: [DPS8M, DPS‑8, DPS‑8∕M, Level‑68, Multics, 6180, simulator, emulator]
+lang: "en"
+papersize: a4
+fontsize: 10pt
+dpi: 1200
+titlepage-logo: pdf/color-rings.pdf
+logo-width: 106mm
+titlepage: true
+toc-own-page: true
+footnotes-pretty: true
+book: true
+code-block-font-size: \normalsize
+listings-disable-line-numbers: true
+listings-no-page-break: true
+include-before: |
+  # DPS8M Omnibus Documentation
+
+  * &nbsp; **Version**  &nbsp; &nbsp;  **`git_##BUILDGIT##`**
+  * &nbsp; **Updated**  &nbsp;         **##LASTMODV##**
+
+  &nbsp;
+
+  ## Version Information
+
+  * This documentation is intended for use with the following software:
+    * &nbsp; &nbsp; **DPS8M** &nbsp; &nbsp;&nbsp;&nbsp; &nbsp; **##BUILDVER##**
+    * &nbsp; &nbsp; **Prt2PDF** &nbsp; &nbsp;&nbsp; **##PRT2PDFV##**
+    * &nbsp; &nbsp; **PunUtil** &nbsp; &nbsp;&nbsp; &nbsp; **##PUNUTILV##**
+    * &nbsp; &nbsp; **Unifdef** &nbsp; &nbsp;&nbsp; &nbsp; **##UNIFDEFV##**
+    * &nbsp; &nbsp; **mcmb** &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **##MCMBVERS##**
+    * &nbsp; &nbsp; **vmpctool** &nbsp;&nbsp; **##VMPCVERS##**
+    * &nbsp; &nbsp; **empty** &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; **##EMPTYVER##**
+
+  &nbsp;
+
+  &nbsp;
+
+  &nbsp;
+
+  &nbsp;
+
+  &nbsp;
+
+  &nbsp;
+
+  &nbsp;
+
+  &nbsp;
+
+  &nbsp;
+
+  &nbsp;
+
+  &nbsp;
+
+  &nbsp;
+
+  &nbsp;
+
+  &nbsp;
+
+  &nbsp;
+
+  &nbsp;
+
+  &nbsp;
+
+  &nbsp;
+
+  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; *Generated ##BUILDUTC##*
+
+---
+\hyphenation{accuracy}
+\hyphenation{Adobe}
+\hyphenation{advertising}
+\hyphenation{although}
+\hyphenation{applications}
+\hyphenation{appropriate}
+\hyphenation{argument}
+\hyphenation{arising}
+\hyphenation{ARPAnet}
+\hyphenation{assemblers}
+\hyphenation{ASSEMBLERS}
+\hyphenation{associated}
+\hyphenation{Attribution}
+\hyphenation{authors}
+\hyphenation{AUTHORS}
+\hyphenation{automatically}
+\hyphenation{available}
+\hyphenation{background}
+\hyphenation{Berkeley}
+\hyphenation{Bull}
+\hyphenation{California}
+\hyphenation{CLANGARM}
+\hyphenation{combinatorics}
+\hyphenation{command}
+\hyphenation{compiler}
+\hyphenation{COMPLETENESS}
+\hyphenation{computer}
+\hyphenation{concentric}
+\hyphenation{configuration}
+\hyphenation{configures}
+\hyphenation{CONNECTION}
+\hyphenation{consoles}
+\hyphenation{contained}
+\hyphenation{contributed}
+\hyphenation{contributors}
+\hyphenation{control}
+\hyphenation{Copyright}
+\hyphenation{COPYRIGHT}
+\hyphenation{copyrighted}
+\hyphenation{Corbató}
+\hyphenation{CORRECTIONS}
+\hyphenation{CURRENCY}
+\hyphenation{DAMAGES}
+\hyphenation{decimal}
+\hyphenation{Definition}
+\hyphenation{DEVELOPMENT}
+\hyphenation{directory}
+\hyphenation{disclaimer}
+\hyphenation{disclaims}
+\hyphenation{DISCLOSURES}
+\hyphenation{distributed}
+\hyphenation{distribution}
+\hyphenation{Distribution}
+\hyphenation{DjVu}
+\hyphenation{DocBook}
+\hyphenation{Document}
+\hyphenation{documentation}
+\hyphenation{Documentation}
+\hyphenation{documents}
+\hyphenation{domain}
+\hyphenation{donated}
+\hyphenation{endian}
+\hyphenation{endorse}
+\hyphenation{Engineering}
+\hyphenation{ENHANCEMENTS}
+\hyphenation{executable}
+\hyphenation{EXPRESS}
+\hyphenation{external}
+\hyphenation{Fernando}
+\hyphenation{FITNESS}
+\hyphenation{following}
+\hyphenation{Free}
+\hyphenation{functions}
+\hyphenation{GE}
+\hyphenation{General}
+\hyphenation{generation}
+\hyphenation{Group}
+\hyphenation{Groupe}
+\hyphenation{hardware}
+\hyphenation{HIS}
+\hyphenation{historical}
+\hyphenation{HOLDERS}
+\hyphenation{Honeywell}
+\hyphenation{human}
+\hyphenation{illumos}
+\hyphenation{illustrations}
+\hyphenation{implementations}
+\hyphenation{implementing}
+\hyphenation{IMPLIED}
+\hyphenation{Inc}
+\hyphenation{incidental}
+\hyphenation{INCLUDED}
+\hyphenation{including}
+\hyphenation{incorporate}
+\hyphenation{incorporated}
+\hyphenation{Information}
+\hyphenation{infringement}
+\hyphenation{INFRINGEMENT}
+\hyphenation{installations}
+\hyphenation{installed}
+\hyphenation{Institute}
+\hyphenation{Intel}
+\hyphenation{internet}
+\hyphenation{INTERRUPTION}
+\hyphenation{José}
+\hyphenation{LaTeX}
+\hyphenation{legal}
+\hyphenation{liability}
+\hyphenation{License}
+\hyphenation{LIMITED}
+\hyphenation{Linux}
+\hyphenation{Lout}
+\hyphenation{macOS}
+\hyphenation{mainframe}
+\hyphenation{mainframes}
+\hyphenation{Markdown}
+\hyphenation{Massachusetts}
+\hyphenation{microseconds}
+\hyphenation{MIT}
+\hyphenation{MODIFICATIONS}
+\hyphenation{modified}
+\hyphenation{MR}
+\hyphenation{Multics}
+\hyphenation{negligence}
+\hyphenation{neither}
+\hyphenation{NONINFRINGEMENT}
+\hyphenation{notices}
+\hyphenation{omitted}
+\hyphenation{Omnibus}
+\hyphenation{Open}
+\hyphenation{option}
+\hyphenation{originally}
+\hyphenation{OTHERWISE}
+\hyphenation{owners}
+\hyphenation{parallelization}
+\hyphenation{particular}
+\hyphenation{PERFORMANCE}
+\hyphenation{permitted}
+\hyphenation{pharmaceutical}
+\hyphenation{Portable}
+\hyphenation{PostScript}
+\hyphenation{prerequisites}
+\hyphenation{privilege}
+\hyphenation{Professor}
+\hyphenation{protection}
+\hyphenation{provided}
+\hyphenation{providing}
+\hyphenation{publicity}
+\hyphenation{purpose}
+\hyphenation{QuickStart}
+\hyphenation{quiescent}
+\hyphenation{recommend}
+\hyphenation{Regents}
+\hyphenation{replace}
+\hyphenation{required}
+\hyphenation{Research}
+\hyphenation{respect}
+\hyphenation{reStructuredText}
+\hyphenation{Routines}
+\hyphenation{RUNOFF}
+\hyphenation{SA}
+\hyphenation{SAS}
+\hyphenation{series}
+\hyphenation{similar}
+\hyphenation{simply}
+\hyphenation{simulator}
+\hyphenation{Software}
+\hyphenation{Source}
+\hyphenation{specific}
+\hyphenation{specification}
+\hyphenation{spreadsheet}
+\hyphenation{standard}
+\hyphenation{SUBSTITUTE}
+\hyphenation{support}
+\hyphenation{supported}
+\hyphenation{supporting}
+\hyphenation{system}
+\hyphenation{Systems}
+\hyphenation{Technology}
+\hyphenation{TELNET}
+\hyphenation{TeX}
+\hyphenation{trademark}
+\hyphenation{University}
+\hyphenation{Unix}
+\hyphenation{UNIX}
+\hyphenation{vector}
+\hyphenation{version}
+\hyphenation{WARRANTIES}
+\hyphenation{WARRANTY}
+\hyphenation{WHATSOEVER}
+\hyphenation{Windows/}
+\hyphenation{Windows}
+\hyphenation{without}

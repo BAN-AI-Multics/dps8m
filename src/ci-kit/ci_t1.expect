@@ -1,0 +1,78 @@
+# SPDX-License-Identifier: FSFAP
+# scspell-id: 80b89bea-f62b-11ec-8847-80ee73e9b8e7
+
+############################################################################
+#
+# Copyright (c) 2021-2023 The DPS8M Development Team
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered "AS-IS",
+# without any warranty.
+#
+############################################################################
+
+set word l
+set userName Clayton
+set projName SysAdmin
+set password password
+
+#exp_internal -f ci_t1.debug.log 1
+
+remove_nulls 1
+match_max 14096
+set timeout 750000
+
+cd ./run
+
+spawn ./dps8 -t yoyodyne_start.ini
+set dps8ID $spawn_id
+
+expect "M-> CONSOLE: RELEASED"
+
+exec mkdir -p ./cards/rdra
+exec mkdir -p ./cards/rdrb
+exec mkdir -p ./cards/rdrc
+
+exec cp -f sdeck.create_hardcore_listings.ec ./cards/rdra
+
+set spawn_id $dps8ID
+
+proc   w {     } { expect -re {\nr [0-9]+:[0-9]+ .*\r}; sleep 0.1 }
+proc  wi {     } { expect -re {Input.\r}; sleep 0.1 }
+proc  wn {     } { expect -re {\n}; sleep 0.1 }
+proc  sw { txt } { send $txt; send "\r"; w  }
+proc swi { txt } { send $txt; send "\r"; wi }
+proc swn { txt } { send $txt; send "\r"; wn }
+proc  wf {     } { expect -re {\nr  [0-9]+\r}; sleep 0.2 }
+proc swf { txt } { send $txt; send "\r"; wf }
+
+if {![fork]} {
+    cd ..
+    exec ./ci_t2.sh >ci_t2.log
+    exec ./ci_t3.sh >ci_t3.log
+    exit
+}
+
+sleep 2
+set spawn_id $dps8ID
+
+# Waiting for logout
+expect "LOGOUT"; sleep 1
+
+# Sending escape
+send "\x1b"
+
+# Waiting for prompt
+expect "M->"
+send "\x1b"
+set timeout 3
+
+# Waiting for second logout or final console timeout
+expect "OUT"
+sleep 3
+
+# Scram
+exec kill -9 [exp_pid $dps8ID]; sleep 3
+close $dps8ID
+exit

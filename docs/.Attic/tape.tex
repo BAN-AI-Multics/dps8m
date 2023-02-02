@@ -1,0 +1,119 @@
+% SPDX-License-Identifier: LicenseRef-DPS8M-Doc AND LicenseRef-CF-GAL
+% SPDX-FileCopyrightText: 2019-2021 Dean S. Anderson
+% SPDX-FileCopyrightText: 2021-2022 The DPS8M Development Team
+
+\subsection[Tape Drives]{TAPE DRIVES}
+
+This section describes the configuration and operation of the simulated Tape Drives (TAP).
+
+\subsubsection[Operator Console Options]{TAPE DRIVE PARAMETERS}
+
+This section describes the parameters that can be set for the Tape Drives.
+
+The Global Parameters apply to all tape drives while the Unit Parameters apply to a single drive unit.
+
+\textbf{Global Parameters}
+
+Global Parameters are set using the "\texttt{SET TAPE XXXX=yyyy}" simulator command (\texttt{XXXX} is the parameter being
+set and \texttt{yyyy} is the value to set).
+
+The "\texttt{SHOW TAPE XXXX}" command will show the current value of a global parameter.
+
+\textbf{ADD\_PATH}
+
+\begin{adjustwidth}{5ex}{1ex}
+	Adds a new tape search path at the end of the current search path list. The parameter format is:
+\begin{adjustwidth}{5ex}{1ex}
+	\texttt{prefix=directory}
+\end{adjustwidth}
+	For example, to look for tapes with a volume name starting with "BK" in a directory "./tapes/backups":
+\begin{adjustwidth}{5ex}{1ex}
+	\texttt{SET TAPE ADD\_PATH=BK=./tapes/backups}
+\end{adjustwidth}
+	Note that when using relative paths, the starting point is the simulator's current directory.
+	Also note that if a \texttt{SET DEFAULT\_PATH} is done, all previous \textbf{ADD\_PATH} entries
+	will be removed.
+	
+	Adding paths can't be done until the \textbf{DEFAULT\_PATH} has first been set.
+\end{adjustwidth}
+
+\textbf{CAPACITY\_ALL}
+
+\begin{adjustwidth}{5ex}{1ex}
+	Sets the maximum size that can be written to a tape file for all tape drives.
+\end{adjustwidth}
+
+\textbf{DEFAULT\_PATH}
+
+\begin{adjustwidth}{5ex}{1ex}
+	Sets the default path to use when searching for tape files. Note that setting this option will clear
+	out any previous \textbf{ADD\_PATH} parameters.
+	
+	If \textbf{DEFAULT\_PATH} is not set, the simulator will default to look for tape files in its current directory.
+
+	For example, to look for tapes in a directory "./tapes":
+\begin{adjustwidth}{5ex}{1ex}
+	\texttt{SET TAPE DEFAULT\_PATH=./tapes}
+\end{adjustwidth}
+	Note that when using relative paths, the starting point is the simulator's current directory.
+\end{adjustwidth}
+
+\textbf{NUNITS}
+
+\begin{adjustwidth}{5ex}{1ex}
+	Sets the maximum number of tape drives available.
+\end{adjustwidth}
+
+
+\textbf{Unit Parameters}
+
+Unit parameters are set on a per Tape Drive basis. Unit parameters are set using
+the "\texttt{SET TAPEn XXXX=yyyy}" simulator command (\texttt{n} is the tape drive number, \texttt{XXXX} is
+the parameter being set and \texttt{yyyy} is the value to set).
+
+\textbf{NAME}
+
+\begin{adjustwidth}{5ex}{1ex}
+	Set the name of a specific tape drive. For example, to set the name of tape drive 1 to "tapa\_01":
+\begin{adjustwidth}{5ex}{1ex}
+	\texttt{SET TAPE1 NAME=tapa\_01}
+\end{adjustwidth}
+\end{adjustwidth}
+
+
+\subsubsection[Tape Drive Options]{TAPE DRIVE OPTIONS}
+
+The tape drives have no configuration options.
+
+\subsubsection[Creating a Search Table]{CREATING A SEARCH TABLE}
+
+When the search table is evaluated during a tape file lookup, it is processed in order with a first
+match being accepted. For example, if the following commands are given:
+
+\begin{adjustwidth}{5ex}{1ex}
+	\texttt{SET TAPE DEFAULT\_PATH=./tapes/general} \\
+	\texttt{SET TAPE ADD\_PATH=B=./tapes/billing}
+	\texttt{SET TAPE ADD\_PATH=BK=./tapes/backups} \\
+\end{adjustwidth}
+
+a tape with a volume name of "BK001" will end up in the ./tapes/billing directory and not the
+./tapes/backups directory. Since the name starts with a "B", the first entry in the search table
+will be selected.
+
+To get the intended effect, the commands should be reorder like this:
+
+\begin{adjustwidth}{5ex}{1ex}
+	\texttt{SET TAPE DEFAULT\_PATH=./tapes/general} \\
+	\texttt{SET TAPE ADD\_PATH=BK=./tapes/backups} \\
+	\texttt{SET TAPE ADD\_PATH=B=./tapes/billing}
+\end{adjustwidth}
+
+this way the names starting with "BK" will be checked first followed by the more general "B".
+
+\textbf{Important Note:} The simulator "attach" command (most often used in .ini files to mount
+the boot tape) is not aware of the alternate search directories so, if a directory is needed for
+an attach command, the path must be specified on the command:
+
+\begin{adjustwidth}{5ex}{1ex}
+	\texttt{attach -r tape0 ./tapes/12.7/12.7MULTICS.tap}
+\end{adjustwidth}

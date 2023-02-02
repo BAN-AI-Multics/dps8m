@@ -1,0 +1,501 @@
+# SPDX-License-Identifier: FSFAP
+# scspell-id: 353ccab0-f62c-11ec-b01f-80ee73e9b8e7
+
+############################################################################
+#
+# Copyright (c) 2021-2023 The DPS8M Development Team
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered "AS-IS",
+# without any warranty.
+#
+############################################################################
+
+set word enterp
+set userName \*
+set projName HFED
+set password fed
+
+#exp_internal -f isolts_run.debug.log 1
+
+remove_nulls 1
+match_max 14096
+set timeout 750000
+
+proc   w {     } { expect -re {\nr [0-9]+:[0-9]+ .*\r}; sleep 0.1 }
+proc  wi {     } { expect -re {Input.\r}; sleep 0.1 }
+proc  wn {     } { expect -re {\n}; sleep 0.1 }
+proc  sw { txt } { send $txt; send "\r"; w  }
+proc swi { txt } { send $txt; send "\r"; wi }
+proc swn { txt } { send $txt; send "\r"; wn }
+proc  wf {     } { expect -re {\nr  [0-9]+\r}; sleep 0.2 }
+proc swf { txt } { send $txt; send "\r"; wf }
+
+spawn telnet -E 127.0.0.1 "$env(FNPPORT)"
+set telnetID $spawn_id
+
+expect -re {HSLA Port \(([abcd]\.h\d+)}
+puts " "
+set channel $expect_out(1,string)
+send "$channel\r"
+
+expect "Load = "; sleep 0.1
+send "l Repair -cpw\r"
+expect "Password:"; sleep 0.1
+send "repair\r"
+expect "New Password:"; sleep 0.1
+send "Repair\r"
+expect "New Password Again:"; sleep 0.1
+send "Repair\r"
+
+w
+sw "cwd >user_dir_dir>SysAdmin>a"
+sw "set_tty -delay 0,0,0,0,0,0"
+sw "set_tty -modes ^ll"
+
+send "ec master pmf HFED\r"
+expect "Edit."
+send "/Initproc/\r"
+expect "Initproc:"
+send "s/process_overseer_/tolts_overseer_/\r"
+swn "w"
+sw "q"
+
+sw "cwd"
+sw "ac x >ldd>tools>s>bound_tolts_.s isolts_.pl1"
+swn "qedx"
+swn "r isolts_.pl1"
+swn "/opr_com/"
+swn "d"
+swn "d"
+swn "w"
+sw "q"
+sw "pl1 -ot isolts_"
+sw "cp >ldd>tools>o>bound_tolts_.archive"
+sw "ac ud bound_tolts_ isolts_"
+sw "bind bound_tolts_"
+
+if (1) {
+send ">user_dir_dir>SysAdmin>Repair>isolts_\r"
+expect "\\?\\?\\?"
+# dps8 mode
+send "test cpu b\r"; sleep 1
+expect "options\\?"; sleep 0.4
+send "type\r"; sleep 0.4
+expect "options\\?"; sleep 0.4
+#send "tst700\r"; sleep 0.4
+#expect "options\\?"; sleep 0.4
+#send "nohra\r"; sleep 0.4
+#expect "options\\?"; sleep 0.4
+
+# There's a bug in pas.061 mme 161, which must be patched on L68:
+#
+# *options?alter 071247
+#
+# 071247 - 071262710000
+# -
+# 071256710000
+#
+# This gets correct L68 WAM printouts and it also affects was-s/b
+# comparisons. The tests don't hang with this and only a few errors
+# remain. I think they were caused by unimplemented instruction
+# prefetch so I left them outstanding.
+#
+#send "alter 071247\r"; sleep 1
+#send "071256710000\r"; sleep 1
+#send "opt\r"; sleep 0.4
+#expect "options\\?"; sleep 0.4
+
+proc wo {} { expect "options\\?"; sleep 0.4 }
+proc t { tst } { send $tst; wo; send "\r"; wo; }
+
+t "tst700\r"
+# t "tst701\r" # l68 only
+t "tst702\r"
+t "tst705\r"
+t "tst710\r"
+t "tst715\r"
+t "tst716\r"
+t "tst717\r"
+t "tst720\r"
+t "tst721\r"
+t "tst722\r"
+t "tst725\r"
+t "tst730\r"
+t "tst734\r"
+t "tst735\r"
+t "tst736\r"
+t "tst737\r"
+t "tst739\r"
+t "tst740\r"
+t "tst745\r"
+t "tst750\r"
+t "tst755\r"
+t "tst760\r"
+t "tst762\r"
+t "tst763\r"
+t "tst764\r"
+t "tst766\r"
+t "tst768\r"
+t "tst769\r"
+t "tst770\r"
+# t "tst771\r"  #  no prompt
+# t "tst772\r"  #  no prompt
+# t "tst773\r"  #  no prompt
+# t "tst774\r"  #  illegal program id
+# t "tst776\r"  # Fail
+# t "tst777\r"  # Illegal program id; dps8 hex only
+# t "tst778\r"  # Illegal program id; dps8 hex only
+# t "tst785\r"  # Fail (hard hang)
+t "tst789\r"
+t "tst791\r"
+t "tst792\r"
+# t "tst795\r"  # illegal program id
+t "tst800\r"
+t "tst805\r"
+t "tst808\r"
+# t "tst810\r"  # Fail (no prompt)
+t "tst815\r"
+t "tst817\r"
+t "tst825\r"
+t "tst830\r"
+t "tst835\r"
+t "tst836\r"
+t "tst838\r"
+# Intermittent fail
+t "tst840\r"
+t "tst840\r"
+t "tst840\r"
+t "tst840\r"
+# Intermittent fail
+t "tst841\r"
+t "tst841\r"
+t "tst841\r"
+t "tst841\r"
+# t "tst842\r"  # Fail (no prompt)
+t "tst843\r"
+t "tst844\r"
+t "tst845\r"
+# t "tst846\r"  # Fail (hang)
+t "tst847\r"
+t "tst848\r"
+# t "tst849\r"  # Fail
+t "tst851\r"
+t "tst852\r"
+t "tst853\r"
+# t "tst855\r" # L68 only
+t "tst860\r"
+t "tst861\r"
+t "tst862\r"
+t "tst863\r"
+# t "tst864\r"  # L68 only
+# t "tst865\r"  # Fail
+# t "tst866\r"  # Fail (no prompt)
+# t "tst867\r"  # Fail (no prompt)
+# t "tst868\r"  # Fail (no prompt)
+# t "tst870\r"  # Fail (no prompt)
+t "tst875\r"
+t "tst878\r"
+t "tst880\r"
+# t "tst885\r" # Fail
+t "tst886\r"
+# t "tst887\r"  # Fail
+t "tst890\r"
+# t "tst892\r"  # Fail
+# t "tst893\r"  # Fail
+# t "tst894\r"  # "isolts: tst894 not supported by isolts"
+# t "tst898\r"  # Illegal program ID
+# t "tst905\r"  # Fail
+# t "tst908\r"  # "isolts: tst894 not supported by isolts"
+t "tst940\r"
+# t "tst945\r"  # Fail
+# t "tst955\r"  # Fail
+
+sw "quit"
+}
+
+if (1) {
+send ">user_dir_dir>SysAdmin>Repair>isolts_\r"
+expect "\\?\\?\\?"
+# dps8, hex mode
+send "test cpu c\r"; sleep 1
+expect "options\\?"; sleep 0.4
+send "type\r"; sleep 0.4
+expect "options\\?"; sleep 0.4
+#send "tst700\r"; sleep 0.4
+#expect "options\\?"; sleep 0.4
+#send "nohra\r"; sleep 0.4
+#expect "options\\?"; sleep 0.4
+
+# There's a bug in pas.061 mme 161, which must be patched on L68:
+#
+# *options?alter 071247
+#
+# 071247 - 071262710000
+# -
+# 071256710000
+#
+# This gets correct L68 WAM printouts and it also affects was-s/b
+# comparisons. The tests don't hang with this and only a few errors
+# remain. I think they were caused by unimplemented instruction
+# prefetch so I left them outstanding.
+#
+#send "alter 071247\r"; sleep 1
+#send "071256710000\r"; sleep 1
+#send "opt\r"; sleep 0.4
+#expect "options\\?"; sleep 0.4
+
+proc wo {} { expect "options\\?"; sleep 0.4 }
+proc t { tst } { send $tst; wo; send "\r"; wo; }
+
+t "tst700\r"
+# t "tst701\r" # l68 only
+t "tst702\r"
+t "tst705\r"
+t "tst710\r"
+t "tst715\r"
+t "tst716\r"
+t "tst717\r"
+t "tst720\r"
+t "tst721\r"
+t "tst722\r"
+t "tst725\r"
+t "tst730\r"
+t "tst734\r"
+t "tst735\r"
+t "tst736\r"
+t "tst737\r"
+t "tst739\r"
+t "tst740\r"
+t "tst745\r"
+t "tst750\r"
+t "tst755\r"
+t "tst760\r"
+t "tst762\r"
+t "tst763\r"
+t "tst764\r"
+t "tst766\r"
+t "tst768\r"
+t "tst769\r"
+t "tst770\r"
+# t "tst771\r"  #  no prompt
+# t "tst772\r"  #  no prompt
+# t "tst773\r"  #  no prompt
+# t "tst774\r"  #  illegal program id
+# t "tst776\r"  # Fail
+# t "tst777\r"  # Illegal program id; dps8 hex only
+# t "tst778\r"  # Illegal program id; dps8 hex only
+# t "tst785\r"  # Fail (hard hang)
+t "tst789\r"
+t "tst791\r"
+t "tst792\r"
+# t "tst795\r"  # illegal program id
+t "tst800\r"
+t "tst805\r"
+t "tst808\r"
+# t "tst810\r"  # Fail (no prompt)
+t "tst815\r"
+t "tst817\r"
+t "tst825\r"
+t "tst830\r"
+t "tst835\r"
+t "tst836\r"
+t "tst838\r"
+# Intermittent fail
+t "tst840\r"
+t "tst840\r"
+t "tst840\r"
+t "tst840\r"
+# Intermittent fail
+t "tst841\r"
+t "tst841\r"
+t "tst841\r"
+t "tst841\r"
+# t "tst842\r"  # Fail (no prompt)
+t "tst843\r"
+t "tst844\r"
+t "tst845\r"
+# t "tst846\r"  # Fail (hang)
+t "tst847\r"
+t "tst848\r"
+# t "tst849\r"  # Fail
+t "tst851\r"
+t "tst852\r"
+t "tst853\r"
+# t "tst855\r" # L68 only
+t "tst860\r"
+t "tst861\r"
+t "tst862\r"
+t "tst863\r"
+# t "tst864\r"  # L68 only
+# t "tst865\r"  # Fail
+# t "tst866\r"  # Fail (no prompt)
+# t "tst867\r"  # Fail (no prompt)
+# t "tst868\r"  # Fail (no prompt)
+# t "tst870\r"  # Fail (no prompt)
+t "tst875\r"
+t "tst878\r"
+t "tst880\r"
+# t "tst885\r" # Fail
+t "tst886\r"
+# t "tst887\r"  # Fail
+t "tst890\r"
+# t "tst892\r"  # Fail
+# t "tst893\r"  # Fail
+# t "tst894\r"  # "isolts: tst894 not supported by isolts"
+# t "tst898\r"  # Illegal program ID
+# t "tst905\r"  # Fail
+# t "tst908\r"  # "isolts: tst894 not supported by isolts"
+t "tst940\r"
+# t "tst945\r"  # Fail
+# t "tst955\r"  # Fail
+
+sw "quit"
+}
+
+if (1) {
+send ">user_dir_dir>SysAdmin>Repair>isolts_\r"
+expect "\\?\\?\\?"
+# L68
+send "test cpu d\r"; sleep 1
+expect "options\\?"; sleep 0.4
+send "nohra\r"; sleep 0.4
+expect "options\\?"; sleep 0.4
+send "type\r"; sleep 0.4
+expect "options\\?"; sleep 0.4
+
+# There's a bug in pas.061 mme 161, which must be patched on L68:
+#
+# *options?alter 071247
+#
+# 071247 - 071262710000
+# -
+# 071256710000
+#
+# This gets correct L68 WAM printouts and it also affects was-s/b
+# comparisons. The tests don't hang with this and only a few errors
+# remain. I think they were caused by unimplemented instruction
+# prefetch so I left them outstanding.
+#
+#send "alter 071247\r"; sleep 1
+#send "071256710000\r"; sleep 1
+#send "opt\r"; sleep 0.4
+#expect "options\\?"; sleep 0.4
+
+proc wo {} { expect "options\\?"; sleep 0.4 }
+proc t { tst } { send $tst; wo; send "\r"; wo; }
+
+# t "tst700\r"  # Fail
+# t "tst701\r"  # Fail
+t "tst702\r"
+t "tst705\r"
+t "tst710\r"
+t "tst715\r"
+t "tst716\r"
+t "tst717\r"
+t "tst720\r"
+t "tst721\r"
+t "tst722\r"
+t "tst725\r"
+t "tst730\r"
+t "tst734\r"
+t "tst735\r"
+t "tst736\r"
+t "tst737\r"
+t "tst739\r"
+t "tst740\r"
+t "tst745\r"
+t "tst750\r"
+t "tst755\r"
+t "tst760\r"
+t "tst762\r"
+t "tst763\r"
+t "tst764\r"
+t "tst766\r"
+t "tst768\r"
+t "tst769\r"
+t "tst770\r"
+# t "tst771\r"  # Illegal program id; dps8 hex only
+# t "tst772\r"  # Illegal program id; dps8 hex only
+# t "tst773\r"  # Illegal program id; dps8 hex only
+# t "tst774\r"  # Illegal program id; dps8 hex only
+# t "tst776\r"  # Fail (no prompt)
+# t "tst777\r"  # Illegal program id; dps8 hex only
+# t "tst778\r"  # Illegal program id; dps8 hex only
+# t "tst785\r"  # Fail (hard hang)
+t "tst789\r"
+t "tst791\r"
+t "tst792\r"
+# t "tst795\r"  # illegal program id
+t "tst800\r"
+t "tst805\r"
+t "tst808\r"
+# t "tst810\r"  # Fail (no prompt)
+t "tst815\r"
+t "tst817\r"
+t "tst825\r"
+t "tst830\r"
+t "tst835\r"
+t "tst836\r"
+t "tst838\r"
+# Intermittent fail
+t "tst840\r"
+t "tst840\r"
+t "tst840\r"
+t "tst840\r"
+# Intermittent fail
+t "tst841\r"
+t "tst841\r"
+t "tst841\r"
+t "tst841\r"
+# t "tst842\r"  # Fail (no prompt)
+t "tst843\r"
+t "tst844\r"
+t "tst845\r"
+# t "tst846\r"  # Fail (hang)
+t "tst847\r"
+t "tst848\r"
+# t "tst849\r"  # Fail
+t "tst851\r"
+t "tst852\r"
+t "tst853\r"
+t "tst855\r"
+t "tst860\r"
+t "tst861\r"
+# t "tst862\r"  # Fail (no prompt)
+# t "tst863\r"  # Fail (no prompt)
+t "tst864\r"
+# t "tst865\r"  # Fail (no prompt)
+# t "tst866\r"  # dps8 only
+# t "tst867\r"  # dps8 only
+# t "tst868\r"  # dps8 only
+# t "tst870\r"  # Fail (no prompt)
+t "tst875\r"
+t "tst878\r"
+t "tst880\r"
+# t "tst885\r"  # Fail
+t "tst886\r"
+# t "tst887\r"  # Fail
+t "tst890\r"
+# t "tst892\r"  # Illegal program ID
+# t "tst893\r"  # Illegal program ID
+# t "tst894\r"  # "isolts: tst894 not supported by isolts"
+# t "tst898\r"  # Illegal program ID
+# t "tst905\r"  # Fail
+# t "tst908\r"  # "isolts: tst894 not supported by isolts"
+t "tst940\r"
+# t "tst945\r"  # Fail
+# t "tst955\r"  # Fail
+
+sw "quit"
+}
+
+send "logout\r"
+sleep 3
+set timeout 4
+
+# Scram
+exec kill -9 [exp_pid $telnetID]; sleep 3
+close $telnetID
+exit

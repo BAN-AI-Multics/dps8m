@@ -1,0 +1,347 @@
+" SPDX-License-Identifier: ICU
+" SPDX-FileCopyrightText: 2021-2023 The DPS8M Development Team
+" scspell-id: e3aaa820-f776-11ec-b757-80ee73e9b8e7
+"
+" * 0000   Interrupt and fault vectors
+" *
+" * 2000   Bootstrap code
+
+" ds 234
+"        ----         ----         ----         ----
+" 000000 000000000004 000000000000 000243400043 000232000000
+"        cpm_data_ptr............. combined_stat_ptr........
+" 000004 000000000000 000000000000 000247000043 000000000000
+"        clr_ptr.................. max_lot_size
+"                                  main_proc_invoked
+"                                  run_unit_depth
+"                                               cur_lot_size
+"                                               cpm_enabled
+" 000010 000247000043 000000000000 002000000000 001000000000
+"        system_free_ptr.......... user_free_ptr............
+" 000014 000247000043 000000000000 000247000043 000000000000
+"        parent_ptr............... stack_begin_ptr..........
+" 000020 077777000043 000001000000 000234000043 002000000000
+"        stack_end_ptr............ lot_ptr..................
+" 000024 000234400043 006520000000 000234000043 000000000000
+"        signal_ptr............... bar_mode_sp..............
+" 000030 000255000043 007570000000 000000000000 000000000000
+"        pl1_operators_ptr........ call_op_ptr..............
+" 000034 000257000043 021736000000 000257000043 030237000000
+"        push_op_ptr.............. return_op_ptr............
+" 000040 000257000043 030243000000 000257000043 030267000000
+"        ret_no_pop_op_ptr........ entry_op_ptr.............
+" 000044 000257000043 030275000000 000257000043 030257000000
+"        trans_op_tv_ptr.......... isot_ptr.................
+" 000050 000247400043 005274000000 000234000043 001000000000
+"        sct_ptr..................  unwinder_ptr............
+" 000054 000234000043 001000000000 000255000043 004610000000
+"        sys_link_info_ptr........ rnt_ptr..................
+" 000060 000247400043 022250000000 000247400043 000102000000
+"        ect_ptr.................. assign_linkage_ptr.......
+" 000064 000247400043 017410000000 000247000043 000000000000
+"        heap_hdr_ptr............. trace_frames trace_top_ptr
+" 000070 077777000043 000001000000 000000000000 000000000000
+" 000074 000000000000 000000000000 000000000000 000000000000
+" ======
+" 000234 700000000000 000000000000 000000000000 000000000000
+" 000240 000000000000 000000000000 000000000000 000247006444
+" 000244 000000000000 000000000000 000000000000 000000000000
+" ======
+" 000254 000000000000 000247004052 000247005264 000247005312
+" 000260 000247006140 000247006664 700000000000 700000000000
+" 000264 000247007214 000247007430 000247007672 000247010276
+" 000270 000247014656 000247015662 000000000000 700000000000
+" 000274 000247017326 000247021366 000247021400 000247022416
+" 000300 000247023160 000247023500 000247023512 000247023544
+" 000304 700000000000 000247026064 000247025024 700000000000
+" 000310 700000000000 700000000000 700000000000 000247025230
+" 000314 000000000000 000000000000 000000000000 000000000000
+" ======
+" 001024 000000000000 000243003734 000000000000 000000000000
+" 001030 000000000000 000000000000 000000000000 000000000000
+" ======
+" 001050 000260013261 000260013261 000000000000 000000000000
+" 001054 000000000000 000000000000 000000000000 000000000000
+" ======
+" 001064 000000000000 000000000000 000260013056 000000000000
+" 001070 000000000000 000000000000 000260015011 000260014554
+" 001074 000000000000 000000000000 000265012654 000265012722
+" 001100 000000000000 000260013117 000000000000 000000000000
+" 001104 000243006033 000266006217 000265016043 000000000000
+" 001110 000000000000 000243010555 000267446031 000243007763
+" 001114 000000000000 000000000000 000000000000 000000000000
+" ======
+" 001240 000000000000 000000000000 000000000000 000247006444
+" 001244 000000000000 000000000000 000000000000 000000000000
+" ======
+"
+
+" From stack_header.incl.alm
+
+          equ       stack_header.cpm_data_ptr,4             " ptr to control point for this stack
+          equ       stack_header.combined_stat_ptr,6        " ptr to separate static area
+
+          equ       stack_header.clr_ptr,8                  " ptr to area containing linkage sections
+          equ       stack_header.max_lot_size,10            " number of words allowed in lot (DU)
+          equ       stack_header.main_proc_invoked,10       " nonzero if main proc was invoked in run unit (DL)
+          equ       stack_header.run_unit_depth,10          " number of active run units stacked (DL)
+          equ       stack_header.cur_lot_size,11            " DU number of words (entries) in lot
+          equ       stack_header.cpm_enabled,11             " DL  non-zero if control point management is enabled
+          equ       stack_header.system_free_ptr,12         " ptr to system storage area
+          equ       stack_header.user_free_ptr,14           " ptr to user storage area
+
+          equ       stack_header.parent_ptr,16              " ptr to parent stack or null
+          equ       stack_header.stack_begin_ptr,18         " ptr to first stack frame
+          equ       stack_header.stack_end_ptr,20           " ptr to next usable stack frame
+          equ       stack_header.lot_ptr,22                 " ptr to the lot for the current ring
+
+          equ       stack_header.signal_ptr,24              " ptr to signal proc for current ring
+          equ       stack_header.bar_mode_sp,26             " value of sp before entering bar mode
+          equ       stack_header.pl1_operators_ptr,28       " ptr: pl1_operators_$operator_table
+          equ       stack_header.call_op_ptr,30             " ptr to standard call operator
+
+          equ       stack_header.push_op_ptr,32             " ptr to standard push operator
+          equ       stack_header.return_op_ptr,34           " ptr to standard return operator
+          equ       stack_header.ret_no_pop_op_ptr,36       " ptr: stand. return/ no pop operator
+          equ       stack_header.entry_op_ptr,38            " ptr to standard entry operator
+
+          equ       stack_header.trans_op_tv_ptr,40         " ptr to table of translator operator ptrs
+          equ       stack_header.isot_ptr,42                " pointer to ISOT
+          equ       stack_header.sct_ptr,44                 " pointer to System Condition Table
+          equ       stack_header.unwinder_ptr,46            " pointer to unwinder for current ring
+
+          equ       stack_header.sys_link_info_ptr,48       " ptr to *system link name table
+          equ       stack_header.rnt_ptr,50                 " ptr to reference name table
+          equ       stack_header.ect_ptr,52                 " ptr to event channel table
+          equ       stack_header.assign_linkage_ptr,54      " ptr to area for hcs_$assign_linkage calls
+          equ       stack_header.heap_header_ptr,56         " ptr to heap header.
+          equ       stack_header.trace_frames,58            " stack of trace_catch_ frames
+          equ       stach_header.trace_top_ptr,59           " trace pointer
+          equ       stack_header.in_trace,60                " trace antirecurse bit
+"          equ       stack_header_end,64                     " length of stack header
+          equ       stack_header_end,1024                     " length of stack header
+
+
+          equ       trace_frames.count,0                    " number of trace frames on stack
+          equ       trace_frames.top_ptr,1                  " packed pointer to top one
+
+"         The  following constant is an offset within the  pl1  operators table.
+"         It  references a  transfer vector table.
+
+          bool      tv_offset,0551
+
+
+"         The  following constants are offsets within this transfer vector table.
+
+          equ       call_offset,tv_offset+271
+          equ       push_offset,tv_offset+272
+          equ       return_offset,tv_offset+273
+          equ       return_no_pop_offset,tv_offset+274
+          equ       entry_offset,tv_offset+275
+
+	equ	call_ext_out,tv_offset+42
+
+" From stack_frame.incl.alm
+
+          equ       stack_frame.prev_sp,16
+          equ       stack_frame.condition_word,16
+          equ       stack_frame.next_sp,18
+          equ       stack_frame.signaller_word,18
+          equ       stack_frame.return_ptr,20
+          equ       stack_frame.entry_ptr,22
+          equ       stack_frame.operator_ptr,24
+          equ       stack_frame.lp_ptr,24
+          equ       stack_frame.arg_ptr,26
+          equ       stack_frame.static_ptr,28
+          equ       stack_frame.support_ptr,29    " only used by fortran I/O
+          equ       stack_frame.on_unit_rel_ptrs,30
+          equ       stack_frame.operator_ret_ptr,31
+          equ       stack_frame.translator_id,31
+ 	" pl1_operators_		" I think 240|760310, obs  000257000043 021736000000
+          equ       stack_frame.regs,32
+          equ       stack_frame.regs_pr0_ap,32    " 40
+          equ       stack_frame.regs_pr1_ab,34    " 42
+          equ       stack_frame.regs_pr2_bp,36    " 44
+          equ       stack_frame.regs_pr3_bb,38    " 46
+          equ       stack_frame.regs_pr4_lp,40    " 50
+          equ       stack_frame.regs_pr5_lb,42    " 52
+          equ       stack_frame.regs_pr6_sp,44    " 54
+          equ       stack_frame.regs_pr7_sb,46    " 56
+
+          equ       stack_frame.min_length,48
+          equ       stack_frame.flag_word,16
+          bool      stack_frame.main_proc_bit,020000        " (DL)
+          bool      stack_frame.run_unit_manager,010000     " (DL)
+          bool      stack_frame.signal_bit,004000           " (DL)
+          bool      stack_frame.crawl_out_bit,002000        " (DL)
+          bool      stack_frame.signaller_bit,001000        " (DL)
+          bool      stack_frame.link_trap_bit,000400        " (DL)
+          bool      stack_frame.support_bit,000200          " (DL)
+          bool      stack_frame.condition_bit,000100        " (DL)
+
+"	equ	stack_frame_min_length,48
+	equ	stack_frame_min_length,96
+
+
+
+	org	0
+" LOCKLESS seems to be losing the 2000 in "go 02000" and starting at 0, so:
+	tra	start
+
+" Fault vectors
+
+" Trouble Fault
+	org	076
+	tra	start
+
+" Interrupt vectors
+
+	org	02000
+
+start:
+	ldbr	dsbr
+	eax0	*+2
+	tra	0|0,x0
+
+" This gets a AVC12 CRT -- crossing rings
+"
+"	epp0	apptra,*
+"	tra	pr0|0
+"	even
+"apptra:	vfd	3/0,15/0,3/4,9/0,6/043
+"	vfd	18/apptar,3/0,6/0,3/0,6/0
+
+apptar:
+
+" Register usage
+
+" 0 ap operator segment pointer  I think this is actually the argument list pointer
+" 4 lp linkage section pointer
+" 6 sp stack frame pointer
+" 7 sb stack base pointer
+
+	epp6	frame0,*	" 234|060
+	epp7	stkbase,*	" 234|0
+
+" Create stack header (makestack.pl1)
+
+	epp0	null,*
+	spri0	pr7|stack_header.parent_ptr
+	spri0	pr7|stack_header.ect_ptr		" observed 000247400043 017410000000
+
+	epp0	pr7|stack_header_end		" I think |0100, 000100000000, obs:  000234000043 002000000000
+	spri0	pr7|stack_header.stack_begin_ptr
+	spri0	pr7|stack_header.stack_end_ptr
+
+	epp0	pl1op,*	" pl1_operators_		" I think 240|760310, obs  000257000043 021736000000
+	spri0	pr7|stack_header.pl1_operators_ptr
+
+" The xxx_offset values already have tv_offset added in.
+"	epp0	tvptr,*	" pl1_operators_|tv_offset
+	epp0	pl1op,*
+	epp1	pr0|call_offset,*
+	spri1	pr7|stack_header.call_op_ptr
+	epp1	pr0|push_offset,*
+	spri1	pr7|stack_header.push_op_ptr
+	epp1	pr0|return_offset,*
+	spri1	pr7|stack_header.return_op_ptr
+	epp1	pr0|return_no_pop_offset,*
+	spri1	pr7|stack_header.ret_no_pop_op_ptr
+	epp1	pr0|entry_offset,*
+	spri1	pr7|stack_header.entry_op_ptr
+	epp1	pr0|call_offset,*
+	spri1	pr7|stack_header.call_op_ptr
+	lda	1,dl
+	sta	pr7|stack_header.main_proc_invoked
+
+" Set up dummy lot
+
+	epp1	our_lot,*
+	spri1	pr7|stack_header.lot_ptr
+
+	epp0	null,*
+	spri0	pr6|stack_frame.prev_sp
+	epp0	pr6|stack_frame_min_length
+	spri0	pr6|stack_frame.next_sp
+
+" Set up dummy lp
+
+	epp0	our_lp,*
+	spri0	pr6|stack_frame.lp_ptr
+          spri0     pr6|stack_frame.regs_pr2_bp
+
+" Call the code at 300
+
+	epp0	pl1op,*
+	eax1	arglist
+	fld	0,dl
+	epp2	prog_entry,*
+	emCall	emcstart
+	tsx0	pr0|403	" call_ext_out
+	emCall	emcstop
+
+          emCall	emchalt	" halt
+
+emchalt:	oct	2
+emcstart:	oct	3
+emcstop:	oct	4
+
+arglist:	oct	4	" arg cnt 0, type 4 (inter segment)
+
+" Fake linkage area
+
+linkage:	oct	0,0,0,0,0,0,0,0,0,0,0,0,0
+
+	even
+stkbase:	its	0234,0
+our_lp:	its	0,linkage
+our_lot:	its	0,fake_lot
+frame0:	its	0234,stack_header_end
+null:	its	-1,1
+" as8+ is generating bad data here
+"pl1op:	its	0240,020310
+pl1op:	vfd	3/0,15/0240,3/0,9/0,6/043
+	vfd	18/021736,3/0,6/0,3/0,6/0
+"tvptr:	its	0240,tv_offset
+prog_entry:
+" nqueens
+	its	0300,2
+" trivial
+"	its	0300,1
+" Fake lot
+fake_lot:
+	oct	0,0,0,0,0,0,0,0	"   0
+	oct	0,0,0,0,0,0,0,0	"  10
+	oct	0,0,0,0,0,0,0,0	"  20
+	oct	0,0,0,0,0,0,0,0	"  30
+	oct	0,0,0,0,0,0,0,0	"  40
+	oct	0,0,0,0,0,0,0,0	"  50
+	oct	0,0,0,0,0,0,0,0	"  60
+	oct	0,0,0,0,0,0,0,0	"  70
+	oct	0,0,0,0,0,0,0,0	" 100
+	oct	0,0,0,0,0,0,0,0	" 110
+	oct	0,0,0,0,0,0,0,0	" 120
+	oct	0,0,0,0,0,0,0,0	" 130
+	oct	0,0,0,0,0,0,0,0	" 140
+	oct	0,0,0,0,0,0,0,0	" 150
+	oct	0,0,0,0,0,0,0,0	" 160
+	oct	0,0,0,0,0,0,0,0	" 170
+	oct	0,0,0,0,0,0,0,0	" 200
+	oct	0,0,0,0,0,0,0,0	" 210
+	oct	0,0,0,0,0,0,0,0	" 220
+	oct	0,0,0,0,0,0,0,0	" 230
+	oct	0,0,0,0,0,0,0,0	" 240
+	oct	0,0,0,0,0,0,0,0	" 250
+	oct	0,0,0,0,0,0,0,0	" 260
+	oct	0,0,0,0,0,0,0,0	" 270
+	oct	0,0,0,0,0,0,0,0	" 300
+	oct	0,0,0,0,0,0,0,0	" 310
+	oct	0,0,0,0,0,0,0,0	" 320
+	oct	0,0,0,0,0,0,0,0	" 330
+	oct	0,0,0,0,0,0,0,0	" 340
+	oct	0,0,0,0,0,0,0,0	" 350
+	oct	0,0,0,0,0,0,0,0	" 360
+	oct	0,0,0,0,0,0,0,0	" 370
+dsbr:	vfd	24/04000,12/0
+	vfd	1/0,14/400,4/0,1/0,4/0,12/23
+	end

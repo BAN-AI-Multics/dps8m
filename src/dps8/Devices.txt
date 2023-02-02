@@ -1,0 +1,58 @@
+# SPDX-License-Identifier: FSFAP
+# scspell-id: f0de0653-f90d-11ec-9356-80ee73e9b8e7
+
+############################################################################
+#
+# Copyright (c) 2015-2023 The DPS8M Development Team
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered "AS-IS",
+# without any warranty.
+#
+############################################################################
+
+name: a.h012;
+   service: ibm3270;
+
+name: d.h000;
+name: d.h001;
+name: d.h002;
+name: d.h003;
+name: d.h004;
+name: d.h005;
+name: d.h006;
+name: d.h007;
+name: d.h008;
+name: d.h009;
+name: d.h010;
+name: d.h011;
+name: d.h012;
+name: d.h013;
+name: d.h014;
+name: d.h015;
+name: d.h016;
+name: d.h017;
+name: d.h018;
+name: d.h019;
+name: d.h020;
+name: d.h021;
+name: d.h022;
+name: d.h023;
+name: d.h024;
+name: d.h025;
+name: d.h026;
+name: d.h027;
+name: d.h028;
+name: d.h029;
+
+# Auto call line
+name: d.h030;
+   service: autocall;
+
+# Slave line
+name: d.h031;
+   service: slave;
+   port: 6131
+
+end;

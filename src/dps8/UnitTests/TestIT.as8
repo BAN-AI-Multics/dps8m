@@ -1,0 +1,79 @@
+" SPDX-License-Identifier: Multics
+" SPDX-FileCopyrightText: 1972 The Massachusetts Institute of Technology
+" SPDX-FileCopyrightText: 1972 Honeywell Information Systems, Inc.
+" SPDX-FileCopyrightText: 2006 Bull HN Information Systems, Inc.
+" SPDX-FileCopyrightText: 2006 Bull SAS
+" SPDX-FileCopyrightText: 2019-2021 Juergen Weiss
+" SPDX-FileCopyrightText: 2021 Eric Swenson
+" SPDX-FileCopyrightText: 2021-2023 The DPS8M Development Team
+" scspell-id: 55bcc880-f776-11ec-a4ea-80ee73e9b8e7
+"
+" Copy of ISOLTS 885 test-02a without the page faults
+"
+
+	equ	pgsz,1024	" pages are 1024 words long
+	equ	program_start,100*pgsz
+
+	macro	msg
+	eaa	#1
+	emcall	16
+	endm
+
+"""
+""" Entry point
+"""
+
+	org	0
+	lda	l2002, idc
+	dis	*
+
+
+"
+" First descriptor
+"
+" addr 4003, tally 2, tag DIC (055, 45)
+" this is a decrement, so the address points to location after the descriptor
+
+	org	02002
+l2002:	vfd	18/l4002+1,12/2,6/45
+
+"
+" Second descriptor
+"
+" addr 4004, tally 1, tag DIC (055, 45)
+" this is a decrement, so the address points to location after the descriptor
+	org	04002
+l4002:	vfd	18/l4003+1,12/1,6/45
+
+"
+" Third descriptor
+"
+" addr 6005, tally 12, tag IDC (057, 47)
+
+	org	04003
+l4003:	vfd	18/l6005,12/12,6/47
+
+
+"
+" Fourth descriptor
+"
+" addr 10007, tally 6, tag ID (056, 46)
+	org	06005
+
+l6005:	vfd	18/l10007,12/6,6/46
+
+"
+" Fifth descriptor (hypothetical)
+"
+
+	org	010007
+l10007:	vfd	18/l10010,6/2,2/0
+
+"
+" Operand
+"
+
+	org	010010
+l10010:	oct	01234567
+
+	end

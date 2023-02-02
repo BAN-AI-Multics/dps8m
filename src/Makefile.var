@@ -1,0 +1,319 @@
+# DPS8M simulator: src/Makefile.var
+# vim: filetype=make:tabstop=4:cc=79:ai:noexpandtab:list:listchars=tab\:\>\-
+# SPDX-License-Identifier: ICU
+# scspell-id: 2d62a287-f62b-11ec-badd-80ee73e9b8e7
+
+###############################################################################
+#
+# Copyright (c) 2021-2023 The DPS8M Development Team
+#
+# All rights reserved.
+#
+# This software is made available under the terms of the ICU
+# License, version 1.8.1 or later.  For more details, see the
+# LICENSE.md file at the top-level directory of this distribution.
+#
+###############################################################################
+
+# src/Makefile.var: Variable processing logic and build configuration
+
+###############################################################################
+# Atomic operations selection
+
+ifdef ATOMICS
+  ifeq ($(ATOMICS),AIX)
+    CFLAGS += -DAIX_ATOMICS
+  endif
+  ifeq ($(ATOMICS),BSD)
+    CFLAGS += -DBSD_ATOMICS
+  endif
+  ifeq ($(ATOMICS),GNU)
+    CFLAGS += -DGNU_ATOMICS
+  endif
+  ifeq ($(ATOMICS),SYNC)
+    CFLAGS += -DSYNC_ATOMICS
+  endif
+endif
+
+###############################################################################
+# libbacktrace support
+
+LIBBACKTRACE ?= -lbacktrace
+
+ifdef WITH_BACKTRACE
+  WITH_BACKTRACE=1
+  CFLAGS += -DUSE_BACKTRACE
+  LIBS += $(LIBBACKTRACE)
+endif
+
+###############################################################################
+# No C ellipsis extension
+
+ifdef NO_C_ELLIPSIS
+  NO_C_ELLIPSIS=1
+  CFLAGS += -DNO_C_ELLIPSIS
+endif
+
+###############################################################################
+# ISOLTS-enabled build
+
+ifeq ($(ISOLTS),1)
+  unexport NO_LOCKLESS
+  undefine NO_LOCKLESS
+  LOCKLESS=1
+  ISOLTS=1
+  WAM=1
+  CFLAGS += -DISOLTS
+endif
+
+###############################################################################
+# Round-robin non-threaded multiprocessing
+
+ifeq ($(ROUND_ROBIN),1)
+  ROUND_ROBIN=1
+  NO_LOCKLESS=1
+  undefine LOCKLESS
+  unexport LOCKLESS
+  CFLAGS += -DROUND_ROBIN
+endif
+
+###############################################################################
+# Legacy (non-lockless) build
+
+ifneq ($(NO_LOCKLESS),1)
+  LOCKLESS=1
+endif
+
+###############################################################################
+# Testing mode
+
+ifdef TESTING
+  TESTING=1
+  NO_LTO=1
+  CFLAGS += -DTESTING
+endif
+
+###############################################################################
+# Enable ABSI device
+
+ifdef WITH_ABSI_DEV
+  WITH_ABSI_DEV=1
+  CFLAGS += -DWITH_ABSI_DEV
+endif
+
+###############################################################################
+# Enable (unsupported, experimental) socket device
+
+ifdef WITH_SOCKET_DEV
+  WITH_SOCKET_DEV=1
+  CFLAGS += -DWITH_SOCKET_DEV
+endif
+
+###############################################################################
+# Enable default LTO (link-time optimization) flags
+
+ifndef LTO_SKIP
+  ifndef NO_LTO
+    ifndef SUNPRO
+      ifndef SUNLINT
+      # LTO invocation: Try `-flto=auto`, fall back to `-ftlo`
+      LTOSYN=$(shell $(CC) -flto=auto -E - < /dev/null > /dev/null 2>&1 &&    \
+               $(PRINTF) '%s\n' "-flto=auto" || $(PRINTF) '%s\n' "-flto")
+        ifeq "$(findstring clang,$(CC))" ""
+          ifeq "$(findstring gcc,$(CC))" ""
+            ifeq "$(findstring icc,$(CC))" ""
+              # Other
+              CFLAGS += $(LTOSYN)
+              LDFLAGS += $(LTOSYN)
+            else
+              # Intel C Compiler Classic (no longer supported)
+              NO_LTO=1
+              LTO_SKIP=1
+              export NO_LTO
+              export LTO_SKIP
+            endif
+          else
+            # GCC
+            CFLAGS  += $(LTOSYN)
+            LDFLAGS += $(LTOSYN)
+          endif
+        else
+          # Clang
+          CFLAGS  += $(LTOSYN) -Wno-ignored-optimization-argument
+          LDFLAGS += $(LTOSYN) -Wno-ignored-optimization-argument
+        endif
+      endif
+    endif
+  endif
+endif
+
+###############################################################################
+# Windows build
+
+ifeq ($(OS),Windows_NT)
+  CROSS=MINGW64
+endif
+
+###############################################################################
+# POSIX threads
+
+ifeq ($(THREADZ),1)
+  THREADZ=1
+  ifndef SUNPRO
+    ifndef SUNLINT
+      ifndef WATCOM
+        CFLAGS += -pthread
+      endif
+    endif
+  endif
+    CFLAGS += -DTHREADZ
+    LIBS += -lpthread
+endif
+
+###############################################################################
+# WAM
+
+ifeq ($(WAM),1)
+  WAM=1
+  CFLAGS += -DWAM
+endif
+
+###############################################################################
+# Lockless synchronization
+
+ifeq ($(LOCKLESS),1)
+  LOCKLESS=1
+  ifndef SUNPRO
+    ifndef SUNLINT
+      ifndef WATCOM
+        CFLAGS += -pthread
+      endif
+    endif
+  endif
+  ifndef SUNLINT
+    ifdef SUNPRO
+      CFLAGS += -mt
+    endif
+  endif
+  CFLAGS += -DLOCKLESS
+  ifndef SUNPRO
+    ifndef SUNLINT
+      LIBS += -lpthread
+    endif
+  endif
+endif
+
+###############################################################################
+# Speed before debugging (override)
+
+ifeq ($(SPEED),1)
+  SPEED=1
+  CFLAGS += -DSPEED
+endif
+
+###############################################################################
+# No native __int128/__uint128 types?
+
+ifeq ($(NEED_128),1)
+  NEED_128=1
+  CFLAGS += -DNEED_128
+endif
+
+###############################################################################
+# Strip simulator down to just a CPU for performance testing
+
+ifeq ($(PERF_STRIP),1)
+    CFLAGS  += -DPERF_STRIP
+endif
+
+###############################################################################
+# For embedding current time of building object
+
+ifndef VER_CURRENT_TIME
+  VER_CURRENT_TIME=$(shell env TZ=UTC date -u "+%Y-%m-%d %H:%M UTC"           \
+    2> /dev/null || printf '%s\n' "2020-01-01 00:00 UTC")
+endif
+export VER_CURRENT_TIME
+
+###############################################################################
+# IBM AIX
+
+ifdef OS_IBMAIX
+  BUILD_OSAP_OSS_TEXT=$(shell printf '%s\n' "$(OS_IBMAIX)"  2> /dev/null  |   \
+    tr -d '*'                                               2> /dev/null  |   \
+      tr -s ' '                                             2> /dev/null ||   \
+        printf '%s\n' "Unknown")
+  export BUILD_OSAP_OSS_TEXT
+  BUILD_OSAP_OSM_TEXT=$(shell (uname -M                     2> /dev/null ||   \
+   uname -p 2> /dev/null)                                                 |   \
+    sed 's/ (emulated by ....)//'                           2> /dev/null ||   \
+      tr -d '*'                                             2> /dev/null  |   \
+        tr -s ' '                                           2> /dev/null ||   \
+          printf '%s\n' "Unknown")
+  export BUILD_OSAP_OSM_TEXT
+endif
+
+###############################################################################
+
+ifndef BUILD_PROM_OSV_TEXT
+  ifndef BUILD_OSAP_OSS_TEXT
+    BUILD_OSAP_OSS_TEXT=$(shell uname -s  2> /dev/null  |                     \
+      tr -d '*'                           2> /dev/null  |                     \
+        tr -s ' '                         2> /dev/null ||                     \
+          printf '%s\n' "Unknown")
+    export BUILD_OSAP_OSS_TEXT
+  endif
+  BUILD_PROM_OSV_TEXT=$(shell printf '%-20s\n' "$(BUILD_OSAP_OSS_TEXT)" |     \
+    cut -b 1-20 2> /dev/null)
+endif
+
+###############################################################################
+
+ifndef BUILD_PROM_OSA_TEXT
+  ifndef BUILD_OSAP_OSM_TEXT
+    BUILD_OSAP_OSM_TEXT=$(shell uname -m  2> /dev/null  |                     \
+      tr -d '*'                           2> /dev/null  |                     \
+        tr -s ' '                         2> /dev/null ||                     \
+          printf '%s\n' "Unknown")
+    export BUILD_OSAP_OSM_TEXT
+  endif
+  BUILD_PROM_OSA_TEXT=$(shell printf '%-20s\n' "$(BUILD_OSAP_OSM_TEXT)" |     \
+    cut -b 1-20 2> /dev/null)
+endif
+
+###############################################################################
+# Set "Built by" string for distkit builds
+
+ifeq (,$(wildcard ../dps8/make_ver.sh))
+  ifneq (,$(wildcard ../dps8/build_usr.sh))
+    BUILD_BY_USER=$(shell ../dps8/build_usr.sh)
+  else
+    BUILD_BY_USER=Unknown
+  endif
+endif
+
+###############################################################################
+# GCC
+
+ifndef SUNPRO
+  ifndef SUNLINT
+    ifneq "$(findstring gcc,$(CC))" ""
+      CFLAGS += -Wno-maybe-uninitialized
+      CFLAGS += -Wno-unknown-warning-option
+    endif
+  endif
+endif
+
+###############################################################################
+# Intel C Compiler Classic workarounds (no longer supported)
+
+ifneq "$(findstring icc,$(CC))" ""
+  CFLAGS += -no-restrict -D__attribute__\(x\)=/"/"
+endif
+
+###############################################################################
+
+# Local Variables:
+# mode: make
+# tab-width: 4
+# End:

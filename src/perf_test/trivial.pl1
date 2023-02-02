@@ -1,0 +1,21 @@
+/*
+ * vim: filetype=pli:tabstop=10:ai:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 4e123f31-f90f-11ec-bb9f-80ee73e9b8e7
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * Copyright (c) 2021-2023 The DPS8M Development Team
+ *
+ * All rights reserved.
+ *
+ * This software is made available under the terms of the ICU
+ * License, version 1.8.1 or later.  For more details, see the
+ * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
+ */
+
+trivial: proc;
+return;
+end trivial;

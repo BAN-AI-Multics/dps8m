@@ -1,0 +1,63 @@
+/*
+ * vim: filetype=pli:tabstop=10:ai:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 63dd3fde-f776-11ec-89be-80ee73e9b8e7
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * Copyright (c) 2021-2023 The DPS8M Development Team
+ *
+ * All rights reserved.
+ *
+ * This software is made available under the terms of the ICU
+ * License, version 1.8.1 or later.  For more details, see the
+ * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
+ */
+
+nqueens: proc;
+    dcl a(11) bin fixed(17);
+    dcl count bin fixed(35);
+    dcl abs builtin;
+    declare n binary fixed(17); /* Counter */
+    count = 0;
+    call queen(11);
+    return;
+
+    place: procedure (ps) returns (fixed(17) bin);
+        dcl ps bin fixed(17);
+        dcl i  bin fixed(17) init(0);
+        do i=1 to ps-1;
+            if a(i) = a(ps) then  return(0);
+            if abs ( a(i) - a(ps) ) = (ps-i) then return(0);
+        end;
+        return (1);
+    end place;
+
+    queen: procedure (n);
+        dcl n bin fixed(17);
+        dcl k bin fixed(17);
+        k = 1;
+        a(k) = 0;
+        do while (k > 0);
+            a(k) = a(k) + 1;
+            do while ( ( a(k)<= n) & (place(k) =0) );
+             a(k) = a(k) +1;
+            end;
+            if (a(k) <= n) then do;
+                if (k = n ) then do;
+                    count = count + 1;
+                end;
+                else do;
+                    k= k +1;
+                    a(k) = 0;
+                end; /* of inside else */
+            end; /* of first if */
+            else do;
+               k = k -1;
+            end;
+        end;  /* of external while loop  */
+    end queen;
+
+end nqueens;

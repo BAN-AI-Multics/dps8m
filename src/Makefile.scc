@@ -1,0 +1,103 @@
+# DPS8M simulator: src/Makefile.scc
+# vim: filetype=make:tabstop=4:cc=79:ai:noexpandtab:list:listchars=tab\:\>\-
+# SPDX-License-Identifier: ICU
+# scspell-id: 27fa3230-f62b-11ec-8cab-80ee73e9b8e7
+
+###############################################################################
+#
+# Copyright (c) 2016 Charles Anthony
+# Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
+# Copyright (c) 2021-2023 The DPS8M Development Team
+#
+# All rights reserved.
+#
+# This software is made available under the terms of the ICU
+# License, version 1.8.1 or later.  For more details, see the
+# LICENSE.md file at the top-level directory of this distribution.
+#
+###############################################################################
+
+###############################################################################
+# Source Code Control Targets                                                 \
+    # XXXX:    # ----------------------- Source Control ---------------------
+###############################################################################
+
+###############################################################################
+# List files that are not known to git.
+
+.PHONY: printuk
+ifneq (,$(findstring printuk,$(MAKECMDGOALS)))
+.NOTPARALLEL: printuk
+endif
+printuk:                                                                      \
+    # printuk:    # Display files that are unknown to git
+	@$(MAKE) -C "src/dps8" "printuk"
+
+###############################################################################
+# List files known to git that have been modified.
+
+.PHONY: printmod
+ifneq (,$(findstring printmod,$(MAKECMDGOALS)))
+.NOTPARALLEL: printmod
+endif
+printmod:                                                                     \
+    # printmod:    # Display files that have been modified
+	@$(MAKE) -C "src/dps8" "printmod"
+
+###############################################################################
+# List files to be cleaned up via git clean.
+
+.PHONY: printgit
+ifneq (,$(findstring printgit,$(MAKECMDGOALS)))
+.NOTPARALLEL: printgit
+endif
+printgit:                                                                     \
+    # printgit:    # Display files to be cleaned using git
+	@$(PRINTF) '%s\n' "*** Begin printgit (git clean -ndx)" || $(TRUE)
+	@$(GIT) clean -ndx || $(TRUE)
+	@$(PRINTF) '%s\n' "*** End printgit" || $(TRUE)
+
+###############################################################################
+# Clean up the source tree using git clean.
+
+.PHONY: gitclean
+ifneq (,$(findstring gitclean,$(MAKECMDGOALS)))
+.NOTPARALLEL: gitclean
+endif
+gitclean:                                                                     \
+    # gitclean:    # Cleans up source tree using git clean
+	@$(PRINTF) '%s\n' "*** Begin gitclean (git clean -fdx)" || $(TRUE)
+	@$(GIT) clean -fdx || $(TRUE)
+	@$(PRINTF) '%s\n' "*** End gitclean" || $(TRUE)
+
+###############################################################################
+# Generate a redistributable source kit (tar)
+
+.PHONY: dist kit
+ifneq (,$(findstring dist,$(MAKECMDGOALS)))
+.NOTPARALLEL: dist
+endif
+ifneq (,$(findstring kit,$(MAKECMDGOALS)))
+.NOTPARALLEL: kit
+endif
+dist kit:                                                                     \
+    # dist:    # Generate a redistributable source tar
+	@$(MAKE) -C "src/dps8" "dist"
+
+###############################################################################
+# Generate a redistributable source kit (zip)
+
+.PHONY: zipdist zipkit
+ifneq (,$(findstring zip,$(MAKECMDGOALS)))
+.NOTPARALLEL: zipdist zipkit
+endif
+zipdist zipkit:                                                               \
+    # zipdist:    # Generate a redistributable source zip
+	@$(MAKE) -C "src/dps8" "zipdist"
+
+###############################################################################
+
+# Local Variables:
+# mode: make
+# tab-width: 4
+# End:

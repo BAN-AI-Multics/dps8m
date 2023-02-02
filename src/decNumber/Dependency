@@ -1,0 +1,5 @@
+decContext.o: decContext.h
+decContext.o: decNumberLocal.h
+decNumber.o: decContext.h
+decNumber.o: decNumber.h
+decNumber.o: decNumberLocal.h

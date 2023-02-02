@@ -1,0 +1,303 @@
+# SPDX-FileCopyrightText: Copyright (c) The DPS8M Development Team
+# SPDX-License-Identifier: FSFAP
+# scspell-id: 678f9a77-f778-11ec-ae0f-80ee73e9b8e7
+
+##############################################################################
+#
+# Copyright (c) 2006-2022 The DPS8M Development Team
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered "AS-IS",
+# without any warranty.
+#
+##############################################################################
+
+# Objects
+*.o
+*.lo
+*.a
+*.so
+a.out
+
+# Patch
+.orig
+.rej
+
+# Data
+*.tap
+*.tpc
+
+# Config
+serial.txt
+
+# Cruft
+.DS_Store
+.cproject
+.project
+.settings/
+.vscode/
+.nvimlog
+.debug
+src/mcmb/mcmb.dSYM/
+src/prt2pdf/prt2pdf.dSYM/
+src/punutil/punutil.dSYM/
+src/vmpctool/vmpctool.dSYM/
+src/empty/empty.dSYM/
+src/novdso/novdso.dSYM/
+.Dependency
+typescript
+*.bak
+*.err
+"__.SYMDEF SORTED"
+log.txt
+
+# Tags
+tags
+.tags
+ctags
+.ctags
+etags
+.etags
+.TAGS
+TAGS
+GRTAGS
+GTAGS
+GPATH
+ID
+HTML
+GPATH
+
+# Cores
+*.core
+core
+
+# Retired
+zeromq-4.1.0
+czmq-master-ff0d028b16
+zyre-master-9d7e62d2c9
+
+# Tests
+src/dps8/UnitTests/*.oct
+src/dps8/UnitTests/*.pp
+
+# Generated
+cflags.L
+.builder.txt
+.buildos.txt
+useddef.txt
+sysdefs.txt
+sysdefs.h
+M.dump
+hdbg.list
+src/blinkenLights2/blinkenLights2
+src/blinkenLights2/blinkenLights2.exe
+src/prt2pdf/prt2pdf
+src/prt2pdf/prt2pdf.exe
+src/unifdef/unifdef
+src/unifdef/unifdef.exe
+src/punutil/punutil
+src/punutil/punutil.exe
+src/mcmb/mcmb
+src/mcmb/mcmb.exe
+src/vmpctool/vmpctool
+src/vmpctool/vmpctool.exe
+src/empty/empty
+src/empty/empty.exe
+src/dps8/dps8
+src/dps8/dps8.exe
+src/dps8/ver.h.*
+src/dps8/ver.h
+src/dps8/errnos.h
+src/novdso/novdso
+tags
+dps8m.state
+l68.state
+.dps8m.state
+.l68.state
+dps8m*.state
+.dps8m*.state
+l68*.state
+.l68*.state
+needrebuild
+.needrebuild
+rebuild.env
+rebuild.vne
+.rebuild.env
+.rebuild.vne
+*.tar.gz
+*.tar.xz
+*.tar.bz2
+*.tar.lz
+*.zip
+*.tar
+*.rar
+*.arj
+*.Z
+*.zpaq
+*.zst
+*.lzo
+*.lzh
+*.lha
+*.zoo
+*.7z
+*.d.*
+*.ifx
+serial.txt
+*.Po
+*.expand
+
+# Lint
+pre-commit-test.txt
+flawfinder.txt
+lint.txt
+olint.txt
+cpplint.txt
+cppcheck.txt
+cppi.txt
+*.i
+.cppbdir
+infer-out/
+*.ln
+*.Ln
+*.LN
+orstlint.txt
+olint126.txt
+oralint126.txt
+flawfinder.txt
+unused.txt
+cppcheck/
+blinkenLights2.xml
+dpsprintf.xml
+punutil.xml
+empty.xml
+mcmb.xml
+simh.xml
+decNumber.xml
+unifdef.xml
+dps8.xml
+dps8m.xml
+prt2pdf.xml
+vmpctool.xml
+novdso.xml
+cppcheck.xml
+
+# Oracle Performance Analyzer
+src/dps8/dps8.analyze
+src/empty/empty.analyze
+src/mcmb/mcmb.analyze
+src/prt2pdf/prt2pdf.analyze
+src/punutil/punutil.analyze
+src/unifdef/unifdef.analyze
+src/vmpctool/vmpctool.analyze
+src/novdso/novdso.analyze
+
+# Vim
+*.*.swp
+session.vim
+Session.vim.vim
+.vimundo
+.nvimundo
+.vimsession
+.nvimsession
+.undodir
+.session
+.sessions
+
+# Emacs
+*~
+
+# Output
+*.toc
+*.log
+*.log.*
+*.aux
+*.out
+
+# Sim
+src/dps8/MR12.*
+src/dps8/*.tap
+src/dps8/dps8.map
+src/dps8/*.d
+src/dps8/MR12.3/
+
+# Local
+GNUmakefile.local
+.autoenv
+.envrc
+
+# CI/CD
+out
+dumalog.txt
+src/ci-kit/.yoyodyne.s4
+src/ci-kit/run
+src/ci-kit/dps8m
+options*.txt
+output.txt
+pages/
+public/
+
+# Common Targets
+all
+clean
+osconf
+distclean
+superclean
+realclean
+reallyclean
+
+# Local libuv
+libuv/
+libuv*.tar*
+libuv-local/
+libuv-1.x/
+
+# Profiling
+*.gcda
+*.gcov
+*.gcno
+*.profdata
+*.profout
+
+# Docs
+docs/yaml/docinfo-post.yml
+docs/*.tmp
+docs/*.sav
+docs/md/showtemp.md
+docs/md/_cmdout.md
+docs/commandref.md
+docs/md/commandref.md
+docs/dps8*.pdf
+docs/docsdocker
+docs/stage?.pdf
+docs/temp.out
+docs/pdf/neato.pdf
+docs/pdf/iomcon.pdf
+docs/pdf/storage.pdf
+docs/pdf/gvsubset.pdf
+
+# Clang
+compile_commands.json
+compile_commands.events.json
+src/ci-kit/*san.txt
+QuickStart_MR*/
+
+# CCTree
+cctree.db
+CCTree.db
+
+# Pages
+docs/hpages/public
+docs/hpages/resources
+docs/hpages/.hugo_build.lock
+
+# Distkit build
+src/LICENSE.txt
+src/README.txt
+
+# NSIS
+.nsis/bin/??-bit/*.exe
+.nsis/*.exe
+.nsis/share/*.pdf
+.nsis/share/LICENSE.md
+.nsis/dps8m-master-win-setup.exe

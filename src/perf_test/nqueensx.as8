@@ -1,0 +1,254 @@
+" SPDX-License-Identifier: ICU
+" SPDX-FileCopyrightText: 2021-2023 The DPS8M Development Team
+" scspell-id: c11ee994-f776-11ec-96f3-80ee73e9b8e7
+"
+" STORAGE FOR AUTOMATIC VARIABLES.
+"
+" nqueens
+	bool	start,50
+	bool	a,50		" temp a[16]
+	bool	count,70		" temp count
+	"bool	unused,71		" even
+	bool	nqueens_ret,72	" tempd nqueens_ret
+" place
+	bool	place_ret,74	" tempd place_ret
+	bool	place_argp,76	" tempd place_arp
+	bool	i,100		" temp i
+	bool	place_limit,101	" temp place_limit
+	bool	place_temp,102	" temp place_temp
+	"bool	unused,103	" even
+" queen
+	bool	queen_ret,104	" tempd	queen_ret
+	bool	queen_argp,106	" tempd	queen_argp
+	bool	k,110		" temp	k
+	bool	queen_arg_1,111	" temp	queen_arg_1
+	bool	place_ret_val,112	" temp	place_ret_val
+	bool	top_of_temps,200
+
+" nqueens: proc;
+
+nqueens:	spri4	pr6|nqueens_ret
+" we entered through "tsp4 pr1|0", so pr1 has our segment number. Set up tbp...
+	spbp1	pr6|38	" tbp?
+
+" count = 0;
+
+	stz	pr6|count	" count
+
+" call queen(11);
+
+	ldq	11,dl
+	stq	pr6|queen_arg_1
+	epp2	l174
+	tsp4	queen
+
+" return;
+
+	rtcd	pr6|nqueens_ret
+
+" end nqueens;
+
+" place: procedure (ps) returns (fixed bin (35));
+
+place:	spri4	pr6|place_ret
+	spri2	pr6|place_argp
+	stz	pr6|i	" i
+
+" do i=1 to ps-1;
+
+	ldq	pr2|2,*	" ps
+	sbq	1,dl
+	stq	pr6|place_limit
+	ldq	1,dl
+	stq	pr6|i
+	even
+l30:	ldq	pr6|i
+	cmpq	pr6|place_limit
+	tpnz	l72
+
+" if a(i) = a(ps) then  return(0);
+
+	ldq	pr6|a-1,ql
+	epp7	pr6|place_argp,*
+	lxl7	pr7|2,*	" ps
+	cmpq	pr6|a-1,7
+	tnz	l44
+	stz	pr7|4,*
+	rtcd	pr6|place_ret
+
+" if abs ( a(i) - a(ps) ) = (ps-i) then return(0);
+
+l44:	ldq	pr7|2,*	" ps
+	sbq	pr6|i
+	stq	pr6|place_temp
+	lxl6	pr6|i
+	ldq	pr6|a-1,6
+	sbq	pr6|a-1,7
+	tpl	l61
+	erq	pr0|72	" = 777777777777
+	adq	1,dl
+l61:	cmpq	pr6|place_temp
+	tnz	l65
+	stz	pr7|4,*
+	rtcd	pr6|place_ret
+
+" end;
+
+l65:	aos	pr6|i
+	tra	l30
+
+" return (1);
+
+l72:	ldq	1,dl
+	epp7	pr6|place_argp,*
+	stq	pr7|4,*
+	rtcd	pr6|place_ret
+
+" end place;
+
+" queen: procedure (n);
+
+queen:	spri4	pr6|queen_ret
+	spri2	pr6|queen_argp
+
+" k = 1;
+
+	ldq	1,dl
+	stq	pr6|k
+
+" a(k) = 0;
+
+	stz	pr6|a-1,ql
+
+" do while (k > 0);
+
+l104:	ldq	pr6|k
+	tmoz	l165
+
+" a(k) = a(k) + 1;
+
+	aos	pr6|a-1,ql
+
+" do while ( ( a(k)<= n) & (place(k) =0) );
+
+	even
+l114:	epp2	l166
+	tsp4	place
+	ldq	pr6|place_ret_val
+
+	tsx0	pr0|330		" r_e_as
+	sta	pr6|place_ret_val
+
+"	tze	t1 " is eq
+"	lda	0,dl
+"	tra	t2
+"t1:	lda	=o400000,du
+"t2:	sta	pr6|place_ret_val
+
+	lxl7	pr6|k
+	ldq	pr6|a-1,7
+	epp7	pr6|queen_argp,*
+	cmpq	pr7|2,*
+
+	tsx0	pr0|336		" r_le_a
+	lda	=o400000,du
+
+"	tmi	t3
+"	tze	t3
+"	lda	0,dl
+"	tra	t4
+"t3:	lda	=o400000,du
+
+t4:	cana	pr6|place_ret_val
+	tze	l135
+
+" a(k) = a(k) +1;
+
+	aos	pr6|a-1,7
+
+" end;
+
+	tra	l114
+
+" if (a(k) <= n) then do;
+
+l135:	ldq	pr6|a-1,7
+	cmpq	pr7|2,*
+	tpnz	l156
+
+" if (k = n ) then do;
+
+	ldq	pr6|k
+	cmpq	pr7|2,*
+	tnz	l150
+
+" count = count + 1;
+
+	lda	pr6|count
+	lrs	36
+	adl	1,dl
+	stq	pr6|count
+
+" end;
+
+	tra	l104
+
+" else do;
+
+" k= k +1;
+
+l150:	aos	pr6|k
+
+" a(k) = 0;
+
+	lxl7	pr6|k
+	stz	pr6|a-1,7
+
+" end;
+
+" end;
+
+	tra	l104
+
+" else do;
+
+" k = k -1;
+
+l156:	lcq	1,dl
+	asq	pr6|k
+
+" end;
+
+" end;
+
+	tra	l104
+
+" end queen;
+
+l165:	rtcd	pr6|queen_ret
+
+" CONSTANTS
+
+" argument list for call to place
+	even
+l166:	oct	000004000000
+	oct	000000000000
+	"itp	6,k	"oct	600000000041	" ITP PR6|41
+	"		"oct	000134000000 	" offset of k in stack
+	vfd	3/6,33/33
+	vfd	18/k,18/0
+	"itp	6,place_ret_val	" oct	600000000041
+	"			" oct	000140000000
+	vfd	3/6,33/33
+	vfd	18/place_ret_val,18/0
+
+" Arg list for call to queen
+
+l174:	oct	000002000000
+	oct	000000000000
+	"itp	6,queen_arg_1	" oct	600000000041
+	"			" oct	000135000000
+	vfd	3/6,33/33
+	vfd	18/queen_arg_1,18/0
+
+	end

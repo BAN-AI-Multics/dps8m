@@ -1,0 +1,401 @@
+# DPS8M simulator: src/Makefile.dev
+# vim: filetype=make:tabstop=4:ai:cc=79:noexpandtab:list:listchars=tab\:\>\-
+# SPDX-License-Identifier: ICU
+# scspell-id: 0495e6fe-f62b-11ec-ab1d-80ee73e9b8e7
+
+###############################################################################
+#
+# Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
+# Copyright (c) 2021-2023 The DPS8M Development Team
+#
+# All rights reserved.
+#
+# This software is made available under the terms of the ICU
+# License, version 1.8.1 or later.  For more details, see the
+# LICENSE.md file at the top-level directory of this distribution.
+#
+###############################################################################
+
+###############################################################################
+# Development Tools Targets                                                   \
+    # XXXX:    # --------------------- Development Tools --------------------
+###############################################################################
+
+###############################################################################
+# Check installed developer git pre-commit hook, excluding CI/CD builds
+
+ifndef HOOK_WARNED
+ ifndef CI_JOB_ID
+  ifeq (,$(wildcard ./.git/hooks/pre-commit))
+    $(warning WARNING: git pre-commit hook is not installed!)
+    $(warning Install with "$(CP) ./.githooks/pre-commit ./.git/hooks")
+    HOOK_WARNED=1
+    export HOOK_WARNED
+  endif
+  ifneq (,$(shell $(CMP) ./.git/hooks/pre-commit ./.githooks/pre-commit       \
+    2> /dev/null))
+    $(warning $(shell "$(CMP) ./.git/hooks/pre-commit ./.githooks/pre-commit" \
+      > /dev/null 2>&1 || $(PRINTF) '%s\n'                                    \
+        "NOTICE: Installed git pre-commit hook differs from reference."       \
+          2> /dev/null || $(TRUE)))
+    HOOK_WARNED=1
+    export HOOK_WARNED
+  endif
+  ifneq (,$(shell $(CMP) ./.git/hooks/pre-commit ./.githooks/pre-commit       \
+    2> /dev/null))
+    $(warning $(shell "$(CMP) ./.git/hooks/pre-commit ./.githooks/pre-commit" \
+      > /dev/null 2>&1 || $(PRINTF) '%s\n'                                    \
+        "Use '$(CP) ./.githooks/pre-commit ./.git/hooks' to reinstall."       \
+          2> /dev/null || $(TRUE)))
+  endif
+ endif
+endif
+
+###############################################################################
+# Regenerate build system dependencies
+
+MKDEP_OPTS := "-D__MINGW64__=1" "-DTESTING=1"
+DO_MAKEDEP := for j in $(MKDEP_OPTS) ; do $(FIND) . -name '*.c' -exec         \
+              $(MAKEDEPEND) -w1 -Y -f- -- "$${j:?}" -- "{}" 2> /dev/null \;   \
+              2> /dev/null ; done | $(SED) -e 's/^\.\///' 2> /dev/null |      \
+              $(GREP) '^.*: .*$$' | $(ENV) LC_ALL=C $(SORT) -u | $(TEE)       \
+              "./Dependency" 2> /dev/null | $(WC) -l 2> /dev/null | $(AWK)    \
+              '/./ { print " - "$$0" rule(s)" }' 2> /dev/null | $(TR) -s ' '  \
+              2> /dev/null ||                                                 \
+                $(PRINTF) '%s\n' " - Error generating dependencies!"
+
+.PHONY: predep predepend
+ifneq (,$(findstring dep,$(MAKECMDGOALS)))
+.NOTPARALLEL: predep predepend
+endif
+predep predepend:
+	@$(PRINTF) '%s\n' "" 2> /dev/null |                                       \
+      $(MAKEDEPEND) -w1 -Y -f- -s'# OK' 2> /dev/null |                        \
+        $(GREP) -q '^# OK$$' 2> /dev/null ||                                  \
+          {                                                                   \
+            $(PRINTF) '%s\n'                                                  \
+              "ERROR: Unusable or missing \"makedepend\" utility!" ;          \
+            $(SLEEP) 1 > /dev/null 2>&1 ;                                     \
+            exit 1 ;                                                          \
+          }
+	@$(PRINTF) 'DEPEND: %s\n' "ver.h" ;                                       \
+      ( $(CD) "src/dps8" && $(MAKE) -j 1 -s "ver.h" )
+	@$(PRINTF) 'DEPEND: %s\n' "sysdefs.h" ;                                   \
+      ( $(CD) "src/dps8" && $(MAKE) -j 1 -s "sysdefs.h" )
+	@$(PRINTF) 'DEPEND: %s\n' "errnos.h" ;                                    \
+      ( $(CD) "src/dps8" && $(MAKE) -j 1 -s "errnos.h" )
+
+.PHONY: dep depend predepend
+ifneq (,$(findstring dep,$(MAKECMDGOALS)))
+.NOTPARALLEL: dep depend predepend
+endif
+dep depend: predepend                                                         \
+    # depend:    # Regenerates build system dependencies
+	@$(PRINTF) 'DEPEND: %s' "decNumber" ;                                     \
+      ( $(CD) "src/decNumber" && $(DO_MAKEDEP) )
+	@$(PRINTF) 'DEPEND: %s' "dps8" ;                                          \
+      ( $(CD) "src/dps8"      && $(DO_MAKEDEP) )
+	@$(PRINTF) 'DEPEND: %s' "empty" ;                                         \
+      ( $(CD) "src/empty"     && $(DO_MAKEDEP) )
+	@$(PRINTF) 'DEPEND: %s' "mcmb" ;                                          \
+      ( $(CD) "src/mcmb"      && $(DO_MAKEDEP) )
+	@$(PRINTF) 'DEPEND: %s' "prt2pdf" ;                                       \
+      ( $(CD) "src/prt2pdf"   && $(DO_MAKEDEP) )
+	@$(PRINTF) 'DEPEND: %s' "punutil" ;                                       \
+      ( $(CD) "src/punutil"   && $(DO_MAKEDEP) )
+	@$(PRINTF) 'DEPEND: %s' "simh" ;                                          \
+      ( $(CD) "src/simh"      && $(DO_MAKEDEP) )
+	@$(PRINTF) 'DEPEND: %s' "unifdef" ;                                       \
+      ( $(CD) "src/unifdef"   && $(DO_MAKEDEP) )
+	@$(PRINTF) 'DEPEND: %s' "vmpctool" ;                                      \
+      ( $(CD) "src/vmpctool"  && $(DO_MAKEDEP) )
+	@$(PRINTF) 'DEPEND: %s' "novdso" ;                                        \
+      ( $(CD) "src/novdso"    && $(DO_MAKEDEP) )
+
+###############################################################################
+# Remove dependencies for untracked C files
+
+DO_CLEANDEP := $(TEST) -f ./Dependency && { BCDC=$$($(WC) -l ./Dependency 2>  \
+               /dev/null | $(CUT) -d '.' -f 1 2> /dev/null ) ; $(PRINTF)      \
+               ' - %s > ' "$${BCDC:-0}" | $(TR) -s ' '; $(PRINTF) '%s\n'      \
+               "($$( $(GIT) status -uall -s *.c 2> /dev/null | $(GREP) '^?? ' \
+               2> /dev/null | $(CUT) -d ' ' -f2- 2> /dev/null | $(AWK)        \
+               '/./ { print "^"$$0": " }' 2> /dev/null | $(SED) 's/\./\\\./g' \
+               2> /dev/null | $(TR) '\n' ' ' 2> /dev/null | $(TR) ' ' '|' 2>  \
+               /dev/null ))" | $(SED) -e 's/|)$$/)/' -e 's/|)/)/' -e          \
+               's/||/|/g' 2> /dev/null | $(AWK)                               \
+               '{ print("grep -vE \047"$$0"\047 ./Dependency >                \
+               ./.Dependency && mv -f ./.Dependency ./Dependency ; rm -f      \
+               ./.Dependency"); }' 2> /dev/null | $(GREP) -v "'()'" 2>        \
+               /dev/null | $(SED) 's/\\\.c:/\\\.o: /g' 2> /dev/null | sh &&   \
+               $(PRINTF) '%s\n' "$$( $(WC) -l ./Dependency 2> /dev/null |     \
+               $(CUT) -d '.' -f 1 2> /dev/null | $(TR) -d ' ' 2> /dev/null    \
+               ) rule(s)"; } ; $(RMF) ./.Dependency > /dev/null 2>&1 ;        \
+               $(TOUCH) ./Dependency > /dev/null 2>&1 || $(TRUE) > /dev/null  \
+               2>&1
+
+.PHONY: dependclean depclean cleandepend cleandep
+ifneq (,$(findstring dep,$(MAKECMDGOALS)))
+.NOTPARALLEL: dependclean depclean cleandepend cleandep
+endif
+dependclean depclean cleandepend cleandep:                                    \
+    # cleandep:    # Cleans-up untracked file dependencies
+	@$(PRINTF) 'DEPEND: %s' "decNumber" ;                                     \
+      ( $(CD) "src/decNumber" && $(DO_CLEANDEP) )
+	@$(PRINTF) 'DEPEND: %s' "dps8" ;                                          \
+      ( $(CD) "src/dps8"      && $(DO_CLEANDEP) )
+	@$(PRINTF) 'DEPEND: %s' "empty" ;                                         \
+      ( $(CD) "src/empty"     && $(DO_CLEANDEP) )
+	@$(PRINTF) 'DEPEND: %s' "mcmb" ;                                          \
+      ( $(CD) "src/mcmb"      && $(DO_CLEANDEP) )
+	@$(PRINTF) 'DEPEND: %s' "prt2pdf" ;                                       \
+      ( $(CD) "src/prt2pdf"   && $(DO_CLEANDEP) )
+	@$(PRINTF) 'DEPEND: %s' "punutil" ;                                       \
+      ( $(CD) "src/punutil"   && $(DO_CLEANDEP) )
+	@$(PRINTF) 'DEPEND: %s' "simh" ;                                          \
+      ( $(CD) "src/simh"      && $(DO_CLEANDEP) )
+	@$(PRINTF) 'DEPEND: %s' "unifdef" ;                                       \
+      ( $(CD) "src/unifdef"   && $(DO_CLEANDEP) )
+	@$(PRINTF) 'DEPEND: %s' "vmpctool" ;                                      \
+      ( $(CD) "src/vmpctool"  && $(DO_CLEANDEP) )
+	@$(PRINTF) 'DEPEND: %s' "novdso" ;                                        \
+      ( $(CD) "src/novdso"    && $(DO_CLEANDEP) )
+
+###############################################################################
+# Displays preprocessor definitions
+
+.PHONY: printdefs
+printdefs:                                                                    \
+    # printdefs:    # Display selected preprocessor defines
+	@( $(CD) "$$($(GIT) rev-parse --show-toplevel)/./src/unifdef" &&          \
+     $(MAKE) --no-print-directory -C "." "silently" )
+	@( ( $(FIND) . -name '*.[ch]' -exec $(SH) -c "export n2=\"{}\";           \
+     $(PRINTF) '%s ' \"\$${n2:?}\";                                           \
+      "$$($(GIT) rev-parse --show-toplevel)/./src/unifdef/unifdef" "-Stn"     \
+       \"\$${n2:?}\"" \; | while read -r n; do $(PRINTF) '%s  %s \n'          \
+        $$($(PRINTF) '%s ' "$${n:?}" | $(WC) -w) "$${n:?}"; done           |  \
+         $(SORT) -urn | $(EXPAND) | $(CUT) -d ' ' -f 2-                    |  \
+          $(SED) -e 's/ S.._.*H_ / /g' -e 's/ DEC.* / /g' | $(TR) -s ' '   |  \
+           $(SED) -e 's/^\ //g' | $(SED) -e 's/^\.\/.*\.[ch] \./\./g'         \
+            -e 's/^\.\/.*[ch] $$//g' | $(GREP) -v '^$$') ) | while read       \
+             line; do $(PRINTF) '%s\n' "$${line:?} "                       |  \
+              $(AWK) '{ for (i=1; i<=NF; i++) if (!a[$$i]++)                  \
+               printf("%s%s", $$i, FS); } { printf("\n"); }'; done         |  \
+                $(SED) 's/ /: /'
+
+###############################################################################
+# Convenience target: Runs Cppcheck
+
+.PHONY: cppcheck
+cppcheck:                                                                     \
+    # cppcheck:    # Runs Cppcheck linter and saves output
+	-@$(RMF) ./cppcheck.txt > /dev/null 2>&1 || $(TRUE)
+	-@$(TEST) -z "$(HTMLOUT)" ||                                              \
+      $(PRINTF) '%s\n' "CPPCHECK: HTML report generation enabled."
+	-@$(TEST) -z "$(HTMLOUT)" &&                                              \
+      $(PRINTF) '%s\n'                                                        \
+        "CPPCHECK: Set \"HTMLOUT=1\" to enable HTML report generation." ||    \
+          $(TRUE)
+	@( $(PRINTF) '%s\n' "Starting in 5s, saving output to cppcheck.txt";      \
+      $(SLEEP) 5 && $(PRINTF) '%s\n' "" &&                                    \
+        ./src/ci-kit/cppcheck.sh 2> "cppcheck.txt" || $(TRUE) )
+	-@$(TEST) -z "$(HTMLOUT)" ||                                              \
+      $(TEST) -d "./cppcheck" &&                                              \
+        $(PRINTF) '%s\n'                                                      \
+          "CPPCHECK: Check the \"./cppcheck\" directory for HTML reports."
+
+###############################################################################
+# Convenience target: Cppi scan/check
+
+.PHONY: cppiscan
+cppiscan:                                                                     \
+    # cppiscan:    # Verify C preprocessor nesting indents
+	@$(SETV); ( $(PRINTF) '%s\n' "*** Listing files with cppi:";              \
+      $(CPPI) -l $$($(GIT) ls-files | $(GREP) -v 'ci-kit/' 2> /dev/null |     \
+        $(GREP) "\.[ch]$$" 2> /dev/null | $(SORT) -u | $(GREP) -v " ");       \
+          $(PRINTF) '%s\n' "*** End of listing" )
+
+###############################################################################
+# Convenience target: Cppi fix/repair
+
+.PHONY: cppifix
+cppifix:                                                                      \
+    # cppifix:    # Repair C preprocessor nesting indents
+	@$(SETV); for i in $$($(CPPI) -l $$($(GIT) ls-files |                     \
+      $(GREP) -v 'ci-kit/' 2> /dev/null| $(GREP) "\.[ch]$$" 2> /dev/null |    \
+       $(SORT) -u | $(GREP) -v " ")); do $(PRINTF) '%s\n' "*** cppi $${i:?}"; \
+        $(CPPI) "$${i:?}" > "$${i:?}.ifx" && $(CP) "$${i:?}.ifx" "$${i:?}" && \
+         $(RMF) "$${i:?}.ifx"; done
+
+###############################################################################
+# Convenience target: Runs Oracle Developer Studio 12.6 Lint on Linux/Solaris
+
+.PHONY: orstlint
+orstlint:                                                                     \
+    # orstlint:    # Runs Oracle Studio Lint & save output
+	-@$(RMF) ./orstlint.txt > /dev/null 2>&1 || $(TRUE)
+	@$(PRINTF) '%s\n' "Starting in 5s, saving output to orstlint.txt";sleep 5;\
+( export CSTD="gnu11" && export CFLAGS="-DNO_C_ELLIPSIS -DSUNLINT=1" &&       \
+cd src/dps8 && $(MAKE) distclean >/dev/null 2>&1 && $(MAKE) -j1 -i -k -s dps8 \
+CC="$(ORSTLINT) -m64 -a -fd -m -v -x -err=warn -errshort=full -errfmt=src     \
+-errtags=yes -features=gcc_enums -erroff=\
+E_STATIC_UNUSED,E_CONSTANT_CONDITION,E_SEC_STRNCPY_WARN,\
+E_PTRDIFF_OVERFLOW,E_NOP_IF_STMT,E_BAD_PTR_CAST_ALIGN,\
+E_EMPTY_TRANSLATION_UNIT" SUNPRO=1 SUNLINT=1 NEED_128=1 ) 2>&1 |              \
+ stdbuf -o L $(GREP) -v -E '(^make: .* Error 2$$|no output created$$)' |      \
+ stdbuf -o L $(GREP) -v -E '(make: .* not remade because of errors.$$)' |     \
+ stdbuf -o L $(GREP) -v -E '(^lint.*annot find source file.*\.o$$)' |         \
+ stdbuf -o L $(GREP) -v -E '(^lint:.*o input source files.*generated$$)' |    \
+ stdbuf -o L $(GREP) -v -E '(^lint: pass2 not run - errors in $$)' |          \
+ stdbuf -o L $(SED) 's/^CC: /LINT: /' | stdbuf -o L $(GREP) -v -E             \
+ '(^PROC.*:|^UNIFDEF:|^COMM:|^USEDDEF:|^SYSDEFS:|^.TAGS:|^CSCOPE:|^LD:)' |    \
+   stdbuf -o L $(TEE) orstlint.txt; $(CAT) orstlint.txt |                     \
+    $(GREP) -E '(^E_)' | $(CUT) -d ',' -f 1 | $(SORT) | $(UNIQ) -c |          \
+     $(SORT) -rn | stdbuf -o L $(TEE) -a orstlint.txt;                        \
+      $(MAKE) clean >/dev/null 2>&1 || $(TRUE)
+
+###############################################################################
+# Convenience target: Runs the Clang Analyzer & save output
+
+.PHONY: clsanalz
+clsanalz:                                                                     \
+    # clsanalz:    # Runs the Clang Analyzer & save output
+	+@$(TEST) -x "./src/ci-kit/scan-build.sh" &&                              \
+      $(ENV) sh "./src/ci-kit/scan-build.sh"
+
+###############################################################################
+# Convenience target: scspell check scspell-id tagged files
+
+.PHONY: scspell
+scspell:                                                                      \
+    # scspell:    # scspell check scspell-id tagged files
+	@$(SCSPELLCMD) --version 2>&1 | $(GREP) -q '^scspell ' 2> /dev/null ||    \
+      { $(PRINTF) '%s\n' "ERROR: $(SCSPELLCMD) command unusable."; exit 1 ; }
+	@$(TEST) -f "./.scspell/dictionary.txt" 2> /dev/null ||                   \
+      { $(PRINTF) '%s\n' "ERROR: scspell dictionary not found."; exit 1 ; }
+	@{ for i in $$( $(FIND) "./" -exec $(GREP) -al 'scspell-id: ' "{}"        \
+      2> "/dev/null" \; 2> "/dev/null" | $(GREP) -v '^\./\.git/' |            \
+        $(GREP) -v '^\./GPATH'); do $(PRINTF) 'SCSPELL: %s\n' "$${i:?}" ;     \
+          $(SCSPELLCMD) --override-dictionary                                 \
+            "./.scspell/dictionary.txt" "$${i:?}"; done; }
+
+###############################################################################
+# Convenience target: Report-only scspell check scspell-id tagged files
+
+.PHONY: roscspell
+roscspell:                                                                    \
+    # roscspell:    # scspell tests scspell-id tagged files
+	@$(SCSPELLCMD) --version 2>&1 | $(GREP) -q '^scspell ' 2> /dev/null ||    \
+      { $(PRINTF) '%s\n' "ERROR: $(SCSPELLCMD) command unusable."; exit 1 ; }
+	@$(TEST) -f "./.scspell/dictionary.txt" 2> /dev/null ||                   \
+      { $(PRINTF) '%s\n' "ERROR: scspell dictionary not found."; exit 1 ; }
+	@{ for i in $$( $(FIND) "./" -exec $(GREP) -al 'scspell-id: ' "{}"        \
+      2> "/dev/null" \; 2> "/dev/null" | $(GREP) -v '^\./\.git/' |            \
+        $(GREP) -v '^\./GPATH'); do $(PRINTF) 'SCSPELL: %s\n' "$${i:?}" ;     \
+          $(SCSPELLCMD) --report-only --override-dictionary                   \
+            "./.scspell/dictionary.txt" "$${i:?}"; done; }
+
+###############################################################################
+# Convenience target: Display files without scspell-id tags (needs GNU grep)
+
+.PHONY: lmscspell
+lmscspell:                                                                    \
+    # lmscspell:    # Display files without scspell-id tags
+	@$(PRINTF) '%s\n' "Checking for files missing scspell-id tags ..."
+	@( ( set -o pipefail > /dev/null 2>&1 ) && set -o pipefail ;              \
+     $(GREP) -riaL 'scspell-id: '                                           | \
+     $(GREP) -Ev '(\.ascii$$)'                                              | \
+     $(GREP) -Ev '(\.Attic/.)'                                              | \
+     $(GREP) -Ev '(bound_library_wired_$$)'                                 | \
+     $(GREP) -Ev '(\cctree.db$$)'                                           | \
+     $(GREP) -Ev '(\ci_full\.log)'                                          | \
+     $(GREP) -Ev '(/ci-kit/run/)'                                           | \
+     $(GREP) -Ev '(/ci-kit/tapes/)'                                         | \
+     $(GREP) -Ev '(commandref\.md$$)'                                       | \
+     $(GREP) -Ev '(\.d$$)'                                                  | \
+     $(GREP) -Ev '(/Dependency$$)'                                          | \
+     $(GREP) -Ev '(/dps8$$)'                                                | \
+     $(GREP) -Ev '(\.dsk$$)'                                                | \
+     $(GREP) -Ev '(\.ec$$)'                                                 | \
+     $(GREP) -Ev '(/empty$$)'                                               | \
+     $(GREP) -Ev '(\.env$$)'                                                | \
+     $(GREP) -Ev '(errnos\.h$$)'                                            | \
+     $(GREP) -Ev '(\.exe$$)'                                                | \
+     $(GREP) -Ev '(\.git/.)'                                                | \
+     $(GREP) -Ev '(GPATH$$)'                                                | \
+     $(GREP) -Ev '(GRTAGS$$)'                                               | \
+     $(GREP) -Ev '(GTAGS$$)'                                                | \
+     $(GREP) -Ev '(/HTML/)'                                                 | \
+     $(GREP) -Ev '(\.img$$)'                                                | \
+     $(GREP) -Ev '(\.license$$)'                                            | \
+     $(GREP) -Ev '(\.list$$)'                                               | \
+     $(GREP) -Ev '(\.lz$$)'                                                 | \
+     $(GREP) -Ev '(/mcmb$$)'                                                | \
+     $(GREP) -Ev '(\.mem$$)'                                                | \
+     $(GREP) -Ev '(nqueens$$)'                                              | \
+     $(GREP) -Ev '(nqueensx$$)'                                             | \
+     $(GREP) -Ev '(\.o$$)'                                                  | \
+     $(GREP) -Ev '(\.out$$)'                                                | \
+     $(GREP) -Ev '(\.pdf$$)'                                                | \
+     $(GREP) -Ev '(/prt2pdf$$)'                                             | \
+     $(GREP) -Ev '(/punutil$$)'                                             | \
+     $(GREP) -Ev '(\.rar$$)'                                                | \
+     $(GREP) -Ev '(\.ref$$)'                                                | \
+     $(GREP) -Ev '(\.sav$$)'                                                | \
+     $(GREP) -Ev '(segldr_boot$$)'                                          | \
+     $(GREP) -Ev '(segldr_bootx$$)'                                         | \
+     $(GREP) -Ev '(\.state$$)'                                              | \
+     $(GREP) -Ev '(\.svg$$)'                                                | \
+     $(GREP) -Ev '(sysdefs\.h$$)'                                           | \
+     $(GREP) -Ev '(/tags$$)'                                                | \
+     $(GREP) -Ev '(/TAGS$$)'                                                | \
+     $(GREP) -Ev '(\.tap$$)'                                                | \
+     $(GREP) -Ev '(\.tmp$$)'                                                | \
+     $(GREP) -Ev '(trivial$$)'                                              | \
+     $(GREP) -Ev '(\.trivial\.pl1$$)'                                       | \
+     $(GREP) -Ev '(\.txt$$)'                                                | \
+     $(GREP) -Ev '(/unifdef$$)'                                             | \
+     $(GREP) -Ev '(ver\.h$$)'                                               | \
+     $(GREP) -Ev '(\.vim$$)'                                                | \
+     $(GREP) -Ev '(/vmpctool$$)'                                            | \
+     $(GREP) -Ev '(/novdso$$)'                                              | \
+     $(GREP) -Ev '(\.yml$$)'                                                | \
+     $(GREP) -Ev '(\.yml\.in$$)'                                            | \
+     $(GREP) -Ev '(\.zip$$)'                                                | \
+     $(GREP) -Ev '(docs/hpages/)'                                           | \
+     $(GREP) -Ev '(icon/icon\.ico$$)'                                       | \
+     $(GREP) -Ev '(\.hpkg/\.PackageInfo\.tmpl$$)'                           | \
+     $(GREP) -Ev '(\.reuse/)'                                               | \
+      { $(GREP) "." && { exit 9 ; } ; } && exit 0 ) ; X=$$? ;                 \
+	  $(TEST) "$${X:?}" -ne "9" > /dev/null 2>&1
+	@$(TRUE)
+
+###############################################################################
+# Convenience target: Runs the pre-commit source code tests
+
+.PHONY: checksrc
+checksrc:                                                                     \
+    # checksrc:    # Runs the pre-commit source code tests
+	@$(PRINTF) '%s\n' "Starting pre-commit source tests."
+	@$(TEST) -x "./.githooks/pre-commit" &&                                   \
+      $(ENV) MAKE_HOOK=1 DEBUG_HOOK=1 sh "./.githooks/pre-commit" &&          \
+      $(ENV) MAKE_HOOK=1 EXTRA_HOOK=1 DEBUG_HOOK=1 sh "./.githooks/pre-commit"
+	@$(PRINTF) '%s\n' "Successfully completed pre-commit source tests."
+
+###############################################################################
+# Convenience target: Runs reuse SPDX licensing linter checks
+
+.PHONY: spdxtest spdxcheck reusetest reusecheck
+spdxtest spdxcheck reusetest reusecheck:                                      \
+    # spdxtest:    # Runs the SPDX licensing linter checks
+	@$(COMMAND) -v "reuse" > "/dev/null" 2>&1 || {                            \
+        $(PRINTF) '%s\n' "Error: reuse tool not found." ; exit 1 ; }
+	@$(PRINTF) '%s\n' "Running the reuse SPDX license linter checks ..."
+	@$(COMMAND) reuse lint 2>&1 && $(PRINTF) '%s\n' "# OK"
+
+###############################################################################
+
+# Local Variables:
+# mode: make
+# tab-width: 4
+# End:

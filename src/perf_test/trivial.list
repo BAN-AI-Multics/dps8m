@@ -1,0 +1,60 @@
+COMPILATION LISTING OF SEGMENT trivial
+          Compiled by: Multics PL/I Compiler, Release 33f, of February 11, 2017
+          Compiled at: Installation and location
+          Compiled on: 08/14/21  0937.7 pst Sat
+              Options: optimize list
+
+        1 trivial: proc;
+        2   return;
+        3 end trivial;
+          SOURCE FILES USED IN THIS COMPILATION.
+
+LINE      NUMBER  DATE MODIFIED     NAME                              PATHNAME
+             0    08/14/21  0937.7  trivial.pl1                       >user_dir_dir>SysAdmin>Repair>trivial.pl1
+          NAMES DECLARED IN THIS COMPILATION.
+
+IDENTIFIER               OFFSET    LOC STORAGE CLASS   DATA TYPE                ATTRIBUTES AND REFERENCES
+                                                                                (* indicates a set context)
+
+THERE WERE NO NAMES DECLARED BY DECLARE STATEMENT.
+
+NAME DECLARED BY EXPLICIT CONTEXT.
+trivial                         000001 constant        entry                    external dcl 1
+
+THERE WERE NO NAMES DECLARED BY CONTEXT OR IMPLICATION.
+
+STORAGE REQUIREMENTS FOR THIS PROGRAM.
+
+          Object    Text      Link      Symbol    Defs      Static
+Start          0       0        32          42       7          42
+Length       204       7        10         125      23           0
+
+BLOCK NAME                   STACK SIZE     TYPE            WHY NONQUICK/WHO SHARES STACK FRAME
+trivial                              64 external procedure  is an external procedure.
+
+THE FOLLOWING EXTERNAL OPERATORS ARE USED BY THIS PROGRAM.
+return_mac          ext_entry
+
+NO EXTERNAL ENTRIES ARE CALLED BY THIS PROGRAM.
+
+NO EXTERNAL VARIABLES ARE USED BY THIS PROGRAM.
+
+
+BEGIN PROCEDURE trivial
+ENTRY TO trivial                                            STATEMENT 1 ON LINE 1
+trivial: proc;
+
+000000  da     000017200000
+000001  aa   000100 6270 00   eax7      64
+000002  aa  7 00034 3521 20   epp2      pr7|28,*
+000003  aa  2 01045 2721 00   tsp2      pr2|549             ext_entry
+000004  aa     000000000000
+000005  aa     000000000000
+                                                            STATEMENT 1 ON LINE 2
+  return;
+
+000006  aa  0 00631 7101 00   tra       pr0|409             return_mac
+                                                            STATEMENT 1 ON LINE 3
+end trivial;
+
+  END PROCEDURE trivial
