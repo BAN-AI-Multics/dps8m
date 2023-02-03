@@ -200,8 +200,17 @@
 * The simulator is distributed as an [**easy-to-build**](https://dps8m.gitlab.io/dps8m/Documentation/Source_Compilation) source code [**distribution**](https://dps8m.gitlab.io/dps8m/Releases) (buildable simply via '**`make`**' on most systems) or as ready-to-run [**pre-compiled binaries**](https://dps8m.gitlab.io/dps8m/Releases) for several popular platforms.
 
 * **DPS8M** development is hosted courtesy of [**GitLab**](https://gitlab.com/dps8m/dps8m), providing [version control](https://gitlab.com/dps8m/dps8m), [issue tracking](https://gitlab.com/dps8m/dps8m/-/issues), and [CI/CD services](https://gitlab.com/dps8m/dps8m/-/pipelines).
+[]()
 
-* Static application security testing by [**PVS-Studio**](https://pvs-studio.com/en/pvs-studio/?utm_source=github&utm_medium=organic&utm_campaign=open_source), a static analysis tool for code quality, security, and safety.
+#### Security
+
+* Static application security testing by:
+  * [**PVS-Studio**](https://pvs-studio.com/en/pvs-studio/?utm_source=github&utm_medium=organic&utm_campaign=open_source) - A static analysis tool for code quality, security, and safety.
+  * [**Coverity® Scan**](https://scan.coverity.com/) - Find and fix defects in Java, C/C++, C#, JavaScript, Ruby, or Python code.
+  * [**Oracle Developer Studio**](https://www.oracle.com/application-development/developerstudio/) - Performance, security, and thread analysis tools to help write higher quality code.
+  * [**Cppcheck**](https://cppcheck.sourceforge.io/) - A static analysis tool for C/C++ code.
+  * [**Clang Static Analyzer**](https://clang-analyzer.llvm.org/) - A source code analysis tool that finds bugs in C, C++, and Objective-C programs.
+  * [**Flawfinder**](https://dwheeler.com/flawfinder/) - Examine C/C++ source code for possible security weaknesses.
 
 <!-- pagebreak -->
 

@@ -264,6 +264,15 @@ clsanalz:                                                                     \
       $(ENV) sh "./src/ci-kit/scan-build.sh"
 
 ###############################################################################
+# Convenience target: Run PVS-Studio Analyzer & save output
+
+.PHONY: pvs-scan
+pvs-scan:                                                                     \
+    # pvs-scan:    # Run PVS-Studio Analyzer & save output
+	+@$(TEST) -x "./src/ci-kit/pvs-studio.sh" &&                              \
+      $(ENV) sh "./src/ci-kit/pvs-studio.sh"
+
+###############################################################################
 # Convenience target: scspell check scspell-id tagged files
 
 .PHONY: scspell

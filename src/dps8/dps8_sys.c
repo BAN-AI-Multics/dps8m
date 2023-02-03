@@ -37,22 +37,13 @@
 # ifndef __MINGW32__
 #  ifndef CROSS_MINGW64
 #   ifndef CROSS_MINGW32
-#    ifndef __OpenBSD__
-#     ifndef __HAIKU__
-#      ifndef __ANDROID__
-#       ifndef __sh__
-#        ifndef __serenity__
-#         include <wordexp.h>
-#        endif /* ifndef __serenity__ */
-#       endif /* ifndef __sh__ */
-#      endif /* ifndef __ANDROID__ */
-#     endif /* ifndef __HAIKU__ */
-#    endif /* ifndef __OpenBSD__ */
 #    include <signal.h>
 #   endif /* ifndef CROSS_MINGW32 */
 #  endif /* ifndef CROSS_MINGW64 */
 # endif /* ifndef __MINGW32__ */
 #endif /* ifndef __MINGW64__ */
+#include <time.h>
+#include <stdint.h>
 #include <unistd.h>
 #include <ctype.h>
 
@@ -2644,7 +2635,7 @@ void list_source (char * compname, word18 offset, uint dflag)
                           (char *) & linenos[4], (uint *) & loc[4],
                           (char *) & linenos[5], (uint *) & loc[5],
                           (char *) & linenos[6], (uint *) & loc[6]);
-                        if (! (cnt == 2 || cnt == 4 || cnt == 6 ||
+                        if (! (cnt == 2 || cnt == 4  || cnt == 6  ||
                                cnt == 8 || cnt == 10 || cnt == 12 ||
                                cnt == 14))
                           break; // end of table
@@ -3120,12 +3111,12 @@ static t_stat lookup_system_book (UNUSED int32  arg, const char * buf)
       {
         strncpy (w2, buf + colon + 1, plus);
         w2[plus] = '\0';
-        strcpy (w3, buf + colon + 1 + plus + 1);
+        (void)strcpy (w3, buf + colon + 1 + plus + 1);
       }
     else
       {
-        strcpy (w2, buf + colon + 1);
-        strcpy (w3, "");
+        (void)strcpy (w2, buf + colon + 1);
+        (void)strcpy (w3, "");
       }
     //sim_msg ("w1 <%s>\n", w1);
     //sim_msg ("w2 <%s>\n", w2);
@@ -3910,34 +3901,35 @@ static CTAB dps8_cmds[] =
 // System configuration
 //
 
-    {"DEFAULT_BASE_SYSTEM", set_default_base_system,  0, "Set configuration to defaults\n",             NULL, NULL },
+    {"DEFAULT_BASE_SYSTEM", set_default_base_system,  0, "Set configuration to defaults\n",             NULL, NULL},
 
-    {"CABLE",               sys_cable,                0, "String a cable.\n",                            NULL, NULL },
-    {"UNCABLE",             sys_cable,                1, "Unstring a cable.\n",                          NULL, NULL },
-    {"CABLE_RIPOUT",        sys_cable_ripout,         0, "Remove all cables from the configuration.\n",                       NULL, NULL },
-    {"CABLE_SHOW",          sys_cable_show,           0, "Show the current cabling configuration.\n",                               NULL, NULL },
+    {"CABLE",               sys_cable,                0, "String a cable.\n",                           NULL, NULL},
+    {"UNCABLE",             sys_cable,                1, "Unstring a cable.\n",                         NULL, NULL},
+    {"CABLE_RIPOUT",        sys_cable_ripout,         0, "Remove all cables from the configuration.\n", NULL, NULL},
+    {"CABLE_SHOW",          sys_cable_show,           0, "Show the current cabling configuration.\n",   NULL, NULL},
 
-    {"FNPSERVERPORT",       set_fnp_server_port,      0, "Set the FNP dialin TELNET port number\n",     NULL, NULL },
-    {"FNPSERVERADDRESS",    set_fnp_server_address,   0, "Set the FNP dialin server binding address\n", NULL, NULL },
-    {"FNPSERVER3270PORT",   set_fnp_3270_server_port, 0, "Set the FNP TN3270 dialin port number\n",     NULL, NULL },
+    {"FNPSERVERPORT",       set_fnp_server_port,      0, "Set the FNP dialin TELNET port number\n",     NULL, NULL},
+    {"FNPSERVERADDRESS",    set_fnp_server_address,   0, "Set the FNP dialin server binding address\n", NULL, NULL},
+    {"FNPSERVER3270PORT",   set_fnp_3270_server_port, 0, "Set the FNP TN3270 dialin port number\n",     NULL, NULL},
 
 //
 // System control
 //
 
-    {"SKIPBOOT",  boot_skip,                     0, "Skip forward on boot tape\n",                        NULL, NULL },
-    {"FNPSTART",  fnp_start,                     0, "Directs the simulator to immediately start listening for FNP connections.\n",            NULL, NULL },
-    {"MOUNT",     mount_tape,                    0, "Mount tape image and signal Multics\n",              NULL, NULL },
-    {"LOAD",      load_media,                    1, "Mount disk or tape image and signal Multics\n",      NULL, NULL },
-    {"UNLOAD",    load_media,                    0, "Unmount disk or tape image and signal Multics\n",    NULL, NULL },
-    {"READY",     ready_media,                   0, "Signal Multics that media is ready\n",               NULL, NULL },
-    {"REWIND",    rewind_media,                  0, "Rewind tape\n",                                      NULL, NULL },
-    {"XF",        do_execute_fault,              0, "Execute fault: Press the execute fault button\n",    NULL, NULL },
-    {"RESTART",   do_restart,                    0, "Execute fault: Press the execute fault button\n",    NULL, NULL },
-    {"POLL",      set_sys_polling_interval,      0, "Set polling interval (in milliseconds)\n",           NULL, NULL },
-    {"SLOWPOLL",  set_sys_slow_polling_interval, 0, "Set slow polling interval (in polling intervals).\n", NULL, NULL },
-    {"CHECKPOLL", set_sys_poll_check_rate,       0, "Set polling check rate (in polling intervals).\n",    NULL, NULL },
-    {"BURST",     burst_printer,                 0, "Burst process output from printer.\n",                NULL, NULL },
+    {"SKIPBOOT",  boot_skip,                     0, "Skip forward on boot tape\n",                                    NULL, NULL},
+    {"FNPSTART",  fnp_start,                     0, "Directs the simulator to immediately start listening for FNP connections.\n",
+                                                                                                                      NULL, NULL},
+    {"MOUNT",     mount_tape,                    0, "Mount tape image and signal Multics\n",                          NULL, NULL},
+    {"LOAD",      load_media,                    1, "Mount disk or tape image and signal Multics\n",                  NULL, NULL},
+    {"UNLOAD",    load_media,                    0, "Unmount disk or tape image and signal Multics\n",                NULL, NULL},
+    {"READY",     ready_media,                   0, "Signal Multics that media is ready\n",                           NULL, NULL},
+    {"REWIND",    rewind_media,                  0, "Rewind tape\n",                                                  NULL, NULL},
+    {"XF",        do_execute_fault,              0, "Execute fault: Press the execute fault button\n",                NULL, NULL},
+    {"RESTART",   do_restart,                    0, "Execute fault: Press the execute fault button\n",                NULL, NULL},
+    {"POLL",      set_sys_polling_interval,      0, "Set polling interval (in milliseconds)\n",                       NULL, NULL},
+    {"SLOWPOLL",  set_sys_slow_polling_interval, 0, "Set slow polling interval (in polling intervals).\n",            NULL, NULL},
+    {"CHECKPOLL", set_sys_poll_check_rate,       0, "Set polling check rate (in polling intervals).\n",               NULL, NULL},
+    {"BURST",     burst_printer,                 0, "Burst process output from printer.\n",                           NULL, NULL},
 
 //
 // Debugging
@@ -4030,16 +4022,16 @@ static CTAB dps8_cmds[] =
 //
 
 # if YIELD
-    {"CLEAR_YIELD",   clear_yield,         1, "Clear yield data points\n",          NULL, NULL},
-    {"YIELD",         yield,               1, "Define yield data point\n",          NULL, NULL},
+    {"CLEAR_YIELD",   clear_yield,         1, "Clear yield data points\n",            NULL, NULL},
+    {"YIELD",         yield,               1, "Define yield data point\n",            NULL, NULL},
 # endif
 
 //
 // Hacks
 //
 
-    {"LUF",           set_luf,             1, "Enable normal LUF handling\n",       NULL, NULL},
-    {"NOLUF",         set_luf,             0, "Disable normal LUF handling\n",      NULL, NULL},
+    {"LUF",           set_luf,             1, "Enable normal LUF handling\n",         NULL, NULL},
+    {"NOLUF",         set_luf,             0, "Disable normal LUF handling\n",        NULL, NULL},
 
 //
 // Misc.
@@ -4070,63 +4062,63 @@ static void usr1_signal_handler (UNUSED int sig)
 # endif /* ifndef __MINGW64__ */
 
 static struct symbol_s symbols [] = {
-    { "commit_id",              SYM_STATE_OFFSET,  SYM_STRING,    offsetof (struct system_state_s, commit_id) },
-    { "M[]",                    SYM_STATE_OFFSET,  SYM_ARRAY,     offsetof (struct system_state_s, M) },
+    { "commit_id",              SYM_STATE_OFFSET,  SYM_STRING,    offsetof (struct system_state_s, commit_id)   },
+    { "M[]",                    SYM_STATE_OFFSET,  SYM_ARRAY,     offsetof (struct system_state_s, M)           },
     { "sizeof(*M)",             SYM_STRUCT_SZ,     SYM_SZ,        sizeof (word36) },
 
-    { "cpus[]",                 SYM_STATE_OFFSET,  SYM_ARRAY,     offsetof (struct system_state_s, cpus) },
+    { "cpus[]",                 SYM_STATE_OFFSET,  SYM_ARRAY,     offsetof (struct system_state_s, cpus)        },
     { "sizeof(*cpus)",          SYM_STRUCT_SZ,     SYM_SZ,        sizeof (cpu_state_t) },
 
-    { "cpus[].PPR",             SYM_STRUCT_OFFSET, SYM_PTR,       offsetof (cpu_state_t,           PPR) },
-    { "cpus[].PPR.PRR",         SYM_STRUCT_OFFSET, SYM_UINT8_3,   offsetof (struct ppr_s,          PRR) },
-    { "cpus[].PPR.PSR",         SYM_STRUCT_OFFSET, SYM_UINT16_15, offsetof (struct ppr_s,          PSR) },
-    { "cpus[].PPR.P",           SYM_STRUCT_OFFSET, SYM_UINT8_1,   offsetof (struct ppr_s,          P) },
-    { "cpus[].PPR.IC",          SYM_STRUCT_OFFSET, SYM_UINT32_18, offsetof (struct ppr_s,          IC) },
+    { "cpus[].PPR",             SYM_STRUCT_OFFSET, SYM_PTR,       offsetof (cpu_state_t,           PPR)         },
+    { "cpus[].PPR.PRR",         SYM_STRUCT_OFFSET, SYM_UINT8_3,   offsetof (struct ppr_s,          PRR)         },
+    { "cpus[].PPR.PSR",         SYM_STRUCT_OFFSET, SYM_UINT16_15, offsetof (struct ppr_s,          PSR)         },
+    { "cpus[].PPR.P",           SYM_STRUCT_OFFSET, SYM_UINT8_1,   offsetof (struct ppr_s,          P)           },
+    { "cpus[].PPR.IC",          SYM_STRUCT_OFFSET, SYM_UINT32_18, offsetof (struct ppr_s,          IC)          },
 
-    { "cpus[].cu",              SYM_STRUCT_OFFSET, SYM_PTR,       offsetof (cpu_state_t,           cu) },
-    { "cpus[].cu.IWB",          SYM_STRUCT_OFFSET, SYM_UINT64_36, offsetof (ctl_unit_data_t,       IWB) },
-    { "cpus[].cu.IR",           SYM_STRUCT_OFFSET, SYM_UINT32_18, offsetof (ctl_unit_data_t,       IR) },
+    { "cpus[].cu",              SYM_STRUCT_OFFSET, SYM_PTR,       offsetof (cpu_state_t,           cu)          },
+    { "cpus[].cu.IWB",          SYM_STRUCT_OFFSET, SYM_UINT64_36, offsetof (ctl_unit_data_t,       IWB)         },
+    { "cpus[].cu.IR",           SYM_STRUCT_OFFSET, SYM_UINT32_18, offsetof (ctl_unit_data_t,       IR)          },
 
-    { "cpus[].rA",              SYM_STRUCT_OFFSET, SYM_UINT64_36, offsetof (cpu_state_t,           rA) },
+    { "cpus[].rA",              SYM_STRUCT_OFFSET, SYM_UINT64_36, offsetof (cpu_state_t,           rA)          },
 
-    { "cpus[].rQ",              SYM_STRUCT_OFFSET, SYM_UINT64_36, offsetof (cpu_state_t,           rQ) },
+    { "cpus[].rQ",              SYM_STRUCT_OFFSET, SYM_UINT64_36, offsetof (cpu_state_t,           rQ)          },
 
-    { "cpus[].rE",              SYM_STRUCT_OFFSET, SYM_UINT64_36, offsetof (cpu_state_t,           rE) },
+    { "cpus[].rE",              SYM_STRUCT_OFFSET, SYM_UINT64_36, offsetof (cpu_state_t,           rE)          },
 
-    { "cpus[].rX[]",            SYM_STRUCT_OFFSET, SYM_ARRAY,     offsetof (cpu_state_t,           rX) },
+    { "cpus[].rX[]",            SYM_STRUCT_OFFSET, SYM_ARRAY,     offsetof (cpu_state_t,           rX)          },
     { "sizeof(*rX)",            SYM_STRUCT_SZ,     SYM_SZ,        sizeof (word18) },
     { "cpus[].rX",              SYM_STRUCT_OFFSET, SYM_UINT32_18, 0 },
 
-    { "cpus[].rTR",             SYM_STRUCT_OFFSET, SYM_UINT32_27, offsetof (cpu_state_t,           rTR) },
+    { "cpus[].rTR",             SYM_STRUCT_OFFSET, SYM_UINT32_27, offsetof (cpu_state_t,           rTR)         },
 
-    { "cpus[].rRALR",           SYM_STRUCT_OFFSET, SYM_UINT8_3,   offsetof (cpu_state_t,           rRALR) },
+    { "cpus[].rRALR",           SYM_STRUCT_OFFSET, SYM_UINT8_3,   offsetof (cpu_state_t,           rRALR)       },
 
-    { "cpus[].PAR[]",           SYM_STRUCT_OFFSET, SYM_ARRAY,     offsetof (cpu_state_t,           PAR) },
+    { "cpus[].PAR[]",           SYM_STRUCT_OFFSET, SYM_ARRAY,     offsetof (cpu_state_t,           PAR)         },
     { "sizeof(*PAR)",           SYM_STRUCT_SZ,     SYM_SZ,        sizeof (struct par_s) },
 
-    { "cpus[].PAR[].SNR",       SYM_STRUCT_OFFSET, SYM_UINT16_15, offsetof (struct par_s,          SNR) },
-    { "cpus[].PAR[].RNR",       SYM_STRUCT_OFFSET, SYM_UINT8_3,   offsetof (struct par_s,          RNR) },
-    { "cpus[].PAR[].PR_BITNO",  SYM_STRUCT_OFFSET, SYM_UINT8_6,   offsetof (struct par_s,          PR_BITNO) },
-    { "cpus[].PAR[].WORDNO",    SYM_STRUCT_OFFSET, SYM_UINT32_18, offsetof (struct par_s,          WORDNO) },
+    { "cpus[].PAR[].SNR",       SYM_STRUCT_OFFSET, SYM_UINT16_15, offsetof (struct par_s,          SNR)         },
+    { "cpus[].PAR[].RNR",       SYM_STRUCT_OFFSET, SYM_UINT8_3,   offsetof (struct par_s,          RNR)         },
+    { "cpus[].PAR[].PR_BITNO",  SYM_STRUCT_OFFSET, SYM_UINT8_6,   offsetof (struct par_s,          PR_BITNO)    },
+    { "cpus[].PAR[].WORDNO",    SYM_STRUCT_OFFSET, SYM_UINT32_18, offsetof (struct par_s,          WORDNO)      },
 
-    { "cpus[].BAR",             SYM_STRUCT_OFFSET, SYM_PTR,       offsetof (cpu_state_t,           BAR) },
-    { "cpus[].BAR.BASE",        SYM_STRUCT_OFFSET, SYM_UINT16_9,  offsetof (struct bar_s,          BASE) },
-    { "cpus[].BAR.BOUND",       SYM_STRUCT_OFFSET, SYM_UINT16_9,  offsetof (struct bar_s,          BOUND) },
+    { "cpus[].BAR",             SYM_STRUCT_OFFSET, SYM_PTR,       offsetof (cpu_state_t,           BAR)         },
+    { "cpus[].BAR.BASE",        SYM_STRUCT_OFFSET, SYM_UINT16_9,  offsetof (struct bar_s,          BASE)        },
+    { "cpus[].BAR.BOUND",       SYM_STRUCT_OFFSET, SYM_UINT16_9,  offsetof (struct bar_s,          BOUND)       },
 
-    { "cpus[].TPR",             SYM_STRUCT_OFFSET, SYM_PTR,       offsetof (cpu_state_t,           TPR) },
-    { "cpus[].TPR.TRR",         SYM_STRUCT_OFFSET, SYM_UINT8_3,   offsetof (struct tpr_s,          TRR) },
-    { "cpus[].TPR.TSR",         SYM_STRUCT_OFFSET, SYM_UINT16_15, offsetof (struct tpr_s,          TSR) },
-    { "cpus[].TPR.TBR",         SYM_STRUCT_OFFSET, SYM_UINT8_6,   offsetof (struct tpr_s,          TBR) },
-    { "cpus[].TPR.CA",          SYM_STRUCT_OFFSET, SYM_UINT32_18, offsetof (struct tpr_s,          CA) },
+    { "cpus[].TPR",             SYM_STRUCT_OFFSET, SYM_PTR,       offsetof (cpu_state_t,           TPR)         },
+    { "cpus[].TPR.TRR",         SYM_STRUCT_OFFSET, SYM_UINT8_3,   offsetof (struct tpr_s,          TRR)         },
+    { "cpus[].TPR.TSR",         SYM_STRUCT_OFFSET, SYM_UINT16_15, offsetof (struct tpr_s,          TSR)         },
+    { "cpus[].TPR.TBR",         SYM_STRUCT_OFFSET, SYM_UINT8_6,   offsetof (struct tpr_s,          TBR)         },
+    { "cpus[].TPR.CA",          SYM_STRUCT_OFFSET, SYM_UINT32_18, offsetof (struct tpr_s,          CA)          },
 
-    { "cpus[].DSBR",            SYM_STRUCT_OFFSET, SYM_PTR,       offsetof (cpu_state_t,           DSBR) },
-    { "cpus[].DSBR.ADDR",       SYM_STRUCT_OFFSET, SYM_UINT32_24, offsetof (struct dsbr_s,         ADDR) },
-    { "cpus[].DSBR.BND",        SYM_STRUCT_OFFSET, SYM_UINT16_14, offsetof (struct dsbr_s,         BND) },
-    { "cpus[].DSBR.U",          SYM_STRUCT_OFFSET, SYM_UINT8_1,   offsetof (struct dsbr_s,         U) },
-    { "cpus[].DSBR.STACK",      SYM_STRUCT_OFFSET, SYM_UINT16_12, offsetof (struct dsbr_s,         STACK) },
+    { "cpus[].DSBR",            SYM_STRUCT_OFFSET, SYM_PTR,       offsetof (cpu_state_t,           DSBR)        },
+    { "cpus[].DSBR.ADDR",       SYM_STRUCT_OFFSET, SYM_UINT32_24, offsetof (struct dsbr_s,         ADDR)        },
+    { "cpus[].DSBR.BND",        SYM_STRUCT_OFFSET, SYM_UINT16_14, offsetof (struct dsbr_s,         BND)         },
+    { "cpus[].DSBR.U",          SYM_STRUCT_OFFSET, SYM_UINT8_1,   offsetof (struct dsbr_s,         U)           },
+    { "cpus[].DSBR.STACK",      SYM_STRUCT_OFFSET, SYM_UINT16_12, offsetof (struct dsbr_s,         STACK)       },
 
     { "cpus[].faultNumber",     SYM_STRUCT_OFFSET, SYM_UINT32,    offsetof (cpu_state_t,           faultNumber) },
-# define SYMTAB_ENUM32(e) { #e,  SYM_ENUM,          SYM_UINT32,    e }
+# define SYMTAB_ENUM32(e) { #e, SYM_ENUM,          SYM_UINT32,    e }
     SYMTAB_ENUM32 (FAULT_SDF),
     SYMTAB_ENUM32 (FAULT_STR),
     SYMTAB_ENUM32 (FAULT_MME),
@@ -4169,6 +4161,25 @@ static void systabInit (void) {
   memcpy (system_state->symbolTable.symbols, symbols, sizeof (symbols)); //-V1086
 }
 #endif /* ifndef PERF_STRIP */
+
+static inline uint32_t
+hash32s(const void *buf, size_t len, uint32_t h)
+{
+  const unsigned char *p = buf;
+
+  for (size_t i = 0; i < len; i++)
+    h = h * 31 + p[i];
+
+  h ^= h >> 17;
+  h *= UINT32_C(0xed5ad4bb);
+  h ^= h >> 11;
+  h *= UINT32_C(0xac4c1b51);
+  h ^= h >> 15;
+  h *= UINT32_C(0x31848bab);
+  h ^= h >> 14;
+
+  return h;
+}
 
 // Once-only initialization; invoked via SCP
 
@@ -4307,7 +4318,44 @@ static void dps8_init (void) {
       abort();
     }
 
-  srandom((unsigned int)(getpid() ^ (long)((1LL + (long long)ts.tv_nsec) * (1LL + (long long)ts.tv_sec))));
+  uint32_t h = 0;  /* initial hash value */
+  /* LINTED E_OLD_STYLE_FUNC_DECL */
+  void *(*mallocptr)() = malloc;
+  h = hash32s(&mallocptr, sizeof(mallocptr), h);
+  void *small = malloc(1);
+  h = hash32s(&small, sizeof(small), h);
+  FREE(small);
+  void *big = malloc(1UL << 20);
+  h = hash32s(&big, sizeof(big), h);
+  FREE(big);
+  void *ptr = &ptr;
+  h = hash32s(&ptr, sizeof(ptr), h);
+  time_t t = time(0);
+  h = hash32s(&t, sizeof(t), h);
+  for (int i = 0; i < 1000; i++)
+    {
+      unsigned long counter = 0;
+      clock_t start = clock();
+      while (clock() == start)
+        {
+          counter++;
+        }
+      h = hash32s(&start, sizeof(start), h);
+      h = hash32s(&counter, sizeof(counter), h);
+    }
+  int mypid = (int)getpid();
+  h = hash32s(&mypid, sizeof(mypid), h);
+  char rnd[4];
+  FILE *f = fopen("/dev/urandom", "rb");
+  if (f)
+    {
+      if (fread(rnd, sizeof(rnd), 1, f))
+        {
+          h = hash32s(rnd, sizeof(rnd), h);
+        }
+      fclose(f);
+    }
+  srandom(h); /* seed rng */
 
   for (int i = 1; i < 21; ++i) {
     rcap = (int)random() % 2;
@@ -4448,34 +4496,34 @@ static struct pr_table
     int   n;          // number alias represents ....
   } _prtab[] =
   {
-    {"pr0",   0}, ///< pr0 - 7
-    {"pr1",   1},
-    {"pr2",   2},
-    {"pr3",   3},
-    {"pr4",   4},
-    {"pr5",   5},
-    {"pr6",   6},
-    {"pr7",   7},
+    { "pr0",   0 }, ///< pr0 - 7
+    { "pr1",   1 },
+    { "pr2",   2 },
+    { "pr3",   3 },
+    { "pr4",   4 },
+    { "pr5",   5 },
+    { "pr6",   6 },
+    { "pr7",   7 },
 
-    {"pr[0]", 0}, ///< pr0 - 7
-    {"pr[1]", 1},
-    {"pr[2]", 2},
-    {"pr[3]", 3},
-    {"pr[4]", 4},
-    {"pr[5]", 5},
-    {"pr[6]", 6},
-    {"pr[7]", 7},
+    { "pr[0]", 0 }, ///< pr0 - 7
+    { "pr[1]", 1 },
+    { "pr[2]", 2 },
+    { "pr[3]", 3 },
+    { "pr[4]", 4 },
+    { "pr[5]", 5 },
+    { "pr[6]", 6 },
+    { "pr[7]", 7 },
 
     // See: https://multicians.org/pg/mvm.html
-    {"ap",    0},
-    {"ab",    1},
-    {"bp",    2},
-    {"bb",    3},
-    {"lp",    4},
-    {"lb",    5},
-    {"sp",    6},
-    {"sb",    7},
-    {0,       0}
+    { "ap",    0 },
+    { "ab",    1 },
+    { "bp",    2 },
+    { "bb",    3 },
+    { "lp",    4 },
+    { "lb",    5 },
+    { "sp",    6 },
+    { "sb",    7 },
+    {    0,    0 }
   };
 
 static int getAddress(int segno, int offset)
@@ -4495,7 +4543,7 @@ static t_addr parse_addr (UNUSED DEVICE * dptr, const char *cptr,
     if (strchr(cptr, '|'))
     {
         static char addspec[256];
-        strcpy(addspec, cptr);
+        (void)strcpy(addspec, cptr);
 
         *strchr(addspec, '|') = ' ';
 

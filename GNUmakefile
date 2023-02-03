@@ -187,9 +187,9 @@ vmpctool: .rebuild.env                                                       \
 ##############################################################################
 # Builds novdso utility
 
-.PHONY: novdso .rebuild.env
-novdso: .rebuild.env                                                         \
-    # novdso:    # Builds the novdso vDSO bypass utility
+.PHONY: xovdso novdso .rebuild.env
+novdso xovdso: .rebuild.env                                                  \
+    # xovdso:    # Builds the novdso vDSO bypass utility
 	-@$(PRINTF) '%s\n' "BUILD: Starting novdso build" 2> /dev/null ||        \
         $(TRUE)
 	-@$(MAKE) -s -C "." ".rebuild.env";                                      \
@@ -280,6 +280,9 @@ distclean: clean                                                             \
 	@$(RMF)   "cppcheck.txt"                   || $(TRUE)
 	@$(RMF)   "./orstlint.txt"                 || $(TRUE)
 	@$(RMF)   -rf "./cppcheck"                 || $(TRUE)
+	@$(RMF)   -rf "./pvsreport"                || $(TRUE)
+	@$(RMF)   -f "./log.pvs"                   || $(TRUE)
+	@$(RMF)   -f "./compile_commands.json"     || $(TRUE)
 	@$(RMF)   "./"*".xml"                      || $(TRUE)
 	@$(RMDIR) "./.cppbdir"  > /dev/null  2>&1  || $(TRUE)
 	@$(MAKE)  -C "src/dps8" "distclean" &&                                   \

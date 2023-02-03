@@ -48,6 +48,7 @@
 
 #include <sys/param.h>
 #include <sys/stat.h>
+#include <time.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <errno.h>
@@ -162,6 +163,7 @@ static const char *libcmb_version(int _type);
  * TESTING realloc
  */
 
+#ifdef TESTING
 void *trealloc(void *ptr, size_t size);
 
 void *
@@ -204,7 +206,6 @@ trealloc(void *ptr, size_t size)
     }
 }
 
-#ifdef TESTING
 # undef realloc
 # define realloc trealloc
 #endif /* ifdef TESTING */
@@ -1514,6 +1515,25 @@ static uint32_t range_float(uint32_t start, uint32_t stop, uint32_t idx,
  * Inline functions
  */
 
+static inline uint32_t
+hash32s(const void *buf, size_t len, uint32_t h)
+{
+  const unsigned char *p = buf;
+
+  for (size_t i = 0; i < len; i++)
+    h = h * 31 + p[i];
+
+  h ^= h >> 17;
+  h *= UINT32_C(0xed5ad4bb);
+  h ^= h >> 11;
+  h *= UINT32_C(0xac4c1b51);
+  h ^= h >> 15;
+  h *= UINT32_C(0x31848bab);
+  h ^= h >> 14;
+
+  return h;
+}
+
 static inline uint8_t
 p2(uint64_t x)
 {
@@ -2319,7 +2339,42 @@ main(int argc, char *argv[])
 
           if (gettimeofday(&tv, NULL) == 0)
             {
-              srand48((long)( getpid() ^ (long)(1LL + (long long)tv.tv_usec)));
+              uint32_t h = 0;  /* initial hash value */
+              void *(*mallocptr)() = malloc;
+              h = hash32s(&mallocptr, sizeof(mallocptr), h);
+              void *small = malloc(1);
+              h = hash32s(&small, sizeof(small), h);
+              FREE(small);
+              void *big = malloc(1UL << 20);
+              h = hash32s(&big, sizeof(big), h);
+              FREE(big);
+              void *ptr = &ptr;
+              h = hash32s(&ptr, sizeof(ptr), h);
+              time_t t = time(0);
+              h = hash32s(&t, sizeof(t), h);
+              for (int i = 0; i < 1000; i++)
+                {
+                  unsigned long counter = 0;
+                  clock_t start = clock();
+                  while (clock() == start)
+                    {
+                      counter++;
+                    }
+                  h = hash32s(&start, sizeof(start), h);
+                  h = hash32s(&counter, sizeof(counter), h);
+                }
+              int mypid = (int)getpid();
+              h = hash32s(&mypid, sizeof(mypid), h);
+              char rnd[4];
+              FILE *f = fopen("/dev/urandom", "rb");
+              if (f)
+                {
+                  if (fread(rnd, sizeof(rnd), 1, f))
+                    {
+                      h = hash32s(rnd, sizeof(rnd), h);
+                    }
+                }
+              srand48((long)(h));
               config->start = cmb_rand_range(count) + 1;
             }
           else

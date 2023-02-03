@@ -85,6 +85,7 @@ sim_timer.o: sim_console.h
 sim_timer.o: sim_defs.h
 sim_timer.o: sim_fio.h
 sim_timer.o: sim_timer.h
+sim_tmxr.o: ../dps8/bsd_random.h
 sim_tmxr.o: ../dps8/dps8.h
 sim_tmxr.o: ../dps8/dps8_cpu.h
 sim_tmxr.o: ../dps8/dps8_em_consts.h

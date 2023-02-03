@@ -30,6 +30,7 @@
 #include <sys/types.h>
 #include <time.h>
 #include <sys/time.h>
+#include <stdint.h>
 #include <unistd.h>
 
 #define MAX_MKSTEMPS_TRIES 10000
@@ -53,6 +54,25 @@
 
 static char valid_file_name_chars[]
   = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+static inline uint32_t
+hash32s(const void *buf, size_t len, uint32_t h)
+{
+  const unsigned char *p = buf;
+
+  for (size_t i = 0; i < len; i++)
+    h = h * 31 + p[i];
+
+  h ^= h >> 17;
+  h *= UINT32_C(0xed5ad4bb);
+  h ^= h >> 11;
+  h *= UINT32_C(0xac4c1b51);
+  h ^= h >> 15;
+  h *= UINT32_C(0x31848bab);
+  h ^= h >> 14;
+
+  return h;
+}
 
  /*
   * This is a minimal portable replacement for the mkstemps
@@ -101,7 +121,44 @@ utfile_mkstemps(char *request_pattern, int suffix_length)
       abort();
     }
 
-  srandom((unsigned int)(getpid() ^ (long)((1LL + (long long)st1.tv_nsec) * (1LL + (long long)st1.tv_sec))));
+  uint32_t h = 0;  /* initial hash value */
+  /* LINTED E_OLD_STYLE_FUNC_DECL */
+  void *(*mallocptr)() = malloc;
+  h = hash32s(&mallocptr, sizeof(mallocptr), h);
+  void *small = malloc(1);
+  h = hash32s(&small, sizeof(small), h);
+  FREE(small);
+  void *big = malloc(1UL << 20);
+  h = hash32s(&big, sizeof(big), h);
+  FREE(big);
+  void *ptr = &ptr;
+  h = hash32s(&ptr, sizeof(ptr), h);
+  time_t t = time(0);
+  h = hash32s(&t, sizeof(t), h);
+  for (int i = 0; i < 1000; i++)
+    {
+      unsigned long counter = 0;
+      clock_t start = clock();
+      while (clock() == start)
+        {
+          counter++;
+        }
+      h = hash32s(&start, sizeof(start), h);
+      h = hash32s(&counter, sizeof(counter), h);
+    }
+  int mypid = (int)getpid();
+  h = hash32s(&mypid, sizeof(mypid), h);
+  char rnd[4];
+  FILE *f = fopen("/dev/urandom", "rb");
+  if (f)
+    {
+      if (fread(rnd, sizeof(rnd), 1, f))
+        {
+          h = hash32s(rnd, sizeof(rnd), h);
+        }
+      fclose(f);
+    }
+  srandom(h);
 
   if (( (long) pattern_length - 6 ) < (long) suffix_length)
   {
