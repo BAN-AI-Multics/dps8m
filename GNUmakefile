@@ -281,6 +281,8 @@ distclean: clean                                                             \
 	@$(RMF)   "./orstlint.txt"                 || $(TRUE)
 	@$(RMF)   -rf "./cppcheck"                 || $(TRUE)
 	@$(RMF)   -rf "./pvsreport"                || $(TRUE)
+	@$(RMF)   -rf "./cov-int"                  || $(TRUE)
+	@$(RMF)   -rf "./.coverity"                || $(TRUE)
 	@$(RMF)   -f "./log.pvs"                   || $(TRUE)
 	@$(RMF)   -f "./compile_commands.json"     || $(TRUE)
 	@$(RMF)   "./"*".xml"                      || $(TRUE)
