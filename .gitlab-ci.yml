@@ -429,6 +429,7 @@ stages:
   - ci_test
   - docs
   - nsis_installer
+  - coverity_test
   - deploy
 
 ############################################################################
@@ -3596,6 +3597,41 @@ PVS-Studio:
     paths:
       - pvsreport/*
   timeout: 60 minutes
+  interruptible: true
+
+#############################################################################
+
+Coverity:
+  image: fedora:latest
+  stage: coverity_test
+  allow_failure: true
+  when: manual
+  needs:
+    - job: Linux/x86_64, Ubuntu LTS, Clang, GCC
+    - job: Linux/x86_64, Fedora, Clang, GCC
+    - job: Option Verification Test
+  tags:
+    - Linux
+    - Docker-x64
+    - amd64
+  script:
+    - export GLCICD_JOB="CoverityScan" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
+    - *scriptDnfSetup
+    - *scriptInstallNfpm
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptExtraInfo
+    - dnf install -y wget curl xz bzip2 pkgconf gtk3 gtk3-devel || dnf install -y wget curl xz bzip2 pkgconf gtk3 gtk3-devel
+    - dnf upgrade -y || dnf upgrade -y || true
+    - ./src/ci-kit/coverity-submit.sh
+    - touch OK
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 3 days
+    paths:
+      - OK
+  timeout: 90 minutes
   interruptible: true
 
 #############################################################################

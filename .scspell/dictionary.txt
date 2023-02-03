@@ -48,6 +48,7 @@ deadcode
 defaultbasesystem
 dirname
 distclean
+dldir
 docbuild
 dockerfile
 docspdf
@@ -5665,6 +5666,7 @@ optflags
 otool
 oxlc
 pcre
+pkgconf
 pkgs
 plog
 powerpcle
@@ -8842,6 +8844,7 @@ checked
 checker
 checking
 checkout
+checkpoint
 checksum
 chemical
 chevrolet
@@ -12633,6 +12636,7 @@ subexpression
 subject
 sublicense
 submailbox
+submission
 submitted
 subnegotiate
 subnegotiation
@@ -13179,6 +13183,7 @@ updated
 updates
 updating
 upgrade
+uploading
 upon
 upper
 uppercase

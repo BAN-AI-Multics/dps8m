@@ -184,6 +184,9 @@ novdso.xml
 cppcheck.xml
 log.pvs
 pvsreport/
+.coverity/
+cov-int/
+dps8m-simulator.xz
 
 # Oracle Performance Analyzer
 src/dps8/dps8.analyze
