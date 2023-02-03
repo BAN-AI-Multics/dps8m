@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 # vim: filetype=sh:tabstop=4:ai:expandtab
 # SPDX-License-Identifier: FSFAP
-# scspell-id: 5a7e9ca5-f62c-11ec-b7cb-80ee73e9b8e7
+# scspell-id: f90d785c-a3ed-11ed-a539-80ee73e9b8e7
 
 ##############################################################################
 #
