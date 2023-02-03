@@ -326,7 +326,7 @@ DECN_OBJS = ../decNumber/decContext.o  ../decNumber/decNumber.o
 
 .PHONY: all
 all:  sysdefs.h   ver.h   unifdef   locallibs_then_dps8   prt2pdf             \
-      punutil     mcmb    vmpctool  empty                 novdso              \
+      punutil     mcmb    vmpctool  empty        xovdso   novdso              \
       $(TAGS)
 	-@$(TRUE)
 
@@ -460,8 +460,8 @@ empty:
 
 ###############################################################################
 
-.PHONY: novdso
-novdso:
+.PHONY: xovdso novdso
+xovdso novdso:
 	-@$(SETV); $(MAKE) -C "../novdso" "all"
 
 ###############################################################################
@@ -748,8 +748,9 @@ useddef.txt: compdef.out
       $(SORT) -u | $(GREP) -v -e "^__VERSION__"  -e "^__clang_version__"      \
        -e "^__GCC_HAVE_SYNC_COMPARE_AND_SWAP_." -e "BIG_ENDIAN"               \
         -e "LITTLE_ENDIAN" -e "S_ISFIFO" -e "S_IFIFO" -e "__GNUC_PREREQ"      \
-         -e "WORD_ORDER" -e "BYTE_ORDER" 2> /dev/null > "useddef.txt"' ||     \
-          $(TRUE) > /dev/null 2>&1; $(TOUCH) "./useddef.txt" > /dev/null 2>&1
+         -e "WORD_ORDER" -e "BYTE_ORDER" -e "_sun_attr"                       \
+          2> /dev/null > "useddef.txt"' ||                                    \
+           $(TRUE) > /dev/null 2>&1; $(TOUCH) "./useddef.txt" > /dev/null 2>&1
 
 ###############################################################################
 

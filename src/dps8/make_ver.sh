@@ -834,7 +834,7 @@ debug_print "Setting BUILD_TMP_VER_SPLIT"
 # shellcheck disable=SC2086
 BUILD_TMP_VER_SPLIT="$(printf '%s\n' \
     ${BUILD_TMP_VER_SPLIT_INIT:-999.999.999.999} | \
-        tr -d '[:alpha:]*'        2> /dev/null | \
+        tr -d '/[:alpha:]*'       2> /dev/null | \
             tr -s ' '             2> /dev/null | \
                 cut -d '-' -f 1-2 2> /dev/null | \
                     tr '-' '.'    2> /dev/null | \

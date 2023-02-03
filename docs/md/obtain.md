@@ -98,7 +98,6 @@ Most development takes place on branches of the [**`git` repository**](https://g
   ```sh
   git pull
   ```
-<!-- br -->
 
 #### Git mirroring
 
@@ -121,6 +120,4 @@ Users who wish to **mirror** the [**`git` repository**](https://gitlab.com/dps8m
   ```sh
   git remote update --prune
   ```
-
-<!-- br -->
 

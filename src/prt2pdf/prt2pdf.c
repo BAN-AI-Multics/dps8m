@@ -147,10 +147,10 @@ int GLOBAL_GREEN_BAR;
    PageList *n = (PageList *)malloc(sizeof(*n));
 
    if(n == NULL) {
-      fprintf(stderr,"\rERROR: Unable to allocate array for page %d.\r\n",
-              GLOBAL_NUM_PAGES + 1);
-      fprintf(stderr,"\r\n\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
-              __func__, __FILE__, __LINE__);
+      (void)fprintf(stderr,"\rERROR: Unable to allocate array for page %d.\r\n",
+                    GLOBAL_NUM_PAGES + 1);
+      (void)fprintf(stderr,"\r\n\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
+                    __func__, __FILE__, __LINE__);
       abort();
    }
    n->next             = NULL;
@@ -176,9 +176,9 @@ int GLOBAL_GREEN_BAR;
            new_xrefs = (long *)malloc(new_num_xrefs * sizeof(*new_xrefs));
 
            if(new_xrefs == NULL) {
-              fprintf(stderr, "\r\nERROR: Unable to allocate array for object %d.\r\n", id);
-              fprintf(stderr, "\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
-                      __func__, __FILE__, __LINE__);
+              (void)fprintf(stderr, "\r\nERROR: Unable to allocate array for object %d.\r\n", id);
+              (void)fprintf(stderr, "\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
+                            __func__, __FILE__, __LINE__);
               abort();
            }
 
@@ -202,9 +202,9 @@ int GLOBAL_GREEN_BAR;
         float step;
 
         if (GLOBAL_GREEN_BAR)
-          fprintf(stdout,"0.60 0.82 0.60 rg\n"); /* green */
+          (void)fprintf(stdout,"0.60 0.82 0.60 rg\n"); /* green */
         else
-          fprintf(stdout,"%f g\n",GLOBAL_GRAY_SCALE); /* gray-scale value */
+          (void)fprintf(stdout,"%f g\n",GLOBAL_GRAY_SCALE); /* gray-scale value */
         /*
         * If you want to add color,
         * R G B rg where R G B are red, green, blue components
@@ -215,7 +215,7 @@ int GLOBAL_GREEN_BAR;
         *
         * */
 
-        fprintf(stdout,"%d i\n",1); /*  */
+        (void)fprintf(stdout,"%d i\n",1); /*  */
 
         x1=GLOBAL_PAGE_MARGIN_LEFT-0.1*GLOBAL_FONT_SIZE;
         height=GLOBAL_SHADE_STEP*GLOBAL_LEAD_SIZE;
@@ -223,7 +223,7 @@ int GLOBAL_GREEN_BAR;
         width=GLOBAL_PAGE_WIDTH-GLOBAL_PAGE_MARGIN_LEFT-GLOBAL_PAGE_MARGIN_RIGHT;
         step=1.0;
         if(GLOBAL_DASHCODE[0] != '\0'){
-           fprintf(stdout, "0 w [%s] 0 d\n",GLOBAL_DASHCODE); /* dash code array plus offset */
+           (void)fprintf(stdout, "0 w [%s] 0 d\n",GLOBAL_DASHCODE); /* dash code array plus offset */
         }
          /*
          8.4.3.6       Line Dash Pattern
@@ -269,25 +269,25 @@ int GLOBAL_GREEN_BAR;
         while ( yyy1 >= (GLOBAL_PAGE_MARGIN_BOTTOM-height) ){
            if(GLOBAL_DASHCODE[0] ==  '\0'){
                 /* a shaded bar */
-                 fprintf(stdout,"%f %f %f %f re f\n",x1,yyy1,width,height);
+                 (void)fprintf(stdout,"%f %f %f %f re f\n",x1,yyy1,width,height);
                  step=2.0;
                 /*
                  * x1 yyy1 m x2 y2 l S
                  * xxx w  # line width
-                 fprintf(stdout,"0.6 0.8 0.6 RG\n %f %f m %f %f l S\n",x1,yyy1,x1+width,yyy1);
+                 (void)fprintf(stdout,"0.6 0.8 0.6 RG\n %f %f m %f %f l S\n",x1,yyy1,x1+width,yyy1);
                  */
            }else{
-                  fprintf(stdout, "%f %f m ", x1 ,yyy1);
-                  fprintf(stdout, "%f %f l s\n",x1+width,yyy1);
+                  (void)fprintf(stdout, "%f %f m ", x1 ,yyy1);
+                  (void)fprintf(stdout, "%f %f l s\n",x1+width,yyy1);
            }
            yyy1=yyy1-step*height;
         }
         if(GLOBAL_DASHCODE[0] != '\0'){
-           fprintf(stdout, "[] 0 d\n"); /* set dash pattern to solid line */
+           (void)fprintf(stdout, "[] 0 d\n"); /* set dash pattern to solid line */
         }
 
-        fprintf(stdout,"%d G\n",0); /* */
-        fprintf(stdout,"%d g\n",0); /* gray-scale value */
+        (void)fprintf(stdout,"%d G\n",0); /* */
+        (void)fprintf(stdout,"%d g\n",0); /* gray-scale value */
 
  }
 /* ============================================================================================================================== */
@@ -296,7 +296,7 @@ int GLOBAL_GREEN_BAR;
         char c;
         putchar('(');
         if(GLOBAL_LINENUMBERS != 0){
-        fprintf(stdout,"%6d ",GLOBAL_LINECOUNT);
+        (void)fprintf(stdout,"%6d ",GLOBAL_LINECOUNT);
         }
               while((c = *buffer++) != '\0') {
                     switch(c+GLOBAL_ADD) {
@@ -313,9 +313,9 @@ int GLOBAL_GREEN_BAR;
  void printme(float xvalue,float yvalue,char *string){
         //float charwidth;
         //float start;
-        fprintf(stdout,"BT /F2 %f Tf %f %f Td",GLOBAL_TITLE_SIZE,xvalue,yvalue);
+        (void)fprintf(stdout,"BT /F2 %f Tf %f %f Td",GLOBAL_TITLE_SIZE,xvalue,yvalue);
         printstring(string);
-        fprintf(stdout," Tj ET\n");
+        (void)fprintf(stdout," Tj ET\n");
  }
 /* ============================================================================================================================== */
  void printme_top(void){
@@ -328,17 +328,17 @@ int GLOBAL_GREEN_BAR;
            float yvalue;
            strncpy(IMPACT_TOP,varname,255);
            charwidth=text_size*0.60; /* assuming fixed-space font Courier-Bold */
-           fprintf(stdout,"1.0 0.0 0.0 rg\n"); /* gray-scale value */
+           (void)fprintf(stdout,"1.0 0.0 0.0 rg\n"); /* gray-scale value */
            yvalue=GLOBAL_PAGE_DEPTH-text_size;
            xvalue=GLOBAL_PAGE_MARGIN_LEFT
               +((GLOBAL_PAGE_WIDTH-GLOBAL_PAGE_MARGIN_LEFT-GLOBAL_PAGE_MARGIN_RIGHT)/2.0)
               -(strlen(IMPACT_TOP)*charwidth/2.0);
 
-           fprintf(stdout,"BT /F2 %f Tf %f %f Td",text_size,xvalue,yvalue);
+           (void)fprintf(stdout,"BT /F2 %f Tf %f %f Td",text_size,xvalue,yvalue);
            printstring(IMPACT_TOP);
-           fprintf(stdout," Tj ET\n");
+           (void)fprintf(stdout," Tj ET\n");
 
-           fprintf(stdout,"0.0 0.0 0.0 rg\n"); /* gray-scale value */
+           (void)fprintf(stdout,"0.0 0.0 0.0 rg\n"); /* gray-scale value */
         }
  }
 /* ============================================================================================================================== */
@@ -438,7 +438,7 @@ void do_text (void)
         c = ic;
         if (c == '\r') // print the buffer, do not advance
           {
-            fprintf (stdout, "0 %f Td\n", GLOBAL_LEAD_SIZE);
+            (void)fprintf (stdout, "0 %f Td\n", GLOBAL_LEAD_SIZE);
             increment_ypos (1.0);
             goto printline;
           }
@@ -493,8 +493,8 @@ void dopages(void){
            file's contents as text or as binary.
         */
 
-        fprintf(stdout,"%%%c%c%c%c\n",128,129,130,131);
-        fprintf(stdout,"%% PDF: Adobe Portable Document Format\n");
+        (void)fprintf(stdout,"%%%c%c%c%c\n",128,129,130,131);
+        (void)fprintf(stdout,"%% PDF: Adobe Portable Document Format\n");
 
         GLOBAL_LEAD_SIZE=(GLOBAL_PAGE_DEPTH-GLOBAL_PAGE_MARGIN_TOP-GLOBAL_PAGE_MARGIN_BOTTOM)/GLOBAL_LINES_PER_PAGE;
         GLOBAL_FONT_SIZE=GLOBAL_LEAD_SIZE;
@@ -550,146 +550,146 @@ void dopages(void){
 void showhelp(int itype){
 switch (itype){
 case 1:
-   fprintf(stderr," +------------------------------------------------------------------------------+\n");
-   fprintf(stderr," |NAME:                                                                         |\n");
-   fprintf(stderr," |prt2pdf: A filter to convert text files with ASA carriage control to a PDF.   |\n");
-   fprintf(stderr," +------------------------------------------------------------------------------+\n");
-   fprintf(stderr," |SYNOPSIS:                                                                     |\n");
-   fprintf(stderr," |   prt2pdf(1) reads input from standard input. The first character            |\n");
-   fprintf(stderr," |   of each line is interpreted as a control character. Lines beginning with   |\n");
-   fprintf(stderr," |   any character other than those listed in the ASA carriage-control          |\n");
-   fprintf(stderr," |   characters table are interpreted as if they began with a blank,            |\n");
-   fprintf(stderr," |   and an appropriate diagnostic appears on standard error. The first         |\n");
-   fprintf(stderr," |   character of each line is not printed.                                     |\n");
-   fprintf(stderr," |     +------------+-----------------------------------------------+           |\n");
-   fprintf(stderr," |     | Character  |                                               |           |\n");
-   fprintf(stderr," |     +------------+-----------------------------------------------+           |\n");
-   fprintf(stderr," |     | +          | Do not advance; overstrike previous line.     |           |\n");
-   fprintf(stderr," |     | blank      | Advance one line.                             |           |\n");
-   fprintf(stderr," |     | null lines | Treated as if they started with a blank       |           |\n");
-   fprintf(stderr," |     | 0          | Advance two lines.                            |           |\n");
-   fprintf(stderr," |     | -          | Advance three lines (IBM extension).          |           |\n");
-   fprintf(stderr," |     | 1          | Advance to top of next page.                  |           |\n");
-   fprintf(stderr," |     | all others | Discarded (except for extensions listed below)|           |\n");
-   fprintf(stderr," |     +------------+-----------------------------------------------+           |\n");
-   fprintf(stderr," | Extensions                                                                   |\n");
-   fprintf(stderr," |    H  Advance one-half line.                                                 |\n");
-   fprintf(stderr," |    R  Do not advance; overstrike previous line. Use red text color           |\n");
-   fprintf(stderr," |    G  Do not advance; overstrike previous line. Use green text color         |\n");
-   fprintf(stderr," |    B  Do not advance; overstrike previous line. Use blue text color          |\n");
-   fprintf(stderr," |    r  Advance one line. Use red text color                                   |\n");
-   fprintf(stderr," |    g  Advance one line. Use green text color                                 |\n");
-   fprintf(stderr," |    b  Advance one line. Use blue text color                                  |\n");
-   fprintf(stderr," |    ^  Overprint but add 127 to the ADE value of the character                |\n");
-   fprintf(stderr," |       (ie., use ASCII extended character set)                                |\n");
-   fprintf(stderr," +------------------------------------------------------------------------------+\n");
-   fprintf(stderr," |PRINTABLE PAGE AREA                                                           |\n");
-   fprintf(stderr," !  The page size may be specified using -H for height, -W for width, and -u    |\n");
-   fprintf(stderr," !  to indicate the points per unit (72 makes H and W in inches,                |\n");
-   fprintf(stderr," !  1 is used when units are in font points). For example:                      |\n");
-   fprintf(stderr," |    -u 72 -H 8.5 -W 11   # page Height and Width in inches                    |\n");
-   fprintf(stderr," |    -u 72 -B 0.5 -L 0.5 -R 0.5 -T 0.5 # margins (Top, Bottom, Left, Right)    |\n");
-   fprintf(stderr," |  common media sizes with -u 1:                                               |\n");
-   fprintf(stderr," |    +-------------------+------+------------+                                 |\n");
-   fprintf(stderr," |    | name              |  W   |        H   |                                 |\n");
-   fprintf(stderr," |    +-------------------+------+------------+                                 |\n");
-   fprintf(stderr," |    | Letterdj (11x8.5) | 792  |       612  | (LandScape)                     |\n");
-   fprintf(stderr," |    | A4dj              | 842  |       595  |                                 |\n");
-   fprintf(stderr," |    | Letter (8.5x11)   | 612  |       792  | (Portrait)                      |\n");
-   fprintf(stderr," |    | Legal             | 612  |       1008 |                                 |\n");
-   fprintf(stderr," |    | A5                | 420  |       595  |                                 |\n");
-   fprintf(stderr," |    | A4                | 595  |       842  |                                 |\n");
-   fprintf(stderr," |    | A3                | 842  |       1190 |                                 |\n");
-   fprintf(stderr," |    +-------------------+------+------------+                                 |\n");
-   fprintf(stderr," +------------------------------------------------------------------------------+\n");
-   fprintf(stderr," |SHADING                                                                       |\n");
-   fprintf(stderr," |    -g 0.800781     # gray-scale value  for shaded bars ( 0 < g 1 )           |\n");
-   fprintf(stderr," |                    # 0 is black, 1 is white.                                 |\n");
-   fprintf(stderr," |    -i 2            # repeat shade pattern every N lines                      |\n");
-   fprintf(stderr," |    -d ' '          # dashcode pattern (seems buggy)                          |\n");
-   fprintf(stderr," |    -G              # green bar                                               |\n");
-   fprintf(stderr," +------------------------------------------------------------------------------+\n");
-   fprintf(stderr," |MARGIN LABELS                                                                 |\n");
-   fprintf(stderr," |   -s ''            # top middle page label.                                  |\n");
-   fprintf(stderr," |   -t ''            # top left page label.                                    |\n");
-   fprintf(stderr," |   -P               # add page numbers to right corners                       |\n");
-   fprintf(stderr," +------------------------------------------------------------------------------+\n");
-   fprintf(stderr," |TEXT OPTIONS                                                                  |\n");
-   fprintf(stderr," |   -l 60            # lines per page                                          |\n");
-   fprintf(stderr," |   -f Courier       # font names: Courier, Courier-Bold,Courier-Oblique       |\n");
-   fprintf(stderr," |                      Helvetica, Symbol, Times-Bold, Helvetica-Bold,          |\n");
-   fprintf(stderr," |                      ZapfDingbats, Times-Italic, Helvetica-Oblique,          |\n");
-   fprintf(stderr," |                      Times-BoldItalic, Helvetica-BoldOblique,                |\n");
-   fprintf(stderr," |                      Times-Roman, Courier-BoldOblique                        |\n");
-   fprintf(stderr," +------------------------------------------------------------------------------+\n");
-   fprintf(stderr," |   -S 0             # right shift 1 for non-ASA files                         |\n");
-   fprintf(stderr," |   -N               # add line numbers                                        |\n");
-   fprintf(stderr," +------------------------------------------------------------------------------+\n");
-   fprintf(stderr," |   -v 2             # version number                                          |\n");
-   fprintf(stderr," |   -h               # display this help                                       |\n");
-   fprintf(stderr," +------------------------------------------------------------------------------+\n");
-   fprintf(stderr," |ENVIRONMENT VARIABLES:                                                        |\n");
-   fprintf(stderr," | $IMPACT_TOP Will be printed in large red letters across the page top.        |\n");
-   fprintf(stderr," | $IMPACT_GRAY sets the default gray-scale value, same as the -g switch.       |\n");
-   fprintf(stderr," +------------------------------------------------------------------------------+\n");
-   fprintf(stderr," |EXAMPLES:                                                                     |\n");
-   fprintf(stderr," !-----------------                                                             |\n");
-   fprintf(stderr," | # create non-ASA file in portrait mode with a dashed line under every line   |\n");
-   fprintf(stderr," | prt2pdf -S 1 -W 8.5 -H 11 -i 1 -d '2 4 1' -T 1 -B .75 < INFILE > junko.pdf   |\n");
-   fprintf(stderr," !-----------------                                                             |\n");
-   fprintf(stderr," | # banner on top                                                              |\n");
-   fprintf(stderr," | env IMPACT_GRAY=1 IMPACT_TOP=CONFIDENTIAL prt2pdf < test.txt > test.pdf      |\n");
-   fprintf(stderr," !-----------------                                                             |\n");
-   fprintf(stderr," | # 132 landscape                                                              |\n");
-   fprintf(stderr," |  prt2pdf -s LANDSCAPE <prt2pdf.c >junko.A.pdf                                |\n");
-   fprintf(stderr," !-----------------                                                             |\n");
-   fprintf(stderr," | # 132 landscape with line numbers with dashed lines                          |\n");
-   fprintf(stderr," |  prt2pdf -s 'LANDSCAPE LINE NUMBERS' -d '3 1 2' \\                            |\n");
-   fprintf(stderr," |  -N -T .9 <prt2pdf.c >test.pdf                                               |\n");
-   fprintf(stderr," !-----------------                                                             |\n");
-   fprintf(stderr," | # portrait 80 non-ASA file with dashed lines                                 |\n");
-   fprintf(stderr," |  prt2pdf -s PORTRAIT -S 1 -W 8.5 -H 11 -i 1 -d '2 4 1' \\                     |\n");
-   fprintf(stderr," |  -T 1 -B .75 < prt2pdf.c > test.pdf                                          |\n");
-   fprintf(stderr," !-----------------                                                             |\n");
-   fprintf(stderr," | # portrait 80 with line numbers , non-ASA                                    |\n");
-   fprintf(stderr," |  prt2pdf -s 'PORTRAIT LINE NUMBERS' -l 66 -S 1 -W 8.5 -H 11 \\                |\n");
-   fprintf(stderr," |  -i 1 -T 1 -B .75 -N < prt2pdf.c > test.pdf                                  |\n");
-   fprintf(stderr," !-----------------                                                             |\n");
-   fprintf(stderr," | # titling                                                                    |\n");
-   fprintf(stderr," |  prt2pdf -d '1 0 1' -t \"$USER\" -i 1 -P -N -T 1 \\                             |\n");
-   fprintf(stderr," |  -s \"prt2pdf.c\" <prt2pdf.c >test.pdf                                         |\n");
-   fprintf(stderr," +------------------------------------------------------------------------------+\n");
+   (void)fprintf(stderr," +------------------------------------------------------------------------------+\n");
+   (void)fprintf(stderr," |NAME:                                                                         |\n");
+   (void)fprintf(stderr," |prt2pdf: A filter to convert text files with ASA carriage control to a PDF.   |\n");
+   (void)fprintf(stderr," +------------------------------------------------------------------------------+\n");
+   (void)fprintf(stderr," |SYNOPSIS:                                                                     |\n");
+   (void)fprintf(stderr," |   prt2pdf(1) reads input from standard input. The first character            |\n");
+   (void)fprintf(stderr," |   of each line is interpreted as a control character. Lines beginning with   |\n");
+   (void)fprintf(stderr," |   any character other than those listed in the ASA carriage-control          |\n");
+   (void)fprintf(stderr," |   characters table are interpreted as if they began with a blank,            |\n");
+   (void)fprintf(stderr," |   and an appropriate diagnostic appears on standard error. The first         |\n");
+   (void)fprintf(stderr," |   character of each line is not printed.                                     |\n");
+   (void)fprintf(stderr," |     +------------+-----------------------------------------------+           |\n");
+   (void)fprintf(stderr," |     | Character  |                                               |           |\n");
+   (void)fprintf(stderr," |     +------------+-----------------------------------------------+           |\n");
+   (void)fprintf(stderr," |     | +          | Do not advance; overstrike previous line.     |           |\n");
+   (void)fprintf(stderr," |     | blank      | Advance one line.                             |           |\n");
+   (void)fprintf(stderr," |     | null lines | Treated as if they started with a blank       |           |\n");
+   (void)fprintf(stderr," |     | 0          | Advance two lines.                            |           |\n");
+   (void)fprintf(stderr," |     | -          | Advance three lines (IBM extension).          |           |\n");
+   (void)fprintf(stderr," |     | 1          | Advance to top of next page.                  |           |\n");
+   (void)fprintf(stderr," |     | all others | Discarded (except for extensions listed below)|           |\n");
+   (void)fprintf(stderr," |     +------------+-----------------------------------------------+           |\n");
+   (void)fprintf(stderr," | Extensions                                                                   |\n");
+   (void)fprintf(stderr," |    H  Advance one-half line.                                                 |\n");
+   (void)fprintf(stderr," |    R  Do not advance; overstrike previous line. Use red text color           |\n");
+   (void)fprintf(stderr," |    G  Do not advance; overstrike previous line. Use green text color         |\n");
+   (void)fprintf(stderr," |    B  Do not advance; overstrike previous line. Use blue text color          |\n");
+   (void)fprintf(stderr," |    r  Advance one line. Use red text color                                   |\n");
+   (void)fprintf(stderr," |    g  Advance one line. Use green text color                                 |\n");
+   (void)fprintf(stderr," |    b  Advance one line. Use blue text color                                  |\n");
+   (void)fprintf(stderr," |    ^  Overprint but add 127 to the ADE value of the character                |\n");
+   (void)fprintf(stderr," |       (ie., use ASCII extended character set)                                |\n");
+   (void)fprintf(stderr," +------------------------------------------------------------------------------+\n");
+   (void)fprintf(stderr," |PRINTABLE PAGE AREA                                                           |\n");
+   (void)fprintf(stderr," !  The page size may be specified using -H for height, -W for width, and -u    |\n");
+   (void)fprintf(stderr," !  to indicate the points per unit (72 makes H and W in inches,                |\n");
+   (void)fprintf(stderr," !  1 is used when units are in font points). For example:                      |\n");
+   (void)fprintf(stderr," |    -u 72 -H 8.5 -W 11   # page Height and Width in inches                    |\n");
+   (void)fprintf(stderr," |    -u 72 -B 0.5 -L 0.5 -R 0.5 -T 0.5 # margins (Top, Bottom, Left, Right)    |\n");
+   (void)fprintf(stderr," |  common media sizes with -u 1:                                               |\n");
+   (void)fprintf(stderr," |    +-------------------+------+------------+                                 |\n");
+   (void)fprintf(stderr," |    | name              |  W   |        H   |                                 |\n");
+   (void)fprintf(stderr," |    +-------------------+------+------------+                                 |\n");
+   (void)fprintf(stderr," |    | Letterdj (11x8.5) | 792  |       612  | (LandScape)                     |\n");
+   (void)fprintf(stderr," |    | A4dj              | 842  |       595  |                                 |\n");
+   (void)fprintf(stderr," |    | Letter (8.5x11)   | 612  |       792  | (Portrait)                      |\n");
+   (void)fprintf(stderr," |    | Legal             | 612  |       1008 |                                 |\n");
+   (void)fprintf(stderr," |    | A5                | 420  |       595  |                                 |\n");
+   (void)fprintf(stderr," |    | A4                | 595  |       842  |                                 |\n");
+   (void)fprintf(stderr," |    | A3                | 842  |       1190 |                                 |\n");
+   (void)fprintf(stderr," |    +-------------------+------+------------+                                 |\n");
+   (void)fprintf(stderr," +------------------------------------------------------------------------------+\n");
+   (void)fprintf(stderr," |SHADING                                                                       |\n");
+   (void)fprintf(stderr," |    -g 0.800781     # gray-scale value  for shaded bars ( 0 < g 1 )           |\n");
+   (void)fprintf(stderr," |                    # 0 is black, 1 is white.                                 |\n");
+   (void)fprintf(stderr," |    -i 2            # repeat shade pattern every N lines                      |\n");
+   (void)fprintf(stderr," |    -d ' '          # dashcode pattern (seems buggy)                          |\n");
+   (void)fprintf(stderr," |    -G              # green bar                                               |\n");
+   (void)fprintf(stderr," +------------------------------------------------------------------------------+\n");
+   (void)fprintf(stderr," |MARGIN LABELS                                                                 |\n");
+   (void)fprintf(stderr," |   -s ''            # top middle page label.                                  |\n");
+   (void)fprintf(stderr," |   -t ''            # top left page label.                                    |\n");
+   (void)fprintf(stderr," |   -P               # add page numbers to right corners                       |\n");
+   (void)fprintf(stderr," +------------------------------------------------------------------------------+\n");
+   (void)fprintf(stderr," |TEXT OPTIONS                                                                  |\n");
+   (void)fprintf(stderr," |   -l 60            # lines per page                                          |\n");
+   (void)fprintf(stderr," |   -f Courier       # font names: Courier, Courier-Bold,Courier-Oblique       |\n");
+   (void)fprintf(stderr," |                      Helvetica, Symbol, Times-Bold, Helvetica-Bold,          |\n");
+   (void)fprintf(stderr," |                      ZapfDingbats, Times-Italic, Helvetica-Oblique,          |\n");
+   (void)fprintf(stderr," |                      Times-BoldItalic, Helvetica-BoldOblique,                |\n");
+   (void)fprintf(stderr," |                      Times-Roman, Courier-BoldOblique                        |\n");
+   (void)fprintf(stderr," +------------------------------------------------------------------------------+\n");
+   (void)fprintf(stderr," |   -S 0             # right shift 1 for non-ASA files                         |\n");
+   (void)fprintf(stderr," |   -N               # add line numbers                                        |\n");
+   (void)fprintf(stderr," +------------------------------------------------------------------------------+\n");
+   (void)fprintf(stderr," |   -v 2             # version number                                          |\n");
+   (void)fprintf(stderr," |   -h               # display this help                                       |\n");
+   (void)fprintf(stderr," +------------------------------------------------------------------------------+\n");
+   (void)fprintf(stderr," |ENVIRONMENT VARIABLES:                                                        |\n");
+   (void)fprintf(stderr," | $IMPACT_TOP Will be printed in large red letters across the page top.        |\n");
+   (void)fprintf(stderr," | $IMPACT_GRAY sets the default gray-scale value, same as the -g switch.       |\n");
+   (void)fprintf(stderr," +------------------------------------------------------------------------------+\n");
+   (void)fprintf(stderr," |EXAMPLES:                                                                     |\n");
+   (void)fprintf(stderr," !-----------------                                                             |\n");
+   (void)fprintf(stderr," | # create non-ASA file in portrait mode with a dashed line under every line   |\n");
+   (void)fprintf(stderr," | prt2pdf -S 1 -W 8.5 -H 11 -i 1 -d '2 4 1' -T 1 -B .75 < INFILE > junko.pdf   |\n");
+   (void)fprintf(stderr," !-----------------                                                             |\n");
+   (void)fprintf(stderr," | # banner on top                                                              |\n");
+   (void)fprintf(stderr," | env IMPACT_GRAY=1 IMPACT_TOP=CONFIDENTIAL prt2pdf < test.txt > test.pdf      |\n");
+   (void)fprintf(stderr," !-----------------                                                             |\n");
+   (void)fprintf(stderr," | # 132 landscape                                                              |\n");
+   (void)fprintf(stderr," |  prt2pdf -s LANDSCAPE <prt2pdf.c >junko.A.pdf                                |\n");
+   (void)fprintf(stderr," !-----------------                                                             |\n");
+   (void)fprintf(stderr," | # 132 landscape with line numbers with dashed lines                          |\n");
+   (void)fprintf(stderr," |  prt2pdf -s 'LANDSCAPE LINE NUMBERS' -d '3 1 2' \\                            |\n");
+   (void)fprintf(stderr," |  -N -T .9 <prt2pdf.c >test.pdf                                               |\n");
+   (void)fprintf(stderr," !-----------------                                                             |\n");
+   (void)fprintf(stderr," | # portrait 80 non-ASA file with dashed lines                                 |\n");
+   (void)fprintf(stderr," |  prt2pdf -s PORTRAIT -S 1 -W 8.5 -H 11 -i 1 -d '2 4 1' \\                     |\n");
+   (void)fprintf(stderr," |  -T 1 -B .75 < prt2pdf.c > test.pdf                                          |\n");
+   (void)fprintf(stderr," !-----------------                                                             |\n");
+   (void)fprintf(stderr," | # portrait 80 with line numbers , non-ASA                                    |\n");
+   (void)fprintf(stderr," |  prt2pdf -s 'PORTRAIT LINE NUMBERS' -l 66 -S 1 -W 8.5 -H 11 \\                |\n");
+   (void)fprintf(stderr," |  -i 1 -T 1 -B .75 -N < prt2pdf.c > test.pdf                                  |\n");
+   (void)fprintf(stderr," !-----------------                                                             |\n");
+   (void)fprintf(stderr," | # titling                                                                    |\n");
+   (void)fprintf(stderr," |  prt2pdf -d '1 0 1' -t \"$USER\" -i 1 -P -N -T 1 \\                             |\n");
+   (void)fprintf(stderr," |  -s \"prt2pdf.c\" <prt2pdf.c >test.pdf                                         |\n");
+   (void)fprintf(stderr," +------------------------------------------------------------------------------+\n");
 
 break;
 case 2:
-fprintf (stderr,"-T %f # Top margin\n", GLOBAL_PAGE_MARGIN_TOP/GLOBAL_UNIT_MULTIPLIER);
-fprintf (stderr,"-B %f # Bottom margin\n", GLOBAL_PAGE_MARGIN_BOTTOM/GLOBAL_UNIT_MULTIPLIER);
-fprintf (stderr,"-L %f # Left margin\n", GLOBAL_PAGE_MARGIN_LEFT/GLOBAL_UNIT_MULTIPLIER);
-fprintf (stderr,"-R %f # Right margin\n", GLOBAL_PAGE_MARGIN_RIGHT/GLOBAL_UNIT_MULTIPLIER);
+(void)fprintf (stderr,"-T %f # Top margin\n", GLOBAL_PAGE_MARGIN_TOP/GLOBAL_UNIT_MULTIPLIER);
+(void)fprintf (stderr,"-B %f # Bottom margin\n", GLOBAL_PAGE_MARGIN_BOTTOM/GLOBAL_UNIT_MULTIPLIER);
+(void)fprintf (stderr,"-L %f # Left margin\n", GLOBAL_PAGE_MARGIN_LEFT/GLOBAL_UNIT_MULTIPLIER);
+(void)fprintf (stderr,"-R %f # Right margin\n", GLOBAL_PAGE_MARGIN_RIGHT/GLOBAL_UNIT_MULTIPLIER);
 
-fprintf (stderr,"-W %f # page Width\n", GLOBAL_PAGE_WIDTH/GLOBAL_UNIT_MULTIPLIER);
-fprintf (stderr,"-H %f # page Height\n", GLOBAL_PAGE_DEPTH/GLOBAL_UNIT_MULTIPLIER);
+(void)fprintf (stderr,"-W %f # page Width\n", GLOBAL_PAGE_WIDTH/GLOBAL_UNIT_MULTIPLIER);
+(void)fprintf (stderr,"-H %f # page Height\n", GLOBAL_PAGE_DEPTH/GLOBAL_UNIT_MULTIPLIER);
 
-fprintf (stderr,"-u %f # unit multiplier\n", GLOBAL_UNIT_MULTIPLIER);
+(void)fprintf (stderr,"-u %f # unit multiplier\n", GLOBAL_UNIT_MULTIPLIER);
 
-fprintf (stderr,"-g %f # shading gray scale value ([black]0 <= g <= 1[white]\n", GLOBAL_GRAY_SCALE);
-fprintf (stderr,"-i %d # shading line increment\n", GLOBAL_SHADE_STEP);
-fprintf (stderr,"-d %s # shading line dashcode\n", GLOBAL_DASHCODE);
-fprintf (stderr,"-G %d # green bar\n", GLOBAL_GREEN_BAR);
+(void)fprintf (stderr,"-g %f # shading gray scale value ([black]0 <= g <= 1[white]\n", GLOBAL_GRAY_SCALE);
+(void)fprintf (stderr,"-i %d # shading line increment\n", GLOBAL_SHADE_STEP);
+(void)fprintf (stderr,"-d %s # shading line dashcode\n", GLOBAL_DASHCODE);
+(void)fprintf (stderr,"-G %d # green bar\n", GLOBAL_GREEN_BAR);
 
-fprintf (stderr,"-l %f # lines per page\n", GLOBAL_LINES_PER_PAGE);
-fprintf (stderr,"-f %s # font name\n", GLOBAL_FONT);
+(void)fprintf (stderr,"-l %f # lines per page\n", GLOBAL_LINES_PER_PAGE);
+(void)fprintf (stderr,"-f %s # font name\n", GLOBAL_FONT);
 
-fprintf (stderr,"-s %s # margin label\n", GLOBAL_CENTER_TITLE);
-fprintf (stderr,"-t %s # margin left label\n", GLOBAL_LEFT_TITLE);
-fprintf (stderr,"-S %d # right shift\n", GLOBAL_SHIFT);
+(void)fprintf (stderr,"-s %s # margin label\n", GLOBAL_CENTER_TITLE);
+(void)fprintf (stderr,"-t %s # margin left label\n", GLOBAL_LEFT_TITLE);
+(void)fprintf (stderr,"-S %d # right shift\n", GLOBAL_SHIFT);
 
-fprintf (stderr,"-N [flag=%d]   # add line numbers \n", GLOBAL_LINENUMBERS);
-fprintf (stderr,"-P [flag=%d]   # add page numbers\n", GLOBAL_PAGES);
+(void)fprintf (stderr,"-N [flag=%d]   # add line numbers \n", GLOBAL_LINENUMBERS);
+(void)fprintf (stderr,"-P [flag=%d]   # add page numbers\n", GLOBAL_PAGES);
 
-fprintf (stderr,"-v    # display version number\n");
-fprintf (stderr,"-V    # display build info\n");
-fprintf (stderr,"-h    # display help\n");
+(void)fprintf (stderr,"-v    # display version number\n");
+(void)fprintf (stderr,"-V    # display build info\n");
+(void)fprintf (stderr,"-h    # display help\n");
 break;
 }
 }
@@ -711,15 +711,15 @@ int main(int argc, char **argv) {
 
    int prindex;
    int c;
-   GLOBAL_PAGE_DEPTH =        612.0;
-   GLOBAL_PAGE_WIDTH =        792.0;      /* Default is 72 points per inch */
-   GLOBAL_PAGE_MARGIN_TOP =    36.0 -24.0;
+   GLOBAL_PAGE_DEPTH         = 612.0;
+   GLOBAL_PAGE_WIDTH         = 792.0;      /* Default is 72 points per inch */
+   GLOBAL_PAGE_MARGIN_TOP    = 36.0 -24.0;
    GLOBAL_PAGE_MARGIN_BOTTOM = 36.0 -24.0;
-   GLOBAL_PAGE_MARGIN_LEFT =   40.0 -14.0;
-   GLOBAL_PAGE_MARGIN_RIGHT =  39.0 -14.0;
-   GLOBAL_LINES_PER_PAGE=      64.0;
-   GLOBAL_GRAY_SCALE=           0.800781; /* gray-scale value */
-   GLOBAL_GREEN_BAR=           0;
+   GLOBAL_PAGE_MARGIN_LEFT   = 40.0 -14.0;
+   GLOBAL_PAGE_MARGIN_RIGHT  = 39.0 -14.0;
+   GLOBAL_LINES_PER_PAGE     = 64.0;
+   GLOBAL_GRAY_SCALE         = 0.800781; /* gray-scale value */
+   GLOBAL_GREEN_BAR          = 0;
 
    varname=getenv("IMPACT_GRAY");
    if (varname == (char*)NULL ){
@@ -727,7 +727,7 @@ int main(int argc, char **argv) {
    }else if (varname[0] == '\0'){
        GLOBAL_GRAY_SCALE=0.800781; /* gray-scale value */
    }else{
-      sscanf(varname,"%f",&GLOBAL_GRAY_SCALE);
+      (void)sscanf(varname,"%f",&GLOBAL_GRAY_SCALE);
       if(GLOBAL_GRAY_SCALE < 0 ){
           GLOBAL_GRAY_SCALE=0.800781; /* gray-scale value */
       }
@@ -777,26 +777,26 @@ int main(int argc, char **argv) {
                      sprintf(xcmp, "%.1s", __VERSION__ );
                      if (!isdigit((int)xcmp[0]))
                      {
-                         fprintf (stderr, "Compiler: %s\n", __VERSION__ );
+                         (void)fprintf (stderr, "Compiler: %s\n", __VERSION__ );
                      } else {
-                         fprintf (stderr, "Compiler: GCC %s\n", __VERSION__ );
+                         (void)fprintf (stderr, "Compiler: GCC %s\n", __VERSION__ );
                      }
 #  else
-                     fprintf (stderr, "Compiler: Clang %s\n", __clang_version__ );
+                     (void)fprintf (stderr, "Compiler: Clang %s\n", __clang_version__ );
 #  endif /* ifndef __clang_version__ */
 # else
-                     fprintf (stderr, "Compiler: %s\n", __VERSION__ );
+                     (void)fprintf (stderr, "Compiler: %s\n", __VERSION__ );
 # endif /* ifdef __GNUC__ */
 #endif /* ifdef __VERSION__ */
                      exit(0);
         break; /* build info               */
-           case 'v': fprintf (stderr, "prt2pdf version %d.0\n",GLOBAL_VERSION); exit(0);        break; /* version                */
+           case 'v': (void)fprintf (stderr, "prt2pdf version %d.0\n",GLOBAL_VERSION); exit(0);        break; /* version                */
            case '?':
-             fprintf(stderr," SWITCH IS %c\n",c);
+             (void)fprintf(stderr," SWITCH IS %c\n",c);
              if (isprint (optopt)){
-               fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+               (void)fprintf (stderr, "Unknown option `-%c'.\n", optopt);
              }else{
-               fprintf (stderr, "Unknown option character `\\x%x'.\n", optopt);
+               (void)fprintf (stderr, "Unknown option character `\\x%x'.\n", optopt);
              }
              showhelp(2);
              _Exit(1);
@@ -810,8 +810,8 @@ int main(int argc, char **argv) {
 #endif
              /*NOTREACHED*/
            default:
-             fprintf (stderr, "\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
-                      __func__, __FILE__, __LINE__);
+             (void)fprintf (stderr, "\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
+                            __func__, __FILE__, __LINE__);
              abort();
              /*NOTREACHED*/
 #ifndef __SUNPRO_C
@@ -825,12 +825,12 @@ int main(int argc, char **argv) {
            }
 
            if(GLOBAL_SHADE_STEP < 1 ){
-              fprintf(stderr,"W-A-R-N-I-N-G: prt2pdf(1) resetting -i %d to -i 1\n",GLOBAL_SHADE_STEP);
+              (void)fprintf(stderr,"W-A-R-N-I-N-G: prt2pdf(1) resetting -i %d to -i 1\n",GLOBAL_SHADE_STEP);
               GLOBAL_SHADE_STEP=1;
    }
 
    for (prindex = optind; prindex < argc; prindex++){
-      fprintf (stderr,"Non-option argument %s\n", argv[prindex]);
+      (void)fprintf (stderr,"Non-option argument %s\n", argv[prindex]);
    }
    dopages();
    exit(0);

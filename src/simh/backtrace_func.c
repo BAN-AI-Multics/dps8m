@@ -121,8 +121,8 @@ backtrace_handler(int number)
   sigset_t block; sigset_t block_n;
   sigfillset(&block); sigfillset(&block_n);
   sigprocmask(SIG_SETMASK, &block, &block_n);
-  (void)fprintf(
-    stderr, "\r\n\r\n****** FATAL ERROR *********************************\r\n");
+  (void)fprintf(stderr,
+    "\r\n\r\n****** FATAL ERROR *********************************\r\n");
   if (bt_pid > 1)
     {
 #  ifdef SIGUSR2

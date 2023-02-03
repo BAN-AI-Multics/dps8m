@@ -22,7 +22,8 @@ test -f "config.toml" ||
 
 ##########################################################################
 
-# Build date (assumes GNU date)
+# Build date (assumes GNU date)   TODO: Check for failure of date -u
+# shellcheck disable=SC2155
 export HUGO_PARAMS_buildDate="$(date -u '+%Y-%m-%d %H:%M:%S %Z.')"
 
 ##########################################################################

@@ -107,6 +107,12 @@
 #include <unistd.h>
 #include <math.h>
 
+#if defined(__MINGW64__) || defined(__MINGW32__)
+# include "../dps8/bsd_random.h"
+# define random  bsd_random
+# define srandom bsd_srandom
+#endif /* if defined(__MINGW64__) || defined(__MINGW32__) */
+
 #ifdef TESTING
 # include "../dps8/dps8_cpu.h"
 # undef realloc
@@ -746,6 +752,25 @@ if (*tptr == '\0') {
 return tptr;
 }
 
+static inline uint32_t
+hash32s(const void *buf, size_t len, uint32_t h)
+{
+  const unsigned char *p = buf;
+
+  for (size_t i = 0; i < len; i++)
+    h = h * 31 + p[i];
+
+  h ^= h >> 17;
+  h *= UINT32_C(0xed5ad4bb);
+  h ^= h >> 11;
+  h *= UINT32_C(0xac4c1b51);
+  h ^= h >> 15;
+  h *= UINT32_C(0x31848bab);
+  h ^= h >> 14;
+
+  return h;
+}
+
 /* Poll for new connection
 
    Called from unit service routine to test for new connection
@@ -818,7 +843,44 @@ if ((poll_time - mp->last_poll_time) < mp->poll_interval*1000)
       abort();
     }
 
-srand((unsigned int)((poll_time + getpid()) ^ (long)((1LL + (long long)ts.tv_nsec) * (1LL + (long long)ts.tv_sec))));
+uint32_t h = 0;  /* initial hash value */
+/* LINTED E_OLD_STYLE_FUNC_DECL */
+void *(*mallocptr)() = malloc;
+h = hash32s(&mallocptr, sizeof(mallocptr), h);
+void *small = malloc(1);
+h = hash32s(&small, sizeof(small), h);
+FREE(small);
+void *big = malloc(1UL << 20);
+h = hash32s(&big, sizeof(big), h);
+FREE(big);
+void *ptr = &ptr;
+h = hash32s(&ptr, sizeof(ptr), h);
+time_t t = time(0);
+h = hash32s(&t, sizeof(t), h);
+for (int i = 0; i < 1000; i++)
+  {
+    unsigned long counter = 0;
+    clock_t start = clock();
+    while (clock() == start)
+      {
+        counter++;
+      }
+    h = hash32s(&start, sizeof(start), h);
+    h = hash32s(&counter, sizeof(counter), h);
+  }
+int mypid = (int)getpid();
+h = hash32s(&mypid, sizeof(mypid), h);
+char rnd[4];
+FILE *f = fopen("/dev/urandom", "rb");
+if (f)
+  {
+    if (fread(rnd, sizeof(rnd), 1, f))
+      {
+        h = hash32s(rnd, sizeof(rnd), h);
+      }
+    fclose(f);
+  }
+srandom(h);
 
 mp->last_poll_time = poll_time;
 
@@ -936,7 +998,7 @@ if (mp->master) {
 
 /* Look for per line listeners or outbound connecting sockets */
 for (i = 0; i < mp->lines; i++) {                       /* check each line in sequence */
-    int j, r = rand();
+    int j, r = (int)random();
     lp = mp->ldsc + i;                                  /* get pointer to line descriptor */
 
     if (lp->ser_connect_pending) {
@@ -988,7 +1050,7 @@ for (i = 0; i < mp->lines; i++) {                       /* check each line in se
                                 abort();
                               }
                             if (lp->destination != NULL)
-                                strcpy (lp->ipad, lp->destination);
+                                (void)strcpy (lp->ipad, lp->destination);
                             lp->cnms = sim_os_msec ();
                             sim_getnames_sock (lp->sock, &sockname, &peername);
                             if (lp->destination)
@@ -2164,7 +2226,7 @@ while (*tptr) {
                 }
             if (0 == MATCH_CMD (gbuf, "BUFFERED")) {
                 if ((NULL == cptr) || ('\0' == *cptr))
-                    strcpy (buffered, "32768");
+                    (void)strcpy (buffered, "32768");
                 else {
                     i = (int32) get_uint (cptr, 10, 1024*1024, &r);
                     if (r || (i == 0))
@@ -2212,14 +2274,14 @@ while (*tptr) {
             if (0 == MATCH_CMD (gbuf, "CONNECT")) {
                 if ((NULL == cptr) || ('\0' == *cptr))
                     return sim_messagef (SCPE_2FARG, "Missing Connect Specifier\n");
-                strcpy (destination, cptr);
+                (void)strcpy (destination, cptr);
                 continue;
                 }
             if (0 == MATCH_CMD (gbuf, "SPEED")) {
                 if ((NULL == cptr) || ('\0' == *cptr) ||
                     (_tmln_speed_delta (cptr) < 0))
                     return sim_messagef (SCPE_ARG, "Invalid Speed Specifier: %s\n", (cptr ? cptr : ""));
-                strcpy (speed, cptr);
+                (void)strcpy (speed, cptr);
                 continue;
                 }
             cptr = get_glyph (gbuf, port, ';');
@@ -2246,7 +2308,7 @@ while (*tptr) {
             return sim_messagef (SCPE_OPENERR, "Can't open network port: %s\n", port);
         sim_close_sock (sock);
         sim_os_ms_sleep (2);                                    /* let the close finish (required on some platforms) */
-        strcpy (listen, port);
+        (void)strcpy (listen, port);
         cptr = get_glyph (cptr, option, ';');
         (void)cptr;
         if (option[0]) {
@@ -2334,7 +2396,7 @@ while (*tptr) {
                 if (mp->lines > 1)
                     sprintf(lp->txlogname, "%s_%d", mp->logfiletmpl, i);
                 else
-                    strcpy (lp->txlogname, mp->logfiletmpl);
+                    (void)strcpy (lp->txlogname, mp->logfiletmpl);
                 r = sim_open_logfile (lp->txlogname, TRUE, &lp->txlog, &lp->txlogref);
                 if (r == SCPE_OK)
                     setvbuf (lp->txlog, NULL, _IOFBF, 65536);
@@ -2437,7 +2499,7 @@ while (*tptr) {
 #endif /* if defined(USE_BACKTRACE) */
                 abort();
               }
-            strcpy (mp->port, listen);                      /* save port */
+            (void)strcpy (mp->port, listen);                /* save port */
             mp->master = sock;                              /* save master socket */
             mp->ring_sock = INVALID_SOCKET;
             if (mp->ring_ipad) FREE (mp->ring_ipad);
@@ -2485,7 +2547,7 @@ while (*tptr) {
 #endif /* if defined(USE_BACKTRACE) */
                             abort();
                           }
-                        strcpy (lp->port, listen);           /* save port */
+                        (void)strcpy (lp->port, listen);           /* save port */
                         }
                     else
                         return sim_messagef (SCPE_ARG, "Missing listen port for Datagram socket\n");
@@ -2509,7 +2571,7 @@ while (*tptr) {
 #endif /* if defined(USE_BACKTRACE) */
                         abort();
                       }
-                    strcpy (lp->destination, hostport);
+                    (void)strcpy (lp->destination, hostport);
                     lp->mp = mp;
                     if (!lp->modem_control || (lp->modembits & TMXR_MDM_DTR)) {
                         lp->connecting = sock;
@@ -2526,7 +2588,7 @@ while (*tptr) {
 #endif /* if defined(USE_BACKTRACE) */
                             abort();
                           }
-                        strcpy (lp->ipad, lp->destination);
+                        (void)strcpy (lp->ipad, lp->destination);
                         }
                     else
                         sim_close_sock (sock);
@@ -2559,7 +2621,7 @@ while (*tptr) {
 #endif /* if defined(USE_BACKTRACE) */
                 abort();
               }
-            strcpy (lp->txlogname, logfiletmpl);
+            (void)strcpy (lp->txlogname, logfiletmpl);
             r = sim_open_logfile (lp->txlogname, TRUE, &lp->txlog, &lp->txlogref);
             if (r == SCPE_OK)
                 setvbuf(lp->txlog, NULL, _IOFBF, 65536);
@@ -2649,7 +2711,7 @@ while (*tptr) {
 #endif /* if defined(USE_BACKTRACE) */
                 abort();
               }
-            strcpy (lp->port, listen);                       /* save port */
+            (void)strcpy (lp->port, listen);                /* save port */
             lp->master = sock;                              /* save master socket */
             if (listennotelnet != mp->notelnet)
                 lp->notelnet = listennotelnet;
@@ -2673,7 +2735,7 @@ while (*tptr) {
 #endif /* if defined(USE_BACKTRACE) */
                             abort();
                           }
-                        strcpy (lp->port, listen);          /* save port */
+                        (void)strcpy (lp->port, listen);          /* save port */
                         }
                     else
                         return sim_messagef (SCPE_ARG, "Missing listen port for Datagram socket\n");
@@ -2694,7 +2756,7 @@ while (*tptr) {
 #endif /* if defined(USE_BACKTRACE) */
                         abort();
                       }
-                    strcpy (lp->destination, hostport);
+                    (void)strcpy (lp->destination, hostport);
                     if (!lp->modem_control || (lp->modembits & TMXR_MDM_DTR)) {
                         lp->connecting = sock;
                         lp->ipad = (char *)malloc (1 + strlen (lp->destination));
@@ -2710,7 +2772,7 @@ while (*tptr) {
 #endif /* if defined(USE_BACKTRACE) */
                             abort();
                           }
-                        strcpy (lp->ipad, lp->destination);
+                        (void)strcpy (lp->ipad, lp->destination);
                         }
                     else
                         sim_close_sock (sock);
@@ -3589,6 +3651,7 @@ t_stat tmxr_set_log (UNIT *uptr, int32 val, CONST char *cptr, void *desc)
 {
 TMXR *mp = (TMXR *) desc;
 TMLN *lp;
+t_stat r;
 
 if (cptr == NULL)                                       /* no file name? */
     return SCPE_2FARG;
@@ -3601,7 +3664,11 @@ lp->txlogname = (char *) calloc (CBUFSIZE, sizeof (char)); /* alloc namebuf */
 if (lp->txlogname == NULL)                              /* can't? */
     return SCPE_MEM;
 strncpy (lp->txlogname, cptr, CBUFSIZE-1);              /* save file name */
-sim_open_logfile (cptr, TRUE, &lp->txlog, &lp->txlogref);/* open log */
+r = sim_open_logfile (cptr, TRUE, &lp->txlog, &lp->txlogref); /* open log */
+if (r != SCPE_OK) {                                     /* error? */
+    FREE (lp->txlogname);                               /* free buffer */
+    return r;
+    }
 if (lp->txlog == NULL) {                                /* error? */
     FREE (lp->txlogname);                               /* free buffer */
     return SCPE_OPENERR;
@@ -3712,7 +3779,7 @@ if (tbuf == NULL) {
   FREE(list);
   return SCPE_MEM;
 }
-strcpy (tbuf, carg);
+(void)strcpy (tbuf, carg);
 tptr = tbuf + strlen (tbuf);                            /* append a semicolon */
 *tptr++ = ';';                                          /*   to the command string */
 *tptr = '\0';                                           /*   to make parsing easier for get_range */

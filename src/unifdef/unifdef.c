@@ -391,31 +391,31 @@ main(int argc, char *argv[])
 
   if (compblank && lnblank)
     {
-      fprintf(stderr, "ERROR: -B and -b are mutually exclusive\n");
+      (void)fprintf(stderr, "ERROR: -B and -b are mutually exclusive\n");
       exit(1);
     }
 
   if (symlist && ( ofilename != NULL || inplace || argc > 1 ))
     {
-      fprintf(stderr, "ERROR: -s only works with one input file\n");
+      (void)fprintf(stderr, "ERROR: -s only works with one input file\n");
       exit(1);
     }
 
   if (argc > 1 && ofilename != NULL)
     {
-      fprintf(stderr, "ERROR: -o cannot be used with multiple input files\n");
+      (void)fprintf(stderr, "ERROR: -o cannot be used with multiple input files\n");
       exit(1);
     }
 
   if (argc > 1 && !inplace)
     {
-      fprintf(stderr, "ERROR: multiple input files require -m or -M\n");
+      (void)fprintf(stderr, "ERROR: multiple input files require -m or -M\n");
       exit(1);
     }
 
   if (argc == 0 && inplace)
     {
-      fprintf(stderr, "ERROR: -m requires an input file\n");
+      (void)fprintf(stderr, "ERROR: -m requires an input file\n");
       exit(1);
     }
 
@@ -431,7 +431,7 @@ main(int argc, char *argv[])
 
   indirectsym();
 
-  atexit(cleantemp);
+  (void)atexit(cleantemp);
   if (ofilename != NULL)
     {
       processinout(*argv, ofilename);
@@ -457,8 +457,8 @@ main(int argc, char *argv[])
         exit(0);
 
       default:
-        fprintf (stderr, "\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
-               __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
         abort();  /* bug */
         /*NOTREACHED*/
 #ifndef __SUNPRO_C
@@ -495,7 +495,7 @@ processinout(const char *ifn, const char *ofn)
       input    = fopen(ifn, "rb");
       if (input == NULL)
         {
-          fprintf(stderr, "ERROR: can't open %s\n", ifn);
+          (void)fprintf(stderr, "ERROR: can't open %s\n", ifn);
           exit(1);
         }
     }
@@ -513,7 +513,7 @@ processinout(const char *ifn, const char *ofn)
       output = fopen(ofn, "wb");
       if (output == NULL)
         {
-          fprintf(stderr, "ERROR: can't create %s\n", ofn);
+          (void)fprintf(stderr, "ERROR: can't create %s\n", ofn);
           exit(1);
         }
 
@@ -527,7 +527,7 @@ processinout(const char *ifn, const char *ofn)
 
   if (output == NULL)
     {
-      fprintf(stderr, "ERROR: can't create %s\n", tempname);
+      (void)fprintf(stderr, "ERROR: can't create %s\n", tempname);
       exit(1);
     }
 
@@ -539,7 +539,7 @@ processinout(const char *ifn, const char *ofn)
       // deepcode ignore PathTraversal: vendored BSD code, not untrusted
       if (rename(ofn, backname) < 0)
         {
-          fprintf(stderr, "ERROR: can't rename \"%s\" to \"%s\"\n", ofn, backname);
+          (void)fprintf(stderr, "ERROR: can't rename \"%s\" to \"%s\"\n", ofn, backname);
           exit(1);
         }
 
@@ -552,12 +552,12 @@ processinout(const char *ifn, const char *ofn)
     {
       if (remove(tempname) < 0)
         {
-          fprintf(stderr, "WARNING: can't remove \"%s\"\n", tempname);
+          (void)fprintf(stderr, "WARNING: can't remove \"%s\"\n", tempname);
         }
     }
   else if (replace(tempname, ofn) < 0)
     {
-      fprintf(stderr, "ERROR: can't rename \"%s\" to \"%s\"\n", tempname, ofn);
+      (void)fprintf(stderr, "ERROR: can't rename \"%s\" to \"%s\"\n", tempname, ofn);
       exit(1);
     }
 
@@ -574,7 +574,7 @@ cleantemp(void)
 {
   if (tempname != NULL)
     {
-      remove(tempname);
+      (void)remove(tempname);
     }
 }
 
@@ -607,10 +607,10 @@ version(void)
 
           while (*++c != '$')
             {
-              putc(*c, stderr);
+              (void)putc(*c, stderr);
             }
 
-          putc('\n', stderr);
+          (void)putc('\n', stderr);
         }
     }
 
@@ -622,20 +622,20 @@ version(void)
 #  ifdef __GNUC__
 #   ifndef __clang_version__
       char xcmp[2];
-      sprintf(xcmp, "%.1s", __VERSION__ );
+      (void)sprintf(xcmp, "%.1s", __VERSION__ );
       if (!isdigit((int)xcmp[0]))
         {
-          fprintf(stderr, "Compiler: %s\n", __VERSION__ );
+          (void)fprintf(stderr, "Compiler: %s\n", __VERSION__ );
         }
       else
         {
-          fprintf(stderr, "Compiler: GCC %s\n", __VERSION__ );
+          (void)fprintf(stderr, "Compiler: GCC %s\n", __VERSION__ );
         }
 #   else
-      fprintf(stderr, "Compiler: Clang %s\n", __clang_version__ );
+      (void)fprintf(stderr, "Compiler: Clang %s\n", __clang_version__ );
 #   endif /* ifndef __clang_version__ */
 #  else
-      fprintf(stderr, "Compiler: %s\n", __VERSION__ );
+      (void)fprintf(stderr, "Compiler: %s\n", __VERSION__ );
 #  endif /* ifdef __GNUC__ */
 # endif /* ifdef __VERSION__ */
     }
@@ -647,7 +647,7 @@ version(void)
 static void
 synopsis(FILE *fp)
 {
-  fprintf(
+  (void)fprintf(
     fp,
     "Usage:\tunifdef [-bBcdehKkmnsStV] [-x{012}] [-Mext] [-opath] \\\n"
     "     \t[-[i]Dsym[=val]] [-[i]Usym] [-fpath] ... [file] ...\n");
@@ -665,7 +665,7 @@ help(void)
 {
   synopsis(stdout);
 
-  printf(
+  (void)printf(
     "   -Dsym=val  define preprocessor symbol with given value\n"
     "   -Dsym      define preprocessor symbol with value 1\n"
     "   -Usym      preprocessor symbol is undefined\n"
@@ -949,7 +949,7 @@ Ifalse(void)
 static void
 Mpass(void)
 {
-  memcpy(keyword, "if  ", 4);
+  (void)memcpy(keyword, "if  ", 4);
   Pelif();
 }
 
@@ -1081,7 +1081,7 @@ ignoreon(void)
 static void
 keywordedit(const char *replacement)
 {
-  snprintf(
+  (void)snprintf(
     keyword,
     tline + sizeof ( tline ) - keyword,
     "%s%s",
@@ -1097,8 +1097,8 @@ nest(void)
 {
   if (depth > MAXDEPTH - 1)
     {
-      fprintf (stderr, "\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
-               __func__, __FILE__, __LINE__);
+      (void)fprintf (stderr, "\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
+                     __func__, __FILE__, __LINE__);
       abort();  /* bug */
     }
 
@@ -1115,8 +1115,8 @@ unnest(void)
 {
   if (depth == 0)
     {
-      fprintf (stderr, "\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
-               __func__, __FILE__, __LINE__);
+      (void)fprintf (stderr, "\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
+                     __func__, __FILE__, __LINE__);
       abort();  /* bug */
     }
 
@@ -1236,16 +1236,16 @@ closeio(void)
 
   if (symdepth && !zerosyms)
     {
-      printf("\n");
+      (void)printf("\n");
     }
 
   if (output != NULL && ( ferror(output) || fclose(output) == EOF ))
    {
-      fprintf(stderr, "ERROR: %s: can't write to output\n", filename);
+      (void)fprintf(stderr, "ERROR: %s: can't write to output\n", filename);
       exit(1);
    }
 
-  fclose(input);
+  (void)fclose(input);
 }
 
 /*
@@ -1406,11 +1406,11 @@ parseline(void)
         {
           if (ferror(input))
             {
-              fprintf(stderr, "ERROR: can't read %s\n", filename);
+              (void)fprintf(stderr, "ERROR: can't read %s\n", filename);
               exit(1);
             }
 
-          strcpy(tline + len, newline);
+          (void)strcpy(tline + len, newline);
 
           cp        += strlen(newline);
           linestate  = LS_START;
@@ -1898,7 +1898,7 @@ skiphash(void)
     {
       if (ferror(input))
         {
-          fprintf(stderr, "ERROR: can't read %s\n", filename);
+          (void)fprintf(stderr, "ERROR: can't read %s\n", filename);
           exit(1);
         }
       else
@@ -2152,8 +2152,8 @@ skipcomment(const char *cp)
               continue;
 
             default:
-              fprintf (stderr, "\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
-                       __func__, __FILE__, __LINE__);
+              (void)fprintf (stderr, "\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
+                             __func__, __FILE__, __LINE__);
               abort();  /* bug */
          }
       }
@@ -2298,11 +2298,11 @@ findsym(const char **strp)
 
       if (symdepth && firstsym)
         {
-          printf("%s%3d", zerosyms ? "" : "\n", depth);
+          (void)printf("%s%3d", zerosyms ? "" : "\n", depth);
         }
 
       firstsym = zerosyms = false;
-      printf(
+      (void)printf(
         "%s%.*s%s",
         symdepth ? " " : "",
         (int)( *strp - str ),
@@ -2405,7 +2405,7 @@ addsym2(bool ignorethis, const char *sym, const char *val)
     {
       if (nsyms >= MAXSYMS)
         {
-          fprintf(stderr, "ERROR: too many symbols\n");
+          (void)fprintf(stderr, "ERROR: too many symbols\n");
           exit(1);
         }
 
@@ -2430,7 +2430,7 @@ defundefile(const char *fn)
 
   if (input == NULL)
     {
-      fprintf(stderr, "ERROR: can't open %s\n", fn);
+      (void)fprintf(stderr, "ERROR: can't open %s\n", fn);
       exit(1);
     }
 
@@ -2443,12 +2443,12 @@ defundefile(const char *fn)
 
   if (ferror(input))
     {
-      fprintf(stderr, "ERROR: can't read %s\n", filename);
+      (void)fprintf(stderr, "ERROR: can't read %s\n", filename);
       exit(1);
     }
   else
     {
-      fclose(input);
+      (void)fclose(input);
     }
 
   if (incomment)
@@ -2533,7 +2533,7 @@ defundef(void)
       error("Unrecognized preprocessor directive");
     }
 
-  skipline(cp);
+  (void)skipline(cp);
 
 done:
   return ( true );
@@ -2554,8 +2554,8 @@ astrcat(const char *s1, const char *s2)
 
   if (len < 0)
     {
-      fprintf(stderr, "\rFATAL: Bugcheck! snprintf failure in %s at %s:%d\r\n",
-            __func__, __FILE__, __LINE__);
+      (void)fprintf(stderr, "\rFATAL: Bugcheck! snprintf failure in %s at %s:%d\r\n",
+                    __func__, __FILE__, __LINE__);
       abort();
     }
 
@@ -2564,12 +2564,12 @@ astrcat(const char *s1, const char *s2)
 
   if (s == NULL)
     {
-      fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-            __func__, __FILE__, __LINE__);
+      (void)fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                    __func__, __FILE__, __LINE__);
       abort();
     }
 
-  snprintf(s, size, "%s%s", s1, s2);
+  (void)snprintf(s, size, "%s%s", s1, s2);
 
   return ( s );
 }
@@ -2586,8 +2586,8 @@ xstrdup(const char *start, const char *end)
 
   if (end < start)
     {
-      fprintf (stderr, "\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
-             __func__, __FILE__, __LINE__);
+      (void)fprintf(stderr, "\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
+                    __func__, __FILE__, __LINE__);
       abort();  /* bug */
     }
 
@@ -2596,12 +2596,12 @@ xstrdup(const char *start, const char *end)
 
   if (s == NULL)
     {
-      fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-            __func__, __FILE__, __LINE__);
+      (void)fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                    __func__, __FILE__, __LINE__);
       abort();  /* out of memory */
     }
 
-  snprintf(s, n, "%s", start);
+  (void)snprintf(s, n, "%s", start);
 
   return ( s );
 }
@@ -2610,6 +2610,6 @@ static void
 error(const char *msg)
 {
   closeio();
-  fprintf(stderr, "ERROR: %s\n**** Output may be truncated ****\n", msg);
+  (void)fprintf(stderr, "ERROR: %s\n**** Output may be truncated ****\n", msg);
   exit(1);
 }
