@@ -199,8 +199,6 @@ tar zxf "${COVERITY_DLDIR:?}/coverity_tool.tgz"                  \
 ##############################################################################
 
 printf '%s\n' '#### Notice: Building DPS8M for Coverity analysis.'
-make distclean &&                             \
-make clean &&                                 \
 make unifdef &&                               \
 env TZ=UTC PATH="./.coverity/bin:${PATH:?}"   \
     ./.coverity/bin/cov-build --dir "cov-int" \

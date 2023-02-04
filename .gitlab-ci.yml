@@ -3623,8 +3623,14 @@ Coverity:
     - *scriptExtraInfo
     - dnf install -y wget curl xz bzip2 pkgconf gtk3 gtk3-devel || dnf install -y wget curl xz bzip2 pkgconf gtk3 gtk3-devel
     - dnf upgrade -y || dnf upgrade -y || true
+    - mkdir -p .coverity-dl
+    - export COVERITY_DLDIR="$(pwd)/.coverity-dl"
     - ./src/ci-kit/coverity-submit.sh
     - touch OK
+  cache:
+    key: coverity-cache
+    paths:
+      - .coverity-dl
   dependencies: []
   artifacts:
     when: always
