@@ -9536,6 +9536,7 @@ division
 divisions
 divisor
 dixon
+dldir
 dlockless
 docinfo
 docker
@@ -10849,6 +10850,7 @@ loud
 lower
 lowest
 lows
+lparstat
 luck
 lumps
 lurking
@@ -11217,6 +11219,7 @@ notify
 noting
 nova
 november
+nprocessors
 nqueensx
 nsis
 nuclear
@@ -11287,6 +11290,7 @@ once
 oneapi
 ones
 online
+onln
 only
 onto
 onward
