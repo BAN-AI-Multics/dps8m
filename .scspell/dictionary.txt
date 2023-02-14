@@ -12642,6 +12642,7 @@ sublicense
 submailbox
 submission
 submitted
+submodule
 subnegotiate
 subnegotiation
 subnet
