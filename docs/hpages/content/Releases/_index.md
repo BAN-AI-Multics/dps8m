@@ -703,14 +703,14 @@ title: DPS8M Releases
 {{< /expand >}}
 {{< /expand >}}
 
-{{< expand "DragonFly BSD 6.2.2" "…" >}}
+{{< expand "DragonFly BSD 6.4.0" "…" >}}
 {{< expand "Intel x86_64 (AMD64)" "…" >}}
 | File                                                                                       | Platform                           |
 |:------------------------------------------------------------------------------------------ |:---------------------------------- |
-| [**dps8m-git-df622-644.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-df622-644.tar.gz) | x86_64‑v4 (AVX‑512)                |
-| [**dps8m-git-df622-643.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-df622-643.tar.gz) | x86_64‑v3 (AVX2&nbsp;+&nbsp;FMA)   |
-| [**dps8m-git-df622-642.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-df622-642.tar.gz) | x86_64‑v2 (SSE4&nbsp;+&nbsp;SSSE3) |
-| [**dps8m-git-df622-641.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-df622-641.tar.gz) | x86_64                             |
+| [**dps8m-git-df640-644.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-df640-644.tar.gz) | x86_64‑v4 (AVX‑512)                |
+| [**dps8m-git-df640-643.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-df640-643.tar.gz) | x86_64‑v3 (AVX2&nbsp;+&nbsp;FMA)   |
+| [**dps8m-git-df640-642.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-df640-642.tar.gz) | x86_64‑v2 (SSE4&nbsp;+&nbsp;SSSE3) |
+| [**dps8m-git-df640-641.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-df640-641.tar.gz) | x86_64                             |
 {{< /expand >}}
 {{< /expand >}}
 {{< /tab >}}

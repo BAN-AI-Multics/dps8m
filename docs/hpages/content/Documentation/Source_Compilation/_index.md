@@ -536,11 +536,11 @@ Install the required prerequisites (using OpenBSD Packages or Ports):
 
 ## DragonFly BSD
 
-* At the time of writing, [**DragonFly BSD 6.2.2**](https://www.dragonflybsd.org/download/) was current and used to verify the following instructions.
+* At the time of writing, [**DragonFly BSD 6.4.0**](https://www.dragonflybsd.org/download/) was current and used to verify the following instructions.
 
 ### DragonFly BSD prerequisites
 
-* Install the required prerequisites (using DragonFly BSD DPorts):
+* Install the required prerequisites using DragonFly BSD DPorts (as *root*):
 
   ```sh
   pkg install gmake libuv
@@ -560,22 +560,22 @@ Install the required prerequisites (using OpenBSD Packages or Ports):
 ### Optimized DragonFly BSD compilation
 
 * **DragonFly BSD** provides an older version of **GCC** as part of the base system.  While this compiler is
-  *sufficient* to build the simulator, we recommend that version 10 or later of the **GNU C** (`gcc`)
+  *sufficient* to build the simulator, we recommend that version 11 or later of the **GNU C** (`gcc`)
   compiler be used for optimal performance.
 
-* At the time of writing, **GCC 11** is available for DragonFly BSD and recommended by **The DPS8M Development Team**.
+* At the time of writing, **GCC 12** is available for DragonFly BSD and recommended by **The DPS8M Development Team**.
 
-  * **GCC 11** may be installed using DragonFly BSD DPorts:
+  * **GCC 12** may be installed using DragonFly BSD DPorts (as *root*):
 
     ```sh
-    pkg install gcc11
+    pkg install gcc12
     ```
 
 * Build the simulator from the top-level source directory (using **GNU Make**):
 
   ```sh
-  env CC="gcc11" CFLAGS="-I/usr/local/include"                    \
-      LDFLAGS="-L/usr/local/lib -Wl,-rpath=/usr/local/lib/gcc11"  \
+  env CC="gcc12" CFLAGS="-I/usr/local/include"                    \
+      LDFLAGS="-L/usr/local/lib -Wl,-rpath=/usr/local/lib/gcc12"  \
       ATOMICS="GNU"                                               \
     gmake
   ```
@@ -584,8 +584,9 @@ Install the required prerequisites (using OpenBSD Packages or Ports):
 
 * **GCC** is recommended for optimal performance, but compilation using **Clang** is supported.
 * At the time of writing, **Clang 14** is available for DragonFly BSD and recommended by **The DPS8M Development Team**.
+* While some optional utilities may fail to build using **Clang** on DragonFly, the simulator (`src/dps8/dps8`) is fully tested with each DragonFly release.
 
-  * **Clang 14** may be installed using DragonFly BSD DPorts:
+  * **Clang 14** may be installed using DragonFly BSD DPorts (as *root*):
 
     ```sh
     pkg install llvm14
