@@ -5620,6 +5620,7 @@ fpic
 fseeko
 ftello
 fullhtml
+hardwrap
 hpages
 hugobuild
 hugogen
@@ -7457,6 +7458,7 @@ globalvars
 gnupg
 groupinstall
 groupupdate
+hardwrap
 imake
 keepcache
 letltxmacro

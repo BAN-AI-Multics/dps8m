@@ -108,13 +108,14 @@ texlive-framed \
 texlive-fvextra \
 texlive-globalvals \
 texlive-graphviz \
+texlive-hardwrap \
 texlive-letltxmacro \
 texlive-listings \
 texlive-listingsutf8 \
-texlive-minted \
 texlive-ly1 \
 texlive-mdframed \
 texlive-microtype \
+texlive-minted \
 texlive-mweights \
 texlive-needspace \
 texlive-pagecolor \
