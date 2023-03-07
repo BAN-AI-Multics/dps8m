@@ -925,6 +925,11 @@ title: DPS8M Releases
 {{< tab "SunOS" >}}
 
 {{< expand "Oracle Solaris 11.4" "…" >}}
+{{< expand "UltraSPARC" "…" >}}
+| File                                                                                     | Platform                           |
+| :--------------------------------------------------------------------------------------- |:---------------------------------- |
+| [**dps8m-git-s114-sv9.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-s114-sv9.tar.gz) | UltraSPARC (SPARC&nbsp;V9+)        |
+{{< /expand >}}
 {{< expand "Intel x86_64 (AMD64)" "…" >}}
 | File                                                                                     | Platform                           |
 | :--------------------------------------------------------------------------------------- |:---------------------------------- |

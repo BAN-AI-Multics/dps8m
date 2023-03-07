@@ -709,7 +709,7 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 ## OpenIndiana
 
 * Ensure your [**OpenIndiana**](https://www.openindiana.org/) installation is up-to-date.
-  * **OpenIndiana** *Hipster* **2022-08-26** was used to verify these instructions.
+  * **OpenIndiana** *Hipster* **2023-03-06** was used to verify these instructions.
 
 []()
 
@@ -720,8 +720,8 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 
 []()
 
-* Building with **Clang 13** or later is also supported (*but not recommended due to lack of LTO support*).
-  * **Clang 13** can be installed from the standard IPS repository via '**`pkg install clang-13`**'.
+* Building with **Clang** (version 13 or later) is also supported (*but not recommended due to lack of LTO support*).
+  * **Clang 15** can be installed from the standard IPS repository via '**`pkg install clang-15`**'.
 
 ### OpenIndiana prerequisites
 
@@ -741,10 +741,10 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 
 ### Compiling using Clang
 
-* Build the simulator from the top-level source directory (using **GNU Make** and **Clang**):
+* Build the simulator from the top-level source directory (using **GNU Make** and **Clang 15**):
 
   ```sh
-  env NO_LTO=1 CC="clang-13" gmake
+  env NO_LTO=1 CC="clang-15" gmake
   ```
 
 <br>
@@ -756,17 +756,16 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 ## AIX
 
 * Ensure you are running a [supported release](https://www.ibm.com/support/pages/aix-support-lifecycle-information) of [**IBM AIX®**](https://www.ibm.com/products/aix) on a [supported platform](https://www.ibm.com/support/pages/system-aix-maps).
-  * **AIX** **7.2** and **7.3** on [**POWER8®** and **POWER9™**](https://www.ibm.com/it-infrastructure/power)
-  are regularly tested by **The DPS8M Development Team**.
+  * **AIX** **7.2** and **7.3** on [**POWER8®** and **POWER9™**](https://www.ibm.com/it-infrastructure/power) systems are regularly tested by **The DPS8M Development Team**.
 
 []()
 
 * The simulator can be built for **64-bit** **AIX** using [**IBM XL C/C++ for AIX**](https://www.ibm.com/products/xl-c-aix-compiler-power) (**`xlc`**), [**IBM Open XL C/C++ for AIX**](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) (**`ibm-clang`**), or **GNU C** (**`gcc`**).  **The DPS8M Development Team** recommends building with **IBM Open XL C/C++ V17.1** (or later) or **GCC 10** (or later) for optimal performance.
-* [**IBM Open XL C/C++ for AIX V17.1** (*5725-C72, 5765-J18*)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the *minimum* recommended version of the **Open XL C/C++** compiler on **POWER8**, **POWER9**, and **Power10** systems.
-* [**IBM XL C/C++ for AIX V16.1 Service Pack 10** (*IJ36514*)](https://www.ibm.com/support/pages/ibm-xl-cc-aix-161) is the *minimum* recommended version of the **IBM XL C/C++** compiler on **POWER8** and **POWER9** systems.
-* Verify via [**IBM Preventive Service Planning**](https://www.ibm.com/support/pages/aix-os-levels-supported-xl-compilers) that you are using the latest available **XL** compiler PTF for your **IBM AIX** OS level.
-* When building the simulator using **GNU C**, it recommended to use **GCC 10** or later for optimal performance.
-  * **GCC 10** can be installed from the [IBM AIX® Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository.
+* [**IBM Open XL C/C++ for AIX V17.1.1 Fix Pack 2**](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the *minimum* recommended version of the **Open XL C/C++** compiler on **POWER8**, **POWER9**, and **Power10** systems.
+* [**IBM XL C/C++ for AIX V16.1.0 Fix Pack 13**](https://www.ibm.com/support/pages/ibm-xl-cc-aix-161) is the *minimum* recommended version of the **IBM XL C/C++** compiler on **POWER8** and **POWER9** systems.
+* Verify via [**IBM Preventive Service Planning**](https://www.ibm.com/support/pages/aix-os-levels-supported-xl-compilers) that you are using the latest available compiler and PTF update for your **IBM AIX** OS level.
+* When building the simulator using **GNU C**, it recommended to use **GCC 10** (or later) for optimal performance.
+  * **GCC 10** and/or **GCC 11** can be installed from the [IBM AIX® Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository.
 
 []()
 
@@ -777,14 +776,17 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 * Install the required prerequisites from the [IBM AIX® Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository (as *root*):
 
   ```sh
-  /opt/freeware/bin/dnf install sed gmake libuv libuv-devel popt coreutils \
-    gawk compat-getopt compat-getopt-devel
+  /opt/freeware/bin/dnf install sed gmake libuv libuv-devel popt coreutils gawk
   ```
 
-* *Optionally* install **GCC 10** from the [IBM AIX® Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository (as *root*):
+* *Optionally* install **GCC 10** and/or **GCC 11** from the [IBM AIX® Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository (as *root*):
 
   ```sh
   /opt/freeware/bin/dnf install gcc gcc10
+  ```
+  []()
+  ```sh
+  /opt/freeware/bin/dnf install gcc gcc11
   ```
 
 ### AIX compilation
@@ -793,11 +795,11 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 #### IBM Open XL C/C++ for AIX
 
-* Using **IBM Open XL C/C++ for AIX V17.1.0**:
+* Using **IBM Open XL C/C++ for AIX V17.1.1**:
 
   ```sh
   env PATH="/opt/freeware/bin:${PATH}"                                     \
-      CC="/opt/IBM/openxlC/17.1.0/bin/ibm-clang_r"                         \
+      CC="/opt/IBM/openxlC/17.1.1/bin/ibm-clang_r"                         \
       ATOMICS="AIX"                                                        \
       AWK="gawk"                                                           \
       OBJECT_MODE=64                                                       \
@@ -814,7 +816,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
   * When building on IBM **POWER9** (or **Power10**) systems, ‘`-mcpu=power9`’ (*or* ‘`-mcpu=power10`’) should replace ‘`-mcpu=power8`’ in the above compiler invocation.
 
-  * Refer to the [**IBM Open XL C/C++ for AIX V17.1.0 documentation**](https://www.ibm.com/docs/en/openxl-c-and-cpp-aix/17.1.0) for additional information.
+  * Refer to the [**IBM Open XL C/C++ for AIX V17.1.1 documentation**](https://www.ibm.com/docs/en/openxl-c-and-cpp-aix/17.1.1) for additional information.
 
 #### IBM XL C/C++ for AIX
 
@@ -854,6 +856,13 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
   ```sh
   env PATH="/opt/freeware/bin:${PATH}" CC="gcc-10" \
+    ATOMICS="AIX" NO_LTO=1 gmake
+  ```
+
+* Using **GCC 11**:
+
+  ```sh
+  env PATH="/opt/freeware/bin:${PATH}" CC="gcc-11" \
     ATOMICS="AIX" NO_LTO=1 gmake
   ```
 
@@ -1448,6 +1457,8 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
   brew install libuv pkg-config
   ```
 
+* Installation and configuration of [**Homebrew**](https://brew.sh/) and its prerequisites (*i.e.* Xcode CLT) is outside the scope of the **DPS8M** documentation.  Refer to the [**Homebrew Installation Documentation**](https://docs.brew.sh/Installation) if support is required.
+
 * Users of other package managers (*e.g.* [pkgsrc](https://www.pkgsrc.org/), [MacPorts](https://www.macports.org/)) must set the **`CFLAGS`** (*e.g.* '`-I/opt/include`'), **`LDFLAGS`** (*e.g.* '`-L/opt/lib`'), and **`LIBUV`** (*e.g.* '`-luv`') environment variables appropriately.
 
 ### macOS compilation
@@ -1477,7 +1488,7 @@ cross-compile the simulator using **Xcode**.
 
 You **must** perform a '**`make distclean`**' before building for a different target.
 
-* Install required prerequisites using [**Homebrew**](https://brew.sh/):
+* Install required prerequisites (using [**Homebrew**](https://brew.sh/)):
 
   ```sh
   brew install wget pkg-config autoconf automake libtool coreutils

@@ -1,37 +1,24 @@
 ---
 more:
-  - name: "Multics Operating System"
+  - name: ""
     sub:
-    - name: "Multics Wiki"
+    - name: "Multics Operating System"
+      icon: "gdoc_heart"
       ref: "https://swenson.org/multics_wiki/"
       external: true
-  - name: ""
-  - name: "GE/Honeywell/Bull History"
-    sub:
-    - name: "Multicians.org"
+    - name: "Multicians"
+      icon: "gdoc_heart"
       ref: "https://multicians.org/"
       external: true
-    - name: "FEB"
+    - name: "FEB-Patrimoine"
+      icon: "gdoc_bookmark"
       ref: "http://www.feb-patrimoine.com/"
       external: true
-    - name: "Multics History"
-      ref: "https://web.mit.edu/multics-history/"
-      external: true
     - name: "Bitsavers"
-      ref: "http://bitsavers.org/pdf/honeywell/"
+      icon: "gdoc_bookmark"
+      ref: "https://bitsavers.org/pdf/honeywell/"
       external: true
-  - name: ""
-  - name: "Wikipedia"
-    sub:
-      - name: "GE-600 series"
-        ref: "https://en.wikipedia.org/wiki/GE-600_series"
-        external: true
-      - name: "GE 645"
-        ref: "https://en.wikipedia.org/wiki/GE_645"
-        external: true
-      - name: "Honeywell 6000 series"
-        ref: "https://en.wikipedia.org/wiki/Honeywell_6000_series"
-        external: true
-      - name: "Multics"
-        ref: "https://en.wikipedia.org/wiki/Multics"
-        external: true
+    - name: "Wikipedia"
+      icon: "gdoc_bookmark"
+      ref: "https://en.wikipedia.org/wiki/Honeywell_6000_series"
+      external: true

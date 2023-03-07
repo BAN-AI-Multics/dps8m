@@ -555,6 +555,7 @@ get_bld_osar()
                               tr -d '*' 2> /dev/null || \
                                   true  1> /dev/null 2>&1)"
     fi
+    test "${BLD_OSAR:-}" = "unknown" 2> /dev/null && BSD_OSAR=""
     if [ -z "${BLD_OSAR:-}" ]; then
       BLD_OSAR="$( (command -p env uname -m 2> /dev/null ||
           true > /dev/null 2>&1) | \

@@ -307,3 +307,7 @@ src/README.txt
 .nsis/share/*.pdf
 .nsis/share/LICENSE.md
 .nsis/dps8m-master-win-setup.exe
+
+# direnv
+.envrc
+.direnv

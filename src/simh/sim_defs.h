@@ -77,9 +77,7 @@
 #  include <process.h>
 # endif
 
-# ifdef _AIX
-#  include <sys/param.h>              /* MAXPATHLEN */
-# endif
+# include <sys/param.h>               /* MAXPATHLEN */
 
 /* avoid macro names collisions */
 # ifdef MAX

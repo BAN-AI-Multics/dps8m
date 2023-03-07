@@ -49,7 +49,7 @@
 
 #define PROGNAME                       "vmpctool"
 #define PROGDESC                       "virtual memory page cache utility"
-#define VMTOUCH_VERSION                "2101.14.8-dps (2022-11-20)"
+#define VMTOUCH_VERSION                "2101.14.9-dps (2023-03-03)"
 
 #define RESIDENCY_CHART_WIDTH          41
 #define CHART_UPDATE_INTERVAL          0.37
@@ -475,7 +475,7 @@ parse_size(char *inp)
       _Exit(1);
     }
 
-  mult_char = (char)tolower(inp[len - 1]);
+  mult_char = (char)tolower((unsigned int)inp[(unsigned int)(len - 1)]);
 
   if (isalpha((unsigned char)mult_char))
     {

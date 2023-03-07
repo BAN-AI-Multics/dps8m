@@ -22,13 +22,13 @@ enableRobotsTXT     = false
 
 [params]
   geekdocAlign            = "left"
-  geekdocAnchodr          = true
+  geekdocAnchor           = true
   geekdocBackToTop        = false
   geekdocBreadcrumb       = false
   geekdocDarkModeCode     = false
   geekdocImageLazyLoading = true
   geekdocLogo             = "multics-rings.png"
-  geekdocMenuBundle       = false
+  geekdocMenuBundle       = true
   geekdocNextPrev         = false
   geekdocRepo             = "gitlab.com/dps8m/dps8m"
   geekdocSearch           = false
