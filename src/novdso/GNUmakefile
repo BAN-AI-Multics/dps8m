@@ -54,6 +54,9 @@ endif # MINGW32
 ifeq ($(CYGWIN_MINGW_CROSS),1)
   SKIP_COMPILATION=1
 endif # CYGWIN_MINGW_CROSS
+ifeq ($(UNAME_S),AIX)
+  SKIP_COMPILATION=1
+endif # AIX
 ifneq ($(SKIP_COMPILATION),1)
 all: novdso$(EXE)
 	-@$(TRUE)

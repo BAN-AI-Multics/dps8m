@@ -605,7 +605,7 @@ rebuild.env rebuild.vne .rebuild.env .rebuild.vne: FORCE
         > /dev/null 2>&1 || { $(TOUCH) ".rebuild.vne";  $(PRINTF) '%s'        \
           "BUILD: Checksum updated: $$($(HEAD) -n 1 ".rebuild.env" |          \
      $(TR) -cd "0-9")"; $(CP) ".rebuild.vne" ".rebuild.env" > /dev/null;      \
-     $(TOUCH) ".needrebuild" > /dev/null;                                     \
+     $(TEST) -z "$$CI_SKIP_MKREBUILD" && $(TOUCH) ".needrebuild" > /dev/null; \
      $(PRINTF) '%s\n' " -> $$($(HEAD) -n 1 ".rebuild.env" |                   \
        $(TR) -cd "0-9")"; }
 	@$(SETV); $(RMF) ".rebuild.vne"

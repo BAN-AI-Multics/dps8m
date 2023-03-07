@@ -5600,6 +5600,7 @@ clangarm
 confopts
 cpuset
 cputype
+crossbsetup
 crossgcc
 debuginfod
 dfly
@@ -5615,6 +5616,7 @@ emptylibs
 faceb
 fastzip
 fbea
+fdxq
 fopen
 fpic
 fseeko
@@ -5655,6 +5657,7 @@ lsocket
 ltdl
 lzma
 maix
+mkrebuild
 mmacosx
 mpfr
 msgpack
@@ -6007,6 +6010,7 @@ makedepend
 makeflags
 maketar
 march
+mkrebuild
 msys
 needrebuild
 nios
@@ -9465,6 +9469,7 @@ directly
 directories
 directory
 directs
+direnv
 dirs
 dirty
 disable
@@ -10114,6 +10119,7 @@ glyphs
 gmail
 gmake
 gnomes
+gnubin
 goal
 goals
 goes
@@ -10728,6 +10734,7 @@ libbacktrace
 libbrotli
 libcurl
 liberal
+libexec
 libraries
 library
 libs
@@ -13036,6 +13043,7 @@ ubuntu
 udplib
 ugly
 uint
+ulimit
 ultimately
 ultra
 umakefile
