@@ -3976,7 +3976,7 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-src.7z public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-src.zip public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-src.zpaq public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-s114-sv9.tar public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-s114-sv9.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-b4a.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-l4a.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-nbd93-a64.tar.gz public
