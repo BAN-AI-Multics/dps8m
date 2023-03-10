@@ -6,7 +6,7 @@
 # Copyright (c) 2018-2019 Charles Anthony <charles.unix.pro@gmail.com>
 # Copyright (c) 2019-2020 Eric Swenson <eric@swenson.org>
 # Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
-# Copyright (c) 2021-2022 The DPS8M Development Team
+# Copyright (c) 2021-2023 The DPS8M Development Team
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -451,12 +451,12 @@ Linux/x86_64, AlmaLinux 9, Clang, GCC:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - make distclean
     - *scriptDPS8Mods
     - make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -492,12 +492,12 @@ Linux/x86_64, Alpine Edge, Clang, GCC:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - make distclean
     - *scriptDPS8Mods
     - env LDFLAGS=-static make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
@@ -2273,7 +2273,7 @@ Linux/x86_64, Fedora, Intel oneAPI DPC++/C++:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - . /opt/intel/oneapi/common.sh 2> /dev/null && . /opt/intel/oneapi/setvars.sh 2> /dev/null && icx -V && CFLAGS="-Wno-tautological-constant-compare" make CC=icx WITH_BACKTRACE=1 NO_LTO=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -2385,12 +2385,12 @@ Linux/x86_64, Fedora, Clang, GCC:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - make distclean
     - *scriptDPS8Mods
     - make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -2483,12 +2483,12 @@ Linux/x86_64, Fedora Rawhide, Clang, GCC:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - make distclean
     - *scriptDPS8Mods
     - make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -2518,7 +2518,7 @@ AIX/powerpc64, IBM AIX, GCC:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - env CFLAGS="-I/usr/local/include" LDFLAGS="-L/usr/local/lib" gmake CC=gcc-10 NO_LTO=1 -j $(lparstat -i | grep '^Desired Virtual CPUs' | cut -d ':' -f 2 | tr -cd '0-9\n' || printf '%s\n' "6")
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
@@ -2555,7 +2555,7 @@ AIX/powerpc64, IBM AIX, IBM XL C/C++ V16.1:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - export XLCXLC="xlc_r" && export XLCVER="16.1.0" && gmake -j $(lparstat -i | grep '^Desired Virtual CPUs' | cut -d ':' -f 2 | tr -cd '0-9\n' || printf '%s\n' "6") NO_LTO=1 CC="/opt/IBM/xlC/${XLCVER:?}/bin/${XLCXLC:?} -O3 -qhot -qarch=pwr8 -qchars=signed -q64 -qalign=natural -qtls" CFLAGS="-DUSE_POPT=1 -DUSE_FLOCK=1 -DUSE_FCNTL=1 -DAIX_ATOMICS=1 -DNEED_128=1 -DLOCKLESS=1 -I/opt/freeware/include -I../simh -I../decNumber -D_GNU_SOURCE -U__STRICT_POSIX__" USE_POPT=1 NEED_128=1 PULIBS="-lpopt" LDFLAGS="-L/opt/freeware/lib -b64" LIBS="-luv -lbsd -lm"
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
@@ -2593,7 +2593,7 @@ AIX/powerpc64, IBM AIX, IBM XL C/C++ V16.1:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - export XLCVER="16.1.0" && LDFLAGS="-L/opt/freeware/lib -b64 -m64" CFLAGS="-m64 -I/opt/freeware/include" gmake -j $(lparstat -i | grep '^Desired Virtual CPUs' | cut -d ':' -f 2 | tr -cd '0-9\n' || printf '%s\n' "6") NO_LTO=1 CC="/opt/IBM/xlC/${XLCVER:?}/bin/xlclang" NEED_128=1
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -2625,7 +2625,7 @@ Linux/powerpc64el, Ubuntu, IBM XL C/C++:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - export IBMXLCVER="latest" && /opt/ibm/xlC/"${IBMXLCVER:?}"/bin/c99_r -qversion 2>&1 | grep "Version" && make NO_LTO=1 CC=/opt/ibm/xlC/"${IBMXLCVER:?}"/bin/c99_r -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
@@ -2666,7 +2666,7 @@ Linux/powerpc64el, Ubuntu, IBM Open XL C/C++:
     - *scriptExtraInfo
     - sleep 10 || true
     - ( export IBMOXLCVER="latest" && /opt/ibm/openxlC/"${IBMOXLCVER:?}"/bin/ibm-clang_at --version && CFLAGS="-mcpu=pwr9" make CC=/opt/ibm/openxlC/"${IBMOXLCVER:?}"/bin/ibm-clang_at -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") )
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
@@ -2680,7 +2680,7 @@ Linux/powerpc64el, Ubuntu, IBM Open XL C/C++:
     - mkdir -p "src/${DISTDIR:?}"
     - *scriptDPS8Mods
     - ( export IBMOXLCVER="latest" && /opt/ibm/openxlC/"${IBMOXLCVER:?}"/bin/ibm-clang_r --version && CFLAGS="-mcpu=pwr8" make CC=/opt/ibm/openxlC/"${IBMOXLCVER:?}"/bin/ibm-clang_r -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") )
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
@@ -2721,7 +2721,7 @@ Linux/powerpc64el, Ubuntu, IBM Open XL C/C++:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - export IBMATVER="15.0" && export PATH="/opt/at${IBMATVER:?}/bin:/opt/at${IBMATVER:?}/sbin:/opt/at${IBMATVER:?}/powerpc64le-linux-gnu/bin:${PATH:?}" && cc --version 2>&1 | grep "Advance" && make CC="gcc -DNO_WARN_X86_INTRINSICS -ftree-vectorize -fpeel-loops -mcpu=power8 -mtune=power8 -fsigned-char -Ofast -flto" LIBS="-L/opt/at${IBMATVER:?}/lib64 -luv -ldl -lrt -lm -flto" -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptVerifyVersion
     - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - mkdir -p "src/${DISTDIR:?}"
@@ -2935,12 +2935,12 @@ Linux/x86_64, Oracle Linux 8, Clang, GCC:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - make distclean
     - *scriptDPS8Mods
     - make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -3015,12 +3015,12 @@ Linux/x86_64, Ubuntu, Clang, GCC:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - make distclean
     - *scriptDPS8Mods
     - make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -3057,12 +3057,12 @@ Linux/x86_64, Ubuntu LTS, Clang, GCC:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - make distclean
     - *scriptDPS8Mods
     - make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -3101,7 +3101,7 @@ Linux/x86_64, Ubuntu LTS, Clang, GCC:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - make distclean
     - *scriptDPS8Mods
@@ -3144,7 +3144,7 @@ Linux/x86_64, Ubuntu LTS, Clang, GCC:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - ( export LDFLAGS="-static"; make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") )
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - make distclean
     - *scriptDPS8Mods
@@ -3247,12 +3247,12 @@ illumos/x86_64, OpenIndiana Hipster, Clang, GCC:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - gmake CC=clang-15 NO_LTO=1 -j 6
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - gmake distclean
     - *scriptDPS8Mods
     - gmake WITH_BACKTRACE=1 CC=gcc-11 -j 6
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
@@ -3290,7 +3290,7 @@ Darwin/x86_64, macOS, Xcode:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - $(command -v gmake) CC="$(command -v ccache) $(command -v clang)" -j $(( $(getconf NPROCESSORS_ONLN || printf '%s\n' "6") * 2 ))
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
@@ -3329,8 +3329,9 @@ Darwin/x86_64, macOS, static, Xcode:
     - *scriptExtraInfo
     - export HOMEBREW_PREFIX="$(brew --prefix)"
     - export DEPLOY="10.13"
-    - env CC="$(command -v ccache) $(command -v clang)" CFLAGS="-target x86_64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}" LOCAL_CONFOPTS="--host=x86_64-apple-darwin" "$(command -v gmake)" libuvrel HOMEBREW_INC= HOMEBREW_LIB= && env CC="$(command -v ccache) $(command -v clang)" CFLAGS="-target x86_64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}" LDFLAGS="-target x86_64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}" "$(command -v gmake)" -j $(( $(getconf NPROCESSORS_ONLN || printf '%s\n' "6") * 2 )) HOMEBREW_INC= HOMEBREW_LIB=
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - sh -c "env CI_SKIP_MKREBUILD=1 CC=\"$(command -v ccache) $(command -v clang)\" CFLAGS=\"-target x86_64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}\" LOCAL_CONFOPTS=\"--host=x86_64-apple-darwin\" \"$(command -v gmake)\" libuvdev -j $(getconf NPROCESSORS_ONLN || printf \"%s\" \"6\") HOMEBREW_INC= HOMEBREW_LIB= "
+    - sh -c "env CI_SKIP_MKREBUILD=1 CC=\"$(command -v ccache) $(command -v clang)\" CFLAGS=\"-target x86_64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}\" LDFLAGS=\"-target x86_64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}\" \"$(command -v gmake)\" -j $(getconf NPROCESSORS_ONLN || printf \"%s\" \"6\") HOMEBREW_INC= HOMEBREW_LIB= "
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
@@ -3369,7 +3370,8 @@ Darwin/ARM64, macOS, static, Xcode:
     - *scriptExtraInfo
     - export HOMEBREW_PREFIX="$(brew --prefix)"
     - export DEPLOY="11.0"
-    - env CC="$(command -v ccache) $(command -v clang)" CFLAGS="-target arm64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}" LOCAL_CONFOPTS="--host=arm64-apple-darwin" "$(command -v gmake)" libuvrel -j $(( $(getconf NPROCESSORS_ONLN || printf '%s\n' "6") * 2 )) HOMEBREW_INC= HOMEBREW_LIB= && env CC="$(command -v ccache) $(command -v clang)" CFLAGS="-target arm64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}" LDFLAGS="-target arm64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}" "$(command -v gmake)" -j $(( $(getconf NPROCESSORS_ONLN || printf '%s\n' "6") * 2 )) HOMEBREW_INC= HOMEBREW_LIB=
+    - sh -c "env CI_SKIP_MKREBUILD=1 CC=\"$(command -v ccache) $(command -v clang)\" CFLAGS=\"-target arm64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}\" LOCAL_CONFOPTS=\"--host=arm64-apple-darwin\" \"$(command -v gmake)\" libuvdev -j $(getconf NPROCESSORS_ONLN || printf \"%s\" \"6\") HOMEBREW_INC= HOMEBREW_LIB= "
+    - sh -c "env CI_SKIP_MKREBUILD=1 CC=\"$(command -v ccache) $(command -v clang)\" CFLAGS=\"-target arm64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}\" LDFLAGS=\"-target arm64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}\" \"$(command -v gmake)\" -j $(getconf NPROCESSORS_ONLN || printf \"%s\" \"6\") HOMEBREW_INC= HOMEBREW_LIB= "
     - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
@@ -3405,12 +3407,12 @@ Darwin/Universal, macOS, static, Xcode:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - export HOMEBREW_PREFIX="$(brew --prefix)"
-    - env CC="$(command -v ccache) $(command -v clang)" CFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0" LOCAL_CONFOPTS="--host=arm64-apple-darwin" $(command -v gmake) libuvrel -j $(( $(getconf NPROCESSORS_ONLN || printf '%s\n' "6") * 2 )) HOMEBREW_INC= HOMEBREW_LIB=
-    - env CC="$(command -v ccache) $(command -v clang)" CFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0" LDFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0" $(command -v gmake) -j $(( $(getconf NPROCESSORS_ONLN || printf '%s\n' "6") * 2 )) HOMEBREW_INC= HOMEBREW_LIB= && cp -f "src/dps8/dps8" "dps8.arm64" && cp -f "src/prt2pdf/prt2pdf" "prt2pdf.arm64" && cp -f "src/punutil/punutil" "punutil.arm64"
-    - make distclean && env CC="$(command -v ccache) $(command -v clang)" CFLAGS="-target x86_64-apple-macos10.13 -mmacosx-version-min=10.13" LOCAL_CONFOPTS="--host=x86_64-apple-darwin" $(command -v gmake) libuvrel -j $(( $(getconf NPROCESSORS_ONLN || printf '%s\n' "6") * 2 )) HOMEBREW_INC= HOMEBREW_LIB=
-    - env CC="$(command -v ccache) $(command -v clang)" CFLAGS="-target x86_64-apple-macos10.13 -mmacosx-version-min=10.13" LDFLAGS="-target x86_64-apple-macos10.13 -mmacosx-version-min=10.13" $(command -v gmake) -j $(( $(getconf NPROCESSORS_ONLN || printf '%s\n' "6") * 2 )) HOMEBREW_INC= HOMEBREW_LIB= && cp -f "src/dps8/dps8" "dps8.x86_64" && cp -f "src/prt2pdf/prt2pdf" "prt2pdf.x86_64" && cp -f "src/punutil/punutil" "punutil.x86_64"
-    - make distclean && env CC="$(command -v ccache) $(command -v clang)" CFLAGS="-target x86_64h-apple-macos10.15 -mmacosx-version-min=10.15 -march=haswell" LOCAL_CONFOPTS="--host=x86_64-apple-darwin" $(command -v gmake) libuvrel -j $(( $(getconf NPROCESSORS_ONLN || printf '%s\n' "6") * 2 )) HOMEBREW_INC= HOMEBREW_LIB=
-    - env CC="$(command -v ccache) $(command -v clang)" CFLAGS="-target x86_64h-apple-macos10.15 -mmacosx-version-min=10.15 -march=haswell" LDFLAGS="-target x86_64h-apple-macos10.15 -mmacosx-version-min=10.15" $(command -v gmake) -j $(( $(getconf NPROCESSORS_ONLN || printf '%s\n' "6") * 2 )) HOMEBREW_INC= HOMEBREW_LIB= && cp -f "src/dps8/dps8" "dps8.x86_64h" && cp -f "src/prt2pdf/prt2pdf" "prt2pdf.x86_64h" && cp -f "src/punutil/punutil" "punutil.x86_64h"
+    - sh -c "env CI_SKIP_MKREBUILD=1 CC=\"$(command -v ccache) $(command -v clang)\" CFLAGS=\"-target arm64-apple-macos11 -mmacosx-version-min=11.0\" LOCAL_CONFOPTS=\"--host=arm64-apple-darwin\" $(command -v gmake) libuvdev -j $(getconf NPROCESSORS_ONLN || printf \"%s\" \"6\") HOMEBREW_INC= HOMEBREW_LIB= "
+    - env CI_SKIP_MKREBUILD=1 CC="$(command -v ccache) $(command -v clang)" CFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0" LDFLAGS="-target arm64-apple-macos11 -mmacosx-version-min=11.0" $(command -v gmake) -j $(getconf NPROCESSORS_ONLN || printf '%s\n' "6") HOMEBREW_INC= HOMEBREW_LIB= && cp -f "src/dps8/dps8" "dps8.arm64" && cp -f "src/prt2pdf/prt2pdf" "prt2pdf.arm64" && cp -f "src/punutil/punutil" "punutil.arm64"
+    - sh -c "make distclean && env CI_SKIP_MKREBUILD=1 CC=\"$(command -v ccache) $(command -v clang)\" CFLAGS=\"-target x86_64-apple-macos10.13 -mmacosx-version-min=10.13\" LOCAL_CONFOPTS=\"--host=x86_64-apple-darwin\" $(command -v gmake) libuvdev -j $(getconf NPROCESSORS_ONLN || printf \"%s\" \"6\") HOMEBREW_INC= HOMEBREW_LIB= "
+    - env CI_SKIP_MKREBUILD=1 CC="$(command -v ccache) $(command -v clang)" CFLAGS="-target x86_64-apple-macos10.13 -mmacosx-version-min=10.13" LDFLAGS="-target x86_64-apple-macos10.13 -mmacosx-version-min=10.13" $(command -v gmake) -j $(getconf NPROCESSORS_ONLN || printf '%s\n' "6") HOMEBREW_INC= HOMEBREW_LIB= && cp -f "src/dps8/dps8" "dps8.x86_64" && cp -f "src/prt2pdf/prt2pdf" "prt2pdf.x86_64" && cp -f "src/punutil/punutil" "punutil.x86_64"
+    - sh -c "make distclean && env CI_SKIP_MKREBUILD=1 CC=\"$(command -v ccache) $(command -v clang)\" CFLAGS=\"-target x86_64h-apple-macos10.15 -mmacosx-version-min=10.15 -march=haswell\" LOCAL_CONFOPTS=\"--host=x86_64-apple-darwin\" $(command -v gmake) libuvdev -j $(getconf NPROCESSORS_ONLN || printf \"%s\" \"6\") HOMEBREW_INC= HOMEBREW_LIB= "
+    - env CI_SKIP_MKREBUILD=1 CC="$(command -v ccache) $(command -v clang)" CFLAGS="-target x86_64h-apple-macos10.15 -mmacosx-version-min=10.15 -march=haswell" LDFLAGS="-target x86_64h-apple-macos10.15 -mmacosx-version-min=10.15" $(command -v gmake) -j $(getconf NPROCESSORS_ONLN || printf '%s\n' "6") HOMEBREW_INC= HOMEBREW_LIB= && cp -f "src/dps8/dps8" "dps8.x86_64h" && cp -f "src/prt2pdf/prt2pdf" "prt2pdf.x86_64h" && cp -f "src/punutil/punutil" "punutil.x86_64h"
     - lipo -create -output "dps8" "dps8.x86_64" "dps8.x86_64h" "dps8.arm64" && lipo -create -output "prt2pdf" "prt2pdf.x86_64" "prt2pdf.x86_64h" "prt2pdf.arm64" && lipo -create -output "punutil" "punutil.x86_64" "punutil.x86_64h" "punutil.arm64" && env rm -f *.x86_64 *.x86_64h *.arm64
     - rm -f "src/dps8/dps8" && cp -f "dps8" "src/dps8/dps8"
     - rm -f "src/prt2pdf/prt2pdf" && cp -f "prt2pdf" "src/prt2pdf/prt2pdf"
@@ -3612,12 +3614,12 @@ Multics CI-Kit Test:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - make distclean
     - *scriptDPS8Mods
     - make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "show version" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts

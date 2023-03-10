@@ -331,7 +331,7 @@ else
 # libpopt: IBM AIX Toolbox libpopt 1.18 (libpopt-1.18-1) or later is required.
 
   ifeq ($(UNAME_S),AIX)
-    KRNBITS=$(shell getconf KERNEL_BITMODE 2> /dev/null || printf '%s' "64")
+    KRNBITS:=$(shell getconf KERNEL_BITMODE 2> /dev/null || printf '%s' "64")
     CFLAGS += $(OVR_FLOCK) -DUSE_FCNTL=1 -DHAVE_POPT=1 -maix$(KRNBITS)        \
               -Wl,-b$(KRNBITS)
     LDFLAGS += $(MATHLIB) -lpthread -lpopt -lbsd -maix$(KRNBITS)              \
@@ -354,18 +354,17 @@ else
 ###############################################################################
 # SunOS
 
-# OpenIndiana illumos: GCC 7, GCC 10, Clang 9, all supported.
-# Oracle Solaris 11: GCC only. Clang and SunCC need some work.
+# OpenIndiana illumos and Oracle Solaris 11: GCC 7+, Clang 9+, and SunCC work.
 
   ifeq ($(UNAME_S),SunOS)
     ifeq ($(shell $(UNAME) -o 2> /dev/null),illumos)
-      ISABITS=$(shell isainfo -b 2> /dev/null || printf '%s' "64")
+      ISABITS :=$(shell isainfo -b 2> /dev/null || printf '%s' "64")
       CFLAGS  +=-I/usr/local/include -m$(ISABITS) -DUSE_FCNTL=1
       LDFLAGS +=-L/usr/local/lib -lsocket -lnsl $(MATHLIB) -lpthread          \
                 -lmtmalloc -ldl -m$(ISABITS)
     endif
     ifeq ($(shell $(UNAME) -o 2> /dev/null),Solaris)
-      ISABITS=$(shell isainfo -b 2> /dev/null || printf '%s' "64")
+      ISABITS :=$(shell isainfo -b 2> /dev/null || printf '%s' "64")
       CFLAGS  +=-I/usr/local/include -m$(ISABITS) -DUSE_FCNTL=1
       LDFLAGS +=-L/usr/local/lib -lsocket -lnsl $(MATHLIB) -lpthread          \
                 -lmtmalloc -lkstat -ldl -m$(ISABITS)
@@ -395,7 +394,7 @@ ifeq ($(UNAME_S),Linux)
     endif
   endif
   ifndef UNAME_M
-    UNAME_M=$(shell $(UNAME) -m 2> /dev/null)
+    UNAME_M:=$(shell $(UNAME) -m 2> /dev/null)
   endif
   ifeq ($(UNAME_M),m68k)
     export NEED_128=1

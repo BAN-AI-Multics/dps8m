@@ -115,13 +115,13 @@ ifneq (,$(wildcard libuv-local/local/include/uv.h))
         endif
       endif
       ifneq (,$(wildcard libuv-local/local/lib/pkgconfig/libuv.pc))
-        Pklibs=$(shell exec 2> /dev/null; eval $$( 2> /dev/null $(TR) -d '"'  \
+        Pklibs:=$(shell exec 2> /dev/null; eval $$( 2> /dev/null $(TR) -d '"' \
           < libuv-local/local/lib/pkgconfig/libuv.pc | $(SED) 's/=/="/'       \
             2> /dev/null | $(SED) 's/: /="/' 2> /dev/null | $(GREP) '"'       \
               2> /dev/null | $(SED) 's/$$/"/' 2> /dev/null |                  \
                 $(SED) 's/\ \+"/"/g' 2> /dev/null | $(GREP) '=".*"$$'         \
                   2> /dev/null ); $(PRINTF) '%s\n' $$Libs)
-        Pkcflags=$(shell exec 2> /dev/null; eval $$( 2> /dev/null             \
+        Pkcflags:=$(shell exec 2> /dev/null; eval $$( 2> /dev/null            \
           $(TR) -d '"' < libuv-local/local/lib/pkgconfig/libuv.pc |           \
             $(SED) 's/=/="/' 2> /dev/null | $(SED) 's/: /="/' 2> /dev/null |  \
               $(GREP) '"' 2> /dev/null | $(SED) 's/$$/"/' 2> /dev/null |      \
@@ -129,18 +129,18 @@ ifneq (,$(wildcard libuv-local/local/include/uv.h))
                   2> /dev/null ); $(PRINTF) '%s\n' $$Cflags)
       endif
       ifeq (,$(findstring uv,$(Pklibs)))
-        Pklibs=../../libuv-local/local/lib/libuv.a
+        Pklibs:=../../libuv-local/local/lib/libuv.a
       endif
       ifeq (,$(findstring -,$(Pkcflags)))
-        Pkcflags=-I../../libuv-local/local/include
+        Pkcflags:=-I../../libuv-local/local/include
       endif
       # This horrible construct is to work around an old make bug.
-      LLUVFLAGS=$(shell $(PRINTF) %s%s\\n \
+      LLUVFLAGS:=$(shell $(PRINTF) %s%s\\n \
                    "$(Pkcflags) -I..\/..\/libuv-local\/local\/include "       \
                      " $(CFLAGS)" | $(SED) 's/-I -I/-I/' 2> /dev/null)
 	  CFLAGS:=$(shell $(PRINTF) %s\\n "$(LLUVFLAGS)")
       export CFLAGS
-      LIBUV=$(shell $(PRINTF) %s\\n "$(Pklibs)" | \
+      LIBUV:=$(shell $(PRINTF) %s\\n "$(Pklibs)" | \
               $(SED) 's/-L -luv/..\/..\/libuv-local\/local\/lib\/libuv.a /'   \
                 2> /dev/null)
       export LIBUV
