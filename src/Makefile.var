@@ -117,7 +117,7 @@ ifndef LTO_SKIP
     ifndef SUNPRO
       ifndef SUNLINT
       # LTO invocation: Try `-flto=auto`, fall back to `-ftlo`
-      LTOSYN=$(shell $(CC) -flto=auto -E - < /dev/null > /dev/null 2>&1 &&    \
+      LTOSYN:=$(shell $(CC) -flto=auto -E - < /dev/null > /dev/null 2>&1 &&   \
                $(PRINTF) '%s\n' "-flto=auto" || $(PRINTF) '%s\n' "-flto")
         ifeq "$(findstring clang,$(CC))" ""
           ifeq "$(findstring gcc,$(CC))" ""
@@ -230,7 +230,7 @@ endif
 # For embedding current time of building object
 
 ifndef VER_CURRENT_TIME
-  VER_CURRENT_TIME=$(shell env TZ=UTC date -u "+%Y-%m-%d %H:%M UTC"           \
+  VER_CURRENT_TIME:=$(shell env TZ=UTC date -u "+%Y-%m-%d %H:%M UTC"          \
     2> /dev/null || printf '%s\n' "2020-01-01 00:00 UTC")
 endif
 export VER_CURRENT_TIME
@@ -239,16 +239,16 @@ export VER_CURRENT_TIME
 # IBM AIX
 
 ifdef OS_IBMAIX
-  BUILD_OSAP_OSS_TEXT=$(shell printf '%s\n' "$(OS_IBMAIX)"  2> /dev/null  |   \
+  BUILD_OSAP_OSS_TEXT:=$(shell printf '%s\n' "$(OS_IBMAIX)" 2> /dev/null  |   \
     tr -d '*'                                               2> /dev/null  |   \
       tr -s ' '                                             2> /dev/null ||   \
         printf '%s\n' "Unknown")
   export BUILD_OSAP_OSS_TEXT
-  BUILD_OSAP_OSM_TEXT=$(shell (uname -M                     2> /dev/null ||   \
-   uname -p 2> /dev/null)                                                 |   \
-    sed 's/ (emulated by ....)//'                           2> /dev/null ||   \
-      tr -d '*'                                             2> /dev/null  |   \
-        tr -s ' '                                           2> /dev/null ||   \
+  BUILD_OSAP_OSM_TEXT:=$(shell (uname -M                    2> /dev/null  ||  \
+   uname -p 2> /dev/null)                                                  |  \
+    sed 's/ (emulated by ....)//'                           2> /dev/null  ||  \
+      tr -d '*'                                             2> /dev/null   |  \
+        tr -s ' '                                           2> /dev/null  ||  \
           printf '%s\n' "Unknown")
   export BUILD_OSAP_OSM_TEXT
 endif
@@ -257,13 +257,13 @@ endif
 
 ifndef BUILD_PROM_OSV_TEXT
   ifndef BUILD_OSAP_OSS_TEXT
-    BUILD_OSAP_OSS_TEXT=$(shell uname -s  2> /dev/null  |                     \
+    BUILD_OSAP_OSS_TEXT:=$(shell uname -s 2> /dev/null  |                     \
       tr -d '*'                           2> /dev/null  |                     \
         tr -s ' '                         2> /dev/null ||                     \
           printf '%s\n' "Unknown")
     export BUILD_OSAP_OSS_TEXT
   endif
-  BUILD_PROM_OSV_TEXT=$(shell printf '%-20s\n' "$(BUILD_OSAP_OSS_TEXT)" |     \
+  BUILD_PROM_OSV_TEXT:=$(shell printf '%-20s\n' "$(BUILD_OSAP_OSS_TEXT)" |    \
     cut -b 1-20 2> /dev/null)
 endif
 
@@ -271,13 +271,13 @@ endif
 
 ifndef BUILD_PROM_OSA_TEXT
   ifndef BUILD_OSAP_OSM_TEXT
-    BUILD_OSAP_OSM_TEXT=$(shell uname -m  2> /dev/null  |                     \
+    BUILD_OSAP_OSM_TEXT:=$(shell uname -m 2> /dev/null  |                     \
       tr -d '*'                           2> /dev/null  |                     \
         tr -s ' '                         2> /dev/null ||                     \
           printf '%s\n' "Unknown")
     export BUILD_OSAP_OSM_TEXT
   endif
-  BUILD_PROM_OSA_TEXT=$(shell printf '%-20s\n' "$(BUILD_OSAP_OSM_TEXT)" |     \
+  BUILD_PROM_OSA_TEXT:=$(shell printf '%-20s\n' "$(BUILD_OSAP_OSM_TEXT)" |    \
     cut -b 1-20 2> /dev/null)
 endif
 
@@ -286,7 +286,7 @@ endif
 
 ifeq (,$(wildcard ../dps8/make_ver.sh))
   ifneq (,$(wildcard ../dps8/build_usr.sh))
-    BUILD_BY_USER=$(shell ../dps8/build_usr.sh)
+    BUILD_BY_USER:=$(shell ../dps8/build_usr.sh)
   else
     BUILD_BY_USER=Unknown
   endif
