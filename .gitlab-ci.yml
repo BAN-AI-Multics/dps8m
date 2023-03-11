@@ -77,6 +77,7 @@
     echo "Running apt-get update ..."
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update -y -qq
     echo "Installing software ..."
+    export ARGS="apt-utils"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
     export ARGS="gawk moreutils apt-utils gnupg2 bash curl wget git lsb-release software-properties-common time"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
     echo "Running apt-get upgrade ..."
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq
@@ -393,8 +394,8 @@
 .scriptVerifyVersion: &scriptVerifyVersion |
     # *scriptVerifyVersion - Smoke-test ...
     ./src/dps8/dps8 --version | grep 'imulator'
-    echo "SHOW VERSION" | ./src/dps8/dps8 | grep 'imulator '
-    printf '%s\n' "SHOW BUILDINFO" "ECHO" "SHOW VERSION" | ./src/dps8/dps8
+    echo "SHOW VERSION" | ./src/dps8/dps8 -t | grep 'imulator '
+    printf '%s\n' "SHOW BUILDINFO" "ECHO" "SHOW VERSION" | ./src/dps8/dps8 -t
 
 ############################################################################
 # Workflow
@@ -451,12 +452,12 @@ Linux/x86_64, AlmaLinux 9, Clang, GCC:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - make distclean
     - *scriptDPS8Mods
     - make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -492,12 +493,12 @@ Linux/x86_64, Alpine Edge, Clang, GCC:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - make distclean
     - *scriptDPS8Mods
     - env LDFLAGS=-static make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
@@ -2273,7 +2274,7 @@ Linux/x86_64, Fedora, Intel oneAPI DPC++/C++:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - . /opt/intel/oneapi/common.sh 2> /dev/null && . /opt/intel/oneapi/setvars.sh 2> /dev/null && icx -V && CFLAGS="-Wno-tautological-constant-compare" make CC=icx WITH_BACKTRACE=1 NO_LTO=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -2308,7 +2309,7 @@ Linux/x86_64, Fedora, Oracle Developer Studio:
     - pkill suncc > /dev/null 2>&1 || true
     - export CSTD="c11" && export CFLAGS="-DNO_C_ELLIPSIS -DUSE_FLOCK=1 -DUSE_FCNTL=1" && make CC="ccache /opt/oracle/developerstudio-latest/bin/suncc -xatomic=studio -xautopar -Qy -fd -xO5 -m64 -xlibmil -xvpara -xCC -mt -xlibmopt -xloopinfo -fno-semantic-interposition -xregs=frameptr -xprefetch=auto -xprefetch_level=3 -xjobs=$(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")" SUNPRO=1 NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") 2>&1 | grep --line-buffered -v -e " not parallelized" -e " enumerator value overflows INT_MAX"
     - pkill suncc > /dev/null 2>&1 || true
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - lzip -9vk < /opt/oracle/developerstudio12.6/lib/compilers/atomic/amd64/libstatomic.so.1 > libstatomic.so.1.lz
@@ -2385,12 +2386,12 @@ Linux/x86_64, Fedora, Clang, GCC:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - make distclean
     - *scriptDPS8Mods
     - make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -2483,12 +2484,12 @@ Linux/x86_64, Fedora Rawhide, Clang, GCC:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - make distclean
     - *scriptDPS8Mods
     - make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -2518,7 +2519,7 @@ AIX/powerpc64, IBM AIX, GCC:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - env CFLAGS="-I/usr/local/include" LDFLAGS="-L/usr/local/lib" gmake CC=gcc-10 NO_LTO=1 -j $(lparstat -i | grep '^Desired Virtual CPUs' | cut -d ':' -f 2 | tr -cd '0-9\n' || printf '%s\n' "6")
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
@@ -2555,7 +2556,7 @@ AIX/powerpc64, IBM AIX, IBM XL C/C++ V16.1:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - export XLCXLC="xlc_r" && export XLCVER="16.1.0" && gmake -j $(lparstat -i | grep '^Desired Virtual CPUs' | cut -d ':' -f 2 | tr -cd '0-9\n' || printf '%s\n' "6") NO_LTO=1 CC="/opt/IBM/xlC/${XLCVER:?}/bin/${XLCXLC:?} -O3 -qhot -qarch=pwr8 -qchars=signed -q64 -qalign=natural -qtls" CFLAGS="-DUSE_POPT=1 -DUSE_FLOCK=1 -DUSE_FCNTL=1 -DAIX_ATOMICS=1 -DNEED_128=1 -DLOCKLESS=1 -I/opt/freeware/include -I../simh -I../decNumber -D_GNU_SOURCE -U__STRICT_POSIX__" USE_POPT=1 NEED_128=1 PULIBS="-lpopt" LDFLAGS="-L/opt/freeware/lib -b64" LIBS="-luv -lbsd -lm"
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
@@ -2593,7 +2594,7 @@ AIX/powerpc64, IBM AIX, IBM XL C/C++ V16.1:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - export XLCVER="16.1.0" && LDFLAGS="-L/opt/freeware/lib -b64 -m64" CFLAGS="-m64 -I/opt/freeware/include" gmake -j $(lparstat -i | grep '^Desired Virtual CPUs' | cut -d ':' -f 2 | tr -cd '0-9\n' || printf '%s\n' "6") NO_LTO=1 CC="/opt/IBM/xlC/${XLCVER:?}/bin/xlclang" NEED_128=1
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -2625,7 +2626,7 @@ Linux/powerpc64el, Ubuntu, IBM XL C/C++:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - export IBMXLCVER="latest" && /opt/ibm/xlC/"${IBMXLCVER:?}"/bin/c99_r -qversion 2>&1 | grep "Version" && make NO_LTO=1 CC=/opt/ibm/xlC/"${IBMXLCVER:?}"/bin/c99_r -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
@@ -2666,7 +2667,7 @@ Linux/powerpc64el, Ubuntu, IBM Open XL C/C++:
     - *scriptExtraInfo
     - sleep 10 || true
     - ( export IBMOXLCVER="latest" && /opt/ibm/openxlC/"${IBMOXLCVER:?}"/bin/ibm-clang_at --version && CFLAGS="-mcpu=pwr9" make CC=/opt/ibm/openxlC/"${IBMOXLCVER:?}"/bin/ibm-clang_at -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") )
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
@@ -2680,7 +2681,7 @@ Linux/powerpc64el, Ubuntu, IBM Open XL C/C++:
     - mkdir -p "src/${DISTDIR:?}"
     - *scriptDPS8Mods
     - ( export IBMOXLCVER="latest" && /opt/ibm/openxlC/"${IBMOXLCVER:?}"/bin/ibm-clang_r --version && CFLAGS="-mcpu=pwr8" make CC=/opt/ibm/openxlC/"${IBMOXLCVER:?}"/bin/ibm-clang_r -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") )
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
@@ -2721,7 +2722,7 @@ Linux/powerpc64el, Ubuntu, IBM Open XL C/C++:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - export IBMATVER="15.0" && export PATH="/opt/at${IBMATVER:?}/bin:/opt/at${IBMATVER:?}/sbin:/opt/at${IBMATVER:?}/powerpc64le-linux-gnu/bin:${PATH:?}" && cc --version 2>&1 | grep "Advance" && make CC="gcc -DNO_WARN_X86_INTRINSICS -ftree-vectorize -fpeel-loops -mcpu=power8 -mtune=power8 -fsigned-char -Ofast -flto" LIBS="-L/opt/at${IBMATVER:?}/lib64 -luv -ldl -lrt -lm -flto" -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptVerifyVersion
     - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - mkdir -p "src/${DISTDIR:?}"
@@ -2935,12 +2936,12 @@ Linux/x86_64, Oracle Linux 8, Clang, GCC:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - make distclean
     - *scriptDPS8Mods
     - make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -3006,21 +3007,30 @@ Linux/x86_64, Ubuntu, Clang, GCC:
   script:
     - export GLCICD_JOB="UbuntuCurrentx64" && export DTIMESTAMP="$(stat -c "%Y" /etc/os-release)"
     - ( (apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null); apt-get -qq -y install bzip2 wget > /dev/null || apt-get -qq -y install wget bzip2 > /dev/null )
+    - ( (apt-get -qq -y install ca-certificates ubuntu-advantage-tools > /dev/null || apt-get -qq -y install ca-certificates ubuntu-advantage-tools > /dev/null); true ) || true
+    - ( yes | pro attach ${UBUNTU_TOKEN:-0} 2> /dev/null ) || true
+    - ( yes | pro enable esm-apps --assume-yes 2> /dev/null ) || true
+    - ( yes | pro enable esm-apps --assume-yes --beta 2> /dev/null ) || true
+    - ( yes | pro enable esm-infra --assume-yes 2> /dev/null ) || true
+    - ( yes | pro enable esm-infra --assume-yes --beta 2> /dev/null ) || true
+    - ( apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null ) || true
+    - ( (apt-get -qq -y install ccache || apt-get -qq -y install ccache); true ) || true
     - *scriptAptSetup
     - *scriptInstallNfpm
     - *scriptAptInstallLibuv1
+    - ( yes | pro detach --assume-yes 2> /dev/null ) || true
     - *scriptSanity
     - *scriptCommon
     - *scriptBuildlibbacktrace
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - make WITH_BACKTRACE=1 CC="$(command -v ccache) $(command -v clang)" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - make distclean
     - *scriptDPS8Mods
-    - make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - make WITH_BACKTRACE=1 CC="$(command -v ccache) $(command -v gcc)" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -3048,21 +3058,30 @@ Linux/x86_64, Ubuntu LTS, Clang, GCC:
   script:
     - export GLCICD_JOB="UbuntuLTSx64" && export DTIMESTAMP="$(stat -c "%Y" /etc/os-release)"
     - ( (apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null); apt-get -qq -y install bzip2 wget > /dev/null || apt-get -qq -y install wget bzip2 > /dev/null )
+    - ( (apt-get -qq -y install ca-certificates ubuntu-advantage-tools > /dev/null || apt-get -qq -y install ca-certificates ubuntu-advantage-tools > /dev/null); true ) || true
+    - ( yes | pro attach ${UBUNTU_TOKEN:-0} 2> /dev/null ) || true
+    - ( yes | pro enable esm-apps --assume-yes 2> /dev/null ) || true
+    - ( yes | pro enable esm-apps --assume-yes --beta 2> /dev/null ) || true
+    - ( yes | pro enable esm-infra --assume-yes 2> /dev/null ) || true
+    - ( yes | pro enable esm-infra --assume-yes --beta 2> /dev/null ) || true
+    - ( apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null ) || true
+    - ( (apt-get -qq -y install ccache || apt-get -qq -y install ccache); true ) || true
     - *scriptAptSetup
     - *scriptInstallNfpm
     - *scriptAptInstallLibuv1
+    - ( yes | pro detach --assume-yes 2> /dev/null ) || true
     - *scriptSanity
     - *scriptCommon
     - *scriptBuildlibbacktrace
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - make WITH_BACKTRACE=1 CC="$(command -v ccache) $(command -v clang)" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - make distclean
     - *scriptDPS8Mods
-    - make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - make WITH_BACKTRACE=1 CC="$(command -v ccache) $(command -v gcc)" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -3078,6 +3097,57 @@ Linux/x86_64, Ubuntu LTS, Clang, GCC:
   timeout: 90 minutes
   interruptible: true
 
+############################################################################
+
+Linux/x86_64, Ubuntu Devel, Clang, GCC:
+  image: ubuntu:devel
+  stage: build
+  tags:
+    - Docker-x64
+    - amd64
+    - Linux
+  script:
+    - export GLCICD_JOB="UbuntuDevx64" && export DTIMESTAMP="$(stat -c "%Y" /etc/os-release)"
+    - ( (apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null); apt-get -qq -y install bzip2 wget > /dev/null || apt-get -qq -y install wget bzip2 > /dev/null )
+    - ( (apt-get -qq -y install ca-certificates ubuntu-advantage-tools > /dev/null || apt-get -qq -y install ca-certificates ubuntu-advantage-tools > /dev/null); true ) || true
+    - ( yes | pro attach ${UBUNTU_TOKEN:-0} 2> /dev/null ) || true
+    - ( yes | pro enable esm-apps --assume-yes 2> /dev/null ) || true
+    - ( yes | pro enable esm-apps --assume-yes --beta 2> /dev/null ) || true
+    - ( yes | pro enable esm-infra --assume-yes 2> /dev/null ) || true
+    - ( yes | pro enable esm-infra --assume-yes --beta 2> /dev/null ) || true
+    - ( apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null ) || true
+    - ( (apt-get -qq -y install ccache gcc-snapshot || apt-get -qq -y install ccache gcc-snapshot); true ) || true
+    - export PATH="/usr/lib/gcc-snapshot/bin:${PATH:-}"
+    - *scriptAptSetup
+    - *scriptInstallNfpm
+    - *scriptAptInstallLibuv1
+    - ( yes | pro detach --assume-yes 2> /dev/null ) || true
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptBuildlibbacktrace
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - make WITH_BACKTRACE=1 CC="$(command -v ccache) $(command -v clang)" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
+    - *scriptBuildInfo
+    - make distclean
+    - *scriptDPS8Mods
+    - make WITH_BACKTRACE=1 CC="$(command -v ccache) $(command -v gcc)" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - src/dps8/dps8.lz
+      - src/prt2pdf/prt2pdf.lz
+      - src/punutil/punutil.lz
+      - src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 90 minutes
+  interruptible: true
 ############################################################################
 
 .Linux/x86_64, Void glibc, Clang, GCC:
@@ -3101,7 +3171,7 @@ Linux/x86_64, Ubuntu LTS, Clang, GCC:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - make distclean
     - *scriptDPS8Mods
@@ -3144,7 +3214,7 @@ Linux/x86_64, Ubuntu LTS, Clang, GCC:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - ( export LDFLAGS="-static"; make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") )
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - make distclean
     - *scriptDPS8Mods
@@ -3178,7 +3248,7 @@ Solaris/x86_64, Oracle Solaris 11.4, GCC:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - ( gcc -v; gmake WITH_BACKTRACE=1 CC=gcc -j 6 )
-    - echo "SHOW VERSION" | ./src/dps8/dps8
+    - echo "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
@@ -3247,12 +3317,12 @@ illumos/x86_64, OpenIndiana Hipster, Clang, GCC:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - gmake CC=clang-15 NO_LTO=1 -j 6
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - gmake distclean
     - *scriptDPS8Mods
     - gmake WITH_BACKTRACE=1 CC=gcc-11 -j 6
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
@@ -3290,7 +3360,7 @@ Darwin/x86_64, macOS, Xcode:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - $(command -v gmake) CC="$(command -v ccache) $(command -v clang)" -j $(( $(getconf NPROCESSORS_ONLN || printf '%s\n' "6") * 2 ))
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
@@ -3331,7 +3401,7 @@ Darwin/x86_64, macOS, static, Xcode:
     - export DEPLOY="10.13"
     - sh -c "env CI_SKIP_MKREBUILD=1 CC=\"$(command -v ccache) $(command -v clang)\" CFLAGS=\"-target x86_64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}\" LOCAL_CONFOPTS=\"--host=x86_64-apple-darwin\" \"$(command -v gmake)\" libuvdev -j $(getconf NPROCESSORS_ONLN || printf \"%s\" \"6\") HOMEBREW_INC= HOMEBREW_LIB= "
     - sh -c "env CI_SKIP_MKREBUILD=1 CC=\"$(command -v ccache) $(command -v clang)\" CFLAGS=\"-target x86_64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}\" LDFLAGS=\"-target x86_64-apple-macos${DEPLOY} -mmacosx-version-min=${DEPLOY}\" \"$(command -v gmake)\" -j $(getconf NPROCESSORS_ONLN || printf \"%s\" \"6\") HOMEBREW_INC= HOMEBREW_LIB= "
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
@@ -3497,7 +3567,7 @@ Option Verification Test:
     - export CMB_OPTIONS="NO_LOCKLESS=1 TESTING=1 NEED_128=1 HDBG=1 ROUND_ROBIN=1 TRACKER=1"
     - make -C "src/mcmb" && export CMB_TOOL="$(command -p env PATH="$(command -p env getconf PATH)" mktemp)" && mv -f "src/mcmb/mcmb" "${CMB_TOOL:?}" && chmod a+x "${CMB_TOOL:?}"
     - touch part_x.sh && rm -f part_*.sh > /dev/null 2>&1 || true > /dev/null 2>&1
-    - ( export NSPLIT=${CI_NODE_TOTAL:?}; for i in $(seq 1 ${CI_NODE_TOTAL:?}); do ( env CPUS="$(( $((grep -c "^model name" /proc/cpuinfo 2> /dev/null) | head -n 1) + 1 ))" bash -c '${CMB_TOOL:?} -N -e ${CMB_OPTIONS:?} -p "make -j ${CPUS:?} " -s " && printf %s\\\\n \"SHOW VERSION\" | ./src/dps8/dps8 && make distclean && \\"' ) | awk '{ print "env ITERATION="$0 }' 2> /dev/null | split -e -n "r/${i:?}/${NSPLIT:?}" | awk "BEGIN { print \"#\!/usr/bin/env bash\"; print \"# Part ${i:?} of ${NSPLIT:?}\"; printf \"\"; print \"set -eux -o pipefail\" } { print \$0 } END { print \"true\"; print \"\" }" > "part_${i:?}_of_${NSPLIT:?}.sh" 2> /dev/null; done )
+    - ( export NSPLIT=${CI_NODE_TOTAL:?}; for i in $(seq 1 ${CI_NODE_TOTAL:?}); do ( env CPUS="$(( $((grep -c "^model name" /proc/cpuinfo 2> /dev/null) | head -n 1) + 1 ))" bash -c '${CMB_TOOL:?} -N -e ${CMB_OPTIONS:?} -p "make -j ${CPUS:?} " -s " && printf %s\\\\n \"SHOW VERSION\" | ./src/dps8/dps8 -t && make distclean && \\"' ) | awk '{ print "env ITERATION="$0 }' 2> /dev/null | split -e -n "r/${i:?}/${NSPLIT:?}" | awk "BEGIN { print \"#\!/usr/bin/env bash\"; print \"# Part ${i:?} of ${NSPLIT:?}\"; printf \"\"; print \"set -eux -o pipefail\" } { print \$0 } END { print \"true\"; print \"\" }" > "part_${i:?}_of_${NSPLIT:?}.sh" 2> /dev/null; done )
     - export CMB_CI_JOB="part_${CI_NODE_INDEX:?}_of_${CI_NODE_TOTAL:?}.sh"
     - cat ./"${CMB_CI_JOB:?}" && chmod a+x ./"${CMB_CI_JOB:?}"
     - ./"${CMB_CI_JOB:?}" 2>&1 | tee -i options-test.txt | grep --line-buffered '^+ env ITERATION'
@@ -3614,12 +3684,12 @@ Multics CI-Kit Test:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - make distclean
     - *scriptDPS8Mods
     - make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
