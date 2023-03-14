@@ -4029,8 +4029,8 @@ pages:
   stage: deploy
   script:
   - apk update || true
-  - apk upgrade || true
-  - apk add advancecomp
+  - apk -U upgrade --prune || true
+  - apk -U add -u advancecomp pigz brotli
   - mkdir -p public/master
   - mv -f ${CI_PROJECT_DIR:?}/docs/dps8-omnibus.pdf public/master/dps8m-omnibus.pdf
   - mv -f ${CI_PROJECT_DIR:?}/HTML public/master/global
@@ -4178,6 +4178,9 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-cygwin-64.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-cygwin-32.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/.nsis/dps8m-git-win-setup.exe public
+  - find "public" -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\)$' -exec brotli -f -k -v -Z -- "{}" \; || true
+  - find "public" -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\)$' -exec pigz -11 -I 48 -f -k -m -v -- "{}" \; || true
+  - ls -laR -- "public" || true
   artifacts:
     paths:
     - public
@@ -4185,7 +4188,7 @@ pages:
   only:
     - master
   retry: 2
-  timeout: 90 minutes
+  timeout: 120 minutes
   interruptible: false
 
 ############################################################################
