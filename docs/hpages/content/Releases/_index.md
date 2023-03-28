@@ -903,24 +903,12 @@ title: DPS8M Releases
 {{< /tab >}}
 {{< tab "macOS" >}}
 
-{{< expand "Universal Binary" "…" >}}
+{{< expand "Universal Binary (x86_64 / x86_64h / ARM64)" "…" >}}
 | File                                                                                       | Platform          |
 |:------------------------------------------------------------------------------------------ |:----------------- |
 | [**dps8m-git-macos-uni.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-macos-uni.tar.gz) | macOS&nbsp;10.13+ |
 {{< /expand >}}
 
-{{< expand "Intel x86 (AMD64)" "…" >}}
-| File                                                                                       | Platform          |
-|:------------------------------------------------------------------------------------------ |:----------------- |
-| [**dps8m-git-mac10-x86.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-mac10-x86.tar.gz) | macOS&nbsp;10.13+ |
-| [**dps8m-git-macos-x86.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-macos-x86.tar.gz) | Latest&nbsp;SDK   |
-{{< /expand >}}
-
-{{< expand "Apple Silicon (ARM64)" "…" >}}
-| File                                                                                       | Platform          |
-|:------------------------------------------------------------------------------------------ |:----------------- |
-| [**dps8m-git-mac11-a64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-mac11-a64.tar.gz) | macOS&nbsp;11.00+ |
-{{< /expand >}}
 {{< /tab >}}
 {{< tab "SunOS" >}}
 

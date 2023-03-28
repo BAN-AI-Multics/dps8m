@@ -1,4 +1,4 @@
-# DPS8M simulator: src/dps8/GNUmakefile
+
 # vim: filetype=make:tabstop=4:cc=79:ai:noexpandtab:list:listchars=tab\:\>\-
 # SPDX-License-Identifier: ICU
 # scspell-id: 42ec66a7-f62f-11ec-810d-80ee73e9b8e7
@@ -154,12 +154,13 @@ endif
 ###############################################################################
 # The system_state code relies on M_SHARED.
 
+LIBRT ?= -lrt
 ifneq ($(MINGW_CROSS),1)
   CFLAGS += -DM_SHARED
   ifneq ($(OS),OSX)
     ifneq ($(UNAME_S),OpenBSD)
       ifneq ($(UNAME_S),Haiku)
-        LIBS += -lrt
+        LIBS += $(LIBRT)
       endif
     endif
   endif
