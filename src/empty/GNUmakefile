@@ -50,18 +50,20 @@ endif # WINDOWS_COMPILE
 
 ###############################################################################
 
+LIBUTIL ?= -lutil
 ifneq ($(UNAME_S),AIX)
   ifneq ($(UNAME_S),SunOS)
     ifneq ($(UNAME_S),Haiku)
-      EMPTYLIBS ?= -lutil
+      EMPTYLIBS ?= $(LIBUTIL)
     endif
   endif
 endif
 
 ###############################################################################
 
+LIBBSD ?= -lbsd
 ifeq ($(UNAME_S),Haiku)
-  EMPTYLIBS ?= -lbsd
+  EMPTYLIBS ?= $(LIBBSD)
 endif
 
 ###############################################################################

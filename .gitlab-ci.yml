@@ -603,7 +603,11 @@ Cross-compiled release binaries:
     - PARALLEL_CI_COUNT=0
     - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - echo -e "section_start:`date +%s`:crossbsetup_section[collapsed=true]\r\e[0K\033[0;36mInstalling additional packages ...\033[0m" || true
-    - export JOB_PKGS="clang tar bzip2 lzip wget libzstd-devel libzstd zlib zlib-devel zstd libzstd libzstd-devel brotli-devel brotli libbrotli libcom_err libxcrypt openssl-devel openssl libcurl libcurl-devel elfutils-debuginfod-client elfutils-debuginfod expat-devel expat libffi libffi-devel gc-devel libevent-devel libgcc gmp-devel krb5-devel compat-guile18 guile-devel guile22-devel libidn2-devel libidn libidn-devel keyutils-libs-devel openldap-devel libtool-ltdl-devel xz-devel mpfr-devel msgpack-devel pcre2-devel libselinux-devel libssh-devel libssh2-devel ncurses-devel libunistring xxhash-devel qemu-user-binfmt qemu qemu-tools qemu-common qemu-user qemu-img qemu-user-static sudo lld lld-devel llvm llvm-devel clang clang-devel"
+    - dnf -y install --best copr-cli dnf-utils || dnf -y install --nobest copr-cli dnf-utils || true
+    - yes | dnf copr enable "@fedora-llvm-team/llvm16" || true
+    - dnf -y install "@core" "@Development Tools" "@C Development Tools and Libraries" gcc clang || true
+    - dnf -y --best --skip-broken update || dnf -y --nobest --skip-broken update || true
+    - export JOB_PKGS="libmd libmd-devel libbsd libbsd-devel tar bzip2 lzip wget libzstd-devel libzstd zlib zlib-devel zstd libzstd libzstd-devel brotli-devel brotli libbrotli libcom_err libxcrypt openssl-devel openssl libcurl libcurl-devel elfutils-debuginfod-client elfutils-debuginfod expat-devel expat libffi libffi-devel gc-devel libevent-devel libgcc gmp-devel krb5-devel compat-guile18 guile-devel guile22-devel libidn2-devel libidn libidn-devel keyutils-libs-devel openldap-devel libtool-ltdl-devel xz-devel mpfr-devel msgpack-devel pcre2-devel libselinux-devel libssh-devel libssh2-devel ncurses-devel libunistring xxhash-devel qemu-user-binfmt qemu qemu-tools qemu-common qemu-user qemu-img qemu-user-static sudo lld lld-devel llvm llvm-devel clang clang-devel"
     - dnf -y install --best ${JOB_PKGS:?} || dnf -y install --nobest ${JOB_PKGS:?}
     - unset JOB_PKGS > /dev/null 2>&1 || true
     - unexport JOB_PKGS > /dev/null 2>&1 || true
@@ -767,7 +771,7 @@ Cross-compiled release binaries:
     - ln -fs /home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android24-clang /home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android24-gcc
     - ln -fs /home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android24-clang /home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android24-cc
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH:-} LOCAL_CONFOPTS="--host=x86_64-linux-android24" CC=/home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android24-clang gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH:-} CC=/home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android24-clang LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBS="../../libuv-local/libuv/../local/lib/libuv.a -ldl"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH:-} CC=/home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android24-clang LDFLAGS="-static" LIBUTIL="" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBS="../../libuv-local/libuv/../local/lib/libuv.a -ldl"; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
@@ -782,7 +786,7 @@ Cross-compiled release binaries:
     - ln -fs /home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android24-clang /home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android24-gcc
     - ln -fs /home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android24-clang /home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android24-cc
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH:-} LOCAL_CONFOPTS="--host=i686-linux-android24" CC=/home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android24-clang gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH:-} CC=/home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android24-clang LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBS="../../libuv-local/libuv/../local/lib/libuv.a -ldl" NEED_128=1; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH:-} CC=/home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android24-clang LDFLAGS="-static" LIBUTIL="" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBS="../../libuv-local/libuv/../local/lib/libuv.a -ldl" NEED_128=1; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
@@ -842,7 +846,7 @@ Cross-compiled release binaries:
     - ln -fs /home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang /home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-gcc
     - ln -fs /home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang /home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-cc
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH:-} LOCAL_CONFOPTS="--host=aarch64-linux-android24" CC=/home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH:-} CC=/home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBS="../../libuv-local/libuv/../local/lib/libuv.a -ldl"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH:-} CC=/home/jhj/x-tools/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang LDFLAGS="-static" LIBUTIL="" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBS="../../libuv-local/libuv/../local/lib/libuv.a -ldl"; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
@@ -1716,7 +1720,7 @@ Cross-compiled release binaries:
     - *scriptDPS8Mods
     - export DPS8_CPUTYPE=x86-64
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=x86_64-pc-solaris2.11" CC=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LOCALLIBS="-lmtmalloc -lmp -lmd -lsocket -lnsl -lm -lpthread" OVR_FLOCK=""; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LOCALLIBS="-lmtmalloc -lmp -lmd -lsocket -lnsl -lm -lpthread" LIBUTIL="" LIBUTIL="" OVR_FLOCK=""; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
@@ -1728,7 +1732,7 @@ Cross-compiled release binaries:
     - *scriptDPS8Mods
     - export DPS8_CPUTYPE=x86-64-v2
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=x86_64-pc-solaris2.11" CC=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LOCALLIBS="-lmtmalloc -lmp -lmd -lsocket -lnsl -lm -lpthread" OVR_FLOCK=""; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LOCALLIBS="-lmtmalloc -lmp -lmd -lsocket -lnsl -lm -lpthread" LIBUTIL="" LIBUTIL="" OVR_FLOCK=""; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
@@ -1740,7 +1744,7 @@ Cross-compiled release binaries:
     - *scriptDPS8Mods
     - export DPS8_CPUTYPE=x86-64-v3
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=x86_64-pc-solaris2.11" CC=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LOCALLIBS="-lmtmalloc -lmp -lmd -lsocket -lnsl -lm -lpthread" OVR_FLOCK=""; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LOCALLIBS="-lmtmalloc -lmp -lmd -lsocket -lnsl -lm -lpthread" LIBUTIL="" LIBUTIL="" OVR_FLOCK=""; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
@@ -1752,7 +1756,7 @@ Cross-compiled release binaries:
     - *scriptDPS8Mods
     - export DPS8_CPUTYPE=x86-64-v4
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=x86_64-pc-solaris2.11" CC=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LOCALLIBS="-lmtmalloc -lmp -lmd -lsocket -lnsl -lm -lpthread" OVR_FLOCK=""; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/src/Solaris-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LOCALLIBS="-lmtmalloc -lmp -lmd -lsocket -lnsl -lm -lpthread" LIBUTIL="" LIBUTIL="" OVR_FLOCK=""; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
@@ -2049,7 +2053,7 @@ Cross-compiled release binaries:
     - *scriptDPS8Mods
     - export DPS8_CPUTYPE=v9
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/sparc64-sun-solaris2.11/x86_64-unknown-linux-gnu/bin:/home/jhj/x-tools/sparc64-sun-solaris2.11/sparc64-sun-solaris2.11/bin:/home/jhj/x-tools/sparc64-sun-solaris2.11/bin:${PATH:-} CFLAGS="-static-libgcc -m64 -mcpu=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=sparc64-sun-solaris2.11" CC=/home/jhj/x-tools/sparc64-sun-solaris2.11/bin/sparc64-sun-solaris2.11-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/sparc64-sun-solaris2.11/x86_64-unknown-linux-gnu/bin:/home/jhj/x-tools/sparc64-sun-solaris2.11/sparc64-sun-solaris2.11/bin:/home/jhj/x-tools/sparc64-sun-solaris2.11/bin:${PATH:-} CFLAGS="-static-libgcc -m64 -mcpu=${DPS8_CPUTYPE:?}" CC=/home/jhj/x-tools/sparc64-sun-solaris2.11/bin/sparc64-sun-solaris2.11-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LOCALLIBS="-lmtmalloc -lmp -lmd -lsocket -lnsl -lm -lpthread" OVR_FLOCK=""; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/sparc64-sun-solaris2.11/x86_64-unknown-linux-gnu/bin:/home/jhj/x-tools/sparc64-sun-solaris2.11/sparc64-sun-solaris2.11/bin:/home/jhj/x-tools/sparc64-sun-solaris2.11/bin:${PATH:-} CFLAGS="-static-libgcc -m64 -mcpu=${DPS8_CPUTYPE:?}" CC=/home/jhj/x-tools/sparc64-sun-solaris2.11/bin/sparc64-sun-solaris2.11-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LOCALLIBS="-lmtmalloc -lmp -lmd -lsocket -lnsl -lm -lpthread" LIBUTIL="" OVR_FLOCK=""; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
@@ -2059,10 +2063,32 @@ Cross-compiled release binaries:
     - git clean -fdxq -e '*.tar*' -e 'dps8m*'
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { chmod -R u+rwx /home/jhj/x-tools/sparc64-sun-solaris2.11 || true; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { rm -rf /home/jhj/x-tools/sparc64-sun-solaris2.11 || true; }; fi
+    - *scriptDPS8Mods
+    - PARALLEL_CI_COUNT=$(( PARALLEL_CI_COUNT + 1 )) ; test ${PARALLEL_CI_COUNT:?} -gt ${CI_NODE_TOTAL:?} && PARALLEL_CI_COUNT=1 || true
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/MacOSX13.1-Xcode14.3.tar.lz" -O /MacOSX13.1-Xcode14.3.tar.lz; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /MacOSX13.1-Xcode14.3.tar.lz && rm -f /MacOSX13.1-Xcode14.3.tar.lz && ln -s MacOSX13.1-Xcode14.3 MacOSX.sdk; ); }; fi
+    - mkdir -p "src/${DISTDIR:?}"
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { gmake distclean; env CI_SKIP_MKREBUILD=1 PATH="/home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin:${PATH:?}" CSTD="c11" CC="clang -Wno-typedef-redefinition -Wno-nullability-extension -Wno-unused-command-line-argument -Wno-expansion-to-defined -Wno-nullability-completeness -m64 -fpic -fPIC --target=x86_64-apple-darwin17.0.0 -B/home/jhj/x-tools/MacOSX.sdk/usr/lib -L/home/jhj/x-tools/MacOSX.sdk/usr/lib -I/home/jhj/x-tools/MacOSX.sdk/usr/include -fuse-ld=lld -fno-stack-protector -march=core2" LOCAL_CONFOPTS="--host=x86_64-apple-darwin17.0.0" gmake libuvdev && llvm-ranlib libuv-local/libuv/../local/lib/libuv.a; }; fi
+    - *scriptDPS8Mods
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env CI_SKIP_MKREBUILD=1 PATH="/home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin:${PATH:?}" CSTD="c11" CC="clang -Wno-typedef-redefinition -Wno-nullability-extension -Wno-unused-command-line-argument -Wno-expansion-to-defined -Wno-nullability-completeness -m64 -fpic -fPIC --target=x86_64-apple-darwin17.0.0 -B/home/jhj/x-tools/MacOSX.sdk/usr/lib -L/home/jhj/x-tools/MacOSX.sdk/usr/lib -I/home/jhj/x-tools/MacOSX.sdk/usr/include -fuse-ld=lld -fno-stack-protector -march=core2" LOCAL_CONFOPTS="--host=x86_64-apple-darwin17.0.0" gmake LIBRT="" && cp -f src/dps8/dps8 dps8.x86_64 && cp -f src/punutil/punutil punutil.x86_64 && cp -f src/prt2pdf/prt2pdf prt2pdf.x86_64 && gmake distclean; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env CI_SKIP_MKREBUILD=1 PATH="/home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin:${PATH:?}" CSTD="c11" CC="clang -Wno-typedef-redefinition -Wno-nullability-extension -Wno-unused-command-line-argument -Wno-expansion-to-defined -Wno-nullability-completeness -m64 -fpic -fPIC --target=x86_64-apple-darwin17.0.0 -B/home/jhj/x-tools/MacOSX.sdk/usr/lib -L/home/jhj/x-tools/MacOSX.sdk/usr/lib -I/home/jhj/x-tools/MacOSX.sdk/usr/include -fuse-ld=lld -fno-stack-protector -march=haswell" LOCAL_CONFOPTS="--host=x86_64-apple-darwin17.0.0" gmake libuvdev && llvm-ranlib libuv-local/libuv/../local/lib/libuv.a; }; fi
+    - *scriptDPS8Mods
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env CI_SKIP_MKREBUILD=1 PATH="/home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin:${PATH:?}" CSTD="c11" CC="clang -Wno-typedef-redefinition -Wno-nullability-extension -Wno-unused-command-line-argument -Wno-expansion-to-defined -Wno-nullability-completeness -m64 -fpic -fPIC --target=x86_64-apple-darwin17.0.0 -B/home/jhj/x-tools/MacOSX.sdk/usr/lib -L/home/jhj/x-tools/MacOSX.sdk/usr/lib -I/home/jhj/x-tools/MacOSX.sdk/usr/include -fuse-ld=lld -fno-stack-protector -march=haswell" LOCAL_CONFOPTS="--host=x86_64-apple-darwin17.0.0" gmake LIBRT="" && cp -f src/dps8/dps8 dps8.x86_64h && cp -f src/punutil/punutil punutil.x86_64h && cp -f src/prt2pdf/prt2pdf prt2pdf.x86_64h && sed -i'' -e 's/\xCF\xFA\xED\xFE\x07\x00\x00\x01\x03/\xCF\xFA\xED\xFE\x07\x00\x00\x01\x08/' dps8.x86_64h && sed -i'' -e 's/\xCF\xFA\xED\xFE\x07\x00\x00\x01\x03/\xCF\xFA\xED\xFE\x07\x00\x00\x01\x08/' prt2pdf.x86_64h && sed -i'' -e 's/\xCF\xFA\xED\xFE\x07\x00\x00\x01\x03/\xCF\xFA\xED\xFE\x07\x00\x00\x01\x08/' punutil.x86_64h && gmake distclean; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env CI_SKIP_MKREBUILD=1 PATH="/home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin:${PATH:?}" CSTD="c11" CC="clang -Wno-typedef-redefinition -Wno-nullability-extension -Wno-unused-command-line-argument -Wno-expansion-to-defined -Wno-nullability-completeness -m64 -fpic -fPIC --target=arm64-apple-darwin20.0.0 -B/home/jhj/x-tools/MacOSX.sdk/usr/lib -L/home/jhj/x-tools/MacOSX.sdk/usr/lib -I/home/jhj/x-tools/MacOSX.sdk/usr/include -fuse-ld=lld -fno-stack-protector -march=armv8.4-a+simd+nosve+nosve2" LOCAL_CONFOPTS="--host=arm64-apple-darwin20.0.0" gmake libuvdev && llvm-ranlib libuv-local/libuv/../local/lib/libuv.a; }; fi
+    - *scriptDPS8Mods
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env CI_SKIP_MKREBUILD=1 PATH="/home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin:${PATH:?}" CSTD="c11" CC="clang -Wno-typedef-redefinition -Wno-nullability-extension -Wno-unused-command-line-argument -Wno-expansion-to-defined -Wno-nullability-completeness -m64 -fpic -fPIC --target=arm64-apple-darwin20.0.0 -B/home/jhj/x-tools/MacOSX.sdk/usr/lib -L/home/jhj/x-tools/MacOSX.sdk/usr/lib -I/home/jhj/x-tools/MacOSX.sdk/usr/include -fuse-ld=lld -fno-stack-protector -march=armv8.4-a+simd+nosve+nosve2" LOCAL_CONFOPTS="--host=arm64-apple-darwin20.0.0" gmake LIBRT="" && cp -f src/dps8/dps8 dps8.arm64 && cp -f src/punutil/punutil punutil.arm64 && cp -f src/prt2pdf/prt2pdf prt2pdf.arm64 && /home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin/lipo -create -output "dps8" "dps8.x86_64" "dps8.x86_64h" "dps8.arm64" && /home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin/lipo -create -output "prt2pdf" "prt2pdf.x86_64" "prt2pdf.x86_64h" "prt2pdf.arm64" && /home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin/lipo -create -output "punutil" "punutil.x86_64" "punutil.x86_64h" "punutil.arm64" && env rm -f *.x86_64 *.x86_64h *.arm64 && mv -f "dps8" "prt2pdf" "punutil" "src/${DISTDIR:?}" && /home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin/otool -l "src/${DISTDIR:?}/dps8" && /home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin/otool -l "src/${DISTDIR:?}/prt2pdf" && /home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin/otool -l "src/${DISTDIR:?}/punutil"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-macos-uni.tar "./${DISTDIR:?}"; ); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-macos-uni.tar; }; fi
+    - rm -rf "src/${DISTDIR:?}"
+    - git clean -fdxq -e '*.tar*' -e 'dps8m*'
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { chmod -R u+rwx /home/jhj/x-tools/MacOSX13.1-Xcode14.3 || true; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { rm -rf /home/jhj/x-tools/MacOSX13.1-Xcode14.3 || true; }; fi
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
+      - dps8m-git-macos-uni.tar.gz
       - dps8m-git-s114-sv9.tar.gz
       - dps8m-git-linux-l4a.tar.gz
       - dps8m-git-linux-b4a.tar.gz
@@ -2259,7 +2285,7 @@ Windows/i686, Cygwin32-GCC:
 
 ############################################################################
 
-Linux/x86_64, Fedora, Intel oneAPI DPC++/C++:
+.Linux/x86_64, Fedora, Intel oneAPI DPC++/C++:
   stage: build
   tags:
     - Linux
@@ -2333,7 +2359,7 @@ Linux/x86_64, Fedora, Oracle Developer Studio:
 
 ############################################################################
 
-Linux/x86_64, Fedora, AOCC, AOCL:
+.Linux/x86_64, Fedora, AOCC, AOCL:
   stage: build
   tags:
     - Linux
@@ -3236,7 +3262,7 @@ Linux/x86_64, Ubuntu Devel, Clang, GCC:
 
 ############################################################################
 
-Solaris/x86_64, Oracle Solaris 11.4, GCC:
+.Solaris/x86_64, Oracle Solaris 11.4, GCC:
   stage: build
   tags:
     - Solaris
@@ -3304,7 +3330,7 @@ Solaris/x86_64, Oracle Solaris 11.4, Oracle Developer Studio:
 
 ############################################################################
 
-illumos/x86_64, OpenIndiana Hipster, Clang, GCC:
+.illumos/x86_64, OpenIndiana Hipster, Clang, GCC:
   stage: build
   tags:
     - OpenIndiana
@@ -3347,7 +3373,7 @@ illumos/x86_64, OpenIndiana Hipster, Clang, GCC:
 
 #############################################################################
 
-Darwin/x86_64, macOS, Xcode:
+.Darwin/x86_64, macOS, Xcode:
   stage: build
   tags:
     - Darwin
@@ -3385,7 +3411,7 @@ Darwin/x86_64, macOS, Xcode:
 
 #############################################################################
 
-Darwin/x86_64, macOS, static, Xcode:
+.Darwin/x86_64, macOS, static, Xcode:
   stage: build
   tags:
     - Darwin
@@ -3426,7 +3452,7 @@ Darwin/x86_64, macOS, static, Xcode:
 
 #############################################################################
 
-Darwin/ARM64, macOS, static, Xcode:
+.Darwin/ARM64, macOS, static, Xcode:
   stage: build
   tags:
     - Darwin
@@ -3464,7 +3490,7 @@ Darwin/ARM64, macOS, static, Xcode:
 
 #############################################################################
 
-Darwin/Universal, macOS, static, Xcode:
+.Darwin/Universal, macOS, static, Xcode:
   stage: build
   tags:
     - Darwin
@@ -3976,10 +4002,6 @@ pages:
     - job: Cross-compiled release binaries
     - job: Clang Analyzer
     - job: Cppcheck
-    - job: Darwin/x86_64, macOS, Xcode
-    - job: Darwin/x86_64, macOS, static, Xcode
-    - job: Darwin/ARM64, macOS, static, Xcode
-    - job: Darwin/Universal, macOS, static, Xcode
     - job: DPS8M Omnibus Documentation
     - job: Flawfinder
     - job: GNU GLOBAL Hypertext
@@ -4004,10 +4026,6 @@ pages:
     - "Cross-compiled release binaries"
     - "Clang Analyzer"
     - "Cppcheck"
-    - "Darwin/x86_64, macOS, Xcode"
-    - "Darwin/x86_64, macOS, static, Xcode"
-    - "Darwin/ARM64, macOS, static, Xcode"
-    - "Darwin/Universal, macOS, static, Xcode"
     - "DPS8M Omnibus Documentation"
     - "Flawfinder"
     - "GNU GLOBAL Hypertext"
@@ -4139,9 +4157,6 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-xlc.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-oxl.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-ox8.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-macos-x86.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-mac10-x86.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-mac11-a64.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-macos-uni.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-s114-644.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-s114-643.tar.gz public
@@ -4178,8 +4193,9 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-cygwin-64.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-cygwin-32.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/.nsis/dps8m-git-win-setup.exe public
+  - find "public" -type f -regex '.*\.\(png\)$' -exec advpng -z4 -- "{}" \; || true
   - find "public" -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\)$' -exec brotli -f -k -v -Z -- "{}" \; || true
-  - find "public" -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\)$' -exec pigz -11 -I 48 -f -k -m -v -- "{}" \; || true
+  - find "public" -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\)$' -exec pigz -9 -f -k -m -v -- "{}" \; || true
   - ls -laR -- "public" || true
   artifacts:
     paths:
