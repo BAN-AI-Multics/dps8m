@@ -76,7 +76,7 @@
 
 #if defined(__APPLE__)
 # include <sys/sysctl.h>
-#endif
+#endif /* if defined(_APPLE_) */
 
 #if ( defined(__linux__) || defined(__linux) \
   ||  defined(_linux)    || defined(linux) )
@@ -88,12 +88,12 @@
 
 #ifndef HAVE_UNISTD
 # undef USE_BACKTRACE
-#endif
+#endif /* ifndef HAVE_UNISTD */
 
 #ifdef USE_BACKTRACE
 # include <string.h>
 # include <signal.h>
-#endif
+#endif /* ifdef USE_BACKTRACE */
 
 #ifdef __HAIKU__
 # include <OS.h>
@@ -118,7 +118,7 @@
 
 #ifndef MAX
 # define MAX(a,b)  (((a) >= (b)) ? (a) : (b))
-#endif
+#endif /* ifndef MAX */
 
 #ifdef TESTING
 # undef FREE
@@ -1317,7 +1317,7 @@ int unsetenv(const char *envname)
 setenv(envname, "", 1);
 return 0;
 }
-#endif
+#endif /* if defined(_WIN32) */
 
 /* Testing realloc */
 
@@ -1376,7 +1376,7 @@ int processIsTranslated(void)
         return -1; }
     return ret;
 }
-#endif
+#endif /* if defined(_APPLE_) */
 
 /* Substring removal hack */
 
