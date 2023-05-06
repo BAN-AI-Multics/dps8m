@@ -2888,7 +2888,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                     cpu.rTR = MASK27;
 # endif // ! (THREADZ || LOCKLESS)
 #endif // ! ROUND_ROBIN
-                  /*NOTREACHED*/
+                  /*NOTREACHED*/ /* unreachable */
                   break;
                 }
 

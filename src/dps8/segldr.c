@@ -193,7 +193,7 @@ static t_stat stack (char * p2, char * p3)
       {
 #ifdef PERF_STRIP
         exit(1);
-        /*NOTREACHED*/
+        /*NOTREACHED*/ /* unreachable */
 #endif /* ifdef PERF_STRIP */
         return SCPE_ARG;
       }
@@ -202,7 +202,7 @@ static t_stat stack (char * p2, char * p3)
         sim_printf ("Segment number is limited to 0 to 0377\n");
 #ifdef PERF_STRIP
         exit(1);
-        /*NOTREACHED*/
+        /*NOTREACHED*/ /* unreachable */
 #endif /* ifdef PERF_STRIP */
         return SCPE_ARG;
       }
@@ -212,7 +212,7 @@ static t_stat stack (char * p2, char * p3)
       {
 #ifdef PERF_STRIP
         exit(1);
-        /*NOTREACHED*/
+        /*NOTREACHED*/ /* unreachable */
 #endif /* ifdef PERF_STRIP */
         return SCPE_ARG;
       }
@@ -221,7 +221,7 @@ static t_stat stack (char * p2, char * p3)
         sim_printf ("Segment length is limited to 1 to 0377\n");
 #ifdef PERF_STRIP
         exit(1);
-        /*NOTREACHED*/
+        /*NOTREACHED*/ /* unreachable */
 #endif /* ifdef PERF_STRIP */
         return SCPE_ARG;
       }
@@ -255,7 +255,7 @@ static t_stat bload (char * p2, char * p3)
           {
 #ifdef PERF_STRIP
             exit(1);
-            /*NOTREACHED*/
+            /*NOTREACHED*/ /* unreachable */
 #endif /* ifdef PERF_STRIP */
             return SCPE_ARG;
           }
@@ -264,7 +264,7 @@ static t_stat bload (char * p2, char * p3)
             sim_printf ("Segment number is limited to 0 to 0377\n");
 #ifdef PERF_STRIP
             exit(1);
-            /*NOTREACHED*/
+            /*NOTREACHED*/ /* unreachable */
 #endif /* ifdef PERF_STRIP */
             return SCPE_ARG;
           }
@@ -278,7 +278,7 @@ static t_stat bload (char * p2, char * p3)
         sim_printf ("Unable to open '%s'\n", p3);
 #ifdef PERF_STRIP
         exit(1);
-        /*NOTREACHED*/
+        /*NOTREACHED*/ /* unreachable */
 #endif /* ifdef PERF_STRIP */
         return SCPE_ARG;
       }
@@ -346,7 +346,7 @@ static t_stat msave (char * p2, word24 sz)
         sim_printf ("Unable to open '%s'\n", p2);
 #ifdef PERF_STRIP
         exit(1);
-        /*NOTREACHED*/
+        /*NOTREACHED*/ /* unreachable */
 #endif /* ifdef PERF_STRIP */
         return SCPE_ARG;
       }
@@ -357,7 +357,7 @@ static t_stat msave (char * p2, word24 sz)
         sim_printf ("Unable to write '%s'\n", p2);
 #ifdef PERF_STRIP
         exit(1);
-        /*NOTREACHED*/
+        /*NOTREACHED*/ /* unreachable */
 #endif /* ifdef PERF_STRIP */
         return SCPE_ARG;
       }
@@ -374,7 +374,7 @@ static t_stat mrestore (char * p2)
         sim_printf ("Unable to open '%s'\n", p2);
 #ifdef PERF_STRIP
         exit(1);
-        /*NOTREACHED*/
+        /*NOTREACHED*/ /* unreachable */
 #endif /* ifdef PERF_STRIP */
         return SCPE_ARG;
       }
@@ -386,7 +386,7 @@ static t_stat mrestore (char * p2)
         (void) close (fd);
 #ifdef PERF_STRIP
         exit(1);
-        /*NOTREACHED*/
+        /*NOTREACHED*/ /* unreachable */
 #endif /* ifdef PERF_STRIP */
         return SCPE_ARG;
       }
@@ -449,7 +449,7 @@ t_stat segment_loader (int32 arg, const char * buf)
              "   sl bload   <segno> <filename>\n");
 #ifdef PERF_STRIP
     exit(0);
-    /*NOTREACHED*/
+    /*NOTREACHED*/ /* unreachable */
 #endif /* ifdef PERF_STRIP */
     return SCPE_ARG;
   }
