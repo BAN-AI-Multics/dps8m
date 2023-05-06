@@ -372,7 +372,6 @@ static t_stat mrestore (char * p2)
       {
         if (errno) sim_printf ("Error: %s\n", strerror(errno));
         sim_printf ("Unable to open '%s'\n", p2);
-        (void) close (fd);
 #ifdef PERF_STRIP
         exit(1);
         /*NOTREACHED*/
