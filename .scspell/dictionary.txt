@@ -1774,6 +1774,8 @@ mfctop
 mfifo
 mflc
 mfls
+mgpr
+mgpw
 mincore
 minnum
 mins
@@ -5590,6 +5592,7 @@ xurl
 ypersetup
 
 FILETYPE: YAML; .yml
+advpng
 advzip
 aecf
 aixv
@@ -5628,11 +5631,13 @@ hugobuild
 hugogen
 ibmoxlcver
 iloi
+infra
 keyutils
 kitname
 latomic
 lgcc
 libatomic
+libbsd
 libcmb
 libcom
 libdl
@@ -5641,9 +5646,12 @@ libffi
 libgcc
 libidn
 liblzma
+libmd
+librt
 libselinux
 libssh
 libunistring
+libutil
 libuvdev
 libuvrel
 libxcrypt
@@ -5665,6 +5673,7 @@ musleabi
 ncurses
 netbsdelf
 noci
+nosve
 nsiswrapper
 optflags
 otool
@@ -5675,6 +5684,7 @@ pkgs
 plog
 powerpcle
 pvsreport
+ranlib
 roscspell
 sdel
 srvany
@@ -6119,6 +6129,8 @@ gcda
 ifeq
 ifneq
 lbsd
+libbsd
+libutil
 listchars
 lutil
 makecmdgoals
@@ -6582,6 +6594,7 @@ isfifo
 kitname
 lgtm
 libdl
+librt
 liphlpapi
 liplpapi
 listchars
@@ -6835,6 +6848,7 @@ cygport
 daix
 developerstudio
 devpkg
+devx
 diffutils
 disablerepo
 distclean
@@ -8391,6 +8405,7 @@ appropriately
 approve
 approximately
 approximation
+apps
 april
 arabic
 arbitrary
@@ -11233,6 +11248,7 @@ nqueensx
 nsis
 nuclear
 null
+nullability
 nulls
 number
 numbered
