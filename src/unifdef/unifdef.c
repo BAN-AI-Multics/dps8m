@@ -460,7 +460,7 @@ main(int argc, char *argv[])
         (void)fprintf (stderr, "\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
                        __func__, __FILE__, __LINE__);
         abort();  /* bug */
-        /*NOTREACHED*/
+        /*NOTREACHED*/ /* unreachable */
 #ifndef __SUNPRO_C
 # ifndef __SUNPRO_CC
 #  ifndef __SUNPRO_CC_COMPAT
@@ -469,7 +469,7 @@ main(int argc, char *argv[])
 #  endif
 # endif
 #endif
-      /*NOTREACHED*/
+      /*NOTREACHED*/ /* unreachable */
     }
 }
 

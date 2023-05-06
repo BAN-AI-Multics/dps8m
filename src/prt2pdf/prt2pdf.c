@@ -800,7 +800,7 @@ int main(int argc, char **argv) {
              }
              showhelp(2);
              _Exit(1);
-             /*NOTREACHED*/
+             /*NOTREACHED*/ /* unreachable */
 #ifndef __SUNPRO_C
 # ifndef __SUNPRO_CC
 #  ifndef __SUNPRO_CC_COMPAT
@@ -808,12 +808,12 @@ int main(int argc, char **argv) {
 #  endif
 # endif
 #endif
-             /*NOTREACHED*/
+             /*NOTREACHED*/ /* unreachable */
            default:
              (void)fprintf (stderr, "\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
                             __func__, __FILE__, __LINE__);
              abort();
-             /*NOTREACHED*/
+             /*NOTREACHED*/ /* unreachable */
 #ifndef __SUNPRO_C
 # ifndef __SUNPRO_CC
 #  ifndef __SUNPRO_CC_COMPAT
@@ -821,7 +821,7 @@ int main(int argc, char **argv) {
 #  endif
 # endif
 #endif
-             /*NOTREACHED*/
+             /*NOTREACHED*/ /* unreachable */
            }
 
            if(GLOBAL_SHADE_STEP < 1 ){
