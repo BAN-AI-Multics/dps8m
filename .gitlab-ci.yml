@@ -1254,7 +1254,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-mp2.tar; }; fi
     - rm -rf "src/${DISTDIR:?}"
     - git clean -fdxq -e '*.tar*' -e 'dps8m*'
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/mips-local-linux-musl/bin:${PATH:-} LOCAL_CONFOPTS="--host=mips-local-linux-musl" CFLAGS="-mips32r2 -mtune-=74kc -msoft-float" CC=/home/jhj/x-tools/mips-local-linux-musl/bin/mips-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/mips-local-linux-musl/bin:${PATH:-} LOCAL_CONFOPTS="--host=mips-local-linux-musl" CFLAGS="-mips32r2 -mtune=74kc -msoft-float" CC=/home/jhj/x-tools/mips-local-linux-musl/bin/mips-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/mips-local-linux-musl/bin:${PATH:-} CFLAGS="-mips32r2 -mtune=74kc -msoft-float" CC=/home/jhj/x-tools/mips-local-linux-musl/bin/mips-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NEED_128=1 LOCALLIBS="-latomic"; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
@@ -1288,8 +1288,8 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-msl.tar; }; fi
     - rm -rf "src/${DISTDIR:?}"
     - git clean -fdxq -e '*.tar*' -e 'dps8m*'
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/mipsel-local-linux-musl/bin:${PATH:-} LOCAL_CONFOPTS="--host=mipsel-local-linux-musl" CFLAGS="-mips32r2 -mtune=74kf1_1 -mhard-float" CC=/home/jhj/x-tools/mipsel-local-linux-musl/bin/mipsel-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/mipsel-local-linux-musl/bin:${PATH:-} CFLAGS="-mips32r2 -mtune=74kf1_1 -mhard-float" CC=/home/jhj/x-tools/mipsel-local-linux-musl/bin/mipsel-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NEED_128=1 LOCALLIBS="-latomic"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/mipsel-local-linux-musl/bin:${PATH:-} LOCAL_CONFOPTS="--host=mipsel-local-linux-musl" CFLAGS="-mips32r2 -mtune=74kc -mhard-float" CC=/home/jhj/x-tools/mipsel-local-linux-musl/bin/mipsel-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/mipsel-local-linux-musl/bin:${PATH:-} CFLAGS="-mips32r2 -mtune=74kc -mhard-float" CC=/home/jhj/x-tools/mipsel-local-linux-musl/bin/mipsel-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NEED_128=1 LOCALLIBS="-latomic"; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
