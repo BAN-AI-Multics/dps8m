@@ -5665,10 +5665,12 @@ lsocket
 ltdl
 lzma
 maix
+mhard
 mkrebuild
 mmacosx
 mpfr
 msgpack
+msoft
 musleabi
 ncurses
 netbsdelf
@@ -12225,6 +12227,7 @@ rump
 runaway
 runner
 running
+runout
 runs
 runtime
 sadly
