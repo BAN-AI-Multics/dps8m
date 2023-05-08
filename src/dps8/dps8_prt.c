@@ -1830,14 +1830,39 @@ static t_stat prt_set_device_name (UNUSED UNIT * uptr, UNUSED int32 value,
         prt_state[n].device_name[MAX_DEV_NAME_LEN - 1] = 0;
       }
     else
-      prt_state[n].device_name[0] = 0;
+      {
+        prt_state[n].device_name[0] = 0;
+      }
     return SCPE_OK;
   }
 
 static t_stat prt_show_path (UNUSED FILE * st, UNUSED UNUSED UNIT * uptr,
                              UNUSED int val, UNUSED const void * desc)
   {
-    sim_printf("Path to PRT files is %s\n", prt_path);
+    if (prt_path[1] != '\0')
+      {
+        sim_printf("Path to PRT files is %s\n", prt_path);
+      }
+    else
+      {
+        char cwd_path[PATH_MAX+1];
+        if (getcwd(cwd_path, sizeof(cwd_path)) != NULL)
+          {
+            sim_printf("Path to PRT files is %s\n", cwd_path);
+          }
+        else
+          {
+            if (errno)
+              {
+                sim_printf("Path to PRT files is unavailable (%s)\n",
+                           strerror(errno));
+              }
+            else
+              {
+                sim_printf("Path to PRT files is undefined\n");
+              }
+          }
+      }
     return SCPE_OK;
   }
 
