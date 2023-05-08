@@ -1426,9 +1426,10 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
 
 ### Additional Linux Notes
 
-* Although normally handled automatically, when building for (or cross-compiling to) many 32-bit
-  targets (or when using a compiler lacking support for 128-bit integers) it may be necessary
-  to set the **`NEED_128=1`** build option (via the environment or as an argument to **`make`**).
+* Although normally handled automatically, when building on (*or cross-compiling to*) some
+  32-bit targets using a compiler lacking support for 128-bit integer types, it may be
+  necessary to explicitly set the **`NEED_128=1`** build option via the environment or as
+  an argument to **`make`**.
 
 <br>
 
