@@ -561,7 +561,7 @@ Refer to *GB61-01* **Operators Guide, Appendix A** for more details.
 ##### TRO_ENABLE
 \
 \
-"**`TRO_ENABLE`**" configures whether timer run-off (*TRO*) is enabled, where "`0`" or "`disable`" is disabled and "`1`" or "`enable`" is enabled:
+"**`TRO_ENABLE`**" configures whether timer runout (*TRO*) is enabled, where "`0`" or "`disable`" is disabled and "`1`" or "`enable`" is enabled:
 
         TRO_ENABLE=<0 or 1>
         TRO_ENABLE=<disable or enable>
