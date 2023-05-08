@@ -1227,13 +1227,22 @@ Cross-compiled release binaries:
     - *scriptDPS8Mods
     - unset DPS8_CPUTYPE > /dev/null 2>&1 || true
     - unexport DPS8_CPUTYPE > /dev/null 2>&1 || true
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/mips-local-linux-musl/bin:${PATH:-} LOCAL_CONFOPTS="--host=mips-local-linux-musl" CC=/home/jhj/x-tools/mips-local-linux-musl/bin/mips-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/mips-local-linux-musl/bin:${PATH:-} CC=/home/jhj/x-tools/mips-local-linux-musl/bin/mips-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NEED_128=1 LOCALLIBS="-latomic"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/mips-local-linux-musl/bin:${PATH:-} LOCAL_CONFOPTS="--host=mips-local-linux-musl" CFLAGS="-mips1 -mhard-float" CC=/home/jhj/x-tools/mips-local-linux-musl/bin/mips-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/mips-local-linux-musl/bin:${PATH:-} CFLAGS="-mips1 -mhard-float" CC=/home/jhj/x-tools/mips-local-linux-musl/bin/mips-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NEED_128=1 LOCALLIBS="-latomic"; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-linux-mps.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-mps.tar; }; fi
+    - rm -rf "src/${DISTDIR:?}"
+    - git clean -fdxq -e '*.tar*' -e 'dps8m*'
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/mips-local-linux-musl/bin:${PATH:-} LOCAL_CONFOPTS="--host=mips-local-linux-musl" CFLAGS="-mips1 -msoft-float" CC=/home/jhj/x-tools/mips-local-linux-musl/bin/mips-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/mips-local-linux-musl/bin:${PATH:-} CFLAGS="-mips1 -msoft-float" CC=/home/jhj/x-tools/mips-local-linux-musl/bin/mips-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NEED_128=1 LOCALLIBS="-latomic"; }; fi
+    - mkdir -p "src/${DISTDIR:?}"
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-linux-mss.tar "./${DISTDIR:?}"; ); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-mss.tar; }; fi
     - rm -rf "src/${DISTDIR:?}"
     - git clean -fdxq -e '*.tar*' -e 'dps8m*'
     - rm -rf /home/jhj/x-tools/mips-local-linux-musl/
@@ -1243,13 +1252,22 @@ Cross-compiled release binaries:
     - *scriptDPS8Mods
     - unset DPS8_CPUTYPE > /dev/null 2>&1 || true
     - unexport DPS8_CPUTYPE > /dev/null 2>&1 || true
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/mipsel-local-linux-musl/bin:${PATH:-} LOCAL_CONFOPTS="--host=mipsel-local-linux-musl" CC=/home/jhj/x-tools/mipsel-local-linux-musl/bin/mipsel-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/mipsel-local-linux-musl/bin:${PATH:-} CC=/home/jhj/x-tools/mipsel-local-linux-musl/bin/mipsel-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NEED_128=1 LOCALLIBS="-latomic"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/mipsel-local-linux-musl/bin:${PATH:-} LOCAL_CONFOPTS="--host=mipsel-local-linux-musl" CFLAGS="-mips1 -mhard-float" CC=/home/jhj/x-tools/mipsel-local-linux-musl/bin/mipsel-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/mipsel-local-linux-musl/bin:${PATH:-} CFLAGS="-mips1 -mhard-float" CC=/home/jhj/x-tools/mipsel-local-linux-musl/bin/mipsel-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NEED_128=1 LOCALLIBS="-latomic"; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-linux-mpl.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-mpl.tar; }; fi
+    - rm -rf "src/${DISTDIR:?}"
+    - git clean -fdxq -e '*.tar*' -e 'dps8m*'
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/mipsel-local-linux-musl/bin:${PATH:-} LOCAL_CONFOPTS="--host=mipsel-local-linux-musl" CFLAGS="-mips1 -msoft-float" CC=/home/jhj/x-tools/mipsel-local-linux-musl/bin/mipsel-local-linux-musl-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/mipsel-local-linux-musl/bin:${PATH:-} CFLAGS="-mips1 -msoft-float" CC=/home/jhj/x-tools/mipsel-local-linux-musl/bin/mipsel-local-linux-musl-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NEED_128=1 LOCALLIBS="-latomic"; }; fi
+    - mkdir -p "src/${DISTDIR:?}"
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-linux-msl.tar "./${DISTDIR:?}"; ); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-msl.tar; }; fi
     - rm -rf "src/${DISTDIR:?}"
     - git clean -fdxq -e '*.tar*' -e 'dps8m*'
     - rm -rf /home/jhj/x-tools/mipsel-local-linux-musl/
@@ -2154,7 +2172,9 @@ Cross-compiled release binaries:
       - dps8m-git-linux-m6l.tar.gz
       - dps8m-git-linux-m64.tar.gz
       - dps8m-git-linux-mpl.tar.gz
+      - dps8m-git-linux-msl.tar.gz
       - dps8m-git-linux-mps.tar.gz
+      - dps8m-git-linux-mss.tar.gz
       - dps8m-git-linux-ork.tar.gz
       - dps8m-git-linux-641.tar.gz
       - dps8m-git-linux-642.tar.gz
@@ -4104,7 +4124,9 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-m6l.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-m64.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-mpl.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-msl.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-mps.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-mss.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-ork.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-641.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-642.tar.gz public

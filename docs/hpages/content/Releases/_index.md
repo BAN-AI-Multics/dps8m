@@ -870,15 +870,17 @@ title: DPS8M Releases
 {{< /expand >}}
 
 {{< expand "MIPS (32-bit, little-endian)" "…" >}}
-| File                                                                                       |
-| :----------------------------------------------------------------------------------------- |
-| [**dps8m-git-linux-mpl.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-mpl.tar.gz) |
+| File                                                                                       | Platform                 |
+| :----------------------------------------------------------------------------------------- |:------------------------ |
+| [**dps8m-git-linux-mpl.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-mpl.tar.gz) | MIPS-I&nbsp;(hard-float) |
+| [**dps8m-git-linux-msl.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-msl.tar.gz) | MIPS-I&nbsp;(soft-float) |
 {{< /expand >}}
 
 {{< expand "MIPS (32-bit, big-endian)" "…" >}}
-| File                                                                                       |
-| :----------------------------------------------------------------------------------------- |
-| [**dps8m-git-linux-mps.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-mps.tar.gz) |
+| File                                                                                       | Platform                 |
+| :----------------------------------------------------------------------------------------- |:------------------------ |
+| [**dps8m-git-linux-mps.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-mps.tar.gz) | MIPS-I&nbsp;(hard-float) |
+| [**dps8m-git-linux-mss.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-mss.tar.gz) | MIPS-I&nbsp;(soft-float) |
 {{< /expand >}}
 {{< /expand >}}
 
