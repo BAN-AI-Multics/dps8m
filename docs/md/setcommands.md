@@ -614,7 +614,7 @@ Refer to *GB61-01* **Operators Guide, Appendix A** for more details.
 ##### USEMAP
 \
 \
-"**`USE_MAP`**" configures whether to enable mapping, where "`0`" or "`disable`" is disabled and "`1`" or "`enable`" is enabled:
+"**`USEMAP`**" configures whether to enable mapping, where "`0`" or "`disable`" is disabled and "`1`" or "`enable`" is enabled:
 
         USEMAP=<0 or 1>
         USEMAP=<disable or enable>
