@@ -17,7 +17,7 @@ The `CABLE` command (*abbreviated* `C`) connects (or "*strings*") a simulated ca
         CABLE IOMi j MTPk
         CABLE IOMi j MTPk l
 
-* Connect a cable from "`IOM`**`i`**"'s channel "**`j`**" to (*mass storage processor*) "`MSP`**`k`**" port "**`l`**", where "**`l`**" defaults to "**`0`**" when not specified.
+* Connect a cable from "`IOM`**`i`**" channel "**`j`**" to (*mass storage processor*) "`MSP`**`k`**" port "**`l`**", where "**`l`**" defaults to "**`0`**" when not specified.
         CABLE IOMi j MSPk
         CABLE IOMi j MSPk l
 
