@@ -5665,6 +5665,7 @@ lsocket
 ltdl
 lzma
 maix
+mframe
 mhard
 mkrebuild
 mmacosx
@@ -6954,6 +6955,7 @@ nobest
 nsplit
 ntimestamp
 ofast
+openacc
 oracleinstall
 oraclelinux
 orstlint
@@ -11331,6 +11333,7 @@ opened
 openhub
 opening
 openldap
+openmp
 openrisc
 openssl
 openxl
