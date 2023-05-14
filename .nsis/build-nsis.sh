@@ -5,7 +5,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2022 The DPS8M Development Team
+# Copyright (c) 2022-2023 The DPS8M Development Team
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -253,6 +253,8 @@ printf '%s\n' "######  Build 32-bit Windows dps8  ##########################"
              -static                                                       \
              -L${HOME:-}/libuv-win32-i686/lib                              \
              -lpthread"                                                    \
+    LOCALLIBS="-lws2_32 -lpsapi -liphlpapi -lshell32                       \
+               -luserenv -luser32 -ldbghelp -lole32 -luuid"                \
     NEED_128=1                                                             \
     "${MAKE:-make}" CROSS="MINGW64" -j "${CPUS:?}" ) &&                    \
 mkdir -p "bin/32-bit" &&                                                   \
@@ -279,6 +281,8 @@ printf '%s\n' "######  Build 64-bit Windows dps8  ##########################"
     LDFLAGS="${GLDFLAGS:-} -static                                         \
              -L${HOME:-}/libuv-win32-x86_64/lib                            \
              -lpthread"                                                    \
+    LOCALLIBS="-lws2_32 -lpsapi -liphlpapi -lshell32                       \
+               -luserenv -luser32 -ldbghelp -lole32 -luuid"                \
     "${MAKE:-make}" CROSS="MINGW64" -j "${CPUS:?}" ) &&                    \
 mkdir -p "bin/64-bit" &&                                                   \
   rm -f "bin/64-bit/dps8.exe" &&                                           \
