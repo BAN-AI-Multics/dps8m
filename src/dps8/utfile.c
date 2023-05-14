@@ -213,7 +213,7 @@ utfile_mkstemps(char *request_pattern, int suffix_length)
 
   /*
    * If we get here, we were unable to create
-   * a unique file name despite many of tries.
+   * a unique file name, despite many tries.
    */
 
   FREE(pattern);
