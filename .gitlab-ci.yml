@@ -2846,7 +2846,7 @@ Windows/ARM64, LLVM-MinGW:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make CC="aarch64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread -Wno-unused-command-line-argument" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
+    - make CC="aarch64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread -Wno-unused-command-line-argument -lws2_32 -lpsapi -liphlpapi -lshell32 -luserenv -luser32 -ldbghelp -lole32 -luuid" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
     - test -f src/dps8/dps8.exe
     - *scriptBuildInfo
     - mkdir -p "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
@@ -2881,7 +2881,7 @@ Windows/ARMv7, LLVM-MinGW:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make CC="armv7-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread -D__int64_t=int64_t -D__MINGW64__ -Wno-unused-command-line-argument" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
+    - make CC="armv7-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread -D__int64_t=int64_t -D__MINGW64__ -Wno-unused-command-line-argument" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread -lws2_32 -lpsapi -liphlpapi -lshell32 -luserenv -luser32 -ldbghelp -lole32 -luuid" NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
     - test -f src/dps8/dps8.exe
     - *scriptBuildInfo
     - mkdir -p "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
@@ -2915,7 +2915,7 @@ Windows/i686, LLVM-MinGW:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make CC="i686-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread -D__int64_t=int64_t -D__MINGW64__ -Wno-unused-command-line-argument" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
+    - make CC="i686-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread -D__int64_t=int64_t -D__MINGW64__ -Wno-unused-command-line-argument" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread -lws2_32 -lpsapi -liphlpapi -lshell32 -luserenv -luser32 -ldbghelp -lole32 -luuid" NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
     - test -f src/dps8/dps8.exe
     - *scriptBuildInfo
     - mkdir -p "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
@@ -2949,7 +2949,7 @@ Windows/x86_64, LLVM-MinGW:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make CC="x86_64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -Wno-unused-command-line-argument -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
+    - make CC="x86_64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -Wno-unused-command-line-argument -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread -lws2_32 -lpsapi -liphlpapi -lshell32 -luserenv -luser32 -ldbghelp -lole32 -luuid" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
     - *scriptBuildInfo
     - test -f src/dps8/dps8.exe
     - *scriptCompressArtifacts
@@ -2981,7 +2981,7 @@ Windows/x86_64, MinGW64-GCC:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
+    - make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread -lws2_32 -lpsapi -liphlpapi -lshell32 -luserenv -luser32 -ldbghelp -lole32 -luuid" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
     - *scriptBuildInfo
     - test -f src/dps8/dps8.exe
     - mkdir -p "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
@@ -3882,10 +3882,10 @@ PVS-Studio:
     - *scriptExtraInfo
     - dnf install -y wget curl bear bzip2 || dnf install -y wget curl bear bzip2
     - wget -O /etc/yum.repos.d/viva64.repo https://dps8m.gitlab.io/dps8m-archive/CI/viva64.repo
-    - dnf --refresh -y install pvs-studio || dnf --refresh -y install pvs-studio
+    - dnf --refresh -y install pvs-studio || dnf --refresh --nogpgcheck -y install pvs-studio
     - wget -O /etc/yum.repos.d/viva64-beta.repo https://dps8m.gitlab.io/dps8m-archive/CI/viva64-beta.repo || true
-    - dnf --refresh -y install pvs-studio || dnf --refresh -y install pvs-studio || true
-    - dnf upgrade -y || dnf upgrade -y || true
+    - dnf --refresh -y install pvs-studio || dnf --refresh --nogpgcheck -y install pvs-studio || true
+    - dnf upgrade -y || dnf upgrade --nogpgcheck -y || true
     - pvs-studio-analyzer credentials "${PVS_STUDIO_NAME:?}" "${PVS_STUDIO_KEY:?}" || true
     - rm -f compile_commands.json
     - rm -f compile_commands.events.json
