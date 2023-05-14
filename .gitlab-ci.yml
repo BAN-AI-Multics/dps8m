@@ -22,7 +22,7 @@
     test -f /.dockerenv || exit 1
     dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update
     dnf -y --allowerasing --best install epel-release || dnf -y --allowerasing --nobest epel-release
-    curl -fsSL https://repo.almalinux.org/almalinux/9/devel/almalinux-devel.repo -o /etc/yum.repos.d/almalinux-devel.repo || curl -fsSL https://repo.almalinux.org/almalinux/9/devel/almalinux-devel.repo -o /etc/yum.repos.d/almalinux-devel.repo
+    curl -fsSL https://repo.almalinux.org/almalinux/9/devel/almalinux-devel.repo -o /etc/yum.repos.d/almalinux-devel.repo || curl -fsSL https://repo.almalinux.org/almalinux/9/devel/almalinux-devel.repo -o /etc/yum.repos.d/almalinux-devel.repo || true
     sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-devel.repo || true
     sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-highavailability.repo || true
     sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-plus.repo || true
