@@ -1,4 +1,5 @@
 # EditorConfig: https://editorconfig.org/
+# scspell-id: 268d2436-f2ea-11ed-9806-80ee73e9b8e7
 root = true
 
 [*.{c,h,sh}]
