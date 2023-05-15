@@ -8193,6 +8193,9 @@ luser
 luserenv
 luuid
 
+FILEID: 268d2436-f2ea-11ed-9806-80ee73e9b8e7
+editmsg
+
 NATURAL:
 abandon
 abandoned
@@ -9666,6 +9669,7 @@ edited
 editing
 edition
 editor
+editorconfig
 effect
 effected
 effective
