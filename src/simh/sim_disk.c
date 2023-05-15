@@ -196,7 +196,7 @@ if (!(uptr->flags & UNIT_ATT))                          /* attached? */
 switch (DK_GET_FMT (uptr)) {                            /* case on format */
     case DKUF_F_STD:                                    /* SIMH format */
         return TRUE;
-        /*NOTREACHED*/
+        /*NOTREACHED*/ /* unreachable */
         break;
     default:
         return FALSE;
@@ -224,7 +224,7 @@ t_offset sim_disk_size (UNIT *uptr)
 switch (DK_GET_FMT (uptr)) {                            /* case on format */
     case DKUF_F_STD:                                    /* SIMH format */
         return sim_fsize_ex (uptr->fileref);
-        /*NOTREACHED*/
+        /*NOTREACHED*/ /* unreachable */
         break;
     default:
         return (t_offset)-1;
@@ -280,7 +280,7 @@ if ((0 == (ctx->sector_size & (ctx->storage_sector_size - 1))) ||   /* Sector Al
     switch (DK_GET_FMT (uptr)) {                        /* case on format */
         case DKUF_F_STD:                                /* SIMH format */
             return _sim_disk_rdsect (uptr, lba, buf, sectsread, sects);
-            /*NOTREACHED*/
+            /*NOTREACHED*/ /* unreachable */
             break;
         default:
             return SCPE_NOFNC;

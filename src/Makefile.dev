@@ -316,8 +316,8 @@ lmscspell:                                                                    \
      $(GREP) -Ev '(\.ascii$$)'                                              | \
      $(GREP) -Ev '(\.Attic/.)'                                              | \
      $(GREP) -Ev '(bound_library_wired_$$)'                                 | \
-     $(GREP) -Ev '(\cctree.db$$)'                                           | \
-     $(GREP) -Ev '(\ci_full\.log)'                                          | \
+     $(GREP) -Ev '(cctree.db$$)'                                            | \
+     $(GREP) -Ev '(ci_full\.log)'                                           | \
      $(GREP) -Ev '(/ci-kit/run/)'                                           | \
      $(GREP) -Ev '(/ci-kit/tapes/)'                                         | \
      $(GREP) -Ev '(commandref\.md$$)'                                       | \

@@ -98,6 +98,7 @@ libfaketime
 likwid
 lister
 liststyle
+locallibs
 localopc
 lpthread
 lscpu
@@ -1774,6 +1775,8 @@ mfctop
 mfifo
 mflc
 mfls
+mgpr
+mgpw
 mincore
 minnum
 mins
@@ -5590,6 +5593,7 @@ xurl
 ypersetup
 
 FILETYPE: YAML; .yml
+advpng
 advzip
 aecf
 aixv
@@ -5628,11 +5632,13 @@ hugobuild
 hugogen
 ibmoxlcver
 iloi
+infra
 keyutils
 kitname
 latomic
 lgcc
 libatomic
+libbsd
 libcmb
 libcom
 libdl
@@ -5641,9 +5647,12 @@ libffi
 libgcc
 libidn
 liblzma
+libmd
+librt
 libselinux
 libssh
 libunistring
+libutil
 libuvdev
 libuvrel
 libxcrypt
@@ -5657,14 +5666,18 @@ lsocket
 ltdl
 lzma
 maix
+mframe
+mhard
 mkrebuild
 mmacosx
 mpfr
 msgpack
+msoft
 musleabi
 ncurses
 netbsdelf
 noci
+nosve
 nsiswrapper
 optflags
 otool
@@ -5675,6 +5688,7 @@ pkgs
 plog
 powerpcle
 pvsreport
+ranlib
 roscspell
 sdel
 srvany
@@ -6119,6 +6133,8 @@ gcda
 ifeq
 ifneq
 lbsd
+libbsd
+libutil
 listchars
 lutil
 makecmdgoals
@@ -6582,6 +6598,7 @@ isfifo
 kitname
 lgtm
 libdl
+librt
 liphlpapi
 liplpapi
 listchars
@@ -6835,6 +6852,7 @@ cygport
 daix
 developerstudio
 devpkg
+devx
 diffutils
 disablerepo
 distclean
@@ -6892,6 +6910,7 @@ ipwd
 laocl
 latestgccver
 lbsd
+ldbghelp
 ldconfig
 letltxmacro
 libalm
@@ -6904,6 +6923,7 @@ libmtsk
 libstatomic
 libtool
 libwinpthread
+liphlpapi
 listingsutf
 llvmmingwarm
 llvmmingwi
@@ -6914,9 +6934,15 @@ lmass
 lmassvp
 lmscspell
 localinstall
+lole
 lpopt
+lpsapi
 lpthread
+lshell
 ltimestamp
+luser
+luserenv
+luuid
 mcpu
 mdframed
 memcpy
@@ -6938,6 +6964,7 @@ nobest
 nsplit
 ntimestamp
 ofast
+openacc
 oracleinstall
 oraclelinux
 orstlint
@@ -6986,6 +7013,8 @@ simdp
 sourcecodepro
 sourcesanspro
 spdxtest
+sslverify
+sslverifystatus
 stderr
 suncc
 swupd
@@ -8154,6 +8183,19 @@ fullhtml
 plog
 pvsreport
 
+FILEID: 0a0e19f0-4894-11ed-8c0a-80ee73e9b8e7
+ldbghelp
+liphlpapi
+lole
+lpsapi
+lshell
+luser
+luserenv
+luuid
+
+FILEID: 268d2436-f2ea-11ed-9806-80ee73e9b8e7
+editmsg
+
 NATURAL:
 abandon
 abandoned
@@ -8391,6 +8433,7 @@ appropriately
 approve
 approximately
 approximation
+apps
 april
 arabic
 arbitrary
@@ -9626,6 +9669,7 @@ edited
 editing
 edition
 editor
+editorconfig
 effect
 effected
 effective
@@ -11233,6 +11277,7 @@ nqueensx
 nsis
 nuclear
 null
+nullability
 nulls
 number
 numbered
@@ -11313,6 +11358,7 @@ opened
 openhub
 opening
 openldap
+openmp
 openrisc
 openssl
 openxl
@@ -12209,6 +12255,7 @@ rump
 runaway
 runner
 running
+runout
 runs
 runtime
 sadly
@@ -12345,6 +12392,7 @@ services
 servicing
 session
 sessions
+setopt
 sets
 settable
 setting

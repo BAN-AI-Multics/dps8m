@@ -486,7 +486,7 @@ static char * default_base_system_script [] =
     "SET CPU2 CONFIG=TRO_ENABLE=enable",
     "SET CPU2 CONFIG=Y2K=disable",
     "SET CPU2 CONFIG=DRL_FATAL=disable",
-    "SET CPU2 CONFIG=USEMAP=disAble",
+    "SET CPU2 CONFIG=USEMAP=disable",
     "SET CPU2 CONFIG=PROM_INSTALLED=enable",
     "SET CPU2 CONFIG=HEX_MODE_INSTALLED=disable",
     "SET CPU2 CONFIG=CACHE_INSTALLED=enable",

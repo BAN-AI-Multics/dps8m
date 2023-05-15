@@ -107,12 +107,11 @@ messages may be seen when additional CPU's are brought online. This is caused
 by a lockup fault occurring while the Multics hardcore is waiting on a flag to
 be set by the CPU being brought online.
 
-Latency guarantees on the original hardware prevent this from ever occurring when
-the hardware is properly functioning.  Unfortunately, without introducing a strict
-hard-realtime requirements for simulated operations, such as requiring users run the
-simulator under control of a capable RTOS, or perhaps on a completely idle system
-without other processes active, there is no practical way to provide Multics these
-precision timing guarantees.
+Latency guarantees of the original hardware prevent this condition from occurring when
+the hardware is properly functioning.  Unfortunately, without introducing strict
+hard-realtime requirements for simulated operations such as requiring the simulator
+execute under the control of a hard-realtime RTOS, there is no practical way to provide
+Multics these precision timing guarantees.
 
 When running on original hardware, the lockup fault would be triggered by an independent
 watchdog timer that monitors the CPU's polling of interrupts.  If interrupts would be
@@ -561,7 +560,7 @@ Refer to *GB61-01* **Operators Guide, Appendix A** for more details.
 ##### TRO_ENABLE
 \
 \
-"**`TRO_ENABLE`**" configures whether timer run-off (*TRO*) is enabled, where "`0`" or "`disable`" is disabled and "`1`" or "`enable`" is enabled:
+"**`TRO_ENABLE`**" configures whether timer runout (*TRO*) is enabled, where "`0`" or "`disable`" is disabled and "`1`" or "`enable`" is enabled:
 
         TRO_ENABLE=<0 or 1>
         TRO_ENABLE=<disable or enable>
@@ -614,7 +613,7 @@ Refer to *GB61-01* **Operators Guide, Appendix A** for more details.
 ##### USEMAP
 \
 \
-"**`USE_MAP`**" configures whether to enable mapping, where "`0`" or "`disable`" is disabled and "`1`" or "`enable`" is enabled:
+"**`USEMAP`**" configures whether to enable mapping, where "`0`" or "`disable`" is disabled and "`1`" or "`enable`" is enabled:
 
         USEMAP=<0 or 1>
         USEMAP=<disable or enable>

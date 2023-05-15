@@ -5,7 +5,7 @@
 
 ####################################################################################################
 #
-# Copyright (c) 2021-2022 The DPS8M Development Team
+# Copyright (c) 2021-2023 The DPS8M Development Team
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -130,7 +130,7 @@ printf "%s\n" "${TLIST:-}" | grep -v '^$' 2> /dev/null | grep . >&2 &&
 
 ${DEBUG_CALL:?} Checking for trailing whitespace ...
 TLIST="$(${HOOK_CALL:?} | grep -Ev '(mcmb$|unifdef$|tags$|vmpctool$|prt2pdf$|GRTAGS$|GTAGS$)' |
- grep -Ev '(punutil$|dps8$|l68$|empty$|\.out$|\.tmp$|\~$|\.exe$|\.dll$|\.o$|\core$|\.git\/.)' |
+ grep -Ev '(punutil$|dps8$|l68$|empty$|\.out$|\.tmp$|~$|\.exe$|\.dll$|\.o$|core$|\.git/.)' |
   grep -Ev '(strip\.mem$|bound_library_wired_$|ci_full\.log\.ref$|\.woff$|\.woff2$|\.png$|\.jpg$)' |
    xargs -I{} grep -ial ' \+$' "{}" 2> /dev/null)";
 printf "%s\n" "${TLIST:-}" | grep -v '^$' 2> /dev/null | grep . >&2 &&

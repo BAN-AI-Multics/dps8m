@@ -247,6 +247,11 @@ ifndef SUNPRO
                 < /dev/null > /dev/null 2>&1 && printf '%s\n'                 \
                   "-ftrivial-auto-var-init=pattern")
   endif
+  ifdef TESTING
+    CFLAGS += $(shell $(CC) -E -ftrivial-auto-var-init=zero -                 \
+                < /dev/null > /dev/null 2>&1 && printf '%s\n'                 \
+                  "-ftrivial-auto-var-init=zero")
+  endif
 endif
 
 ifndef TESTING

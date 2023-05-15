@@ -1004,7 +1004,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
             return rc; // 3:command pending, don't send terminate interrupt, or
                        // 2:sent terminate interrupt
           }
-          /*NOTREACHED*/
+          /*NOTREACHED*/ /* unreachable */
           break;
 
         case 07:               // CMD 07 -- close()
@@ -1058,7 +1058,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
             return rc; // 3:command pending, don't send terminate interrupt, or
                        // 2:sent terminate interrupt
           }
-          /*NOTREACHED*/
+          /*NOTREACHED*/ /* unreachable */
           break;
 
         case 9:               // CMD 9 -- write8()
@@ -1085,7 +1085,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
                                        & words_processed, true);
           return rc;
           }
-          /*NOTREACHED*/
+          /*NOTREACHED*/ /* unreachable */
           break;
 
         case 040:               // CMD 040 -- Reset Status

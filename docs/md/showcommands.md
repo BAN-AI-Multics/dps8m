@@ -681,7 +681,7 @@ SHOWPRTNUNITSHERE
 
 "**`PATH`**" shows the currently configured output path (set via "`SET PRT PATH`").
 
-* An empty path is equivalent to the host operating system current working directory.
+* The default path is the current working directory of the host operating system.
 
 **Example**
 

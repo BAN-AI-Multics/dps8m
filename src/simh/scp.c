@@ -76,7 +76,7 @@
 
 #if defined(__APPLE__)
 # include <sys/sysctl.h>
-#endif
+#endif /* if defined(_APPLE_) */
 
 #if ( defined(__linux__) || defined(__linux) \
   ||  defined(_linux)    || defined(linux) )
@@ -88,12 +88,12 @@
 
 #ifndef HAVE_UNISTD
 # undef USE_BACKTRACE
-#endif
+#endif /* ifndef HAVE_UNISTD */
 
 #ifdef USE_BACKTRACE
 # include <string.h>
 # include <signal.h>
-#endif
+#endif /* ifdef USE_BACKTRACE */
 
 #ifdef __HAIKU__
 # include <OS.h>
@@ -118,7 +118,7 @@
 
 #ifndef MAX
 # define MAX(a,b)  (((a) >= (b)) ? (a) : (b))
-#endif
+#endif /* ifndef MAX */
 
 #ifdef TESTING
 # undef FREE
@@ -831,14 +831,14 @@ static const char simh_help[] =
       "3Command Error Status Display\n"
       "+SET MESSAGE                 Re-enables display of script error messages\n"
       "+SET NOMESSAGE               Disables display of script error messages\n"
-#define HLP_SET_LOCALOPC "*Commands SET Local_Operator_Console"
-      "3Local Operator Console\n"
-      "+SET LOCALOPC                Enables local operator console\n"
-      "+SET NOLOCALOPC              Disables local operator console\n"
 #define HLP_SET_QUIET "*Commands SET Command_Output_Display"
       "3Command Output Display\n"
       "+SET QUIET                   Disables suppression of some messages\n"
       "+SET NOQUIET                 Re-enables suppression of some messages\n"
+#define HLP_SET_LOCALOPC "*Commands SET Local_Operator_Console"
+      "3Local Operator Console\n"
+      "+SET LOCALOPC                Enables local operator console\n"
+      "+SET NOLOCALOPC              Disables local operator console\n"
 #define HLP_SET_PROMPT "*Commands SET Command_Prompt"
       "3Command Prompt\n"
       "+SET PROMPT \"string\"         Sets an alternate simulator prompt string\n"
@@ -1173,124 +1173,125 @@ static const char simh_help[] =
        /***************** 80 character line width template *************************/
 
 static CTAB cmd_table[] = {
-    { "RESET",      &reset_cmd,     0,          HLP_RESET },
-    { "EXAMINE",    &exdep_cmd,     EX_E,       HLP_EXAMINE },
-    { "IEXAMINE",   &exdep_cmd,     EX_E+EX_I,  HLP_IEXAMINE },
-    { "DEPOSIT",    &exdep_cmd,     EX_D,       HLP_DEPOSIT },
-    { "IDEPOSIT",   &exdep_cmd,     EX_D+EX_I,  HLP_IDEPOSIT },
-    { "EVALUATE",   &eval_cmd,      0,          HLP_EVALUATE },
-    { "RUN",        &run_cmd,       RU_RUN,     HLP_RUN,        NULL, &run_cmd_message },
-    { "GO",         &run_cmd,       RU_GO,      HLP_GO,         NULL, &run_cmd_message },
-    { "STEP",       &run_cmd,       RU_STEP,    HLP_STEP,       NULL, &run_cmd_message },
-    { "NEXT",       &run_cmd,       RU_NEXT,    HLP_NEXT,       NULL, &run_cmd_message },
-    { "CONTINUE",   &run_cmd,       RU_CONT,    HLP_CONTINUE,   NULL, &run_cmd_message },
-    { "BOOT",       &run_cmd,       RU_BOOT,    HLP_BOOT,       NULL, &run_cmd_message },
-    { "BREAK",      &brk_cmd,       SSH_ST,     HLP_BREAK },
-    { "NOBREAK",    &brk_cmd,       SSH_CL,     HLP_NOBREAK },
-    { "ATTACH",     &attach_cmd,    0,          HLP_ATTACH },
-    { "DETACH",     &detach_cmd,    0,          HLP_DETACH },
-    { "EXIT",       &exit_cmd,      0,          HLP_EXIT },
-    { "QUIT",       &exit_cmd,      0,          NULL },
-    { "BYE",        &exit_cmd,      0,          NULL },
-    { "SET",        &set_cmd,       0,          HLP_SET },
-    { "SHOW",       &show_cmd,      0,          HLP_SHOW },
-    { "DO",         &do_cmd,        1,          HLP_DO },
-    { "GOTO",       &goto_cmd,      1,          HLP_GOTO },
-    { "RETURN",     &return_cmd,    0,          HLP_RETURN },
-    { "SHIFT",      &shift_cmd,     0,          HLP_SHIFT },
-    { "CALL",       &call_cmd,      0,          HLP_CALL },
-    { "ON",         &on_cmd,        0,          HLP_ON },
-    { "IF",         &assert_cmd,    0,          HLP_IF },
-    { "PROCEED",    &noop_cmd,      0,          HLP_PROCEED },
-    { "IGNORE",     &noop_cmd,      0,          HLP_IGNORE },
-    { "ECHO",       &echo_cmd,      0,          HLP_ECHO },
-    { "ASSERT",     &assert_cmd,    1,          HLP_ASSERT },
-    { "SEND",       &send_cmd,      0 }, /* deprecated */
-    { "EXPECT",     &expect_cmd,    1 }, /* deprecated */
-    { "NOEXPECT",   &expect_cmd,    0 }, /* deprecated */
-    { "!",          &spawn_cmd,     0,          HLP_SPAWN },
-    { "HELP",       &help_cmd,      0,          HLP_HELP },
-    { NULL, NULL, 0 }
+    { "RESET",    &reset_cmd,  0,         HLP_RESET     },
+    { "EXAMINE",  &exdep_cmd,  EX_E,      HLP_EXAMINE   },
+    { "IEXAMINE", &exdep_cmd,  EX_E+EX_I, HLP_IEXAMINE  },
+    { "DEPOSIT",  &exdep_cmd,  EX_D,      HLP_DEPOSIT   },
+    { "IDEPOSIT", &exdep_cmd,  EX_D+EX_I, HLP_IDEPOSIT  },
+    { "EVALUATE", &eval_cmd,   0,         HLP_EVALUATE  },
+    { "RUN",      &run_cmd,    RU_RUN,    HLP_RUN,      NULL, &run_cmd_message },
+    { "GO",       &run_cmd,    RU_GO,     HLP_GO,       NULL, &run_cmd_message },
+    { "STEP",     &run_cmd,    RU_STEP,   HLP_STEP,     NULL, &run_cmd_message },
+    { "NEXT",     &run_cmd,    RU_NEXT,   HLP_NEXT,     NULL, &run_cmd_message },
+    { "CONTINUE", &run_cmd,    RU_CONT,   HLP_CONTINUE, NULL, &run_cmd_message },
+    { "BOOT",     &run_cmd,    RU_BOOT,   HLP_BOOT,     NULL, &run_cmd_message },
+    { "BREAK",    &brk_cmd,    SSH_ST,    HLP_BREAK     },
+    { "NOBREAK",  &brk_cmd,    SSH_CL,    HLP_NOBREAK   },
+    { "ATTACH",   &attach_cmd, 0,         HLP_ATTACH    },
+    { "DETACH",   &detach_cmd, 0,         HLP_DETACH    },
+    { "EXIT",     &exit_cmd,   0,         HLP_EXIT      },
+    { "QUIT",     &exit_cmd,   0,         NULL          },
+    { "BYE",      &exit_cmd,   0,         NULL          },
+    { "SET",      &set_cmd,    0,         HLP_SET       },
+    { "SHOW",     &show_cmd,   0,         HLP_SHOW      },
+    { "DO",       &do_cmd,     1,         HLP_DO        },
+    { "GOTO",     &goto_cmd,   1,         HLP_GOTO      },
+    { "RETURN",   &return_cmd, 0,         HLP_RETURN    },
+    { "SHIFT",    &shift_cmd,  0,         HLP_SHIFT     },
+    { "CALL",     &call_cmd,   0,         HLP_CALL      },
+    { "ON",       &on_cmd,     0,         HLP_ON        },
+    { "IF",       &assert_cmd, 0,         HLP_IF        },
+    { "PROCEED",  &noop_cmd,   0,         HLP_PROCEED   },
+    { "IGNORE",   &noop_cmd,   0,         HLP_IGNORE    },
+    { "ECHO",     &echo_cmd,   0,         HLP_ECHO      },
+    { "ASSERT",   &assert_cmd, 1,         HLP_ASSERT    },
+    { "SEND",     &send_cmd,   0          },            /* deprecated */
+    { "EXPECT",   &expect_cmd, 1          },            /* deprecated */
+    { "NOEXPECT", &expect_cmd, 0          },            /* deprecated */
+    { "!",        &spawn_cmd,  0,         HLP_SPAWN     },
+    { "HELP",     &help_cmd,   0,         HLP_HELP      },
+    { NULL,       NULL,        0          }
     };
 
 static CTAB set_glob_tab[] = {
-    { "CONSOLE",     &sim_set_console,          0 }, /* deprecated */
-    { "REMOTE",      &sim_set_remote_console,   0 }, /* deprecated */
-    { "BREAK",       &brk_cmd,             SSH_ST }, /* deprecated */
-    { "NOBREAK",     &brk_cmd,             SSH_CL }, /* deprecated */
-    { "TELNET",      &sim_set_telnet,           0 }, /* deprecated */
-    { "NOTELNET",    &sim_set_notelnet,         0 }, /* deprecated */
-    { "LOG",         &sim_set_logon,            0, HLP_SET_LOG  },
-    { "NOLOG",       &sim_set_logoff,           0, HLP_SET_LOG  },
-    { "DEBUG",       &sim_set_debon,            0, HLP_SET_DEBUG  },
-    { "NODEBUG",     &sim_set_deboff,           0, HLP_SET_DEBUG  },
-    { "ENVIRONMENT", &sim_set_environment,      1, HLP_SET_ENVIRON },
-    { "ON",          &set_on,                   1, HLP_SET_ON },
-    { "NOON",        &set_on,                   0, HLP_SET_ON },
-    { "VERIFY",      &set_verify,               1, HLP_SET_VERIFY },
-    { "VERBOSE",     &set_verify,               1, HLP_SET_VERIFY },
-    { "NOVERIFY",    &set_verify,               0, HLP_SET_VERIFY },
-    { "NOVERBOSE",   &set_verify,               0, HLP_SET_VERIFY },
-    { "MESSAGE",     &set_message,              1, HLP_SET_MESSAGE },
-    { "NOMESSAGE",   &set_message,              0, HLP_SET_MESSAGE },
-    { "QUIET",       &set_quiet,                1, HLP_SET_QUIET },
-    { "NOQUIET",     &set_quiet,                0, HLP_SET_QUIET },
-    { "LOCALOPC",    &set_localopc,             1, HLP_SET_LOCALOPC },
-    { "NOLOCALOPC",  &set_localopc,             0, HLP_SET_LOCALOPC },
-    { "PROMPT",      &set_prompt,               0, HLP_SET_PROMPT },
-    { NULL,          NULL,                      0 }
+    { "CONSOLE",     &sim_set_console,        0      }, /* deprecated */
+    { "REMOTE",      &sim_set_remote_console, 0      }, /* deprecated */
+    { "BREAK",       &brk_cmd,                SSH_ST }, /* deprecated */
+    { "NOBREAK",     &brk_cmd,                SSH_CL }, /* deprecated */
+    { "TELNET",      &sim_set_telnet,         0      }, /* deprecated */
+    { "NOTELNET",    &sim_set_notelnet,       0      }, /* deprecated */
+    { "LOG",         &sim_set_logon,          0,     HLP_SET_LOG      },
+    { "NOLOG",       &sim_set_logoff,         0,     HLP_SET_LOG      },
+    { "DEBUG",       &sim_set_debon,          0,     HLP_SET_DEBUG    },
+    { "NODEBUG",     &sim_set_deboff,         0,     HLP_SET_DEBUG    },
+    { "ENVIRONMENT", &sim_set_environment,    1,     HLP_SET_ENVIRON  },
+    { "ON",          &set_on,                 1,     HLP_SET_ON       },
+    { "NOON",        &set_on,                 0,     HLP_SET_ON       },
+    { "VERIFY",      &set_verify,             1,     HLP_SET_VERIFY   },
+    { "VERBOSE",     &set_verify,             1,     HLP_SET_VERIFY   },
+    { "NOVERIFY",    &set_verify,             0,     HLP_SET_VERIFY   },
+    { "NOVERBOSE",   &set_verify,             0,     HLP_SET_VERIFY   },
+    { "MESSAGE",     &set_message,            1,     HLP_SET_MESSAGE  },
+    { "NOMESSAGE",   &set_message,            0,     HLP_SET_MESSAGE  },
+    { "QUIET",       &set_quiet,              1,     HLP_SET_QUIET    },
+    { "NOQUIET",     &set_quiet,              0,     HLP_SET_QUIET    },
+    { "LOCALOPC",    &set_localopc,           1,     HLP_SET_LOCALOPC },
+    { "NOLOCALOPC",  &set_localopc,           0,     HLP_SET_LOCALOPC },
+    { "PROMPT",      &set_prompt,             0,     HLP_SET_PROMPT   },
+    { NULL,          NULL,                    0      }
     };
 
 static C1TAB set_dev_tab[] = {
-    { "OCTAL",      &set_dev_radix,     8 },
-    { "DECIMAL",    &set_dev_radix,     10 },
-    { "HEX",        &set_dev_radix,     16 },
-    { "ENABLED",    &set_dev_enbdis,    1 },
-    { "DISABLED",   &set_dev_enbdis,    0 },
-    { "DEBUG",      &set_dev_debug,     1 },
-    { "NODEBUG",    &set_dev_debug,     0 },
-    { NULL,         NULL,               0 }
+    { "OCTAL",    &set_dev_radix,   8  },
+    { "DECIMAL",  &set_dev_radix,  10  },
+    { "HEX",      &set_dev_radix,  16  },
+    { "ENABLED",  &set_dev_enbdis,  1  },
+    { "DISABLED", &set_dev_enbdis,  0  },
+    { "DEBUG",    &set_dev_debug,   1  },
+    { "NODEBUG",  &set_dev_debug,   0  },
+    { NULL,       NULL,             0  }
     };
 
 static C1TAB set_unit_tab[] = {
-    { "ENABLED",    &set_unit_enbdis,   1 },
-    { "DISABLED",   &set_unit_enbdis,   0 },
-    { NULL,         NULL,               0 }
+    { "ENABLED",  &set_unit_enbdis, 1 },
+    { "DISABLED", &set_unit_enbdis, 0 },
+    { NULL,       NULL,             0 }
     };
 
 static SHTAB show_glob_tab[] = {
-    { "CONFIGURATION",  &show_config,               0, HLP_SHOW_CONFIG },
-    { "DEFAULT_BASE_SYSTEM_SCRIPT", &show_default_base_system_script, 0, HLP_SHOW_DBS },
-    { "DEVICES",        &show_config,               1, HLP_SHOW_DEVICES },
-    { "FEATURES",       &show_config,               2, HLP_SHOW_FEATURES },
-    { "QUEUE",          &show_queue,                0, HLP_SHOW_QUEUE },
-    { "TIME",           &show_time,                 0, HLP_SHOW_TIME },
-    { "MODIFIERS",      &show_mod_names,            0, HLP_SHOW_MODIFIERS },
-    { "NAMES",          &show_log_names,            0, HLP_SHOW_NAMES },
-    { "SHOW",           &show_show_commands,        0, HLP_SHOW_SHOW },
-    { "VERSION",        &show_version,              1, HLP_SHOW_VERSION },
-    { "BUILDINFO",      &show_buildinfo,            1, HLP_SHOW_BUILDINFO },
-    { "PROM",           &show_prom,                 0, HLP_SHOW_PROM },
-    { "CONSOLE",        &sim_show_console,          0, HLP_SHOW_CONSOLE },
-    { "REMOTE",         &sim_show_remote_console,   0, HLP_SHOW_REMOTE },
-    { "BREAK",          &show_break,                0, HLP_SHOW_BREAK },
-    { "LOG",            &sim_show_log,              0, HLP_SHOW_LOG },
-    { "TELNET",         &sim_show_telnet,           0 },    /* deprecated */
-    { "DEBUG",          &sim_show_debug,            0, HLP_SHOW_DEBUG },
-    { "CLOCKS",         &sim_show_timers,           0, HLP_SHOW_CLOCKS },
-    { "SEND",           &sim_show_send,             0, HLP_SHOW_SEND },
-    { "EXPECT",         &sim_show_expect,           0, HLP_SHOW_EXPECT },
-    { "ON",             &show_on,                   0, HLP_SHOW_ON },
-    { NULL,             NULL,                       0 }
+    { "CONFIGURATION",  &show_config,        0, HLP_SHOW_CONFIG    },
+    { "DEFAULT_BASE_SYSTEM_SCRIPT",
+           &show_default_base_system_script, 0, HLP_SHOW_DBS       },
+    { "DEVICES",   &show_config,             1, HLP_SHOW_DEVICES   },
+    { "FEATURES",  &show_config,             2, HLP_SHOW_FEATURES  },
+    { "QUEUE",     &show_queue,              0, HLP_SHOW_QUEUE     },
+    { "TIME",      &show_time,               0, HLP_SHOW_TIME      },
+    { "MODIFIERS", &show_mod_names,          0, HLP_SHOW_MODIFIERS },
+    { "NAMES",     &show_log_names,          0, HLP_SHOW_NAMES     },
+    { "SHOW",      &show_show_commands,      0, HLP_SHOW_SHOW      },
+    { "VERSION",   &show_version,            1, HLP_SHOW_VERSION   },
+    { "BUILDINFO", &show_buildinfo,          1, HLP_SHOW_BUILDINFO },
+    { "PROM",      &show_prom,               0, HLP_SHOW_PROM      },
+    { "CONSOLE",   &sim_show_console,        0, HLP_SHOW_CONSOLE   },
+    { "REMOTE",    &sim_show_remote_console, 0, HLP_SHOW_REMOTE    },
+    { "BREAK",     &show_break,              0, HLP_SHOW_BREAK     },
+    { "LOG",       &sim_show_log,            0, HLP_SHOW_LOG       },
+    { "TELNET",    &sim_show_telnet,         0  },  /* deprecated */
+    { "DEBUG",     &sim_show_debug,          0, HLP_SHOW_DEBUG     },
+    { "CLOCKS",    &sim_show_timers,         0, HLP_SHOW_CLOCKS    },
+    { "SEND",      &sim_show_send,           0, HLP_SHOW_SEND      },
+    { "EXPECT",    &sim_show_expect,         0, HLP_SHOW_EXPECT    },
+    { "ON",        &show_on,                 0, HLP_SHOW_ON        },
+    { NULL,        NULL,                     0  }
     };
 
 static SHTAB show_dev_tab[] = {
-    { "RADIX",      &show_dev_radix,            0 },
-    { "DEBUG",      &show_dev_debug,            0 },
-    { "MODIFIERS",  &show_dev_modifiers,        0 },
-    { "NAMES",      &show_dev_logicals,         0 },
-    { "SHOW",       &show_dev_show_commands,    0 },
-    { NULL,         NULL,                       0 }
+    { "RADIX",     &show_dev_radix,         0 },
+    { "DEBUG",     &show_dev_debug,         0 },
+    { "MODIFIERS", &show_dev_modifiers,     0 },
+    { "NAMES",     &show_dev_logicals,      0 },
+    { "SHOW",      &show_dev_show_commands, 0 },
+    { NULL,        NULL,                    0 }
     };
 
 static SHTAB show_unit_tab[] = {
@@ -1316,7 +1317,7 @@ int unsetenv(const char *envname)
 setenv(envname, "", 1);
 return 0;
 }
-#endif
+#endif /* if defined(_WIN32) */
 
 /* Testing realloc */
 
@@ -1375,7 +1376,7 @@ int processIsTranslated(void)
         return -1; }
     return ret;
 }
-#endif
+#endif /* if defined(_APPLE_) */
 
 /* Substring removal hack */
 

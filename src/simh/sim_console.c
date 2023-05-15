@@ -130,7 +130,7 @@ int32 sim_tt_pchar = 0x00002780;
 int32 sim_del_char = '\b';                              /* delete character */
 #else
 int32 sim_del_char = 0177;
-#endif
+#endif /* if defined (_WIN32) */
 
 static t_stat sim_con_poll_svc (UNIT *uptr);                /* console connection poll routine */
 static t_stat sim_con_reset (DEVICE *dptr);                 /* console reset routine */

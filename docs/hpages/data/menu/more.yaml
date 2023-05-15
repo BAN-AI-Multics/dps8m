@@ -2,7 +2,7 @@
 more:
   - name: ""
     sub:
-    - name: "Multics Operating System"
+    - name: "Multics"
       icon: "gdoc_heart"
       ref: "https://swenson.org/multics_wiki/"
       external: true
