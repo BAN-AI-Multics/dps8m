@@ -98,6 +98,7 @@ libfaketime
 likwid
 lister
 liststyle
+locallibs
 localopc
 lpthread
 lscpu
@@ -6909,6 +6910,7 @@ ipwd
 laocl
 latestgccver
 lbsd
+ldbghelp
 ldconfig
 letltxmacro
 libalm
@@ -6921,6 +6923,7 @@ libmtsk
 libstatomic
 libtool
 libwinpthread
+liphlpapi
 listingsutf
 llvmmingwarm
 llvmmingwi
@@ -6931,9 +6934,15 @@ lmass
 lmassvp
 lmscspell
 localinstall
+lole
 lpopt
+lpsapi
 lpthread
+lshell
 ltimestamp
+luser
+luserenv
+luuid
 mcpu
 mdframed
 memcpy
@@ -7004,6 +7013,8 @@ simdp
 sourcecodepro
 sourcesanspro
 spdxtest
+sslverify
+sslverifystatus
 stderr
 suncc
 swupd
@@ -8171,6 +8182,16 @@ FILEID: f90d785c-a3ed-11ed-a539-80ee73e9b8e7
 fullhtml
 plog
 pvsreport
+
+FILEID: 0a0e19f0-4894-11ed-8c0a-80ee73e9b8e7
+ldbghelp
+liphlpapi
+lole
+lpsapi
+lshell
+luser
+luserenv
+luuid
 
 NATURAL:
 abandon
@@ -12367,6 +12388,7 @@ services
 servicing
 session
 sessions
+setopt
 sets
 settable
 setting
