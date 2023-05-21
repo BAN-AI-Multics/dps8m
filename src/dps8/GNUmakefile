@@ -1,4 +1,4 @@
-
+# DPS8M simulator: src/dps8m/GNUmakefile
 # vim: filetype=make:tabstop=4:cc=79:ai:noexpandtab:list:listchars=tab\:\>\-
 # SPDX-License-Identifier: ICU
 # scspell-id: 42ec66a7-f62f-11ec-810d-80ee73e9b8e7
@@ -655,8 +655,10 @@ kit dist:
              $(GREP) -v '^src/dps8/listings/' | $(GREP) -v '.reuse/dep5'   |  \
               $(GREP) -v '^.scspell' | $(GREP) -v '^LICENSES/'             |  \
                $(GREP) -v '^.*\.license$$' | $(GREP) -v 'src/Makefile.doc' |  \
-                $(GREP) -v '^src/Makefile.dev')                               \
-                            'src/dps8/ver.h~' )
+                $(GREP) -v '^src/perf_test/' | $(GREP) -v '^.nsis/'        |  \
+                 $(GREP) -v '^.hpkg/' | $(GREP) -v '^.editorconfig'        |  \
+                  $(GREP) -v '^src/Makefile.dev')                              \
+                              'src/dps8/ver.h~' )
 	@$(PRINTF) '%s\n'                                                         \
        "COMPRESS: $(KITNAME).$(TARXT) -> $(KITNAME).$(TARXT).$(COMPRESSXT)"
 	@$(SETV); $(COMPRESS) "../../$(KITNAME).$(TARXT)"
@@ -681,8 +683,10 @@ zipkit zipdist:
              $(GREP) -v '^.scspell' | $(GREP) -v '^LICENSES/'              |  \
               $(GREP) -v '^.*\.license$$' | $(GREP) -v 'src/Makefile.doc'  |  \
                $(GREP) -v '^src/dps8/listings/'                            |  \
-                $(GREP) -v '.reuse/dep5' )                                    \
-                           'src/dps8/ver.h~' )
+                $(GREP) -v '^src/perf_test/' | $(GREP) -v '^.nsis/'        |  \
+                 $(GREP) -v '^.hpkg/' | $(GREP) -v '^.editorconfig'        |  \
+                  $(GREP) -v '.reuse/dep5' )                                  \
+                             'src/dps8/ver.h~' )
 	@$(SETV); ($(CD) "../.." && $(TAR) xf "$(KITNAME)"."TMP"              &&  \
       $(RMF) "$(KITNAME)"."zip"                                           &&  \
         $(TR) -s ' ' < "./src/dps8/ver.h~" 2> /dev/null                    |  \

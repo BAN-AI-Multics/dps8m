@@ -1,8 +1,7 @@
 <!-- vim: set ft=markdown ts=2 sw=2 ai cc=80 et spell nolist wrap lbr :-->
-<!-- SPDX-License-Identifier: LicenseRef-DPS8M-Doc OR LicenseRef-CF-GAL -->
-<!-- NOTE: The DPS8M Documentation License (LicenseRef-DPS8M-Doc) and/or the
-           General Attribution License (LicenseRef-CF-GAL) is NOT applicable
-           to the text of other licenses reproduced within this document. -->
+<!-- SPDX-License-Identifier: LicenseRef-CF-GAL -->
+<!-- NOTE: The General Attribution License terms and conditions do NOT apply
+           to the TEXT OF OTHER LICENSES reproduced within this document. -->
 <!-- SPDX-FileCopyrightText: 2021-2023 The DPS8M Development Team -->
 <!-- scspell-id: febe4236-f778-11ec-8c3f-80ee73e9b8e7 -->
 
@@ -14,97 +13,17 @@
 
 <!-- br -->
 
-### DPS8M Omnibus Documentation-specific Content Licenses
+### DPS8M Omnibus Documentation-specific Content Licensing
 
-The complete **DPS8M Omnibus Documentation** (“*this documentation*”) is
-licensed under **The DPS8M Documentation License** (version `0.954`, or
-at your option, any later version), with the following exceptions.
+* The *complete* **DPS8M Omnibus Documentation** (“*this documentation*”) is
+  licensed under the terms of the **General Attribution License**.
 
-* **Original text and graphics** (including examples, “recipes”, code,
-  diagrams, drawings, outlines, charts, and illustrations) within this
-  documentation, unless otherwise noted, are ***dual licensed*** under:
-
-  1. **The DPS8M Documentation License** (version `0.954` of 3 July 2022,
-     or at your option, any later version)
-
-  2. The **General Attribution License**
-
-* **Third-party content** within this documentation is copyrighted by their
+* **Third-party content** *within* this documentation is copyrighted by their
   respective owners and licensed as indicated in the following disclosures.
 
 <!-- pagebreak -->
 
-#### The DPS8M Documentation License
-
-<!-- br -->
-
-**The DPS8M Documentation License**
-
-*Version 0.954 of 3 July 2022*
-
-- Copyright © 2006-2023 &nbsp; **The DPS8M Development Team**
-
-All rights reserved.
-
-This documentation was produced by **The DPS8M Development Team** and other
-contributors. Any views or conclusions contained in this documentation are
-those of the **individual authors**, and **should not** be interpreted as
-representing official policies, either express or implied, of **The DPS8M
-Development Team**.
-
-Redistribution and use in ‘*source*’ and ‘*compiled*’ forms, in
-whole or in part, for any purpose including commercial applications, with
-or without modification, and in any medium, is hereby permitted, provided
-that the following conditions are met:
-
- 1. Redistributions of ‘*source*’ forms **must retain, unaltered**,
-    the above text, copyright notice, any other notices of legal privilege,
-    this list of conditions, and the following disclaimer.
-
- 2. Redistributions of ‘*compiled*’ forms **must reproduce** the above
-    text, copyright notice, any other notices of legal privilege, this list
-    of conditions, and the following disclaimer within the documentation
-    and/or other human-readable materials provided with the distribution.
-
- 3. The origin of this documentation, including the names of the distributors,
-    assemblers, authors, contributors, and holders of copyright or other legal
-    privilege **must not be misrepresented**.
-
- 4. Except as contained in this notice, the names of any distributors,
-    assemblers, authors, contributors, and holders of copyright or other legal
-    privilege **must not be used to endorse, promote, or advertise products
-    and/or services** derived from this documentation.
-
-**THIS DOCUMENTATION IS PROVIDED BY THE DISTRIBUTORS, ASSEMBLERS, AUTHORS,
-CONTRIBUTORS, AND HOLDERS OF COPYRIGHT OR OTHER LEGAL PRIVILEGE “_AS IS_”
-AND WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-LIMITED TO THE IMPLIED WARRANTIES OF TITLE, MERCHANTABILITY, FITNESS FOR
-A PARTICULAR PURPOSE, CORRECTNESS, AND NON-INFRINGEMENT OF COPYRIGHT,
-PATENT, TRADEMARK OR OTHER RIGHT. THE DISTRIBUTORS, ASSEMBLERS, AUTHORS,
-CONTRIBUTORS, AND HOLDERS OF COPYRIGHT OR OTHER LEGAL PRIVILEGE MAKE NO
-CLAIMS, PROMISES OR GUARANTEES REGARDING THE ACCURACY, CURRENCY, COMPLETENESS,
-AUTHENTICITY, RELIABILITY, USEFULNESS OR ADEQUACY OF ANY INFORMATION, AND
-HAVE NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS,
-MODIFICATIONS, OR CORRECTIONS, AND EXPRESSLY DISCLAIM LIABILITY FOR ANY ERRORS
-AND OMISSIONS WITHIN THIS DOCUMENTATION. IN NO EVENT SHALL THE DISTRIBUTORS,
-ASSEMBLERS, AUTHORS, CONTRIBUTORS, AND HOLDERS OF COPYRIGHT OR OTHER LEGAL
-PRIVILEGE BE LIABLE FOR ANY CLAIM OR DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-GENERAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING BUT NOT LIMITED TO
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-OTHERWISE) ARISING FROM, OUT OF, OR IN CONNECTION WITH THE USE OR PERFORMANCE
-OF THIS DOCUMENTATION, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.**
-
-All company names, product names, service names, brand names, service
-marks, and registered trademarks mentioned herein are for information
-and identification purposes only and are the property of their respective
-owners; the use of these names, brands, and marks does not imply affiliation,
-endorsement, or sponsorship.
-
-<!-- pagebreak -->
-
-#### General Attribution License
+#### General Attribution License (Documentation)
 
 <!-- br -->
 
@@ -141,7 +60,7 @@ provided that the following conditions are met:
 
 <!-- pagebreak -->
 
-### Multics License
+### Multics License (Documentation)
 
 This documentation may adapt, include, and/or incorporate **Multics** program
 code and/or documentation, which is distributed under the **Multics License**.
@@ -483,7 +402,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.**
 
 ### DPS8M Simulator
 
-#### ICU License
+#### ICU License (DPS8M Simulator)
 
 * The **DPS8M Simulator** (“**DPS8M**”) is distributed under the
   **ICU License**, version 1.8.1 or later.
@@ -498,7 +417,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.**
 * Copyright © 2015-2016 &nbsp; **Craig Ruff**
 * Copyright © 2015-2022 &nbsp; **Eric Swenson**
 * Copyright © 2016 &nbsp; **Jean-Michel Merliot**
-* Copyright © 2017-2022 &nbsp; **Jeffrey H. Johnson**
+* Copyright © 2017-2023 &nbsp; **Jeffrey H. Johnson**
 * Copyright © 2018-2021 &nbsp; **Juergen Weiss**
 * Copyright © 2021 &nbsp; **Dean S. Anderson**
 * Copyright © 2021-2023 &nbsp; **The DPS8M Development Team**
@@ -533,7 +452,7 @@ of their respective owners.
 
 ----
 
-#### FSF All Permissive License
+#### FSF All Permissive License (Simulator Miscellaneous)
 
 * The **DPS8M Simulator** (“**DPS8M**”) distribution includes various
   build, configuration, and miscellaneous files.
@@ -548,7 +467,7 @@ notice are preserved.  This file is offered “_AS-IS_”, without any warranty.
 
 <!-- pagebreak -->
 
-#### Multics License
+#### Multics License (Simulator Code Comments)
 
 * The **DPS8M Simulator** (“**DPS8M**”) **source code** may contain **code
   comments** that adapt, include, and/or incorporate Multics program code
@@ -701,7 +620,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.**
 * **UDPLib** is a library that implements the BBN ARPAnet IMP/TIP
   Modem/Host Interface over UDP. It is derived from code written
   by **Robert Armstrong**, and is distributed under the terms of
-  the **X11 license**.
+  the following **MIT license**.
 
 <!-- br -->
 

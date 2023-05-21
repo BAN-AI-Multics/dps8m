@@ -127,10 +127,8 @@ ifndef LTO_SKIP
               LDFLAGS += $(LTOSYN)
             else
               # Intel C Compiler Classic (no longer supported)
-              NO_LTO=1
-              LTO_SKIP=1
-              export NO_LTO
-              export LTO_SKIP
+              CFLAGS += -ipo -diag-disable=10440
+              LDFLAGS += -ipo -diag-disable=10440
             endif
           else
             # GCC
@@ -308,7 +306,7 @@ endif
 # Intel C Compiler Classic workarounds (no longer supported)
 
 ifneq "$(findstring icc,$(CC))" ""
-  CFLAGS += -no-restrict -D__attribute__\(x\)=/"/"
+  CFLAGS += -diag-disable=10441 -no-restrict -D__attribute__\(x\)=/"/"
 endif
 
 ###############################################################################

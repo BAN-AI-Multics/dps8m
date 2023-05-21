@@ -1,5 +1,5 @@
 
-<!-- SPDX-License-Identifier: LicenseRef-DPS8M-Doc OR LicenseRef-CF-GAL -->
+<!-- SPDX-License-Identifier: LicenseRef-CF-GAL -->
 <!-- SPDX-FileCopyrightText: 2022-2023 The DPS8M Development Team -->
 <!-- scspell-id: 4132ae42-340e-11ed-83d3-80ee73e9b8e7 -->
 

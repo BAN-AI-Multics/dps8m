@@ -608,10 +608,8 @@ startCA:;
         // interpreted.  The indirect word is treated as though it had R
         // modification with R = N."
 
-        // (Closed) Ticket 15: Check for fault causing tags before updating
-        // the IWB, so the instruction restart will reload the offending
-        // indirect word.
-
+        // Check for fault causing tags before updating the IWB, so the
+        // instruction restart will reload the offending indirect word.
         sim_debug (DBG_ADDRMOD, & cpu_dev,
                    "RI_MOD: cpu.itxPair[0]=%012"PRIo64
                    " TPR.CA=%06o rTAG=%02o\n",

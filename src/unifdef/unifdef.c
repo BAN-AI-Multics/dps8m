@@ -620,7 +620,7 @@ version(void)
     {
 # ifdef __VERSION__
 #  ifdef __GNUC__
-#   ifndef __clang_version__
+#   if !defined (__clang_version__) || defined(__INTEL_COMPILER)
       char xcmp[2];
       (void)sprintf(xcmp, "%.1s", __VERSION__ );
       if (!isdigit((int)xcmp[0]))
@@ -633,7 +633,7 @@ version(void)
         }
 #   else
       (void)fprintf(stderr, "Compiler: Clang %s\n", __clang_version__ );
-#   endif /* ifndef __clang_version__ */
+#   endif /* if !defined (__clang_version__) || defined(__INTEL_COMPILER) */
 #  else
       (void)fprintf(stderr, "Compiler: %s\n", __VERSION__ );
 #  endif /* ifdef __GNUC__ */

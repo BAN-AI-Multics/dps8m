@@ -522,15 +522,15 @@ title: DPS8M Releases
 {{< tab "AIX" >}}
 
 {{< expand "Power ISA (64-bit)" "…" >}}
-| File                                                                                       | Platform             |
-|:------------------------------------------------------------------------------------------ |:-------------------- |
-| [**dps8m-git-aixv7-p10.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-p10.tar.gz) | Power10              |
-| [**dps8m-git-aixv7-pw9.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-pw9.tar.gz) | POWER9               |
-| [**dps8m-git-aixv7-pw8.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-pw8.tar.gz) | POWER8 (GCC&nbsp;12) |
-| [**dps8m-git-aixv7-gcc.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-gcc.tar.gz) | POWER8 (GCC&nbsp;10) |
+| File                                                                                       | Platform                   |
+|:------------------------------------------------------------------------------------------ |:-------------------------- |
+| [**dps8m-git-aixv7-p10.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-p10.tar.gz) | Power10                    |
+| [**dps8m-git-aixv7-pw9.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-pw9.tar.gz) | POWER9                     |
+| [**dps8m-git-aixv7-pw8.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-pw8.tar.gz) | POWER8 (GCC&nbsp;12)       |
+| [**dps8m-git-aixv7-gcc.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-gcc.tar.gz) | POWER8 (GCC&nbsp;11)       |
 | [**dps8m-git-aixv7-xlc.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-xlc.tar.gz) | POWER8 (XL&nbsp;C&nbsp;16) |
-| [**dps8m-git-aixv7-pw7.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-pw7.tar.gz) | POWER7               |
-| [**dps8m-git-aixv7-pw6.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-pw6.tar.gz) | POWER6               |
+| [**dps8m-git-aixv7-pw7.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-pw7.tar.gz) | POWER7                     |
+| [**dps8m-git-aixv7-pw6.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-pw6.tar.gz) | POWER6                     |
 {{< /expand >}}
 {{< /tab >}}
 {{< tab "Android" >}}

@@ -714,11 +714,10 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
     p -> wordDirty[paragraphOffset] = true;
     p -> cachedParagraph [paragraphOffset] = data;
     p -> cachedAddr = paragraphAddress;
-// XXX ticket #31
-// This a little brute force; it we fault on the next read, the cached value
-// is lost. There might be a way to logic it up so that when the next read
-// word offset changes, then we write the cache before doing the read. For
-// right now, be pessimistic. Sadly, since this is a bit loop, it is very.
+    // This a little brute force; if we fault on the next read, the cached value
+    // is lost. There might be a way to logic it up so that when the next read
+    // word offset changes, then we write the cache before doing the read. For
+    // right now, be pessimistic.
     if (flush)
       {
         EISWriteCache (p);

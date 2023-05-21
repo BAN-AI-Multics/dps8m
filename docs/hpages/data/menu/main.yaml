@@ -69,7 +69,7 @@ main:
   - name: ""
   - name: "License Information"
     sub:
-      - name: "ICU License"
+      - name: "DPS8M License"
         icon: "gdoc_shield"
         ref: "/License_Information"
         anchor: "icu-license"

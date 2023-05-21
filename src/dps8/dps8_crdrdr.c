@@ -57,6 +57,14 @@
 #define DBG_CTR 1
 #define N_RDR_UNITS 1 // default
 
+#define snprintf_truncat(dst, size, ...)    \
+  do                                        \
+    {                                       \
+      volatile size_t n = size;             \
+      (void)snprintf (dst, n, __VA_ARGS__); \
+    }                                       \
+  while (0)
+
 static t_stat rdr_reset (DEVICE * dptr);
 static t_stat rdr_show_nunits (FILE *st, UNIT *uptr, int val, const void *desc);
 static t_stat rdr_set_nunits (UNIT * uptr, int32 value, const char * cptr, void * desc);
@@ -119,7 +127,7 @@ static MTAB rdr_mod [] =
       rdr_set_nunits,                       /* Validation routine */
       rdr_show_nunits,                      /* Display routine    */
       "Number of RDR units in the system",  /* Value descriptor   */
-      NULL // Help
+      NULL                                  /* Help               */
     },
     {
       MTAB_XTD | MTAB_VUN | \
@@ -776,7 +784,7 @@ static void submit (enum deckFormat fmt, char * fname, uint16 readerIndex)
 
 static void scanForCards(uint16 readerIndex)
   {
-    char rdr_dir [2 * PATH_MAX + 1];
+    char rdr_dir [2 * PATH_MAX + 8];
 
     if (readerIndex >= N_RDR_UNITS_MAX) {
       sim_warn("crdrdr: scanForCards called with invalid reader index %d\n", readerIndex);
@@ -789,13 +797,13 @@ static void scanForCards(uint16 readerIndex)
     const char* r_tmpdir = getenv("TEMP") ? getenv("TEMP") : \
                            getenv("TMP")  ? getenv("TMP")  : ".";
 #endif /* if !defined(__MINGW64__) || !defined(__MINGW32__) */
-    snprintf(rdr_dir, PATH_MAX + 1, "%s/%s%c",
-             r_tmpdir, rdr_name, 'a' + readerIndex);
+    snprintf_truncat(rdr_dir, PATH_MAX + 1, "%s/%s%c",
+                     r_tmpdir, rdr_name, 'a' + readerIndex);
 
     if (rdr_path_prefix [0])
       {
-        snprintf(rdr_dir, PATH_MAX + 1, "%s%s%c",
-                 rdr_path_prefix, rdr_name, 'a' + readerIndex);
+        snprintf_truncat(rdr_dir, PATH_MAX + 1, "%s%s%c",
+                         rdr_path_prefix, rdr_name, 'a' + readerIndex);
       }
 
     DIR * dp;
@@ -808,7 +816,7 @@ static void scanForCards(uint16 readerIndex)
       }
     struct dirent * entry;
     struct stat info;
-    char fqname [2 * PATH_MAX + 1];
+    char fqname [2 * PATH_MAX + 8];
     while ((entry = readdir (dp)))
       {
         strcpy (fqname, rdr_dir);

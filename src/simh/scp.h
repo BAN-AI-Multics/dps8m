@@ -2,7 +2,7 @@
  * scp.h: simulator control program headers
  *
  * vim: filetype=c:tabstop=4:ai:expandtab
- * SPDX-License-Identifier: X11
+ * SPDX-License-Identifier: MIT
  * scspell-id: 9166cfe3-f62a-11ec-beb9-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------

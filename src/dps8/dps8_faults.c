@@ -676,7 +676,6 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle,
         cpu.faultNumber = FAULT_TRB;
         cpu.cu.FI_ADDR  = FAULT_TRB;
         cpu.subFault.bits = 0; // XXX ???
-        // XXX Does the CU or FR need fixing? ticket #36
         if (cpu . bTroubleFaultCycle)
           {
 #if !defined(THREADZ) && !defined(LOCKLESS)
@@ -717,6 +716,8 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle,
     cpu . cycle = FAULT_cycle;
     sim_debug (DBG_CYCLE, & cpu_dev, "Setting cycle to FAULT_cycle\n");
     longjmp (cpu.jmpMain, JMP_REENTRY);
+    /*NOTREACHED*/ /* unreachable */
+    abort(); /* not reached */
 }
 
 void do_FFV_fault (uint fault_number, const char * fault_msg)
@@ -819,7 +820,6 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
         cpu.faultNumber   = FAULT_TRB;
         cpu.cu.FI_ADDR    = FAULT_TRB;
         cpu.subFault.bits = 0; // XXX ???
-        // XXX Does the CU or FR need fixing? ticket #36
         if (cpu.bTroubleFaultCycle)
           {
 #if !defined(THREADZ) && !defined(LOCKLESS)

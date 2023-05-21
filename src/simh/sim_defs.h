@@ -2,7 +2,7 @@
  * sim_defs.h: simulator definitions
  *
  * vim: filetype=c:tabstop=4:ai:expandtab
- * SPDX-License-Identifier: X11
+ * SPDX-License-Identifier: MIT
  * scspell-id: ae37b35b-f62a-11ec-8c79-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------

@@ -116,6 +116,7 @@ int GLOBAL_GREEN_BAR;
 /* ============================================================================================================================== */
  int GLOBAL_ADD=0;
  int GLOBAL_VERSION = 3;
+ int GLOBAL_VERSION_PATCH = 1;
  float GLOBAL_LEAD_SIZE;
  float GLOBAL_FONT_SIZE;
  int GLOBAL_OBJECT_ID = 1;
@@ -772,7 +773,7 @@ int main(int argc, char **argv) {
            case 'V': ;
 #ifdef __VERSION__
 # ifdef __GNUC__
-#  ifndef __clang_version__
+#  if !defined (__clang_version__) || defined(__INTEL_COMPILER)
                      char xcmp[2];
                      sprintf(xcmp, "%.1s", __VERSION__ );
                      if (!isdigit((int)xcmp[0]))
@@ -783,14 +784,14 @@ int main(int argc, char **argv) {
                      }
 #  else
                      (void)fprintf (stderr, "Compiler: Clang %s\n", __clang_version__ );
-#  endif /* ifndef __clang_version__ */
+#  endif /* if !defined(__clang_version__) || defined(__INTEL_COMPILER)  */
 # else
                      (void)fprintf (stderr, "Compiler: %s\n", __VERSION__ );
 # endif /* ifdef __GNUC__ */
 #endif /* ifdef __VERSION__ */
                      exit(0);
         break; /* build info               */
-           case 'v': (void)fprintf (stderr, "prt2pdf version %d.0\n",GLOBAL_VERSION); exit(0);        break; /* version                */
+           case 'v': (void)fprintf (stderr, "prt2pdf version %d.0.%d\n",GLOBAL_VERSION,GLOBAL_VERSION_PATCH); exit(0);        break; /* version                */
            case '?':
              (void)fprintf(stderr," SWITCH IS %c\n",c);
              if (isprint (optopt)){

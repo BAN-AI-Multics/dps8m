@@ -40,6 +40,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // scspell-id: 8a648643-f630-11ec-afc6-80ee73e9b8e7
 
+#if defined(__GLIBC__)
+# if !defined(_DEFAULT_SOURCE)
+#  define _DEFAULT_SOURCE
+# endif /* if !defined(_DEFAULT_SOURCE) */
+# include <features.h>
+#endif /* if defined(__GLIBC__) */
+
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -104,7 +111,7 @@
 
 #define tmpdir "/tmp"
 #define program "empty"
-#define version "0.6.24j-dps"
+#define version "0.6.24k-dps"
 
 static void usage(void);
 static long toint(char *intstr);
