@@ -10,7 +10,7 @@
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2013-2021 Charles Anthony
  * Copyright (c) 2016 Michal Tomek
- * Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
+ * Copyright (c) 2021-2023 Jeffrey H. Johnson <trnsz@pobox.com>
  * Copyright (c) 2021-2023 The DPS8M Development Team
  *
  * All rights reserved.
@@ -85,6 +85,17 @@
 #endif
 
 #include "segldr.h"
+
+#if defined(__MACH__) && defined(__APPLE__) && \
+  ( defined(__PPC__) || defined(_ARCH_PPC) )
+# include <mach/clock.h>
+# include <mach/mach.h>
+# ifdef MACOSXPPC
+#  undef MACOSXPPC
+# endif /* ifdef MACOSXPPC */
+# define MACOSXPPC 1
+#endif /* if defined(__MACH__) && defined(__APPLE__) &&
+           ( defined(__PPC__) || defined(_ARCH_PPC) ) */
 
 #define DBG_CTR cpu.cycleCnt
 
@@ -4300,11 +4311,29 @@ static void dps8_init (void) {
   char   statenme[32];
   memset(statenme, 0, 32);
 
+#ifdef MACOSXPPC
+  (void)ts;
+# undef USE_MONOTONIC
+#endif /* ifdef MACOSXPPC */
+
 #ifdef USE_MONOTONIC
   st1ret = clock_gettime(CLOCK_MONOTONIC, &ts);
 #else
+# ifdef MACOSXPPC
+  clock_serv_t cclock;
+  mach_timespec_t mts;
+  host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+  clock_get_time(cclock, &mts);
+  mach_port_deallocate(mach_task_self(), cclock);
+  ts.tv_sec = mts.tv_sec;
+  ts.tv_nsec = mts.tv_nsec;
+# else
   st1ret = clock_gettime(CLOCK_REALTIME, &ts);
-#endif /*ifdef USE_MONOTONIC */
+# endif /* ifdef MACOSXPPC */
+#endif /* ifdef USE_MONOTONIC */
+#ifdef MACOSXPPC
+  st1ret = 0;
+#endif /* ifdef MACOSXPPC */
   if (st1ret != 0)
     {
       fprintf (stderr, "\rFATAL: clock_gettime failure! Aborting at %s[%s:%d]\r\n",

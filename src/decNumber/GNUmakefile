@@ -38,11 +38,11 @@ OBJS = decContext.o decNumber.o
 
 ifndef SUNPRO
   ifndef SUNLINT
-    ifeq "$(findstring icc,$(CC))" ""
+    ifeq "$(findstring icc,$(CC))" "" # All compilers except Intel ICC
       CFLAGS += -Wall -Wextra -Wno-uninitialized  -Wno-stringop-overflow      \
                 -Wpedantic -Wno-stringop-overread -Wno-unknown-warning-option
-    else
-      CFLAGS += -Wall -Wextra -Wpedantic -diag-disable=11074,11076,10148
+    else # Intel ICC
+      CFLAGS += -Wall -Wextra -Wpedantic -diag-disable=11074,11076,10148,10441
     endif
   endif
 endif

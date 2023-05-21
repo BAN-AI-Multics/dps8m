@@ -2,7 +2,7 @@
  * sim_tmxr.h: terminal multiplexer definitions
  *
  * vim: filetype=c:tabstop=4:ai:expandtab
- * SPDX-License-Identifier: X11
+ * SPDX-License-Identifier: MIT
  * scspell-id: ecf608fb-f62a-11ec-bbba-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------

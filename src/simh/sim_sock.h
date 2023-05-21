@@ -2,7 +2,7 @@
  * sim_sock.h: OS-dependent socket routines header file
  *
  * vim: filetype=c:tabstop=4:ai:expandtab
- * SPDX-License-Identifier: X11
+ * SPDX-License-Identifier: MIT
  * scspell-id: cffbcfb4-f62a-11ec-b6c0-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------

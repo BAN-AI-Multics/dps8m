@@ -306,7 +306,7 @@
     # *scriptDPS8Mods - Configure build for CI/CD environment ...
     echo -e "section_start:`date +%s`:dps8mods_section[collapsed=true]\r\e[0K\033[0;36mConfigure build system ...\033[0m" || true
     echo -n "Setting Build string ... "
-    echo "The DPS8M Development Team - Build ${CI_JOB_ID:-}" 2> /dev/null | tee .builder.txt 2> /dev/null || true > /dev/null 2>&1
+    echo "The DPS8M Development Team - Build ${CI_PIPELINE_IID:-${CI_JOB_ID:-0}}" 2> /dev/null | tee .builder.txt 2> /dev/null || true > /dev/null 2>&1
     echo ""
     echo -e "section_end:`date +%s`:dps8mods_section\r\e[0K" || true
 
@@ -449,8 +449,8 @@ Linux/x86_64, AlmaLinux 9, Clang, GCC:
     - *scriptSanity
     - *scriptCommon
     - *scriptBuildlibbacktrace
-    - *scriptDPS8Mods
     - *scriptExtraInfo
+    - *scriptDPS8Mods
     - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
     - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
@@ -490,8 +490,8 @@ Linux/x86_64, Alpine Edge, Clang, GCC:
     - *scriptSanity
     - *scriptCommon
     - *scriptBuildlibbacktrace
-    - *scriptDPS8Mods
     - *scriptExtraInfo
+    - *scriptDPS8Mods
     - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
     - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
@@ -634,7 +634,7 @@ Cross-compiled release binaries:
     - export DPS8_CPUTYPE=power6
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-maix64 -Wl,-b64 -static-libgcc" NO_LTO=1 LOCAL_CONFOPTS="--host=powerpc-ibm-aix7.2.0.0" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake NO_LTO=1 libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd libuv-local/libuv && env PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") ) }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env LOCALLIBS="-ldl -lrt -lbsd -lpthread -lm -lc -lperfstat" PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-static-libgcc -maix64 -Wl,-b64" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NO_LTO=1 MATHLIB="-lm -lpthread" LOCALOBJS="../../libuv-local/libuv/src/*.o ../../libuv-local/libuv/src/unix/*.o" LIBUV="" PULIBS="-lpopt" EMPTYLIBS=""; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env LOCALLIBS="-ldl -lrt -lbsd -lpthread -lm -lc -lperfstat" PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-static-libgcc -ldl -lrt -lbsd -lpthread -lm -lc -lperfstat -maix64 -Wl,-b64" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NO_LTO=1 MATHLIB="-lm -lpthread" LOCALOBJS="../../libuv-local/libuv/src/*.o ../../libuv-local/libuv/src/unix/*.o" LIBUV="" PULIBS="-lpopt" EMPTYLIBS=""; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
@@ -647,7 +647,7 @@ Cross-compiled release binaries:
     - export DPS8_CPUTYPE=power7
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-maix64 -Wl,-b64 -static-libgcc" NO_LTO=1 LOCAL_CONFOPTS="--host=powerpc-ibm-aix7.2.0.0" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake NO_LTO=1 libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd libuv-local/libuv && env PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") ); }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env LOCALLIBS="-ldl -lrt -lbsd -lpthread -lm -lc -lperfstat" PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-static-libgcc -maix64 -Wl,-b64" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NO_LTO=1 MATHLIB="-lm -lpthread" LOCALOBJS="../../libuv-local/libuv/src/*.o ../../libuv-local/libuv/src/unix/*.o" LIBUV="" PULIBS="-lpopt" EMPTYLIBS=""; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env LOCALLIBS="-ldl -lrt -lbsd -lpthread -lm -lc -lperfstat" PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-static-libgcc -ldl -lrt -lbsd -lpthread -lm -lc -lperfstat -maix64 -Wl,-b64" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NO_LTO=1 MATHLIB="-lm -lpthread" LOCALOBJS="../../libuv-local/libuv/src/*.o ../../libuv-local/libuv/src/unix/*.o" LIBUV="" PULIBS="-lpopt" EMPTYLIBS=""; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
@@ -660,7 +660,7 @@ Cross-compiled release binaries:
     - export DPS8_CPUTYPE=power8
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-maix64 -Wl,-b64 -static-libgcc" NO_LTO=1 LOCAL_CONFOPTS="--host=powerpc-ibm-aix7.2.0.0" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake NO_LTO=1 libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd libuv-local/libuv && env PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") ); }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env LOCALLIBS="-ldl -lrt -lbsd -lpthread -lm -lc -lperfstat" PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-static-libgcc -maix64 -Wl,-b64" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NO_LTO=1 MATHLIB="-lm -lpthread" LOCALOBJS="../../libuv-local/libuv/src/*.o ../../libuv-local/libuv/src/unix/*.o" LIBUV="" PULIBS="-lpopt" EMPTYLIBS=""; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env LOCALLIBS="-ldl -lrt -lbsd -lpthread -lm -lc -lperfstat" PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-static-libgcc -ldl -lrt -lbsd -lpthread -lm -lc -lperfstat -maix64 -Wl,-b64" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NO_LTO=1 MATHLIB="-lm -lpthread" LOCALOBJS="../../libuv-local/libuv/src/*.o ../../libuv-local/libuv/src/unix/*.o" LIBUV="" PULIBS="-lpopt" EMPTYLIBS=""; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
@@ -673,7 +673,7 @@ Cross-compiled release binaries:
     - export DPS8_CPUTYPE=power9
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-maix64 -Wl,-b64 -static-libgcc" NO_LTO=1 LOCAL_CONFOPTS="--host=powerpc-ibm-aix7.2.0.0" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake NO_LTO=1 libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd libuv-local/libuv && env PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") ); }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env LOCALLIBS="-ldl -lrt -lbsd -lpthread -lm -lc -lperfstat" PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-static-libgcc -maix64 -Wl,-b64" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NO_LTO=1 MATHLIB="-lm -lpthread" LOCALOBJS="../../libuv-local/libuv/src/*.o ../../libuv-local/libuv/src/unix/*.o" LIBUV="" PULIBS="-lpopt" EMPTYLIBS=""; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env LOCALLIBS="-ldl -lrt -lbsd -lpthread -lm -lc -lperfstat" PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-static-libgcc -ldl -lrt -lbsd -lpthread -lm -lc -lperfstat -maix64 -Wl,-b64" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NO_LTO=1 MATHLIB="-lm -lpthread" LOCALOBJS="../../libuv-local/libuv/src/*.o ../../libuv-local/libuv/src/unix/*.o" LIBUV="" PULIBS="-lpopt" EMPTYLIBS=""; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
@@ -686,7 +686,7 @@ Cross-compiled release binaries:
     - export DPS8_CPUTYPE=power10
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-maix64 -Wl,-b64 -static-libgcc" NO_LTO=1 LOCAL_CONFOPTS="--host=powerpc-ibm-aix7.2.0.0" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake NO_LTO=1 libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd libuv-local/libuv && env PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") ); }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env LOCALLIBS="-ldl -lrt -lbsd -lpthread -lm -lc -lperfstat" PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-static-libgcc -maix64 -Wl,-b64" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NO_LTO=1 MATHLIB="-lm -lpthread" LOCALOBJS="../../libuv-local/libuv/src/*.o ../../libuv-local/libuv/src/unix/*.o" LIBUV="" PULIBS="-lpopt" EMPTYLIBS=""; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env LOCALLIBS="-ldl -lrt -lbsd -lpthread -lm -lc -lperfstat" PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-static-libgcc -ldl -lrt -lbsd -lpthread -lm -lc -lperfstat -maix64 -Wl,-b64" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NO_LTO=1 MATHLIB="-lm -lpthread" LOCALOBJS="../../libuv-local/libuv/src/*.o ../../libuv-local/libuv/src/unix/*.o" LIBUV="" PULIBS="-lpopt" EMPTYLIBS=""; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
@@ -2027,9 +2027,13 @@ Cross-compiled release binaries:
     - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/sh4aeb-local-linux-uclibc.tar.lz" -O /sh4aeb-local-linux-uclibc.tar.lz
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /sh4aeb-local-linux-uclibc.tar.lz ); }; fi
     - *scriptDPS8Mods
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH="/home/jhj/x-tools/sh4aeb-local-linux-uclibc/bin:${PATH}" CC="/home/jhj/x-tools/sh4aeb-local-linux-uclibc/bin/sh4aeb-local-linux-uclibc-gcc" LOCAL_CONFOPTS="--host=sh4aeb-local-linux-uclibc" LDFLAGS="-static" gmake libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH="/home/jhj/x-tools/sh4aeb-local-linux-uclibc/bin:${PATH}" CC="/home/jhj/x-tools/sh4aeb-local-linux-uclibc/bin/sh4aeb-local-linux-uclibc-gcc" LDFLAGS="-static" gmake NEED_128=1 ATOMICS="GNU" LOCALLIBS="-latomic" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH="/home/jhj/x-tools/sh4aeb-local-linux-uclibc/bin:${PATH}" CC="/home/jhj/x-tools/sh4aeb-local-linux-uclibc/bin/sh4aeb-local-linux-uclibc-gcc" LOCAL_CONFOPTS="--host=sh4aeb-local-linux-uclibc" LDFLAGS="-static" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { echo "int sendmmsg(void) { return -1; }" >  msg.c; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { echo "int recvmmsg(void) { return -1; }" >> msg.c; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH="/home/jhj/x-tools/sh4aeb-local-linux-uclibc/bin:${PATH}" /home/jhj/x-tools/sh4aeb-local-linux-uclibc/bin/sh4aeb-local-linux-uclibc-gcc -c msg.c && env rm -f msg.c; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH="/home/jhj/x-tools/sh4aeb-local-linux-uclibc/bin:${PATH}" CC="/home/jhj/x-tools/sh4aeb-local-linux-uclibc/bin/sh4aeb-local-linux-uclibc-gcc" LDFLAGS="-static" gmake NEED_128=1 ATOMICS="GNU" LOCALLIBS="-latomic $(pwd)/msg.o" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - mkdir -p "src/${DISTDIR:?}"
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env rm -f msg.o; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-linux-b4a.tar "./${DISTDIR:?}"; ); }; fi
@@ -2043,7 +2047,11 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /sh4a-local-linux-uclibc.tar.lz ); }; fi
     - *scriptDPS8Mods
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH="/home/jhj/x-tools/sh4a-local-linux-uclibc/bin:${PATH}" CC="/home/jhj/x-tools/sh4a-local-linux-uclibc/bin/sh4a-local-linux-uclibc-gcc" LOCAL_CONFOPTS="--host=sh4a-local-linux-uclibc" LDFLAGS="-static" gmake libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH="/home/jhj/x-tools/sh4a-local-linux-uclibc/bin:${PATH}" CC="/home/jhj/x-tools/sh4a-local-linux-uclibc/bin/sh4a-local-linux-uclibc-gcc" LDFLAGS="-static" gmake NEED_128=1 ATOMICS="GNU" LOCALLIBS="-latomic" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { echo "int sendmmsg(void) { return -1; }" >  msg.c; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { echo "int recvmmsg(void) { return -1; }" >> msg.c; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH="/home/jhj/x-tools/sh4a-local-linux-uclibc/bin:${PATH}" /home/jhj/x-tools/sh4a-local-linux-uclibc/bin/sh4a-local-linux-uclibc-gcc -c msg.c && env rm -f msg.c; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH="/home/jhj/x-tools/sh4a-local-linux-uclibc/bin:${PATH}" CC="/home/jhj/x-tools/sh4a-local-linux-uclibc/bin/sh4a-local-linux-uclibc-gcc" LDFLAGS="-static" gmake NEED_128=1 ATOMICS="GNU" LOCALLIBS="-latomic $(pwd)/msg.o" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env rm -f msg.o; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
@@ -2469,8 +2477,8 @@ Linux/x86_64, Fedora, Clang, GCC:
     - *scriptSanity
     - *scriptCommon
     - *scriptBuildlibbacktrace
-    - *scriptDPS8Mods
     - *scriptExtraInfo
+    - *scriptDPS8Mods
     - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
     - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
@@ -2567,8 +2575,8 @@ Linux/x86_64, Fedora Rawhide, Clang, GCC:
     - *scriptSanity
     - *scriptCommon
     - *scriptBuildlibbacktrace
-    - *scriptDPS8Mods
     - *scriptExtraInfo
+    - *scriptDPS8Mods
     - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
     - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
@@ -2604,7 +2612,8 @@ AIX/powerpc64, IBM AIX, GCC:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - env CFLAGS="-I/usr/local/include" LDFLAGS="-L/usr/local/lib" gmake CC=gcc-10 NO_LTO=1 -j $(lparstat -i | grep '^Desired Virtual CPUs' | cut -d ':' -f 2 | tr -cd '0-9\n' || printf '%s\n' "6")
+    - env OBJECT_MODE=64 CI_SKIP_MKREBUILD=1 PATH="/opt/freeware/bin:/usr/local/bin:$PATH" CC=gcc-11 NO_LTO=1 CFLAGS="-m64 -maix64 -Wl,-b64 -mcpu=power8" LDFLAGS="-static-libgcc -Wl,-b64" gmake libuvdev -j $(lparstat -i | grep '^Desired Virtual CPUs' | cut -d ':' -f 2 | tr -cd '0-9\n' || printf '%s\n' "6")
+    - env OBJECT_MODE=64 CI_SKIP_MKREBUILD=1 PATH="/opt/freeware/bin:/usr/local/bin:$PATH" CC=gcc-11 NO_LTO=1 CFLAGS="-m64 -maix64 -Wl,-b64 -mcpu=power8" LDFLAGS="-static-libgcc -Wl,-b64" gmake LIBUV="$(pwd)/libuv-local/local/lib/libuv.a -lperfstat" -j $(lparstat -i | grep '^Desired Virtual CPUs' | cut -d ':' -f 2 | tr -cd '0-9\n' || printf '%s\n' "6")
     - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -2846,7 +2855,7 @@ Windows/ARM64, LLVM-MinGW:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make CC="aarch64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread -Wno-unused-command-line-argument -lws2_32 -lpsapi -liphlpapi -lshell32 -luserenv -luser32 -ldbghelp -lole32 -luuid" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
+    - make CC="aarch64-w64-mingw32-clang -I/usr/local/include -pthread" CROSS="MINGW64" LIBUV="-L/usr/local/lib /usr/local/lib/libuv.a -lpthread -Wno-unused-command-line-argument -lws2_32 -lpsapi -liphlpapi -lshell32 -luserenv -luser32 -ldbghelp -lole32 -luuid" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
     - test -f src/dps8/dps8.exe
     - *scriptBuildInfo
     - mkdir -p "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
@@ -3019,8 +3028,8 @@ Linux/x86_64, Oracle Linux 8, Clang, GCC:
     - *scriptSanity
     - *scriptCommon
     - *scriptBuildlibbacktrace
-    - *scriptDPS8Mods
     - *scriptExtraInfo
+    - *scriptDPS8Mods
     - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
     - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo

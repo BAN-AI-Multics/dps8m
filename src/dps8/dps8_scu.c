@@ -1877,7 +1877,6 @@ t_stat scu_sscr (uint scu_unit_idx, UNUSED uint cpu_unit_udx,
 
         case 00006: // Set unit mode register
         case 00007:
-          // ticket 34
           // XXX See notes in AL39 sscr re: store unit selection
           //sim_printf ("sscr %o\n", function);
           sim_warn ("sscr set unit mode register\n");

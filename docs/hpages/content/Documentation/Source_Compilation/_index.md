@@ -5,6 +5,10 @@ The simulator is distributed in various forms, including an easy-to-build [**sou
 
 <!-- start nopdf -->
 
+The following sections document ***only*** some platform-specific details necessary to build the simulator, and are
+**not** intended to be a general reference or to replace the
+[**full documentation**](https://dps8m.gitlab.io/dps8m/Documentation/).
+
 Review the complete [**DPS8M Omnibus Documentation**](https://dps8m.gitlab.io/dps8m/Documentation/) for additional details.
 
 <!-- br -->
@@ -169,7 +173,7 @@ Review the complete [**DPS8M Omnibus Documentation**](https://dps8m.gitlab.io/dp
 []()
 
 * **The DPS8M Development Team** recommends most users download a [**source kit distribution**](https://dps8m.gitlab.io/dps8m/Releases/).
-  * A source kit requires approximately **8 MiB** of storage space to decompress and **45 MiB** to
+  * A source kit requires approximately **6.5 MiB** of storage space to decompress and **28 MiB** to
     build.
 
 []()
@@ -332,7 +336,7 @@ Install the required prerequisites (using NetBSD Packages or [pkgsrc](https://ww
   While *sufficient* to build the simulator, we recommend that version 10 or later of the **GNU C** (`gcc`) compiler
   be used for optimal performance.
 
-* At the time of writing, **GCC 12** is available for **NetBSD** systems and is the version of GCC currently
+* At the time of writing, **GCC 13** is available for **NetBSD** systems and is the version of GCC currently
   recommended by **The DPS8M Development Team**.
   \
   \
@@ -341,19 +345,19 @@ Install the required prerequisites (using NetBSD Packages or [pkgsrc](https://ww
   * Using NetBSD Packages (as *root*):
 
     ```sh
-    pkgin in gcc12
+    pkgin in gcc13
     ```
 
   * Using pkgsrc (as *root*):
 
     ```sh
-    cd /usr/pkgsrc/lang/gcc12/ && make install clean
+    cd /usr/pkgsrc/lang/gcc13/ && make install clean
     ```
 
 * Build the simulator from the top-level source directory (using **GNU Make**):
 
   ```sh
-  env CC="/usr/pkg/gcc12/bin/gcc" LDFLAGS="Wl,-rpath=/usr/pkg/gcc12/lib" gmake
+  env CC="/usr/pkg/gcc13/bin/gcc" LDFLAGS="Wl,-rpath=/usr/pkg/gcc13/lib" gmake
   ```
 
 ### Compilation using Clang
@@ -760,12 +764,12 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 
 []()
 
-* The simulator can be built for **64-bit** **AIX** using [**IBM XL C/C++ for AIX**](https://www.ibm.com/products/xl-c-aix-compiler-power) (**`xlc`**), [**IBM Open XL C/C++ for AIX**](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) (**`ibm-clang`**), or **GNU C** (**`gcc`**).  **The DPS8M Development Team** recommends building with **IBM Open XL C/C++ V17.1** (or later) or **GCC 10** (or later) for optimal performance.
-* [**IBM Open XL C/C++ for AIX V17.1.1 Fix Pack 2**](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the *minimum* recommended version of the **Open XL C/C++** compiler on **POWER8**, **POWER9**, and **Power10** systems.
-* [**IBM XL C/C++ for AIX V16.1.0 Fix Pack 13**](https://www.ibm.com/support/pages/ibm-xl-cc-aix-161) is the *minimum* recommended version of the **IBM XL C/C++** compiler on **POWER8** and **POWER9** systems.
+* The simulator can be built for **64-bit** **AIX** using [**IBM XL C/C++ for AIX**](https://www.ibm.com/products/xl-c-aix-compiler-power) (**`xlc`**), [**IBM Open XL C/C++ for AIX**](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) (**`ibm-clang`**), or **GNU C** (**`gcc`**).  **The DPS8M Development Team** recommends building with **IBM Open XL C/C++ V17.1.1** (or later) or **GCC 11** (or later) for optimal performance.
+* [**IBM Open XL C/C++ for AIX V17.1.1 Fix Pack 3** (May 2023)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the *minimum* recommended version of the **Open XL C/C++** compiler on **POWER8**, **POWER9**, and **Power10** systems.
+* [**IBM XL C/C++ for AIX V16.1.0 Fix Pack 13** (November 2022)](https://www.ibm.com/support/pages/ibm-xl-cc-aix-161) is the *minimum* recommended version of the **IBM XL C/C++** compiler on **POWER8** and **POWER9** systems.
 * Verify via [**IBM Preventive Service Planning**](https://www.ibm.com/support/pages/aix-os-levels-supported-xl-compilers) that you are using the latest available compiler and PTF update for your **IBM AIX** OS level.
-* When building the simulator using **GNU C**, it recommended to use **GCC 10** (or later) for optimal performance.
-  * **GCC 10** and/or **GCC 11** can be installed from the [IBM AIX® Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository.
+* When building the simulator using **GNU C**, it recommended to use **GCC 11** (or later) for optimal performance.
+  * **GCC 11** can be installed from the [IBM AIX® Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository.
 
 []()
 
@@ -779,12 +783,8 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
   /opt/freeware/bin/dnf install sed gmake libuv libuv-devel popt coreutils gawk
   ```
 
-* *Optionally* install **GCC 10** and/or **GCC 11** from the [IBM AIX® Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository (as *root*):
+* *Optionally* install **GCC 11** from the [IBM AIX® Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository (as *root*):
 
-  ```sh
-  /opt/freeware/bin/dnf install gcc gcc10
-  ```
-  []()
   ```sh
   /opt/freeware/bin/dnf install gcc gcc11
   ```
@@ -845,19 +845,12 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
   * Compilation using higher optimization levels
     (*i.e.* '`-O4`' or '`-O5`' replacing '`-O3 -qhot -qarch=pwr8`') and/or enabling
-    automatic parallelization (*i.e.* '`-qsmp`') is possible, but the resulting
+    automatic parallelization (*i.e.* '`-qsmp`') may be possible, but the resulting
     binaries have *not* been benchmarked or extensively tested by **The DPS8M Development Team**.
 
   * Refer to the [**IBM XL C/C++ for AIX V16.1 Optimization and Tuning Guide**](https://www.ibm.com/docs/en/xl-c-and-cpp-aix/16.1?topic=category-optimization-tuning) for additional information.
 
 #### GCC
-
-* Using **GCC 10**:
-
-  ```sh
-  env PATH="/opt/freeware/bin:${PATH}" CC="gcc-10" \
-    ATOMICS="AIX" NO_LTO=1 gmake
-  ```
 
 * Using **GCC 11**:
 
@@ -948,14 +941,15 @@ The default **Haiku** installation includes the required header files, the recom
   * **The DPS8M Development Team** regularly tests and supports a wide range of Linux compilers, including **Clang**, AMD Optimizing C/C++ (**AOCC**), Arm C/C++ Compiler (**ARMClang**), GNU C (**GCC**) (*version* **8**+), IBM Advance Toolchain for Linux, IBM XL C/C++ for Linux (**XLC**), IBM Open XL C/C++ for Linux (**IBMClang**), Intel oneAPI DPC++/C++ (**ICX**), NVIDIA HPC SDK C Compiler (**NVC**), and Oracle Developer Studio (**SunCC**).
 
   * **Red Hat** offers the [**Red Hat Developer Toolset**](https://developers.redhat.com/products/developertoolset/) for **Red Hat Enterprise Linux** and **CentOS Stream**, which provides up-to-date versions of **GCC** on a rapid release cycle, with *full support*.
-    * The *Toolset* packages are also included in various downstream distributions such as **AlmaLinux**. These tools are regularly tested and highly recommended by **The DPS8M Development Team**. Check your distribution packager manager (*i.e.* '**`dnf search`**') for packages named '**`gcc-toolset-12`**' (or similar).
+    * The *Toolset* packages are also included in various downstream distributions such as **AlmaLinux**. These tools are regularly tested and highly recommended by **The DPS8M Development Team**. Check your distribution packager manager (*i.e.* '**`dnf search`**') for packages named '**`gcc-toolset-12`**', '**`gcc-toolset-13`**', or similar.
 
   * **Canonical** similarly offers two [**Ubuntu Toolchain PPAs**](https://wiki.ubuntu.com/ToolChain#Toolchain_Updates), one providing **GCC** updates for release branches, and the other providing new **GCC** versions for both current and **LTS** releases, maintained by the Ubuntu Toolchain team.
-    * For example, at the time of writing, Ubuntu 20.04 LTS ships **GCC 9.3** and **GCC 10**, and the **Toolchain PPAs** ship **GCC 9.4** and **GCC 11**. Although these packages are *not supported* by Canonical, they are regularly and successfully used by **The DPS8M Development Team**.
+    * For example, at the time of writing, Ubuntu 22.04 LTS ships **GCC 11.3** and **GCC 12.1**, and the **Toolchain PPAs** ship **GCC 12.3** and **GCC 13.1**. Although these packages are *not supported* by Canonical, they are regularly and successfully used by **The DPS8M Development Team**.
 
   * **Intel®** **C++ Compiler** **Classic** (**ICC**) for Linux is ***no longer supported*** for building **DPS8M** (*as of* ***R3.0.0***):
     * Users should upgrade to the current version of the [**Intel® oneAPI DPC++/C++** (**ICX**) **Compiler**](https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html).
-    * **ICC** remains a supported compiler option for building **DPS8M** on **Intel**-based **macOS** systems.
+    * **ICC** remains a supported compiler for building **DPS8M** on **Intel**-based **macOS** systems **only**.
+    * Intel® has *deprecated* support for **ICC** and advises it will be retired the second half of 2023.
 
 * Cross-compilation is supported. Popular targets including various **Linux** platforms, **Microsoft Windows** on **Intel** and **ARM** (using the **MinGW-w64** and **LLVM-MinGW** toolchains) and **Linux on POWER** (using the **IBM Advance Toolchain for Linux**) are regularly built and tested.
 
@@ -1080,7 +1074,7 @@ Examples of building the simulator on **Linux** using various popular compilers 
 
 #### IBM Open XL C/C++ for Linux
 
-* Build the simulator using **IBM Open XL C/C++ for Linux V17.1.1** for Linux on POWER:
+* Build the simulator using **IBM Open XL C/C++ for Linux V17.1.1 Fix Pack 1** (*December 2022*) for Linux on POWER:
 
   ```sh
   env CFLAGS="-mcpu=power8"                         \
@@ -1094,7 +1088,7 @@ Examples of building the simulator on **Linux** using various popular compilers 
 
 #### IBM XL C/C++ for Linux
 
-* Build the simulator using **IBM XL C/C++ for Linux V16.1.1** for Linux on POWER:
+* Build the simulator using **IBM XL C/C++ for Linux V16.1.1 Fix Pack 13** (*September 2022*) for Linux on POWER:
 
   ```sh
   env CFLAGS="-qtls -qarch=pwr8"          \
@@ -1109,10 +1103,10 @@ Examples of building the simulator on **Linux** using various popular compilers 
 
 #### NVIDIA HPC SDK C Compiler
 
-* Build the simulator using **NVIDIA HPC SDK C Compiler** (**NVC**), version 22.7, for Linux/**x86_64** (also available for Linux/**ARM64** and Linux/**OpenPOWER**):
+* Build the simulator using **NVIDIA HPC SDK C Compiler** (**NVC**), version 23.3, for Linux/**x86_64** (also available for Linux/**ARM64** and Linux/**OpenPOWER**):
 
   ```sh
-  export NVCVER="22.7" &&                                             \
+  export NVCVER="23.3" &&                                             \
   export NVCPATH="/opt/nvidia/hpc_sdk/Linux_x86_64/${NVCVER}/bin" &&  \
   env CFLAGS="-noswitcherror" CC="${NVCPATH}/nvc" NO_LTO=1            \
     make OPTFLAGS="-fast -O4 -Mipa=fast,inline"
@@ -1134,12 +1128,12 @@ Note the following examples *do not* make use of [**Environment Modules**](https
 
 If your site uses modules (*i.e.* `module avail`), loading the appropriate module is usually preferred to setting paths manually.  Contact your system administrator for site-specific configuration details and recommended local compiler flags.
 
-* Build the simulator using the [**Arm HPC C/C++ Compiler for Linux** (**ARMClang**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Compiler%20for%20Linux), version 22.1, for Linux/**ARM64**:
+* Build the simulator using the [**Arm HPC C/C++ Compiler for Linux** (**ARMClang**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Compiler%20for%20Linux), version 23.04, for Linux/**ARM64**:
 
   ```sh
-  export ACFLVER="22.1" &&                                  \
+  export ACFLVER="23.04" &&                                 \
   export ACFLCMP="arm-linux-compiler-${ACFLVER}" &&         \
-  export ACFLTYP="Generic-AArch64_RHEL-8_aarch64-linux" &&  \
+  export ACFLTYP="Generic-AArch64_RHEL-9_aarch64-linux" &&  \
   export ACFLPATH="/opt/arm/${ACFLCMP}_${ACFLTYP}" &&       \
   export PATH="${ACFLPATH}/bin:${PATH}" &&                  \
   env CFLAGS="-mcpu=native"                                 \
@@ -1149,12 +1143,12 @@ If your site uses modules (*i.e.* `module avail`), loading the appropriate modul
 
 ##### ACFL with Arm Performance Libraries
 
-* Build the simulator using the [**Arm HPC C/C++ Compiler for Linux** (**ARMClang**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Compiler%20for%20Linux) with the integrated [**Arm Performance Libraries** (**ArmPL**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Performance%20Libraries), version 22.1, for Linux/**ARM64**:
+* Build the simulator using the [**Arm HPC C/C++ Compiler for Linux** (**ARMClang**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Compiler%20for%20Linux) with the integrated [**Arm Performance Libraries** (**ArmPL**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Performance%20Libraries), version 23.04, for Linux/**ARM64**:
 
   ```sh
-  export ACFLVER="22.1" &&                                  \
+  export ACFLVER="23.04" &&                                 \
   export ACFLCMP="arm-linux-compiler-${ACFLVER}" &&         \
-  export ACFLTYP="Generic-AArch64_RHEL-8_aarch64-linux" &&  \
+  export ACFLTYP="Generic-AArch64_RHEL-9_aarch64-linux" &&  \
   export ACFLPATH="/opt/arm/${ACFLCMP}_${ACFLTYP}" &&       \
   export PATH="${ACFLPATH}:${PATH}" &&                      \
   env CFLAGS="-mcpu=native -armpl"                          \
@@ -1163,12 +1157,12 @@ If your site uses modules (*i.e.* `module avail`), loading the appropriate modul
     make OPTFLAGS="-Ofast"
   ```
 
-* Build the simulator using the [**Arm HPC C/C++ Compiler for Linux** (**ARMClang**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Compiler%20for%20Linux) with the integrated [**Arm Performance Libraries** (**ArmPL**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Performance%20Libraries), version 22.1, for Linux/**ARMv8-A+SVE2** (*Scalable Vector Extensions*):
+* Build the simulator using the [**Arm HPC C/C++ Compiler for Linux** (**ARMClang**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Compiler%20for%20Linux) with the integrated [**Arm Performance Libraries** (**ArmPL**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Performance%20Libraries), version 23.04, for Linux/**ARMv8-A+SVE2** (*Scalable Vector Extensions*):
 
   ```sh
-  export ACFLVER="22.1" &&                                  \
+  export ACFLVER="23.04" &&                                 \
   export ACFLCMP="arm-linux-compiler-${ACFLVER}" &&         \
-  export ACFLCMP="arm-linux-compiler-${ACFLVER}" &&         \
+  export ACFLTYP="Generic-AArch64_RHEL-9_aarch64-linux" &&  \
   export ACFLPATH="/opt/arm/${ACFLCMP}_${ACFLTYP}" &&       \
   export PATH="${ACFLPATH}:${PATH}" &&                      \
   env CFLAGS="-march=armv8-a+sve2 -mcpu=native -armpl=sve"  \
@@ -1212,12 +1206,12 @@ The [**GNU Toolchain for the Arm Architecture**](https://developer.arm.com/Tools
 
 ##### Linux/ARMv7-HF
 
-* Using the [**Arm GNU Toolchain**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) on Linux/x86_64, version **11.3.Rel1**, to cross-compile for Linux/**ARMv7-HF** (*hardware floating point*):
+* Using the [**Arm GNU Toolchain**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) on Linux/x86_64, version **12.2.Rel1**, to cross-compile for Linux/**ARMv7-HF** (*hardware floating point*):
 
   * Build `libuv`:
 
     ```sh
-    export AGTREL="arm-gnu-toolchain-11.3.rel1-x86_64" &&             \
+    export AGTREL="arm-gnu-toolchain-12.2.rel1-x86_64" &&             \
     export AGTPATH="/opt/${AGTREL}-arm-none-linux-gnueabihf/bin/" &&  \
     env CC="${AGTPATH}/arm-none-linux-gnueabihf-gcc"                  \
         CFLAGS="-march=armv7-a+fp"                                    \
@@ -1236,12 +1230,12 @@ The [**GNU Toolchain for the Arm Architecture**](https://developer.arm.com/Tools
 
 ##### Linux/ARM64
 
-* Using the [**Arm GNU Toolchain**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) on Linux/x86_64, version **11.3.Rel1**, to cross-compile for Linux/**ARM64**:
+* Using the [**Arm GNU Toolchain**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) on Linux/x86_64, version **12.2.Rel1**, to cross-compile for Linux/**ARM64**:
 
   * Build `libuv`:
 
     ```sh
-    export AGTREL="arm-gnu-toolchain-11.3.rel1-x86_64" &&             \
+    export AGTREL="arm-gnu-toolchain-12.2.rel1-x86_64" &&             \
     export AGTPATH="/opt/${AGTREL}-aarch64-none-linux-gnu/bin/" &&    \
     env CC="${AGTPATH}/aarch64-none-linux-gnu-gcc"                    \
         LOCAL_CONFOPTS="--host=aarch64-none-linux-gnu"                \
@@ -1257,12 +1251,12 @@ The [**GNU Toolchain for the Arm Architecture**](https://developer.arm.com/Tools
 
 ##### Linux/ARM64BE
 
-* Using the [**Arm GNU Toolchain**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) on Linux/x86_64, version **11.3.Rel1**, to cross-compile for Linux/**ARM64BE** (*big endian*):
+* Using the [**Arm GNU Toolchain**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) on Linux/x86_64, version **12.2.Rel1**, to cross-compile for Linux/**ARM64BE** (*big endian*):
 
   * Build `libuv`:
 
     ```sh
-    export AGTREL="arm-gnu-toolchain-11.3.rel1-x86_64" &&                \
+    export AGTREL="arm-gnu-toolchain-12.2.rel1-x86_64" &&                \
     export AGTPATH="/opt/${AGTREL}-aarch64_be-none-linux-gnu/bin/" &&    \
     env CC="${AGTPATH}/aarch64_be-none-linux-gnu-gcc"                    \
         LOCAL_CONFOPTS="--host=aarch64_be-none-linux-gnu"                \
@@ -1278,16 +1272,16 @@ The [**GNU Toolchain for the Arm Architecture**](https://developer.arm.com/Tools
 
 #### Linaro GNU Toolchain
 
-The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**](https://snapshots.linaro.org/gnu-toolchain), updated monthly, provides Linux/**ARM** and Linux/**ARM64** reference toolchains, closely tracking upstream repositories, allowing developers to easily test new compiler and processor features before the next [**Arm GNU Toolchain**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) release.
+The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**](https://snapshots.linaro.org/gnu-toolchain), provides Linux/**ARM** and Linux/**ARM64** reference toolchains, closely tracking upstream repositories, allowing developers to easily test new compiler and processor features before the next [**Arm GNU Toolchain**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) release.
 
 ##### Linux/ARMv7-HF
 
-* Using the [**Linaro GNU Toolchain Integration Build**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) on Linux/x86_64, version **13.0.0-2022.09**, to cross-compile for Linux/**ARMv7-HF** (*hardware floating point*):
+* Using the [**Linaro GNU Toolchain Integration Build**](https://snapshots.linaro.org/gnu-toolchain) on Linux/x86_64, version **13.0.0-2022.11**, to cross-compile for Linux/**ARMv7-HF** (*hardware floating point*):
 
   * Build `libuv`:
 
     ```sh
-    export LINREL="gcc-linaro-13.0.0-2022.09-x86_64" &&            \
+    export LINREL="gcc-linaro-13.0.0-2022.11-x86_64" &&            \
     export LINPATH="/opt/${LINREL}_arm-linux-gnueabihf/bin/" &&    \
     env CC="${LINPATH}/arm-linux-gnueabihf-gcc"                    \
         CFLAGS="-march=armv7-a+fp"                                 \
@@ -1306,12 +1300,12 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
 
 ##### Linux/ARM64
 
-* Using the [**Linaro GNU Toolchain Integration Build**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) on Linux/x86_64, version **13.0.0-2022.09**, to cross-compile for Linux/**ARM64**:
+* Using the [**Linaro GNU Toolchain Integration Build**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) on Linux/x86_64, version **13.0.0-2022.11**, to cross-compile for Linux/**ARM64**:
 
   * Build `libuv`:
 
     ```sh
-    export LINREL="gcc-linaro-13.0.0-2022.09-x86_64" &&          \
+    export LINREL="gcc-linaro-13.0.0-2022.11-x86_64" &&          \
     export LINPATH="/opt/${LINREL}_aarch64-linux-gnu/bin/" &&    \
     env CC="${LINPATH}/aarch64-linux-gnu-gcc"                    \
         LOCAL_CONFOPTS="--host=aarch64-linux-gnu"                \
@@ -1446,9 +1440,10 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
 []()
 
 * [**Xcode**](https://developer.apple.com/xcode/) is required; it is **strongly recommended** to use the most recent release for optimal performance.
-  * Building with [**Intel® C++ Compiler Classic for macOS**](https://www.intel.com/content/www/us/en/developer/articles/tool/oneapi-standalone-components.html#dpcpp-cpp) (**`icc`**) **2022.6.0** or later is also supported.
+  * Building with [**Intel® C++ Compiler Classic for macOS**](https://www.intel.com/content/www/us/en/developer/articles/tool/oneapi-standalone-components.html#dpcpp-cpp) (**`icc`**), version **2021.9.0** with update **2022.6.0** minimum, **2023.1.0** recommended, is supported.
+  * While **ICC** remains a supported compiler for building **DPS8M** on **Intel**-based **macOS** systems, Intel® has *deprecated* support, and advises the **ICC** product will be retired in the second half of 2023.
   * At the time of writing, building the simulator on **macOS** using **GCC** is ***not recommended***.
-* The following instructions were verified using **macOS 12.6** with **Xcode 14.0** (Apple Clang 14.0.0).
+* The following instructions were verified using **macOS 13.4** with **Xcode 14.3.1** (Apple Clang 14.0.3).
 
 ### macOS prerequisites
 

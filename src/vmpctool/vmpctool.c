@@ -13,7 +13,7 @@
  * -------------------------------------------------------------------------
  *
  * Copyright (c) 2009-2017 Doug Hoyte and contributors.
- * Copyright (c) 2020-2021 Jeffrey H. Johnson <trnsz@pobox.com>
+ * Copyright (c) 2020-2023 Jeffrey H. Johnson <trnsz@pobox.com>
  * Copyright (c) 2021-2023 The DPS8M Development Team
  *
  * All rights reserved.
@@ -49,7 +49,7 @@
 
 #define PROGNAME                       "vmpctool"
 #define PROGDESC                       "virtual memory page cache utility"
-#define VMTOUCH_VERSION                "2101.14.9-dps (2023-03-03)"
+#define VMTOUCH_VERSION                "2101.15.1-dps (2023-05-18)"
 
 #define RESIDENCY_CHART_WIDTH          41
 #define CHART_UPDATE_INTERVAL          0.37
@@ -168,6 +168,17 @@
 #  endif /* ifdef __linux__ */
 # endif /* ifdef NAME_MAX */
 #endif /* ifndef MAX_FILENAME_LENGTH */
+
+#if defined(__MACH__) && defined(__APPLE__) && \
+  ( defined(__PPC__) || defined(_ARCH_PPC) )
+# include <mach/clock.h>
+# include <mach/mach.h>
+# ifdef MACOSXPPC
+#  undef MACOSXPPC
+# endif /* ifdef MACOSXPPC */
+# define MACOSXPPC 1
+#endif /* if defined(__MACH__) && defined(__APPLE__) &&
+           ( defined(__PPC__) || defined(_ARCH_PPC) ) */
 
 #undef FREE
 #ifdef TESTING
@@ -1512,6 +1523,85 @@ bail:
     }
 }
 
+#if defined(MACOSXPPC) || \
+   ( defined(__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__) && \
+     ( __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ == 101300 ) )
+ssize_t
+getdelim_alt (char **lineptr, size_t *n, int delimiter, FILE *fp)
+{
+  int result      = 0;
+  ssize_t cur_len = 0;
+  ssize_t len;
+
+  (void)len;
+  if (lineptr == NULL || n == NULL || fp == NULL)
+    {
+      errno = EINVAL;
+      return -1;
+    }
+
+  if (*lineptr == NULL || *n == 0)
+    {
+      *n = 120;
+      *lineptr = (char *) malloc (*n);
+      if (*lineptr == NULL)
+        {
+          result = -1;
+          goto unlock_return;
+        }
+    }
+
+  for (;;)
+    {
+      char *t;
+      int i;
+
+      (void)t;
+      i = getc (fp);
+      if (i == EOF)
+        {
+          result = -1;
+          break;
+        }
+
+      if (cur_len + 1 >= *n)
+        {
+          size_t needed = 2 * (cur_len + 1) + 1;
+          char *new_lineptr;
+
+          if (needed < cur_len)
+            {
+              result = -1;
+              goto unlock_return;
+            }
+
+          new_lineptr = (char *) realloc (*lineptr, needed);
+          if (new_lineptr == NULL)
+            {
+              result = -1;
+              goto unlock_return;
+            }
+
+          *lineptr = new_lineptr;
+          *n = needed;
+        }
+
+      (*lineptr)[cur_len] = i;
+      cur_len++;
+
+      if (i == delimiter)
+        break;
+    }
+  (*lineptr)[cur_len] = '\0';
+  result = cur_len ? cur_len : result;
+
+unlock_return:
+  return result;
+}
+#endif /* if defined(MACOSXPPC) ||
+           ( defined(__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__) &&
+             ( __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ == 101300 ) ) */
+
 static void
 vmpc_batch_crawl(const char *path)
 {
@@ -1537,7 +1627,15 @@ vmpc_batch_crawl(const char *path)
         }
     }
 
+#if defined(MACOSXPPC) || \
+   ( defined(__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__) && \
+     ( __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ == 101300 ) )
+  while (( read = getdelim_alt(&line, &len, delim, f)) != -1)
+#else
   while (( read = getdelim(&line, &len, delim, f)) != -1)
+#endif /* if defined(MACOSXPPC) ||
+           ( defined(__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__) &&
+             ( __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ == 101300 ) ) */
     {
       line[read - 1] = '\0';
       vmpc_rdir(line);

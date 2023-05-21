@@ -2,7 +2,7 @@
  * scp_help.h: hierarchical help definitions
  *
  * vim: filetype=c:tabstop=4:ai:expandtab
- * SPDX-License-Identifier: X11
+ * SPDX-License-Identifier: MIT
  * scspell-id: 9896d74a-f62a-11ec-9179-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------

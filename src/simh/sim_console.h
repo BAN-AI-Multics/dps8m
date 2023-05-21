@@ -2,7 +2,7 @@
  * sim_console.h: simulator console I/O library headers
  *
  * vim: filetype=c:tabstop=4:ai:expandtab
- * SPDX-License-Identifier: X11
+ * SPDX-License-Identifier: MIT
  * scspell-id: a93bd242-f62a-11ec-92e3-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: LicenseRef-DPS8M-Doc OR LicenseRef-CF-GAL -->
+<!-- SPDX-License-Identifier: LicenseRef-CF-GAL -->
 <!-- SPDX-FileCopyrightText: 2022-2023 The DPS8M Development Team -->
 <!-- scspell-id: 96cf8e88-3173-11ed-a0be-80ee73e9b8e7 -->
 The `AUTOINPUT2` command (abbreviated `AI2`) provides the specified input to the

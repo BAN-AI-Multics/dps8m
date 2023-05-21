@@ -2,7 +2,7 @@
  * sim_tape.h: simulator tape support library definitions
  *
  * vim: filetype=c:tabstop=4:ai:expandtab
- * SPDX-License-Identifier: X11
+ * SPDX-License-Identifier: MIT
  * scspell-id: d97f7d4a-f62a-11ec-baa0-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------

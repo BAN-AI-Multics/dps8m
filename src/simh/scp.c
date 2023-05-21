@@ -2,7 +2,7 @@
  * scp.c: simulator control program
  *
  * vim: filetype=c:tabstop=4:ai:colorcolumn=84:expandtab
- * SPDX-License-Identifier: X11
+ * SPDX-License-Identifier: MIT
  * scspell-id: 7cde852c-f62a-11ec-8444-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
@@ -4480,6 +4480,7 @@ if (flag) {
         nodist++;
 #endif /* if defined(USE_DUMA) */
 #if defined(NO_SUPPORT_VERSION) ||  \
+    defined(MACOSXPPC)          ||  \
     defined(TESTING)            ||  \
     defined(ISOLTS)             ||  \
     defined(USE_DUMA)
@@ -4678,11 +4679,16 @@ if (flag) {
     strremove(postver, "(R)");
     strremove(postver, "git://github.com/OpenIndiana/oi-userland.git ");
     strremove(postver, "https://github.com/OpenIndiana/oi-userland.git ");
+    strremove(postver, " gcc 4.9 mode");
     strremove(postver, "4.2.1 Compatible ");
     strremove(postver, "git@github.com:llvm/llvm-project.git ");
     strremove(postver, "https://github.com/llvm/llvm-project.git ");
     strremove(postver, " (https://github.com/yrnkrn/zapcc)");
     strremove(postver, "https://github.com/yrnkrn/zapcc ");
+    strremove(postver, "(experimental) ");
+    strremove(postver, ".module+el8.7.0+20823+214a699d");
+    strremove(postver, "17.1.1 (5725-C72, 5765-J20), version ");
+    strremove(postver, " Clang 15.0.0 (build 760095e)");
 #endif
 #if ( defined (__GNUC__) && defined (__VERSION__) ) && !defined (__EDG__)
 # ifndef __clang_version__
@@ -4746,7 +4752,11 @@ if (flag) {
     fprintf (st, "\n  Compiler: IBM XL C/C++ for Linux V%s", __xlc__);
 # endif
 # if ( !defined(_AIX) && !defined(__clang_version__) && !defined(PASE) && !defined(__linux__) && defined(__xlc__) )
+#  if defined(__PPC__) && defined(__APPLE__)
+    fprintf (st, "\n  Compiler: IBM XL C/C++ V%s for Mac OS X", __xlc__);
+#  else
     fprintf (st, "\n  Compiler: IBM XL C/C++ V%s", __xlc__);
+#  endif
 # endif
 #elif defined (__SUNPRO_C) || defined (__SUNPRO_CC) || defined (__SUNPRO_CC_COMPAT)
     fprintf (st, "\n  Compiler: Oracle Developer Studio C/C++");
@@ -4780,6 +4790,20 @@ if (flag) {
             __WATCOMC__ % 100);
 #elif defined (__xlC__)
     fprintf (st, "\n  Compiler: IBM XL C/C++");
+#elif defined (__INTEL_COMPILER) || defined (__ICC)
+# if defined (__INTEL_COMPILER_UPDATE)
+#  if defined (__INTEL_COMPILER_BUILD_DATE)
+    fprintf (st, "\n  Compiler: Intel C++ Compiler %d.%d (%d)",
+            __INTEL_COMPILER, __INTEL_COMPILER_UPDATE,
+            __INTEL_COMPILER_BUILD_DATE);
+#  else
+    fprintf (st, "\n  Compiler: Intel C++ Compiler %d.%d",
+            __INTEL_COMPILER, __INTEL_COMPILER_UPDATE);
+#  endif
+# else
+    fprintf (st, "\n  Compiler: Intel C++ Compiler %d",
+            __INTEL_COMPILER);
+# endif
 #elif defined (SIM_COMPILER)
 # define S_xstr(a) S_str(a)
 # define S_str(a) #a
@@ -4800,17 +4824,9 @@ if (flag) {
 #elif defined(__ia64__) || defined(_M_IA64) || defined(__itanium__)
     arch = " ia64";
 #elif defined(__ppc64__) || defined(__PPC64__) || defined(__ppc64le__) || defined(__PPC64LE__) || defined(__powerpc64__) || defined(__POWERPC64__) || defined(_M_PPC64) || defined(__PPC64) || defined(_ARCH_PPC64)
-# if defined(_BIG_ENDIAN) || defined(__BIG_ENDIAN__)
-    arch = " ppc64be";
-# else
-    arch = " ppc64el";
-# endif
+    arch = " powerpc64";
 #elif defined(__ppc__) || defined(__PPC__) || defined(__powerpc__) || defined(__POWERPC__) || defined(_M_PPC) || defined(__PPC) || defined(__ppc32__) || defined(__PPC32__) || defined(__powerpc32__) || defined(__POWERPC32__) || defined(_M_PPC32) || defined(__PPC32)
-# if defined(_BIG_ENDIAN) || defined(__BIG_ENDIAN__)
-    arch = " ppc";
-# else
-    arch = " ppcel";
-# endif
+    arch = " powerpc";
 #elif defined(__s390x__)
     arch = " s390x";
 #elif defined(__s390__)
@@ -4828,17 +4844,9 @@ if (flag) {
 #elif defined(__ICE9__) || defined(__ice9__) || defined(__ICE9) || defined(__ice9)
     arch = " ice9";
 #elif defined(mips64) || defined(__mips64__) || defined(MIPS64) || defined(_MIPS64_) || defined(__mips64)
-# if defined(_BIG_ENDIAN) || defined(__BIG_ENDIAN__)
-    arch = " mips64be";
-# else
-    arch = " mips64el";
-# endif
+    arch = " mips64";
 #elif defined(mips) || defined(__mips__) || defined(MIPS) || defined(_MIPS_) || defined(__mips)
-# if defined(_BIG_ENDIAN) || defined(__BIG_ENDIAN__)
-    arch = " mipsbe";
-# else
-    arch = " mipsel";
-# endif
+    arch = " mips";
 #elif defined(__OpenRISC__) || defined(__OPENRISC__) || defined(__openrisc__) || defined(__OR1K__) || defined(__JOR1K__) || defined(__OPENRISC1K__) || defined(__OPENRISC1200__)
     arch = " openrisc";
 #elif defined(__sparc64) || defined(__SPARC64) || defined(__SPARC64__) || defined(__sparc64__)
@@ -9534,8 +9542,29 @@ char tim_a[32] = "";
 char  pc_s[64] = "";
 struct timespec time_now;
 
+#if defined(__MACH__) && defined(__APPLE__) && \
+  ( defined(__PPC__) || defined(_ARCH_PPC) )
+# include <mach/clock.h>
+# include <mach/mach.h>
+# ifdef MACOSXPPC
+#  undef MACOSXPPC
+# endif /* ifdef MACOSXPPC */
+# define MACOSXPPC 1
+#endif /* if defined(__MACH__) && defined(__APPLE__) &&
+           ( defined(__PPC__) || defined(_ARCH_PPC) ) */
+
 if (sim_deb_switches & (SWMASK ('T') | SWMASK ('R') | SWMASK ('A'))) {
+#ifdef MACOSXPPC
+    clock_serv_t cclock;
+    mach_timespec_t mts;
+    host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+    clock_get_time(cclock, &mts);
+    mach_port_deallocate(mach_task_self(), cclock);
+    time_now.tv_sec = mts.tv_sec;
+    time_now.tv_nsec = mts.tv_nsec;
+#else
     clock_gettime(CLOCK_REALTIME, &time_now);
+#endif /* ifdef MACOSXPPC */
     if (sim_deb_switches & SWMASK ('R'))
         sim_timespec_diff (&time_now, &time_now, &sim_deb_basetime);
     if (sim_deb_switches & SWMASK ('T')) {

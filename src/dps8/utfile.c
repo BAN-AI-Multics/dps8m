@@ -41,6 +41,17 @@
 # define srandom bsd_srandom
 #endif /* if defined(__MINGW64__) || defined(__MINGW32__) */
 
+#if defined(__MACH__) && defined(__APPLE__) && \
+  ( defined(__PPC__) || defined(_ARCH_PPC) )
+# include <mach/clock.h>
+# include <mach/mach.h>
+# ifdef MACOSXPPC
+#  undef MACOSXPPC
+# endif /* ifdef MACOSXPPC */
+# define MACOSXPPC 1
+#endif /* if defined(__MACH__) && defined(__APPLE__) &&
+           ( defined(__PPC__) || defined(_ARCH_PPC) ) */
+
 #undef FREE
 #ifdef TESTING
 # define FREE(p) free(p)
@@ -87,6 +98,9 @@ utfile_mkstemps(char *request_pattern, int suffix_length)
   char *mask_pointer;
   struct timespec st1;
 
+#ifdef MACOSXPPC
+  (void)st1;
+#endif /* ifdef MACOSXPPC */
   char *pattern = strdup(request_pattern);
   if (!pattern)
     {
@@ -103,10 +117,24 @@ utfile_mkstemps(char *request_pattern, int suffix_length)
 
   pattern_length = (long) strlen(pattern);
 
+#ifdef MACOSXPPC
+# undef USE_MONOTONIC
+#endif /* ifdef MACOSXPPC */
 #ifdef USE_MONOTONIC
   st1ret = clock_gettime(CLOCK_MONOTONIC, &st1);
 #else
+# ifdef MACOSXPPC
+  clock_serv_t cclock;
+  mach_timespec_t mts;
+  host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+  clock_get_time(cclock, &mts);
+  mach_port_deallocate(mach_task_self(), cclock);
+  st1.tv_sec = mts.tv_sec;
+  st1.tv_nsec = mts.tv_nsec;
+  st1ret = 0;
+# else
   st1ret = clock_gettime(CLOCK_REALTIME, &st1);
+# endif /* ifdef MACOSXPPC */
 #endif /* ifdef USE_MONOTONIC */
   if (st1ret != 0)
     {

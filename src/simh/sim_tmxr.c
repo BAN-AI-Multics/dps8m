@@ -2,7 +2,7 @@
  * sim_tmxr.c: Telnet terminal multiplexer library
  *
  * vim: filetype=c:tabstop=4:ai:expandtab
- * SPDX-License-Identifier: X11
+ * SPDX-License-Identifier: MIT
  * scspell-id: e76cc98d-f62a-11ec-967b-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
@@ -112,6 +112,17 @@
 # define random  bsd_random
 # define srandom bsd_srandom
 #endif /* if defined(__MINGW64__) || defined(__MINGW32__) */
+
+#if defined(__MACH__) && defined(__APPLE__) && \
+  ( defined(__PPC__) || defined(_ARCH_PPC) )
+# include <mach/clock.h>
+# include <mach/mach.h>
+# ifdef MACOSXPPC
+#  undef MACOSXPPC
+# endif /* ifdef MACOSXPPC */
+# define MACOSXPPC 1
+#endif /* if defined(__MACH__) && defined(__APPLE__) &&
+           ( defined(__PPC__) || defined(_ARCH_PPC) ) */
 
 #ifdef TESTING
 # include "../dps8/dps8_cpu.h"
@@ -797,13 +808,16 @@ char msg[512];
 uint32 poll_time = sim_os_msec ();
 struct timespec ts;
 
+#ifdef MACOSXPPC
+(void)ts;
+#endif /* ifdef MACOSXPPC */
 (void)lp;
 memset (msg, 0, sizeof (msg));
 if (mp->last_poll_time == 0) {                          /* first poll initializations */
     UNIT *uptr = mp->uptr;
 
     if (!uptr)                                          /* Attached ? */
-        return -1;                                      /* No connections are possinle! */
+        return -1;                                      /* No connections are possible! */
 
     if (mp->poll_interval == 0)                         /* Assure reasonable polling interval */
         mp->poll_interval = TMXR_DEFAULT_CONNECT_POLL_INTERVAL;
@@ -825,10 +839,26 @@ if (mp->last_poll_time == 0) {                          /* first poll initializa
 if ((poll_time - mp->last_poll_time) < mp->poll_interval*1000)
     return -1;                                          /* too soon to try */
 
+#ifdef MACOSXPPC
+# ifdef USE_MONOTONIC
+#  undef USE_MONOTONIC
+# endif /* ifdef USE_MONOTONIC */
+#endif /* ifdef MACOSXPPC */
+
 #ifdef USE_MONOTONIC
   st1ret = clock_gettime(CLOCK_MONOTONIC, &ts);
 #else
+# ifdef MACOSXPPC
+  clock_serv_t cclock;
+  mach_timespec_t mts;
+  host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+  clock_get_time(cclock, &mts);
+  mach_port_deallocate(mach_task_self(), cclock);
+  ts.tv_sec = mts.tv_sec;
+  ts.tv_nsec = mts.tv_nsec;
+# else
   st1ret = clock_gettime(CLOCK_REALTIME, &ts);
+# endif /* ifdef MACOSXPPC */
 #endif /*ifdef USE_MONOTONIC */
   if (st1ret != 0)
     {

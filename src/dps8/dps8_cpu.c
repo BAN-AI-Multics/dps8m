@@ -64,6 +64,17 @@
 __thread uint current_running_cpu_idx;
 #endif
 
+#if defined(__MACH__) && defined(__APPLE__) && \
+  ( defined(__PPC__) || defined(_ARCH_PPC) )
+# include <mach/clock.h>
+# include <mach/mach.h>
+# ifdef MACOSXPPC
+#  undef MACOSXPPC
+# endif /* ifdef MACOSXPPC */
+# define MACOSXPPC 1
+#endif /* if defined(__MACH__) && defined(__APPLE__) &&
+           ( defined(__PPC__) || defined(_ARCH_PPC) ) */
+
 #include "ver.h"
 
 #define DBG_CTR cpu.cycleCnt
@@ -903,9 +914,7 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
     cpu.PPR.P    = 1;
     cpu.RSDWH_R1 = 0;
     cpu.rTR      = MASK27;
-//#if defined(THREADZ) || defined(LOCKLESS)
-//    clock_gettime (CLOCK_MONOTONIC, & cpu.rTRTime);
-//#endif
+
     if (cpu.tweaks.isolts_mode)
       {
         cpu.shadowTR = 0;
@@ -1189,8 +1198,6 @@ const char *sim_stop_messages[] =
 static bool watch_bits [MEMSIZE];
 #endif
 
-// XXX PPR.IC oddly incremented. ticket #6
-
 char * str_SDW0 (char * buf, sdw0_s * SDW)
   {
     sprintf (buf, "ADDR=%06o R1=%o R2=%o R3=%o F=%o FC=%o BOUND=%o R=%o "
@@ -1408,6 +1415,10 @@ static void get_serial_number (void)
       fclose (fp);
   }
 #endif /* ifndef PERF_STRIP */
+
+#ifdef MACOSXPPC
+# undef STATS
+#endif /* ifdef MACOSXPPC */
 
 #ifdef STATS
 static void do_stats (void)
@@ -1904,7 +1915,17 @@ t_stat sim_instr (void)
 
 # ifdef IO_ASYNC_PAYLOAD_CHAN_THREAD
         struct timespec next_time;
+#  ifdef MACOSXPPC
+        clock_serv_t cclock;
+        mach_timespec_t mts;
+        host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+        clock_get_time(cclock, &mts);
+        mach_port_deallocate(mach_task_self(), cclock);
+        next_time.tv_sec = mts.tv_sec;
+        next_time.tv_nsec = mts.tv_nsec;
+#  else
         clock_gettime (CLOCK_REALTIME, & next_time);
+#  endif /* ifdef MACOSXPPC */
         next_time.tv_nsec += 1000l * 1000l;
         if (next_time.tv_nsec >= 1000l * 1000l *1000l)
           {
@@ -1927,12 +1948,24 @@ t_stat sim_instr (void)
             unlock_libuv ();
             unlock_iom ();
 
+#  ifdef MACOSXPPC
+            clock_serv_t cclock;
+            mach_timespec_t mts;
+            host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+            clock_get_time(cclock, &mts);
+            mach_port_deallocate(mach_task_self(), cclock);
+            new_time.tv_sec = mts.tv_sec;
+            new_time.tv_nsec = mts.tv_nsec;
+#  else
             clock_gettime (CLOCK_REALTIME, & new_time);
+#  endif /* ifdef MACOSXPPC */
           }
         while ((next_time.tv_sec == new_time.tv_sec) ? (next_time.tv_nsec > new_time.tv_nsec) : \
                                                        (next_time.tv_sec  > new_time.tv_sec));
 # else
+//#  ifndef MACOSXPPC /* XXX(jhj) */
         sim_usleep (1000); // 1000 us == 1 ms == 1/1000 sec.
+//#  endif /* ifndef MACOSXPPC */
 # endif
       }
     while (reason == 0); //-V654
@@ -2786,7 +2819,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   //   rTR * 125 / 64
 
 #  ifdef NO_TIMEWAIT
-                  //sim_usleep (sys_opts.sys_poll_interval * 1000/*10000*/);
+                  //sim_usleep (sys_opts.sys_poll_interval * 1000 /*10000*/ );
                   struct timespec req, rem;
                   uint ms        = sys_opts.sys_poll_interval;
                   long int nsec  = (long int) ms * 1000 * 1000;
@@ -4359,7 +4392,17 @@ void dps8_sim_debug (uint32 dbits, DEVICE * dptr, unsigned long long cnt, const 
         va_list arglist;
         int32 i, j, len;
         struct timespec t;
+# ifdef MACOSXPPC
+        clock_serv_t cclock;
+        mach_timespec_t mts;
+        host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+        clock_get_time(cclock, &mts);
+        mach_port_deallocate(mach_task_self(), cclock);
+        t.tv_sec = mts.tv_sec;
+        t.tv_nsec = mts.tv_nsec;
+# else
         clock_gettime(CLOCK_REALTIME, &t);
+# endif /* ifdef MACOSXPPC */
 
         buf [bufsize-1] = '\0';
 

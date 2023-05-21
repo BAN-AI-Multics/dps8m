@@ -2,7 +2,7 @@
  * udplib.c: IMP/TIP Modem and Host Interface socket routines using UDP
  *
  * vim: filetype=c:tabstop=4:ai:expandtab
- * SPDX-License-Identifier: X11
+ * SPDX-License-Identifier: MIT
  * scspell-id: 18c1dbd2-f630-11ec-8f2f-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------

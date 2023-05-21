@@ -227,13 +227,44 @@ else
 endif
 
 ###############################################################################
+# Determine NATIVE compiler flags for ICC, GCC, and Clang
+
+ifdef NATIVE
+  ifndef NO_NATIVE
+    ifndef SUNPRO
+      ifndef SUNLINT
+      # compiler invocation: Try `-march=native`, fall back to `-mcpu=native`
+      NATIVEFLAGS:=$(shell $(CC) -march=native -E -                           \
+                       < /dev/null > /dev/null 2>&1                           \
+                         && $(PRINTF) '%s\n' "-march=native"                  \
+                           || $(PRINTF) '%s\n' "-mcpu=native")
+        ifeq "$(findstring clang,$(CC))" ""
+          ifeq "$(findstring gcc,$(CC))" ""
+            ifeq "$(findstring icc,$(CC))" ""
+              # Other compilers
+            else
+              # Intel C Compiler Classic (no longer supported)
+              CFLAGS += -xHost -unroll-aggressive -qopt-mem-layout-trans=3    \
+                          -qopt-prefetch=3 -qoverride-limits -fpermissive     \
+                            -diag-disable=10121
+            endif
+          else
+            # GCC
+            CFLAGS  += $(NATIVEFLAGS)
+          endif
+        else
+          # Clang
+          CFLAGS  += $(NATIVEFLAGS) -Wno-ignored-optimization-argument
+        endif
+      endif
+    endif
+  endif
+endif
+
+###############################################################################
 # Default CFLAGS, optimizations, and math library
 
 MATHLIB ?= -lm
-
-ifdef NATIVE
-  CFLAGS += -march=native
-endif
 
 ifdef ALLOW_STRICT_ALIASING
   STRICT_ALIASING = -fstrict-aliasing
@@ -254,8 +285,9 @@ ifndef SUNPRO
   endif
 endif
 
+_DEBUGOPTFLAG := -g
 ifndef TESTING
-  OPTFLAGS = -O3 -g3
+  OPTFLAGS = -O3 $(_DEBUGOPTFLAG) -U_FORTIFY_SOURCE -fno-stack-protector
   ifdef DUMA
     CFLAGS   += -I../dps8 -I. -include dps8_duma.h
     OPTFLAGS += -DDUMA=1
@@ -263,7 +295,7 @@ ifndef TESTING
     export DUMALIBS
   endif
 else
-  OPTFLAGS = -O0 -g3 -fno-inline -ggdb -U_FORTIFY_SOURCE -fno-stack-protector
+  OPTFLAGS = -O0 -g3 -fno-inline -ggdb -fstack-protector-all
   ifdef DUMA
     CFLAGS   += -I../dps8 -I. -include dps8_duma.h
     OPTFLAGS += -DDUMA=1

@@ -6,7 +6,7 @@
  * ---------------------------------------------------------------------------
  *
  * Copyright (c) 2002-2019 Devin Teske <dteske@FreeBSD.org>
- * Copyright (c) 2020-2022 Jeffrey H. Johnson <trnsz@pobox.com>
+ * Copyright (c) 2020-2023 Jeffrey H. Johnson <trnsz@pobox.com>
  * Copyright (c) 2021-2023 The DPS8M Development Team
  *
  * All rights reserved.
@@ -65,6 +65,16 @@
 #include <ctype.h>
 #include <locale.h>
 
+#if defined(__MACH__) && defined(__APPLE__) && \
+  ( defined(__PPC__) || defined(_ARCH_PPC) )
+# include <mach/clock.h>
+# include <mach/mach.h>
+# ifdef MACOSXPPC
+#  undef MACOSXPPC
+# endif /* ifdef MACOSXPPC */
+# define MACOSXPPC 1
+#endif /* if defined(__MACH__) && defined(__APPLE__) &&
+           ( defined(__PPC__) || defined(_ARCH_PPC) ) */
 #ifndef TRUE
 # define TRUE 1
 #endif /* ifndef TRUE */
@@ -91,12 +101,12 @@
 #define CMB_VERSION         0
 #define CMB_H_VERSION_MAJOR 3
 #define CMB_H_VERSION_MINOR 5
-#define CMB_H_VERSION_PATCH 6
+#define CMB_H_VERSION_PATCH 9
 
 /*
  * Macros for cmb_config options bitmask
  */
-
+struct cmb_config;             /* Forward declaration               */
 #define CMB_OPT_NULPARSE 0x02  /* NUL delimit cmb_parse*()          */
 #define CMB_OPT_NULPRINT 0x04  /* NUL delimit cmb_print*()          */
 #define CMB_OPT_EMPTY    0x08  /* Show empty set with no items      */
@@ -595,13 +605,15 @@ cmb_parse(struct cmb_config *config, int fd, uint32_t *nitems, uint32_t max)
     {
       if (S_ISREG(sb.st_mode))
         {
-#ifndef __serenity__
+#if !defined(__serenity__)
+# if !defined(MACOSXPPC)
           if (sysconf(_SC_PHYS_PAGES) > PHYSPAGES_THRESHOLD)
             {
               bufsize = MIN(BUFSIZE_MAX, MAXPHYS * 8);
             }
           else
-#endif /* ifndef __serenity__ */
+# endif /* if !defined(MACOSXPPC) */
+#endif /* if !defined(__serenity__) */
             {
               bufsize = BUFSIZE_SMALL;
             }
@@ -1882,7 +1894,7 @@ main(int argc, char *argv[])
     {
 # ifdef __VERSION__
 #  ifdef __GNUC__
-#   ifndef __clang_version__
+#   if !defined (__clang_version__) || defined(__INTEL_COMPILER)
       char xcmp[2];
       sprintf(xcmp, "%.1s", __VERSION__ );
       if (!isdigit((int)xcmp[0]))
@@ -1895,7 +1907,7 @@ main(int argc, char *argv[])
         }
 #   else
       (void)fprintf(stdout, "Compiler: Clang %s\n", __clang_version__ );
-#   endif /* ifndef __clang_version__ */
+#   endif /* if !defined (__clang_version__) || defined(__INTEL_COMPILER) */
 #  else
       (void)fprintf(stdout, "Compiler: %s\n", __VERSION__ );
 #  endif /* ifdef __GNUC__ */

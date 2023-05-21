@@ -2,7 +2,7 @@
  * sim_console.c: simulator console I/O library
  *
  * vim: filetype=c:tabstop=4:ai:expandtab
- * SPDX-License-Identifier: X11
+ * SPDX-License-Identifier: MIT
  * scspell-id: a2e214e2-f62a-11ec-89cf-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
@@ -1352,6 +1352,17 @@ char gbuf[CBUFSIZE];
 t_stat r;
 time_t now;
 
+#if defined(__MACH__) && defined(__APPLE__) && \
+  ( defined(__PPC__) || defined(_ARCH_PPC) )
+# include <mach/clock.h>
+# include <mach/mach.h>
+# ifdef MACOSXPPC
+#  undef MACOSXPPC
+# endif /* ifdef MACOSXPPC */
+# define MACOSXPPC 1
+#endif /* if defined(__MACH__) && defined(__APPLE__) &&
+           ( defined(__PPC__) || defined(_ARCH_PPC) ) */
+
 sim_deb_switches = sim_switches;                        /* save debug switches */
 if ((cptr == NULL) || (*cptr == 0))                     /* need arg */
     return SCPE_2FARG;
@@ -1364,7 +1375,17 @@ if (r != SCPE_OK)
     return r;
 
 if (sim_deb_switches & SWMASK ('R')) {
+#ifdef MACOSXPPC
+    clock_serv_t cclock;
+    mach_timespec_t mts;
+    host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+    clock_get_time(cclock, &mts);
+    mach_port_deallocate(mach_task_self(), cclock);
+    sim_deb_basetime.tv_sec = mts.tv_sec;
+    sim_deb_basetime.tv_nsec = mts.tv_nsec;
+#else
     clock_gettime(CLOCK_REALTIME, &sim_deb_basetime);
+#endif /* ifdef MACOSXPPC */
     if (!(sim_deb_switches & (SWMASK ('A') | SWMASK ('T'))))
         sim_deb_switches |= SWMASK ('T');
     }

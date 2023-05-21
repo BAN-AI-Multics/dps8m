@@ -6729,7 +6729,6 @@ static t_stat doInstruction (void)
           // 00...0 -> C(AQ)0,19
           // C(calendar clock) -> C(AQ)20,71
           {
-// XXX see ticket #23
             // For the rccl instruction, the first 2 or 3 bits of the addr
             // field of the instruction are used to specify which SCU.
             // init_processor.alm systematically steps through the SCUs,

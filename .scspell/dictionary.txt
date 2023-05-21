@@ -469,6 +469,7 @@ cbaud
 cbreak
 cbuf
 cbufsize
+cclock
 cdeck
 cfault
 cfill
@@ -1630,6 +1631,7 @@ linenumbers
 lineorder
 linep
 lineprinter
+lineptr
 linetype
 lineval
 linkinfo
@@ -1705,6 +1707,7 @@ ltrim
 lwrstoresize
 lxln
 lyear
+macosxppc
 madlength
 mailslot
 mainpath
@@ -1880,6 +1883,7 @@ nbits
 nbuf
 nbufs
 nbytes
+ncclock
 nchar
 nchars
 ncnt
@@ -1922,6 +1926,7 @@ nlink
 nmask
 nmax
 nmin
+nmts
 noasynch
 noatime
 noatt
@@ -2202,7 +2207,7 @@ portnamebuf
 portp
 portval
 posn
-possinle
+possible
 postshift
 postver
 powerup
@@ -5971,6 +5976,7 @@ cstd
 dbuildinfo
 dclock
 dduma
+debugoptflag
 defs
 developerstudio
 dhave
@@ -5983,7 +5989,9 @@ endif
 fcntl
 findstring
 flock
+fpermissive
 fpie
+fstack
 fstrict
 ftrivial
 gawk
@@ -6024,8 +6032,10 @@ makedepend
 makeflags
 maketar
 march
+mcpu
 mkrebuild
 msys
+nativeflags
 needrebuild
 nios
 noet
@@ -6037,6 +6047,8 @@ popt
 ppcle
 printf
 psvar
+qopt
+qoverride
 qshowmacros
 rebuildvne
 reusetool
@@ -6044,6 +6056,7 @@ rmnf
 scspellcmd
 setv
 shlvl
+sunlint
 tarxt
 tmout
 unicore
@@ -6994,6 +7007,7 @@ qhot
 qpdf
 qtls
 qversion
+recvmmsg
 resilientstorage
 restic
 resticurl
@@ -7004,6 +7018,7 @@ rtlibs
 sans
 saphana
 sbin
+sendmmsg
 setenv
 setupclearos
 setuptools
@@ -8322,6 +8337,7 @@ after
 afterwards
 again
 against
+aggressive
 agner
 agree
 agreed
@@ -8853,6 +8869,7 @@ caught
 caused
 causes
 causing
+cctree
 ceiling
 cells
 center

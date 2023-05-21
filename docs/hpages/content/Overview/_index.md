@@ -193,7 +193,7 @@
 
   * <u>C compilers</u> supported are **Clang**, **LLVM-MinGW**, AMD Optimizing C/C++ (**AOCC**), Arm C/C++ Compiler (**ARMClang**), GNU C (**GCC**), IBM Advance Toolchain, IBM XL C/C++ (**XLC**), IBM Open XL C/C++ (**IBMClang**), Intel oneAPI DPC++/C++ (**ICX**), Intel C++ Compiler Classic for macOS (**ICC**), NVIDIA HPC SDK C Compiler (**NVC**), and Oracle Developer Studio (**SunCC**).
 
-  * <u>Hardware architectures</u> supported are **Intel x86** (i686, x86_64), **ARM** (ARMv6, ARMv7, ARM64), **PowerPC** (PPC, PPC64, PPC64le), **RISC-V** (RV64), and **m68k** (68020+).
+  * <u>Hardware architectures</u> actively supported include **Intel x86** (i686, x86_64), **ARM** (ARMv6, ARMv7, ARM64), **LoongArch** (LA64), **MIPS** (MIPS, MIPS64), **OpenRISC** (OR1200, MOR1KX), **PowerPC** (PPC, PPC64, PPC64le), **RISC-V** (RV64), **SPARC** (SPARC, UltraSPARC), **SuperH** (SH-4A), **m68k** (68020+), and **IBM Z** (s390x, z13+).
 
 * Various releases of **DPS8M** have been ported to **embedded systems**, **cell phones**, **tablets**, **handheld gaming consoles**, **wireless routers**, and even modern **mainframes**.  A full-featured port should be possible for any 32- or 64-bit platform with appropriate hardware atomic operations and able to support the [**libuv**](https://libuv.org/) asynchronous I/O library.
 
