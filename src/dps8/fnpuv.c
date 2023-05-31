@@ -441,7 +441,7 @@ static void fuv_read_cb (uv_stream_t* stream,
       }
 
     if (buf->base)
-        free (buf->base);
+        free (buf->base); /* X-LINTED: FREE */
   }
 
 //

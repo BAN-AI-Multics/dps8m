@@ -42,8 +42,7 @@
 
 #define N_CPU_UNITS 1 // Default
 
-// JMP_ENTRY must be 0, which is the return value of the setjmp initial
-// entry
+// JMP_ENTRY must be 0, which is the return value of the setjmp initial entry
 #define JMP_ENTRY             0
 #define JMP_REENTRY           1
 #define JMP_STOP              2

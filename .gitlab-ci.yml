@@ -3820,7 +3820,7 @@ Flawfinder:
     - *scriptSanity
     - *scriptCommon
     - *scriptExtraInfo
-    - flawfinder -C -m 5 . 2>&1 > flawfinder.txt || true
+    - flawfinder -C -m 5 -c . 2>&1 > flawfinder.txt || true
     - sh -xc 'set +e; grep "No hits found" flawfinder.txt && exit 0;exit 2'
   dependencies: []
   artifacts:

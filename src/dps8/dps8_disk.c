@@ -330,14 +330,14 @@ UNIT dsk_unit[N_DSK_UNITS_MAX] = {
 
 static DEBTAB disk_dt[] =
   {
-    { "TRACE", DBG_TRACE, NULL },
+    { "TRACE",  DBG_TRACE,  NULL },
     { "NOTIFY", DBG_NOTIFY, NULL },
-    { "INFO", DBG_INFO, NULL },
-    { "ERR", DBG_ERR, NULL },
-    { "WARN", DBG_WARN, NULL },
-    { "DEBUG", DBG_DEBUG, NULL },
-    { "ALL", DBG_ALL, NULL }, // don't move as it messes up DBG message
-    { NULL, 0, NULL }
+    { "INFO",   DBG_INFO,   NULL },
+    { "ERR",    DBG_ERR,    NULL },
+    { "WARN",   DBG_WARN,   NULL },
+    { "DEBUG",  DBG_DEBUG,  NULL },
+    { "ALL",    DBG_ALL,    NULL }, // Don't move as it messes up DBG message
+    { NULL,     0,          NULL }
   };
 
 static t_stat disk_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int val, UNUSED const void * desc)
@@ -1080,7 +1080,7 @@ static int read_configuration (uint dev_unit_idx, uint iom_unit_idx, uint chan)
 //        2 cf_idcw bit (36),              /* Read Configuration (24o) */
 //        2 cf_dcw bit (36),               /* Addr=dau_buf.data(0), tally=65 */
 //        2 st_idcw bit (36),              /* Read/Clear Statistics (16o) */
-//        2 st_dcw bit (36),         /* Address=dau_buf.data(130), tally=315 */
+//        2 st_dcw bit (36),               /* Address=dau_buf.data(130), tally=315 */
 //        2 data (0:759) bit (18) unal;    /* Config & statistics area */
 
 // XXX need status register data format
@@ -1092,7 +1092,7 @@ static int read_configuration (uint dev_unit_idx, uint iom_unit_idx, uint chan)
 //        2 cf_idcw bit (36),              /* Read Configuration (24o) */
 //        2 cf_dcw bit (36),               /* Addr=dau_buf.data(0), tally=65 */
 //        2 st_idcw bit (36),              /* Read/Clear Statistics (16o) */
-//        2 st_dcw bit (36),         /* Address=dau_buf.data(130), tally=315 */
+//        2 st_dcw bit (36),               /* Address=dau_buf.data(130), tally=315 */
 //        2 data (0:759) bit (18) unal;    /* Config & statistics area */
 
 //  dau_buf.data:

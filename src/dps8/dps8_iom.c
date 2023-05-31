@@ -1268,47 +1268,47 @@ static MTAB iom_mod[] =
   {
     {
        MTAB_XTD | MTAB_VUN | \
-       MTAB_NMO | MTAB_NC,       /* mask               */
-      0,                         /* match              */
-      "MBX",                     /* print string       */
-      NULL,                      /* match string       */
-      NULL,                      /* validation routine */
-      iom_show_mbx,              /* display routine    */
-      NULL,                      /* value descriptor   */
-      NULL                       /* help string        */
+       MTAB_NMO | MTAB_NC,       /* Mask               */
+      0,                         /* Match              */
+      "MBX",                     /* Print string       */
+      NULL,                      /* Match string       */
+      NULL,                      /* Validation routine */
+      iom_show_mbx,              /* Display routine    */
+      NULL,                      /* Value descriptor   */
+      NULL                       /* Help string        */
     },
     {
       MTAB_XTD | MTAB_VUN | \
-      MTAB_NMO | MTAB_VALR,      /* mask               */
-      0,                         /* match              */
-      "CONFIG",                  /* print string       */
-      "CONFIG",                  /* match string       */
-      iom_set_config,            /* validation routine */
-      iom_show_config,           /* display routine    */
-      NULL,                      /* value descriptor   */
-      NULL                       /* help string        */
+      MTAB_NMO | MTAB_VALR,      /* Mask               */
+      0,                         /* Match              */
+      "CONFIG",                  /* Print string       */
+      "CONFIG",                  /* Match string       */
+      iom_set_config,            /* Validation routine */
+      iom_show_config,           /* Display routine    */
+      NULL,                      /* Value descriptor   */
+      NULL                       /* Help string        */
     },
     {
       MTAB_XTD | MTAB_VUN | \
-      MTAB_NMO | MTAB_VALR,      /* mask               */
-      0,                         /* match              */
-      (char *) "RESET",          /* print string       */
-      (char *) "RESET",          /* match string       */
-      iom_reset_unit,            /* validation routine */
-      NULL,                      /* display routine    */
-      (char *) "reset IOM unit", /* value descriptor   */
-      NULL                       /* help               */
+      MTAB_NMO | MTAB_VALR,      /* Mask               */
+      0,                         /* Match              */
+      (char *) "RESET",          /* Print string       */
+      (char *) "RESET",          /* Match string       */
+      iom_reset_unit,            /* Validation routine */
+      NULL,                      /* Display routine    */
+      (char *) "reset IOM unit", /* Value descriptor   */
+      NULL                       /* Help               */
     },
     {
       MTAB_XTD | MTAB_VDV | \
-      MTAB_NMO | MTAB_VALR,                 /* mask               */
-      0,                                    /* match              */
-      "NUNITS",                             /* print string       */
-      "NUNITS",                             /* match string       */
-      iom_set_units,                        /* validation routine */
-      iom_show_units,                       /* display routine    */
-      "Number of IOM units in the system",  /* value descriptor   */
-      NULL                                  /* help string        */
+      MTAB_NMO | MTAB_VALR,                 /* Mask               */
+      0,                                    /* Match              */
+      "NUNITS",                             /* Print string       */
+      "NUNITS",                             /* Match string       */
+      iom_set_units,                        /* Validation routine */
+      iom_show_units,                       /* Display routine    */
+      "Number of IOM units in the system",  /* Value descriptor   */
+      NULL                                  /* Help string        */
     },
     {
       0, 0, NULL, NULL, 0, 0, NULL, NULL
@@ -1323,7 +1323,7 @@ static DEBTAB iom_dt[] =
     { "WARN",   DBG_WARN,   NULL },
     { "DEBUG",  DBG_DEBUG,  NULL },
     { "TRACE",  DBG_TRACE,  NULL },
-    { "ALL",    DBG_ALL,    NULL }, // don't move as it messes up DBG message
+    { "ALL",    DBG_ALL,    NULL }, // Don't move as it messes up DBG message
     { NULL,     0,          NULL }
   };
 
@@ -1405,7 +1405,7 @@ static void init_memory_iom (uint iom_unit_idx)
                      (((word36) (iom_unit_data[iom_unit_idx].configSwIomBaseAddress & 07700U)) << 6) ;
     word3 iom_num = ((word36) iom_unit_data[iom_unit_idx].configSwMultiplexBaseAddress) & 3;
     word36 cmd = 5;       // 6 bits; 05 for tape, 01 for cards
-    word36 dev = 0;            // 6 bits: drive number
+    word36 dev = 0;       // 6 bits: drive number
 
     // is-IMU flag
     word36 imu = iom_unit_data[iom_unit_idx].config_sw_model == CONFIG_SW_MODEL_IMU ? 1 : 0;       // 1 bit
@@ -3222,7 +3222,7 @@ if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// termin
     }
 
     if (rc2 == IOM_CMD_PENDING) // handler still processing command, don't set
-      goto pending;                // terminate interrupt.
+      goto pending;             // terminate interrupt.
 
     // If IDCW and terminate and nondata
     if (IS_IDCW (p) && p->IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE && p->IDCW_CHAN_CMD == CHAN_CMD_NONDATA) {

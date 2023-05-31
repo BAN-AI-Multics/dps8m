@@ -67,7 +67,7 @@ static DEBTAB absi_dt[] =
     { "ERR",    DBG_ERR,    NULL },
     { "WARN",   DBG_WARN,   NULL },
     { "DEBUG",  DBG_DEBUG,  NULL },
-    { "ALL",    DBG_ALL,    NULL }, // don't move as it messes up DBG message
+    { "ALL",    DBG_ALL,    NULL }, // Don't move as it messes up DBG message
     { NULL,     0,          NULL }
   };
 
@@ -329,7 +329,7 @@ sim_printf ("absi host switch up\n");
       }
 
     if (p->IDCW_CHAN_CMD == 0)
-      return IOM_CMD_DISCONNECT; // don't do DCW list
+      return IOM_CMD_DISCONNECT; // Don't do DCW list
     return IOM_CMD_PROCEED;
   }
 

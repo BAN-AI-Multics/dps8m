@@ -343,7 +343,7 @@ bool test_tst_lock (void)
       sim_printf ("test_tst_lock pthread_mutex_lock tst_lock %d\n", rc);
     return false;
   }
-#endif
+#endif /* ifdef TESTING */
 
 #ifdef __APPLE__
 

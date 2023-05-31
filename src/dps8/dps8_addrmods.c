@@ -751,7 +751,7 @@ startCA:;
                            "IR_MOD(TM_RI): TPR.CA(After)=%06o\n",
                            cpu.TPR.CA);
 
-                // don't add register twice if next indirection faults
+                // Don't add register twice if next indirection faults
                 updateIWB (cpu.TPR.CA, (TM_RI|TD_N));
                 goto IR_MOD_2;
               } // TM_RI
@@ -761,7 +761,7 @@ startCA:;
                 updateIWB (cpu.TPR.CA, cpu.rTAG); // XXX guessing here...
                 goto IR_MOD_1;
               } // TM_IR
-          } // Tm
+          } // TM
 
         sim_printf ("%s(IR_MOD): unknown Tm??? %o\n",
                     __func__, GET_TM (cpu.rTAG));

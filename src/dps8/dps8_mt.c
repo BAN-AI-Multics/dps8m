@@ -132,7 +132,7 @@ static DEBTAB mt_dt [] =
     { "WARN",   DBG_WARN,   NULL },
     { "DEBUG",  DBG_DEBUG,  NULL },
     { "TRACE",  DBG_TRACE,  NULL },
-    { "ALL",    DBG_ALL,    NULL }, // don't move as it messes up DBG message
+    { "ALL",    DBG_ALL,    NULL }, // Don't move as it messes up DBG message
     { NULL,     0,          NULL }
   };
 
@@ -258,35 +258,35 @@ static MTAB mtp_mod [] =
   {
     {
       MTAB_XTD | MTAB_VDV | \
-      MTAB_NMO | MTAB_VALR,                 /* mask               */
-      0,                                    /* match              */
-      "NUNITS",                             /* print string       */
-      "NUNITS",                             /* match string       */
-      mtp_set_nunits,                       /* validation routine */
-      mtp_show_nunits,                      /* display routine    */
-      "Number of TAPE units in the system", /* value descriptor   */
-      NULL                                  /* help               */
+      MTAB_NMO | MTAB_VALR,                 /* Mask               */
+      0,                                    /* Match              */
+      "NUNITS",                             /* Print string       */
+      "NUNITS",                             /* Match string       */
+      mtp_set_nunits,                       /* Validation routine */
+      mtp_show_nunits,                      /* Display routine    */
+      "Number of TAPE units in the system", /* Value descriptor   */
+      NULL                                  /* Help               */
     },
     {
-      MTAB_XTD | MTAB_VUN | MTAB_VALR,      /* mask               */
-      0,                                    /* match              */
-      "BOOT_DRIVE",                         /* print string       */
-      "BOOT_DRIVE",                         /* match string       */
-      mtp_set_boot_drive,                   /* validation routine */
-      mtp_show_boot_drive,                  /* display routine    */
-      "Select the boot drive",              /* value descriptor   */
-      NULL                                  /* help               */
+      MTAB_XTD | MTAB_VUN | MTAB_VALR,      /* Mask               */
+      0,                                    /* Match              */
+      "BOOT_DRIVE",                         /* Print string       */
+      "BOOT_DRIVE",                         /* Match string       */
+      mtp_set_boot_drive,                   /* Validation routine */
+      mtp_show_boot_drive,                  /* Display routine    */
+      "Select the boot drive",              /* Value descriptor   */
+      NULL                                  /* Help               */
     },
     {
       MTAB_XTD | MTAB_VUN | \
-      MTAB_VALR | MTAB_NC,                  /* mask               */
-      0,                                    /* match              */
-      "NAME",                               /* print string       */
-      "NAME",                               /* match string       */
-      mtp_set_device_name,                  /* validation routine */
-      mtp_show_device_name,                 /* display routine    */
-      "Set the device name",                /* value descriptor   */
-      NULL                                  /* help               */
+      MTAB_VALR | MTAB_NC,                  /* Mask               */
+      0,                                    /* Match              */
+      "NAME",                               /* Print string       */
+      "NAME",                               /* Match string       */
+      mtp_set_device_name,                  /* Validation routine */
+      mtp_show_device_name,                 /* Display routine    */
+      "Set the device name",                /* Value descriptor   */
+      NULL                                  /* Help               */
     },
     { 0, 0, NULL, NULL, NULL, NULL, NULL, NULL }
   };
@@ -298,32 +298,32 @@ static t_stat mtp_reset (UNUSED DEVICE * dptr)
 
 DEVICE mtp_dev =
   {
-    "MTP",            /* name                */
-    mtp_unit,         /* units               */
-    NULL,             /* registers           */
-    mtp_mod,          /* modifiers           */
+    "MTP",            /* Name                */
+    mtp_unit,         /* Units               */
+    NULL,             /* Registers           */
+    mtp_mod,          /* Modifiers           */
     N_MTP_UNITS,      /* #units              */
-    10,               /* address radix       */
-    31,               /* address width       */
-    1,                /* address increment   */
-    8,                /* data radix          */
-    9,                /* data width          */
-    NULL,             /* examine routine     */
-    NULL,             /* deposit routine     */
-    mtp_reset,        /* reset routine       */
-    NULL,             /* boot routine        */
-    NULL,             /* attach routine      */
-    NULL,             /* detach routine      */
-    NULL,             /* context             */
-    DEV_DEBUG,        /* flags               */
-    0,                /* debug control flags */
-    mt_dt,            /* debug flag names    */
-    NULL,             /* memory size change  */
-    NULL,             /* logical name        */
-    NULL,             /* attach help         */
-    NULL,             /* help                */
-    NULL,             /* help context        */
-    NULL,             /* device description  */
+    10,               /* Address radix       */
+    31,               /* Address width       */
+    1,                /* Address increment   */
+    8,                /* Data radix          */
+    9,                /* Data width          */
+    NULL,             /* Examine routine     */
+    NULL,             /* Deposit routine     */
+    mtp_reset,        /* Reset routine       */
+    NULL,             /* Boot routine        */
+    NULL,             /* Attach routine      */
+    NULL,             /* Detach routine      */
+    NULL,             /* Context             */
+    DEV_DEBUG,        /* Flags               */
+    0,                /* Debug control flags */
+    mt_dt,            /* Debug flag names    */
+    NULL,             /* Memory size change  */
+    NULL,             /* Logical name        */
+    NULL,             /* Attach help         */
+    NULL,             /* Help                */
+    NULL,             /* Help context        */
+    NULL,             /* Device description  */
     NULL
   };
 
