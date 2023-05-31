@@ -170,27 +170,27 @@ UNIT fnp_unit [N_FNP_UNITS_MAX] = {
 
 static DEBTAB fnpDT [] =
   {
-    { "TRACE", DBG_TRACE, NULL },
+    { "TRACE",  DBG_TRACE,  NULL },
     { "NOTIFY", DBG_NOTIFY, NULL },
-    { "INFO", DBG_INFO, NULL },
-    { "ERR", DBG_ERR, NULL },
-    { "WARN", DBG_WARN, NULL },
-    { "DEBUG", DBG_DEBUG, NULL },
-    { "ALL", DBG_ALL, NULL }, // don't move as it messes up DBG message
-    { NULL, 0, NULL }
+    { "INFO",   DBG_INFO,   NULL },
+    { "ERR",    DBG_ERR,    NULL },
+    { "WARN",   DBG_WARN,   NULL },
+    { "DEBUG",  DBG_DEBUG,  NULL },
+    { "ALL",    DBG_ALL,    NULL }, // Don't move as it messes up DBG message
+    { NULL,     0,          NULL }
   };
 
 static MTAB fnpMod [] =
   {
     {
       MTAB_unitonly_value,
-      0,            /* match */
-      "CONFIG",     /* print string */
-      "CONFIG",         /* match string */
-      fnpSetConfig,         /* validation routine */
-      fnpShowConfig, /* display routine */
-      NULL,          /* value descriptor */
-      NULL   // help string
+      0,                                    /* Match              */
+      "CONFIG",                             /* Print string       */
+      "CONFIG",                             /* Match string       */
+      fnpSetConfig,                         /* Validation routine */
+      fnpShowConfig,                        /* Display routine    */
+      NULL,                                 /* Value descriptor   */
+      NULL                                  /* Help string        */
     },
 
     {

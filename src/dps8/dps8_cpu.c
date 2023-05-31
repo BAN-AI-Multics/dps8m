@@ -1004,119 +1004,117 @@ static uv_timer_t ev_poll_handle;
 static MTAB cpu_mod[] =
   {
     {
-      MTAB_unit_value,           // mask
-      0,                         // match
-      "CONFIG",                  // print string
-      "CONFIG",                  // match string
-      cpu_set_config,            // validation routine
-      cpu_show_config,           // display routine
-      NULL,                      // value descriptor
-      NULL                       // help
+      MTAB_unit_value,                /* Mask               */
+      0,                              /* Match              */
+      "CONFIG",                       /* Print string       */
+      "CONFIG",                       /* Match string       */
+      cpu_set_config,                 /* Validation routine */
+      cpu_show_config,                /* Display routine    */
+      NULL,                           /* Value descriptor   */
+      NULL                            /* Help               */
     },
 
-// RESET  -- reset CPU
-// INITIALIZE -- reset CPU
+// RESET (INITIALIZE) -- reset CPU
 
     {
-      MTAB_unit_value,           // mask
-      0,                         // match
-      "RESET",                   // print string
-      "RESET",                   // match string
-      simh_cpu_reset_unit,       // validation routine
-      NULL,                      // display routine
-      NULL,                      // value descriptor
-      NULL                       // help
-    },
-
-    {
-      MTAB_unit_value,           // mask
-      0,                         // match
-      "INITIALIZE",              // print string
-      "INITIALIZE",              // match string
-      simh_cpu_reset_unit,       // validation routine
-      NULL,                      // display routine
-      NULL,                      // value descriptor
-      NULL                       // help
-    },
-
-// INITAILIZEANDCLEAR -- reset CPU, clear Memory
-// IAC -- reset CPU, clear Memory
-
-    {
-      MTAB_unit_value,           // mask
-      0,                         // match
-      "INITIALIZEANDCLEAR",      // print string
-      "INITIALIZEANDCLEAR",      // match string
-      simh_cpu_reset_and_clear_unit,  // validation routine
-      NULL,                      // display routine
-      NULL,                      // value descriptor
-      NULL                       // help
+      MTAB_unit_value,                /* Mask               */
+      0,                              /* Match              */
+      "RESET",                        /* Print string       */
+      "RESET",                        /* Match string       */
+      simh_cpu_reset_unit,            /* Validation routine */
+      NULL,                           /* Display routine    */
+      NULL,                           /* Value descriptor   */
+      NULL                            /* Help               */
     },
 
     {
-      MTAB_unit_value,           // mask
-      0,                         // match
-      "IAC",                     // print string
-      "IAC",                     // match string
-      simh_cpu_reset_and_clear_unit,  // validation routine
-      NULL,                      // display routine
-      NULL,                      // value descriptor
-      NULL                       // help
+      MTAB_unit_value,                /* Mask               */
+      0,                              /* Match              */
+      "INITIALIZE",                   /* Print string       */
+      "INITIALIZE",                   /* Match string       */
+      simh_cpu_reset_unit,            /* Validation routine */
+      NULL,                           /* Display routine    */
+      NULL,                           /* Value descriptor   */
+      NULL                            /* Help               */
+    },
+
+// INITAILIZEANDCLEAR (IAC) -- reset CPU, clear Memory
+
+    {
+      MTAB_unit_value,                /* Mask               */
+      0,                              /* Match              */
+      "INITIALIZEANDCLEAR",           /* Print string       */
+      "INITIALIZEANDCLEAR",           /* Match string       */
+      simh_cpu_reset_and_clear_unit,  /* Validation routine */
+      NULL,                           /* Display routine    */
+      NULL,                           /* Value descriptor   */
+      NULL                            /* Help               */
     },
 
     {
-      MTAB_dev_value,            // mask
-      0,                         // match
-      "NUNITS",                  // print string
-      "NUNITS",                  // match string
-      cpu_set_nunits,            // validation routine
-      cpu_show_nunits,           // display routine
-      NULL,                      // value descriptor
-      NULL                       // help
+      MTAB_unit_value,                /* Mask               */
+      0,                              /* Match              */
+      "IAC",                          /* Print string       */
+      "IAC",                          /* Match string       */
+      simh_cpu_reset_and_clear_unit,  /* Validation routine */
+      NULL,                           /* Display routine    */
+      NULL,                           /* Value descriptor   */
+      NULL                            /* Help               */
     },
 
     {
-      MTAB_dev_value,            // mask
-      0,                         // match
-      "KIPS",                    // print string
-      "KIPS",                    // match string
-      cpu_set_kips,              // validation routine
-      cpu_show_kips,             // display routine
-      NULL,                      // value descriptor
-      NULL                       // help
+      MTAB_dev_value,                 /* Mask               */
+      0,                              /* Match              */
+      "NUNITS",                       /* Print string       */
+      "NUNITS",                       /* Match string       */
+      cpu_set_nunits,                 /* Validation routine */
+      cpu_show_nunits,                /* Display routine    */
+      NULL,                           /* Value descriptor   */
+      NULL                            /* Help               */
     },
 
     {
-      MTAB_dev_value,            // mask
-      0,                         // match
-      "STALL",                   // print string
-      "STALL",                   // match string
-      cpu_set_stall,             // validation routine
-      cpu_show_stall,            // display routine
-      NULL,                      // value descriptor
-      NULL                       // help
+      MTAB_dev_value,                 /* Mask               */
+      0,                              /* Match              */
+      "KIPS",                         /* Print string       */
+      "KIPS",                         /* Match string       */
+      cpu_set_kips,                   /* Validation routine */
+      cpu_show_kips,                  /* Display routine    */
+      NULL,                           /* Value descriptor   */
+      NULL                            /* Help               */
     },
 
     {
-      MTAB_unit_value,           // mask
-      0,                         // match
-      "DPS8M",                   // print string
-      "DPS8M",                   // match string
-      setCPUConfigDPS8M,         // validation routine
-      NULL,                      // display routine
-      NULL,                      // value descriptor
-      NULL                       // help
+      MTAB_dev_value,                 /* Mask               */
+      0,                              /* Match              */
+      "STALL",                        /* Print string       */
+      "STALL",                        /* Match string       */
+      cpu_set_stall,                  /* Validation routine */
+      cpu_show_stall,                 /* Display routine    */
+      NULL,                           /* Value descriptor   */
+      NULL                            /* Help               */
     },
 
     {
-      MTAB_unit_value,           // mask
-      0,                         // match
-      "L68",                     // print string
-      "L68",                     // match string
-      setCPUConfigL68,           // validation routine
-      NULL,                      // display routine
-      NULL,                      // value descriptor
-      NULL                       // help
+      MTAB_unit_value,                /* Mask               */
+      0,                              /* Match              */
+      "DPS8M",                        /* Print string       */
+      "DPS8M",                        /* Match string       */
+      setCPUConfigDPS8M,              /* Validation routine */
+      NULL,                           /* Display routine    */
+      NULL,                           /* Value descriptor   */
+      NULL                            /* Help               */
+    },
+
+    {
+      MTAB_unit_value,                /* Mask               */
+      0,                              /* Match              */
+      "L68",                          /* Print string       */
+      "L68",                          /* Match string       */
+      setCPUConfigL68,                /* Validation routine */
+      NULL,                           /* Display routine    */
+      NULL,                           /* Value descriptor   */
+      NULL                            /* Help               */
     },
 
     { 0, 0, NULL, NULL, NULL, NULL, NULL, NULL }
@@ -1133,8 +1131,7 @@ static DEBTAB cpu_dt[] =
     { "REGDUMPPR",   DBG_REGDUMPPR,   NULL },
     { "REGDUMPPPR",  DBG_REGDUMPPPR,  NULL },
     { "REGDUMPDSBR", DBG_REGDUMPDSBR, NULL },
-    { "REGDUMPFLT",  DBG_REGDUMPFLT,  NULL },
-    // don't move as it messes up DBG message
+    { "REGDUMPFLT",  DBG_REGDUMPFLT,  NULL }, // Don't move as it messes up DBG message
     { "REGDUMP",     DBG_REGDUMP,     NULL },
 
     { "ADDRMOD",     DBG_ADDRMOD,     NULL },
@@ -1144,8 +1141,7 @@ static DEBTAB cpu_dt[] =
     { "INFO",        DBG_INFO,        NULL },
     { "ERR",         DBG_ERR,         NULL },
     { "WARN",        DBG_WARN,        NULL },
-    { "DEBUG",       DBG_DEBUG,       NULL },
-    // don't move as it messes up DBG message
+    { "DEBUG",       DBG_DEBUG,       NULL }, // Don't move as it messes up DBG message
     { "ALL",         DBG_ALL,         NULL },
 
     { "FAULT",       DBG_FAULT,       NULL },
@@ -1201,7 +1197,7 @@ static bool watch_bits [MEMSIZE];
 char * str_SDW0 (char * buf, sdw0_s * SDW)
   {
     sprintf (buf, "ADDR=%06o R1=%o R2=%o R3=%o F=%o FC=%o BOUND=%o R=%o "
-             "E=%o W=%o P=%o U=%o G=%o C=%o EB=%o",
+                     "E=%o W=%o P=%o U=%o G=%o C=%o EB=%o",
              SDW->ADDR, SDW->R1,    SDW->R2, SDW->R3, SDW->DF,
              SDW->FC,   SDW->BOUND, SDW->R,  SDW->E,  SDW->W,
              SDW->P,    SDW->U,     SDW->G,  SDW->C,  SDW->EB);
@@ -1242,7 +1238,7 @@ static t_stat cpu_boot (UNUSED int32 cpu_unit_idx, UNUSED DEVICE * dptr)
 // a 'bank'. To map a CPU address to the simulated array, the CPU address is
 // divided into a bank number and an offset into that bank
 //
-//    bank_num = addr / SCBANK_SZ
+//    bank_num    = addr / SCBANK_SZ
 //    bank_offset = addr % SCBANK_SZ
 //
 // sc_addr_map[] maps bank numbers to offset in the simulated memory array
@@ -1303,7 +1299,7 @@ void setup_scbank_map (void)
           cpu.tweaks.l68_mode ?
             cpu.tweaks.isolts_mode ?
               l68_isolts_store_table [store_size] :
-              l68_store_table [store_size] :
+                l68_store_table [store_size] :
           dps8m_store_table [store_size];
 
         // Calculate the base address that will be assigned to the SCU
@@ -1366,7 +1362,7 @@ int lookup_cpu_mem_map (word24 addr)
 //      sn:  number[,number]
 //
 //  Additional numbers will be for multi-cpu systems.
-//  Other fields to be added.
+//  XXX: Other fields to be added.
 
 #ifndef PERF_STRIP
 static void get_serial_number (void)
@@ -2073,16 +2069,16 @@ static void do_LUF_fault (void)
     if (cpu.tweaks.isolts_mode)
       cpu.shadowTR = (word27) cpu.TR0 - (1024u << (is_priv_mode () ? 4 : cpu.CMR.luf));
 
-// That logic fails for test 785.
-//
+// The logic fails for test 785:
 // set slave mode, LUF time 16ms.
 // loop for 15.9 ms.
 // set master mode.
 // loop for 15.9 ms. The LUF should be noticed, and lufOccurred set.
 // return to slave mode. The LUF should fire, with the timer register
 // being set for 31.1 ms.
-// With out accurate cycle timing or simply fudging the results, I don't
-// see how to fix this one.
+
+// XXX: Without accurate cycle timing or simply fudging the results,
+// I don't see how to fix this one.
 
     doFault (FAULT_LUF, fst_zero, "instruction cycle lockup");
   }
@@ -2764,7 +2760,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                     }
                   else
                     set_cpu_cycle (FETCH_cycle);
-                  break;   // don't bump PPR.IC, instruction already did it
+                  break;   // Don't bump PPR.IC, instruction already did it
                 }
 
               if (ret == CONT_DIS)

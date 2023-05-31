@@ -236,8 +236,9 @@ orstlint:                                                                     \
 	-@$(RMF) ./orstlint.txt > /dev/null 2>&1 || $(TRUE)
 	@$(PRINTF) '%s\n' "Starting in 5s, saving output to orstlint.txt";sleep 5;\
 ( export CSTD="gnu11" && export CFLAGS="-DNO_C_ELLIPSIS -DSUNLINT=1" &&       \
-cd src/dps8 && $(MAKE) distclean >/dev/null 2>&1 && $(MAKE) -j1 -i -k -s dps8 \
-CC="$(ORSTLINT) -m64 -a -fd -m -v -x -err=warn -errshort=full -errfmt=src     \
+  export WITH_MGP_DEV=1 && export WITH_ABSI_DEV=1 && cd src/dps8 &&           \
+  $(MAKE) distclean >/dev/null 2>&1 && $(MAKE) -j1 -i -k -s dps8              \
+    CC="$(ORSTLINT) -m64 -a -fd -m -v -x -err=warn -errshort=full -errfmt=src \
 -errtags=yes -features=gcc_enums -erroff=\
 E_STATIC_UNUSED,E_CONSTANT_CONDITION,E_SEC_STRNCPY_WARN,\
 E_PTRDIFF_OVERFLOW,E_NOP_IF_STMT,E_BAD_PTR_CAST_ALIGN,\

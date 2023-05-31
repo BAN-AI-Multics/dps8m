@@ -85,8 +85,7 @@
 # define voff64_t long long int
 #endif /* ifndef voff64_t */
 
-#if !defined( __MINGW32__ ) && !defined( __MINGW64__ ) \
-  && !defined( CROSS_MINGW32 ) && !defined( CROSS_MINGW64 )
+#if !defined( __MINGW32__ ) && !defined( __MINGW64__ ) && !defined( CROSS_MINGW32 ) && !defined( CROSS_MINGW64 )
 # define HAVE_FNMATCH 1
 # define HAVE_MMAN    1
 #endif /* !Windows */

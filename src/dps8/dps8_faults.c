@@ -768,21 +768,21 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
     cpu.cu.OCB       = 0;
     cpu.cu.OCALL     = 0;
     cpu.cu.BOC       = 0;
-// FFVs are L68 only, so don't need this:
+// FFVs are L68 only, so we don't need this:
 //# ifdef DPS8M
-    //cpu.cu.PTWAM_ER = 0;
+  //cpu.cu.PTWAM_ER  = 0;
 //# endif
-    cpu.cu.CRT      = 0;
-    cpu.cu.RALR     = 0;
-    cpu.cu.SDWAM_ER = 0;
-    cpu.cu.OOSB     = 0;
-    cpu.cu.PARU     = 0;
-    cpu.cu.PARL     = 0;
-    cpu.cu.ONC1     = 0;
-    cpu.cu.ONC2     = 0;
-    cpu.cu.IA       = 0;
-    cpu.cu.IACHN    = 0;
-    cpu.cu.CNCHN    = 0;
+    cpu.cu.CRT       = 0;
+    cpu.cu.RALR      = 0;
+    cpu.cu.SDWAM_ER  = 0;
+    cpu.cu.OOSB      = 0;
+    cpu.cu.PARU      = 0;
+    cpu.cu.PARL      = 0;
+    cpu.cu.ONC1      = 0;
+    cpu.cu.ONC2      = 0;
+    cpu.cu.IA        = 0;
+    cpu.cu.IACHN     = 0;
+    cpu.cu.CNCHN     = 0;
 
     // Set control unit 'fault occurred during instruction fetch' flag
     cpu.cu.FIF       = 0;
@@ -879,7 +879,8 @@ void dlyDoFault (_fault faultNumber, _fault_subtype subFault,
 bool bG7Pending (void)
   {
     if (cpu.tweaks.l68_mode)
-     return cpu.g7Faults != 0 || cpu.FFV_faults != 0; // L68
+      return cpu.g7Faults != 0 || cpu.FFV_faults != 0; // L68
+
     return cpu.g7Faults != 0; // DPS8M
   }
 
@@ -887,6 +888,7 @@ bool bG7PendingNoTRO (void)
   {
     if (cpu.tweaks.l68_mode)
       return (cpu.g7Faults & (~ (1u << FAULT_TRO))) != 0 || cpu.FFV_faults != 0; // L68
+
     return (cpu.g7Faults & (~ (1u << FAULT_TRO))) != 0; // DPS8M
   }
 
@@ -961,7 +963,7 @@ void doG7Fault (bool allowTR)
          doFault (FAULT_EXF, fst_zero, "Execute fault");
        }
 
-     if (cpu.tweaks.l68_mode) { // L68
+     if (cpu.tweaks.l68_mode) {  // L68
        if (cpu.FFV_faults & 1u)  // FFV + 2 OC TRAP
          {
            cpu.FFV_faults &= ~1u;

@@ -49,12 +49,7 @@
 # define _POSIX_C_SOURCE 200809L
 #endif /* ifndef _POSIX_C_SOURCE */
 
-#if !defined  ( __MINGW32__ )    \
-  && !defined ( CROSS_MINGW32 )  \
-  && !defined ( CROSS_MINGW64 )  \
-  && !defined ( __MINGW64__ )    \
-  && !defined ( _MSC_VER )       \
-  && !defined ( _MSC_BUILD )
+#if !defined ( __MINGW32__ ) && !defined ( CROSS_MINGW32 ) && !defined ( CROSS_MINGW64 ) && !defined ( __MINGW64__ ) && !defined ( _MSC_VER ) && !defined ( _MSC_BUILD )
 
 # if defined( __sun ) && defined( __SVR4 )
 #  ifndef __EXTENSIONS__
@@ -625,7 +620,7 @@ abAppend(struct abuf *ab, const char *s, int len)
 static void
 abFree(const struct abuf *ab)
 {
-  free(ab->b);
+  free(ab->b); /* X-LINTED: FREE */
 }
 
 # ifdef LH_HINTS
@@ -1877,9 +1872,4 @@ pstrlen(const char *s)
   return ( len );
 }
 
-#endif /* if !defined ( __MINGW32__ )
-           && !defined ( CROSS_MINGW32 )
-           && !defined ( CROSS_MINGW64 )
-           && !defined ( __MINGW64__ )
-           && !defined ( _MSC_VER )
-           && !defined ( _MSC_BUILD ) */
+#endif /* if !defined ( __MINGW32__ ) && !defined ( CROSS_MINGW32 ) && !defined ( CROSS_MINGW64 ) && !defined ( __MINGW64__ ) && !defined ( _MSC_VER ) && !defined ( _MSC_BUILD ) */

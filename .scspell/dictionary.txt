@@ -112,6 +112,7 @@ mdmv
 memcpy
 mexp
 mgwp
+mkrebuild
 mksh
 moreutils
 mrsite
@@ -1616,6 +1617,7 @@ lfecho
 lflag
 lflg
 libgen
+libloaderapi
 libtelent
 lightgreen
 linecopy
@@ -1731,6 +1733,7 @@ maxdigits
 maxdrop
 maxexp
 maxexponent
+maxfd
 maxfiles
 maxhost
 maxlen
@@ -2021,6 +2024,7 @@ ntohs
 nulterm
 numerichost
 numericserv
+numfds
 numlen
 numnumts
 numone
@@ -6599,6 +6603,7 @@ gcda
 gnuc
 gpath
 grtags
+hpkg
 iefp
 ifdef
 ifeq
@@ -8211,6 +8216,37 @@ luuid
 FILEID: 268d2436-f2ea-11ed-9806-80ee73e9b8e7
 editmsg
 
+FILEID: 35c9cf5c-ebbf-11ed-8d34-80ee73e9b8e7
+acknr
+bytecount
+cblen
+cbpkt
+cbridge
+cbskt
+chopcode
+cindex
+clen
+clspkt
+conni
+conns
+copcode
+dstprc
+dumppkt
+foundone
+framenr
+pklen
+pknr
+pktype
+pktypes
+raddr
+rnow
+srandomdev
+srcprc
+statusconn
+sval
+tryagain
+unparse
+
 NATURAL:
 abandon
 abandoned
@@ -8488,6 +8524,7 @@ ascii
 asciidoc
 aside
 asked
+asking
 asks
 aspects
 assemble
@@ -8748,6 +8785,7 @@ brew
 brief
 bring
 brisket
+broadcast
 broken
 brotli
 brought
@@ -8893,6 +8931,8 @@ changes
 changing
 channel
 channels
+chaos
+chaosnet
 chap
 chapter
 chapters
@@ -9057,6 +9097,7 @@ compilers
 compiles
 compiling
 complaining
+complaints
 complement
 complemented
 complements
@@ -9155,6 +9196,7 @@ consult
 consume
 consumed
 consuming
+contact
 contained
 container
 containing
@@ -9195,6 +9237,7 @@ converted
 converter
 converting
 converts
+conveying
 convoluted
 cooked
 cookies
@@ -9503,6 +9546,7 @@ dialog
 diamond
 dice
 dictionary
+didn
 dies
 difference
 differences
@@ -9614,6 +9658,7 @@ documents
 docx
 dodgy
 does
+doesn
 doing
 dollar
 domain
@@ -9723,6 +9768,7 @@ emin
 emit
 emitted
 emphasis
+empirically
 emptied
 empty
 emulated
@@ -10483,6 +10529,7 @@ indications
 indicative
 indicator
 indicators
+indices
 indirect
 indirection
 indirects
@@ -10718,6 +10765,7 @@ kill
 killed
 kind
 kinds
+king
 kips
 kits
 klaus
@@ -10815,6 +10863,7 @@ lights
 lightweight
 like
 likely
+likewise
 likwid
 limitations
 limited
@@ -11258,6 +11307,7 @@ noninteractive
 nonlocal
 nonprivileged
 nonresident
+nonspecific
 nonstandard
 nonzero
 noon
@@ -11598,6 +11648,7 @@ pinning
 pipe
 pipelines
 pizzolato
+pkts
 place
 placed
 placeholders
@@ -11888,6 +11939,7 @@ raises
 random
 randomized
 randomly
+randomness
 range
 ranges
 rank
@@ -11902,6 +11954,7 @@ rate
 rates
 rather
 rawhide
+rcpt
 reached
 reaches
 reaching
@@ -12186,6 +12239,7 @@ retries
 retrieved
 retrieves
 retry
+retrying
 return
 returned
 returning
@@ -13210,6 +13264,7 @@ unmounted
 unnecessary
 unnormalized
 unofficial
+unordered
 unpacked
 unpacking
 unpadded

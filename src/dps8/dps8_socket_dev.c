@@ -66,9 +66,9 @@ static struct skc_state_s skc_state[N_SKC_UNITS_MAX];
 
 static struct
   {
-    int fd_unit[N_FDS]; // unit number that a FD is associated with; -1 is free.
+    int   fd_unit[N_FDS];     // unit number that a FD is associated with; -1 is free.
     word6 fd_dev_code[N_FDS]; // dev_code that a FD is associated with; -1 is free.
-    bool fd_nonblock[N_FDS]; // socket() call had NON_BLOCK set
+    bool  fd_nonblock[N_FDS]; // socket() call had NON_BLOCK set
     struct
       {
         enum
@@ -78,8 +78,8 @@ static struct
             unit_read
           } unit_state;
          //fd_set accept_fds;
-         int accept_fd;
-         int read_fd;
+         int  accept_fd;
+         int  read_fd;
          uint read_buffer_sz;
          uint words_processed;
       } unit_data[N_SKC_UNITS_MAX][N_DEV_CODES];
@@ -136,24 +136,24 @@ static t_stat skc_set_device_name (UNIT * uptr, UNUSED int32 value,
 static MTAB sk_mod [] =
   {
     {
-      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* mask */
-      0,            /* match */
-      "NUNITS",     /* print string */
-      "NUNITS",         /* match string */
-      sk_set_nunits, /* validation routine */
-      sk_show_nunits, /* display routine */
-      "Number of socket units in the system", /* value descriptor */
-      NULL          // help
+      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* Mask               */
+      0,                                          /* Match              */
+      "NUNITS",                                   /* Print string       */
+      "NUNITS",                                   /* Match string       */
+      sk_set_nunits,                              /* Validation routine */
+      sk_show_nunits,                             /* Display routine    */
+      "Number of socket units in the system",     /* Value descriptor   */
+      NULL                                        /* Help               */
     },
     {
-      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC, /* mask */
-      0,            /* match */
-      "NAME",     /* print string */
-      "NAME",         /* match string */
-      skc_set_device_name, /* validation routine */
-      skc_show_device_name, /* display routine */
-      "Set the device name", /* value descriptor */
-      NULL          // help
+      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC,  /* Mask               */
+      0,                                          /* Match              */
+      "NAME",                                     /* Print string       */
+      "NAME",                                     /* Match string       */
+      skc_set_device_name,                        /* Validation routine */
+      skc_show_device_name,                       /* Display routine    */
+      "Set the device name",                      /* Value descriptor   */
+      NULL                                        /* Help               */
     },
     MTAB_eol
   };
@@ -238,7 +238,7 @@ static DEBTAB sk_dt [] =
     {    "ERR",    DBG_ERR, NULL },
     {   "WARN",   DBG_WARN, NULL },
     {  "DEBUG",  DBG_DEBUG, NULL },
-    {    "ALL",    DBG_ALL, NULL }, // don't move as it messes up DBG message
+    {    "ALL",    DBG_ALL, NULL }, // Don't move as it messes up DBG message
     {     NULL,          0, NULL }
   };
 
@@ -248,33 +248,33 @@ static t_stat sk_reset (UNUSED DEVICE * dptr)
   }
 
 DEVICE skc_dev = {
-    "SKC",            /* name                */
-    sk_unit,          /* unit                */
-    NULL,             /* registers           */
-    sk_mod,           /* modifiers           */
-    N_SKC_UNITS,      /* number of units     */
-    10,               /* address radix       */
-    31,               /* address width       */
-    1,                /* address increment   */
-    8,                /* data radix          */
-    9,                /* data width          */
-    NULL,             /* examine routine     */
-    NULL,             /* deposit routine     */
-    sk_reset,         /* reset routine       */
-    NULL,             /* boot routine        */
-    NULL,             /* attach routine      */
-    NULL,             /* detach routine      */
-    NULL,             /* context             */
-    DEV_DEBUG,        /* flags               */
-    0,                /* debug control flags */
-    sk_dt,            /* debug flag names    */
-    NULL,             /* memory size change  */
-    NULL,             /* logical name        */
-    NULL,             /* attach help         */
-    NULL,             /* help                */
-    NULL,             /* help context        */
-    NULL,             /* device description  */
-    NULL              /* end                 */
+    "SKC",            /* Name                */
+    sk_unit,          /* Unit                */
+    NULL,             /* Registers           */
+    sk_mod,           /* Modifiers           */
+    N_SKC_UNITS,      /* Number of units     */
+    10,               /* Address radix       */
+    31,               /* Address width       */
+    1,                /* Address increment   */
+    8,                /* Data radix          */
+    9,                /* Data width          */
+    NULL,             /* Examine routine     */
+    NULL,             /* Deposit routine     */
+    sk_reset,         /* Reset routine       */
+    NULL,             /* Boot routine        */
+    NULL,             /* Attach routine      */
+    NULL,             /* Detach routine      */
+    NULL,             /* Context             */
+    DEV_DEBUG,        /* Flags               */
+    0,                /* Debug control flags */
+    sk_dt,            /* Debug flag names    */
+    NULL,             /* Memory size change  */
+    NULL,             /* Logical name        */
+    NULL,             /* Attach help         */
+    NULL,             /* Help                */
+    NULL,             /* Help context        */
+    NULL,             /* Device description  */
+    NULL              /* End                 */
 };
 
 void sk_init(void)
@@ -556,15 +556,15 @@ static void skt_listen (uint unit_idx, word6 dev_code, word36 * buffer)
 //       2 sockfd fixed bin,  // 0
 //       3 backlog fixed bin, // 1
 //       2 rc fixed bin;      // 2
-//       2 errno char(8);   // 3, 4
+//       2 errno char(8);     // 3, 4
 //
-// /* Tally 5 */
-// /* In: */
-// /*   sockfd */
+// /* Tally 5   */
+// /* In:       */
+// /*   sockfd  */
 // /*   backlog */
-// /* Out: */
-// /*   rc */
-// /*   errno */
+// /* Out:      */
+// /*   rc      */
+// /*   errno   */
 
     int socket_fd = (int) buffer[0];
     int backlog = (int) buffer[1];
@@ -638,7 +638,7 @@ sim_printf ("accept() socket     %d\n", socket_fd);
         return IOM_CMD_DISCONNECT; // send terminate interrupt
       }
     //FD_SET (socket_fd, & sk_data.unit_data[unit_idx][dev_code].accept_fds);
-    sk_data.unit_data[unit_idx][dev_code].accept_fd = socket_fd;
+    sk_data.unit_data[unit_idx][dev_code].accept_fd  = socket_fd;
     sk_data.unit_data[unit_idx][dev_code].unit_state = unit_accept;
     return IOM_CMD_DISCONNECT; // don't send terminate interrupt
   }
@@ -650,17 +650,17 @@ static void skt_close (uint unit_idx, word6 dev_code, word36 * buffer)
 //       2 rc fixed bin,      // 1
 //       2 errno char(8);     // 2, 3
 //
-// /* Tally 4 */
-// /* In: */
+// /* Tally 4  */
+// /* In:      */
 // /*   sockfd */
-// /* Out: */
-// /*   rc */
-// /*   errno */
+// /* Out:     */
+// /*   rc     */
+// /*   errno  */
 
     int socket_fd = (int) buffer[0];
 sim_printf ("close() socket     %d\n", socket_fd);
 
-    int rc = 0;
+    int rc     = 0;
     int _errno = 0;
     // Does this socket belong to us?
     if (sk_data.fd_unit[socket_fd] != (int) unit_idx || sk_data.fd_dev_code[socket_fd] != dev_code)
@@ -694,19 +694,19 @@ done:
 static int skt_read8 (uint unit_idx, word6 dev_code, UNUSED uint tally, word36 * buffer)
   {
 // dcl 1 SOCKETDEV_read_data8 aligned,
-//       2 sockfd fixed bin,                    // 0
-//       2 count  fixed bin, /* buffer size */  // 1
-//       2 rc     fixed bin,                    // 2
-//       2 errno  char(8),                      // 3,4
+//       2 sockfd fixed bin,                                  // 0
+//       2 count  fixed bin, /* buffer size */                // 1
+//       2 rc     fixed bin,                                  // 2
+//       2 errno  char(8),                                    // 3,4
 //       2 buffer char (0 refer (SOCKETDEV_read_data9.count); // 5,....
 
 /* Tally >= 5 */
-/* In: */
-/*   sockfd */
-/*   count */
-/* Out: */
-/*   rc */
-/*   buffer */
+/* In:        */
+/*   sockfd   */
+/*   count    */
+/* Out:       */
+/*   rc       */
+/*   buffer   */
 
     int socket_fd = (int) buffer[0];
     uint count = (uint) buffer[1];
@@ -729,10 +729,10 @@ static int skt_write8 (uint iom_unit_idx, uint chan, uint unit_idx, word6 dev_co
   {
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
 // dcl 1 SOCKETDEV_write_data8 aligned,
-//       2 sockfd fixed bin,                    // 0
-//       2 count  fixed bin, /* buffer size */  // 1
-//       2 rc     fixed bin,                    // 2
-//       2 errno  char(8),                      // 3,4
+//       2 sockfd fixed bin,                                  // 0
+//       2 count  fixed bin, /* buffer size */                // 1
+//       2 rc     fixed bin,                                  // 2
+//       2 errno  char(8),                                    // 3,4
 //       2 buffer char (0 refer (SOCKETDEV_read_data9.count); // 5,....
 
     if (tally < 5)
@@ -742,13 +742,13 @@ static int skt_write8 (uint iom_unit_idx, uint chan, uint unit_idx, word6 dev_co
       }
 
 /* Tally >= 5 */
-/* In: */
-/*   sockfd */
-/*   count */
-/* Out: */
-/*   rc */
-/*   errno */
-/*   buffer */
+/* In:        */
+/*   sockfd   */
+/*   count    */
+/* Out:       */
+/*   rc       */
+/*   errno    */
+/*   buffer   */
 
     int socket_fd = (int) buffer[0];
 sim_printf ("write8() socket     %d\n", socket_fd);
@@ -1134,7 +1134,7 @@ iom_cmd_rc_t skc_iom_cmd (uint iom_unit_idx, uint chan)
         sim_warn ("%s expected IDCW\n", __func__);
         return IOM_CMD_ERROR;
       }
-    return rc; //  don't continue down the dcw list.
+    return rc; //  Don't continue down the dcw list.
   }
 
 static void do_try_accept (uint unit_idx, word6 dev_code)

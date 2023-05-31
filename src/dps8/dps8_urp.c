@@ -87,7 +87,7 @@ static DEBTAB urp_dt [] =
     {   "WARN",   DBG_WARN, NULL },
     {  "DEBUG",  DBG_DEBUG, NULL },
     {  "TRACE",  DBG_TRACE, NULL },
-    {    "ALL",    DBG_ALL, NULL }, // don't move as it messes up DBG message
+    {    "ALL",    DBG_ALL, NULL }, // Don't move as it messes up DBG message
     {     NULL,          0, NULL }
   };
 
@@ -141,24 +141,24 @@ static MTAB urp_mod [] =
     { UNIT_WATCH, 0, "NOWATCH", "NOWATCH", 0, 0, NULL, NULL },
 #endif
     {
-      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* mask               */
-      0,                                          /* match              */
-      "NUNITS",                                   /* print string       */
-      "NUNITS",                                   /* match string       */
-      urpSetUnits,                                /* validation routine */
-      urpShowUnits,                               /* display routine    */
-      "Number of URP units in the system",        /* value descriptor   */
-      NULL                                        /* help               */
+      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* Mask               */
+      0,                                          /* Match              */
+      "NUNITS",                                   /* Print string       */
+      "NUNITS",                                   /* Match string       */
+      urpSetUnits,                                /* Validation routine */
+      urpShowUnits,                               /* Display routine    */
+      "Number of URP units in the system",        /* Value descriptor   */
+      NULL                                        /* Help               */
     },
     {
-      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC,  /* mask               */
-      0,                                          /* match              */
-      "NAME",                                     /* print string       */
-      "NAME",                                     /* match string       */
-      urpSetDeviceName,                           /* validation routine */
-      urpShowDeviceName,                          /* display routine    */
-      "Set the device name",                      /* value descriptor   */
-      NULL                                        /* help               */
+      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC,  /* Mask               */
+      0,                                          /* Match              */
+      "NAME",                                     /* Print string       */
+      "NAME",                                     /* Match string       */
+      urpSetDeviceName,                           /* Validation routine */
+      urpShowDeviceName,                          /* Display routine    */
+      "Set the device name",                      /* Value descriptor   */
+      NULL                                        /* Help               */
     },
 
     { 0, 0, NULL, NULL, 0, 0, NULL, NULL }
@@ -170,33 +170,33 @@ static t_stat urpReset (UNUSED DEVICE * dptr)
   }
 
 DEVICE urp_dev = {
-    "URP",        /* name                */
-    urp_unit,     /* unit                */
-    NULL,         /* registers           */
-    urp_mod,      /* modifiers           */
-    N_PRU_UNITS,  /* number of units     */
-    10,           /* address radix       */
-    24,           /* address width       */
-    1,            /* address increment   */
-    8,            /* data radix          */
-    36,           /* data width          */
-    NULL,         /* examine             */
-    NULL,         /* deposit             */
-    urpReset,     /* reset               */
-    NULL,         /* boot                */
-    NULL,         /* attach              */
-    NULL,         /* detach              */
-    NULL,         /* context             */
-    DEV_DEBUG,    /* flags               */
-    0,            /* debug control flags */
-    urp_dt,       /* debug flag names    */
-    NULL,         /* memory size change  */
-    NULL,         /* logical name        */
-    NULL,         /* help                */
-    NULL,         /* attach help         */
-    NULL,         /* attach context      */
-    NULL,         /* description         */
-    NULL          /* end                 */
+    "URP",        /* Name                */
+    urp_unit,     /* Unit                */
+    NULL,         /* Registers           */
+    urp_mod,      /* Modifiers           */
+    N_PRU_UNITS,  /* Number of units     */
+    10,           /* Address radix       */
+    24,           /* Address width       */
+    1,            /* Address increment   */
+    8,            /* Data radix          */
+    36,           /* Data width          */
+    NULL,         /* Examine             */
+    NULL,         /* Deposit             */
+    urpReset,     /* Reset               */
+    NULL,         /* Boot                */
+    NULL,         /* Attach              */
+    NULL,         /* Detach              */
+    NULL,         /* Context             */
+    DEV_DEBUG,    /* Flags               */
+    0,            /* Debug control flags */
+    urp_dt,       /* Debug flag names    */
+    NULL,         /* Memory size change  */
+    NULL,         /* Logical name        */
+    NULL,         /* Help                */
+    NULL,         /* Attach help         */
+    NULL,         /* Attach context      */
+    NULL,         /* Description         */
+    NULL          /* End                 */
 };
 
 /*
@@ -216,7 +216,7 @@ static iom_cmd_rc_t urpCmd (uint iomUnitIdx, uint chan) {
   if_sim_debug (DBG_TRACE, & urp_dev) dumpDCW (p->DCW, 0);
 #endif
  uint ctlrUnitIdx = get_ctlr_idx (iomUnitIdx, chan);
- uint devUnitIdx = cables->urp_to_urd[ctlrUnitIdx][p->IDCW_DEV_CODE].unit_idx;
+ uint devUnitIdx  = cables->urp_to_urd[ctlrUnitIdx][p->IDCW_DEV_CODE].unit_idx;
  //UNIT * unitp = & urp_unit [devUnitIdx];
  //int urp_unit_num = (int) URPUNIT_NUM (unitp);
  struct urpState * statep = & urpState[devUnitIdx];

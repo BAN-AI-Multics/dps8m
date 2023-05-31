@@ -215,6 +215,7 @@ mkdir -p "${HOME:-}/libuv-win32-i686" &&                                   \
     wget -v "https://github.com/libuv/libuv/archive/v1.x.zip" &&           \
     unzip -xa "v1.x.zip" && cd "libuv-1.x" && sh ./autogen.sh &&           \
     env CFLAGS="${GCFLAGS:-}" LDFLAGS="${GLDFLAGS:-}"                      \
+     CI_SKIP_MKREBUILD=1                                                   \
       ./configure --prefix="${HOME:-}/libuv-win32-i686"                    \
        --enable-static --disable-shared --host="i686-w64-mingw32" &&       \
     "${MAKE:-make}" -j "${CPUS:?}" && "${MAKE:-make}" install )
@@ -231,6 +232,7 @@ mkdir -p "${HOME:-}/libuv-build" &&                                        \
 mkdir -p "${HOME:-}/libuv-win32-x86_64" &&                                 \
 ( cd "${HOME:-}/libuv-build/libuv-1.x" && "${MAKE:-make}" distclean &&     \
     sh ./autogen.sh && env CFLAGS="${GCFLAGS:-}" LDFLAGS="${GLDFLAGS:-}"   \
+     CI_SKIP_MKREBUILD=1
       ./configure --prefix="${HOME:-}/libuv-win32-x86_64"                  \
        --enable-static --disable-shared --host="x86_64-w64-mingw32" &&     \
     "${MAKE:-make}" -j "${CPUS:?}" && "${MAKE:-make}" install &&           \
@@ -244,7 +246,8 @@ mkdir -p "${HOME:-}/libuv-win32-x86_64" &&                                 \
 do_sim32()
 {
 printf '%s\n' "######  Build 32-bit Windows dps8  ##########################"
-( cd .. && env CC="i686-w64-mingw32-gcc"                                   \
+( cd .. && "${MAKE:-make}" clean && env CC="i686-w64-mingw32-gcc"          \
+    CI_SKIP_MKREBUILD=1                                                    \
     CFLAGS="${GCFLAGS:-}                                                   \
             -I${HOME:-}/libuv-win32-i686/include                           \
             -D__MINGW64__ -D_WIN32                                         \
@@ -273,7 +276,8 @@ mkdir -p "bin/32-bit" &&                                                   \
 do_sim64()
 {
 printf '%s\n' "######  Build 64-bit Windows dps8  ##########################"
-( cd .. && env CC="x86_64-w64-mingw32-gcc"                                 \
+( cd .. && "${MAKE:-make}" clean && env CC="x86_64-w64-mingw32-gcc"        \
+    CI_SKIP_MKREBUILD=1                                                    \
     CFLAGS="${GCFLAGS:-}                                                   \
             -I${HOME:-}/libuv-win32-x86_64/include                         \
             -D__MINGW64__ -D_WIN32                                         \

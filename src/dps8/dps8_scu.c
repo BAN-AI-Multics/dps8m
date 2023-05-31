@@ -1004,8 +1004,7 @@ static DEBTAB scu_dt [] =
     { (char *) "ERR",    DBG_ERR,    NULL },
     { (char *) "WARN",   DBG_WARN,   NULL },
     { (char *) "DEBUG",  DBG_DEBUG,  NULL },
-    { (char *) "INTR",   DBG_INTR,   NULL },
-    // don't move as it messes up DBG messages
+    { (char *) "INTR",   DBG_INTR,   NULL }, // Don't move as it messes up DBG messages
     { (char *) "ALL",    DBG_ALL,    NULL },
     {  NULL,             0,          NULL }
   };
@@ -1245,61 +1244,21 @@ static uint64 set_SCU_clock (uint scu_unit_idx)
     // meaningful. The register is wide enough that overflow requires
     // several tens of years; thus it serves as a calendar containing
     // the number of microseconds since 0000 GMT, January 1, 1901
-    ///  Secs from Jan 1, 1901 to Jan 1, 1970 - 2 177 452 800
-    //   Seconds
-    /// uSecs from Jan 1, 1901 to Jan 1, 1970 - 2 177 452 800 000 000
-    //  uSeconds
+    ///  Secs from Jan 1, 1901 to Jan 1, 1970 - 2 177 452 800 Seconds
+    /// uSecs from Jan 1, 1901 to Jan 1, 1970 - 2 177 452 800 000 000 uSeconds
 
     struct timeval now;
     gettimeofday(& now, NULL);
 
-    if (scu [0].y2k) // subtract 20 years....
+    if (scu [0].y2k) // Apply clock skew when Y2K mode enabled
       {
-        // Back the clock up to just after the MR12.3 release (12/89
-        // according to https://www.multicians.org/chrono.html
-
-        // ticks at MR12.3 release
-        // date -d "1990-01-01 00:00:00 -9" +%s
-        // 631184400
-
-        // 12.3 was released 12/89
-        // 12.4 was released 12/90
-        // 12.5 was released 11/92
-
-#if 0
-        // 12.3 release was 25 years ago
-        // date --date='25 years ago' +%s; date +%s
-        // 645852697
-        // 1434771097
-        now.tv_sec -= (1434771097 - 645852697);
-#elif 0
-        // 12.5 release was 22 years ago
-
-        // date --date='22 years ago' +%s ; date +%s
-        // 744420783
-        // 1438644783
-        now.tv_sec -= (1438644783 - 744420783);
-#else
-// Hmm. Manifest constants are a bad idea. Today (2017-04-01) it was
-// discovered that the 12.3 5 year FNP window had expired. Compute a
-// new constant....
-
-        // 12.5 release was 22^H^H 24 years ago
-
-        // date --date='22 years ago' +%s ; date +%s
-        // 744420783
-        // 1438644783
-        //now.tv_sec -= (1438644783 - 744420783);
-
-        // $ date --date='24 years ago' +%s ; date +%s
-        // 733691934
-        // 1491074334
-        now.tv_sec -= (1491074334 - 733691934);
-
-#endif
-
+        // Back the clock up to just after the MR12.5 release
+        // $ date --date='30 years ago' +%s ; date +%s
+        // 1685451324
+        // 7738766524
+        now.tv_sec -= (1685451324 - 738766524); // XXX(jhj): make dynamic!
       }
-    uint64 UNIX_secs = (uint64) now.tv_sec;
+    uint64 UNIX_secs  = (uint64) now.tv_sec;
     uint64 UNIX_usecs = UNIX_secs * 1000000LL + (uint64) now.tv_usec;
 
     static uint64 last_UNIX_usecs = 0;

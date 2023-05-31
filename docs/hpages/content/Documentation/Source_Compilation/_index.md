@@ -760,7 +760,7 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 ## AIX
 
 * Ensure you are running a [supported release](https://www.ibm.com/support/pages/aix-support-lifecycle-information) of [**IBM AIX®**](https://www.ibm.com/products/aix) on a [supported platform](https://www.ibm.com/support/pages/system-aix-maps).
-  * **AIX** **7.2** and **7.3** on [**POWER8®** and **POWER9™**](https://www.ibm.com/it-infrastructure/power) systems are regularly tested by **The DPS8M Development Team**.
+  * **AIX** **7.2** (*TL5* *SP6*) and **7.3** (*TL0* *SP3*, *TL1* *SP2*) on [**POWER8®** and **POWER9™**](https://www.ibm.com/it-infrastructure/power) systems are regularly tested by **The DPS8M Development Team**.
 
 []()
 
@@ -868,9 +868,9 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 ## Haiku
 
 * Ensure you are running a recent release of [**Haiku**](https://www.haiku-os.org/) on a [supported **64-bit** platform](https://www.haiku-os.org/guides/building/port_status).
-  * Use '**SoftwareUpdater**' application to ensure your **Haiku** installation is up-to-date.
+  * Use the '**SoftwareUpdater**' application to ensure your **Haiku** installation is up-to-date.
 * **The DPS8M Development Team** regularly tests the simulator using the [nightly **Haiku** **x86_64** snapshots](https://download.haiku-os.org/nightly-images/x86_64/).
-  * **Haiku** **x86_64** (**`hrev56490`**) was used to verify the following instructions.
+  * **Haiku** **x86_64** (**`hrev57019`**) was used to verify the following instructions.
 
 ### Haiku prerequisites
 
@@ -902,8 +902,7 @@ The default **Haiku** installation includes the required header files, the recom
 
 ### Additional Haiku Notes
 
-* **Haiku** on **32-bit** platforms (*i.e.* **x86**, **x86_gcc2**) is **not** officially supported at this time.
-  * Support for **Haiku** on **32-bit** platforms is planned for a future release of the simulator.
+* **DPS8M** on **32-bit** **Haiku** platforms (*i.e.* **x86**, **x86_gcc2**) is **not** supported at this time.
 
 <br>
 
@@ -932,13 +931,13 @@ The default **Haiku** installation includes the required header files, the recom
 
 ## Linux
 
-* Most major **Linux** distributions using the [**GNU C Library**](https://www.gnu.org/software/libc/), [**Bionic**](https://developer.android.com/), [**uClibc-ng**](https://uclibc-ng.org/), and [**musl-libc**](https://www.musl-libc.org/) are supported.
+* Most major **Linux** distributions using the [**GNU C Library**](https://www.gnu.org/software/libc/), [**Bionic**](https://developer.android.com/), [**uClibc-ng**](https://uclibc-ng.org/), and [**musl-libc**](https://musl.libc.org/) are supported.
   * [**Debian GNU/Linux**](https://www.debian.org/) and derivatives ([**Raspberry Pi OS**](https://www.raspberrypi.com/software/)), **Red Hat** variants ([**Fedora**](https://fedoraproject.org/), [**CentOS Stream**](https://www.centos.org/centos-stream/), [**RHEL**](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux)) and compatibles ([**AlmaLinux**](https://almalinux.org/), [**Amazon Linux**](https://aws.amazon.com/amazon-linux-2/), [**Oracle Linux**](https://www.oracle.com/linux/)),  [**Alpine**](https://www.alpinelinux.org/), **SUSE** ([**SLES**](https://www.suse.com/products/server/), [**OpenSUSE**](https://www.opensuse.org/)), [**Void**](https://voidlinux.org/), and [**Ubuntu**](https://ubuntu.com/) are regularly tested on **Intel**, **ARM**, and **POWER** systems.
 
 ### Linux compilers
 
 * **GCC** **12** or later is recommended for optimal performance on most architectures including **Intel** and **ARM**.
-  * **The DPS8M Development Team** regularly tests and supports a wide range of Linux compilers, including **Clang**, AMD Optimizing C/C++ (**AOCC**), Arm C/C++ Compiler (**ARMClang**), GNU C (**GCC**) (*version* **8**+), IBM Advance Toolchain for Linux, IBM XL C/C++ for Linux (**XLC**), IBM Open XL C/C++ for Linux (**IBMClang**), Intel oneAPI DPC++/C++ (**ICX**), NVIDIA HPC SDK C Compiler (**NVC**), and Oracle Developer Studio (**SunCC**).
+  * **The DPS8M Development Team** regularly tests and supports a wide range of Linux compilers, including **Clang**, AMD Optimizing C/C++ (**AOCC**), Arm C/C++ Compiler (**ARMClang**), GNU C (**GCC**) (*version* **9**+), IBM Advance Toolchain for Linux, IBM XL C/C++ for Linux (**XLC**), IBM Open XL C/C++ for Linux (**IBMClang**), Intel oneAPI DPC++/C++ (**ICX**), NVIDIA HPC SDK C Compiler (**NVC**), and Oracle Developer Studio (**SunCC**).
 
   * **Red Hat** offers the [**Red Hat Developer Toolset**](https://developers.redhat.com/products/developertoolset/) for **Red Hat Enterprise Linux** and **CentOS Stream**, which provides up-to-date versions of **GCC** on a rapid release cycle, with *full support*.
     * The *Toolset* packages are also included in various downstream distributions such as **AlmaLinux**. These tools are regularly tested and highly recommended by **The DPS8M Development Team**. Check your distribution packager manager (*i.e.* '**`dnf search`**') for packages named '**`gcc-toolset-12`**', '**`gcc-toolset-13`**', or similar.
@@ -946,7 +945,7 @@ The default **Haiku** installation includes the required header files, the recom
   * **Canonical** similarly offers two [**Ubuntu Toolchain PPAs**](https://wiki.ubuntu.com/ToolChain#Toolchain_Updates), one providing **GCC** updates for release branches, and the other providing new **GCC** versions for both current and **LTS** releases, maintained by the Ubuntu Toolchain team.
     * For example, at the time of writing, Ubuntu 22.04 LTS ships **GCC 11.3** and **GCC 12.1**, and the **Toolchain PPAs** ship **GCC 12.3** and **GCC 13.1**. Although these packages are *not supported* by Canonical, they are regularly and successfully used by **The DPS8M Development Team**.
 
-  * **Intel®** **C++ Compiler** **Classic** (**ICC**) for Linux is ***no longer supported*** for building **DPS8M** (*as of* ***R3.0.0***):
+  * **Intel®** **C++ Compiler** **Classic** (**ICC**) **for Linux** is ***no longer supported*** for building **DPS8M** (*as of* ***R3.0.0***):
     * Users should upgrade to the current version of the [**Intel® oneAPI DPC++/C++** (**ICX**) **Compiler**](https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html).
     * **ICC** remains a supported compiler for building **DPS8M** on **Intel**-based **macOS** systems **only**.
     * Intel® has *deprecated* support for **ICC** and advises it will be retired the second half of 2023.
@@ -1093,13 +1092,13 @@ Examples of building the simulator on **Linux** using various popular compilers 
   ```sh
   env CFLAGS="-qtls -qarch=pwr8"          \
       CC="/opt/ibm/xlC/16.1.1/bin/c99_r"  \
-      CSTD="c11" NO_LTO=1
+      CSTD="c11" NO_LTO=1                 \
     make
   ```
 
   * When building on **POWER9** or higher systems, '`-qarch=pwr9`' should replace '`-qarch=pwr8`' in the above compiler invocation.
 
-  * Compilation using higher optimization levels (*e.g.* '`-O4`', '`-O5`', '`-qhot`', *etc.*) and/or enabling automatic parallelization (*i.e.* '`-qsmp`') is possible, but the resulting binaries have *not* been benchmarked or extensively tested by **The DPS8M Development Team**.
+  * Compilation using higher optimization levels (*e.g.* '`-O4`', '`-O5`', '`-qhot`', *etc.*) and/or enabling automatic parallelization (*i.e.* '`-qsmp`') may be possible, but the resulting binaries have *not* been benchmarked or tested by **The DPS8M Development Team**.
 
 #### NVIDIA HPC SDK C Compiler
 
@@ -1323,7 +1322,7 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
 
 [**crosstool-NG**](https://crosstool-ng.github.io/) is a versatile cross-toolchain generator, which can be used to generate **GCC**-based toolchains for a huge variety of architectures and operating systems (*mainly* **Linux**).
 
-**DPS8M** is regularly built by **The DPS8M Development Team** for many **Linux** architectures using **crosstool-NG** generated toolchains, utilizing both the [**glibc**](https://www.gnu.org/software/libc/) and [**musl**](https://www.musl-libc.org/) C libraries. The following **CT-NG** examples are intended to be instructive, but are by no means exhaustive.
+**DPS8M** is regularly built by **The DPS8M Development Team** for many **Linux** architectures using **crosstool-NG** generated toolchains, utilizing both the [**glibc**](https://www.gnu.org/software/libc/) and [**musl**](https://musl.libc.org/) C libraries. The following **CT-NG** examples are intended to be instructive, but are by no means exhaustive.
 
 ##### Linux/RV64
 
@@ -1440,7 +1439,7 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
 []()
 
 * [**Xcode**](https://developer.apple.com/xcode/) is required; it is **strongly recommended** to use the most recent release for optimal performance.
-  * Building with [**Intel® C++ Compiler Classic for macOS**](https://www.intel.com/content/www/us/en/developer/articles/tool/oneapi-standalone-components.html#dpcpp-cpp) (**`icc`**), version **2021.9.0** with update **2022.6.0** minimum, **2023.1.0** recommended, is supported.
+  * Building with [**Intel® C++ Compiler Classic for macOS**](https://www.intel.com/content/www/us/en/developer/articles/tool/oneapi-standalone-components.html#dpcpp-cpp) (**`icc`**), version **2021.9.0** (with update **2022.6.0** minimum, **2023.1.0** recommended), is supported.
   * While **ICC** remains a supported compiler for building **DPS8M** on **Intel**-based **macOS** systems, Intel® has *deprecated* support, and advises the **ICC** product will be retired in the second half of 2023.
   * At the time of writing, building the simulator on **macOS** using **GCC** is ***not recommended***.
 * The following instructions were verified using **macOS 13.4** with **Xcode 14.3.1** (Apple Clang 14.0.3).
@@ -1474,8 +1473,10 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 * Build using **Intel® C/C++ Compiler Classic for macOS** (**`icc`**):
 
   ```sh
-  env CC="icc" CFLAGS="-xHost" make
+  env CC="icc" make
   ```
+
+  * Use of the `NATIVE=1` build option (*i.e.* `env CC="icc" NATIVE=1 make`) is suggested for performance when building with **ICC**, if the binary is not intended for redistribution.
 
 ### macOS cross-compilation
 
@@ -1637,7 +1638,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 []()
 
-* Microsoft **Windows** supports various development and runtime environments, including [**MSVCRT**/**UCRT**](https://docs.microsoft.com/en-us/cpp/)[/**MinGW**](https://www.mingw-w64.org/), [**Cygwin**](https://www.cygwin.com/), [**Midipix**](https://midipix.org/), [**MSYS2**](https://www.msys2.org/), [**UWIN**](https://github.com/att/uwin), [**UWP**](https://docs.microsoft.com/en-us/windows/uwp/), and others.
+* Microsoft **Windows** supports various development and runtime environments, including [**MSVCRT**](https://docs.microsoft.com/en-us/cpp/)[/**MinGW**](https://www.mingw-w64.org/), [**Cygwin**](https://www.cygwin.com/), [**Midipix**](https://midipix.org/), [**MSYS2**](https://www.msys2.org/), [**UWIN**](https://github.com/att/uwin), [**UWP**](https://docs.microsoft.com/en-us/windows/uwp/), and others.
   * Care must be taken to avoid mixing incompatible libraries and tools.
 
 []()
@@ -1677,7 +1678,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
        * `pkg-config`
        * `unzip`
        * `wget`
-    4. **Most importantly**, invoke the **`cygcheck`** utility (*i.e.* `cygcheck -cv | grep -v "OK$"`) to verify the integrity of all currently installed packages and correct any problems before continuing.
+    4. **Most importantly**, invoke the **`cygcheck`** utility (*i.e.* `cygcheck -cv`) to verify the integrity of all currently installed packages and correct any problems before continuing.
 
 #### Standard Cygwin compilation
 
@@ -1693,7 +1694,7 @@ The following commands will download and cross-compile a local native **`libuv`*
 
 You **must** perform a '`make distclean`' followed by an '`rm -rf ${HOME}/libuv-build`' before building for a different target (or changing build flags).
 
-In the following cross-compilation examples, the *latest* **`libuv`** sources (from the `v1.x` *git* branch) are used, but the current official release (available from https://libuv.org/) can also be used.
+In the following cross-compilation examples, the *latest* **`libuv`** sources (from the `v1.x` *git* branch) are used, but the current official release (available from `https://libuv.org/`) can also be used.
 
 ##### Windows i686
 
@@ -1765,7 +1766,7 @@ In the following cross-compilation examples, the *latest* **`libuv`** sources (f
 
 This section documents the procedure for building Windows Cygwin binaries using a Unix-based host system to download and cross-compile **`libuv`** library and then cross-compile the simulator.
 
-In the following cross-compilation examples, the *latest* **`libuv`** sources (from the `v1.x` *git* branch) are used, but the current official release (available from https://libuv.org/) can also be used.
+In the following cross-compilation examples, the *latest* **`libuv`** sources (from the `v1.x` *git* branch) are used, but the current official release (available from `https://libuv.org/`) can also be used.
 
 * Using **GCC** from the [**Fedora Cygwin cross-compiler toolchain**](https://copr.fedorainfracloud.org/coprs/yselkowitz/cygwin/) (maintained by [Yaakov Selkowitz](mailto:yselkowitz@cygwin.com)) to cross-compile a **64-bit** Windows Cygwin executable (*depending on `cygwin1.dll`*):
 
@@ -1823,7 +1824,7 @@ The [**LLVM-MinGW Clang**](https://github.com/mstorsjo/llvm-mingw) toolchain sup
 
 The [**LLVM-MinGW Docker Container**](https://hub.docker.com/r/mstorsjo/llvm-mingw/) provides pre-built and fully configured **LLVM-MinGW** toolchains (including appropriate compiler symlinks) which are regularly used by **The DPS8M Development Team**.
 
-In the following cross-compilation examples, the *latest* **`libuv`** sources (from the `v1.x` *git* branch) are used, but the current official release (available from https://libuv.org/) can also be used.
+In the following cross-compilation examples, the *latest* **`libuv`** sources (from the `v1.x` *git* branch) are used, but the current official release (available from `https://libuv.org/`) can also be used.
 
 #### Windows i686
 
@@ -1938,7 +1939,7 @@ The [**MinGW-w64 GCC**](https://www.mingw-w64.org/) toolchain supports building 
 * Version **9.0** is the *minimum* version of **MinGW-w64** tested with **DPS8M**; version **10.0** is *recommended*.
 * **The DPS8M Development Team** regularly cross-compiles **Windows** executables using **GCC**-based **MinGW-w64** toolchains on **Alpine Linux** and **Fedora Linux** host systems.
 
-In the following cross-compilation examples, the *latest* **`libuv`** sources (from the `v1.x` *git* branch) are used, but the current official release (available from https://libuv.org/) can also be used.
+In the following cross-compilation examples, the *latest* **`libuv`** sources (from the `v1.x` *git* branch) are used, but the current official release (available from `https://libuv.org/`) can also be used.
 
 #### Windows i686
 

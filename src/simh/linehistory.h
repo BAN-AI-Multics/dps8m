@@ -52,12 +52,7 @@
 #ifndef __LINENOISE_H
 # define __LINENOISE_H
 
-# if !defined ( __MINGW32__ )   \
-  && !defined ( CROSS_MINGW32 ) \
-  && !defined ( CROSS_MINGW64 ) \
-  && !defined ( __MINGW64__ )   \
-  && !defined ( _MSC_VER )      \
-  && !defined ( _MSC_BUILD )
+# if !defined ( __MINGW32__ ) && !defined ( CROSS_MINGW32 ) && !defined ( CROSS_MINGW64 ) && !defined ( __MINGW64__ ) && !defined ( _MSC_VER ) && !defined ( _MSC_BUILD )
 
 #  ifndef HAVE_LINEHISTORY
 #   define HAVE_LINEHISTORY
@@ -100,11 +95,6 @@ void linenoiseMaskModeEnable(void);
 void linenoiseMaskModeDisable(void);
 #  endif /* ifdef LH_MASKMODE */
 
-# endif /* if !defined (__MINGW32__)   \
-           && !defined (__MINGW64__)   \
-           && !defined (CROSS_MINGW32) \
-           && !defined (CROSS_MINGW64) \
-           && !defined (_MSC_VER)      \
-           && !defined (_MSC_BUILD) */
+# endif /* if !defined (__MINGW32__) && !defined (__MINGW64__) && !defined (CROSS_MINGW32) && !defined (CROSS_MINGW64) && !defined (_MSC_VER) && !defined (_MSC_BUILD) */
 
 #endif /* if __LINENOISE_H */

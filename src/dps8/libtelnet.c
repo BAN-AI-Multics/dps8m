@@ -208,10 +208,12 @@ static void _send(telnet_t *telnet, const char *buffer,
 /* to send bags of unsigned chars */
 #define _sendu(t, d, s) _send((t), (const char*)(d), (s))
 
-/* check if we support a particular telopt; if us is non-zero, we
+/*
+ * check if we support a particular telopt; if us is non-zero, we
  * check if we (local) supports it, otherwise we check if he (remote)
  * supports it.  return non-zero if supported, zero if not supported.
  */
+
 static __inline__ int _check_telopt(telnet_t *telnet, unsigned char telopt,
                                     int us) {
         int i;
@@ -278,12 +280,14 @@ static __inline__ void _set_rfc1143(telnet_t *telnet, unsigned char telopt,
                 }
         }
 
-        /* we're going to need to track state for it, so grow the queue
+        /*
+         * we're going to need to track state for it, so grow the queue
          * by 4 (four) elements and put the telopt into it; bail on allocation
          * error.  we go by four because it seems like a reasonable guess as
          * to the number of enabled options for most simple code, and it
          * allows for an acceptable number of reallocations for complex code.
          */
+
 #define QUANTUM 4
     /* Did we reach the end of the table? */
        if (i >= telnet->q_size) {
@@ -461,7 +465,8 @@ static void _negotiate(telnet_t *telnet, unsigned char telopt) {
         }
 }
 
-/* process an ENVIRON/NEW-ENVIRON subnegotiation buffer
+/*
+ * process an ENVIRON/NEW-ENVIRON subnegotiation buffer
  *
  * the algorithm and approach used here is kind of a hack,
  * but it reduces the number of memory allocations we have
@@ -473,6 +478,7 @@ static void _negotiate(telnet_t *telnet, unsigned char telopt) {
  * value strings are NUL-terminated, all while fitting inside
  * of the original buffer.
  */
+
 static int _environ_telnet(telnet_t *telnet, unsigned char type,
                            char* buffer, size_t size) {
         telnet_event_t ev;
@@ -663,9 +669,11 @@ static int _ttype_telnet(telnet_t *telnet, const char* buffer, size_t size) {
         return 0;
 }
 
-/* process a subnegotiation buffer; return non-zero if the current buffer
+/*
+ * process a subnegotiation buffer; return non-zero if the current buffer
  * must be aborted and reprocessed.
  */
+
 static int _subnegotiate(telnet_t *telnet) {
         telnet_event_t ev;
 
@@ -726,7 +734,7 @@ void telnet_free(telnet_t *telnet) {
         }
 
         /* free the telnet structure itself */
-        free(telnet);
+        free(telnet); /* X-LINTED: FREE */
 }
 
 /* push a byte into the telnet buffer */
@@ -810,8 +818,8 @@ static void _process(telnet_t *telnet, const char *buffer, size_t size) {
                                 telnet->eh(telnet, &ev, telnet->ud);
                                 byte           = (unsigned char) buffer[i];
                         }
-                        // any byte following '\r' other than '\n' or '\0' is invalid,
-                        // so pass both \r and the byte
+                        /* any byte following '\r' other than '\n' or '\0' is invalid, */
+                        /* so pass both \r and the byte */
                         start = i;
                         if (byte == '\0')
                                 ++start;
@@ -918,10 +926,12 @@ static void _process(telnet_t *telnet, const char *buffer, size_t size) {
                                         telnet->state = TELNET_STATE_SB_DATA;
                                 }
                                 break;
-                        /* something else -- protocol error.  attempt to process
+                        /*
+                         * Something else -- protocol error.  attempt to process
                          * content in subnegotiation buffer, then evaluate the
                          * given command as an IAC code.
                          */
+
                         default:
                                 _error(telnet, __LINE__, __func__, TELNET_EPROTOCOL, 0,
                                                 "unexpected byte after IAC inside SB: %d",
@@ -931,17 +941,22 @@ static void _process(telnet_t *telnet, const char *buffer, size_t size) {
                                 start = i + 1;
                                 telnet->state = TELNET_STATE_IAC;
 
-                                /* process subnegotiation; see comment in
+                                /*
+                                 * Process subnegotiation; see comment in
                                  * TELNET_STATE_SB_DATA_IAC about invoking telnet_recv()
                                  */
+
                                 if (_subnegotiate(telnet) != 0) {
                                         telnet_recv(telnet, &buffer[start], size - start);
                                         return;
                                 } else {
-                                        /* recursive call to get the current input byte processed
+
+                                        /*
+                                         * Recursive call to get the current input byte processed
                                          * as a regular IAC command.  we could use a goto, but
                                          * that would be gross.
                                          */
+
                                         _process(telnet, (char *)&byte, 1);
                                 }
                                 break;

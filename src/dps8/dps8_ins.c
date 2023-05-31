@@ -267,11 +267,11 @@ static void read_tra_op (void)
 
             // C(PPR.PRR) -> C(PRn.RNR)
             // C(PPR.PSR) -> C(PRn.SNR)
-            // C(PPR.IC) -> C(PRn.WORDNO)
-            // 000000 -> C(PRn.BITNO)
+            // C(PPR.IC)  -> C(PRn.WORDNO)
+            // 000000     -> C(PRn.BITNO)
             cpu.PR[n].RNR = cpu.PPR.PRR;
 // According the AL39, the PSR is 'undefined' in absolute mode.
-// ISOLTS thinks means don't change the operand
+// ISOLTS thinks it means "don't change the operand"
             if (get_addr_mode () == APPEND_mode)
               cpu.PR[n].SNR = cpu.PPR.PSR;
             cpu.PR[n].WORDNO = (cpu.PPR.IC + 1) & MASK18;
@@ -573,10 +573,10 @@ static void words2scu (word36 * words)
 
     // words[0]
 
-    cpu.PPR.PRR         = getbits36_3  (words[0], 0);
-    cpu.PPR.PSR         = getbits36_15 (words[0], 3);
-    cpu.PPR.P           = getbits36_1  (words[0], 18);
-    cpu.cu.XSF          = getbits36_1  (words[0], 19);
+    cpu.PPR.PRR           = getbits36_3  (words[0], 0);
+    cpu.PPR.PSR           = getbits36_15 (words[0], 3);
+    cpu.PPR.P             = getbits36_1  (words[0], 18);
+    cpu.cu.XSF            = getbits36_1  (words[0], 19);
 sim_debug (DBG_TRACEEXT, & cpu_dev, "%s sets XSF to %o\n", __func__, cpu.cu.XSF);
     //cpu.cu.SDWAMM       = getbits36_1  (words[0], 20);
     //cpu.cu.SD_ON        = getbits36_1  (words[0], 21);
@@ -8145,7 +8145,7 @@ elapsedtime ();
                   break;
 
                 default:
-                  // XXX Guessing values; also don't know if this is actually a fault
+                  // XXX Guessing values; also we don't know if this is actually a fault
                   doFault (FAULT_IPR,
                            fst_ill_mod,
                            "Illegal register select value");
@@ -9183,7 +9183,7 @@ static int emCall (void)
     {
         case 1:     // putc9 - put 9-bit char in AL to stdout
         {
-            if (cpu.rA > 0xff)  // don't want no 9-bit bytes here!
+            if (cpu.rA > 0xff)  // Don't want no 9-bit bytes here!
                 break;
 
             char c = cpu.rA & 0x7f;

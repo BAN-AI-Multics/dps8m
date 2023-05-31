@@ -151,7 +151,7 @@ static DEBTAB prt_dt[] =
     { "ERR",    DBG_ERR,    NULL },
     { "WARN",   DBG_WARN,   NULL },
     { "DEBUG",  DBG_DEBUG,  NULL },
-    { "ALL",    DBG_ALL,    NULL }, /* don't move as it messes up DBG message */
+    { "ALL",    DBG_ALL,    NULL }, /* Don't move as it messes up DBG message */
     { NULL,     0,          NULL }
   };
 
@@ -164,98 +164,98 @@ static MTAB prt_mod[] =
     { UNIT_WATCH, 0, "NOWATCH", "NOWATCH", 0, 0, NULL, NULL },
 #endif
     {
-      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* mask               */
-      0,                                          /* match              */
-      "NUNITS",                                   /* print string       */
-      "NUNITS",                                   /* match string       */
-      prt_set_nunits,                             /* validation routine */
-      prt_show_nunits,                            /* display routine    */
-      "Number of PRT units in the system",        /* value descriptor   */
-      NULL                                        /* help               */
+      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* Mask               */
+      0,                                          /* Match              */
+      "NUNITS",                                   /* Print string       */
+      "NUNITS",                                   /* Match string       */
+      prt_set_nunits,                             /* Validation routine */
+      prt_show_nunits,                            /* Display routine    */
+      "Number of PRT units in the system",        /* Value descriptor   */
+      NULL                                        /* Help               */
     },
     {
       MTAB_XTD | MTAB_VDV  | MTAB_NMO | \
-                 MTAB_VALR | MTAB_NC,             /* mask               */
-      0,                                          /* match              */
-      "PATH",                                     /* print string       */
-      "PATH",                                     /* match string       */
-      prt_set_path,                               /* validation routine */
-      prt_show_path,                              /* display routine    */
-      "Path to write PRT files",                  /* value descriptor   */
-      NULL                                        /* help               */
+                 MTAB_VALR | MTAB_NC,             /* Mask               */
+      0,                                          /* Match              */
+      "PATH",                                     /* Print string       */
+      "PATH",                                     /* Match string       */
+      prt_set_path,                               /* Validation routine */
+      prt_show_path,                              /* Display routine    */
+      "Path to write PRT files",                  /* Value descriptor   */
+      NULL                                        /* Help               */
     },
     {
-      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC,  /* mask               */
-      0,                                          /* match              */
-      "NAME",                                     /* print string       */
-      "NAME",                                     /* match string       */
-      prt_set_device_name,                        /* validation routine */
-      prt_show_device_name,                       /* display routine    */
-      "Select the printer name",                  /* value descriptor   */
-      NULL                                        /* help               */
+      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC,  /* Mask               */
+      0,                                          /* Match              */
+      "NAME",                                     /* Print string       */
+      "NAME",                                     /* Match string       */
+      prt_set_device_name,                        /* Validation routine */
+      prt_show_device_name,                       /* Display routine    */
+      "Select the printer name",                  /* Value descriptor   */
+      NULL                                        /* Help               */
     },
 
     {
-      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC,  /* mask               */
-      0,                                          /* match              */
-      "MODEL",                                    /* print string       */
-      "MODEL",                                    /* match string       */
-      prt_set_device_model,                       /* validation routine */
-      prt_show_device_model,                      /* display routine    */
-      "Select the printer model",                 /* value descriptor   */
-      NULL                                        /* help               */
+      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC,  /* Mask               */
+      0,                                          /* Match              */
+      "MODEL",                                    /* Print string       */
+      "MODEL",                                    /* Match string       */
+      prt_set_device_model,                       /* Validation routine */
+      prt_show_device_model,                      /* Display routine    */
+      "Select the printer model",                 /* Value descriptor   */
+      NULL                                        /* Help               */
     },
     {
-      MTAB_XTD | MTAB_VUN,                        /* mask               */
-      0,                                          /* match              */
-      (char *) "CONFIG",                          /* print string       */
-      (char *) "CONFIG",                          /* match string       */
-      prt_set_config,                             /* validation routine */
-      prt_show_config,                            /* display routine    */
-      NULL,                                       /* value descriptor   */
-      NULL,                                       /* help               */
+      MTAB_XTD | MTAB_VUN,                        /* Mask               */
+      0,                                          /* Match              */
+      (char *) "CONFIG",                          /* Print string       */
+      (char *) "CONFIG",                          /* Match string       */
+      prt_set_config,                             /* Validation routine */
+      prt_show_config,                            /* Display routine    */
+      NULL,                                       /* Value descriptor   */
+      NULL,                                       /* Help               */
     },
     {
-      MTAB_XTD | MTAB_VUN | MTAB_NMO | MTAB_VALR, /* mask               */
-      0,                                          /* match              */
-      "READY",                                    /* print string       */
-      "READY",                                    /* match string       */
-      prt_set_ready,                              /* validation routine */
-      NULL,                                       /* display routine    */
-      NULL,                                       /* value descriptor   */
-      NULL                                        /* help               */
+      MTAB_XTD | MTAB_VUN | MTAB_NMO | MTAB_VALR, /* Mask               */
+      0,                                          /* Match              */
+      "READY",                                    /* Print string       */
+      "READY",                                    /* Match string       */
+      prt_set_ready,                              /* Validation routine */
+      NULL,                                       /* Display routine    */
+      NULL,                                       /* Value descriptor   */
+      NULL                                        /* Help               */
     },
     { 0, 0, NULL, NULL, 0, 0, NULL, NULL }
   };
 
 DEVICE prt_dev = {
-    "PRT",        /* name                */
-    prt_unit,     /* unit                */
-    NULL,         /* registers           */
-    prt_mod,      /* modifiers           */
-    N_PRT_UNITS,  /* number of units     */
-    10,           /* address radix       */
-    24,           /* address width       */
-    1,            /* address increment   */
-    8,            /* data radix          */
-    36,           /* data width          */
-    NULL,         /* examine             */
-    NULL,         /* deposit             */
-    prt_reset,    /* reset               */
-    NULL,         /* boot                */
-    NULL,         /* attach              */
-    NULL,         /* detach              */
-    NULL,         /* context             */
-    DEV_DEBUG,    /* flags               */
-    0,            /* debug control flags */
-    prt_dt,       /* debug flag names    */
-    NULL,         /* memory size change  */
-    NULL,         /* logical name        */
-    NULL,         /* help                */
-    NULL,         /* attach help         */
-    NULL,         /* attach context      */
-    NULL,         /* description         */
-    NULL          /* end                 */
+    "PRT",        /* Name                */
+    prt_unit,     /* Unit                */
+    NULL,         /* Registers           */
+    prt_mod,      /* Modifiers           */
+    N_PRT_UNITS,  /* Number of units     */
+    10,           /* Address radix       */
+    24,           /* Address width       */
+    1,            /* Address increment   */
+    8,            /* Data radix          */
+    36,           /* Data width          */
+    NULL,         /* Examine             */
+    NULL,         /* Deposit             */
+    prt_reset,    /* Reset               */
+    NULL,         /* Boot                */
+    NULL,         /* Attach              */
+    NULL,         /* Detach              */
+    NULL,         /* Context             */
+    DEV_DEBUG,    /* Flags               */
+    0,            /* Debug control flags */
+    prt_dt,       /* Debug flag names    */
+    NULL,         /* Memory size change  */
+    NULL,         /* Logical name        */
+    NULL,         /* Help                */
+    NULL,         /* Attach help         */
+    NULL,         /* Attach context      */
+    NULL,         /* Description         */
+    NULL          /* End                 */
 };
 
 typedef struct
