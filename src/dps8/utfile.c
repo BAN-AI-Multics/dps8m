@@ -150,9 +150,11 @@ utfile_mkstemps(char *request_pattern, int suffix_length)
     }
 
   uint32_t h = 0;  /* initial hash value */
+#if __STDC_VERSION__ < 201112L
   /* LINTED E_OLD_STYLE_FUNC_DECL */
   void *(*mallocptr)() = malloc;
   h = hash32s(&mallocptr, sizeof(mallocptr), h);
+#endif /* if __STDC_VERSION__ < 201112L */
   void *small = malloc(1);
   h = hash32s(&small, sizeof(small), h);
   FREE(small);

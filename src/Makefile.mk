@@ -415,7 +415,7 @@ endif
 
 ifeq ($(UNAME_S),FreeBSD)
   ifeq ($(CROSS),)
-    ifneq ($(CYGWIN_MINGW-CROSS),1)
+    ifneq ($(CYGWIN_MINGW_CROSS),1)
       ATOMICS?=BSD
     endif
   endif
@@ -610,9 +610,9 @@ ifeq ($(UNAME_S),Linux)
 endif
 
 ###############################################################################
-# C Standard: Defaults to c99, but c1x or c11 may be needed for modern atomics.
+# C Standard: Defaults to c11, but gnu11 or c1x may be needed on some systems.
 
-CSTD?=c99
+CSTD?=c11
 
 ###############################################################################
 
