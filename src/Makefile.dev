@@ -242,7 +242,7 @@ orstlint:                                                                     \
 -errtags=yes -features=gcc_enums -erroff=\
 E_STATIC_UNUSED,E_CONSTANT_CONDITION,E_SEC_STRNCPY_WARN,\
 E_PTRDIFF_OVERFLOW,E_NOP_IF_STMT,E_BAD_PTR_CAST_ALIGN,\
-E_EMPTY_TRANSLATION_UNIT" SUNPRO=1 SUNLINT=1 NEED_128=1 ) 2>&1 |              \
+E_EMPTY_TRANSLATION_UNIT" SUNPRO=1 SUNLINT=1 NEED_128=1 CSTD="gnu11" ) 2>&1 | \
  stdbuf -o L $(GREP) -v -E '(^make: .* Error 2$$|no output created$$)' |      \
  stdbuf -o L $(GREP) -v -E '(make: .* not remade because of errors.$$)' |     \
  stdbuf -o L $(GREP) -v -E '(^lint.*annot find source file.*\.o$$)' |         \
