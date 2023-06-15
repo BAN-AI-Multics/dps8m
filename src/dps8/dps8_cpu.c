@@ -142,16 +142,46 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
         return SCPE_ARG;
       }
 
+#define PFC_INT8 "%c%c%c%c%c%c%c%c"
+
+#define PBI_8(i)                     \
+    ( ((i) & 0x80ll) ? '1' : '0' ),  \
+    ( ((i) & 0x40ll) ? '1' : '0' ),  \
+    ( ((i) & 0x20ll) ? '1' : '0' ),  \
+    ( ((i) & 0x10ll) ? '1' : '0' ),  \
+    ( ((i) & 0x08ll) ? '1' : '0' ),  \
+    ( ((i) & 0x04ll) ? '1' : '0' ),  \
+    ( ((i) & 0x02ll) ? '1' : '0' ),  \
+    ( ((i) & 0x01ll) ? '1' : '0' )
+
+#define PFC_INT16 PFC_INT8  PFC_INT8
+#define PFC_INT32 PFC_INT16 PFC_INT16
+#define PFC_INT64 PFC_INT32 PFC_INT32
+
+#define PBI_16(i) PBI_8((i)  >>  8), PBI_8(i)
+#define PBI_32(i) PBI_16((i) >> 16), PBI_16(i)
+#define PBI_64(i) PBI_32((i) >> 32), PBI_32(i)
+
+    char dsbin[65], adbin[33];
+
     sim_msg ("CPU unit number %ld\n", (long) cpu_unit_idx);
 
     sim_msg ("Fault base:                   %03o(8)\n",
                 cpus[cpu_unit_idx].switches.FLT_BASE);
     sim_msg ("CPU number:                   %01o(8)\n",
                 cpus[cpu_unit_idx].switches.cpu_num);
-    sim_msg ("Data switches:                %012llu(8)\n",
+    sim_msg ("Data switches:                %012llo(8)\n",
                 (unsigned long long)cpus[cpu_unit_idx].switches.data_switches);
+    snprintf (dsbin, 64, PFC_INT64,
+                PBI_64((unsigned long long)cpus[cpu_unit_idx].switches.data_switches));
+    sim_msg ("                              %36s(2)\n",
+                dsbin + strlen(dsbin) - 36);
     sim_msg ("Address switches:             %06o(8)\n",
                 cpus[cpu_unit_idx].switches.addr_switches);
+    snprintf (adbin, 32, PFC_INT32,
+                PBI_32(cpus[cpu_unit_idx].switches.addr_switches));
+    sim_msg ("                              %18s(2)\n",
+                adbin + strlen(adbin) - 18);
     for (int i = 0; i < (cpus[cpu_unit_idx].tweaks.l68_mode ? N_L68_CPU_PORTS : N_DPS8M_CPU_PORTS); i ++)
       {
         sim_msg ("Port%c enable:                 %01o(8)\n",
