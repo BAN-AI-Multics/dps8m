@@ -438,6 +438,7 @@ Linux/x86_64, AlmaLinux 9, Clang, GCC:
     - Docker-x64
     - amd64
     - Linux
+    - EL
   script:
     - export GLCICD_JOB="AlmaLinuxEL9x64" && export DTIMESTAMP="$(stat -c "%Y" /etc/passwd)"
     - echo -e "section_start:`date +%s`:bzip20004setup_section[collapsed=true]\r\e[0K\033[0;36mInstalling bzip2 ...\033[0m" || true
