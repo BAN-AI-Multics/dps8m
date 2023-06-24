@@ -298,9 +298,13 @@
     echo "Checking for Docker ..."
     test -f /.dockerenv || exit 1
     echo "Updating system ..."
-    dnf -y --refresh --allowerasing --best update || dnf -y --refresh --skip-broken --nobest update
+    dnf -y --refresh --allowerasing --best update || dnf -y --refresh --nobest update || true
+    dnf -y --refresh --best update || dnf -y --refresh --nobest update || true
+    dnf -y update
     echo "Installing software ..."
-    export ARGS="ccache lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make gnupg2 bash curl wget git time gcc clang xz xz-libs xz-devel libzstd libzstd-devel"; dnf -y --allowerasing --best install ${ARGS:?} || dnf -y --skip-broken --nobest install ${ARGS:?}
+    export ARGS="ccache lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make gnupg2 bash curl wget git time gcc clang xz xz-libs xz-devel libzstd libzstd-devel"
+    dnf -y --allowerasing --best install ${ARGS:?} || dnf -y --skip-broken --nobest install ${ARGS:?} || true
+    dnf -y --best install ${ARGS:?} || dnf -y --nobest install ${ARGS:?}
     echo -e "section_end:`date +%s`:dnfuinstall_section\r\e[0K" || true
 
 ############################################################################
@@ -611,6 +615,7 @@ Cross-compiled release binaries:
     - yes | dnf copr enable "@fedora-llvm-team/llvm16" || true
     - dnf -y install "@core" "@Development Tools" "@C Development Tools and Libraries" gcc clang || true
     - dnf -y --best --skip-broken update || dnf -y --nobest --skip-broken update || true
+    - dnf -y --best update || dnf -y --nobest update
     - export JOB_PKGS="libmd libmd-devel libbsd libbsd-devel tar bzip2 lzip wget libzstd-devel libzstd zlib zlib-devel zstd libzstd libzstd-devel brotli-devel brotli libbrotli libcom_err libxcrypt openssl-devel openssl libcurl libcurl-devel elfutils-debuginfod-client elfutils-debuginfod expat-devel expat libffi libffi-devel gc-devel libevent-devel libgcc gmp-devel krb5-devel compat-guile18 guile-devel guile22-devel libidn2-devel libidn libidn-devel keyutils-libs-devel openldap-devel libtool-ltdl-devel xz-devel mpfr-devel msgpack-devel pcre2-devel libselinux-devel libssh-devel libssh2-devel ncurses-devel libunistring xxhash-devel qemu-user-binfmt qemu qemu-tools qemu-common qemu-user qemu-img qemu-user-static sudo lld lld-devel llvm llvm-devel clang clang-devel"
     - dnf -y install --best ${JOB_PKGS:?} || dnf -y install --nobest ${JOB_PKGS:?}
     - unset JOB_PKGS > /dev/null 2>&1 || true
