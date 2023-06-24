@@ -295,9 +295,9 @@
     echo "Checking for Docker ..."
     test -f /.dockerenv || exit 1
     echo "Updating system ..."
-    dnf -y --refresh --best update || dnf -y --refresh --nobest update
+    dnf -y --refresh --allowerasing --best update || dnf -y --refresh --skip-broken --nobest update
     echo "Installing software ..."
-    export ARGS="ccache lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make gnupg2 bash curl wget git time gcc clang xz xz-libs xz-devel libzstd libzstd-devel"; dnf -y --best install ${ARGS:?} || dnf -y --nobest install ${ARGS:?}
+    export ARGS="ccache lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make gnupg2 bash curl wget git time gcc clang xz xz-libs xz-devel libzstd libzstd-devel"; dnf -y --allowerasing --best install ${ARGS:?} || dnf -y --skip-broken --nobest install ${ARGS:?}
     echo -e "section_end:`date +%s`:dnfuinstall_section\r\e[0K" || true
 
 ############################################################################
