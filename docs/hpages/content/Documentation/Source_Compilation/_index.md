@@ -713,7 +713,7 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 ## OpenIndiana
 
 * Ensure your [**OpenIndiana**](https://www.openindiana.org/) installation is up-to-date.
-  * **OpenIndiana** *Hipster* **2023-03-06** was used to verify these instructions.
+  * **OpenIndiana** *Hipster* **2023.05** was used to verify these instructions.
 
 []()
 
@@ -766,7 +766,7 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 
 * The simulator can be built for **64-bit** **AIX** using [**IBM XL C/C++ for AIX**](https://www.ibm.com/products/xl-c-aix-compiler-power) (**`xlc`**), [**IBM Open XL C/C++ for AIX**](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) (**`ibm-clang`**), or **GNU C** (**`gcc`**).  **The DPS8M Development Team** recommends building with **IBM Open XL C/C++ V17.1.1** (or later) or **GCC 11** (or later) for optimal performance.
 * [**IBM Open XL C/C++ for AIX V17.1.1 Fix Pack 4** (May 2023)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the *minimum* recommended version of the **Open XL C/C++** compiler on **POWER8**, **POWER9**, and **Power10** systems.
-* [**IBM XL C/C++ for AIX V16.1.0 Fix Pack 13** (November 2022)](https://www.ibm.com/support/pages/ibm-xl-cc-aix-161) is the *minimum* recommended version of the **IBM XL C/C++** compiler on **POWER8** and **POWER9** systems.
+* [**IBM XL C/C++ for AIX V16.1.0 Fix Pack 14** (June 2023)](https://www.ibm.com/support/pages/ibm-xl-cc-aix-161) is the *minimum* recommended version of the **IBM XL C/C++** compiler on **POWER8** and **POWER9** systems.
 * Verify via [**IBM Preventive Service Planning**](https://www.ibm.com/support/pages/aix-os-levels-supported-xl-compilers) that you are using the latest available compiler and PTF update for your **IBM AIX** OS level.
 * When building the simulator using **GNU C**, it recommended to use **GCC 11** (or later) for optimal performance.
   * **GCC 11** can be installed from the [IBM AIX® Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository.

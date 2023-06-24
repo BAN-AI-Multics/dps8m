@@ -2800,6 +2800,7 @@ stcd
 stcq
 stdarg
 stdbool
+stdc
 stddef
 stderr
 stdin
@@ -6782,9 +6783,11 @@ FILEID: b39ac98e-f62e-11ec-98a8-80ee73e9b8e7
 doesn
 
 FILEID: 6e07fe19-f62d-11ec-86f2-80ee73e9b8e7
+adbin
 dance
 didn
 doesn
+dsbin
 encachable
 libertyhaven
 shouldn
@@ -6979,6 +6982,7 @@ nfpm
 nmap
 noarch
 nobest
+nodocs
 nsplit
 ntimestamp
 ofast
@@ -7040,6 +7044,7 @@ suncc
 swupd
 tcolorbox
 tcsh
+tsflags
 ucharcat
 ulem
 upquote
