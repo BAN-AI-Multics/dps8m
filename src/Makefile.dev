@@ -54,7 +54,7 @@ endif
 ###############################################################################
 # Regenerate build system dependencies
 
-MKDEP_OPTS := "-D__MINGW64__=1" "-DTESTING=1"
+MKDEP_OPTS := "-D__MINGW64__=1" "-DTESTING=1" "-DUCACHE=1"
 DO_MAKEDEP := for j in $(MKDEP_OPTS) ; do $(FIND) . -name '*.c' -exec         \
               $(MAKEDEPEND) -w1 -Y -f- -- "$${j:?}" -- "{}" 2> /dev/null \;   \
               2> /dev/null ; done | $(SED) -e 's/^\.\///' 2> /dev/null |      \

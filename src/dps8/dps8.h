@@ -56,6 +56,20 @@ typedef struct { int64_t h;  uint64_t l; } x__int128_t;
 // FNP polled ~100Hz; 2 secs. is 200 polls
 # define DISC_DELAY 200
 
+// Micro-cache
+# ifdef UCACHE
+#  undef OLDAPP
+# else
+#  define OLDAPP
+# endif /* ifdef UCACHE */
+# ifndef OLDAPP
+#  ifndef UCACHE_STATS
+#   define UCACHE_STATS
+#  endif /* ifndef UCACHE_STATS */
+# else
+#  undef UCACHE_STATS
+# endif /* ifndef OLDAPP */
+
 //
 // Dependencies
 //

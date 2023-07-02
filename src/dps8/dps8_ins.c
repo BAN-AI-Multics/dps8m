@@ -10,6 +10,7 @@
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2013-2016 Charles Anthony
  * Copyright (c) 2016 Michal Tomek
+ * Copyright (c) 2021-2023 Jeffrey H. Johnson <trnsz@pobox.com>
  * Copyright (c) 2021-2023 The DPS8M Development Team
  *
  * All rights reserved.
@@ -141,7 +142,7 @@ static void writeOperands (void)
         // gives warnings as another lock is acquired in between
         core_write_unlock (cpu.char_word_address, cpu.ou.character_data, __func__);
 #else
-        Write (cpu.ou.character_address, cpu.ou.character_data, OPERAND_STORE);
+        WriteOperandStore (cpu.ou.character_address, cpu.ou.character_data);
 #endif
 
         sim_debug (DBG_ADDRMOD, & cpu_dev,
@@ -240,9 +241,12 @@ static void readOperands (void)
       } // IT
 
 #ifdef LOCKLESS
-    read_operand (cpu.TPR.CA, ((i->info->flags & RMW) == RMW) ? OPERAND_RMW : OPERAND_READ);
+    if ((i->info->flags & RMW) == RMW)
+      readOperandRMW (cpu.TPR.CA);
+    else
+      readOperandRead (cpu.TPR.CA);
 #else
-    read_operand (cpu.TPR.CA, OPERAND_READ);
+    readOperandRead (cpu.TPR.CA);
 #endif
 
     return;
@@ -251,9 +255,9 @@ static void readOperands (void)
 static void read_tra_op (void)
   {
     if (cpu.TPR.CA & 1)
-      Read (cpu.TPR.CA, &cpu.CY, OPERAND_READ);
+      ReadOperandRead (cpu.TPR.CA, &cpu.CY);
     else
-      Read2 (cpu.TPR.CA, cpu.Ypair, OPERAND_READ);
+      Read2OperandRead (cpu.TPR.CA, cpu.Ypair);
     if (! (get_addr_mode () == APPEND_mode || cpu.cu.TSN_VALID [0] ||
            cpu.cu.XSF || cpu.currentInstruction.b29 /*get_went_appending ()*/))
       {
@@ -1109,12 +1113,14 @@ void fetchInstruction (word18 addr)
           {
             CPT (cpt2U, 11); // fetch rpt even
             if (addr & 1)
-              Read (addr, & cpu.cu.IWB, INSTRUCTION_FETCH);
+              ReadInstructionFetch (addr, & cpu.cu.IWB);
             else
               {
                 word36 tmp[2];
-                Read2 (addr, tmp, INSTRUCTION_FETCH);
-                cpu.cu.IWB   = tmp[0];
+                /* Read2 (addr, tmp, INSTRUCTION_FETCH); */
+                /* cpu.cu.IWB   = tmp[0]; */
+                Read2InstructionFetch (addr, tmp);
+                cpu.cu.IWB = tmp[0];
                 cpu.cu.IRODD = tmp[1];
               }
           }
@@ -1122,21 +1128,25 @@ void fetchInstruction (word18 addr)
     else
       {
         CPT (cpt2U, 12); // fetch
-// ISOLTS test pa870 expects IRODD to be set up.
-// If we are fetching an even instruction, also fetch the odd.
-// If we are fetching an odd instruction, copy it to IRODD as
-// if that was where we got it from.
+
+        // ISOLTS test pa870 expects IRODD to be set up.
+        // If we are fetching an even instruction, also fetch the odd.
+        // If we are fetching an odd instruction, copy it to IRODD as
+        // if that was where we got it from.
+
         //Read (addr, & cpu.cu.IWB, INSTRUCTION_FETCH);
         if ((cpu.PPR.IC & 1) == 0) // Even
           {
             word36 tmp[2];
-            Read2 (addr, tmp, INSTRUCTION_FETCH);
-            cpu.cu.IWB   = tmp[0];
+            /* Read2 (addr, tmp, INSTRUCTION_FETCH); */
+            /* cpu.cu.IWB   = tmp[0]; */
+            Read2InstructionFetch (addr, tmp);
+            cpu.cu.IWB = tmp[0];
             cpu.cu.IRODD = tmp[1];
           }
         else // Odd
           {
-            Read (addr, & cpu.cu.IWB, INSTRUCTION_FETCH);
+            ReadInstructionFetch (addr, & cpu.cu.IWB);
             cpu.cu.IRODD = cpu.cu.IWB;
           }
       }
@@ -1821,16 +1831,26 @@ restart_1:
 // this should not be an issue, as this folderol would be in the DU, and
 // we would not be re-executing that code, but until then, set the TPR
 // to the condition we know it should be in.
-      cpu.TPR.TRR = cpu.PPR.PRR;
-      cpu.TPR.TSR = cpu.PPR.PSR;
-      // append cycles updates cpu.PPR.IC to TPR.CA
-      word18 saveIC = cpu.PPR.IC;
-      Read (cpu.PPR.IC + 1 + n, & cpu.currentEISinstruction.op[n], INSTRUCTION_FETCH);
-      cpu.PPR.IC = saveIC;
-    }
-    PNL (cpu.IWRAddr = cpu.currentEISinstruction.op[0]);
-    setupEISoperands ();
-  }
+            cpu.TPR.TRR = cpu.PPR.PRR;
+            cpu.TPR.TSR = cpu.PPR.PSR;
+#if 0
+{ static bool first = true;
+if (first) {
+first = false;
+sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n");
+}}
+#else
+            // append cycles updates cpu.PPR.IC to TPR.CA
+            word18 saveIC = cpu.PPR.IC;
+            //Read (cpu.PPR.IC + 1 + n, & cpu.currentEISinstruction.op[n], INSTRUCTION_FETCH);
+            ReadInstructionFetch (cpu.PPR.IC + 1 + n, & cpu.currentEISinstruction.op[n]);
+            cpu.PPR.IC = saveIC;
+            //Read (cpu.PPR.IC + 1 + n, & cpu.currentEISinstruction.op[n], APU_DATA_READ);
+#endif
+          }
+        PNL (cpu.IWRAddr = cpu.currentEISinstruction.op[0]);
+        setupEISoperands ();
+      }
 
 ///
 /// Restart or Non-restart
@@ -3076,7 +3096,7 @@ static t_stat doInstruction (void)
           // the Y-pair, the C(PPR.PSR) and C(PPR.PRR) are not altered.
 
           do_caf ();
-          Read2 (cpu.TPR.CA, cpu.Ypair, RTCD_OPERAND_FETCH);
+          Read2RTCDOperandFetch (cpu.TPR.CA, cpu.Ypair);
           // RTCD always ends up in append mode.
           set_addr_mode (APPEND_mode);
 
@@ -6118,7 +6138,7 @@ static t_stat doInstruction (void)
             // C(Y)0,17 -> C(PPR.IC)
             // C(Y)18,31 -> C(IR)
             do_caf ();
-            Read (cpu.TPR.CA, &cpu.CY, OPERAND_READ);
+            ReadOperandRead (cpu.TPR.CA, & cpu.CY);
 
             cpu.PPR.IC = GETHI (cpu.CY);
             word18 tempIR = GETLO (cpu.CY) & 0777770;
@@ -7194,6 +7214,7 @@ static t_stat doInstruction (void)
 
         case x0 (0232):  // ldbr
           do_ldbr (cpu.Ypair);
+          ucInvalidate ();
           break;
 
         case x0 (0637):  // ldt
@@ -7637,6 +7658,7 @@ elapsedtime ();
                 cpu.PTW0.USE = 0;
               }
           }
+          ucInvalidate ();
           break;
 
         case x0 (0532):  // cams
@@ -7680,7 +7702,8 @@ elapsedtime ();
                 cpu.SDW0.FE  = 0;
                 cpu.SDW0.USE = 0;
               }
-  }
+          }
+          ucInvalidate ();
           break;
 
         /// Privileged - Configuration and Status
@@ -9391,7 +9414,8 @@ static int doABSA (word36 * result)
     // ISOLTS-860 02
     //   res = (word36) do_append_cycle (cpu.TPR.CA & MASK18, ABSA_CYCLE, NULL,
     //                                   0) << 12;
-    res = (word36) do_append_cycle (ABSA_CYCLE, NULL, 0) << 12;
+    //res = (word36) do_append_cycle (ABSA_CYCLE, NULL, 0) << 12;
+    res = (word36) doAppendCycleABSA (NULL, 0) << 12;
 
     * result = res;
 

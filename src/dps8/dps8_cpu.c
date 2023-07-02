@@ -162,7 +162,7 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
 #define PBI_32(i) PBI_16((i) >> 16), PBI_16(i)
 #define PBI_64(i) PBI_32((i) >> 32), PBI_32(i)
 
-    char dsbin[65], adbin[33];
+    char dsbin[66], adbin[34];
 
     sim_msg ("CPU unit number %ld\n", (long) cpu_unit_idx);
 
@@ -172,13 +172,13 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
                 cpus[cpu_unit_idx].switches.cpu_num);
     sim_msg ("Data switches:                %012llo(8)\n",
                 (unsigned long long)cpus[cpu_unit_idx].switches.data_switches);
-    snprintf (dsbin, 64, PFC_INT64,
+    snprintf (dsbin, 65, PFC_INT64,
                 PBI_64((unsigned long long)cpus[cpu_unit_idx].switches.data_switches));
     sim_msg ("                              %36s(2)\n",
                 dsbin + strlen(dsbin) - 36);
     sim_msg ("Address switches:             %06o(8)\n",
                 cpus[cpu_unit_idx].switches.addr_switches);
-    snprintf (adbin, 32, PFC_INT32,
+    snprintf (adbin, 33, PFC_INT32,
                 PBI_32(cpus[cpu_unit_idx].switches.addr_switches));
     sim_msg ("                              %18s(2)\n",
                 adbin + strlen(adbin) - 18);
@@ -1917,8 +1917,11 @@ t_stat sim_instr (void)
           return STOP_STOP;
 # endif
 
-        if (bce_dis_called)
-          return STOP_STOP;
+        if (bce_dis_called) {
+          //return STOP_STOP;
+          reason = STOP_STOP;
+          break;
+        }
 
 # ifndef PERF_STRIP
 // Loop runs at 1000 Hz
@@ -1995,6 +1998,11 @@ t_stat sim_instr (void)
 # endif
       }
     while (reason == 0); //-V654
+
+    for (uint cpuNo = 0; cpuNo < N_CPU_UNITS_MAX; cpuNo ++) {
+      cpuStats (cpuNo);
+    }
+
 # ifdef TESTING
     HDBGPrint ();
 # endif
@@ -2146,7 +2154,17 @@ static bool clear_temporary_absolute_mode (void)
 
 t_stat threadz_sim_instr (void)
   {
-//cpu.have_tst_lock = false;
+  //cpu.have_tst_lock = false;
+
+#ifndef SCHED_NEVER_YIELD
+    unsigned long long lockYieldAll     = 0;
+#endif
+    unsigned long long lockWaitMaxAll   = 0;
+    unsigned long long lockWaitAll      = 0;
+    unsigned long long lockImmediateAll = 0;
+    unsigned long long lockCntAll       = 0;
+    unsigned long long instrCntAll      = 0;
+    unsigned long long cycleCntAll      = 0;
 
     t_stat reason = 0;
 
@@ -3203,32 +3221,87 @@ leave:
 #ifdef TESTING
     HDBGPrint ();
 #endif
-    sim_msg ("\r\n");
-#ifdef WIN_STDIO
+
+    for (unsigned short n = 0; n < N_CPU_UNITS_MAX; n++)
+      {
+#ifndef SCHED_NEVER_YIELD
+        lockYieldAll     = lockYieldAll     + (unsigned long long)cpus[n].lockYield;
+#endif
+        lockWaitMaxAll   = lockWaitMaxAll   + (unsigned long long)cpus[n].lockWaitMax;
+        lockWaitAll      = lockWaitAll      + (unsigned long long)cpus[n].lockWait;
+        lockImmediateAll = lockImmediateAll + (unsigned long long)cpus[n].lockImmediate;
+        lockCntAll       = lockCntAll       + (unsigned long long)cpus[n].lockCnt;
+        instrCntAll      = instrCntAll      + (unsigned long long)cpus[n].instrCnt;
+        cycleCntAll      = cycleCntAll      + (unsigned long long)cpus[n].cycleCnt;
+      }
+
     (void)fflush(stderr);
     (void)fflush(stdout);
-    sim_msg ("cycles        %15llu\r\n", (unsigned long long)cpu.cycleCnt);
-    sim_msg ("instructions  %15llu\r\n", (unsigned long long)cpu.instrCnt);
-    sim_msg ("lockCnt       %15llu\r\n", (unsigned long long)cpu.lockCnt);
-    sim_msg ("lockImmediate %15llu\r\n", (unsigned long long)cpu.lockImmediate);
-    sim_msg ("lockWait      %15llu\r\n", (unsigned long long)cpu.lockWait);
-    sim_msg ("lockWaitMax   %15llu\r\n", (unsigned long long)cpu.lockWaitMax);
-# ifndef SCHED_NEVER_YIELD
-    sim_msg ("lockYield     %15llu\r\n", (unsigned long long)cpu.lockYield);
-# endif /* ifndef SCHED_NEVER_YIELD */
-    (void)fflush(stdout);
-    (void)fflush(stderr);
-#else
-    sim_msg ("cycles        %'15llu\r\n", (unsigned long long)cpu.cycleCnt);
-    sim_msg ("instructions  %'15llu\r\n", (unsigned long long)cpu.instrCnt);
-    sim_msg ("lockCnt       %'15llu\r\n", (unsigned long long)cpu.lockCnt);
-    sim_msg ("lockImmediate %'15llu\r\n", (unsigned long long)cpu.lockImmediate);
-    sim_msg ("lockWait      %'15llu\r\n", (unsigned long long)cpu.lockWait);
-    sim_msg ("lockWaitMax   %'15llu\r\n", (unsigned long long)cpu.lockWaitMax);
-# ifndef SCHED_NEVER_YIELD
-    sim_msg ("lockYield     %'15llu\r\n", (unsigned long long)cpu.lockYield);
-# endif /* ifndef SCHED_NEVER_YIELD */
-#endif /* ifdef WIN_STDIO */
+#if 1
+# ifndef PERF_STRIP
+    if (cycleCntAll > (unsigned long long)cpu.cycleCnt)
+      {
+# endif
+        sim_msg ("\r\n");
+        sim_msg ("\r+---------------------------------+\r\n");
+        sim_msg ("\r|     Aggregate CPU Statistics    |\r\n");
+        sim_msg ("\r+---------------------------------+\r\n");
+        (void)fflush(stderr);
+        (void)fflush(stdout);
+# ifdef WIN_STDIO
+        sim_msg ("\r|  cycles        %15llu  |\r\n", cycleCntAll);
+        sim_msg ("\r|  instructions  %15llu  |\r\n", instrCntAll);
+        (void)fflush(stderr);
+        (void)fflush(stdout);
+        sim_msg ("\r+---------------------------------+\r\n");
+        sim_msg ("\r|  lockCnt       %15llu  |\r\n", lockCntAll);
+        sim_msg ("\r|  lockImmediate %15llu  |\r\n", lockImmediateAll);
+        (void)fflush(stderr);
+        (void)fflush(stdout);
+        sim_msg ("\r+---------------------------------+\r\n");
+        sim_msg ("\r|  lockWait      %15llu  |\r\n", lockWaitAll);
+        sim_msg ("\r|  lockWaitMax   %15llu  |\r\n", lockWaitMaxAll);
+        (void)fflush(stderr);
+        (void)fflush(stdout);
+#  ifndef SCHED_NEVER_YIELD
+        sim_msg ("\r|  lockYield     %15llu  |\r\n", lockYieldAll);
+#  else
+        sim_msg ("\r|  lockYield                ----  |\r\n");
+#  endif /* ifndef SCHED_NEVER_YIELD */
+        sim_msg ("\r+---------------------------------+\r\n");
+        (void)fflush(stderr);
+        (void)fflush(stdout);
+# else
+        sim_msg ("\r|  cycles        %'15llu  |\r\n", cycleCntAll);
+        sim_msg ("\r|  instructions  %'15llu  |\r\n", instrCntAll);
+        (void)fflush(stderr);
+        (void)fflush(stdout);
+        sim_msg ("\r+---------------------------------+\r\n");
+        sim_msg ("\r|  lockCnt       %'15llu  |\r\n", lockCntAll);
+        sim_msg ("\r|  lockImmediate %'15llu  |\r\n", lockImmediateAll);
+        (void)fflush(stderr);
+        (void)fflush(stdout);
+        sim_msg ("\r+---------------------------------+\r\n");
+        sim_msg ("\r|  lockWait      %'15llu  |\r\n", lockWaitAll);
+        sim_msg ("\r|  lockWaitMax   %'15llu  |\r\n", lockWaitMaxAll);
+        (void)fflush(stderr);
+        (void)fflush(stdout);
+#  ifndef SCHED_NEVER_YIELD
+        sim_msg ("\r|  lockYield     %'15llu  |\r\n", lockYieldAll);
+#  else
+        sim_msg ("\r|  lockYield                ----  |\r\n");
+#  endif /* ifndef SCHED_NEVER_YIELD */
+        sim_msg ("\r+---------------------------------+\r\n");
+        (void)fflush(stderr);
+        (void)fflush(stdout);
+# endif /* ifdef WIN_STDIO */
+# ifndef PERF_STRIP
+      }
+# else
+    sim_msg("\r\n");
+# endif
+#endif
+
 #if 0
     for (int i = 0; i < N_FAULTS; i ++)
       {
@@ -3286,63 +3359,74 @@ int operand_size (void)
 
 // read instruction operands
 
-t_stat read_operand (word18 addr, processor_cycle_type cyctyp)
-  {
-    CPT (cpt1L, 6); // read_operand
+void readOperandRead (word18 addr) {
+  CPT (cpt1L, 6); // read_operand
 
 #ifdef THREADZ
-    if (cyctyp == OPERAND_READ)
-      {
-        DCDstruct * i = & cpu.currentInstruction;
-# if 1
-        if (RMWOP (i))
-# else
-        if ((i -> opcode == 0034 && ! i -> opcodeX) ||  // ldac
-            (i -> opcode == 0032 && ! i -> opcodeX) ||  // ldqc
-            (i -> opcode == 0354 && ! i -> opcodeX) ||  // stac
-            (i -> opcode == 0654 && ! i -> opcodeX) ||  // stacq
-            (i -> opcode == 0214 && ! i -> opcodeX))    // sznc
-# endif
-          {
-            lock_rmw ();
-          }
-      }
+  DCDstruct * i = & cpu.currentInstruction;
+  if (RMWOP (i)) // ldac, ldqc, stac, stacq, snzc
+    lock_rmw ();
 #endif
 
-    switch (operand_size ())
-      {
-        case 1:
-            CPT (cpt1L, 7); // word
-            Read (addr, & cpu.CY, cyctyp);
-            return SCPE_OK;
-        case 2:
-            CPT (cpt1L, 8); // double word
-            addr &= 0777776;   // make even
-            Read2 (addr, cpu.Ypair, cyctyp);
-            break;
-        case 8:
-            CPT (cpt1L, 9); // oct word
-            addr &= 0777770;   // make on 8-word boundary
-            Read8 (addr, cpu.Yblock8, cpu.currentInstruction.b29);
-            break;
-        case 16:
-            CPT (cpt1L, 10); // 16 words
-            addr &= 0777770;   // make on 8-word boundary
-            Read16 (addr, cpu.Yblock16);
-            break;
-        case 32:
-            CPT (cpt1L, 11); // 32 words
-            addr &= 0777740;   // make on 32-word boundary
-            for (uint j = 0 ; j < 32 ; j += 1)
-                Read (addr + j, cpu.Yblock32 + j, cyctyp);
-
-            break;
-      }
-    //cpu.TPR.CA = addr;  // restore address
-
-    return SCPE_OK;
-
+  switch (operand_size ()) {
+    case 1:
+      CPT (cpt1L, 7); // word
+      ReadOperandRead (addr, & cpu.CY);
+      break;
+    case 2:
+      CPT (cpt1L, 8); // double word
+      addr &= 0777776;   // make even
+      Read2OperandRead (addr, cpu.Ypair);
+      break;
+    case 8:
+      CPT (cpt1L, 9); // oct word
+      addr &= 0777770;   // make on 8-word boundary
+      Read8 (addr, cpu.Yblock8, cpu.currentInstruction.b29);
+      break;
+    case 16:
+      CPT (cpt1L, 10); // 16 words
+      addr &= 0777770;   // make on 8-word boundary
+      Read16 (addr, cpu.Yblock16);
+      break;
+    case 32:
+      CPT (cpt1L, 11); // 32 words
+      addr &= 0777740;   // make on 32-word boundary
+      for (uint j = 0 ; j < 32 ; j += 1)
+        ReadOperandRead (addr + j, cpu.Yblock32 + j);
+      break;
   }
+}
+
+void readOperandRMW (word18 addr) {
+  CPT (cpt1L, 6); // read_operand
+  switch (operand_size ()) {
+    case 1:
+      CPT (cpt1L, 7); // word
+      ReadOperandRMW (addr, & cpu.CY);
+      break;
+    case 2:
+      CPT (cpt1L, 8); // double word
+      addr &= 0777776;   // make even
+      Read2OperandRead (addr, cpu.Ypair);
+      break;
+    case 8:
+      CPT (cpt1L, 9); // oct word
+      addr &= 0777770;   // make on 8-word boundary
+      Read8 (addr, cpu.Yblock8, cpu.currentInstruction.b29);
+      break;
+    case 16:
+      CPT (cpt1L, 10); // 16 words
+      addr &= 0777770;   // make on 8-word boundary
+      Read16 (addr, cpu.Yblock16);
+      break;
+    case 32:
+      CPT (cpt1L, 11); // 32 words
+      addr &= 0777740;   // make on 32-word boundary
+      for (uint j = 0 ; j < 32 ; j += 1)
+        ReadOperandRMW (addr + j, cpu.Yblock32 + j);
+      break;
+  }
+}
 
 // write instruction operands
 
@@ -3352,12 +3436,12 @@ t_stat write_operand (word18 addr, UNUSED processor_cycle_type cyctyp)
       {
         case 1:
             CPT (cpt1L, 12); // word
-            Write (addr, cpu.CY, OPERAND_STORE);
+            WriteOperandStore (addr, cpu.CY);
             break;
         case 2:
             CPT (cpt1L, 13); // double word
             addr &= 0777776;   // make even
-            Write2 (addr + 0, cpu.Ypair, OPERAND_STORE);
+            Write2OperandStore (addr + 0, cpu.Ypair);
             break;
         case 8:
             CPT (cpt1L, 14); // 8 words
@@ -4592,4 +4676,100 @@ void setupPROM (uint cpuNo, unsigned char * PROM) {
   BURN1 (036,       getbits36_8 (rsw2, 16));                   //   36     RSW 2 bits 16-23
   BURN1 (037,       getbits36_8 (rsw2, 24));                   //   37     RSW 2 bits 24-31
   BURN1 (040,     ((getbits36_4 (rsw2, 32) << 4) | rsw2Ext));  // 40  RSW 2 bits 32-35, options bits
+}
+
+void cpuStats (uint cpuNo) {
+  if (! cpus[cpuNo].cycleCnt)
+    return;
+
+  (void)fflush(stderr);
+  (void)fflush(stdout);
+  sim_msg ("\r\n");
+  (void)fflush(stdout);
+  (void)fflush(stderr);
+  sim_msg ("\r+---------------------------------+\r\n");
+  sim_msg ("\r|         CPU %c Statistics        |\r\n", 'A' + cpuNo);
+  sim_msg ("\r+---------------------------------+\r\n");
+  (void)fflush(stdout);
+  (void)fflush(stderr);
+#ifdef WIN_STDIO
+  sim_msg ("\r|  cycles        %15llu  |\r\n", (unsigned long long)cpus[cpuNo].cycleCnt);
+  sim_msg ("\r|  instructions  %15llu  |\r\n", (unsigned long long)cpus[cpuNo].instrCnt);
+  (void)fflush(stdout);
+  (void)fflush(stderr);
+  sim_msg ("\r+---------------------------------+\r\n");
+  sim_msg ("\r|  lockCnt       %15llu  |\r\n", (unsigned long long)cpus[cpuNo].lockCnt);
+  sim_msg ("\r|  lockImmediate %15llu  |\r\n", (unsigned long long)cpus[cpuNo].lockImmediate);
+  (void)fflush(stdout);
+  (void)fflush(stderr);
+  sim_msg ("\r+---------------------------------+\r\n");
+  sim_msg ("\r|  lockWait      %15llu  |\r\n", (unsigned long long)cpus[cpuNo].lockWait);
+  sim_msg ("\r|  lockWaitMax   %15llu  |\r\n", (unsigned long long)cpus[cpuNo].lockWaitMax);
+  (void)fflush(stdout);
+  (void)fflush(stderr);
+# ifndef SCHED_NEVER_YIELD
+  sim_msg ("\r|  lockYield     %15llu  |\r\n", (unsigned long long)cpus[cpuNo].lockYield);
+  (void)fflush(stdout);
+  (void)fflush(stderr);
+# else
+  sim_msg ("\r|  lockYield                ----  |\r\n");
+  (void)fflush(stdout);
+  (void)fflush(stderr);
+# endif /* ifndef SCHED_NEVER_YIELD */
+  sim_msg ("\r+---------------------------------+");
+  (void)fflush(stdout);
+  (void)fflush(stderr);
+# ifndef UCACHE
+#  ifndef UCACHE_STATS
+  sim_msg ("\r\n");
+#  endif
+# endif
+  (void)fflush(stdout);
+  (void)fflush(stderr);
+#else
+  sim_msg ("\r|  cycles        %'15llu  |\r\n", (unsigned long long)cpus[cpuNo].cycleCnt);
+  sim_msg ("\r|  instructions  %'15llu  |\r\n", (unsigned long long)cpus[cpuNo].instrCnt);
+  (void)fflush(stdout);
+  (void)fflush(stderr);
+  sim_msg ("\r+---------------------------------+\r\n");
+  sim_msg ("\r|  lockCnt       %'15llu  |\r\n", (unsigned long long)cpus[cpuNo].lockCnt);
+  sim_msg ("\r|  lockImmediate %'15llu  |\r\n", (unsigned long long)cpus[cpuNo].lockImmediate);
+  (void)fflush(stdout);
+  (void)fflush(stderr);
+  sim_msg ("\r+---------------------------------+\r\n");
+  sim_msg ("\r|  lockWait      %'15llu  |\r\n", (unsigned long long)cpus[cpuNo].lockWait);
+  sim_msg ("\r|  lockWaitMax   %'15llu  |\r\n", (unsigned long long)cpus[cpuNo].lockWaitMax);
+  (void)fflush(stdout);
+  (void)fflush(stderr);
+# ifndef SCHED_NEVER_YIELD
+  sim_msg ("\r|  lockYield     %'15llu  |\r\n", (unsigned long long)cpus[cpuNo].lockYield);
+  (void)fflush(stdout);
+  (void)fflush(stderr);
+# else
+  sim_msg ("\r|  lockYield                ----  |\r\n");
+  (void)fflush(stdout);
+  (void)fflush(stderr);
+# endif /* ifndef SCHED_NEVER_YIELD */
+  sim_msg ("\r+---------------------------------+");
+  (void)fflush(stdout);
+  (void)fflush(stderr);
+# ifndef UCACHE
+#  ifndef UCACHE_STATS
+  sim_msg ("\r\n");
+#  endif
+# endif
+  (void)fflush(stderr);
+  (void)fflush(stdout);
+#endif
+
+#ifdef UCACHE_STATS
+  ucacheStats (cpuNo);
+#endif
+
+#if 0
+  for (int i = 0; i < N_FAULTS; i ++) {
+    if (cpus[cpuNo].faultCnt [i])
+      sim_msg  ("%s faults = %llu\n", faultNames [i], (unsigned long long)cpus[cpuNo].faultCnt [i]);
+  }
+#endif
 }

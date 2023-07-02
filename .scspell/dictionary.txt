@@ -1393,6 +1393,7 @@ idep
 ideposit
 idoffset
 idrop
+idwf
 idwtag
 iefp
 ierr
@@ -2058,6 +2059,7 @@ oflg
 oflow
 oidx
 oiffy
+oldapp
 oldpos
 oldstatus
 oldval
@@ -2178,7 +2180,9 @@ pgic
 pgid
 pgllvm
 pgmk
+pgno
 pgnum
+pgoffset
 pgrp
 pgsz
 pgte
@@ -2722,6 +2726,7 @@ smsup
 sname
 snan
 snprintf
+snzc
 sockaddr
 sockfd
 socklen
@@ -3538,6 +3543,7 @@ daddr
 datagram
 datalen
 datum
+dbgapp
 dbgevent
 dbgevents
 dbit
@@ -3831,6 +3837,7 @@ flen
 flnor
 flthld
 fmix
+fmsg
 fname
 fneg
 fnld
@@ -3938,6 +3945,7 @@ hwre
 iachn
 iaim
 idcw
+idwf
 iefp
 ierr
 ifdef
@@ -4145,6 +4153,7 @@ nofnc
 nolink
 nolock
 nolog
+nomatch
 nomessage
 nonblock
 nondata
@@ -4186,6 +4195,7 @@ offsetof
 ofile
 oflm
 oflow
+oldapp
 oldhead
 omask
 onecmd
@@ -4962,6 +4972,7 @@ attn
 autoaccept
 basedir
 bestpractices
+bgitlab
 brshpc
 buildsource
 cardchan
@@ -5008,6 +5019,7 @@ farg
 faultbase
 fbea
 fbsd
+fdps
 flto
 fnpa
 fnpb
@@ -5128,6 +5140,7 @@ tapechan
 tcblisting
 tcolorbox
 telnetrc
+tocstop
 truehumandesign
 ttierr
 ttmo
@@ -5841,6 +5854,7 @@ dependclean
 distclean
 dsunlint
 dtesting
+ducache
 endif
 enums
 errfmt
@@ -6033,6 +6047,7 @@ lpthread
 lsocket
 mailcheck
 maix
+makecmdgoals
 makedepend
 makeflags
 maketar
@@ -6107,6 +6122,7 @@ dspeed
 dsync
 dtesting
 dthreadz
+ducache
 duse
 dwam
 dwith
@@ -8252,6 +8268,17 @@ sval
 tryagain
 unparse
 
+FILEID: 501f8fe6-171d-11ee-ab15-80ee73e9b8e7
+evcnt
+
+FILEID: 45d63e9a-171d-11ee-b7ed-80ee73e9b8e7
+evcnt
+lastcyle
+
+FILEID: 3b4b8be2-171d-11ee-84fd-80ee73e9b8e7
+evcnt
+oprnd
+
 NATURAL:
 abandon
 abandoned
@@ -8378,6 +8405,7 @@ after
 afterwards
 again
 against
+aggregate
 aggressive
 agner
 agree
@@ -8838,6 +8866,7 @@ busy
 button
 bypass
 bypassed
+bypasses
 byte
 bytes
 cabinet
@@ -9741,6 +9770,7 @@ effect
 effected
 effective
 effectively
+effectiveness
 effects
 efficiency
 efficient
@@ -11050,6 +11080,7 @@ marocchino
 maroon
 mars
 masked
+masking
 masks
 massachusetts
 master
@@ -11157,6 +11188,7 @@ mismatch
 misnomer
 misrepresented
 missed
+misses
 missing
 misuse
 misusing
@@ -13164,6 +13196,7 @@ typically
 typing
 typo
 ubuntu
+ucache
 udplib
 ugly
 uint
@@ -13297,6 +13330,7 @@ unsigned
 unsnapped
 unsolicited
 unspecified
+unstable
 unstrings
 unstructured
 unsuccessful

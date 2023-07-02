@@ -66,6 +66,9 @@ enum { N_CELL_INTERRUPTS = 32 };
 
 # define PGSZ 1024u
 # define PGMK 1023u
+# define PG18MASK 0776000u  // start of page in a 18 bit address
+# define PG24MASK 077776000u  // start of page in a 24 bit address
+# define OS18MASK 0001777u // offset in page in a 18 bit address
 
 //
 // IOM

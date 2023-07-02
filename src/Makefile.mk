@@ -266,6 +266,13 @@ endif
 
 MATHLIB ?= -lm
 
+ifeq (,$(findstring libuv,$(MAKECMDGOALS)))
+  ifdef CI_JOB_ID
+    ALLOW_STRICT_ALIASING = 1
+    export ALLOW_STRICT_ALIASING
+  endif
+endif
+
 ifdef ALLOW_STRICT_ALIASING
   STRICT_ALIASING = -fstrict-aliasing
 else

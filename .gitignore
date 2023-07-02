@@ -184,6 +184,8 @@ novdso.xml
 cppcheck.xml
 log.pvs
 pvsreport/
+.PVS-Studio/
+*.PVS-Studio.cfg
 .coverity/
 cov-int/
 dps8m-simulator.xz

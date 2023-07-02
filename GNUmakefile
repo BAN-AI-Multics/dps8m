@@ -36,6 +36,7 @@
 #       PERF_STRIP=1                       Enable CPU-only benchmarking mode
 #      ROUND_ROBIN=1                       Enable non-threaded multiple CPUs
 #          TESTING=1                       Enable developmental testing mode
+#           UCACHE=1                       Enable (UNSTABLE) appending cache
 #             DUMA=1                       Enable the libDUMA malloc library
 #                V=1                       Enable verbose compilation output
 #                W=1                       Enable extra compilation warnings
