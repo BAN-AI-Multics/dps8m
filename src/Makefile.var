@@ -36,6 +36,14 @@ ifdef ATOMICS
 endif
 
 ###############################################################################
+# APU micro-cache
+
+ifdef UCACHE
+  UCACHE=1
+  CFLAGS += -DUCACHE
+endif
+
+###############################################################################
 # libbacktrace support
 
 LIBBACKTRACE ?= -lbacktrace

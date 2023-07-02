@@ -1523,10 +1523,14 @@ enum { CUH_XINT = 0100, CUH_IFT = 040, CUH_CRD = 020, CUH_MRD = 010,
 #define N_NAX_WAM_ENTRIES   64
 #define N_MODEL_WAM_ENTRIES (cpu.tweaks.l68_mode ? N_L68_WAM_ENTRIES : N_DPS8M_WAM_ENTRIES)
 
+#include "ucache.h"
+
 typedef struct
   {
 
     EISstruct currentEISinstruction;
+
+    uCache_t uCache;
 
     unsigned long long cycleCnt;
     unsigned long long instrCnt;
@@ -1968,7 +1972,9 @@ static inline void SET_AR_CHAR_BITNO (uint n, word2 c, word4 b)
 bool sample_interrupts (void);
 t_stat simh_hooks (void);
 int operand_size (void);
-t_stat read_operand (word18 addr, processor_cycle_type cyctyp);
+//void read_operand (word18 addr, processor_cycle_type cyctyp);
+void readOperandRead (word18 addr);
+void readOperandRMW (word18 addr);
 t_stat write_operand (word18 addr, processor_cycle_type acctyp);
 
 #ifdef PANEL68
@@ -2384,3 +2390,4 @@ void * cpu_thread_main (void * arg);
 #endif
 void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem);
 void setupPROM (uint cpuNo, unsigned char * PROM);
+void cpuStats (uint cpuNo);

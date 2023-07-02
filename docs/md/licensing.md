@@ -411,11 +411,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.**
 
 *COPYRIGHT AND PERMISSION NOTICE*
 
-* Copyright © 2006-2022 &nbsp; **Michael Mondy**, **Harry Reed**,
+* Copyright © 2006-2023 &nbsp; **Michael Mondy**, **Harry Reed**,
    **Charles Anthony**, and others
 * Copyright © 2012 &nbsp; **Dave Jordan**
 * Copyright © 2015-2016 &nbsp; **Craig Ruff**
-* Copyright © 2015-2022 &nbsp; **Eric Swenson**
+* Copyright © 2015-2023 &nbsp; **Eric Swenson**
 * Copyright © 2016 &nbsp; **Jean-Michel Merliot**
 * Copyright © 2017-2023 &nbsp; **Jeffrey H. Johnson**
 * Copyright © 2018-2021 &nbsp; **Juergen Weiss**

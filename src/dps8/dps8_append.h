@@ -125,8 +125,37 @@ static inline void set_apu_status (apuStatusBits status)
 #ifdef TESTING
 t_stat dump_sdwam (void);
 #endif
-word24 do_append_cycle (processor_cycle_type thisCycle,
-                      word36 * data, uint nWords);
+word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data, uint nWords);
+#ifndef OLDAPP
+word24 doAppendCycleUnknown (word36 * data, uint nWords);
+word24 doAppendCycleOperandStore (word36 * data, uint nWords);
+word24 doAppendCycleOperandRead (word36 * data, uint nWords);
+word24 doAppendCycleIndirectWordFetch (word36 * data, uint nWords);
+word24 doAppendCycleRTCDOperandFetch (word36 * data, uint nWords);
+word24 doAppendCycleInstructionFetch (word36 * data, uint nWords);
+word24 doAppendCycleAPUDataRead (word36 * data, uint nWords);
+word24 doAppendCycleAPUDataStore (word36 * data, uint nWords);
+word24 doAppendCycleABSA (word36 * data, uint nWords);
+# ifdef LOCKLESS
+word24 doAppendCycleOperandRMW (word36 * data, uint nWords);
+word24 doAppendCycleAPUDataRMW (word36 * data, uint nWords);
+# endif // LOCKLESS
+#else // OLDAPP
+# define doAppendCycleUnknown(data, nWords) do_append_cycle (UNKNOWN_CYCLE, data, nWords)
+# define doAppendCycleOperandStore(data, nWords) do_append_cycle (OPERAND_STORE, data, nWords)
+# define doAppendCycleOperandRead(data, nWords) do_append_cycle (OPERAND_READ, data, nWords)
+# define doAppendCycleIndirectWordFetch(data, nWords) do_append_cycle (INDIRECT_WORD_FETCH, data, nWords)
+# define doAppendCycleRTCDOperandFetch(data, nWords) do_append_cycle (RTCD_OPERAND_FETCH, data, nWords)
+# define doAppendCycleInstructionFetch(data, nWords) do_append_cycle (INSTRUCTION_FETCH, data, nWords)
+# define doAppendCycleAPUDataRead(data, nWords) do_append_cycle (APU_DATA_READ, data, nWords)
+# define doAppendCycleAPUDataStore(data, nWords) do_append_cycle (APU_DATA_STORE, data, nWords)
+# define doAppendCycleABSA(data, nWords) do_append_cycle (ABSA_CYCLE, data, nWords)
+# ifdef LOCKLESS
+#  define doAppendCycleOperandRMW(data, nWords) do_append_cycle (OPERAND_RMW, data, nWords)
+#  define doAppendCycleAPUDataRMW(data, nWords) do_append_cycle (APU_DATA_RMW, data, nWords)
+# endif // LOCKLESS
+#endif // OLDAPP
+
 void do_ldbr (word36 * Ypair);
 void do_sdbr (word36 * Ypair);
 void do_camp (word36 Y);

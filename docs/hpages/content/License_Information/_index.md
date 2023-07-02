@@ -39,10 +39,10 @@ ICU License — ICU 1.8.1 to ICU 57.1
 
 COPYRIGHT AND PERMISSION NOTICE
 
-Copyright © 2006-2022 Michael Mondy, Harry Reed, Charles Anthony, and others
+Copyright © 2006-2023 Michael Mondy, Harry Reed, Charles Anthony, and others
 Copyright © 2012 Dave Jordan
 Copyright © 2015-2016 Craig Ruff
-Copyright © 2015-2022 Eric Swenson
+Copyright © 2015-2023 Eric Swenson
 Copyright © 2016 Jean-Michel Merliot
 Copyright © 2017-2023 Jeffrey H. Johnson
 Copyright © 2018-2021 Juergen Weiss

@@ -1,6 +1,6 @@
 <!-- vim: set ft=markdown ts=2 sw=2 ai cc=80 et spell nolist wrap lbr :-->
 <!-- SPDX-License-Identifier: FSFAP -->
-<!-- scspell-id: 4c223701-f778-11ec-9b52-80ee73e9b8e7 -->
+<!-- scspell-id: 8a9a2eb6-1758-11ee-8174-80ee73e9b8e7 -->
 <!-- NOTE: The FSF All Permissive License (FSFAP) is NOT applicable to
            the text of other licenses reproduced within this document. -->
 <!-- NOTE: Licenses in this file are UTF-8 text within fenced code blocks. -->
@@ -38,10 +38,10 @@ ICU License — ICU 1.8.1 to ICU 57.1
 
 COPYRIGHT AND PERMISSION NOTICE
 
-Copyright © 2006-2022 Michael Mondy, Harry Reed, Charles Anthony, and others
+Copyright © 2006-2023 Michael Mondy, Harry Reed, Charles Anthony, and others
 Copyright © 2012 Dave Jordan
 Copyright © 2015-2016 Craig Ruff
-Copyright © 2015-2022 Eric Swenson
+Copyright © 2015-2023 Eric Swenson
 Copyright © 2016 Jean-Michel Merliot
 Copyright © 2017-2023 Jeffrey H. Johnson
 Copyright © 2018-2021 Juergen Weiss

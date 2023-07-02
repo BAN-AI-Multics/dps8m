@@ -4483,6 +4483,7 @@ if (flag) {
     defined(MACOSXPPC)          ||  \
     defined(TESTING)            ||  \
     defined(ISOLTS)             ||  \
+    defined(UCACHE)             ||  \
     defined(USE_DUMA)
 # ifndef NO_SUPPORT_VERSION
 #  define NO_SUPPORT_VERSION 1
@@ -4571,6 +4572,17 @@ if (flag) {
 # endif
     fprintf (st, "ISOLTS");
 #endif
+#ifdef UCACHE
+# ifdef HAVE_DPSOPT
+    fprintf (st, ", ");
+# else
+    fprintf (st, "\n Options: ");
+# endif
+# ifndef HAVE_DPSOPT
+#  define HAVE_DPSOPT 1
+# endif
+    fprintf (st, "UCACHE");
+#endif
 #ifdef NEED_128
 # ifdef HAVE_DPSOPT
     fprintf (st, ", ");
@@ -4628,7 +4640,7 @@ if (flag) {
 #ifdef VER_CURRENT_TIME
     fprintf (st, "\n  Compiled: %s", VER_CURRENT_TIME);
 #endif
-    if (dirty)
+    if (dirty) //-V547
       {
         fprintf (st, "\r\n\r\n ****** THIS BUILD IS NOT SUPPORTED BY THE DPS8M DEVELOPMENT TEAM ******");
       }

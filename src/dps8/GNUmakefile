@@ -244,6 +244,7 @@ ifeq ($(LOCKLESS),1)
 endif
 C_SRCS += utfile.c
 C_SRCS += uvutil.c
+C_SRCS += ucache.c
 
 ###############################################################################
 
@@ -311,6 +312,7 @@ ifeq ($(TESTING),1)
   H_SRCS += tracker.h
 endif
 H_SRCS += uvutil.h
+H_SRCS += ucache.h
 
 ###############################################################################
 

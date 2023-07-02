@@ -340,7 +340,7 @@
     echo "Installing DNF Copr plugins ..."
     dnf -y --best install 'dnf-command(copr)' || dnf -y --nobest install 'dnf-command(copr)'
     echo "Enabling Cygwin repo ..."
-    dnf -y copr enable yselkowitz/cygwin || dnf -y copr enable yselkowitz/cygwin
+    dnf -y copr enable yselkowitz/cygwin || dnf -y copr enable yselkowitz/cygwin || dnf-3 -y copr enable yselkowitz/cygwin || dnf-3 -y copr enable yselkowitz/cygwin
     echo "Installing Cygwin software ..."
     dnf --best install -y cygport cygwin32-binutils cygwin32-w32api-headers cygwin32-w32api-runtime cygwin32-libltdl cygwin32-cpp cygwin32-gcc cygwin32-libtool cygwin32-filesystem cygwin32 cygwin64-binutils cygwin64-w32api-headers cygwin64-w32api-runtime cygwin64-libltdl cygwin64-cpp cygwin64-gcc cygwin64-libtool cygwin64-filesystem cygwin64 || dnf --skip-broken --nobest install -y cygport cygwin64-binutils cygwin64-w32api-headers cygwin64-w32api-runtime cygwin64-libltdl cygwin64-cpp cygwin64-gcc cygwin64-libtool cygwin64-filesystem cygwin64 cygwin32-binutils cygwin32-w32api-headers cygwin32-w32api-runtime cygwin32-libltdl cygwin32-cpp cygwin32-gcc cygwin32-libtool cygwin32-filesystem cygwin32
     echo -e "section_end:`date +%s`:coprcygwinstall_section\r\e[0K" || true
@@ -2279,7 +2279,7 @@ Cross-compiled release binaries:
 ############################################################################
 
 Windows/x86_64, Cygwin64-GCC:
-  image: fedora:37
+  image: fedora:38
   stage: build
   tags:
     - Docker-x64
@@ -2321,7 +2321,7 @@ Windows/x86_64, Cygwin64-GCC:
 ############################################################################
 
 Windows/i686, Cygwin32-GCC:
-  image: fedora:37
+  image: fedora:38
   stage: build
   tags:
     - Docker-x64
@@ -3669,7 +3669,7 @@ Option Verification Test:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - export NO_LTO=1
-    - export CMB_OPTIONS="NO_LOCKLESS=1 TESTING=1 NEED_128=1 HDBG=1 ROUND_ROBIN=1 TRACKER=1"
+    - export CMB_OPTIONS="UCACHE=1 NO_LOCKLESS=1 TESTING=1 NEED_128=1 HDBG=1 ROUND_ROBIN=1 TRACKER=1"
     - make -C "src/mcmb" && export CMB_TOOL="$(command -p env PATH="$(command -p env getconf PATH)" mktemp)" && mv -f "src/mcmb/mcmb" "${CMB_TOOL:?}" && chmod a+x "${CMB_TOOL:?}"
     - touch part_x.sh && rm -f part_*.sh > /dev/null 2>&1 || true > /dev/null 2>&1
     - ( export NSPLIT=${CI_NODE_TOTAL:?}; for i in $(seq 1 ${CI_NODE_TOTAL:?}); do ( env CPUS="$(( $((grep -c "^model name" /proc/cpuinfo 2> /dev/null) | head -n 1) + 1 ))" bash -c '${CMB_TOOL:?} -N -e ${CMB_OPTIONS:?} -p "make -j ${CPUS:?} " -s " && printf %s\\\\n \"SHOW VERSION\" | ./src/dps8/dps8 -t && make distclean && \\"' ) | awk '{ print "env ITERATION="$0 }' 2> /dev/null | split -e -n "r/${i:?}/${NSPLIT:?}" | awk "BEGIN { print \"#\!/usr/bin/env bash\"; print \"# Part ${i:?} of ${NSPLIT:?}\"; printf \"\"; print \"set -eux -o pipefail\" } { print \$0 } END { print \"true\"; print \"\" }" > "part_${i:?}_of_${NSPLIT:?}.sh" 2> /dev/null; done )

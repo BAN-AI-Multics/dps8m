@@ -951,7 +951,6 @@ static int wcd (struct decoded_t *decoded_p)
 //      2 saved_meters like fnp_channel_meters;
 //
 
-
 /*NOTREACHED*/ /* unreachable */
 
 //  dcl 1 fnp_channel_meters based aligned,

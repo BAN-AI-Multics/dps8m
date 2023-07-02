@@ -14,6 +14,7 @@ dps8_absi.o: dps8_simh.h
 dps8_absi.o: dps8_sys.h
 dps8_absi.o: dps8_utils.h
 dps8_absi.o: hdbg.h
+dps8_absi.o: ucache.h
 dps8_absi.o: udplib.h
 dps8_absi.o: uvutil.h
 dps8_addrmods.o: ../simh/sim_timer.h
@@ -35,8 +36,17 @@ dps8_addrmods.o: dps8_simh.h
 dps8_addrmods.o: dps8_sys.h
 dps8_addrmods.o: dps8_utils.h
 dps8_addrmods.o: hdbg.h
+dps8_addrmods.o: ucache.h
 dps8_addrmods.o: uvutil.h
 dps8_append.o: ../simh/sim_timer.h
+dps8_append.o: doAppendCycleABSA.h
+dps8_append.o: doAppendCycleAPUDataRead.h
+dps8_append.o: doAppendCycleAPUDataStore.h
+dps8_append.o: doAppendCycleIndirectWordFetch.h
+dps8_append.o: doAppendCycleInstructionFetch.h
+dps8_append.o: doAppendCycleOperandRead.h
+dps8_append.o: doAppendCycleOperandStore.h
+dps8_append.o: doAppendCycleRTCDOperandFetch.h
 dps8_append.o: dps8.h
 dps8_append.o: dps8_addrmods.h
 dps8_append.o: dps8_append.h
@@ -52,6 +62,7 @@ dps8_append.o: dps8_simh.h
 dps8_append.o: dps8_sys.h
 dps8_append.o: dps8_utils.h
 dps8_append.o: hdbg.h
+dps8_append.o: ucache.h
 dps8_append.o: uvutil.h
 dps8_cable.o: ../simh/sim_timer.h
 dps8_cable.o: dps8.h
@@ -79,6 +90,7 @@ dps8_cable.o: dps8_urp.h
 dps8_cable.o: dps8_utils.h
 dps8_cable.o: hdbg.h
 dps8_cable.o: libtelnet.h
+dps8_cable.o: ucache.h
 dps8_cable.o: uvutil.h
 dps8_console.o: ../simh/sim_timer.h
 dps8_console.o: dps8.h
@@ -98,6 +110,7 @@ dps8_console.o: dps8_sys.h
 dps8_console.o: dps8_utils.h
 dps8_console.o: hdbg.h
 dps8_console.o: libtelnet.h
+dps8_console.o: ucache.h
 dps8_console.o: uvutil.h
 dps8_cpu.o: ../simh/sim_timer.h
 dps8_cpu.o: dps8.h
@@ -126,6 +139,7 @@ dps8_cpu.o: dps8_sys.h
 dps8_cpu.o: dps8_utils.h
 dps8_cpu.o: hdbg.h
 dps8_cpu.o: libtelnet.h
+dps8_cpu.o: ucache.h
 dps8_cpu.o: uvutil.h
 dps8_cpu.o: ver.h
 dps8_crdpun.o: ../simh/sim_timer.h
@@ -143,6 +157,7 @@ dps8_crdpun.o: dps8_simh.h
 dps8_crdpun.o: dps8_sys.h
 dps8_crdpun.o: dps8_utils.h
 dps8_crdpun.o: hdbg.h
+dps8_crdpun.o: ucache.h
 dps8_crdpun.o: utfile.h
 dps8_crdpun.o: uvutil.h
 dps8_crdrdr.o: ../simh/sim_timer.h
@@ -160,6 +175,7 @@ dps8_crdrdr.o: dps8_simh.h
 dps8_crdrdr.o: dps8_sys.h
 dps8_crdrdr.o: dps8_utils.h
 dps8_crdrdr.o: hdbg.h
+dps8_crdrdr.o: ucache.h
 dps8_crdrdr.o: uvutil.h
 dps8_decimal.o: ../simh/sim_timer.h
 dps8_decimal.o: dps8.h
@@ -177,6 +193,7 @@ dps8_decimal.o: dps8_simh.h
 dps8_decimal.o: dps8_sys.h
 dps8_decimal.o: dps8_utils.h
 dps8_decimal.o: hdbg.h
+dps8_decimal.o: ucache.h
 dps8_decimal.o: uvutil.h
 dps8_dia.o: ../simh/sim_timer.h
 dps8_dia.o: dps8.h
@@ -193,6 +210,7 @@ dps8_dia.o: dps8_simh.h
 dps8_dia.o: dps8_sys.h
 dps8_dia.o: dps8_utils.h
 dps8_dia.o: hdbg.h
+dps8_dia.o: ucache.h
 dps8_dia.o: udplib.h
 dps8_dia.o: uvutil.h
 dps8_disk.o: ../simh/sim_timer.h
@@ -210,6 +228,7 @@ dps8_disk.o: dps8_simh.h
 dps8_disk.o: dps8_sys.h
 dps8_disk.o: dps8_utils.h
 dps8_disk.o: hdbg.h
+dps8_disk.o: ucache.h
 dps8_disk.o: uvutil.h
 dps8_eis.o: ../simh/sim_timer.h
 dps8_eis.o: dps8.h
@@ -229,6 +248,7 @@ dps8_eis.o: dps8_simh.h
 dps8_eis.o: dps8_sys.h
 dps8_eis.o: dps8_utils.h
 dps8_eis.o: hdbg.h
+dps8_eis.o: ucache.h
 dps8_eis.o: uvutil.h
 dps8_faults.o: ../simh/sim_timer.h
 dps8_faults.o: dps8.h
@@ -246,6 +266,7 @@ dps8_faults.o: dps8_simh.h
 dps8_faults.o: dps8_sys.h
 dps8_faults.o: dps8_utils.h
 dps8_faults.o: hdbg.h
+dps8_faults.o: ucache.h
 dps8_faults.o: uvutil.h
 dps8_fnp2.o: ../simh/sim_timer.h
 dps8_fnp2.o: dps8.h
@@ -265,6 +286,7 @@ dps8_fnp2.o: fnptelnet.h
 dps8_fnp2.o: fnpuv.h
 dps8_fnp2.o: hdbg.h
 dps8_fnp2.o: libtelnet.h
+dps8_fnp2.o: ucache.h
 dps8_fnp2.o: uthash.h
 dps8_fnp2.o: utlist.h
 dps8_fnp2.o: uvutil.h
@@ -285,6 +307,7 @@ dps8_fnp2_iomcmd.o: dps8_utils.h
 dps8_fnp2_iomcmd.o: fnpuv.h
 dps8_fnp2_iomcmd.o: hdbg.h
 dps8_fnp2_iomcmd.o: libtelnet.h
+dps8_fnp2_iomcmd.o: ucache.h
 dps8_fnp2_iomcmd.o: uvutil.h
 dps8_iefp.o: ../simh/sim_timer.h
 dps8_iefp.o: dps8.h
@@ -303,6 +326,7 @@ dps8_iefp.o: dps8_simh.h
 dps8_iefp.o: dps8_sys.h
 dps8_iefp.o: dps8_utils.h
 dps8_iefp.o: hdbg.h
+dps8_iefp.o: ucache.h
 dps8_iefp.o: uvutil.h
 dps8_ins.o: ../simh/sim_timer.h
 dps8_ins.o: dps8.h
@@ -327,6 +351,7 @@ dps8_ins.o: dps8_sys.h
 dps8_ins.o: dps8_utils.h
 dps8_ins.o: hdbg.h
 dps8_ins.o: tracker.h
+dps8_ins.o: ucache.h
 dps8_ins.o: uvutil.h
 dps8_ins.o: ver.h
 dps8_iom.o: ../simh/sim_timer.h
@@ -346,6 +371,7 @@ dps8_iom.o: dps8_sys.h
 dps8_iom.o: dps8_utils.h
 dps8_iom.o: hdbg.h
 dps8_iom.o: libtelnet.h
+dps8_iom.o: ucache.h
 dps8_iom.o: uvutil.h
 dps8_math.o: ../simh/sim_timer.h
 dps8_math.o: dps8.h
@@ -363,6 +389,7 @@ dps8_math.o: dps8_simh.h
 dps8_math.o: dps8_sys.h
 dps8_math.o: dps8_utils.h
 dps8_math.o: hdbg.h
+dps8_math.o: ucache.h
 dps8_math.o: uvutil.h
 dps8_math128.o: dps8.h
 dps8_math128.o: dps8_em_consts.h
@@ -386,6 +413,7 @@ dps8_mt.o: dps8_simh.h
 dps8_mt.o: dps8_sys.h
 dps8_mt.o: dps8_utils.h
 dps8_mt.o: hdbg.h
+dps8_mt.o: ucache.h
 dps8_mt.o: uvutil.h
 dps8_opcodetable.o: dps8.h
 dps8_opcodetable.o: dps8_em_consts.h
@@ -410,6 +438,7 @@ dps8_prt.o: dps8_simh.h
 dps8_prt.o: dps8_sys.h
 dps8_prt.o: dps8_utils.h
 dps8_prt.o: hdbg.h
+dps8_prt.o: ucache.h
 dps8_prt.o: utfile.h
 dps8_prt.o: uvutil.h
 dps8_scu.o: ../simh/sim_timer.h
@@ -426,6 +455,7 @@ dps8_scu.o: dps8_simh.h
 dps8_scu.o: dps8_sys.h
 dps8_scu.o: dps8_utils.h
 dps8_scu.o: hdbg.h
+dps8_scu.o: ucache.h
 dps8_scu.o: uvutil.h
 dps8_simh.o: dps8.h
 dps8_simh.o: dps8_em_consts.h
@@ -449,6 +479,7 @@ dps8_socket_dev.o: dps8_sys.h
 dps8_socket_dev.o: dps8_utils.h
 dps8_socket_dev.o: errnos.h
 dps8_socket_dev.o: hdbg.h
+dps8_socket_dev.o: ucache.h
 dps8_socket_dev.o: uvutil.h
 dps8_sys.o: ../simh/sim_timer.h
 dps8_sys.o: bsd_random.h
@@ -483,6 +514,7 @@ dps8_sys.o: libtelnet.h
 dps8_sys.o: segldr.h
 dps8_sys.o: shm.h
 dps8_sys.o: tracker.h
+dps8_sys.o: ucache.h
 dps8_sys.o: utlist.h
 dps8_sys.o: uvutil.h
 dps8_sys.o: ver.h
@@ -501,6 +533,7 @@ dps8_urp.o: dps8_sys.h
 dps8_urp.o: dps8_urp.h
 dps8_urp.o: dps8_utils.h
 dps8_urp.o: hdbg.h
+dps8_urp.o: ucache.h
 dps8_urp.o: uvutil.h
 dps8_utils.o: ../simh/sim_timer.h
 dps8_utils.o: dps8.h
@@ -518,6 +551,7 @@ dps8_utils.o: dps8_simh.h
 dps8_utils.o: dps8_sys.h
 dps8_utils.o: dps8_utils.h
 dps8_utils.o: hdbg.h
+dps8_utils.o: ucache.h
 dps8_utils.o: uvutil.h
 fnptelnet.o: ../simh/sim_timer.h
 fnptelnet.o: dps8.h
@@ -537,6 +571,7 @@ fnptelnet.o: fnptelnet.h
 fnptelnet.o: fnpuv.h
 fnptelnet.o: hdbg.h
 fnptelnet.o: libtelnet.h
+fnptelnet.o: ucache.h
 fnptelnet.o: uvutil.h
 fnpuv.o: ../simh/sim_timer.h
 fnpuv.o: dps8.h
@@ -555,6 +590,7 @@ fnpuv.o: fnptelnet.h
 fnpuv.o: fnpuv.h
 fnpuv.o: hdbg.h
 fnpuv.o: libtelnet.h
+fnpuv.o: ucache.h
 fnpuv.o: uvutil.h
 hdbg.o: ../simh/sim_timer.h
 hdbg.o: dps8.h
@@ -567,6 +603,7 @@ hdbg.o: dps8_simh.h
 hdbg.o: dps8_sys.h
 hdbg.o: dps8_utils.h
 hdbg.o: hdbg.h
+hdbg.o: ucache.h
 hdbg.o: uvutil.h
 libtelnet.o: dps8.h
 libtelnet.o: dps8_em_consts.h
@@ -591,6 +628,7 @@ segldr.o: dps8_sys.h
 segldr.o: dps8_utils.h
 segldr.o: hdbg.h
 segldr.o: segldr.h
+segldr.o: ucache.h
 segldr.o: uvutil.h
 shm.o: shm.h
 threadz.o: ../simh/sim_timer.h
@@ -606,6 +644,7 @@ threadz.o: dps8_sys.h
 threadz.o: dps8_utils.h
 threadz.o: hdbg.h
 threadz.o: threadz.h
+threadz.o: ucache.h
 threadz.o: uvutil.h
 tracker.o: dps8.h
 tracker.o: dps8_em_consts.h
@@ -615,6 +654,17 @@ tracker.o: dps8_simh.h
 tracker.o: dps8_sys.h
 tracker.o: tracker.h
 tracker.o: uvutil.h
+ucache.o: ../simh/sim_timer.h
+ucache.o: dps8.h
+ucache.o: dps8_cpu.h
+ucache.o: dps8_em_consts.h
+ucache.o: dps8_hw_consts.h
+ucache.o: dps8_math128.h
+ucache.o: dps8_simh.h
+ucache.o: dps8_sys.h
+ucache.o: hdbg.h
+ucache.o: ucache.h
+ucache.o: uvutil.h
 udplib.o: h316_imp.h
 udplib.o: udplib.h
 utfile.o: bsd_random.h
@@ -629,4 +679,5 @@ uvutil.o: dps8_sys.h
 uvutil.o: dps8_utils.h
 uvutil.o: hdbg.h
 uvutil.o: libtelnet.h
+uvutil.o: ucache.h
 uvutil.o: uvutil.h
