@@ -26,7 +26,6 @@
 
 INSTALL_ROOT ?= $(PREFIX)
 INSTALL_BIN  ?= $(INSTALL_ROOT)/bin
-
 ###############################################################################
 
 ifneq (,$(wildcard ../Makefile.mk))
@@ -187,13 +186,14 @@ endif
 
 ###############################################################################
 
+C_SRCS  = bsd_random.c
 ifeq ($(WITH_ABSI_DEV),1)
   ifneq ($(MINGW_CROSS),1)
-    C_SRCS  = dps8_absi.c
+    C_SRCS += dps8_absi.c
     C_SRCS += udplib.c
+    ENABLED_UDPLIB_C=1
   endif
 endif
-C_SRCS += bsd_random.c
 C_SRCS += dps8_addrmods.c
 C_SRCS += dps8_append.c
 C_SRCS += dps8_cable.c
@@ -212,6 +212,11 @@ C_SRCS += dps8_ins.c
 C_SRCS += dps8_iom.c
 C_SRCS += dps8_math.c
 C_SRCS += dps8_math128.c
+ifeq ($(WITH_MGP_DEV),1)
+  ifneq ($(MINGW_CROSS),1)
+    C_SRCS += dps8_mgp.c
+  endif
+endif
 C_SRCS += dps8_mt.c
 C_SRCS += dps8_opcodetable.c
 C_SRCS += dps8_prt.c
@@ -238,9 +243,12 @@ ifneq ($(MINGW_CROSS),1)
 endif
 ifeq ($(THREADZ),1)
   C_SRCS += threadz.c
+  ENABLED_THREADZ_C=1
 endif
 ifeq ($(LOCKLESS),1)
-  C_SRCS += threadz.c
+  ifneq ($(ENABLED_THREADZ_C),1)
+    C_SRCS += threadz.c
+  endif
 endif
 C_SRCS += utfile.c
 C_SRCS += uvutil.c
@@ -254,6 +262,9 @@ OBJS  := $(patsubst %.c,%.o,$(C_SRCS))
 
 ifneq ($(WITH_ABSI_DEV),1)
   H_SRCS  = dps8_absi.h
+endif
+ifneq ($(WITH_MGP_DEV),1)
+  H_SRCS  = dps8_mgp.h
 endif
 H_SRCS += bsd_random.h
 H_SRCS += dps8_addrmods.h
@@ -368,6 +379,9 @@ printmod:
 .PHONY: all ctags
 dps8$(EXE): sysdefs.h $(OBJS) $(LOCALOBJS) $(DECN_OBJS) $(SIMH_OBJS) ctags
 	@$(PRINTF) '%s\n' "LD: dps8$(EXE)"
+ifeq ($(TESTING),1)
+	@$(PRINTF) '%s\n' "LD: $(OBJS)"
+endif
 	@$(SETV); $(CC) -o dps8$(EXE) $(LDFLAGS) $(OBJS) $(LOCALOBJS)             \
            $(MATHLIB) $(DECN_OBJS) $(SIMH_OBJS)                               \
             $(LIBS) $(LOCALLIBS) $(DUMALIBS)
@@ -619,6 +633,7 @@ clean:
 	@$(SETV); $(RMF)  "../../amd_memcopy.o"            ||  $(TRUE)
 	@$(SETV); $(RMF)  "./null.i"                       ||  $(TRUE)
 	@$(SETV); $(RMF) "dps8_absi.o"       2> /dev/null  ||  $(TRUE)
+	@$(SETV); $(RMF) "dps8_mgp.o"        2> /dev/null  ||  $(TRUE)
 	@$(SETV); $(RMF) "dps8_socket_dev.o" 2> /dev/null  ||  $(TRUE)
 	@$(SETV); $(RMF) "udplib.o"          2> /dev/null  ||  $(TRUE)
 	@$(SETV); $(RMF) ./*.ln > /dev/null 2>&1           ||  $(TRUE)

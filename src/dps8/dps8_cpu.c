@@ -54,12 +54,16 @@
 #include "dps8_socket_dev.h"
 #include "dps8_crdrdr.h"
 #include "dps8_absi.h"
+#include "dps8_mgp.h"
 #include "dps8_utils.h"
+
 #ifdef M_SHARED
 # include "shm.h"
 #endif
+
 #include "dps8_opcodetable.h"
 #include "sim_defs.h"
+
 #if defined(THREADZ) || defined(LOCKLESS)
 # include "threadz.h"
 __thread uint current_running_cpu_idx;
@@ -1526,6 +1530,17 @@ static void ev_poll_cb (UNUSED uv_timer_t * handle)
 #   endif /* ifndef __MINGW64__ */
 #  endif /* ifndef __MINGW32__ */
 # endif /* ifdef WITH_ABSI_DEV */
+# ifdef WITH_MGP_DEV
+#  ifndef __MINGW32__
+#   ifndef __MINGW64__
+#    ifndef CROSS_MINGW32
+#     ifndef CROSS_MINGW64
+    mgp_process_event ();
+#     endif /* ifndef CROSS_MINGW64 */
+#    endif /* ifndef CROSS_MINGW32 */
+#   endif /* ifndef __MINGW64__ */
+#  endif /* ifndef __MINGW32__ */
+# endif /* ifdef WITH_MGP_DEV */
     PNL (panel_process_event ());
   }
 #endif /* ifndef PERF_STRIP */

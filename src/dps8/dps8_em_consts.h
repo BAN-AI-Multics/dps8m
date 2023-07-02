@@ -43,16 +43,19 @@ enum { N_CPU_UNITS_MAX = 8 };
 //
 ////////////////
 
-// Unit record processor
+// URP (Unit record processor_
 enum { N_URP_UNITS_MAX = 16 };
 
 // ABSI
 enum { N_ABSI_UNITS_MAX = 1 };
 
+// MGP (Chaosnet)
+enum { N_MGP_UNITS_MAX =  2 };
+
 // FNP
 enum { N_FNP_UNITS_MAX = 16 };
 
-// Operator console
+// OPC (Operator console)
 enum { N_OPC_UNITS_MAX =  8 };
 
 // MTP

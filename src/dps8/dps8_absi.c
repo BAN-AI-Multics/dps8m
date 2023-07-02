@@ -35,6 +35,13 @@
 
 #include "udplib.h"
 
+#undef FREE
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
+
 #ifdef TESTING
 # undef FREE
 # define FREE(p) free(p)
@@ -210,7 +217,6 @@ static t_stat absiDetach (UNIT * uptr)
     absi_state[unitno].link = NOLINK;
     uptr->flags &= ~ (unsigned int) UNIT_ATT;
     FREE (uptr->filename);
-    uptr->filename = NULL;
     return SCPE_OK;
   }
 

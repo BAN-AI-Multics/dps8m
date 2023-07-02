@@ -297,6 +297,8 @@
     echo -e "section_start:`date +%s`:dnfuinstall_section[collapsed=true]\r\e[0K\033[0;36mSetting up system ...\033[0m" || true
     echo "Checking for Docker ..."
     test -f /.dockerenv || exit 1
+    echo "Configure dnf ..."
+    sed -i 's/tsflags=nodocs//' /etc/dnf/dnf.conf || true
     echo "Updating system ..."
     dnf -y --refresh --allowerasing --best update || dnf -y --refresh --nobest update || true
     dnf -y --refresh --best update || dnf -y --refresh --nobest update || true
@@ -2579,7 +2581,6 @@ Linux/x86_64, Fedora Rawhide, Clang, GCC:
     - Linux
   script:
     - export GLCICD_JOB="FedoraRawhideX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
-    - sed -i 's/tsflags=nodocs//' /etc/dnf/dnf.conf > /dev/null 2>&1 || true
     - *scriptDnfSetup
     - *scriptInstallNfpm
     - *scriptSanity
@@ -3669,7 +3670,7 @@ Option Verification Test:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - export NO_LTO=1
-    - export CMB_OPTIONS="UCACHE=1 NO_LOCKLESS=1 TESTING=1 NEED_128=1 HDBG=1 ROUND_ROBIN=1 TRACKER=1"
+    - export CMB_OPTIONS="UCACHE=1 NO_LOCKLESS=1 TESTING=1 NEED_128=1 HDBG=1 ROUND_ROBIN=1 TRACKER=1 WITH_ABSI_DEV=1 WITH_MGP_DEV=1"
     - make -C "src/mcmb" && export CMB_TOOL="$(command -p env PATH="$(command -p env getconf PATH)" mktemp)" && mv -f "src/mcmb/mcmb" "${CMB_TOOL:?}" && chmod a+x "${CMB_TOOL:?}"
     - touch part_x.sh && rm -f part_*.sh > /dev/null 2>&1 || true > /dev/null 2>&1
     - ( export NSPLIT=${CI_NODE_TOTAL:?}; for i in $(seq 1 ${CI_NODE_TOTAL:?}); do ( env CPUS="$(( $((grep -c "^model name" /proc/cpuinfo 2> /dev/null) | head -n 1) + 1 ))" bash -c '${CMB_TOOL:?} -N -e ${CMB_OPTIONS:?} -p "make -j ${CPUS:?} " -s " && printf %s\\\\n \"SHOW VERSION\" | ./src/dps8/dps8 -t && make distclean && \\"' ) | awk '{ print "env ITERATION="$0 }' 2> /dev/null | split -e -n "r/${i:?}/${NSPLIT:?}" | awk "BEGIN { print \"#\!/usr/bin/env bash\"; print \"# Part ${i:?} of ${NSPLIT:?}\"; printf \"\"; print \"set -eux -o pipefail\" } { print \$0 } END { print \"true\"; print \"\" }" > "part_${i:?}_of_${NSPLIT:?}.sh" 2> /dev/null; done )
@@ -3908,7 +3909,7 @@ PVS-Studio:
     - pvs-studio-analyzer credentials "${PVS_STUDIO_NAME:?}" "${PVS_STUDIO_KEY:?}" || true
     - rm -f compile_commands.json
     - rm -f compile_commands.events.json
-    - bear -- gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
+    - env WITH_ABSI_DEV=1 WITH_MGP_DEV=1 WITH_SOCKET_DEV=1 bear -- gmake WITH_ABSI_DEV=1 WITH_MGP_DEV=1 WITH_SOCKET_DEV=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
     - ./src/dps8/dps8 --version
     - pvs-studio-analyzer analyze --intermodular -o log.pvs -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") || true
     - plog-converter -a "GA:1,2" -t fullhtml log.pvs -o pvsreport -d V576,V629,V701,V768 || true

@@ -686,4 +686,4 @@ int main (int argc, char * argv [])
       }
   }
 # endif
-#endif /* ifdef WITH_ABSI_DEV */
+#endif /* #ifdef WITH_ABSI_DEV */

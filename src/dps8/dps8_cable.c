@@ -75,6 +75,10 @@
 //
 //      Connect IOM i channel j to ABSI k.
 //
+//   CABLE IOMi j MGPk
+//
+//      Connect IOM i channel j to MGP k.
+//
 //   CABLE IOMi j SKCk
 //
 //      Connect IOM i channel j to SKC k.
@@ -130,6 +134,7 @@
 #  ifndef CROSS_MINGW64
 #   ifndef CROSS_MINGW32
 #    include "dps8_absi.h"
+#    include "dps8_mgp.h"
 #   endif /* ifndef CROSS_MINGW32 */
 #  endif /* ifndef CROSS_MINGW64 */
 # endif /* ifndef __MINGW32__ */
@@ -152,7 +157,7 @@ char * ctlr_type_strs [/* enum ctlr_type_e */] =
   {
     "none",
      "MTP", "MSP", "IPC", "OPC",
-     "URP", "FNP", "ABSI", "SKC"
+     "URP", "FNP", "ABSI", "SKC", "MGP"
   };
 
 char * chan_type_strs [/* enum ctlr_type_e */] =
@@ -649,6 +654,7 @@ static t_stat cable_ctlr (int uncable,
 //    cable IOMx chan# OPCx          // Operator console
 //    cable IOMx chan# FNPx          // FNP
 //    cable IOMx chan# ABSIx         // ABSI
+//    cable IOMx chan# MGPx          // MGP
 //    cable IOMx chan# SKCx          // Socket controller
 
 static t_stat cable_iom (int uncable, uint iom_unit_idx, char * * name_save)
@@ -868,6 +874,36 @@ static t_stat cable_iom (int uncable, uint iom_unit_idx, char * * name_save)
 #  endif /* ifndef __MINGW64__ */
 # endif /* ifndef __MINGW32__ */
 #endif /* ifdef WITH_ABSI_DEV */
+
+#ifdef WITH_MGP_DEV
+# ifndef __MINGW64__
+#  ifndef __MINGW32__
+#   ifndef CROSS_MINGW64
+#    ifndef CROSS_MINGW32
+    // IOMx MGPx
+    if (name_match (param, "MGP", & unit_idx))
+      {
+        if (unit_idx >= N_MGP_UNITS_MAX)
+          {
+            sim_printf ("error: CABLE IOM: MGP unit number out of range <%d>\n", unit_idx);
+            return SCPE_ARG;
+          }
+
+        uint mgp_port_num = 0;
+        return cable_ctlr (uncable,
+                           iom_unit_idx, (uint) chan_num,
+                           unit_idx, mgp_port_num,
+                           "CABLE IOMx MGPx",
+                           & mgp_dev,
+                           & cables->mgp_to_iom[unit_idx][mgp_port_num],
+                           CTLR_T_MGP, chan_type_direct,
+                           & mgp_unit [unit_idx], mgp_iom_cmd);
+      }
+#    endif /* ifndef CROSS_MINGW64 */
+#   endif /* ifndef CROSS_MINGW32 */
+#  endif /* ifndef __MINGW64__ */
+# endif /* ifndef __MINGW32__ */
+#endif /* ifdef WITH_MGP_DEV */
 
 #ifdef WITH_SOCKET_DEV
 # ifndef __MINGW64__
@@ -1422,6 +1458,11 @@ sys_cable_graph (void)
         R_CTLR_IOM (ABSI, absi, oval,    teal)
 # endif /* ifndef __MINGW64__ */
 #endif /* ifdef WITH_ABSI_DEV */
+#ifdef WITH_MGP_DEV
+# ifndef __MINGW64__
+        R_CTLR_IOM (MGP, mgp, oval,    teal)
+# endif /* ifndef __MINGW64__ */
+#endif /* ifdef WITH_MGP_DEV */
         R_CTLR_IOM (OPC,  opc,  oval,    hotpink)
 
 #define R_DEV_CTLR(from_big, from_small, to_label,                       \
@@ -1585,6 +1626,17 @@ t_stat sys_cable_show (int32 dump, UNUSED const char * buf)
 #  endif /* ifndef __MINGW32__ */
 # endif /* ifndef __MINGW64__ */
 #endif /* ifdef WITH_ABSI_DEV */
+#ifdef WITH_MGP_DEV
+# ifndef __MINGW64__
+#  ifndef __MINGW32__
+#   ifndef CROSS_MINGW32
+#    ifndef CROSS_MINGW64
+        CTLR_IOM (MGP, mgp)
+#    endif /* ifndef CROSS_MINGW64 */
+#   endif /* ifndef CROSS_MINGW32 */
+#  endif /* ifndef __MINGW32__ */
+# endif /* ifndef __MINGW64__ */
+#endif /* ifdef WITH_MGP_DEV */
 #ifdef WITH_SOCKET_DEV
 # ifndef __MINGW32__
 #  ifndef __MINGW64__

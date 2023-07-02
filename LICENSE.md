@@ -46,6 +46,7 @@ Copyright © 2016 Jean-Michel Merliot
 Copyright © 2017-2023 Jeffrey H. Johnson
 Copyright © 2018-2021 Juergen Weiss
 Copyright © 2021 Dean S. Anderson
+Copyright © 2023 Björn Victor <bjorn@victor.se>
 Copyright © 2021-2023 The DPS8M Development Team
 
 All rights reserved.

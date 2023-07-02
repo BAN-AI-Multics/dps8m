@@ -36,7 +36,7 @@ ifdef ATOMICS
 endif
 
 ###############################################################################
-# APU micro-cache
+# Enable (unsupported, experimental) APU micro-cache
 
 ifdef UCACHE
   UCACHE=1
@@ -44,7 +44,7 @@ ifdef UCACHE
 endif
 
 ###############################################################################
-# libbacktrace support
+# Enable libbacktrace support
 
 LIBBACKTRACE ?= -lbacktrace
 
@@ -63,7 +63,7 @@ ifdef NO_C_ELLIPSIS
 endif
 
 ###############################################################################
-# ISOLTS-enabled build
+# Enable ISOLTS-enabled build
 
 ifeq ($(ISOLTS),1)
   unexport NO_LOCKLESS
@@ -102,11 +102,19 @@ ifdef TESTING
 endif
 
 ###############################################################################
-# Enable ABSI device
+# Enable (unsupported, experimental) ABSI device
 
 ifdef WITH_ABSI_DEV
   WITH_ABSI_DEV=1
   CFLAGS += -DWITH_ABSI_DEV
+endif
+
+###############################################################################
+# Enable (unsupported, experimental) MGP device
+
+ifdef WITH_MGP_DEV
+  WITH_MGP_DEV=1
+  CFLAGS += -DWITH_MGP_DEV
 endif
 
 ###############################################################################

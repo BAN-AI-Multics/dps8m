@@ -79,6 +79,7 @@ dps8_cable.o: dps8_fnp2.h
 dps8_cable.o: dps8_hw_consts.h
 dps8_cable.o: dps8_iom.h
 dps8_cable.o: dps8_math128.h
+dps8_cable.o: dps8_mgp.h
 dps8_cable.o: dps8_mt.h
 dps8_cable.o: dps8_prt.h
 dps8_cable.o: dps8_scu.h
@@ -130,6 +131,7 @@ dps8_cpu.o: dps8_ins.h
 dps8_cpu.o: dps8_iom.h
 dps8_cpu.o: dps8_math.h
 dps8_cpu.o: dps8_math128.h
+dps8_cpu.o: dps8_mgp.h
 dps8_cpu.o: dps8_opcodetable.h
 dps8_cpu.o: dps8_scu.h
 dps8_cpu.o: dps8_simh.h
@@ -398,6 +400,23 @@ dps8_math128.o: dps8_math128.h
 dps8_math128.o: dps8_simh.h
 dps8_math128.o: dps8_sys.h
 dps8_math128.o: uvutil.h
+dps8_mgp.o: ../simh/sim_timer.h
+dps8_mgp.o: dps8.h
+dps8_mgp.o: dps8_cable.h
+dps8_mgp.o: dps8_cpu.h
+dps8_mgp.o: dps8_em_consts.h
+dps8_mgp.o: dps8_faults.h
+dps8_mgp.o: dps8_hw_consts.h
+dps8_mgp.o: dps8_iom.h
+dps8_mgp.o: dps8_math128.h
+dps8_mgp.o: dps8_mgp.h
+dps8_mgp.o: dps8_scu.h
+dps8_mgp.o: dps8_simh.h
+dps8_mgp.o: dps8_sys.h
+dps8_mgp.o: dps8_utils.h
+dps8_mgp.o: hdbg.h
+dps8_mgp.o: ucache.h
+dps8_mgp.o: uvutil.h
 dps8_mt.o: ../simh/sim_timer.h
 dps8_mt.o: dps8.h
 dps8_mt.o: dps8_cable.h
@@ -500,6 +519,7 @@ dps8_sys.o: dps8_ins.h
 dps8_sys.o: dps8_iom.h
 dps8_sys.o: dps8_math.h
 dps8_sys.o: dps8_math128.h
+dps8_sys.o: dps8_mgp.h
 dps8_sys.o: dps8_mt.h
 dps8_sys.o: dps8_prt.h
 dps8_sys.o: dps8_scu.h

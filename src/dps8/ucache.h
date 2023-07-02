@@ -23,7 +23,7 @@
 // Normal usage should be <= ~512 (0400)?
 
 //#define UC_CACHE_SZ 4096
-#define UC_CACHE_SZ 400
+#define UC_CACHE_SZ 512
 
 // Micro-cache
 
