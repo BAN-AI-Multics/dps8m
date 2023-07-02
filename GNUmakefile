@@ -29,7 +29,7 @@
 #            CROSS=MINGW64                 Enable MinGW-64 cross-compilation
 #   WITH_BACKTRACE=1                       Enable building with libbacktrace
 #         NEED_128=1                       Enable provided 128-bit int types
-#           NATIVE=1                       Enable "-march=native" via CFLAGS
+#           NATIVE=1                       Enable native arch/cpu via CFLAGS
 #      NO_LOCKLESS=1                       Enable legacy (non-lockless) code
 #           NO_LTO=1                       Disables the use of LTO for build
 #    NO_C_ELLIPSIS=1                       Disables the C ellipsis extension
@@ -37,6 +37,8 @@
 #      ROUND_ROBIN=1                       Enable non-threaded multiple CPUs
 #          TESTING=1                       Enable developmental testing mode
 #           UCACHE=1                       Enable (UNSTABLE) appending cache
+#     WITH_MGP_DEV=1                       Enable (UNSTABLE) Chaosnet device
+#    WITH_ABSI_DEV=1                       Enable (UNSTABLE) ABSI/IMP device
 #             DUMA=1                       Enable the libDUMA malloc library
 #                V=1                       Enable verbose compilation output
 #                W=1                       Enable extra compilation warnings

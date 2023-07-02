@@ -72,10 +72,12 @@
 #include "dps8_prt.h"
 #include "dps8_urp.h"
 #include "dps8_absi.h"
+#include "dps8_mgp.h"
 #include "dps8_utils.h"
 #include "shm.h"
 #include "utlist.h"
 #include "ver.h"
+
 #if defined(THREADZ) || defined(LOCKLESS)
 # include "threadz.h"
 #endif
@@ -209,6 +211,8 @@ static char * default_base_system_script [] =
 //  026 FNPG           comm line controller
 //  027 FNPH           comm line controller
 //  032 ABSI0          IMP controller
+//  033 MGP0           MGP Read controller
+//  034 MGP1           MGP Write controller
 //  036 OPC0           operator console
 //  040 SKCA
 //  041 SKCB
@@ -257,6 +261,19 @@ static char * default_base_system_script [] =
 #   endif /* ifndef __MINGW32__ */
 #  endif /* ifndef __MINGW64__ */
 # endif /* ifdef WITH_ABSI_DEV */
+
+# ifdef WITH_MGP_DEV
+#  ifndef __MINGW64__
+#   ifndef __MINGW32__
+#    ifndef CROSS_MINGW64
+#     ifndef CROSS_MINGW32
+    "SET MGP NUNITS=2",
+#     endif /* ifndef CROSS_MINGW32 */
+#    endif /* ifndef CROSS_MINGW64 */
+#   endif /* ifndef __MINGW32__ */
+#  endif /* ifndef __MINGW64__ */
+# endif /* ifdef WITH_MGP_DEV */
+
 # ifdef WITH_SOCKET_DEV
 #  ifndef __MINGW64__
 #   ifndef __MINGW32__
@@ -1631,6 +1648,21 @@ static char * default_base_system_script [] =
 #   endif /* __MINGW32__ */
 #  endif /* __MINGW64__ */
 # endif /* ifdef WITH_ABSI_DEV */
+
+# ifdef WITH_MGP_DEV
+#  ifndef __MINGW64__
+#   ifndef __MINGW32__
+#    ifndef CROSS_MINGW64
+#     ifndef CROSS_MINGW32
+    // ; Attach MGPR unit 0 to IOM 0, chan 033, dev_code 0
+    "CABLE IOM0 033 MGP0",
+    // ; Attach MGPW unit 1 to IOM 0, chan 034, dev_code 0
+    "CABLE IOM0 034 MGP1",
+#     endif /* CROSS_MINGW32 */
+#    endif /* CROSS_MINGW64 */
+#   endif /* __MINGW32__ */
+#  endif /* __MINGW64__ */
+# endif /* ifdef WITH_MGP_DEV */
 
     // ; Attach IOM unit 0 port A (0) to SCU unit 0, port 0
     "CABLE SCU0 0 IOM0 0", // SCU0 port 0 IOM0 port 0
@@ -4220,13 +4252,43 @@ static void dps8_init (void) {
     sim_msg ("%s simulator (%ld-bit)",
              sim_name, (long)(CHAR_BIT*sizeof(void *)));
 # endif
+
+/* TESTING */
 # ifdef TESTING
     sim_msg ("\n Options: ");
 #  ifndef HAVE_DPSOPT
 #   define HAVE_DPSOPT 1
 #  endif
     sim_msg ("TESTING");
-# endif
+# endif /* ifdef TESTING */
+
+/* ISOLTS */
+# ifdef ISOLTS
+#  ifdef HAVE_DPSOPT
+    sim_msg (", ");
+#  else
+    sim_msg ("\n Options: ");
+#  endif
+#  ifndef HAVE_DPSOPT
+#   define HAVE_DPSOPT 1
+#  endif
+    sim_msg ("ISOLTS");
+# endif /* ifdef ISOLTS */
+
+/* NEED_128 */
+# ifdef NEED_128
+#  ifdef HAVE_DPSOPT
+    sim_msg (", ");
+#  else
+    sim_msg ("\n Options: ");
+#  endif
+#  ifndef HAVE_DPSOPT
+#   define HAVE_DPSOPT 1
+#  endif
+    sim_msg ("NEED_128");
+# endif /* ifdef NEED_128 */
+
+/* UCACHE */
 # ifdef UCACHE
 #  ifdef HAVE_DPSOPT
     sim_msg (", ");
@@ -4238,7 +4300,9 @@ static void dps8_init (void) {
 #  endif
     sim_msg ("UCACHE");
 # endif
-# ifdef NEED_128
+
+/* WAM */
+# ifdef WAM
 #  ifdef HAVE_DPSOPT
     sim_msg (", ");
 #  else
@@ -4247,8 +4311,10 @@ static void dps8_init (void) {
 #  ifndef HAVE_DPSOPT
 #   define HAVE_DPSOPT 1
 #  endif
-    sim_msg ("NEED_128");
-# endif
+    sim_msg ("WAM");
+# endif /* ifdef WAM */
+
+/* ROUND_ROBIN */
 # ifdef ROUND_ROBIN
 #  ifdef HAVE_DPSOPT
     sim_msg (", ");
@@ -4259,7 +4325,9 @@ static void dps8_init (void) {
 #   define HAVE_DPSOPT 1
 #  endif
     sim_msg ("ROUND_ROBIN");
-# endif
+# endif /* ifdef ROUND_ROBIN */
+
+/* NO_LOCKLESS */
 # ifndef LOCKLESS
 #  ifdef HAVE_DPSOPT
     sim_msg (", ");
@@ -4270,7 +4338,76 @@ static void dps8_init (void) {
 #   define HAVE_DPSOPT 1
 #  endif
     sim_msg ("NO_LOCKLESS");
-# endif
+# endif /* ifndef NO_LOCKLESS */
+
+/* ABSI */  /* XXX: Change to NO_ABSI once code is non-experimental */
+# ifdef WITH_ABSI_DEV
+#  ifdef HAVE_DPSOPT
+    sim_msg (", ");
+#  else
+    sim_msg ("\n Options: ");
+#  endif
+#  ifndef HAVE_DPSOPT
+#   define HAVE_DPSOPT 1
+#  endif
+    sim_msg ("ABSI");
+# endif /* ifdef WITH_ABSI_DEV */
+
+/* SOCKET */  /* XXX: Change to NO_SOCKET once code is non-experimental */
+# ifdef WITH_SOCKET_DEV
+#  ifdef HAVE_DPSOPT
+    sim_msg (", ");
+#  else
+    sim_msg ("\n Options: ");
+#  endif
+#  ifndef HAVE_DPSOPT
+#   define HAVE_DPSOPT 1
+#  endif
+    sim_msg ("SOCKET");
+# endif /* ifdef WITH_SOCKET_DEV */
+
+/* CHAOSNET */  /* XXX: Change to NO_CHAOSNET once code is non-experimental */
+# ifdef WITH_MGP_DEV
+#  ifdef HAVE_DPSOPT
+    sim_msg (", ");
+#  else
+    sim_msg ("\n Options: ");
+#  endif
+#  ifndef HAVE_DPSOPT
+#   define HAVE_DPSOPT 1
+#  endif
+    sim_msg ("CHAOSNET");
+#  if USE_SOCKET_DEV_APPROACH
+    sim_msg ("*");
+#  endif /* if USE_SOCKET_DEV_APPROACH */
+# endif /* ifdef WITH_MGP_DEV */
+
+/* DUMA */
+# ifdef USE_DUMA
+#  ifdef HAVE_DPSOPT
+    sim_msg (", ");
+#  else
+    sim_msg ("\n Options: ");
+#  endif
+#  ifndef HAVE_DPSOPT
+#   define HAVE_DPSOPT 1
+#  endif
+    sim_msg ("DUMA");
+# endif /* ifdef USE_DUMA */
+
+/* BACKTRACE */
+# ifdef USE_BACKTRACE
+#  ifdef HAVE_DPSOPT
+    sim_msg (", ");
+#  else
+    sim_msg ("\n Options: ");
+#  endif
+#  ifndef HAVE_DPSOPT
+#   define HAVE_DPSOPT 1
+#  endif
+    sim_msg ("BACKTRACE");
+# endif /* ifdef USE_BACKTRACE */
+
 # if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_HASH)
     sim_msg ("\n  Commit: %s", VER_H_GIT_HASH);
 # endif
@@ -4284,7 +4421,7 @@ static void dps8_init (void) {
   // These are part of the scp interface
   sim_vm_parse_addr  = parse_addr;
   sim_vm_fprint_addr = fprint_addr;
-# endif // TESTING
+# endif /* ifdef TESTING */
 
   sim_vm_cmd = dps8_cmds;
 
@@ -4502,6 +4639,7 @@ static void dps8_init (void) {
   pun_init ();
   prt_init ();
   urp_init ();
+
 # ifdef WITH_ABSI_DEV
 #  ifndef __MINGW64__
 #   ifndef __MINGW32__
@@ -4513,6 +4651,19 @@ static void dps8_init (void) {
 #   endif /* ifndef __MINGW32__ */
 #  endif /* ifndef __MINGW64__ */
 # endif /* ifdef WITH_ABSI_DEV */
+
+# ifdef WITH_MGP_DEV
+#  ifndef __MINGW64__
+#   ifndef __MINGW32__
+#    ifndef CROSS_MINGW64
+#     ifndef CROSS_MINGW32
+  mgp_init ();
+#     endif /* CROSS_MINGW32 */
+#    endif /* CROSS_MINGW64 */
+#   endif /* ifndef __MINGW32__ */
+#  endif /* ifndef __MINGW64__ */
+# endif /* ifdef WITH_MGP_DEV */
+
   set_default_base_system (0, NULL);
 # ifdef PANEL68
   panelScraperInit ();
@@ -4931,6 +5082,7 @@ DEVICE * sim_devices[] =
     & rdr_dev,
     & pun_dev,
     & prt_dev,
+
 #ifdef WITH_ABSI_DEV
 # ifndef __MINGW64__
 #  ifndef __MINGW32__
@@ -4942,6 +5094,19 @@ DEVICE * sim_devices[] =
 #  endif /* ifndef __MINGW32__ */
 # endif /* ifndef __MINGW64__ */
 #endif /* ifdef WITH_ABSI_DEV */
+
+#ifdef WITH_MGP_DEV
+# ifndef __MINGW64__
+#  ifndef __MINGW32__
+#   ifndef CROSS_MINGW32
+#    ifndef CROSS_MINGW64
+    & mgp_dev,
+#    endif /* ifndef CROSS_MINGW64 */
+#   endif /* ifndef CROSS_MINGW32 */
+#  endif /* ifndef __MINGW32__ */
+# endif /* ifndef __MINGW64__ */
+#endif /* ifdef WITH_MGP_DEV */
+
     NULL
   };
 

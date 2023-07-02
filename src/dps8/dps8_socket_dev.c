@@ -837,7 +837,7 @@ static int get_ddcw (iom_chan_data_t * p, uint iom_unit_idx, uint chan, bool * p
     sim_debug (DBG_DEBUG, & skc_dev,
                "%s: Tally %d (%o)\n", __func__, * tally, * tally);
 
-    if (expected_tally && * tally && * tally != expected_tally)
+    if (expected_tally && * tally && * tally != expected_tally) //-V560
       {
         sim_warn ("socket_dev socket call expected tally of %d; got %d\n", expected_tally, * tally);
         p->stati = 05001; // BUG: arbitrary error code; config switch
@@ -1045,7 +1045,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
 
             // Fetch parameters from core into buffer
 
-            word36 buffer [tally];
+            word36 buffer[4096];  /* tally size is max 4096 bytes */
             uint words_processed;
             iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                        & words_processed, false);
@@ -1074,7 +1074,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
 
             // Fetch parameters from core into buffer
 
-            word36 buffer [tally];
+            word36 buffer[4096];  /* tally size is max 4096 bytes */
             uint words_processed;
             iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                        & words_processed, false);
@@ -1139,7 +1139,7 @@ iom_cmd_rc_t skc_iom_cmd (uint iom_unit_idx, uint chan)
 
 static void do_try_accept (uint unit_idx, word6 dev_code)
   {
-    struct sockaddr_in from;
+    struct sockaddr_in from = { .sin_family = AF_INET };
     socklen_t size = sizeof (from);
     int _errno = 0;
     int fd = accept (sk_data.unit_data[unit_idx][dev_code].accept_fd, (struct sockaddr *) & from, & size);
@@ -1163,9 +1163,9 @@ static void do_try_accept (uint unit_idx, word6 dev_code)
       }
     word36 buffer [7];
     // sign extend int into word36
-    buffer[0]     = ((word36) ((word36s) sk_data.unit_data[unit_idx][dev_code].accept_fd)) & MASK36;
-    buffer[1]     = ((word36) ((word36s) fd)) & MASK36;
-    buffer[2]     = ((word36) ((word36s) from.sin_family)) & MASK36;
+    buffer[0] = ((word36) ((word36s) sk_data.unit_data[unit_idx][dev_code].accept_fd)) & MASK36;
+    buffer[1] = ((word36) ((word36s) fd)) & MASK36;
+    buffer[2] = ((word36) ((word36s) from.sin_family)) & MASK36;
     uint16_t port = ntohs (from.sin_port);
     putbits36_16 (& buffer[3], 0, port);
     uint32_t addr = ntohl (from.sin_addr.s_addr);
@@ -1179,7 +1179,7 @@ static void do_try_accept (uint unit_idx, word6 dev_code)
     iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                & words_processed, true);
     iom_chan_data_t * p  = & iom_chan_data[iom_unit_idx][chan];
-    p->stati = 04000;
+    p->stati = 04000; // -V536
     sk_data.unit_data[unit_idx][dev_code].unit_state = unit_idle;
     send_terminate_interrupt (iom_unit_idx, chan);
   }

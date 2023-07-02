@@ -83,6 +83,7 @@ enum ctlr_type_e
      CTLR_T_URP,
      CTLR_T_FNP,
      CTLR_T_ABSI,
+     CTLR_T_MGP,
      CTLR_T_SKC,
      // DEVT_DN355
   };
@@ -215,11 +216,11 @@ struct cables_s
   {
     // SCU->unit
     //  IOM
-    struct scu_to_iom_s scu_to_iom [N_SCU_UNITS_MAX] [N_SCU_PORTS];
-    struct iom_to_scu_s iom_to_scu [N_IOM_UNITS_MAX] [N_IOM_PORTS];
+    struct scu_to_iom_s scu_to_iom   [N_SCU_UNITS_MAX]  [N_SCU_PORTS];
+    struct iom_to_scu_s iom_to_scu   [N_IOM_UNITS_MAX]  [N_IOM_PORTS];
     //  CPU
-    struct scu_to_cpu_s scu_to_cpu [N_SCU_UNITS_MAX] [N_SCU_PORTS] [N_SCU_SUBPORTS];
-    struct cpu_to_scu_s cpu_to_scu [N_CPU_UNITS_MAX] [N_CPU_PORTS];
+    struct scu_to_cpu_s scu_to_cpu   [N_SCU_UNITS_MAX]  [N_SCU_PORTS] [N_SCU_SUBPORTS];
+    struct cpu_to_scu_s cpu_to_scu   [N_CPU_UNITS_MAX]  [N_CPU_PORTS];
 
     // IOM->CTLR
     struct iom_to_ctlr_s iom_to_ctlr [N_IOM_UNITS_MAX]  [MAX_CHANNELS];
@@ -237,6 +238,8 @@ struct cables_s
     struct ctlr_to_iom_s fnp_to_iom  [N_FNP_UNITS_MAX]  [MAX_CTLR_PORTS];
     //   absi
     struct ctlr_to_iom_s absi_to_iom [N_ABSI_UNITS_MAX] [MAX_CTLR_PORTS];
+    //   mgp
+    struct ctlr_to_iom_s mgp_to_iom  [N_MGP_UNITS_MAX]  [MAX_CTLR_PORTS];
     //   console
     struct ctlr_to_iom_s opc_to_iom  [N_OPC_UNITS_MAX]  [MAX_CTLR_PORTS];
     //   socket
@@ -247,8 +250,8 @@ struct cables_s
     struct ctlr_to_dev_s mtp_to_tape [N_MTP_UNITS_MAX]  [N_DEV_CODES];
     struct dev_to_ctlr_s tape_to_mtp [N_MT_UNITS_MAX];
     //   ipc->disk
-    //   msp->disk
     struct ctlr_to_dev_s ipc_to_dsk  [N_IPC_UNITS_MAX]  [N_DEV_CODES];
+    //   msp->disk
     struct ctlr_to_dev_s msp_to_dsk  [N_MSP_UNITS_MAX]  [N_DEV_CODES];
     struct dev_to_ctlr_s dsk_to_ctlr [N_DSK_UNITS_MAX];
     //   urp->rdr/pun/prt

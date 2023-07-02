@@ -29,6 +29,8 @@
   * Eric Swenson &nbsp;
     \<[`eric@swenson.org`](mailto:eric@swenson.org)\>,
   * M⸻ T⸻, &nbsp;
+  * Björn Victor &nbsp;
+    \<[`bjorn@victor.se`](mailto:bjorn@victor.se)\>,
   * Juergen Weiss &nbsp;
     \<[`weiss@uni-mainz.de`](mailto:weiss@uni-mainz.de)\>,
   * M. Williams (`OrangeSquid`) &nbsp;

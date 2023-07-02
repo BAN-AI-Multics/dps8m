@@ -73,13 +73,16 @@ MBS="-j $(grep -c '^model name' /proc/cpuinfo 2> /dev/null || printf %s\\n 4)"
 ##############################################################################
 
 # shellcheck disable=SC2086
-env TZ=UTC scan-build -no-failure-reports -o ./out -maxloop 512              \
- -enable-checker  optin.portability.UnixAPI                                  \
- -enable-checker  security.FloatLoopCounter                                  \
- -enable-checker  security.insecureAPI.bcmp                                  \
- -enable-checker  security.insecureAPI.bcopy                                 \
- -disable-checker deadcode.DeadStores                                        \
- ${MAKE:-make} --no-print-directory ${MBS:-}
+env TZ=UTC                                                                   \
+    WITH_ABSI_DEV=1                                                          \
+    WITH_MGP_DEV=1                                                           \
+ scan-build -no-failure-reports -o ./out -maxloop 700                        \
+     -enable-checker  optin.portability.UnixAPI                              \
+     -enable-checker  security.FloatLoopCounter                              \
+     -enable-checker  security.insecureAPI.bcmp                              \
+     -enable-checker  security.insecureAPI.bcopy                             \
+     -disable-checker deadcode.DeadStores                                    \
+   ${MAKE:-make} --no-print-directory ${MBS:-}
 
 ##############################################################################
 

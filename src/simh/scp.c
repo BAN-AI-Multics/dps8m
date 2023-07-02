@@ -393,10 +393,10 @@ static UNIT sim_expect_unit = { UDATA (&expect_svc, 0, 0)  };
 /* Tables and strings */
 
 const char save_vercur[] = "V4.1";
-const char save_ver40[] = "V4.0";
-const char save_ver35[] = "V3.5";
-const char save_ver32[] = "V3.2";
-const char save_ver30[] = "V3.0";
+const char save_ver40[]  = "V4.0";
+const char save_ver35[]  = "V3.5";
+const char save_ver32[]  = "V3.2";
+const char save_ver30[]  = "V3.0";
 const struct scp_error {
     const char *code;
     const char *message;
@@ -4468,6 +4468,7 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
 t_stat show_version (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 {
 const char *arch = "";
+char *whydirty = " ";
 int dirty = 0;
 
 if (cptr && (*cptr != 0))
@@ -4480,6 +4481,9 @@ if (flag) {
         nodist++;
 #endif /* if defined(USE_DUMA) */
 #if defined(NO_SUPPORT_VERSION) ||  \
+    defined(WITH_SOCKET_DEV)    ||  \
+    defined(WITH_ABSI_DEV)      ||  \
+    defined(WITH_MGP_DEV)       ||  \
     defined(MACOSXPPC)          ||  \
     defined(TESTING)            ||  \
     defined(ISOLTS)             ||  \
@@ -4501,19 +4505,36 @@ if (flag) {
                 dirty++;
           }
 
-        /* Dirty if post-tag patches detected */
-        if (strstr(VER_H_GIT_VERSION, "+"))
+        /* Dirty if version contains "X", "D", "A", or "B" */
+        if ((strstr(VER_H_GIT_VERSION, "X")) ||  \
+            (strstr(VER_H_GIT_VERSION, "D")) ||  \
+            (strstr(VER_H_GIT_VERSION, "A")) ||  \
+            (strstr(VER_H_GIT_VERSION, "B")))
           {
                 dirty++;
           }
 
-        /* Dirty if version contains "Z", "D", "A", or "B" */
-        if ((strstr(VER_H_GIT_VERSION, "Z")) ||  \
-            (strstr(VER_H_GIT_VERSION, "D")) ||  \
-            (strstr(VER_H_GIT_VERSION, "A")) ||  \
-            (strstr(VER_H_GIT_VERSION, "B"))) {
-                dirty++;
-        }
+        /* Why? */
+        if (dirty) //-V547
+          {
+            if ((strstr(VER_H_GIT_VERSION, "X")))
+              {
+                    whydirty = " ";
+              }
+            else if ((strstr(VER_H_GIT_VERSION, "D")))
+              {
+                    whydirty = " DEV ";
+              }
+            else if ((strstr(VER_H_GIT_VERSION, "A")))
+              {
+                    whydirty = " ALPHA ";
+              }
+            else if ((strstr(VER_H_GIT_VERSION, "B")))
+              {
+                    whydirty = " BETA ";
+              }
+          }
+
 #  if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT)
 #   if defined(VER_H_GIT_HASH)
 #    if VER_H_GIT_PATCH_INT < 1
@@ -4554,13 +4575,17 @@ if (flag) {
 #  endif
 # endif
 #endif
+
+/* TESTING */
 #ifdef TESTING
     fprintf (st, "\n   Options: ");
 # ifndef HAVE_DPSOPT
 #  define HAVE_DPSOPT 1
 # endif
     fprintf (st, "TESTING");
-#endif
+#endif /* ifdef TESTING */
+
+/* ISOLTS */
 #ifdef ISOLTS
 # ifdef HAVE_DPSOPT
     fprintf (st, ", ");
@@ -4571,18 +4596,22 @@ if (flag) {
 #  define HAVE_DPSOPT 1
 # endif
     fprintf (st, "ISOLTS");
-#endif
+#endif /* ifdef ISOLTS */
+
+/* NEED_128 */
 #ifdef UCACHE
 # ifdef HAVE_DPSOPT
     fprintf (st, ", ");
 # else
-    fprintf (st, "\n Options: ");
+    fprintf (st, "\n   Options: ");
 # endif
 # ifndef HAVE_DPSOPT
 #  define HAVE_DPSOPT 1
 # endif
     fprintf (st, "UCACHE");
 #endif
+
+/* UCACHE */
 #ifdef NEED_128
 # ifdef HAVE_DPSOPT
     fprintf (st, ", ");
@@ -4593,7 +4622,9 @@ if (flag) {
 #  define HAVE_DPSOPT 1
 # endif
     fprintf (st, "NEED_128");
-#endif
+#endif /* ifdef NEED_128 */
+
+/* WAM */
 #ifdef WAM
 # ifdef HAVE_DPSOPT
     fprintf (st, ", ");
@@ -4604,7 +4635,9 @@ if (flag) {
 #  define HAVE_DPSOPT 1
 # endif
     fprintf (st, "WAM");
-#endif
+#endif /* ifdef WAM */
+
+/* ROUND_ROBIN */
 #ifdef ROUND_ROBIN
 # ifdef HAVE_DPSOPT
     fprintf (st, ", ");
@@ -4615,7 +4648,9 @@ if (flag) {
 #  define HAVE_DPSOPT 1
 # endif
     fprintf (st, "ROUND_ROBIN");
-#endif
+#endif /* ifdef ROUND_ROBIN */
+
+/* NO_LOCKLESS */
 #ifndef LOCKLESS
 # ifdef HAVE_DPSOPT
     fprintf (st, ", ");
@@ -4626,7 +4661,77 @@ if (flag) {
 #  define HAVE_DPSOPT 1
 # endif
     fprintf (st, "NO_LOCKLESS");
-#endif
+#endif /* ifndef LOCKLESS */
+
+/* ABSI */  /* XXX: Change to NO_ABSI once code is non-experimental */
+#ifdef WITH_ABSI_DEV
+# ifdef HAVE_DPSOPT
+    fprintf (st, ", ");
+# else
+    fprintf (st, "\n   Options: ");
+# endif
+# ifndef HAVE_DPSOPT
+#  define HAVE_DPSOPT 1
+# endif
+    fprintf (st, "ABSI");
+#endif /* ifdef WITH_ABSI_DEV */
+
+/* SOCKET */  /* XXX: Change to NO_SOCKET once code is non-experimental */
+#ifdef WITH_SOCKET_DEV
+# ifdef HAVE_DPSOPT
+    fprintf (st, ", ");
+# else
+    fprintf (st, "\n   Options: ");
+# endif
+# ifndef HAVE_DPSOPT
+#  define HAVE_DPSOPT 1
+# endif
+    fprintf (st, "SOCKET");
+#endif /* ifdef WITH_SOCKET_DEV */
+
+/* CHAOSNET */  /* XXX: Change to NO_CHAOSNET once code is non-experimental */
+#ifdef WITH_MGP_DEV
+# ifdef HAVE_DPSOPT
+    fprintf (st, ", ");
+# else
+    fprintf (st, "\n   Options: ");
+# endif
+# ifndef HAVE_DPSOPT
+#  define HAVE_DPSOPT 1
+# endif
+    fprintf (st, "CHAOSNET");
+# if USE_SOCKET_DEV_APPROACH
+    fprintf (st, "*");
+# endif /* if USE_SOCKET_DEV_APPROACH */
+#endif /* ifdef WITH_MGP_DEV */
+
+/* DUMA */
+#ifdef USE_DUMA
+# ifdef HAVE_DPSOPT
+    fprintf (st, ", ");
+# else
+    fprintf (st, "\n   Options: ");
+# endif
+# ifndef HAVE_DPSOPT
+#  define HAVE_DPSOPT 1
+# endif
+    fprintf (st, "DUMA");
+#endif /* ifdef USE_DUMA */
+/* DUMA */
+
+/* BACKTRACE */
+#ifdef USE_BACKTRACE
+# ifdef HAVE_DPSOPT
+    fprintf (st, ", ");
+# else
+    fprintf (st, "\n   Options: ");
+# endif
+# ifndef HAVE_DPSOPT
+#  define HAVE_DPSOPT 1
+# endif
+    fprintf (st, "BACKTRACE");
+#endif /* ifdef USE_BACKTRACE */
+
 #if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_DATE)
 # if defined(NO_SUPPORT_VERSION)
     fprintf (st, "\n  Modified: %s", VER_H_GIT_DATE);
@@ -4642,7 +4747,7 @@ if (flag) {
 #endif
     if (dirty) //-V547
       {
-        fprintf (st, "\r\n\r\n ****** THIS BUILD IS NOT SUPPORTED BY THE DPS8M DEVELOPMENT TEAM ******");
+        fprintf (st, "\r\n\r\n ****** THIS%sBUILD IS NOT SUPPORTED BY THE DPS8M DEVELOPMENT TEAM ******", whydirty);
       }
     fprintf (st, "\r\n\r\n Build Information:");
 #if defined (BUILD_PROM_OSV_TEXT) && defined (BUILD_PROM_OSA_TEXT)
