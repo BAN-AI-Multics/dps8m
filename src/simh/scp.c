@@ -4313,11 +4313,17 @@ t_stat show_default_base_system_script (FILE *st, DEVICE *dptr, UNIT *uptr, int3
 }
 
 static void printp (unsigned char * PROM, char * label, int offset, int length) {
-  sim_printf ("  %s '", label);
-  for (int l = 0; l < length; l ++) {
-    unsigned int byte = PROM[offset + l];
-    sim_printf (isprint (byte) ? "%c" : "\\%03o", byte);
-  }
+  sim_printf ("  %s ", label);
+  sim_printf ("   %2d     %3o(8)     '", length, offset);
+  for (int l = 0; l < length; l ++)
+    {
+      unsigned int byte = PROM[offset + l];
+      if (byte == 255)
+        {
+          byte = ' ';
+        }
+      sim_printf (isprint (byte) ? "%c" : "\\%03o", byte);
+    }
   sim_printf ("'\r\n");
 }
 
@@ -4325,24 +4331,35 @@ t_stat show_prom (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cp
 {
   unsigned char PROM[1024];
   setupPROM (0, PROM);
-  /* int n = 6; */
-  /* int l = 174; /1* end of populated area *1/ */
-  /* sim_printf(" PROM initialization data: \r\n"); */
-  /* for (int prombyte = 0; prombyte < l; ++prombyte) { */
-  /*   if (prombyte % n == 0 && prombyte != 0) { */
-  /*     sim_printf("\r\n"); */
-  /*   } */
-  /*   sim_printf("%03d: %02x [", prombyte, PROM[prombyte]); */
-  /*   if (PROM[prombyte] > 31 && PROM[prombyte] < 128) { */
-  /*     sim_printf("%c]  ", (unsigned char)PROM[prombyte]); */
-  /*   } else { */
-  /*     sim_printf(".]  "); */
-  /*   } */
-  /* } */
-  /* sim_printf("\r\n"); */
-  printp (PROM, "CPU Model:           ",   0, 11);
-  printp (PROM, "CPU Serial:          ",  11, 11);
-  printp (PROM, "Ship Date:           ",  22,  6);
+
+  sim_printf (" PROM size: %llu bytes\r\n",
+              (long long unsigned)sizeof(PROM));
+  sim_printf (" PROM initialization data:\r\n\r\n");
+
+  sim_printf ("     Field Description       Length    Offset             Contents\r\n");
+  sim_printf (" =========================  ========  ========  ==============================\r\n");
+  sim_printf ("\r\n");
+
+  //                      Field                 Offset       Length
+  //             -------------------------    ----------   ----------
+  printp (PROM, "CPU Model                ",       0,          11);
+  printp (PROM, "CPU Serial               ",      11,          11);
+  printp (PROM, "Ship Date                ",      22,           6);
+  printp (PROM, "PROM Layout Version      ",      60,           1);
+  printp (PROM, "Release Git Commit Date  ",      70,          10);
+  printp (PROM, "Release Major            ",      80,           3);
+  printp (PROM, "Release Minor            ",      83,           3);
+  printp (PROM, "Release Patch            ",      86,           3);
+  printp (PROM, "Release Iteration        ",      89,           3);
+//printp (PROM, "Release Build Number     ",      92,           8);  /* Reserved */
+  printp (PROM, "Release Type             ",     100,           1);
+  printp (PROM, "Release Version Text     ",     101,          26);
+  printp (PROM, "Build Architecture       ",     130,          20);
+  printp (PROM, "Build Operating System   ",     150,          20);
+  printp (PROM, "Target Architecture      ",     170,          20);
+  printp (PROM, "Target Operating System  ",     190,          20);
+
+  sim_printf("\r\n");
   return 0;
 }
 

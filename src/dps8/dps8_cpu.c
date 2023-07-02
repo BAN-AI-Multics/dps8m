@@ -8,8 +8,9 @@
  *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
- * Copyright (c) 2013-2021 Charles Anthony
+ * Copyright (c) 2013-2023 Charles Anthony
  * Copyright (c) 2017 Michal Tomek
+ * Copyright (c) 2021-2023 Jeffrey H. Johnson <trnsz@pobox.com>
  * Copyright (c) 2021-2023 The DPS8M Development Team
  *
  * All rights reserved.
@@ -4662,20 +4663,104 @@ void setupPROM (uint cpuNo, unsigned char * PROM) {
   char * ship = "200101";
 #endif /* VER_H_PROM_SHIP */
 
+#ifndef VER_H_PROM_MAJOR_VER
+# define VER_H_PROM_MAJOR_VER "999"
+#endif /* VER_H_PROM_MAJOR_VER */
+
+#ifndef VER_H_PROM_MINOR_VER
+# define VER_H_PROM_MINOR_VER "999"
+#endif /* VER_H_PROM_MINOR_VER */
+
+#ifndef VER_H_PROM_PATCH_VER
+# define VER_H_PROM_PATCH_VER "999"
+#endif /* VER_H_PROM_PATCH_VER */
+
+#ifndef VER_H_PROM_OTHER_VER
+# define VER_H_PROM_OTHER_VER "999"
+#endif /* VER_H_PROM_OTHER_VER */
+
+#ifdef VER_H_GIT_RELT
+# define VER_H_GIT_RELT "X"
+#endif /* VER_H_GIT_RELT */
+
+#ifndef VER_H_PROM_VER_TEXT
+# define VER_H_PROM_VER_TEXT "Unknown                   "
+#endif /* VER_H_PROM_VER_TEXT */
+
+#ifdef BUILD_PROM_OSA_TEXT
+# define BURN_PROM_OSA_TEXT BUILD_PROM_OSA_TEXT
+#else
+# ifndef VER_H_PROM_OSA_TEXT
+#  define BURN_PROM_OSA_TEXT "Unknown             "
+# else
+#  define BURN_PROM_OSA_TEXT VER_H_PROM_OSA_TEXT
+# endif /* VER_H_PROM_OSA_TEXT */
+#endif /* BUILD_PROM_OSA_TEXT */
+
+#ifdef BUILD_PROM_OSV_TEXT
+# define BURN_PROM_OSV_TEXT BUILD_PROM_OSV_TEXT
+#else
+# ifndef VER_H_PROM_OSV_TEXT
+#  define BURN_PROM_OSV_TEXT "Unknown             "
+# else
+#  define BURN_PROM_OSV_TEXT VER_H_PROM_OSV_TEXT
+# endif /* VER_H_PROM_OSV_TEXT */
+#endif /* BUILD_PROM_OSV_TEXT */
+
+#ifdef BUILD_PROM_TSA_TEXT
+# define BURN_PROM_TSA_TEXT BUILD_PROM_TSA_TEXT
+#else
+# ifndef VER_H_PROM_TSA_TEXT
+#  define BURN_PROM_TSA_TEXT "Unknown             "
+# else
+#  define BURN_PROM_TSA_TEXT VER_H_PROM_TSA_TEXT
+# endif /* VER_H_PROM_TSA_TEXT */
+#endif /* BUILD_PROM_TSA_TEXT */
+
+#ifdef BUILD_PROM_TSV_TEXT
+# define BURN_PROM_TSV_TEXT BUILD_PROM_TSV_TEXT
+#else
+# ifndef VER_H_PROM_TSV_TEXT
+#  define BURN_PROM_TSV_TEXT "Unknown             "
+# else
+#  define BURN_PROM_TSV_TEXT VER_H_PROM_TSV_TEXT
+# endif /* VER_H_PROM_TSV_TEXT */
+#endif /* BUILD_PROM_TSV_TEXT */
+
+#ifndef VER_H_GIT_DATE_SHORT
+# define VER_H_GIT_DATE_SHORT "2021-01-01"
+#endif /* ifndef VER_H_GIT_DATE_SHORT */
+
+
 #define BURN(offset, length, string) memcpy ((char *) PROM + (offset), string, length)
 #define BURN1(offset, byte) PROM[offset] = (char) (byte)
 
   memset (PROM, 255, 1024);
 
-  //              12345678901
-  BURN  ( 00,  11,  "DPS 8/SIM M");                            //    0-10  CPU model          ("XXXXXXXXXXX"/%11s)
-  BURN  (013,  11,  serial);                                   //   11-21  CPU serial         ("DDDDDDDDDDD"/%11d)
-  BURN  (026,   6,  ship);                                     //   22-27  CPU ship date            ("YYMMDD"/%6s)
-  BURN1 (034,       getbits36_8 (rsw2,  0));                   //   34     RSW 2 bits  0- 7
-  BURN1 (035,       getbits36_8 (rsw2,  8));                   //   35     RSW 2 bits  8-15
-  BURN1 (036,       getbits36_8 (rsw2, 16));                   //   36     RSW 2 bits 16-23
-  BURN1 (037,       getbits36_8 (rsw2, 24));                   //   37     RSW 2 bits 24-31
-  BURN1 (040,     ((getbits36_4 (rsw2, 32) << 4) | rsw2Ext));  // 40  RSW 2 bits 32-35, options bits
+  //   Offset Length  Data
+  BURN  ( 00,  11,  "DPS 8/SIM M");                //    0-10  CPU model ("XXXXXXXXXXX")       //-V1086
+  BURN  (013,  11,  serial);                       //   11-21  CPU serial ("DDDDDDDDDDD")      //-V1086
+  BURN  (026,   6,  ship);                         //   22-27  CPU ship date ("YYMMDD")        //-V1086
+  BURN1 (034,       getbits36_8 (rsw2,  0));       //   34     RSW 2 bits  0- 7                //-V1086
+  BURN1 (035,       getbits36_8 (rsw2,  8));       //   35     RSW 2 bits  8-15                //-V1086
+  BURN1 (036,       getbits36_8 (rsw2, 16));       //   36     RSW 2 bits 16-23                //-V1086
+  BURN1 (037,       getbits36_8 (rsw2, 24));       //   37     RSW 2 bits 24-31                //-V1086
+  BURN1 (040,     ((getbits36_4 (rsw2, 32) << 4) \
+                               | rsw2Ext));        //   40     RSW 2 bits 32-35, options bits  //-V1086
+
+  /* Begin extended PROM data */
+  BURN  ( 60,   1,  "2");                          //   60     PROM Layout Version Number      //-V1086
+  BURN  ( 70,  10,  VER_H_GIT_DATE_SHORT);         //   70     Release Git Commit Date         //-V1086
+  BURN  ( 80,   3,  VER_H_PROM_MAJOR_VER);         //   80     Major Release Number            //-V1086
+  BURN  ( 83,   3,  VER_H_PROM_MINOR_VER);         //   83     Minor Release Number            //-V1086
+  BURN  ( 86,   3,  VER_H_PROM_PATCH_VER);         //   86     Patch Release Number            //-V1086
+  BURN  ( 89,   3,  VER_H_PROM_OTHER_VER);         //   89     Iteration Release Number        //-V1086
+  BURN  (100,   1,  VER_H_GIT_RELT);               //  100     Release Type                    //-V1086
+  BURN  (101,  26,  VER_H_PROM_VER_TEXT);          //  101     Release Text                    //-V1086
+  BURN  (130,  20,  BURN_PROM_OSA_TEXT);           //  130     Build System Architecture       //-V1086
+  BURN  (150,  20,  BURN_PROM_OSV_TEXT);           //  150     Build System Operating System   //-V1086
+  BURN  (170,  20,  BURN_PROM_TSA_TEXT);           //  170     Target System Architecture      //-V1086
+  BURN  (190,  20,  BURN_PROM_TSV_TEXT);           //  190     Target System Architecture      //-V1086
 }
 
 void cpuStats (uint cpuNo) {
