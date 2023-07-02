@@ -280,7 +280,6 @@ H_SRCS += dps8_math.h
 H_SRCS += dps8_math128.h
 H_SRCS += dps8_mt.h
 H_SRCS += dps8_opcodetable.h
-H_SRCS += dps8_prom.h
 H_SRCS += dps8_prt.h
 H_SRCS += dps8_socket_dev.h
 H_SRCS += dps8_scu.h
