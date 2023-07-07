@@ -4694,7 +4694,7 @@ void setupPROM (uint cpuNo, unsigned char * PROM) {
 # define VER_H_PROM_OTHER_VER "999"
 #endif /* VER_H_PROM_OTHER_VER */
 
-#ifdef VER_H_GIT_RELT
+#ifndef VER_H_GIT_RELT
 # define VER_H_GIT_RELT "X"
 #endif /* VER_H_GIT_RELT */
 

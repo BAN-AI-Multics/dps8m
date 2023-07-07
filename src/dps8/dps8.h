@@ -57,11 +57,11 @@ typedef struct { int64_t h;  uint64_t l; } x__int128_t;
 # define DISC_DELAY 200
 
 // Micro-cache
-# ifdef UCACHE
+# ifndef NO_UCACHE
 #  undef OLDAPP
 # else
 #  define OLDAPP
-# endif /* ifdef UCACHE */
+# endif /* ifndef NO_UCACHE */
 # ifndef OLDAPP
 #  ifndef UCACHE_STATS
 #   define UCACHE_STATS

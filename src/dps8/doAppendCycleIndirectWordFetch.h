@@ -104,9 +104,6 @@ word24 doAppendCycleIndirectWordFetch (word36 * data, uint nWords) {
   }
   cpu.RSDWH_R1 = RSDWH_R1;
 
-// ucache hit; housekeeping...
-  //sim_printf ("hit  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
-
   cpu.apu.lastCycle = INDIRECT_WORD_FETCH;
   goto HI;
 
@@ -116,7 +113,6 @@ skip_ucache:;
 # endif
 
 miss_ucache:;
-  //sim_printf ("miss %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
 
 #endif /* ifdef IDWF_CACHE */
 

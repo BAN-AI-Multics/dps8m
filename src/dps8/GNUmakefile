@@ -187,6 +187,9 @@ endif
 ###############################################################################
 
 C_SRCS  = bsd_random.c
+ifneq ($(MINGW_CROSS),1)
+  C_SRCS += shm.c
+endif
 ifeq ($(WITH_ABSI_DEV),1)
   ifneq ($(MINGW_CROSS),1)
     C_SRCS += dps8_absi.c
@@ -238,9 +241,7 @@ C_SRCS += fnptelnet.c
 C_SRCS += libtelnet.c
 C_SRCS += hdbg.c
 C_SRCS += segldr.c
-ifneq ($(MINGW_CROSS),1)
-  C_SRCS += shm.c
-endif
+C_SRCS += ucache.c
 ifeq ($(THREADZ),1)
   C_SRCS += threadz.c
   ENABLED_THREADZ_C=1
@@ -252,7 +253,6 @@ ifeq ($(LOCKLESS),1)
 endif
 C_SRCS += utfile.c
 C_SRCS += uvutil.c
-C_SRCS += ucache.c
 
 ###############################################################################
 

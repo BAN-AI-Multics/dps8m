@@ -61,6 +61,7 @@
 word24 doAppendCycleOperandRead (word36 * data, uint nWords) {
 static int evcnt = 0;
   DCDstruct * i = & cpu.currentInstruction;
+  (void)evcnt;
   DBGAPP ("doAppendCycleOperandRead(Entry) thisCycle=OPERAND_READ\n");
   DBGAPP ("doAppendCycleOperandRead(Entry) lastCycle=%s\n", str_pct (cpu.apu.lastCycle));
   DBGAPP ("doAppendCycleOperandRead(Entry) CA %06o\n", cpu.TPR.CA);
