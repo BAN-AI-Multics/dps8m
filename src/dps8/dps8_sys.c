@@ -4288,8 +4288,8 @@ static void dps8_init (void) {
     sim_msg ("NEED_128");
 # endif /* ifdef NEED_128 */
 
-/* UCACHE */
-# ifdef UCACHE
+/* NO_UCACHE */
+# ifdef NO_UCACHE
 #  ifdef HAVE_DPSOPT
     sim_msg (", ");
 #  else
@@ -4298,8 +4298,8 @@ static void dps8_init (void) {
 #  ifndef HAVE_DPSOPT
 #   define HAVE_DPSOPT 1
 #  endif
-    sim_msg ("UCACHE");
-# endif
+    sim_msg ("NO_UCACHE");
+# endif /* ifdef NO_UCACHE */
 
 /* WAM */
 # ifdef WAM

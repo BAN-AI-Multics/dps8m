@@ -66,6 +66,7 @@ word24 doAppendCycleInstructionFetch (word36 * data, uint nWords) {
 //sim_printf ("doAppendCycleInstructionFetch %05o:%06o\r\n",
 static int evcnt = 0;
   DCDstruct * i = & cpu.currentInstruction;
+  (void)evcnt;
   DBGAPP ("doAppendCycleInstructionFetch(Entry) thisCycle=INSTRUCTION_FETCH\n");
   DBGAPP ("doAppendCycleInstructionFetch(Entry) lastCycle=%s\n", str_pct (cpu.apu.lastCycle));
   DBGAPP ("doAppendCycleInstructionFetch(Entry) CA %06o\n", cpu.TPR.CA);

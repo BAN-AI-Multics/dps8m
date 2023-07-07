@@ -36,7 +36,7 @@
 #       PERF_STRIP=1                       Enable CPU-only benchmarking mode
 #      ROUND_ROBIN=1                       Enable non-threaded multiple CPUs
 #          TESTING=1                       Enable developmental testing mode
-#           UCACHE=1                       Enable (UNSTABLE) appending cache
+#        NO_UCACHE=1                       Disables the appending unit cache
 #     WITH_MGP_DEV=1                       Enable (UNSTABLE) Chaosnet device
 #    WITH_ABSI_DEV=1                       Enable (UNSTABLE) ABSI/IMP device
 #             DUMA=1                       Enable the libDUMA malloc library

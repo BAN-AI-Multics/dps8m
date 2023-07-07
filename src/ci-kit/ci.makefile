@@ -72,7 +72,7 @@ all help:
 s1:
 	@printf '\n%s\n' "### Start Stage 1: Build simulator ####################"
 ifndef NOREBUILD
-	( cd ../.. && $(MAKE) superclean > /dev/null 2>&1 && env UCACHE=1 NATIVE=1 $(MAKE) 2>&1 )
+	( cd ../.. && $(MAKE) superclean > /dev/null 2>&1 && env NATIVE=1 $(MAKE) 2>&1 )
 endif
 ifdef NOREBUILD
 	@printf '%s\n' "  *** NOREBUILD set - skipping simulator build ***"

@@ -4504,7 +4504,6 @@ if (flag) {
     defined(MACOSXPPC)          ||  \
     defined(TESTING)            ||  \
     defined(ISOLTS)             ||  \
-    defined(UCACHE)             ||  \
     defined(USE_DUMA)
 # ifndef NO_SUPPORT_VERSION
 #  define NO_SUPPORT_VERSION 1
@@ -4615,8 +4614,8 @@ if (flag) {
     fprintf (st, "ISOLTS");
 #endif /* ifdef ISOLTS */
 
-/* NEED_128 */
-#ifdef UCACHE
+/* NO_UCACHE */
+#ifdef NO_UCACHE
 # ifdef HAVE_DPSOPT
     fprintf (st, ", ");
 # else
@@ -4625,10 +4624,10 @@ if (flag) {
 # ifndef HAVE_DPSOPT
 #  define HAVE_DPSOPT 1
 # endif
-    fprintf (st, "UCACHE");
-#endif
+    fprintf (st, "NO_UCACHE");
+#endif /* ifdef NO_UCACHE */
 
-/* UCACHE */
+/* NEED_128 */
 #ifdef NEED_128
 # ifdef HAVE_DPSOPT
     fprintf (st, ", ");

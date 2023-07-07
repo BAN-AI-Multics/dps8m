@@ -36,11 +36,11 @@ ifdef ATOMICS
 endif
 
 ###############################################################################
-# Enable (unsupported, experimental) APU micro-cache
+# Disable the APU micro-cache
 
-ifdef UCACHE
-  UCACHE=1
-  CFLAGS += -DUCACHE
+ifdef NO_UCACHE
+  NO_UCACHE=1
+  CFLAGS += -DNO_UCACHE
 endif
 
 ###############################################################################

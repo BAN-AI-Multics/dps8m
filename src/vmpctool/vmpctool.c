@@ -49,7 +49,7 @@
 
 #define PROGNAME                       "vmpctool"
 #define PROGDESC                       "virtual memory page cache utility"
-#define VMTOUCH_VERSION                "2101.15.1-dps (2023-05-18)"
+#define VMTOUCH_VERSION                "2101.15.2-dps (2023-07-03)"
 
 #define RESIDENCY_CHART_WIDTH          41
 #define CHART_UPDATE_INTERVAL          0.37
@@ -131,7 +131,9 @@
 #endif /* ifndef RLIMIT_NOFILE */
 
 #if defined( __linux__ )
-# include <linux/limits.h>
+# if defined(__GLIBC__)
+#  include <linux/limits.h>
+# endif /* if defined(__GLIBC__) */
 # include <sys/ioctl.h>
 # include <sys/mount.h>
 # include <sys/utsname.h>
