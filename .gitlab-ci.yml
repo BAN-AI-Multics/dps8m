@@ -502,12 +502,12 @@ Linux/x86_64, Alpine Edge, Clang, GCC:
     - *scriptBuildlibbacktrace
     - *scriptExtraInfo
     - *scriptDPS8Mods
-    - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
+    - env CFLAGS="-Dfopen64=fopen -Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko" WITH_BACKTRACE=1 CC=clang make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
     - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - make distclean
     - *scriptDPS8Mods
-    - env LDFLAGS=-static make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
+    - env CFLAGS="-Dfopen64=fopen -Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko" LDFLAGS="-static" WITH_BACKTRACE=1 CC=gcc make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
     - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - *scriptVerifyVersion
