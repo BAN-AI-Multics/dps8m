@@ -4313,7 +4313,7 @@ t_stat show_default_base_system_script (FILE *st, DEVICE *dptr, UNIT *uptr, int3
 }
 
 static void printp (unsigned char * PROM, char * label, int offset, int length) {
-  sim_printf ("  %s ", label);
+  sim_printf (" %s ", label);
   sim_printf ("   %2d     %3o(8)     '", length, offset);
   for (int l = 0; l < length; l ++)
     {
@@ -4336,8 +4336,8 @@ t_stat show_prom (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cp
               (long long unsigned)sizeof(PROM));
   sim_printf (" PROM initialization data:\r\n\r\n");
 
-  sim_printf ("     Field Description       Length    Offset             Contents\r\n");
-  sim_printf (" =========================  ========  ========  ==============================\r\n");
+  sim_printf ("     Field Description      Length   Offset              Contents\r\n");
+  sim_printf (" ========================= ======== ======== ==================================\r\n");
   sim_printf ("\r\n");
 
   //                      Field                 Offset       Length
@@ -4351,9 +4351,9 @@ t_stat show_prom (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cp
   printp (PROM, "Release Minor            ",      83,           3);
   printp (PROM, "Release Patch            ",      86,           3);
   printp (PROM, "Release Iteration        ",      89,           3);
-//printp (PROM, "Release Build Number     ",      92,           8);  /* Reserved */
+  printp (PROM, "Release Build Number     ",      92,           8);  /* Reserved */
   printp (PROM, "Release Type             ",     100,           1);
-  printp (PROM, "Release Version Text     ",     101,          26);
+  printp (PROM, "Release Version Text     ",     101,          29);
   printp (PROM, "Build Architecture       ",     130,          20);
   printp (PROM, "Build Operating System   ",     150,          20);
   printp (PROM, "Target Architecture      ",     170,          20);

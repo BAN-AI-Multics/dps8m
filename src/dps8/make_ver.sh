@@ -555,7 +555,7 @@ get_bld_osar()
                               tr -d '*' 2> /dev/null || \
                                   true  1> /dev/null 2>&1)"
     fi
-    test "${BLD_OSAR:-}" = "unknown" 2> /dev/null && BSD_OSAR=""
+    test "${BLD_OSAR:-}" = "unknown" 2> /dev/null && BLD_OSAR=""
     if [ -z "${BLD_OSAR:-}" ]; then
       BLD_OSAR="$( (command -p env uname -m 2> /dev/null ||
           true > /dev/null 2>&1) | \
@@ -960,7 +960,11 @@ else
     VER_H_PROM_VER_TMP_EXTRA=" " # note_627092833
 fi
 VER_H_PROM_VER_UNPADDED_TEXT="${VER_H_PROM_VER_TMP_TEXT:?}${VER_H_PROM_VER_TMP_EXTRA:?}"
-VER_H_PROM_VER_TEXT="$(printf '"%-27s"\n' "${VER_H_PROM_VER_UNPADDED_TEXT:?}")"
+VER_H_PROM_VER_FIXUP_TEXT="$(printf '%s\n' "${VER_H_PROM_VER_UNPADDED_TEXT:?}" |  \
+    sed -e 's/-rc/\./' -e 's/-alpha/\./'     -e 's/-at/\./'      -e 's/-beta/\./' \
+    -e 's/-bt/\./'     -e 's/-developer/\./' -e 's/-develop/\./' -e 's/-dev/\./'  \
+    -e 's/-de/\./'     -e 's/-dt/\./'        -e 's/-dr/\./'   | sed 's/\.$//')"
+VER_H_PROM_VER_TEXT="$(printf '"%-30s"\n' "${VER_H_PROM_VER_FIXUP_TEXT:?}")"
 debug_print "VER_H_PROM_VER_TEXT is ${VER_H_PROM_VER_TEXT:-}"
 debug_print "End VER_H_PROM_VER_TEXT processing"
 
