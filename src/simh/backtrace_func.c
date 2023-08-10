@@ -170,7 +170,7 @@ backtrace_handler(int number)
       (void)fprintf(stderr,
         "\r\n****** BUG REPORTING *******************************\r\n\r\n");
       (void)fprintf(stderr,
-        " URL: https://dps8m.gitlab.io/dps8m/Bug_Reporting/\r\n");
+        " URL: https://gitlab.com/dps8m/dps8m/-/wikis/Bug-Reporting\r\n");
     }
 #  endif /* ifdef SIGUSR2 */
   (void)fprintf(stderr,

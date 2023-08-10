@@ -4327,6 +4327,50 @@ static void printp (unsigned char * PROM, char * label, int offset, int length) 
   sim_printf ("'\r\n");
 }
 
+static void strip_spaces(char* str) {
+  int i, x;
+  for (i=x=0; str[i]; ++i)
+    {
+      if (!isspace(str[i]) || (i > 0 && !isspace(str[i-1]))) //-V781
+        {
+          str[x++] = str[i];
+        }
+    }
+  str[x] = '\0';
+  i = -1;
+  x = 0;
+  while (str[x] != '\0')
+    {
+      if (str[x] != ' ' && str[x] != '\t' && str[x] != '\n')
+        {
+          i=x;
+        }
+      x++;
+    }
+  str[i+1] = '\0';
+}
+
+static void printpq (unsigned char * PROM, FILE * st, int offset, int length) {
+  char sx[1024];
+  sx[1023] = '\0';
+  unsigned int lastbyte = 0;
+  for (int l = 0; l < length; l ++)
+    {
+      unsigned int byte = PROM[offset + l];
+      if (byte == 255)
+        {
+          byte = 20;
+        }
+      if ((lastbyte != 20) && (byte != 20))
+        {
+          sprintf(&sx[l], isprint (byte) ? "%c" : " ", byte);
+        }
+      lastbyte = byte;
+    }
+  strip_spaces(sx);
+  fprintf (st, "%s", sx);
+}
+
 t_stat show_prom (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 {
   unsigned char PROM[1024];
@@ -4797,6 +4841,18 @@ if (flag) {
 # endif /* if defined(USE_BACKTRACE) */
         abort();
       }
+    unsigned char SPROM[1024];
+    setupPROM (0, SPROM);
+    fprintf (st, "\n    Target: ");
+    printpq (SPROM, st, 190, 20);
+    if (SPROM[170] != 20)
+      {
+        if (SPROM[170] != 255)
+          {
+            fprintf (st, " on ");
+            printpq (SPROM, st, 170, 20);
+          }
+      }
     strtrimspace(build_os_version, build_os_version_raw);
     strtrimspace(build_os_arch, build_os_arch_raw);
     fprintf (st, "\n  Build OS: %s %s", build_os_version, build_os_arch);
@@ -4824,6 +4880,7 @@ if (flag) {
     strremove(postver, "17.1.1 (5725-C72, 5765-J18), version ");
     strremove(postver, " Clang 15.0.0 (build 760095e)");
     strremove(postver, " Clang 15.0.0 (build 6af5742)");
+    strremove(postver, " Clang 15.0.0 (build ca7115e)");
 #endif
 #if ( defined (__GNUC__) && defined (__VERSION__) ) && !defined (__EDG__)
 # ifndef __clang_version__
@@ -4992,6 +5049,18 @@ if (flag) {
     arch = " riscv";
 #elif defined(__myriad2__)
     arch = " myriad2";
+#elif defined(__loongarch64) || defined(__loongarch__)
+    arch = " loongarch";
+#elif defined(_m68851) || defined(__m68k__) || defined(__m68000__) || defined(__M68K)
+    arch = " m68k";
+#elif defined(__m88k__) || defined(__m88000__) || defined(__M88K)
+    arch = " m88k";
+#elif defined(__VAX__) || defined(__vax__)
+    arch = " vax";
+#elif defined(__NIOS2__) || defined(__nios2__)
+    arch = " nios2";
+#elif defined(__MICROBLAZE__) || defined(__microblaze__)
+    arch = " microblaze";
 #else
     arch = " ";
 #endif

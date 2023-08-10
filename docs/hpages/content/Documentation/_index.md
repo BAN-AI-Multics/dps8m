@@ -3,7 +3,7 @@ weight: 3500
 title: Documentation
 ---
 <!-- SPDX-License-Identifier: ICU -->
-<!-- Copyright (c) 2022-2023 The DPS8M Development Team -->
+<!-- Copyright (c) 2016-2023 The DPS8M Development Team -->
 The **DPS8M Development Team** provides documentation useful to simulator users and developers.
 
 * [**DPS8M Omnibus Documentation**](#dps8m-omnibus-documentation)
@@ -18,7 +18,7 @@ The **DPS8M Development Team** provides documentation useful to simulator users 
 
 | Version         | Description                                                      |                                                                                                     |
 | :-------------- | ----------------------                                           | ------------------                                                                                  |
-| **3.0.0**    | **[DPS8M Omnibus Documentation](https://dps8m.gitlab.io/dps8m-archive/R3.0.0/omnibus/dps8m-omnibus.pdf)** for **DPS8M Release 3.0.0** | {{< button href="https://dps8m.gitlab.io/dps8m-archive/R3.0.0/omnibus/dps8m-omnibus.pdf" >}}View PDF{{< /button >}} |
+| **3.0.0**    | **[DPS8M Omnibus Documentation](https://dps8m.gitlab.io/dps8m-r3.0.0-archive/R3.0.0/omnibus/dps8m-omnibus.pdf)** for **DPS8M Release 3.0.0** | {{< button href="https://dps8m.gitlab.io/dps8m-r3.0.0-archive/R3.0.0/omnibus/dps8m-omnibus.pdf" >}}View PDF{{< /button >}} |
 | **`master`**    | **[DPS8M Omnibus Documentation](https://dps8m.gitlab.io/dps8m/master/dps8m-omnibus.pdf)** for the *git* **`master`** branch | {{< button href="https://dps8m.gitlab.io/dps8m/master/dps8m-omnibus.pdf" >}}View PDF{{< /button >}} |
 
 ## Source Compilation
@@ -34,5 +34,5 @@ The **DPS8M Development Team** provides documentation useful to simulator users 
 
 | Listing        | Description            |                    |
 |:-------------- | ---------------------- | ------------------ |
-| **R3.0.0**     | [**Global cross-reference**](https://dps8m.gitlab.io/dps8m-archive/R3.0.0/global/index.html) for **DPS8M Release 3.0.0** | {{< button href="https://dps8m.gitlab.io/dps8m-archive/R3.0.0/global/index.html" >}}Browse listing{{< /button >}} |
+| **R3.0.0**     | [**Global cross-reference**](https://dps8m.gitlab.io/dps8m-r3.0.0-archive/R3.0.0/global/index.html) for **DPS8M Release 3.0.0** | {{< button href="https://dps8m.gitlab.io/dps8m-r3.0.0-archive/R3.0.0/global/index.html" >}}Browse listing{{< /button >}} |
 | **`master`**     | [**Global cross-reference**](https://dps8m.gitlab.io/dps8m/master/global/index.html) for the *git* **`master`** branch | {{< button href="https://dps8m.gitlab.io/dps8m/master/global/index.html" >}}Browse listing{{< /button >}} |
