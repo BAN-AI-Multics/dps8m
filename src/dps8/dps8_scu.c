@@ -1204,13 +1204,17 @@ static uint64 set_SCU_clock (uint scu_unit_idx)
 
         // Boot time
 
-// load_fnp is complaining that FNP core image is more than 5 years old; try
-// moving the 'boot time' back to MR12.3 release date. (12/89 according to
-// https://www.multicians.org/chrono.html
+        // load_fnp is complaining that FNP core image is more than 5 years old; try
+        // moving the 'boot time' back to MR12.3 release date. (12/89 according to
+        // https://www.multicians.org/chrono.html
 
         // date -d "1990-01-01 00:00:00 -9" +%s
         // 631184400
-        uint64 UNIX_secs = 631184400;
+        // For debugging MR12.3 and earlier with steady_clock, uncomment --
+        // uint64 UNIX_secs = 631184400;
+
+        // Otherwise, we'll use the current time as the steady_clock starting point --
+        uint64 UNIX_secs = (uint64)time(NULL);
 
 #ifdef NEED_128
         uint64 UNIX_usecs = UNIX_secs * 1000000llu + big.l;

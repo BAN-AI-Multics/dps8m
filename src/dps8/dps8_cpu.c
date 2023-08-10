@@ -4725,6 +4725,63 @@ void setupPROM (uint cpuNo, unsigned char * PROM) {
 #ifdef BUILD_PROM_TSA_TEXT
 # define BURN_PROM_TSA_TEXT BUILD_PROM_TSA_TEXT
 #else
+# if defined(_M_X64) || defined(_M_AMD64) || defined(__amd64__) || defined(__x86_64__) || defined(__AMD64)
+#  define VER_H_PROM_TSA_TEXT "Intel x86_64 (AMD64)"
+# elif defined(_M_IX86) || defined(__i386) || defined(__i486) || defined(__i586) || defined(__i686) || defined(__ix86)
+#  define VER_H_PROM_TSA_TEXT "Intel ix86 (32-bit) "
+# elif defined(_M_ARM64) || defined(__aarch64__) || defined(__arm64__)
+#  define VER_H_PROM_TSA_TEXT "AArch64/ARM64/64-bit"
+# elif defined(_M_ARM) || defined(__arm__)
+#  define VER_H_PROM_TSA_TEXT "AArch32/ARM32/32-bit"
+# elif defined(__ia64__) || defined(_M_IA64) || defined(__itanium__)
+#  define VER_H_PROM_TSA_TEXT "Intel Itanium (IA64)"
+# elif defined(__ppc64__) || defined(__PPC64__) || defined(__ppc64le__) || defined(__PPC64LE__) || defined(__powerpc64__) || defined(__POWERPC64__) || defined(_M_PPC64) || defined(__PPC64) || defined(_ARCH_PPC64)
+#  define VER_H_PROM_TSA_TEXT "Power ISA (64-bit)  "
+# elif defined(__ppc__) || defined(__PPC__) || defined(__powerpc__) || defined(__POWERPC__) || defined(_M_PPC) || defined(__PPC) || defined(__ppc32__) || defined(__PPC32__) || defined(__powerpc32__) || defined(__POWERPC32__) || defined(_M_PPC32) || defined(__PPC32)
+#  define VER_H_PROM_TSA_TEXT "PowerPC ISA (32-bit)"
+# elif defined(__s390x__)
+#  define VER_H_PROM_TSA_TEXT "IBM z/Architecture  "
+# elif defined(__s390__)
+#  define VER_H_PROM_TSA_TEXT "IBM ESA System/390  "
+# elif defined(__J2__) || defined(__J2P__) || defined(__j2__) || defined(__j2p__)
+#  define VER_H_PROM_TSA_TEXT "J-Core J2 Open CPU  "
+# elif defined(__SH4__) || defined(__sh4__) || defined(__SH4) || defined(__sh4)
+#  define VER_H_PROM_TSA_TEXT "Hitachi/Renesas SH-4"
+# elif defined(__SH2__) || defined(__sh2__) || defined(__SH2) || defined(__sh2)
+#  define VER_H_PROM_TSA_TEXT "Hitachi/Renesas SH-2"
+# elif defined(__alpha__)
+#  define VER_H_PROM_TSA_TEXT "Alpha AXP           "
+# elif defined(__hppa__) || defined(__HPPA__) || defined(__PARISC__) || defined(__parisc__)
+#  define VER_H_PROM_TSA_TEXT "HP PA-RISC          "
+# elif defined(__ICE9__) || defined(__ice9__) || defined(__ICE9) || defined(__ice9)
+#  define VER_H_PROM_TSA_TEXT "SiCortex ICE-9      "
+# elif defined(mips64) || defined(__mips64__) || defined(MIPS64) || defined(_MIPS64_) || defined(__mips64)
+#  define VER_H_PROM_TSA_TEXT "MIPS64              "
+# elif defined(mips) || defined(__mips__) || defined(MIPS) || defined(_MIPS_) || defined(__mips)
+#  define VER_H_PROM_TSA_TEXT "MIPS                "
+# elif defined(__OpenRISC__) || defined(__OPENRISC__) || defined(__openrisc__) || defined(__OR1K__) || defined(__JOR1K__) || defined(__OPENRISC1K__) || defined(__OPENRISC1200__)
+#  define VER_H_PROM_TSA_TEXT "OpenRISC            "
+# elif defined(__sparc64) || defined(__SPARC64) || defined(__SPARC64__) || defined(__sparc64__)
+#  define VER_H_PROM_TSA_TEXT "SPARC64             "
+# elif defined(__sparc) || defined(__SPARC) || defined(__SPARC__) || defined(__sparc__)
+#  define VER_H_PROM_TSA_TEXT "SPARC               "
+# elif defined(__riscv) || defined(__riscv__)
+#  define VER_H_PROM_TSA_TEXT "RISC-V              "
+# elif defined(__myriad2__)
+#  define VER_H_PROM_TSA_TEXT "Myriad2             "
+# elif defined(__loongarch64) || defined(__loongarch__)
+#  define VER_H_PROM_TSA_TEXT "LoongArch           "
+# elif defined(_m68851) || defined(__m68k__) || defined(__m68000__) || defined(__M68K)
+#  define VER_H_PROM_TSA_TEXT "Motorola m68k       "
+# elif defined(__m88k__) || defined(__m88000__) || defined(__M88K)
+#  define VER_H_PROM_TSA_TEXT "Motorola m88k       "
+# elif defined(__VAX__) || defined(__vax__)
+#  define VER_H_PROM_TSA_TEXT "VAX                 "
+# elif defined(__NIOS2__) || defined(__nios2__)
+#  define VER_H_PROM_TSA_TEXT "Altera Nios II      "
+# elif defined(__MICROBLAZE__) || defined(__microblaze__)
+#  define VER_H_PROM_TSA_TEXT "Xilinx MicroBlaze   "
+# endif
 # ifndef VER_H_PROM_TSA_TEXT
 #  define BURN_PROM_TSA_TEXT "Unknown Target Arch."
 # else
@@ -4735,6 +4792,85 @@ void setupPROM (uint cpuNo, unsigned char * PROM) {
 #ifdef BUILD_PROM_TSV_TEXT
 # define BURN_PROM_TSV_TEXT BUILD_PROM_TSV_TEXT
 #else
+# if (defined(__WIN__) || defined(_WIN32) || defined(IS_WINDOWS) || defined(_MSC_VER) || defined(__MINGW32__) || defined(__MINGW64__) || defined(CROSS_MINGW32) || defined(CROSS_MINGW64)) && !defined(__CYGWIN__)
+#  define VER_H_PROM_TSV_TEXT "Microsoft Windows   "
+# elif defined(__CYGWIN__)
+#  define VER_H_PROM_TSV_TEXT "Windows/Cygwin      "
+# elif (defined(__sunos) || defined( __sun ) || defined(__sun__)) && (defined(SYSV) || defined( __SVR4 ) || defined(__SVR4__) || defined(__svr4__))
+#  if defined(__illumos__)
+#   define VER_H_PROM_TSV_TEXT "illumos             "
+#  else
+#   define VER_H_PROM_TSV_TEXT "Solaris             "
+#  endif
+# elif defined(__APPLE__) && defined(__MACH__)
+#  define VER_H_PROM_TSV_TEXT "Apple macOS         "
+# elif defined(__GNU__) && !defined(__linux__)
+#  define VER_H_PROM_TSV_TEXT "GNU/Hurd            "
+# elif defined(__ANDROID__) && defined(__ANDROID_API__)
+#  if defined(__linux__)
+#   define VER_H_PROM_TSV_TEXT "Android/Linux       "
+#  else
+#   define VER_H_PROM_TSV_TEXT "Android             "
+#  endif
+# elif defined(__lynxOS__) || defined(__LYNXOS__) || defined(LynxOS) || defined(LYNXOS)
+#  define VER_H_PROM_TSV_TEXT "LynxOS              "
+# elif defined(__HELENOS__)
+#  define VER_H_PROM_TSV_TEXT "HelenOS             "
+# elif defined(__linux__)
+#  if defined(__BIONIC__)
+#   define VER_H_PROM_TSV_TEXT "Linux/Bionic-libc   "
+#  elif defined(__UCLIBC__) || defined(UCLIBC)
+#   define VER_H_PROM_TSV_TEXT "Linux/uClibc        "
+#  elif defined(__NEWLIB__)
+#   define VER_H_PROM_TSV_TEXT "Linux/Newlib        "
+#  elif defined(__dietlibc__)
+#   define VER_H_PROM_TSV_TEXT "Linux/Diet-libc     "
+#  elif defined(__GLIBC__)
+#   define VER_H_PROM_TSV_TEXT "GNU/Linux           "
+#  else
+#   define VER_H_PROM_TSV_TEXT "Linux               "
+#  endif
+# elif defined(__HAIKU__)
+#  define VER_H_PROM_TSV_TEXT "Haiku               "
+# elif defined(__serenity__)
+#  define VER_H_PROM_TSV_TEXT "SerenityOS          "
+# elif defined(__FreeBSD__)
+#  define VER_H_PROM_TSV_TEXT "FreeBSD             "
+# elif defined(__NetBSD__)
+#  define VER_H_PROM_TSV_TEXT "NetBSD              "
+# elif defined(__OpenBSD__)
+#  define VER_H_PROM_TSV_TEXT "OpenBSD             "
+# elif defined(__DragonFly__)
+#  define VER_H_PROM_TSV_TEXT "DragonFly BSD       "
+# elif defined(_AIX)
+#  define VER_H_PROM_TSV_TEXT "IBM AIX             "
+# elif defined(__VXWORKS__) || defined(__VXWORKS) || defined(__vxworks) || defined(__vxworks__) || defined(_VxWorks)
+#  if !defined(__RTP__)
+#   define VER_H_PROM_TSV_TEXT "VxWorks             "
+#  else
+#   define VER_H_PROM_TSV_TEXT "VxWorks RTP         "
+#  endif
+# elif defined(__rtems__)
+#  if defined(__FreeBSD_version)
+#   define VER_H_PROM_TSV_TEXT "RTEMS/LibBSD        "
+#  else
+#   define VER_H_PROM_TSV_TEXT "RTEMS               "
+#  endif
+# elif defined(__ZEPHYR__)
+#  define VER_H_PROM_TSV_TEXT "Zephyr              "
+# elif defined(ti_sysbios_BIOS___VERS) || defined(ti_sysbios_BIOS__top__)
+#  define VER_H_PROM_TSV_TEXT "TI-RTOS (SYS/BIOS)  "
+# elif defined(__OSV__) // -V1040
+#  define VER_H_PROM_TSV_TEXT "OSv                 "
+# elif defined(MINIX) || defined(MINIX3) || defined(MINIX315) || defined(__minix__) || defined(__minix3__) || defined(__minix315__)
+#  define VER_H_PROM_TSV_TEXT "Minix               "
+# elif defined(__QNX__)
+#  if defined(__QNXNTO__)
+#   define VER_H_PROM_TSV_TEXT "QNX Neutrino        "
+#  else
+#   define VER_H_PROM_TSV_TEXT "QNX                 "
+#  endif
+# endif
 # ifndef VER_H_PROM_TSV_TEXT
 #  define BURN_PROM_TSV_TEXT "Unknown Target OpSys"
 # else

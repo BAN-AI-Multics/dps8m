@@ -3,7 +3,7 @@ weight: 8000
 title: Community
 ---
 <!-- SPDX-License-Identifier: ICU -->
-<!-- Copyright (c) 2022-2023 The DPS8M Development Team -->
+<!-- Copyright (c) 2016-2023 The DPS8M Development Team -->
 ## Mailing Lists
 
 * The **DPS8M Development Team** offers **mailing lists** for discussing the simulator.

@@ -612,6 +612,10 @@ Cross-compiled release binaries:
     - *scriptExtraInfo
     - PARALLEL_CI_COUNT=0
     - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
+    - export LIBUV_DEV_EXTRA="git revert e893cd682644e4b76589570251b18edbf957b81f --no-edit"
+    - export LOCAL_CLONEOPTS=""
+    - git config --global user.name "GitLab CI" || true
+    - git config --global user.email "ci@example.com" || true
     - echo -e "section_start:`date +%s`:crossbsetup_section[collapsed=true]\r\e[0K\033[0;36mInstalling additional packages ...\033[0m" || true
     - dnf -y install --best copr-cli dnf-utils || dnf -y install --nobest copr-cli dnf-utils || true
     - yes | dnf copr enable "@fedora-llvm-team/llvm16" || true
@@ -2572,7 +2576,7 @@ Hugo:
 
 ############################################################################
 
-Linux/x86_64, Fedora Rawhide, Clang, GCC:
+.Linux/x86_64, Fedora Rawhide, Clang, GCC:
   image: fedora:rawhide
   stage: build
   tags:
@@ -2623,6 +2627,8 @@ AIX/powerpc64, IBM AIX, GCC:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
+    - export LIBUV_DEV_EXTRA="git revert e893cd682644e4b76589570251b18edbf957b81f --no-edit"
+    - export LOCAL_CLONEOPTS=""
     - env OBJECT_MODE=64 CI_SKIP_MKREBUILD=1 PATH="/opt/freeware/bin:/usr/local/bin:$PATH" CC=gcc-11 NO_LTO=1 CFLAGS="-m64 -maix64 -Wl,-b64 -mcpu=power8" LDFLAGS="-static-libgcc -Wl,-b64" gmake libuvdev -j $(lparstat -i | grep '^Desired Virtual CPUs' | cut -d ':' -f 2 | tr -cd '0-9\n' || printf '%s\n' "6")
     - env OBJECT_MODE=64 CI_SKIP_MKREBUILD=1 PATH="/opt/freeware/bin:/usr/local/bin:$PATH" CC=gcc-11 NO_LTO=1 CFLAGS="-m64 -maix64 -Wl,-b64 -mcpu=power8" LDFLAGS="-static-libgcc -Wl,-b64" gmake LIBUV="$(pwd)/libuv-local/local/lib/libuv.a -lperfstat" -j $(lparstat -i | grep '^Desired Virtual CPUs' | cut -d ':' -f 2 | tr -cd '0-9\n' || printf '%s\n' "6")
     - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
@@ -2661,6 +2667,8 @@ AIX/powerpc64, IBM AIX, IBM XL C/C++ V16.1:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
+    - export LIBUV_DEV_EXTRA="git revert e893cd682644e4b76589570251b18edbf957b81f --no-edit"
+    - export LOCAL_CLONEOPTS=""
     - export XLCXLC="xlc_r" && export XLCVER="16.1.0" && gmake -j $(lparstat -i | grep '^Desired Virtual CPUs' | cut -d ':' -f 2 | tr -cd '0-9\n' || printf '%s\n' "6") NO_LTO=1 CC="/opt/IBM/xlC/${XLCVER:?}/bin/${XLCXLC:?} -O3 -qhot -qarch=pwr8 -qchars=signed -q64 -qalign=natural -qtls" CFLAGS="-DUSE_POPT=1 -DUSE_FLOCK=1 -DUSE_FCNTL=1 -DAIX_ATOMICS=1 -DNEED_128=1 -DLOCKLESS=1 -I/opt/freeware/include -I../simh -I../decNumber -D_GNU_SOURCE -U__STRICT_POSIX__" USE_POPT=1 NEED_128=1 PULIBS="-lpopt" LDFLAGS="-L/opt/freeware/lib -b64" LIBS="-luv -lbsd -lm"
     - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
@@ -3595,6 +3603,7 @@ Solaris/x86_64, Oracle Solaris 11.4, Oracle Developer Studio:
     - rm -f "src/punutil/punutil" && cp -f "punutil" "src/punutil/punutil"
     - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README-macOS.txt "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
     - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
     - ( cd src && tar cf ../dps8m-git-macos-uni.tar "./${DISTDIR:?}" )
@@ -3763,52 +3772,6 @@ Multics CI-Kit Test:
       - src/ci-kit/new.txt
   retry: 2
   timeout: 240 minutes
-  interruptible: true
-
-############################################################################
-
-.Linux/x86_64, Ubuntu 18.04, Clang, GCC:
-  when: manual
-  image: ubuntu:bionic
-  stage: build
-  tags:
-    - Docker-x64
-    - amd64
-    - Linux
-  script:
-    - export GLCICD_JOB="UbuntuLTSBionicx64" && export DTIMESTAMP="$(stat -c "%Y" /etc/os-release)"
-    - ( (apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null); apt-get -qq -y install bzip2 wget > /dev/null || apt-get -qq -y install wget bzip2 > /dev/null )
-    - *scriptAptSetup
-    - *scriptInstallNfpm
-    - *scriptAptInstallLibuv1
-    - *scriptSanity
-    - (apt-get -qq -y install tcsh passwd || apt-get -qq -y install tcsh passwd)
-    - chsh -s /bin/tcsh root
-    - export SHELL=/bin/tcsh
-    - *scriptCommon
-    - *scriptBuildlibbacktrace
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
-    - *scriptBuildInfo
-    - make distclean
-    - *scriptDPS8Mods
-    - make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
-    - *scriptBuildInfo
-    - *scriptVerifyVersion
-    - *scriptCompressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - src/dps8/dps8.lz
-      - src/prt2pdf/prt2pdf.lz
-      - src/punutil/punutil.lz
-      - src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 90 minutes
   interruptible: true
 
 #############################################################################

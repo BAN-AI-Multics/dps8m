@@ -75,6 +75,7 @@ libuvrel:                                                                     \
 LIBUVBRN=v1.x
 LIBUVGIT=https://github.com/libuv/libuv
 LOCAL_CLONEOPTS?=--depth=1
+LIBUV_DEV_EXTRA?=true
 
 .PHONY: libuvdev
 ifneq (,$(findstring libuvdev,$(MAKECMDGOALS)))
@@ -99,7 +100,7 @@ libuvdev:                                                                     \
       eval export $(DUMACFG) &&                                               \
         $(SHELL) "configure" $(LOCAL_CONFOPTS) --disable-shared               \
 		  --enable-static --disable-dependency-tracking                       \
-            --prefix="$$($(GCWD) -P)/../local" &&                             \
+            --prefix="$$($(GCWD) -P)/../local" &&  $(LIBUV_DEV_EXTRA) &&      \
               $(MAKE) $(MAKEFLAGS) && $(MAKE) install && $(MAKE) clean) &&    \
                 $(PRINTF) '%s\n' "*** Local libuv built successfully!"
 
