@@ -12,11 +12,24 @@ Many newer Macintosh systems, including all Apple Silicon-based Macs
 require the binaries to be code signed before they can be executed.
 
 From a Terminal window, use the "codesign" tool, distributed with
-Apple Xcode or the Apple Xcode Command-Line Tools) as follows:
+Apple Xcode or the Apple Xcode Command-Line Tools, as follows:
 
 codesign -s - dps8
 codesign -s - prt2pdf
 codesign -s - punutil
 
-It may be necessary to repeat this process if the files are copied
-to a different folder, even if the files have not been modified.
+Depending on your system architecture, your version of macOS, and
+your system settings, even after signing the binaries, you might
+still receive a notice such as:
+
+              "dps8" can't be opened because Apple
+             cannot check it for malicious software.
+               This software needs to be updated.
+            Contact the developer for more information.
+
+In this case, click on "Show in Finder" button, Control-click the
+icon, choose "Open" from the shortcut menu, and then click "Open".
+You are now able to run the program without additional restrictions.
+
+It may be necessary to repeat these steps if the simulator files are
+copied to a different folder, even if the files have not been modified.
