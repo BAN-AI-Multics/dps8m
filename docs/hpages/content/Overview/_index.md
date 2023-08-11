@@ -189,7 +189,7 @@
 
 * **DPS8M** supports most <u>operating systems</u> conforming to *IEEE Std 1003.1-2008* (**POSIX.1-2008**), many <u>C compilers</u> conforming to *ISO/IEC 9899:2011* (**C11**), and numerous <u>hardware architectures</u>.
 
-  * <u>Operating systems</u> supported are **AIX**, **FreeBSD**, **NetBSD**, **OpenBSD**, **DragonFly BSD**, **Haiku**, **GNU/Hurd**, **illumos OpenIndiana**, **Linux**, **macOS**, **Solaris**, and **Windows**.
+  * <u>Operating systems</u> supported are **AIX**, **FreeBSD**, **NetBSD**, **OpenBSD**, **DragonFly BSD**, **Haiku**, **GNU/Hurd**, **illumos OpenIndiana**, **Linux**, **macOS**, **Solaris**, **SerenityOS**, and **Windows**.
 
   * <u>C compilers</u> supported are **Clang**, **LLVM-MinGW**, AMD Optimizing C/C++ (**AOCC**), Arm C/C++ Compiler (**ARMClang**), GNU C (**GCC**), IBM Advance Toolchain (**AT**), IBM XL C/C++ (**XLC**), IBM Open XL C/C++ (**IBMClang**), Intel oneAPI DPC++/C++ (**ICX**), Intel C++ Compiler Classic for macOS (**ICC**), NVIDIA HPC SDK C Compiler (**NVC**), and Oracle Developer Studio (**SunCC**).
 
