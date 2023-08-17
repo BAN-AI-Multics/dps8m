@@ -1,15 +1,7 @@
-# SPDX-License-Identifier: FSFAP
+# SPDX-License-Identifier: MIT
 # scspell-id: a0892c14-f62b-11ec-a6ad-80ee73e9b8e7
-
-############################################################################
-#
 # Copyright (c) 2021-2023 The DPS8M Development Team
-#
-# Copying and distribution of this file, with or without modification,
-# are permitted in any medium without royalty provided the copyright
-# notice and this notice are preserved.  This file is offered "AS-IS",
-# without any warranty.
-#
+
 ############################################################################
 
 set word l
@@ -58,7 +50,7 @@ sw "io_call read test -sm r1"
 
 send "backup_load\r"
 expect "tape label:"; sleep 1
-send "12.7LISTINGS\r"
+send "12.8LISTINGS\r"
 
 expect "reloaded?"; sleep 1
 sw "n"

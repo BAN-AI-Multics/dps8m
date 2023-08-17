@@ -1,18 +1,10 @@
 #!/usr/bin/env sh
 # shellcheck disable=SC2310,SC2312,SC2320
 # vim: filetype=sh:tabstop=4:ai:expandtab
-# SPDX-License-Identifier: FSFAP
+# SPDX-License-Identifier: MIT
 # scspell-id: cbd99c3f-f62b-11ec-a7f0-80ee73e9b8e7
-
-################################################################################
-#
 # Copyright (c) 2021-2023 The DPS8M Development Team
-#
-# Copying and distribution of this file, with or without modification,
-# are permitted in any medium without royalty provided the copyright
-# notice and this notice are preserved.  This file is offered "AS-IS",
-# without any warranty.
-#
+
 ###############################################################################
 
 # Requires: Cppcheck, Clang, GCC, GNU tools, lscpu, tput (from [n]curses)

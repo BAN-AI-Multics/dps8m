@@ -2,7 +2,7 @@
 weight: 3500
 title: Documentation
 ---
-<!-- SPDX-License-Identifier: ICU -->
+<!-- SPDX-License-Identifier: MIT -->
 <!-- Copyright (c) 2016-2023 The DPS8M Development Team -->
 The **DPS8M Development Team** provides documentation useful to simulator users and developers.
 

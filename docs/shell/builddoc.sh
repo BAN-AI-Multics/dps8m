@@ -1,22 +1,14 @@
 #!/usr/bin/env sh
 # shellcheck disable=SC2015,SC2086
 # vim: filetype=sh:tabstop=4:ai:expandtab
-# SPDX-License-Identifier: FSFAP
+# SPDX-License-Identifier: MIT
 # scspell-id: d4b774db-f631-11ec-90ff-80ee73e9b8e7
-
-################################################################################
-#
 # Copyright (c) 2021-2023 The DPS8M Development Team
-#
-# Copying and distribution of this file, with or without modification,
-# are permitted in any medium without royalty provided the copyright
-# notice and this notice are preserved.  This file is offered "AS-IS",
-# without any warranty.
-#
-################################################################################
 
+################################################################################
 # WARNING: Removes all `*.pdf`, `*.tmp`, and `*.state` files during operation.
 # WARNING: Installs the templates to `${HOME}/.local/share/pandoc/templates/`.
+################################################################################
 
 ################################################################################
 # Locking

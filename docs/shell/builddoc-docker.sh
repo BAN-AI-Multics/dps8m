@@ -1,21 +1,13 @@
 #!/usr/bin/env sh
 # shellcheck disable=SC2015,SC2086,SC2140
 # vim: filetype=sh:tabstop=4:ai:expandtab
-# SPDX-License-Identifier: FSFAP
+# SPDX-License-Identifier: MIT
 # scspell-id: cebcbf57-f631-11ec-9a6c-80ee73e9b8e7
-
-##############################################################################
-#
 # Copyright (c) 2021-2023 The DPS8M Development Team
-#
-# Copying and distribution of this file, with or without modification,
-# are permitted in any medium without royalty provided the copyright
-# notice and this notice are preserved.  This file is offered "AS-IS",
-# without any warranty.
-#
-##############################################################################
 
+##############################################################################
 # Wait for lock
+
 test -z "${FLOCKER:-}" && printf '%s\n' "Waiting for lock ..." ;             \
 test "$(uname -s 2> /dev/null)" = "Linux" && {                               \
 FLOCK_COMMAND="$( command -v flock 2> /dev/null )" && {                      \

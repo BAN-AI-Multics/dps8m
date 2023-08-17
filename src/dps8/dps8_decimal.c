@@ -1,6 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:ai:expandtab
- * SPDX-License-Identifier: ICU
+ * SPDX-License-Identifier: MIT AND ICU
  * scspell-id: 9868415b-f62d-11ec-9c75-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------

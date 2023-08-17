@@ -1,19 +1,8 @@
 # DPS8M simulator: src/ci-kit/ci.makefile
 # vim: filetype=make:tabstop=4:ai:cc=79:noexpandtab:list:listchars=tab\:\>\-
-# SPDX-License-Identifier: ICU
+# SPDX-License-Identifier: MIT
 # scspell-id: 5ccd4788-f62b-11ec-954c-80ee73e9b8e7
-
-###############################################################################
-#
 # Copyright (c) 2018-2023 The DPS8M Development Team
-#
-# All rights reserved.
-#
-# This software is made available under the terms of the ICU
-# License, version 1.8.1 or later.  For more details, see the
-# LICENSE.md file at the top-level directory of this distribution.
-#
-###############################################################################
 
 ### Initial Setup #############################################################
 
@@ -55,7 +44,7 @@ all help:
 	@printf '%s\n' "  s1 ..................... Build simulator"
 	@printf '%s\n' "  s2 ..................... Build CI-Kit working directory"
 	@printf '%s\n' "  s2p .................... Warm caches for s3"
-	@printf '%s\n' "  s3 ..................... Run MR12.7_install.ini"
+	@printf '%s\n' "  s3 ..................... Run MR12.8_install.ini"
 	@printf '%s\n' "  s3p .................... Warm caches for s4"
 	@printf '%s\n' "  s4 ..................... Setup Yoyodyne system"
 	@printf '%s\n' "  s4p .................... Warm caches for s5"
@@ -95,12 +84,12 @@ s2: ../dps8/dps8
 	@rm -Rf   ./run
 	@mkdir -p ./run
 	@mkdir -p ./run/tapes
-	@mkdir -p ./run/tapes/12.7
+	@mkdir -p ./run/tapes/12.8
 	@mkdir -p ./run/tapes/general
 	@mkdir -p ./run/disks
 	@printf %s\\n "sn: 0" > ./run/serial.txt 2> /dev/null || true
 	@cp -fp ../dps8/dps8    ./run
-	@cp -fp ./tapes/12.7*   ./run/tapes/12.7
+	@cp -fp ./tapes/12.8*   ./run/tapes/12.8
 	@cp -fp ./tapes/foo.tap ./run/tapes/general
 	@cp -fp ./ini/* ./run
 	@cp -fp ./ec/*  ./run
@@ -122,17 +111,17 @@ s2p:
         "### Cache primed ######################################"             \
             || true
 
-### Stage 3 - Run MR12.7_install.ini ##########################################
+### Stage 3 - Run MR12.8_install.ini ##########################################
 
 .PHONY: s3
 .NOTPARALLEL: s3
 s3: ../dps8/dps8
 	@printf '%s\n' "" || true
-	@printf '%s\n' "### Start Stage 3: Test MR12.7_install.ini ############"  \
+	@printf '%s\n' "### Start Stage 3: Test MR12.8_install.ini ############"  \
         || true
 	@rm -f ./run/disks/root.dsk.reloaded > /dev/null 2>&1 || true
 	@rm -f ./run/disks/newinstall.dsk    > /dev/null 2>&1 || true
-	cd ./run && time env CPUPROFILE=install.prof.out ./dps8 -t MR12.7_install.ini 2>&1
+	cd ./run && time env CPUPROFILE=install.prof.out ./dps8 -t MR12.8_install.ini 2>&1
 	@cp -fp ./run/disks/newinstall.dsk ./run/disks/yoyodyne.dsk
 	@printf '%s\n' ""
 	@printf '%s\n' "### End Stage 3 #######################################"  \

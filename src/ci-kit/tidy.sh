@@ -1,17 +1,9 @@
 #!/usr/bin/env sh
 # vim: filetype=sh:tabstop=4:ai:expandtab
-# SPDX-License-Identifier: FSFAP
+# SPDX-License-Identifier: MIT
 # scspell-id: 67af6a69-f62c-11ec-b355-80ee73e9b8e7
-
-##############################################################################
-#
 # Copyright (c) 2021-2023 The DPS8M Development Team
-#
-# Copying and distribution of this file, with or without modification,
-# are permitted in any medium without royalty provided the copyright
-# notice and this notice are preserved.  This file is offered "AS-IS",
-# without any warranty.
-#
+
 ##############################################################################
 
 export SHELL=/bin/sh
@@ -115,7 +107,7 @@ s/YourPasswordXWXWXWXWXWXW986986986986//
 s/^Registered .*/Registered ????/
 s/0 r [0-9][0-9]:[0-9][0-9] .*[0-9]/0 r ??:?? ????/
 s/^r [0-9][0-9]:[0-9][0-9] -[0-9].*/r ??:?? -???? ????/
-s/^MR12.7_install.ini-[0-9]*>/MR12.7_install.ini-???>/
+s/^MR12.._install.ini-[0-9]*>/MR12.?_install.ini-???>/
 s/^yoyodyne_start.ini-[0-9]*>/yoyodyne_start.ini-???>/
 s/^??:??:?? [0-9][0-9][0-9][0-9][0-9][0-9][0-9]/??:??:?? ???????/
 s/^Timestamp: .*\./Timestamp: ????/

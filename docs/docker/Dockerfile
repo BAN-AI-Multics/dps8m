@@ -1,15 +1,7 @@
-# SPDX-License-Identifier: FSFAP
+# SPDX-License-Identifier: MIT
 # scspell-id: e8f6be7f-f631-11ec-942a-80ee73e9b8e7
-
-#############################################################################
-#
 # Copyright (c) 2022-2023 The DPS8M Development Team
-#
-# Copying and distribution of this file, with or without modification,
-# are permitted in any medium without royalty provided the copyright
-# notice and this notice are preserved.  This file is offered "AS-IS",
-# without any warranty.
-#
+
 #############################################################################
 
 FROM fedora:##RELEASEVER##

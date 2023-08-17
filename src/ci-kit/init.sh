@@ -1,17 +1,9 @@
 #!/usr/bin/env sh
 # vim: filetype=sh:tabstop=4:ai:expandtab
-# SPDX-License-Identifier: FSFAP
+# SPDX-License-Identifier: MIT
 # scspell-id: 20185df2-f62c-11ec-80d0-80ee73e9b8e7
-
-##############################################################################
-#
 # Copyright (c) 2021-2023 The DPS8M Development Team
-#
-# Copying and distribution of this file, with or without modification,
-# are permitted in any medium without royalty provided the copyright
-# notice and this notice are preserved.  This file is offered "AS-IS",
-# without any warranty.
-#
+
 ##############################################################################
 
 set -e > /dev/null 2>&1
@@ -67,6 +59,15 @@ command -v wget > /dev/null 2>&1 ||
     printf '%s\n' "*** Error: No wget in PATH."
     exit 1
   }
+WGET="wget -c -t 0" && export WGET
+
+##############################################################################
+
+# shellcheck disable=SC2015
+command -v aria2c > /dev/null 2>&1 &&
+  {
+    WGET="aria2c -s 5 -j 5 -x 5 -k 8M -m 10" && export WGET
+  } || true
 
 ##############################################################################
 
@@ -107,12 +108,12 @@ MRSITE="https://s3.amazonaws.com/eswenson-multics/public/releases/" &&
 
 # Link tape files, copy if linking fails
 for tape in               \
-          "12.7EXEC.tap"  \
-  "12.7LDD_STANDARD.tap"  \
-      "12.7LISTINGS.tap"  \
-          "12.7MISC.tap"  \
-       "12.7MULTICS.tap"  \
-     "12.7UNBUNDLED.tap"; \
+          "12.8EXEC.tap"  \
+  "12.8LDD_STANDARD.tap"  \
+      "12.8LISTINGS.tap"  \
+          "12.8MISC.tap"  \
+       "12.8MULTICS.tap"  \
+     "12.8UNBUNDLED.tap"; \
     do
       test -z "${NO_CI_SYMLINK_TAPES:-}" &&
         {
@@ -129,68 +130,79 @@ done
 
 ##############################################################################
 
-touch "12.7MULTICS.tap" 2> /dev/null || true
-${MD5:-} "12.7MULTICS.tap" 2> /dev/null |
-  grep -wq 746ff9fddc3ce837df5eec83020f58ba ||
+touch "12.8MULTICS.tap" 2> /dev/null || true
+${MD5:-} "12.8MULTICS.tap" 2> /dev/null |
+  grep -wq 18f64bf8f1906e4eb32d35f2b747f0b5 ||
     {
-      rm -f "12.7MULTICS.tap"
-      wget -c -t 0 \
-        "${MRSITE:?}MR12.7/12.7MULTICS.tap"
+      rm -f "12.8MULTICS.tap"
+      ${WGET:?} \
+        "${MRSITE:?}MR12.8/12.8MULTICS.tap"
     }
 
 ##############################################################################
 
-touch "12.7EXEC.tap" 2> /dev/null || true
-${MD5:-} "12.7EXEC.tap" 2> /dev/null |
-  grep -wq 9faacd6f79cb6755a3e6c45415bdd168 ||
+touch "12.8EXEC.tap" 2> /dev/null || true
+${MD5:-} "12.8EXEC.tap" 2> /dev/null |
+  grep -wq 7adfa5f9cc0a18c572e83b6a9d58d627 ||
     {
-      rm -f "12.7EXEC.tap"
-      wget -c -t 0 \
-        "${MRSITE:?}MR12.7/12.7EXEC.tap"
+      rm -f "12.8EXEC.tap"
+      ${WGET:?} \
+        "${MRSITE:?}MR12.8/12.8EXEC.tap"
     }
 
 ##############################################################################
 
-touch "12.7LDD_STANDARD.tap" 2> /dev/null || true
-${MD5:-} "12.7LDD_STANDARD.tap" 2> /dev/null |
-  grep -wq f1f5a0b9c61107ad368253ee7dd21b66 ||
+touch "12.8LDD_STANDARD.tap" 2> /dev/null || true
+${MD5:-} "12.8LDD_STANDARD.tap" 2> /dev/null |
+  grep -wq af1041aa3e547f5789ad749c4484bcf2 ||
     {
-      rm -f "12.7LDD_STANDARD.tap"
-      wget -c -t 0 \
-        "${MRSITE:?}MR12.7/12.7LDD_STANDARD.tap"
+      rm -f "12.8LDD_STANDARD.tap"
+      ${WGET:?} \
+        "${MRSITE:?}MR12.8/12.8LDD_STANDARD.tap"
     }
 
 ##############################################################################
 
-touch "12.7UNBUNDLED.tap" 2> /dev/null || true
-${MD5:-} "12.7UNBUNDLED.tap" 2> /dev/null |
-  grep -wq 64384cd30f0b7acf60e17b318b9c459d ||
+touch "12.8UNBUNDLED.tap" 2> /dev/null || true
+${MD5:-} "12.8UNBUNDLED.tap" 2> /dev/null |
+  grep -wq 007aaa69b196df67196816e5c1186771 ||
     {
-      rm -f "12.7UNBUNDLED.tap"
-      wget -c -t 0 \
-        "${MRSITE:?}MR12.7/12.7UNBUNDLED.tap"
+      rm -f "12.8UNBUNDLED.tap"
+      ${WGET:?} \
+        "${MRSITE:?}MR12.8/12.8UNBUNDLED.tap"
     }
 
 ##############################################################################
 
-touch "12.7MISC.tap" 2> /dev/null || true
-${MD5:-} "12.7MISC.tap" 2> /dev/null |
-  grep -wq fc117d9dc58d1077271a9ceb0c93e020 ||
+touch "12.8MISC.tap" 2> /dev/null || true
+${MD5:-} "12.8MISC.tap" 2> /dev/null |
+  grep -wq 92983e9616afe9fd6783b7ee232ccac0 ||
     {
-      rm -f "12.7MISC.tap"
-      wget -c -t 0 \
-        "${MRSITE:?}MR12.7/12.7MISC.tap"
+      rm -f "12.8MISC.tap"
+      ${WGET:?} \
+        "${MRSITE:?}MR12.8/12.8MISC.tap"
     }
 
 ##############################################################################
 
-touch "12.7LISTINGS.tap" 2> /dev/null || true
-${MD5:-} "12.7LISTINGS.tap" 2> /dev/null |
-  grep -wq b64f6ca3670d4859c0fb42d9eae860e4 ||
+touch "12.8LISTINGS.tap" 2> /dev/null || true
+${MD5:-} "12.8LISTINGS.tap" 2> /dev/null |
+  grep -wq 3f62e1a67854cbde1c40576d073a4499 ||
     {
-      rm -f "12.7LISTINGS.tap"
-      wget -c -t 0 \
-        "${MRSITE:?}MR12.7/12.7LISTINGS.tap"
+      rm -f "12.8LISTINGS.tap"
+      ${WGET:?} \
+        "${MRSITE:?}MR12.8/12.8LISTINGS.tap"
+    }
+
+##############################################################################
+
+touch "12.8AML.tap" 2> /dev/null || true
+${MD5:-} "12.8AML.tap" 2> /dev/null |
+  grep -wq 36e2fa1923e50670fba6ba2f784ca74e ||
+    {
+      rm -f "12.8AML.tap"
+      ${WGET:?} \
+        "${MRSITE:?}MR12.8/12.8AML.tap"
     }
 
 ##############################################################################

@@ -1,21 +1,13 @@
 #!/usr/bin/env sh
 # shellcheck disable=SC2015,SC2016
 # vim: filetype=sh:tabstop=4:ai:tw=80:expandtab
-# SPDX-License-Identifier: FSFAP
+# SPDX-License-Identifier: MIT
 # scspell-id: 4c3b133e-f632-11ec-992b-80ee73e9b8e7
-
-################################################################################
-#
 # Copyright (c) 2022-2023 The DPS8M Development Team
-#
-# Copying and distribution of this file, with or without modification,
-# are permitted in any medium without royalty provided the copyright
-# notice and this notice are preserved.  This file is offered "AS-IS",
-# without any warranty.
-#
-################################################################################
 
+################################################################################
 # Exit immediately on lock failure
+
 test "$(uname -s 2> /dev/null)" = "Linux" && {                                 \
 FLOCK_COMMAND="$( command -v flock 2> /dev/null )" && {                        \
 [ "${FLOCKER:-}" != "${0}" ] && exec env                                       \

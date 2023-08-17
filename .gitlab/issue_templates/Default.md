@@ -1,6 +1,7 @@
 <!-- scspell-id: 050905c8-4812-11ed-9ae9-80ee73e9b8e7 -->
-<!-- SPDX-License-Identifier: FSFAP -->
+<!-- SPDX-License-Identifier: MIT -->
 <!-- Copyright (c) 2022-current The DPS8M Development Team and contributors -->
+<!-- When submitting an issue, remove the above text and this line. -->
 
 ## Simulator Information
 
@@ -21,22 +22,19 @@ SHOW BUILDINFO
       following extra information, replacing the '(extra info)'
       text in the section delimited by ``` characters below.
 
-
       $ uname -a
-      $ cat /etc/*eleas
+      $ cat /etc/*elease
 
-      FreeBSD?   Also include:  freebsd-version
-      SunOS?     Also include:  isainfo -v
-      AIX?       Also include:  prtconf
-      macOS?     Also include:  sw_vers
-      Linux?     Also include:  lsb_release -a
+      FreeBSD?     Also include: freebsd-version
+      SunOS?       Also include: isainfo -v
+      AIX?         Also include: prtconf
+      macOS?       Also include: sw_vers
+      Linux?       Also include: lsb_release -a
  -->
 
 ```
 (extra info)
 ```
-
-
 
 ## What Happened?
 

@@ -1,24 +1,15 @@
 # DPS8M simulator: src/Makefile.mk
 # vim: filetype=make:tabstop=4:cc=79:noet:ai::list:listchars=tab\:\>\-
-# SPDX-License-Identifier: ICU
+# SPDX-License-Identifier: MIT
 # scspell-id: 1cea05fd-f62b-11ec-b08e-80ee73e9b8e7
-
-###############################################################################
-#
 # Copyright (c) 2014-2016 Charles Anthony
 # Copyright (c) 2016 Michal Tomek
 # Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
 # Copyright (c) 2021-2023 The DPS8M Development Team
-#
-# All rights reserved.
-#
-# This software is made available under the terms of the ICU
-# License, version 1.8.1 or later.  For more details, see the
-# LICENSE.md file at the top-level directory of this distribution.
-#
-###############################################################################
 
+###############################################################################
 # src/Makefile.mk: Macro definitions and operating system detection defaults
+###############################################################################
 
 ###############################################################################
 # Default configuration

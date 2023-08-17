@@ -1,22 +1,12 @@
 #!/usr/bin/env sh
 # shellcheck disable=SC2016,SC2086,SC2248
 # vim: filetype=sh:tabstop=2:ai:expandtab
-# SPDX-License-Identifier: FSFAP
+# SPDX-License-Identifier: MIT
 # scspell-id: 428ea8be-f631-11ec-9caa-80ee73e9b8e7
-
-####################################################################################################
-#
 # Copyright (c) 2021-2023 The DPS8M Development Team
-#
-# Copying and distribution of this file, with or without modification,
-# are permitted in any medium without royalty provided the copyright
-# notice and this notice are preserved.  This file is offered "AS-IS",
-# without any warranty.
-#
+
 ####################################################################################################
-
 # Linux-only: Set-up a static CPU configuration, run a benchmark, and restore the original settings.
-
 ####################################################################################################
 
 ${PRINTF:-printf} '%s\n' "* Script started."

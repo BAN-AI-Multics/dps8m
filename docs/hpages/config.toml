@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: ICU
+# SPDX-License-Identifier: MIT
 # Copyright (c) 2022-2023 The DPS8M Development Team
 baseURL             = "http://dps8m.gitlab.io/dps8m"
 title               = "DPS8M Simulator"

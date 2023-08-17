@@ -1,10 +1,6 @@
-<!-- SPDX-License-Identifier: FSFAP -->
+<!-- SPDX-License-Identifier: MIT -->
 <!-- scspell-id: ebdd502d-f777-11ec-9466-80ee73e9b8e7 -->
-<!-- Copyright (c) 2021-2023 The DPS8M Development Team
-     Copying and distribution of this file, with or without modification,
-     are permitted in any medium without royalty provided the copyright
-     notice and this notice are preserved.  This file is offered "AS-IS",
-     without any warranty. -->
+<!-- Copyright (c) 2021-2023 The DPS8M Development Team -->
 
 # DPS8/M + Multics Continuous Integration Scripts
 
@@ -41,7 +37,8 @@
    * [illumos Telnet](https://github.com/illumos/illumos-gate/tree/master/usr/src/cmd/cmd-inet/)
 
  The following packages are optional, but highly recommended:
-   * [mksh](http://www.mirbsd.org/mksh.htm), the MirBSD™ Korn Shell, a
+   * [aria2](https://aria2.github.io/) - multi-connection download utility
+   * [mksh](http://www.mirbsd.org/mksh.htm) - the MirBSD™ Korn Shell, a
        high quality Korn Shell implementation
    * [libfaketime](https://github.com/wolfcw/libfaketime/) - used to set a
        fixed starting date for CI-Kit runs, enhancing log reproducibility
@@ -54,23 +51,20 @@
  are known to be sufficient for this task:
    * [Beyond Compare](https://www.scootersoftware.com/)
    * [Code Compare](https://www.devart.com/codecompare/)
-   * [Diffinity](https://truehumandesign.se/)
+   * [Diffinity](https://truehumandesign.se/s_diffinity.php)
    * [DiffMerge](https://sourcegear.com/diffmerge/)
-   * [ExamDiff](https://www.prestosoft.com/)
+   * [ExamDiff Pro](https://www.prestosoft.com/edp_examdiffpro.asp)
    * [Guiffy](https://www.guiffy.com/)
-   * [jMeld](https://github.com/albfan/jmeld/)
    * [KDiff3](https://github.com/KDE/kdiff3/)
    * [Meld](https://meldmerge.org/)
    * [Araxis Merge](https://www.araxis.com/merge/)
    * [P4Merge](https://www.perforce.com/downloads/visual-merge-tool/)
-   * [UltraCompare](https://www.ultraedit.com/products/ultracompare/)
    * [WinMerge](https://github.com/winmerge/winmerge/)
-   * [Xdiff](https://www.plasticscm.com/features/xmerge/)
    * [xxdiff](https://furius.ca/xxdiff/)
    * Vim/NeoVim
      * [NeoVim Diff](https://neovim.io/doc/user/diff.html)
      * [Vim Diff](https://vimhelp.org/diff.txt.html)
-     * [DiffChar](https://github.com/rickhowe/diffchar.vim)
+     * [DiffChar](https://github.com/rickhowe/diffchar.vim#readme)
 
 ## Usage
 
@@ -174,7 +168,7 @@ the simulator and any related processes have been terminated.
     2. invokes `isolts`
 
 * `init.sh`
-  This script will download the Multics MR12.7 tapes and place them in the
+  This script will download the Multics MR12.8 tapes and place them in the
   tapes directory.
 
 * `tidy.sh`
