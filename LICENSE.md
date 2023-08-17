@@ -1,14 +1,10 @@
 <!-- vim: set ft=markdown ts=2 sw=2 ai cc=80 et spell nolist wrap lbr :-->
-<!-- SPDX-License-Identifier: FSFAP -->
+<!-- SPDX-License-Identifier: MIT -->
 <!-- scspell-id: 8a9a2eb6-1758-11ee-8174-80ee73e9b8e7 -->
-<!-- NOTE: The FSF All Permissive License (FSFAP) is NOT applicable to
-           the text of other licenses reproduced within this document. -->
+<!-- NOTE: The MIT License is NOT applicable to the text
+     of other licenses reproduced within this document. -->
 <!-- NOTE: Licenses in this file are UTF-8 text within fenced code blocks. -->
-<!-- Copyright (c) 2006-2023 The DPS8M Development Team
-     Copying and distribution of this file, with or without modification,
-     are permitted in any medium without royalty provided the copyright
-     notice and this notice are preserved.  This file is offered "AS-IS",
-     without any warranty. -->
+<!-- Copyright (c) 2006-2023 The DPS8M Development Team -->
 
 # License Information
 
@@ -18,7 +14,6 @@
 
 - [**DPS8M Simulator**](#dps8m-simulator)
   * [ICU License](#icu-license)
-  * [FSF All Permissive License](#fsf-all-permissive-license)
   * [Multics License](#multics-license)
 - [Third-party Software](#third-party-software)
 
@@ -75,21 +70,6 @@ in this Software without prior written authorization of the copyright holder.
 
 All trademarks and registered trademarks mentioned herein are the property
 of their respective owners.
-```
-
-### FSF All Permissive License
-
-&nbsp;[![FSFAP License](https://img.shields.io/badge/license-FSFAP-passing.svg)](#fsf-all-permissive-license)
-
-* The **DPS8M Simulator** (“**DPS8M**”) distribution includes various
-  build, configuration, and miscellaneous files.
-* These supporting files are distributed under the terms of the
-  **FSF All Permissive License**.
-
-```
-Copying and distribution of this file, with or without modification, are
-permitted in any medium without royalty provided the copyright notice and this
-notice are preserved.  This file is offered "AS-IS", without any warranty.
 ```
 
 ### Multics License

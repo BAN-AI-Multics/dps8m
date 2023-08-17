@@ -1,18 +1,10 @@
-# SPDX-License-Identifier: FSFAP
+# SPDX-License-Identifier: MIT
 # scspell-id: 5a5d276b-f778-11ec-bbe8-80ee73e9b8e7
-
-############################################################################
-#
 # Copyright (c) 2018-2019 Charles Anthony <charles.unix.pro@gmail.com>
 # Copyright (c) 2019-2020 Eric Swenson <eric@swenson.org>
-# Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
+# Copyright (c) 2021-2022 Jeffrey H. Johnson <trnsz@pobox.com>
 # Copyright (c) 2021-2023 The DPS8M Development Team
-#
-# Copying and distribution of this file, with or without modification,
-# are permitted in any medium without royalty provided the copyright
-# notice and this notice are preserved.  This file is offered "AS-IS",
-# without any warranty.
-#
+
 ############################################################################
 
 .scriptAlma9Setup: &scriptAlma9Setup |

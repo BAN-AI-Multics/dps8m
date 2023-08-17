@@ -2,7 +2,7 @@
 weight: 3100
 title: Historical Archives
 ---
-<!-- SPDX-License-Identifier: ICU -->
+<!-- SPDX-License-Identifier: MIT -->
 <!-- Copyright (c) 2016-2023 The DPS8M Development Team -->
 ## About Archived Releases
 

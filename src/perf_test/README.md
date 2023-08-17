@@ -1,10 +1,6 @@
-<!-- SPDX-License-Identifier: FSFAP -->
+<!-- SPDX-License-Identifier: MIT -->
 <!-- scspell-id: 6a2354d8-f90e-11ec-8827-80ee73e9b8e7 -->
-<!-- Copyright (c) 2021-2023 The DPS8M Development Team
-     Copying and distribution of this file, with or without modification,
-     are permitted in any medium without royalty provided the copyright
-     notice and this notice are preserved.  This file is offered "AS-IS",
-     without any warranty. -->
+<!-- Copyright (c) 2021-2023 The DPS8M Development Team -->
 
 ```text
 Performance Testing

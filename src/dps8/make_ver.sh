@@ -1,21 +1,10 @@
 #!/usr/bin/env sh
 # shellcheck disable=SC2236,SC3040,SC2015,SC2310,SC2312
 # vim: filetype=sh:tabstop=4:ai:expandtab
-# SPDX-License-Identifier: ICU
+# SPDX-License-Identifier: MIT
 # scspell-id: 97aea429-f62f-11ec-b49f-80ee73e9b8e7
-
-##############################################################################
-#
 # Copyright (c) 2020-2021 Jeffrey H. Johnson <trnsz@pobox.com>
 # Copyright (c) 2021-2023 The DPS8M Development Team
-#
-# All rights reserved.
-#
-# This software is made available under the terms of the ICU
-# License, version 1.8.1 or later.  For more details, see the
-# LICENSE.md file at the top-level directory of this distribution.
-#
-##############################################################################
 
 ##############################################################################
 # Check for csh as sh.

@@ -2,7 +2,7 @@
 <?php
 /*
  * vim: filetype=php:tabstop=2:ai:tw=78:expandtab
- * SPDX-License-Identifier: ICU
+ * SPDX-License-Identifier: MIT
  * scspell-id: c647fe48-fc68-11ec-9e3d-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
@@ -13,12 +13,6 @@
  *
  * Copyright (c) 2016 Tobias Potocek <tobiaspotocek@gmail.com>
  * Copyright (c) 2021-2023 The DPS8M Development Team
- *
- * All rights reserved.
- *
- * This software is made available under the terms of the ICU
- * License, version 1.8.1 or later.  For more details, see the
- * LICENSE.md file at the top-level directory of this distribution.
  *
  * ---------------------------------------------------------------------------
  */

@@ -1,18 +1,9 @@
 # DPS8M simulator: src/dps8/UnitTests/GNUMakefile
 # vim: filetype=make:tabstop=4:ai:cc=79:noexpandtab:list:listchars=tab\:\>\-
-# SPDX-License-Identifier: ICU
+# SPDX-License-Identifier: MIT
 # scspell-id: 2734923a-f630-11ec-af39-80ee73e9b8e7
-
-###############################################################################
-#
 # Copyright (c) 2018-2023 The DPS8M Development Team
-#
-# All rights reserved.
-#
-# This software is made available under the terms of the ICU
-# License, version 1.8.1 or later.  For more details, see the
-# LICENSE.md file at the top-level directory of this distribution.
-#
+
 ###############################################################################
 
 PP  = as8pp
