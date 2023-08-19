@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 # shellcheck disable=SC2016,SC2086,SC2248
 # vim: filetype=sh:tabstop=2:ai:expandtab
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: MIT-0
 # scspell-id: 428ea8be-f631-11ec-9caa-80ee73e9b8e7
 # Copyright (c) 2021-2023 The DPS8M Development Team
 

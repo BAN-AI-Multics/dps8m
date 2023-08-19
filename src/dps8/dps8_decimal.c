@@ -1,6 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:ai:expandtab
- * SPDX-License-Identifier: MIT AND ICU
+ * SPDX-License-Identifier: ICU
  * scspell-id: 9868415b-f62d-11ec-9c75-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
@@ -43,6 +43,7 @@
 /* dps8 simulator (add additional features as required                */
 /*                                                                    */
 /* ------------------------------------------------------------------ */
+
 decContext * decContextDefaultDPS8(decContext *context)
 {
     decContextDefault(context, DEC_INIT_BASE);
@@ -63,6 +64,7 @@ decContext * decContextDefaultDPS8(decContext *context)
 /* dps8 simulators mpXd instructions                                  */
 /*                                                                    */
 /* ------------------------------------------------------------------ */
+
 decContext * decContextDefaultDPS8Mul(decContext *context)
 {
     decContextDefault(context, DEC_INIT_BASE);
@@ -83,6 +85,7 @@ decContext * decContextDefaultDPS8Mul(decContext *context)
 /* dps8 simulator (add additional features as required                */
 /*                                                                    */
 /* ------------------------------------------------------------------ */
+
 decContext * decContextDefaultDPS8_80(decContext *context)
 {
     decContextDefault(context, DEC_INIT_BASE);
@@ -217,6 +220,7 @@ decNumber * decBCD9ToNumber(const word9 *bcd, Int length, const Int scale, decNu
 /* returned and the bcd and scale results are unchanged.  Otherwise   */
 /* bcd is returned.                                                   */
 /* ------------------------------------------------------------------ */
+
 static uint8_t * decBCDFromNumber(uint8_t *bcd, int length, int *scale, const decNumber *dn) {
 
     //PRINTDEC("decBCDFromNumber()", dn);

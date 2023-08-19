@@ -1,18 +1,9 @@
 ; DPS8M NSIS Setup: .nsis/setup.nsi
 ; vim: set ft=nsis ts=2 sw=2 tw=0 expandtab :
-; SPDX-License-Identifier: ICU
+; SPDX-License-Identifier: MIT-0
 ; scspell-id: 43d06fef-488e-11ed-9b62-80ee73e9b8e7
+; Copyright (c) 2022-2023 The DPS8M Development Team
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Copyright (c) 2022-2023 The DPS8M Development Team
-;;
-;; All rights reserved.
-;;
-;; This software is made available under the terms of the ICU
-;; License, version 1.8.1 or later.  For more details, see the
-;; LICENSE.md file at the top-level directory of this distribution.
-;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; NSIS: Includes

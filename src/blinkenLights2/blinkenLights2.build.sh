@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # vim: filetype=sh:tabstop=4:ai:expandtab
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: MIT-0
 # scspell-id: 43a1f702-f62b-11ec-9572-80ee73e9b8e7
 # Copyright (c) 2021 Charles Anthony
 # Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>

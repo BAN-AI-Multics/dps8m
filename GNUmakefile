@@ -1,15 +1,10 @@
 # DPS8M simulator: GNUmakefile
 # vim: nocp:filetype=make:tabstop=4:ai:noet:cc=78:list:listchars=tab\:\>\-
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: MIT-0
 # scspell-id: bfdf848e-f631-11ec-9b72-80ee73e9b8e7
-
-##############################################################################
-#
 # Copyright (c) 2016 Charles Anthony
 # Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
 # Copyright (c) 2021-2023 The DPS8M Development Team
-#
-##############################################################################
 
 ##############################################################################
 # Build flags:

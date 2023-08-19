@@ -137,7 +137,7 @@ title: DPS8M Releases
 {{< /expand >}}
 {{< /expand >}}
 
-{{< expand "NetBSD 9.3" "…" >}}
+{{< expand "NetBSD 9.3+" "…" >}}
 {{< expand "Intel x86" "…" >}}
 {{< expand "Intel x86_64 (AMD64)" "…" >}}
 | File                                                                                       | Platform                           | Verification |
@@ -156,10 +156,17 @@ title: DPS8M Releases
 {{< /expand >}}
 {{< /expand >}}
 
+{{< expand "ARM" "…" >}}
 {{< expand "ARM64 (little-endian)" "…" >}}
 | File                                                                                       | Platform | Verification |
 | :----------------------------------------------------------------------------------------- | :------- |:------------ |
 | [**dps8m-r3.0.1-nbd93-a64.tar.gz**](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-nbd93-a64.tar.gz) | ARMv8‑A  | <small>\[&nbsp;[SHA256](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-nbd93-a64.tar.gz.sha256)&nbsp;\|&nbsp;[PGP](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-nbd93-a64.tar.gz.asc)&nbsp;\]</small>  |
+{{< /expand >}}
+{{< expand "ARM64 (big-endian)" "…" >}}
+| File                                                                                       | Platform | Verification |
+| :----------------------------------------------------------------------------------------- | :------- |:------------ |
+| [**dps8m-r3.0.1-nbd10-64b.tar.gz**](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-nbd10-64b.tar.gz) | NetBSD&nbsp;10 ARMv8‑A&nbsp;BE8  | <small>\[&nbsp;[SHA256](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-nbd10-64b.tar.gz.sha256)&nbsp;\|&nbsp;[PGP](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-nbd10-64b.tar.gz.asc)&nbsp;\]</small>  |
+{{< /expand >}}
 {{< /expand >}}
 
 {{< expand "SPARC" "…" >}}
@@ -253,6 +260,12 @@ title: DPS8M Releases
 | :----------------------------------------------------------------------------------------- | :------- |:------------ |
 | [**dps8m-r3.0.1-linux-686.tar.gz**](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-linux-686.tar.gz) | i686     | <small>\[&nbsp;[SHA256](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-linux-686.tar.gz.sha256)&nbsp;\|&nbsp;[PGP](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-linux-686.tar.gz.asc)&nbsp;\]</small>  |
 | [**dps8m-r3.0.1-linux-586.tar.gz**](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-linux-586.tar.gz) | i586     | <small>\[&nbsp;[SHA256](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-linux-586.tar.gz.sha256)&nbsp;\|&nbsp;[PGP](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-linux-586.tar.gz.asc)&nbsp;\]</small>  |
+{{< /expand >}}
+
+{{< expand "Intel x32 ABI (AMD64 ILP32)" "…" >}}
+| File                                                                                       | Platform | Verification |
+| :----------------------------------------------------------------------------------------- | :------- |:------------ |
+| [**dps8m-r3.0.1-linux-x32.tar.gz**](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-linux-x32.tar.gz) | x32&nbsp;ABI (AMD64&nbsp;ILP32) | <small>\[&nbsp;[SHA256](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-linux-x32.tar.gz.sha256)&nbsp;\|&nbsp;[PGP](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-linux-x32.tar.gz.asc)&nbsp;\]</small> |
 {{< /expand >}}
 {{< /expand >}}
 
@@ -417,7 +430,7 @@ title: DPS8M Releases
 {{< /tab >}}
 {{< tab "macOS" >}}
 
-{{< expand "Universal Binary" "…" >}}
+{{< expand "Universal Binary (x86_64 / x86_64h / ARM64)" "…" >}}
 | File                                                                                       | Platform          | Verification |
 |:------------------------------------------------------------------------------------------ |:----------------- |:------------ |
 | [**dps8m-r3.0.1-macos-uni.tar.gz**](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-macos-uni.tar.gz) | macOS&nbsp;10.13+ | <small>\[&nbsp;[SHA256](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-macos-uni.tar.gz.sha256)&nbsp;\|&nbsp;[PGP](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-macos-uni.tar.gz.asc)&nbsp;\]</small>  |

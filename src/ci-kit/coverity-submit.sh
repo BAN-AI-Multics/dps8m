@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # vim: filetype=sh:tabstop=2:ai:expandtab
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: MIT-0
 # scspell-id: 3ca5a01e-a3f1-11ed-9267-80ee73e9b8e7
 # Copyright (c) 2023 The DPS8M Development Team
 
