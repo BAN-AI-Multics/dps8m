@@ -15,5 +15,5 @@
 {{< /hint >}}
 #### Old News
 {{< hint type="info" icon="gdoc_info_outline" title=" DPS8M Release 3.0.0 (2022-11-23)" >}}
-* [**DPS8M R3.0.0**](https://dps8m.gitlab.io/dps8m/Releases/Historical_Archives#dps8m-r300--2022-11-23) released &mdash; a brand new stable major release!
+* [**DPS8M R3.0.0**](https://dps8m.gitlab.io/dps8m/Releases/Historical_Archives#dps8m-r300--2022-11-23) released &mdash; a new stable major release!
 {{< /hint >}}

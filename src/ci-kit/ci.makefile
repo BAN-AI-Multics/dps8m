@@ -1,6 +1,6 @@
 # DPS8M simulator: src/ci-kit/ci.makefile
 # vim: filetype=make:tabstop=4:ai:cc=79:noexpandtab:list:listchars=tab\:\>\-
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: MIT-0
 # scspell-id: 5ccd4788-f62b-11ec-954c-80ee73e9b8e7
 # Copyright (c) 2018-2023 The DPS8M Development Team
 

@@ -1,6 +1,6 @@
 # DPS8M simulator: src/prt2pdf/GNUmakefile
 # vim: filetype=make:tabstop=4:ai:cc=79:noexpandtab:list:listchars=tab\:\>\-
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: MIT-0
 # scspell-id: 50949946-f631-11ec-81f4-80ee73e9b8e7
 # Copyright (c) 2013-2016 Charles Anthony
 # Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>

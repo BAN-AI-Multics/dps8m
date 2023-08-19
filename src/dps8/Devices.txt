@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: MIT-0
 # scspell-id: f0de0653-f90d-11ec-9356-80ee73e9b8e7
 # Copyright (c) 2015-2023 The DPS8M Development Team
 

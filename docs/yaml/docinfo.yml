@@ -1,5 +1,5 @@
 ---
-# SPDX-License-Identifier: LicenseRef-CF-GAL
+# SPDX-License-Identifier: MIT
 # SPDX-FileCopyrightText: 2021-2023 The DPS8M Development Team
 # scspell-id: 554a8331-f8f2-11ec-9f86-80ee73e9b8e7
 title: "DPS8M: GE™ / Honeywell™ / Bull™ 6000-series & DPS‑8 ∕ M simulator"
@@ -83,6 +83,7 @@ include-before: |
 \hyphenation{Adobe}
 \hyphenation{advertising}
 \hyphenation{although}
+\hyphenation{announcing}
 \hyphenation{applications}
 \hyphenation{appropriate}
 \hyphenation{argument}
@@ -121,11 +122,15 @@ include-before: |
 \hyphenation{Corbató}
 \hyphenation{CORRECTIONS}
 \hyphenation{CURRENCY}
+\hyphenation{currently}
+\hyphenation{Cygwin}
 \hyphenation{DAMAGES}
 \hyphenation{decimal}
 \hyphenation{Definition}
+\hyphenation{deprecated}
 \hyphenation{DEVELOPMENT}
 \hyphenation{directory}
+\hyphenation{disabled}
 \hyphenation{disclaimer}
 \hyphenation{disclaims}
 \hyphenation{DISCLOSURES}
@@ -151,6 +156,7 @@ include-before: |
 \hyphenation{FITNESS}
 \hyphenation{following}
 \hyphenation{Free}
+\hyphenation{functioning}
 \hyphenation{functions}
 \hyphenation{GE}
 \hyphenation{General}
@@ -197,6 +203,7 @@ include-before: |
 \hyphenation{Markdown}
 \hyphenation{Massachusetts}
 \hyphenation{microseconds}
+\hyphenation{minimum}
 \hyphenation{MIT}
 \hyphenation{MODIFICATIONS}
 \hyphenation{modified}
@@ -220,6 +227,7 @@ include-before: |
 \hyphenation{pharmaceutical}
 \hyphenation{Portable}
 \hyphenation{PostScript}
+\hyphenation{precision}
 \hyphenation{prerequisites}
 \hyphenation{privilege}
 \hyphenation{Professor}
@@ -252,6 +260,7 @@ include-before: |
 \hyphenation{spreadsheet}
 \hyphenation{standard}
 \hyphenation{SUBSTITUTE}
+\hyphenation{suitable}
 \hyphenation{support}
 \hyphenation{supported}
 \hyphenation{supporting}
@@ -264,6 +273,7 @@ include-before: |
 \hyphenation{University}
 \hyphenation{Unix}
 \hyphenation{UNIX}
+\hyphenation{upstream}
 \hyphenation{vector}
 \hyphenation{version}
 \hyphenation{WARRANTIES}

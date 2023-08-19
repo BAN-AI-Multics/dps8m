@@ -1,9 +1,9 @@
 #!/usr/bin/env sh
-# shellcheck disable=SC2236,SC3040,SC2015,SC2310,SC2312
+# shellcheck disable=SC2236,SC3040,SC2015,SC2310,SC2312,SC2317
 # vim: filetype=sh:tabstop=4:ai:expandtab
 # SPDX-License-Identifier: MIT
 # scspell-id: 97aea429-f62f-11ec-b49f-80ee73e9b8e7
-# Copyright (c) 2020-2021 Jeffrey H. Johnson <trnsz@pobox.com>
+# Copyright (c) 2020-2023 Jeffrey H. Johnson <trnsz@pobox.com>
 # Copyright (c) 2021-2023 The DPS8M Development Team
 
 ##############################################################################

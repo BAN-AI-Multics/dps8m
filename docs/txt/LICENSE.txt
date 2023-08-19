@@ -47,16 +47,6 @@ of their respective owners.
 
 -------------------------------------------------------------------------------
 
-The DPS8M Simulator source distribution includes various build, configuration,
-and miscellaneous files. These supporting files are distributed under the
-terms of the FSF All Permissive License:
-
-Copying and distribution of this file, with or without modification, are
-permitted in any medium without royalty provided the copyright notice and this
-notice are preserved.  This file is offered "AS-IS", without any warranty.
-
--------------------------------------------------------------------------------
-
 The DPS8M Simulator source code may contain code comments that adapt,
 include, and/or incorporate Multics program code and/or documentation
 distributed under the Multics License. The Multics License covers only

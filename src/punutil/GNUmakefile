@@ -1,6 +1,6 @@
 # DPS8M simulator: src/punutil/GNUmakefile
 # vim: filetype=make:tabstop=4:cc=79:ai:noexpandtab:list:listchars=tab\:\>\-
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: MIT-0
 # scspell-id: 5daf1b6a-f631-11ec-9e7c-80ee73e9b8e7
 # Copyright (c) 2021-2023 The DPS8M Development Team
 

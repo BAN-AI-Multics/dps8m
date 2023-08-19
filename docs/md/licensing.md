@@ -452,19 +452,6 @@ of their respective owners.
 
 ----
 
-#### FSF All Permissive License (Simulator Miscellaneous)
-
-* The **DPS8M Simulator** (“**DPS8M**”) distribution includes various
-  build, configuration, and miscellaneous files.
-* These supporting files are distributed under the terms of the following
-  **FSF All Permissive License**.
-
-**Copying and distribution of this file, with or without modification, are
-permitted in any medium without royalty provided the copyright notice and this
-notice are preserved.  This file is offered “_AS-IS_”, without any warranty.**
-
-----
-
 <!-- pagebreak -->
 
 #### Multics License (Simulator Code Comments)

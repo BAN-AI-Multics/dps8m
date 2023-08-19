@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 # shellcheck disable=SC2310,SC2312
 # vim: filetype=sh:tabstop=4:ai:expandtab
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: MIT-0
 # scspell-id: 628508d5-f62b-11ec-99af-80ee73e9b8e7
 # Copyright (c) 2021-2023 The DPS8M Development Team
 
@@ -197,7 +197,7 @@ ${NCAT:?} "--version" 2>&1 | grep -q '^Ncat:.*nmap\.org' ||
 # Port ${1} bindable?
 portCanBind()
   {
-    # shellcheck disable=SC2248
+    # shellcheck disable=SC2248,SC2086
     timeout 1 ${NCAT:?} -l "127.0.0.1" "${1:?}" > /dev/null 2>&1
     rc="${?}"
     if [ "${rc:-}" -gt 2 ]; then

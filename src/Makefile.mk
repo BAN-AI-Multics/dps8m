@@ -1,6 +1,6 @@
 # DPS8M simulator: src/Makefile.mk
 # vim: filetype=make:tabstop=4:cc=79:noet:ai::list:listchars=tab\:\>\-
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: MIT-0
 # scspell-id: 1cea05fd-f62b-11ec-b08e-80ee73e9b8e7
 # Copyright (c) 2014-2016 Charles Anthony
 # Copyright (c) 2016 Michal Tomek
