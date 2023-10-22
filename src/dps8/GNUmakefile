@@ -352,7 +352,9 @@ endif
 ifneq (,$(findstring clean,$(MAKECMDGOALS)))
 .NOTPARALLEL: clean install
 endif
-install: all
+install:
+	@$(TEST) -f "dps8$(EXE)" || { $(PRINTF) '%s\n' "Error: No dps8 binary.";  \
+                                  exit 1; }
 	@$(SETV); $(MKDIR) "$(DESTDIR)$(INSTALL_BIN)"
 	@$(SETV); $(CP) "dps8$(EXE)" "$(DESTDIR)$(INSTALL_BIN)/dps8$(EXE)"
 
