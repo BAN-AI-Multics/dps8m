@@ -8,7 +8,7 @@
  * ---------------------------------------------------------------------------
  *
  * Copyright (c) 2011 Mark Pizzolato
- * Copyright (c) 2021-2023 The DPS8M Development Team
+ * Copyright (c) 2021-2024 The DPS8M Development Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -837,7 +837,7 @@ else {                                                  /* normal */
         else {                                          /* doesn't exist */
             if (sim_switches & SWMASK ('E'))            /* must exist? */
                 return _err_return (uptr, SCPE_OPENERR); /* yes, error */
-            if (create_function) //-V547
+            if (create_function) //-V547 /* cppcheck-suppress internalAstError */
                 uptr->fileref = create_function (cptr, ((t_offset)uptr->capac)*ctx->capac_factor*((dptr->flags & DEV_SECTORS) ? 512 : 1));/* create new file */
             else
                 uptr->fileref = open_function (cptr, "wb+");/* open new file */

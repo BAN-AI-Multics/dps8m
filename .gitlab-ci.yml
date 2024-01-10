@@ -204,8 +204,6 @@
     wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
     echo "Preparing libuv ..."
     unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    echo "Patching libuv for MinGW32 ..."
-    (curl -fsSL https://gist.githubusercontent.com/johnsonjh/0ee49cbafdc918cb8023b9ba8a041939/raw 2> /dev/null || curl -fsSL https://gist.githubusercontent.com/johnsonjh/0ee49cbafdc918cb8023b9ba8a041939/raw 2> /dev/null) | patch -p1
     echo "Configuring libuv ..."
     ./configure --disable-shared --enable-static --host=i686-w64-mingw32 --disable-dependency-tracking
     echo "Compiling libuv ..."
@@ -298,7 +296,7 @@
     dnf -y --refresh --best update || dnf -y --refresh --nobest update || true
     dnf -y update
     echo "Installing software ..."
-    export ARGS="ccache lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make gnupg2 bash curl wget git time gcc clang xz xz-libs xz-devel libzstd libzstd-devel"
+    export ARGS="file ccache lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make gnupg2 bash curl wget git time gcc clang xz xz-libs xz-devel libzstd libzstd-devel"
     dnf -y --allowerasing --best install ${ARGS:?} || dnf -y --skip-broken --nobest install ${ARGS:?} || true
     dnf -y --best install ${ARGS:?} || dnf -y --nobest install ${ARGS:?}
     echo -e "section_end:`date +%s`:dnfuinstall_section\r\e[0K" || true
@@ -587,7 +585,7 @@ Linux/powerpc64el, IBM Advance Toolchain 16:
 ############################################################################
 
 Cross-compiled release binaries:
-  image: fedora:38
+  image: fedora:39
   stage: build
   tags:
     - Docker-x64
@@ -606,7 +604,6 @@ Cross-compiled release binaries:
     - *scriptExtraInfo
     - PARALLEL_CI_COUNT=0
     - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
-    - export LIBUV_DEV_EXTRA="curl -fsSL https://gitlab.com/dps8m/dps8m/-/snippets/3613590/raw/main/0001-AIX-patch.patch | git am"
     - export LOCAL_CLONEOPTS=""
     - git config --global user.name "GitLab CI" || true
     - git config --global user.email "ci@example.com" || true
@@ -761,7 +758,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /x86_64-unknown-haiku.tar.lz ); }; fi
     - unset DPS8_CPUTYPE > /dev/null 2>&1 || true
     - unexport DPS8_CPUTYPE > /dev/null 2>&1 || true
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/x86_64-unknown-haiku/generated/cross-tools-x86_64/bin/:${PATH:-} LOCAL_CONFOPTS="--host=x86_64-unknown-haiku" CC=/home/jhj/x-tools/x86_64-unknown-haiku/generated/cross-tools-x86_64/bin//x86_64-unknown-haiku-gcc gmake libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/x86_64-unknown-haiku/generated/cross-tools-x86_64/bin/:${PATH:-} LOCAL_CONFOPTS="--host=x86_64-unknown-haiku" CC=/home/jhj/x-tools/x86_64-unknown-haiku/generated/cross-tools-x86_64/bin//x86_64-unknown-haiku-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env CC=/home/jhj/x-tools/x86_64-unknown-haiku/generated/cross-tools-x86_64/bin/x86_64-unknown-haiku-gcc gmake LIBS="../../libuv-local/local/lib/libuv.a -lnetwork" EMPTYLIBS="-lbsd" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
@@ -2074,46 +2071,12 @@ Cross-compiled release binaries:
     - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/amd64-unknown-openbsd7.2.tar.lz" -O /amd64-unknown-openbsd7.2.tar.lz
     - tar axf /amd64-unknown-openbsd7.2.tar.lz
     - *scriptDPS8Mods
-    - export DPS8_CPUTYPE=x86-64-v4
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-unused-command-line-argument -Wno-char-subscripts -Wno-typedef-redefinition" LOCAL_CONFOPTS="--host=amd64-unknown-openbsd7.2" CC="clang -I$(pwd)/amd64-unknown-openbsd7.2/usr/include -L$(pwd)/amd64-unknown-openbsd7.2/usr/lib -B$(pwd)/amd64-unknown-openbsd7.2/usr/lib --target=amd64-unknown-openbsd7.2" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && env CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-unused-command-line-argument -Wno-char-subscripts -Wno-typedef-redefinition" CC="clang -I$(pwd)/amd64-unknown-openbsd7.2/usr/include -L$(pwd)/amd64-unknown-openbsd7.2/usr/lib -B$(pwd)/amd64-unknown-openbsd7.2/usr/lib --target=amd64-unknown-openbsd7.2" NO_LTO=1 gmake LOCALLIBS="-lm" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env CFLAGS="-Wno-unused-command-line-argument -Wno-char-subscripts -Wno-typedef-redefinition" LOCAL_CONFOPTS="--host=amd64-unknown-openbsd7.2" CC="clang -I$(pwd)/amd64-unknown-openbsd7.2/usr/include -L$(pwd)/amd64-unknown-openbsd7.2/usr/lib -B$(pwd)/amd64-unknown-openbsd7.2/usr/lib --target=amd64-unknown-openbsd7.2" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && env CFLAGS="-Wno-unused-command-line-argument -Wno-char-subscripts -Wno-typedef-redefinition" CC="clang -I$(pwd)/amd64-unknown-openbsd7.2/usr/include -L$(pwd)/amd64-unknown-openbsd7.2/usr/lib -B$(pwd)/amd64-unknown-openbsd7.2/usr/lib --target=amd64-unknown-openbsd7.2" NO_LTO=1 gmake LOCALLIBS="-lm" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-obd72-x64.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-obd72-x64.tar; }; fi
-    - rm -rf "src/${DISTDIR:?}"
-    - git clean -fdxq -e '*.tar*' -e 'dps8m*' -e '*openbsd*'
-    - PARALLEL_CI_COUNT=$(( PARALLEL_CI_COUNT + 1 )) ; test ${PARALLEL_CI_COUNT:?} -gt ${CI_NODE_TOTAL:?} && PARALLEL_CI_COUNT=1 || true
-    - *scriptDPS8Mods
-    - export DPS8_CPUTYPE=x86-64-v3
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-unused-command-line-argument -Wno-char-subscripts -Wno-typedef-redefinition" LOCAL_CONFOPTS="--host=amd64-unknown-openbsd7.2" CC="clang -I$(pwd)/amd64-unknown-openbsd7.2/usr/include -L$(pwd)/amd64-unknown-openbsd7.2/usr/lib -B$(pwd)/amd64-unknown-openbsd7.2/usr/lib --target=amd64-unknown-openbsd7.2" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && env CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-unused-command-line-argument -Wno-char-subscripts -Wno-typedef-redefinition" CC="clang -I$(pwd)/amd64-unknown-openbsd7.2/usr/include -L$(pwd)/amd64-unknown-openbsd7.2/usr/lib -B$(pwd)/amd64-unknown-openbsd7.2/usr/lib --target=amd64-unknown-openbsd7.2" NO_LTO=1 gmake LOCALLIBS="-lm" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
-    - mkdir -p "src/${DISTDIR:?}"
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-obd72-x63.tar "./${DISTDIR:?}"; ); }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-obd72-x63.tar; }; fi
-    - rm -rf "src/${DISTDIR:?}"
-    - git clean -fdxq -e '*.tar*' -e 'dps8m*' -e '*openbsd*'
-    - PARALLEL_CI_COUNT=$(( PARALLEL_CI_COUNT + 1 )) ; test ${PARALLEL_CI_COUNT:?} -gt ${CI_NODE_TOTAL:?} && PARALLEL_CI_COUNT=1 || true
-    - *scriptDPS8Mods
-    - export DPS8_CPUTYPE=x86-64-v2
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-unused-command-line-argument -Wno-char-subscripts -Wno-typedef-redefinition" LOCAL_CONFOPTS="--host=amd64-unknown-openbsd7.2" CC="clang -I$(pwd)/amd64-unknown-openbsd7.2/usr/include -L$(pwd)/amd64-unknown-openbsd7.2/usr/lib -B$(pwd)/amd64-unknown-openbsd7.2/usr/lib --target=amd64-unknown-openbsd7.2" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && env CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-unused-command-line-argument -Wno-char-subscripts -Wno-typedef-redefinition" CC="clang -I$(pwd)/amd64-unknown-openbsd7.2/usr/include -L$(pwd)/amd64-unknown-openbsd7.2/usr/lib -B$(pwd)/amd64-unknown-openbsd7.2/usr/lib --target=amd64-unknown-openbsd7.2" NO_LTO=1 gmake LOCALLIBS="-lm" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
-    - mkdir -p "src/${DISTDIR:?}"
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-obd72-x62.tar "./${DISTDIR:?}"; ); }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-obd72-x62.tar; }; fi
-    - rm -rf "src/${DISTDIR:?}"
-    - git clean -fdxq -e '*.tar*' -e 'dps8m*' -e '*openbsd*'
-    - PARALLEL_CI_COUNT=$(( PARALLEL_CI_COUNT + 1 )) ; test ${PARALLEL_CI_COUNT:?} -gt ${CI_NODE_TOTAL:?} && PARALLEL_CI_COUNT=1 || true
-    - *scriptDPS8Mods
-    - export DPS8_CPUTYPE=x86-64
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-unused-command-line-argument -Wno-char-subscripts -Wno-typedef-redefinition" LOCAL_CONFOPTS="--host=amd64-unknown-openbsd7.2" CC="clang -I$(pwd)/amd64-unknown-openbsd7.2/usr/include -L$(pwd)/amd64-unknown-openbsd7.2/usr/lib -B$(pwd)/amd64-unknown-openbsd7.2/usr/lib --target=amd64-unknown-openbsd7.2" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && env CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-unused-command-line-argument -Wno-char-subscripts -Wno-typedef-redefinition" CC="clang -I$(pwd)/amd64-unknown-openbsd7.2/usr/include -L$(pwd)/amd64-unknown-openbsd7.2/usr/lib -B$(pwd)/amd64-unknown-openbsd7.2/usr/lib --target=amd64-unknown-openbsd7.2" NO_LTO=1 gmake LOCALLIBS="-lm" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
-    - mkdir -p "src/${DISTDIR:?}"
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-obd72-x61.tar "./${DISTDIR:?}"; ); }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-obd72-x61.tar; }; fi
     - rm -rf "src/${DISTDIR:?}"
     - git clean -fdxq -e '*.tar*' -e 'dps8m*' -e '*openbsd*'
     - chmod -R u+rwx amd64-unknown-openbsd7.2 || true
@@ -2213,9 +2176,6 @@ Cross-compiled release binaries:
       - dps8m-git-nbd93-x63.tar.gz
       - dps8m-git-nbd93-x64.tar.gz
       - dps8m-git-obd72-x64.tar.gz
-      - dps8m-git-obd72-x63.tar.gz
-      - dps8m-git-obd72-x62.tar.gz
-      - dps8m-git-obd72-x61.tar.gz
       - dps8m-git-linux-l64.tar.gz
       - dps8m-git-linux-pw9.tar.gz
       - dps8m-git-linux-p10.tar.gz
@@ -2470,7 +2430,7 @@ Linux/x86_64, Fedora, Oracle Developer Studio:
 ############################################################################
 
 Linux/x86_64, Fedora, Clang, GCC:
-  image: fedora:38
+  image: fedora:39
   stage: build
   tags:
     - Docker-x64
@@ -2513,7 +2473,7 @@ Linux/x86_64, Fedora, Clang, GCC:
 ############################################################################
 
 GNU GLOBAL Hypertext:
-  image: fedora:38
+  image: fedora:39
   stage: docs
   tags:
     - Docker-x64
@@ -2543,7 +2503,7 @@ GNU GLOBAL Hypertext:
 ############################################################################
 
 Hugo:
-  image: fedora:38
+  image: fedora:39
   stage: docs
   tags:
     - Docker-x64
@@ -2621,7 +2581,6 @@ AIX/powerpc64, IBM AIX, GCC:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - export LIBUV_DEV_EXTRA="curl -fsSL https://gitlab.com/dps8m/dps8m/-/snippets/3613590/raw/main/0001-AIX-patch.patch | git am"
     - export LOCAL_CLONEOPTS=""
     - env OBJECT_MODE=64 CI_SKIP_MKREBUILD=1 PATH="/opt/freeware/bin:/usr/local/bin:$PATH" CC=gcc-11 NO_LTO=1 CFLAGS="-m64 -maix64 -Wl,-b64 -mcpu=power8" LDFLAGS="-static-libgcc -Wl,-b64" gmake libuvdev -j $(lparstat -i | grep '^Desired Virtual CPUs' | cut -d ':' -f 2 | tr -cd '0-9\n' || printf '%s\n' "6")
     - env OBJECT_MODE=64 CI_SKIP_MKREBUILD=1 PATH="/opt/freeware/bin:/usr/local/bin:$PATH" CC=gcc-11 NO_LTO=1 CFLAGS="-m64 -maix64 -Wl,-b64 -mcpu=power8" LDFLAGS="-static-libgcc -Wl,-b64" gmake LIBUV="$(pwd)/libuv-local/local/lib/libuv.a -lperfstat" -j $(lparstat -i | grep '^Desired Virtual CPUs' | cut -d ':' -f 2 | tr -cd '0-9\n' || printf '%s\n' "6")
@@ -2661,7 +2620,6 @@ AIX/powerpc64, IBM AIX, IBM XL C/C++ V16.1:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - export LIBUV_DEV_EXTRA="curl -fsSL https://gitlab.com/dps8m/dps8m/-/snippets/3613590/raw/main/0001-AIX-patch.patch | git am"
     - export LOCAL_CLONEOPTS=""
     - export XLCXLC="xlc_r" && export XLCVER="16.1.0" && gmake -j $(lparstat -i | grep '^Desired Virtual CPUs' | cut -d ':' -f 2 | tr -cd '0-9\n' || printf '%s\n' "6") NO_LTO=1 CC="/opt/IBM/xlC/${XLCVER:?}/bin/${XLCXLC:?} -O3 -qhot -qarch=pwr8 -qchars=signed -q64 -qalign=natural -qtls" CFLAGS="-DUSE_POPT=1 -DUSE_FLOCK=1 -DUSE_FCNTL=1 -DAIX_ATOMICS=1 -DNEED_128=1 -DLOCKLESS=1 -I/opt/freeware/include -I../simh -I../decNumber -D_GNU_SOURCE -U__STRICT_POSIX__" USE_POPT=1 NEED_128=1 PULIBS="-lpopt" LDFLAGS="-L/opt/freeware/lib -b64" LIBS="-luv -lbsd -lm"
     - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
@@ -2771,22 +2729,8 @@ Linux/powerpc64el, Ubuntu, IBM Open XL C/C++:
   script:
     - *scriptSanity
     - *scriptCommon
-    - *scriptDPS8Mods
     - *scriptExtraInfo
     - sleep 10 || true
-    - ( export IBMOXLCVER="latest" && /opt/ibm/openxlC/"${IBMOXLCVER:?}"/bin/ibm-clang_at --version && CFLAGS="-mcpu=pwr9" make CC=/opt/ibm/openxlC/"${IBMOXLCVER:?}"/bin/ibm-clang_at -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") )
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
-    - *scriptBuildInfo
-    - *scriptVerifyVersion
-    - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
-    - mkdir -p "src/${DISTDIR:?}"
-    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
-    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cf ../dps8m-git-linux-oxl.tar "./${DISTDIR:?}" )
-    - pigz -C "${CI_COMMIT_SHA:?}" -9 -f -n dps8m-git-linux-oxl.tar
-    - make distclean
-    - rm -rf "src/${DISTDIR:?}"
-    - mkdir -p "src/${DISTDIR:?}"
     - *scriptDPS8Mods
     - ( export IBMOXLCVER="latest" && /opt/ibm/openxlC/"${IBMOXLCVER:?}"/bin/ibm-clang_r --version && CFLAGS="-mcpu=pwr8" make CC=/opt/ibm/openxlC/"${IBMOXLCVER:?}"/bin/ibm-clang_r -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") )
     - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
@@ -2804,7 +2748,6 @@ Linux/powerpc64el, Ubuntu, IBM Open XL C/C++:
     expire_in: 1 day
     paths:
       - dps8m-git-linux-ox8.tar.gz
-      - dps8m-git-linux-oxl.tar.gz
       - src/dps8/dps8.lz
       - src/prt2pdf/prt2pdf.lz
       - src/punutil/punutil.lz
@@ -3620,7 +3563,7 @@ Solaris/x86_64, Oracle Solaris 11.4, Oracle Developer Studio:
 
 NSIS Installer:
   stage: nsis_installer
-  image: fedora:38
+  image: fedora:39
   needs:
     - job: DPS8M Omnibus Documentation
     - job: Source Kits
@@ -3656,7 +3599,7 @@ NSIS Installer:
 
 Option Verification Test:
   stage: cmb_test
-  image: fedora:38
+  image: fedora:39
   needs:
     - job: Linux/x86_64, Ubuntu LTS, Clang, GCC
     - job: Linux/x86_64, Fedora, Clang, GCC
@@ -3697,7 +3640,7 @@ Option Verification Test:
 DPS8M Omnibus Documentation:
   when: always
   stage: docs
-  image: fedora:38
+  image: fedora:39
   tags:
     - Docker-x64-fast
     - Linux
@@ -3710,7 +3653,7 @@ DPS8M Omnibus Documentation:
     - dnf install -y bzip2 || dnf install -y bzip2
     - echo -e "section_end:`date +%s`:bzip20001setup_section\r\e[0K" || true
     - *scriptDnfSetup
-    - dnf install -y texlive-hardwrap texlive-listings texlive-listingsutf8 texlive-microtype texlive-parskip texlive-footnotehyper texlive-footnoterange texlive-bookmark texlive-globalvals texlive-cprotect texlive-tcolorbox texlive-minted php-cli php jq util-linux graphviz texlive-graphviz graphviz-devil graphviz-gd graphviz-lua python3-pygments texlive-pygmentex biber texlive-enumitem-zref texlive-zref texlive-xurl texlive-xecjk texlive-upquote texlive-unicode-math texlive-ulem texlive-ucharcat texlive-titling texlive-sourcesanspro texlive-sourcecodepro texlive-pagecolor texlive-needspace texlive-mweights texlive-mdframed texlive-ly1 texlive-letltxmacro texlive-fvextra texlive-framed texlive-footmisc texlive-filehook texlive-everypage texlive-csquotes texlive-collectbox texlive-bidi texlive-background texlive-babel-german texlive-footnotebackref texlive-adjustbox telnet tmux mksh expect tcsh wget lzip dos2unix diffutils moreutils libfaketime nmap ansifilter poppler-utils pandoc qpdf ghostscript bc pdftk-java adobe-source-code-pro-fonts adobe-source-sans-pro-fonts texlive-scheme-basic texlive-collection-xetex bash || dnf install -y texlive-hardwrap texlive-adjustbox telnet tmux mksh expect tcsh wget lzip dos2unix diffutils moreutils libfaketime nmap ansifilter poppler-utils pandoc qpdf ghostscript bc pdftk-java adobe-source-code-pro-fonts adobe-source-sans-pro-fonts texlive-scheme-basic texlive-collection-xetex bash texlive-footnotebackref texlive-babel-german texlive-background texlive-bidi texlive-collectbox texlive-csquotes texlive-everypage texlive-filehook texlive-footmisc texlive-framed texlive-fvextra texlive-letltxmacro texlive-ly1 texlive-mdframed texlive-mweights texlive-needspace texlive-pagecolor texlive-sourcecodepro texlive-sourcesanspro texlive-titling texlive-ucharcat texlive-ulem texlive-unicode-math texlive-upquote texlive-xecjk texlive-xurl texlive-zref texlive-enumitem-zref biber texlive-pygmentex python3-pygments graphviz texlive-graphviz graphviz-devil graphviz-gd graphviz-lua util-linux jq php php-cli texlive-minted texlive-tcolorbox texlive-cprotect texlive-globalvals texlive-bookmark texlive-footnotehyper texlive-footnoterange texlive-listings texlive-listingsutf8 texlive-microtype texlive-parskip
+    - dnf install -y file texlive-tikzfill texlive-hardwrap texlive-listings texlive-listingsutf8 texlive-microtype texlive-parskip texlive-footnotehyper texlive-footnoterange texlive-bookmark texlive-globalvals texlive-cprotect texlive-tcolorbox texlive-minted php-cli php jq util-linux graphviz texlive-graphviz graphviz-devil graphviz-gd graphviz-lua python3-pygments texlive-pygmentex biber texlive-enumitem-zref texlive-zref texlive-xurl texlive-xecjk texlive-upquote texlive-unicode-math texlive-ulem texlive-ucharcat texlive-titling texlive-sourcesanspro texlive-sourcecodepro texlive-pagecolor texlive-needspace texlive-mweights texlive-mdframed texlive-ly1 texlive-letltxmacro texlive-fvextra texlive-framed texlive-footmisc texlive-filehook texlive-everypage texlive-csquotes texlive-collectbox texlive-bidi texlive-background texlive-babel-german texlive-footnotebackref texlive-adjustbox telnet tmux mksh expect tcsh wget lzip dos2unix diffutils moreutils libfaketime nmap ansifilter poppler-utils pandoc qpdf ghostscript bc pdftk-java adobe-source-code-pro-fonts adobe-source-sans-pro-fonts texlive-scheme-basic texlive-collection-xetex bash || dnf install -y file texlive-tikzfill texlive-hardwrap texlive-adjustbox telnet tmux mksh expect tcsh wget lzip dos2unix diffutils moreutils libfaketime nmap ansifilter poppler-utils pandoc qpdf ghostscript bc pdftk-java adobe-source-code-pro-fonts adobe-source-sans-pro-fonts texlive-scheme-basic texlive-collection-xetex bash texlive-footnotebackref texlive-babel-german texlive-background texlive-bidi texlive-collectbox texlive-csquotes texlive-everypage texlive-filehook texlive-footmisc texlive-framed texlive-fvextra texlive-letltxmacro texlive-ly1 texlive-mdframed texlive-mweights texlive-needspace texlive-pagecolor texlive-sourcecodepro texlive-sourcesanspro texlive-titling texlive-ucharcat texlive-ulem texlive-unicode-math texlive-upquote texlive-xecjk texlive-xurl texlive-zref texlive-enumitem-zref biber texlive-pygmentex python3-pygments graphviz texlive-graphviz graphviz-devil graphviz-gd graphviz-lua util-linux jq php php-cli texlive-minted texlive-tcolorbox texlive-cprotect texlive-globalvals texlive-bookmark texlive-footnotehyper texlive-footnoterange texlive-listings texlive-listingsutf8 texlive-microtype texlive-parskip
     - mktexfmt xelatex.fmt || true
     - *scriptSanity
     - *scriptCommon
@@ -3733,7 +3676,7 @@ DPS8M Omnibus Documentation:
 
 Multics CI-Kit Test:
   stage: ci_test
-  image: fedora:38
+  image: fedora:39
   tags:
     - Docker-x64-fast
     - Linux
@@ -3803,7 +3746,7 @@ Flawfinder:
 #############################################################################
 
 Clang Analyzer:
-  image: fedora:38
+  image: fedora:39
   stage: test
   allow_failure: false
   needs:
@@ -3839,7 +3782,7 @@ Clang Analyzer:
 #############################################################################
 
 PVS-Studio:
-  image: fedora:38
+  image: fedora:39
   stage: test
   allow_failure: false
   needs:
@@ -3885,7 +3828,7 @@ PVS-Studio:
 #############################################################################
 
 Coverity:
-  image: fedora:38
+  image: fedora:39
   stage: coverity_test
   allow_failure: true
   when: manual
@@ -3998,7 +3941,7 @@ Oracle Developer Studio Lint:
 
 Source Tree Checks:
   stage: src_test
-  image: fedora:38
+  image: fedora:39
   tags:
     - Docker-x64
     - Linux
@@ -4133,9 +4076,6 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-nbd93-x64.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-l64.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-obd72-x64.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-obd72-x63.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-obd72-x62.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-obd72-x61.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-s64.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-s32.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-m6l.tar.gz public
@@ -4198,7 +4138,6 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-atn.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-att.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-xlc.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-oxl.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-ox8.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-macos-uni.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-s114-644.tar.gz public

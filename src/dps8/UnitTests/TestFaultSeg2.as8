@@ -5,7 +5,7 @@
 " SPDX-FileCopyrightText: 2006 Bull SAS
 " SPDX-FileCopyrightText: 2019-2021 Juergen Weiss
 " SPDX-FileCopyrightText: 2021 Eric Swenson
-" SPDX-FileCopyrightText: 2021-2023 The DPS8M Development Team
+" SPDX-FileCopyrightText: 2021-2024 The DPS8M Development Team
 " scspell-id: 46f0d458-f776-11ec-927b-80ee73e9b8e7
 "
 " copied from seg1, since we don't have a linker

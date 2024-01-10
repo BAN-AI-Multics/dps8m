@@ -1,7 +1,7 @@
 <!-- vim: set ft=markdown ts=2 sw=2 cc=80 et ai spell nolist wrap lbr :-->
 <!-- SPDX-License-Identifier: MIT-0 -->
 <!-- scspell-id: 24f3020f-f832-11ec-98e6-80ee73e9b8e7 -->
-<!-- Copyright (c) 2021-2023 The DPS8M Development Team -->
+<!-- Copyright (c) 2021-2024 The DPS8M Development Team -->
 
 # DPS8M Omnibus Documentation
 

@@ -3,7 +3,7 @@ weight: 3000
 title: DPS8M Releases
 ---
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Copyright (c) 2016-2023 The DPS8M Development Team -->
+<!-- Copyright (c) 2016-2024 The DPS8M Development Team -->
 ### Current Releases
 * [**Stable Release**](#stable-release)
 * [**Bleeding Edge**](#bleeding-edge)
@@ -710,10 +710,7 @@ title: DPS8M Releases
 {{< expand "Intel x86_64 (AMD64)" "…" >}}
 | File                                                                                       | Platform                           |
 |:------------------------------------------------------------------------------------------ |:---------------------------------- |
-| [**dps8m-git-obd72-x64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-obd72-x64.tar.gz) | x86_64‑v4 (AVX‑512)                |
-| [**dps8m-git-obd72-x63.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-obd72-x63.tar.gz) | x86_64‑v3 (AVX2&nbsp;+&nbsp;FMA)   |
-| [**dps8m-git-obd72-x62.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-obd72-x62.tar.gz) | x86_64‑v2 (SSE4&nbsp;+&nbsp;SSSE3) |
-| [**dps8m-git-obd72-x61.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-obd72-x61.tar.gz) | x86_64                             |
+| [**dps8m-git-obd72-x64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-obd72-x64.tar.gz) | x86_64                             |
 {{< /expand >}}
 {{< /expand >}}
 
@@ -764,11 +761,10 @@ title: DPS8M Releases
 | [**dps8m-git-linux-att.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-att.tar.gz) | Power10 (AT&nbsp;16) |
 | [**dps8m-git-linux-pw9.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-pw9.tar.gz) | POWER9               |
 | [**dps8m-git-linux-atn.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-atn.tar.gz) | POWER9 (AT&nbsp;16)  |
-| [**dps8m-git-linux-oxl.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-oxl.tar.gz) | POWER9 (OXLC&nbsp;17 + AT&nbsp;16) |
 | [**dps8m-git-linux-pw8.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-pw8.tar.gz) | POWER8               |
 | [**dps8m-git-linux-ate.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-ate.tar.gz) | POWER8 (AT&nbsp;16)  |
-| [**dps8m-git-linux-ox8.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-ox8.tar.gz) | POWER8 (OXLC&nbsp;17 + glibc&nbsp;2.36+) |
-| [**dps8m-git-linux-xlc.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-xlc.tar.gz) | POWER8 (XLC&nbsp;16 + glibc&nbsp;2.36+) |
+| [**dps8m-git-linux-ox8.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-ox8.tar.gz) | POWER8 (OXLC&nbsp;17 + glibc&nbsp;2.38+) |
+| [**dps8m-git-linux-xlc.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-xlc.tar.gz) | POWER8 (XLC&nbsp;16 + glibc&nbsp;2.38+) |
 {{< /expand >}}
 
 {{< expand "Power ISA (64-bit, big-endian)" "…" >}}

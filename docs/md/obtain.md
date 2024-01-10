@@ -1,6 +1,6 @@
 
 <!-- SPDX-License-Identifier: LicenseRef-CF-GAL -->
-<!-- SPDX-FileCopyrightText: 2022-2023 The DPS8M Development Team -->
+<!-- SPDX-FileCopyrightText: 2022-2024 The DPS8M Development Team -->
 <!-- scspell-id: 054d4b7a-41fb-11ed-ab70-80ee73e9b8e7 -->
 
 <!-- pagebreak -->
@@ -84,13 +84,13 @@ Most development takes place on branches of the [**`git` repository**](https://g
 * Anyone may clone the repository via **HTTPS**:
 
   ```sh
-  git clone https://gitlab.com/dps8m/dps8m.git
+  git clone --recursive https://gitlab.com/dps8m/dps8m.git
   ```
 
 * Users with a *GitLab* account may clone the repository via **SSH**:
 
   ```sh
-  git clone git@gitlab.com:/dps8m/dps8m.git
+  git clone --recursive git@gitlab.com:/dps8m/dps8m.git
   ```
 
 * After cloning the repository, it can be updated by executing the following command from the cloned repository directory:
@@ -106,13 +106,13 @@ Users who wish to **mirror** the [**`git` repository**](https://gitlab.com/dps8m
 * Anyone may mirror the repository via HTTPS:
 
   ```sh
-  git clone --mirror https://gitlab.com/dps8m/dps8m.git
+  git clone --recursive --mirror https://gitlab.com/dps8m/dps8m.git
   ```
 
 * Users with a *GitLab* account may mirror the repository via SSH:
 
   ```sh
-  git clone --mirror git@gitlab.com:/dps8m/dps8m.git
+  git clone --recursive --mirror git@gitlab.com:/dps8m/dps8m.git
   ```
 
 * After mirroring the repository, it can be updated (including removing local branches when they are removed upstream) by executing the following command from the mirrored repository directory:

@@ -1,4 +1,3 @@
-dispatch.o: dispatch.h
 linehistory.o: ../dps8/dps8.h
 linehistory.o: ../dps8/dps8_em_consts.h
 linehistory.o: ../dps8/dps8_hw_consts.h
@@ -31,7 +30,6 @@ scp.o: ../dps8/ucache.h
 scp.o: ../dps8/uvutil.h
 scp.o: ../dps8/ver.h
 scp.o: ../simh/sim_timer.h
-scp.o: dispatch.h
 scp.o: linehistory.h
 scp.o: scp.h
 scp.o: sim_console.h

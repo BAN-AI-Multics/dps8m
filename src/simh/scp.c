@@ -8,8 +8,8 @@
  * ---------------------------------------------------------------------------
  *
  * Copyright (c) 1993-2022 Robert M. Supnik
- * Copyright (c) 2021-2023 Jeffrey H. Johnson <trnsz@pobox.com>
- * Copyright (c) 2006-2023 The DPS8M Development Team
+ * Copyright (c) 2021-2023 Jeffrey H. Johnson
+ * Copyright (c) 2006-2024 The DPS8M Development Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -113,8 +113,6 @@
 #include "../decNumber/decNumberLocal.h"
 
 #include "../dps8/dps8_math128.h"
-
-#include "dispatch.h"
 
 #ifndef MAX
 # define MAX(a,b)  (((a) >= (b)) ? (a) : (b))
@@ -1632,17 +1630,6 @@ if (testEndian != 0) {
 test_math128();
 # endif
 
-/* patch intel dispatcher */
-# ifdef __DISPATCH_H_
-#  if defined(__INTEL_COMPILER)      ||  \
-     defined(__INTEL_CLANG_COMPILER) ||  \
-     defined(__INTEL_LLVM_COMPILER)  ||  \
-     defined(INTEL_MKL_VERSION)      ||  \
-     defined(__INTEL_MKL__)
-(void)agner_compiler_patch();
-#  endif
-# endif
-
 /* Make sure that argv has at least 10 elements and that it ends in a NULL pointer */
 targv = (char **)calloc (1+MAX(10, argc), sizeof(*targv));
 if (!targv)
@@ -1736,9 +1723,9 @@ for (i = 1; i < argc; i++) {                            /* loop thru args */
         nodist++;
 # endif /* ifdef USE_DUMA */
 if (!nodist) {
-        fprintf (stdout, "\n This software is made available under the terms of the ICU License, version");
-        fprintf (stdout, "\n 1.8.1 or later.  For complete details, see the \"LICENSE.md\" file included");
-        fprintf (stdout, "\n with the software or https://gitlab.com/dps8m/dps8m/-/blob/master/LICENSE.md\n");
+        fprintf (stdout, "\n This software is made available under the terms of the ICU License.");
+        fprintf (stdout, "\n For complete license details, see the \"LICENSE.md\" file included with");
+        fprintf (stdout, "\n the software or https://gitlab.com/dps8m/dps8m/-/blob/master/LICENSE.md\n");
 }
 else
 {
@@ -5160,8 +5147,8 @@ if (flag) {
       {
         fprintf (st, "\n");
         fprintf (st, "\n This software is made available under the terms of the ICU License,");
-        fprintf (st, "\n version 1.8.1 or later.  For complete details, see the \"LICENSE.md\"");
-        fprintf (st, "\n included or https://gitlab.com/dps8m/dps8m/-/blob/master/LICENSE.md");
+        fprintf (st, "\n For complete license details, see the \"LICENSE.md\" file included with");
+        fprintf (st, "\n the software or https://gitlab.com/dps8m/dps8m/-/blob/master/LICENSE.md");
       }
         fprintf (st, "\n");
     }

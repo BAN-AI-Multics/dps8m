@@ -1,6 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:ai:expandtab
- * SPDX-License-Identifier: CC-PDDC or MIT
+ * SPDX-License-Identifier: CC-PDDC or MIT-0
  * SPDX-FileCopyrightText: Public domain or The DPS8M Development Team
  * scspell-id: 845a8edb-f62f-11ec-a0d8-80ee73e9b8e7
  *

@@ -3,7 +3,6 @@
 // scspell-id: b25eb5f9-f62c-11ec-83da-80ee73e9b8e7
 /* ------------------------------------------------------------------------ */
 /* Binary Coded Decimal and Densely Packed Decimal conversion lookup tables */
-/*                  [Automatically generated 2008.06.21]                    */
 /* ------------------------------------------------------------------------ */
 /*      Copyright (c) IBM Corporation, 2000, 2008. All rights reserved.     */
 /* ------------------------------------------------------------------------ */

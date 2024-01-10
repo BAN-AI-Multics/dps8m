@@ -1,6 +1,6 @@
 /* Global customization */
 /* SPDX-License-Identifier: MIT */
-/* Copyright (c) 2016-2023 The DPS8M Development Team */
+/* Copyright (c) 2016-2024 The DPS8M Development Team */
 
 table tr th:empty {
   display: none;

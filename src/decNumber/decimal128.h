@@ -1,24 +1,23 @@
 // vim: filetype=c:tabstop=4:ai:expandtab
 // SPDX-License-Identifier: ICU
 // scspell-id: b69cc81e-f62c-11ec-a05b-80ee73e9b8e7
-/* ------------------------------------------------------------------ */
-/* Decimal 128-bit format module header                               */
-/* ------------------------------------------------------------------ */
-/* Copyright (c) IBM Corporation, 2000, 2005.  All rights reserved.   */
-/*                                                                    */
-/* This software is made available under the terms of the             */
-/* ICU License -- ICU 1.8.1 and later.                                */
-/*                                                                    */
-/* The description and User's Guide ("The decNumber C Library") for   */
-/* this software is called decNumber.pdf.  This document is           */
-/* available, together with arithmetic and format specifications,     */
-/* testcases, and Web links, on the General Decimal Arithmetic page.  */
-/*                                                                    */
-/* Please send comments, suggestions, and corrections to the author:  */
-/*   mfc@uk.ibm.com                                                   */
-/*   Mike Cowlishaw, IBM Fellow                                       */
-/*   IBM UK, PO Box 31, Birmingham Road, Warwick CV34 5JL, UK         */
-/* ------------------------------------------------------------------ */
+/* ------------------------------------------------------------------- */
+/* Decimal 128-bit format module header                                */
+/* ------------------------------------------------------------------- */
+/* Copyright (c) IBM Corporation, 2000, 2005.  All rights reserved.    */
+/*                                                                     */
+/* This software is made available under the terms of the ICU License. */
+/*                                                                     */
+/* The description and User's Guide ("The decNumber C Library") for    */
+/* this software is called decNumber.pdf.  This document is available, */
+/* together with arithmetic and format specifications, testcases, and  */
+/* Web links, on the General Decimal Arithmetic page.                  */
+/*                                                                     */
+/* Please send comments, suggestions, and corrections to the author:   */
+/*   mfc@uk.ibm.com                                                    */
+/*   Mike Cowlishaw, IBM Fellow                                        */
+/*   IBM UK, PO Box 31, Birmingham Road, Warwick CV34 5JL, UK          */
+/* ------------------------------------------------------------------- */
 
 #if !defined(DECIMAL128)
 # define DECIMAL128

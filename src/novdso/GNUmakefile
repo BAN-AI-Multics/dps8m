@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT-0
 # scspell-id: 4887ce61-435a-11ed-b4c1-80ee73e9b8e7
 # Copyright (c) 2020 Daniel Teunis
-# Copyright (c) 2022-2023 The DPS8M Development Team
+# Copyright (c) 2022-2024 The DPS8M Development Team
 
 ###############################################################################
 

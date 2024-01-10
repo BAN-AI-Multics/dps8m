@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT-0
+# SPDX-FileCopyrightText: 2023-2024 The DPS8M Development Team
 # scspell-id: ac8007ce-abd6-11ed-9c00-80ee73e9b8e7
 [submodule "docs/wiki"]
 	path = docs/wiki

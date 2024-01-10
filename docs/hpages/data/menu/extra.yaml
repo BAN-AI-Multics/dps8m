@@ -9,9 +9,10 @@ header:
   - name: "DPS8M Documentation"
     ref: "/Documentation/#dps8m-omnibus-documentation"
     icon: "gdoc_copy"
-  - name: "DPS8M Global Cross-reference"
-    ref: "/Documentation/#global-cross-reference"
-    icon: "gdoc_language"
+  - name: "Blog"
+    ref: "https://dps8m.gitlab.io/blog/"
+    icon: "gdoc_date"
+    external: true
   - name: "Mailing Lists"
     ref: "/Community/#mailing-lists"
     icon: "gdoc_email"
