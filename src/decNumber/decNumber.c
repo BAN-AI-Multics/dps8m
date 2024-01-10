@@ -1,155 +1,154 @@
 // vim: filetype=c:tabstop=4:ai:expandtab
 // SPDX-License-Identifier: ICU
 // scspell-id: c39f59d7-f62c-11ec-ba31-80ee73e9b8e7
-/* ------------------------------------------------------------------ */
-/* Decimal Number arithmetic module                                   */
-/* ------------------------------------------------------------------ */
-/* Copyright (c) IBM Corporation, 2000, 2009.  All rights reserved.   */
-/*                                                                    */
-/* This software is made available under the terms of the             */
-/* ICU License -- ICU 1.8.1 and later.                                */
-/*                                                                    */
-/* The description and User's Guide ("The decNumber C Library") for   */
-/* this software is called decNumber.pdf.  This document is           */
-/* available, together with arithmetic and format specifications,     */
-/* testcases, and Web links, on the General Decimal Arithmetic page.  */
-/*                                                                    */
-/* Please send comments, suggestions, and corrections to the author:  */
-/*   mfc@uk.ibm.com                                                   */
-/*   Mike Cowlishaw, IBM Fellow                                       */
-/*   IBM UK, PO Box 31, Birmingham Road, Warwick CV34 5JL, UK         */
-/* ------------------------------------------------------------------ */
-/* This module comprises the routines for arbitrary-precision General */
-/* Decimal Arithmetic as defined in the specification which may be    */
-/* found on the General Decimal Arithmetic pages.  It implements both */
-/* the full ('extended') arithmetic and the simpler ('subset')        */
-/* arithmetic.                                                        */
-/*                                                                    */
-/* Usage notes:                                                       */
-/*                                                                    */
-/* 1. This code is ANSI C89 except:                                   */
-/*                                                                    */
-/*    a) C99 line comments (double forward slash) are used.  (Most C  */
-/*       compilers accept these.  If yours does not, the "uncrustify" */
-/*       program can be used to convert them to ANSI C comments.)     */
-/*                                                                    */
-/*    b) Types from C99 stdint.h are used.  If you do not have this   */
-/*       header file, see the User's Guide section of the decNumber   */
-/*       documentation; this lists the necessary definitions.         */
-/*                                                                    */
-/*    c) If DECDPUN>4 or DECUSE64=1, the C99 64-bit int64_t and       */
-/*       uint64_t types may be used.  To avoid these, set DECUSE64=0  */
-/*       and DECDPUN<=4 (see documentation).                          */
-/*                                                                    */
-/*    The code also conforms to C99 restrictions; in particular,      */
-/*    strict aliasing rules are observed.                             */
-/*                                                                    */
-/* 2. The decNumber format which this library uses is optimized for   */
-/*    efficient processing of relatively short numbers; in particular */
-/*    it allows the use of fixed sized structures and minimizes copy  */
-/*    and move operations.  It does, however, support arbitrary       */
-/*    precision (up to 999,999,999 digits) and arbitrary exponent     */
-/*    range (Emax in the range 0 through 999,999,999 and Emin in the  */
-/*    range -999,999,999 through 0).  Mathematical functions (for     */
-/*    example decNumberExp) as identified below are restricted more   */
-/*    tightly: digits, emax, and -emin in the context must be <=      */
-/*    DEC_MAX_MATH (999999), and their operand(s) must be within      */
-/*    these bounds.                                                   */
-/*                                                                    */
-/* 3. Logical functions are further restricted; their operands must   */
-/*    be finite, positive, have an exponent of zero, and all digits   */
-/*    must be either 0 or 1.  The result will only contain digits     */
-/*    which are 0 or 1 (and will have exponent=0 and a sign of 0).    */
-/*                                                                    */
-/* 4. Operands to operator functions are never modified unless they   */
-/*    are also specified to be the result number (which is always     */
-/*    permitted).  Other than that case, operands must not overlap.   */
-/*                                                                    */
-/* 5. Error handling: the type of the error is ORed into the status   */
-/*    flags in the current context (decContext structure).  The       */
-/*    SIGFPE signal is then raised if the corresponding trap-enabler  */
-/*    flag in the decContext is set (is 1).                           */
-/*                                                                    */
-/*    It is the responsibility of the caller to clear the status      */
-/*    flags as required.                                              */
-/*                                                                    */
-/*    The result of any routine which returns a number will always    */
-/*    be a valid number (which may be a special value, such as an     */
-/*    Infinity or NaN).                                               */
-/*                                                                    */
-/* 6. The decNumber format is not an exchangeable concrete            */
-/*    representation as it comprises fields which may be machine-     */
-/*    dependent (packed or unpacked, or special length, for example). */
-/*    Canonical conversions to and from strings are provided; other   */
-/*    conversions are available in separate modules.                  */
-/*                                                                    */
-/* 7. Subset arithmetic is available only if DECSUBSET is set to 1.   */
-/* ------------------------------------------------------------------ */
-/* Implementation notes for maintenance of this module:               */
-/*                                                                    */
-/* 1. Storage leak protection:  Routines which use malloc are not     */
-/*    permitted to use return for fastpath or error exits (i.e.,      */
-/*    they follow strict structured programming conventions).         */
-/*    Instead they have a do{}while(0); construct surrounding the     */
-/*    code which is protected -- break may be used to exit this.      */
-/*    Other routines can safely use the return statement inline.      */
-/*                                                                    */
-/* 2. All loops use the for(;;) construct.  Any do construct does     */
-/*    not loop; it is for allocation protection as just described.    */
-/*                                                                    */
-/* 3. Setting status in the context must always be the very last      */
-/*    action in a routine, as non-0 status may raise a trap and hence */
-/*    the call to set status may not return (if the handler uses long */
-/*    jump).  Therefore all cleanup must be done first.  In general,  */
-/*    to achieve this status is accumulated and is only applied just  */
-/*    before return by calling decContextSetStatus (via decStatus).   */
-/*                                                                    */
-/*    Routines which allocate storage cannot, in general, use the     */
-/*    'top level' routines which could cause a non-returning          */
-/*    transfer of control.  The decXxxxOp routines are safe (do not   */
-/*    call decStatus even if traps are set in the context) and should */
-/*    be used instead (they are also a little faster).                */
-/*                                                                    */
-/* 4. Exponent checking is minimized by allowing the exponent to      */
-/*    grow outside its limits during calculations, provided that      */
-/*    the decFinalize function is called later.  Multiplication and   */
-/*    division, and intermediate calculations in exponentiation,      */
-/*    require more careful checks because of the risk of 31-bit       */
-/*    overflow (the most negative valid exponent is -1999999997, for  */
-/*    a 999999999-digit number with adjusted exponent of -999999999). */
-/*                                                                    */
-/* 5. Rounding is deferred until finalization of results, with any    */
-/*    'off to the right' data being represented as a single digit     */
-/*    residue (in the range -1 through 9).  This avoids any double-   */
-/*    rounding when more than one shortening takes place (for         */
-/*    example, when a result is subnormal).                           */
-/*                                                                    */
-/* 6. The digits count is allowed to rise to a multiple of DECDPUN    */
-/*    during many operations, so whole Units are handled and exact    */
-/*    accounting of digits is not needed.  The correct digits value   */
-/*    is found by decGetDigits, which accounts for leading zeros.     */
-/*    This must be called before any rounding if the number of digits */
-/*    is not known exactly.                                           */
-/*                                                                    */
-/* 7. The multiply-by-reciprocal 'trick' is used for partitioning     */
-/*    numbers up to four digits, using appropriate constants.  This   */
-/*    is not useful for longer numbers because overflow of 32 bits    */
-/*    would lead to 4 multiplies, which is almost as expensive as     */
-/*    a divide (unless a floating-point or 64-bit multiply is         */
-/*    assumed to be available).                                       */
-/*                                                                    */
-/* 8. Unusual abbreviations that may be used in the commentary:       */
-/*      lhs -- left hand side (operand, of an operation)              */
-/*      lsd -- least significant digit (of coefficient)               */
-/*      lsu -- least significant Unit (of coefficient)                */
-/*      msd -- most significant digit (of coefficient)                */
-/*      msi -- most significant item (in an array)                    */
-/*      msu -- most significant Unit (of coefficient)                 */
-/*      rhs -- right hand side (operand, of an operation)             */
-/*      +ve -- positive                                               */
-/*      -ve -- negative                                               */
-/*      **  -- raise to the power                                     */
-/* ------------------------------------------------------------------ */
+/* ------------------------------------------------------------------- */
+/* Decimal Number arithmetic module                                    */
+/* ------------------------------------------------------------------- */
+/* Copyright (c) IBM Corporation, 2000, 2009.  All rights reserved.    */
+/*                                                                     */
+/* This software is made available under the terms of the ICU License. */
+/*                                                                     */
+/* The description and User's Guide ("The decNumber C Library") for    */
+/* this software is called decNumber.pdf.  This document is available, */
+/* together with arithmetic and format specifications, testcases, and  */
+/* Web links, on the General Decimal Arithmetic page.                  */
+/*                                                                     */
+/* Please send comments, suggestions, and corrections to the author:   */
+/*   mfc@uk.ibm.com                                                    */
+/*   Mike Cowlishaw, IBM Fellow                                        */
+/*   IBM UK, PO Box 31, Birmingham Road, Warwick CV34 5JL, UK          */
+/* ------------------------------------------------------------------- */
+/* This module comprises the routines for arbitrary-precision General  */
+/* Decimal Arithmetic as defined in the specification which may be     */
+/* found on the General Decimal Arithmetic pages.  It implements both  */
+/* the full ('extended') arithmetic and the simpler ('subset')         */
+/* arithmetic.                                                         */
+/*                                                                     */
+/* Usage notes:                                                        */
+/*                                                                     */
+/* 1. This code is ANSI C89 except:                                    */
+/*                                                                     */
+/*    a) C99 line comments (double forward slash) are used.  (Most C   */
+/*       compilers accept these.  If yours does not, the "uncrustify"  */
+/*       program can be used to convert them to ANSI C comments.)      */
+/*                                                                     */
+/*    b) Types from C99 stdint.h are used.  If you do not have this    */
+/*       header file, see the User's Guide section of the decNumber    */
+/*       documentation; this lists the necessary definitions.          */
+/*                                                                     */
+/*    c) If DECDPUN>4 or DECUSE64=1, the C99 64-bit int64_t and        */
+/*       uint64_t types may be used.  To avoid these, set DECUSE64=0   */
+/*       and DECDPUN<=4 (see documentation).                           */
+/*                                                                     */
+/*    The code also conforms to C99 restrictions; in particular,       */
+/*    strict aliasing rules are observed.                              */
+/*                                                                     */
+/* 2. The decNumber format which this library uses is optimized for    */
+/*    efficient processing of relatively short numbers; in particular  */
+/*    it allows the use of fixed sized structures and minimizes copy   */
+/*    and move operations.  It does, however, support arbitrary        */
+/*    precision (up to 999,999,999 digits) and arbitrary exponent      */
+/*    range (Emax in the range 0 through 999,999,999 and Emin in the   */
+/*    range -999,999,999 through 0).  Mathematical functions (for      */
+/*    example decNumberExp) as identified below are restricted more    */
+/*    tightly: digits, emax, and -emin in the context must be <=       */
+/*    DEC_MAX_MATH (999999), and their operand(s) must be within       */
+/*    these bounds.                                                    */
+/*                                                                     */
+/* 3. Logical functions are further restricted; their operands must    */
+/*    be finite, positive, have an exponent of zero, and all digits    */
+/*    must be either 0 or 1.  The result will only contain digits      */
+/*    which are 0 or 1 (and will have exponent=0 and a sign of 0).     */
+/*                                                                     */
+/* 4. Operands to operator functions are never modified unless they    */
+/*    are also specified to be the result number (which is always      */
+/*    permitted).  Other than that case, operands must not overlap.    */
+/*                                                                     */
+/* 5. Error handling: the type of the error is ORed into the status    */
+/*    flags in the current context (decContext structure).  The SIGFPE */
+/*    signal is then raised if the corresponding trap-enabler flag in  */
+/*    the decContext is set (is 1).                                    */
+/*                                                                     */
+/*    It is the responsibility of the caller to clear the status flags */
+/*    as required.                                                     */
+/*                                                                     */
+/*    The result of any routine which returns a number will always be  */
+/*    a valid number (which may be a special value, such as an         */
+/*    Infinity or NaN).                                                */
+/*                                                                     */
+/* 6. The decNumber format is not an exchangeable concrete             */
+/*    representation as it comprises fields which may be machine-      */
+/*    dependent (packed or unpacked, or special length, for example).  */
+/*    Canonical conversions to and from strings are provided; other    */
+/*    conversions are available in separate modules.                   */
+/*                                                                     */
+/* 7. Subset arithmetic is available only if DECSUBSET is set to 1.    */
+/* ------------------------------------------------------------------- */
+/* Implementation notes for maintenance of this module:                */
+/*                                                                     */
+/* 1. Storage leak protection:  Routines which use malloc are not      */
+/*    permitted to use return for fastpath or error exits (i.e., they  */
+/*    follow strict structured programming conventions). Instead they  */
+/*    have a do{}while(0); construct surrounding the code which is     */
+/*    protected -- break may be used to exit this.  Other routines can */
+/*    safely use the return statement inline.                          */
+/*                                                                     */
+/* 2. All loops use the for(;;) construct.  Any do construct does not  */
+/*    loop; it is for allocation protection as just described.         */
+/*                                                                     */
+/* 3. Setting status in the context must always be the very last       */
+/*    action in a routine, as non-0 status may raise a trap and hence  */
+/*    the call to set status may not return (if the handler uses long  */
+/*    jump).  Therefore all cleanup must be done first.  In general,   */
+/*    to achieve this status is accumulated and is only applied just   */
+/*    before return by calling decContextSetStatus (via decStatus).    */
+/*                                                                     */
+/*    Routines which allocate storage cannot, in general, use the 'top */
+/*    level' routines which could cause a non-returning transfer of    */
+/*    control.  The decXxxxOp routines are safe (do not call decStatus */
+/*    even if traps are set in the context) and should be used instead */
+/*    (they are also a little faster).                                 */
+/*                                                                     */
+/* 4. Exponent checking is minimized by allowing the exponent to grow  */
+/*    outside its limits during calculations, provided that the        */
+/*    decFinalize function is called later.  Multiplication and        */
+/*    division, and intermediate calculations in exponentiation,       */
+/*    require more careful checks because of the risk of 31-bit        */
+/*    overflow (the most negative valid exponent is -1999999997, for a */
+/*    999999999-digit number with adjusted exponent of -999999999).    */
+/*                                                                     */
+/* 5. Rounding is deferred until finalization of results, with any     */
+/*    'off to the right' data being represented as a single digit      */
+/*    residue (in the range -1 through 9).  This avoids any double-    */
+/*    rounding when more than one shortening takes place (for example  */
+/*    when a result is subnormal).                                     */
+/*                                                                     */
+/* 6. The digits count is allowed to rise to a multiple of DECDPUN     */
+/*    during many operations, so whole Units are handled and exact     */
+/*    accounting of digits is not needed.  The correct digits value is */
+/*    found by decGetDigits, which accounts for leading zeros.  This   */
+/*    must be called before any rounding if the number of digits is    */
+/*    not known exactly.                                               */
+/*                                                                     */
+/* 7. The multiply-by-reciprocal 'trick' is used for partitioning      */
+/*    numbers up to four digits, using appropriate constants.  This is */
+/*    not useful for longer numbers because overflow of 32 bits would  */
+/*    lead to 4 multiplies, which is almost as expensive as a divide   */
+/*    (unless a floating-point or 64-bit multiply is assumed to be     */
+/*    available).                                                      */
+/*                                                                     */
+/* 8. Unusual abbreviations that may be used in the commentary:        */
+/*      lhs -- left hand side (operand, of an operation)               */
+/*      lsd -- least significant digit (of coefficient)                */
+/*      lsu -- least significant Unit (of coefficient)                 */
+/*      msd -- most significant digit (of coefficient)                 */
+/*      msi -- most significant item (in an array)                     */
+/*      msu -- most significant Unit (of coefficient)                  */
+/*      rhs -- right hand side (operand, of an operation)              */
+/*      +ve -- positive                                                */
+/*      -ve -- negative                                                */
+/*      **  -- raise to the power                                      */
+/* ------------------------------------------------------------------- */
 
 #include <string.h>                // for strcpy
 #include <stdlib.h>                // for malloc, free, etc.

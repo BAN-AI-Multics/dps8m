@@ -4,8 +4,8 @@
 # scspell-id: 1cea05fd-f62b-11ec-b08e-80ee73e9b8e7
 # Copyright (c) 2014-2016 Charles Anthony
 # Copyright (c) 2016 Michal Tomek
-# Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
-# Copyright (c) 2021-2023 The DPS8M Development Team
+# Copyright (c) 2021 Jeffrey H. Johnson
+# Copyright (c) 2021-2024 The DPS8M Development Team
 
 ###############################################################################
 # src/Makefile.mk: Macro definitions and operating system detection defaults

@@ -1,5 +1,5 @@
 <!-- SPDX-License-Identifier: LicenseRef-CF-GAL -->
-<!-- SPDX-FileCopyrightText: 2022-2023 The DPS8M Development Team -->
+<!-- SPDX-FileCopyrightText: 2022-2024 The DPS8M Development Team -->
 <!-- scspell-id: scspell-id: 8e8d9a46-3233-11ed-968f-80ee73e9b8e7 -->
 The `AUTOINPUT` command (abbreviated `AI`) provides the specified input to the
 primary operator console (OPC0):

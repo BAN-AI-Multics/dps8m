@@ -3,7 +3,7 @@
 # vim: filetype=sh:tabstop=4:ai:expandtab
 # SPDX-License-Identifier: MIT-0
 # scspell-id: cbd99c3f-f62b-11ec-a7f0-80ee73e9b8e7
-# Copyright (c) 2021-2023 The DPS8M Development Team
+# Copyright (c) 2021-2024 The DPS8M Development Team
 
 ###############################################################################
 # Requires: Cppcheck, Clang, GCC, GNU tools, lscpu, tput (from [n]curses)
@@ -132,6 +132,7 @@ test -z "${NOQUIET:-}" &&
   QUIET="--suppress=shadowArgument --suppress=shadowVariable           \
          --suppress=shadowFunction --suppress=ConfigurationNotChecked  \
          --suppress=unknownMacro   --suppress=memleakOnRealloc         \
+         --suppress=internalAstError                                   \
          --suppress=syntaxError:/usr/include/stdlib.h"
 }
 

@@ -2,7 +2,7 @@
 ; vim: set ft=nsis ts=2 sw=2 tw=0 expandtab :
 ; SPDX-License-Identifier: MIT-0
 ; scspell-id: 43d06fef-488e-11ed-9b62-80ee73e9b8e7
-; Copyright (c) 2022-2023 The DPS8M Development Team
+; Copyright (c) 2022-2024 The DPS8M Development Team
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

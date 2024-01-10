@@ -1,9 +1,6 @@
 -------------------------------------------------------------------------------
 
-The DPS8M Simulator is distributed under the ICU License, version 1.8.1
-or later:
-
-ICU License - ICU 1.8.1 to ICU 57.1
+The DPS8M Simulator is distributed under the ICU License.
 
 COPYRIGHT AND PERMISSION NOTICE
 
@@ -15,10 +12,8 @@ Copyright (c) 2016 Jean-Michel Merliot
 Copyright (c) 2017-2023 Jeffrey H. Johnson
 Copyright (c) 2018-2021 Juergen Weiss
 Copyright (c) 2021 Dean S. Anderson
-Copyright (c) 2023 Bjorn Victor <bjorn@victor.se>
-Copyright (c) 2021-2023 The DPS8M Development Team
-
-All rights reserved.
+Copyright (c) 2023 Bjorn Victor
+Copyright (c) 2021-2024 The DPS8M Development Team
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -41,9 +36,6 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 Except as contained in this notice, the name of a copyright holder shall not
 be used in advertising or otherwise to promote the sale, use or other dealings
 in this Software without prior written authorization of the copyright holder.
-
-All trademarks and registered trademarks mentioned herein are the property
-of their respective owners.
 
 -------------------------------------------------------------------------------
 

@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: MIT-0
 # scspell-id: 5f6d7a56-f62a-11ec-b245-80ee73e9b8e7
 # Copyright (c) 2016 Charles Anthony
-# Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
-# Copyright (c) 2021-2023 The DPS8M Development Team
+# Copyright (c) 2021 Jeffrey H. Johnson
+# Copyright (c) 2021-2024 The DPS8M Development Team
 
 ###############################################################################
 
@@ -59,12 +59,12 @@ endif
 
 ###############################################################################
 
-C_SRCS = scp.c       sim_console.c  sim_disk.c   sim_fio.c   dispatch.c       \
+C_SRCS = scp.c       sim_console.c  sim_disk.c   sim_fio.c                    \
          sim_sock.c  sim_tape.c     sim_timer.c  sim_tmxr.c  linehistory.c
 
 ###############################################################################
 
-OBJS = scp.o       sim_console.o  sim_disk.o   sim_fio.o   dispatch.o         \
+OBJS = scp.o       sim_console.o  sim_disk.o   sim_fio.o                      \
        sim_sock.o  sim_tape.o     sim_timer.o  sim_tmxr.o  linehistory.o
 
 ###############################################################################

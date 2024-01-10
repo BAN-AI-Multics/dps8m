@@ -1,6 +1,6 @@
 <!-- scspell-id: 050905c8-4812-11ed-9ae9-80ee73e9b8e7 -->
-<!-- SPDX-License-Identifier: MIT -->
-<!-- Copyright (c) 2022-current The DPS8M Development Team and contributors -->
+<!-- SPDX-License-Identifier: MIT-0 -->
+<!-- Copyright (c) 2022-2024 The DPS8M Development Team and contributors -->
 <!-- When submitting an issue, remove the above text and this line. -->
 
 ## Simulator Information
@@ -25,11 +25,10 @@ SHOW BUILDINFO
       $ uname -a
       $ cat /etc/*elease
 
-      FreeBSD?     Also include: freebsd-version
+      FreeBSD?     Also include: freebsd-version -kru
       SunOS?       Also include: isainfo -v
       AIX?         Also include: prtconf
       macOS?       Also include: sw_vers
-      Linux?       Also include: lsb_release -a
  -->
 
 ```
@@ -52,7 +51,7 @@ SHOW BUILDINFO
 
 ## Steps to reproduce
 
-<!--  List the steps required to produce the problem. -->
+<!--  List the steps required to reproduce the problem. -->
 
 ...
 

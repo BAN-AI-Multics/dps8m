@@ -35,7 +35,7 @@ posts_count:
 posts_tagged_with: All posts tagged with '{{ . }}'
 
 footer_build_with: >
-  <small>Copyright © 2016-2023 <b>The DPS8M Development Team</b></small>
+  <small>Copyright © 2016-2024 <b>The DPS8M Development Team</b></small>
 footer_legal_notice: Legal Notice
 footer_privacy_policy: Privacy Policy
 footer_content_license_prefix: >

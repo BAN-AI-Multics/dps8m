@@ -2,7 +2,7 @@
 <!-- SPDX-License-Identifier: LicenseRef-CF-GAL -->
 <!-- NOTE: The General Attribution License terms and conditions do NOT apply
            to the TEXT OF OTHER LICENSES reproduced within this document. -->
-<!-- SPDX-FileCopyrightText: 2021-2023 The DPS8M Development Team -->
+<!-- SPDX-FileCopyrightText: 2021-2024 The DPS8M Development Team -->
 <!-- scspell-id: febe4236-f778-11ec-8c3f-80ee73e9b8e7 -->
 
 <!-- pagebreak -->
@@ -31,7 +31,7 @@
 
 **General Attribution License**
 
-- Copyright © 2019-2023 &nbsp; **The DPS8M Development Team**
+- Copyright © 2019-2024 &nbsp; **The DPS8M Development Team**
 
 **This work is provided “_AS IS_”, without any express or implied
 warranties, including but not limited to the implied warranties of
@@ -135,7 +135,7 @@ Attribution License**.
 
 - Copyright © 1984-2021 &nbsp; **Stanley R. Zanarotti** &nbsp;
  \<[`srz@mit.edu`](mailto:srz@mit.edu)\>
-- Copyright © 2021-2023 &nbsp; **The DPS8M Development Team**
+- Copyright © 2021-2024 &nbsp; **The DPS8M Development Team**
 
 **This work is provided “_AS IS_”, without any express or implied
 warranties, including but not limited to the implied warranties of
@@ -405,9 +405,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.**
 #### ICU License (DPS8M Simulator)
 
 * The **DPS8M Simulator** (“**DPS8M**”) is distributed under the
-  **ICU License**, version 1.8.1 or later.
-
-**ICU License — ICU 1.8.1 to ICU 57.1**
+  **ICU License**.
 
 *COPYRIGHT AND PERMISSION NOTICE*
 
@@ -420,9 +418,8 @@ OTHER DEALINGS IN THE FONT SOFTWARE.**
 * Copyright © 2017-2023 &nbsp; **Jeffrey H. Johnson**
 * Copyright © 2018-2021 &nbsp; **Juergen Weiss**
 * Copyright © 2021 &nbsp; **Dean S. Anderson**
-* Copyright © 2021-2023 &nbsp; **The DPS8M Development Team**
-
-All rights reserved.
+* Copyright © 2023 &nbsp; **Björn Victor**
+* Copyright © 2021-2024 &nbsp; **The DPS8M Development Team**
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the “Software”),
@@ -446,9 +443,6 @@ OF THIS SOFTWARE.**
 Except as contained in this notice, the name of a copyright holder shall not
 be used in advertising or otherwise to promote the sale, use or other dealings
 in this Software without prior written authorization of the copyright holder.
-
-All trademarks and registered trademarks mentioned herein are the property
-of their respective owners.
 
 ----
 
@@ -575,7 +569,7 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.**
 
 * Copyright © 2002-2020 &nbsp; **Tony Finch** &nbsp;
    \<[`dot@dotat.at`](mailto:dot@dotat.at)\>
-* Copyright © 2021-2023 &nbsp; **The DPS8M Development Team**
+* Copyright © 2021-2024 &nbsp; **The DPS8M Development Team**
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -616,7 +610,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.**
 * Copyright © 2013 &nbsp; **Robert Armstrong** &nbsp;
    \<[`bob@jfcl.com`](mailto:bob@jfcl.com)\>
 * Copyright © 2015-2016 &nbsp; **Charles Anthony**
-* Copyright © 2021-2023 &nbsp; **The DPS8M Development Team**
+* Copyright © 2021-2024 &nbsp; **The DPS8M Development Team**
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the “Software”), to deal
@@ -658,7 +652,7 @@ dealings in this Software without prior written authorization from
 
 * Copyright © 2005-2021 &nbsp; **Troy D. Hanson** &nbsp;
 ([https://troydhanson.github.io/uthash/](https://troydhanson.github.io/uthash))
-* Copyright © 2021-2023 &nbsp; **The DPS8M Development Team**
+* Copyright © 2021-2024 &nbsp; **The DPS8M Development Team**
 
 All rights reserved.
 
@@ -739,13 +733,9 @@ in this Software without prior written authorization from the authors.
 
 <!-- br -->
 
-**ICU License — ICU 1.8.1 to ICU 57.1**
-
 *COPYRIGHT AND PERMISSION NOTICE*
 
-* Copyright © 2021-2023 &nbsp; **The DPS8M Development Team**
-
-All rights reserved.
+* Copyright © 2021-2024 &nbsp; **The DPS8M Development Team**
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the “Software”),
@@ -769,9 +759,6 @@ Except as contained in this notice, the name of a copyright holder shall not
 be used in advertising or otherwise to promote the sale, use or other dealings
 in this Software without prior written authorization of the copyright holder.
 
-All trademarks and registered trademarks mentioned herein are the property
-of their respective owners.
-
 ----
 
 <!-- pagebreak -->
@@ -786,8 +773,6 @@ of their respective owners.
 
 <!-- br -->
 
-**ICU License — ICU 1.8.1 to ICU 57.1**
-
 *COPYRIGHT AND PERMISSION NOTICE*
 
 * Copyright © 1998 &nbsp; **P. G. Womack, Diss, Norfolk, UK**.
@@ -795,9 +780,7 @@ of their respective owners.
    \<[`charles.unix.pro@gmail.com`](mailto:charles.unix.pro@gmail.com)\>
 * Copyright © 2006 &nbsp; **John S. Urban, USA**. &nbsp;
    \<[`urbanjost@comcast.net`](mailto:urbanjost@comcast.net)\>
-* Copyright © 2021-2023 &nbsp; **The DPS8M Development Team**
-
-All rights reserved.
+* Copyright © 2021-2024 &nbsp; **The DPS8M Development Team**
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the “Software”),
@@ -821,9 +804,6 @@ Except as contained in this notice, the name of a copyright holder shall not
 be used in advertising or otherwise to promote the sale, use or other dealings
 in this Software without prior written authorization of the copyright holder.
 
-All trademarks and registered trademarks mentioned herein are the property
-of their respective owners.
-
 ----
 
 <!-- pagebreak -->
@@ -841,14 +821,10 @@ of their respective owners.
 
 <!-- br -->
 
-**ICU License — ICU 1.8.1 to ICU 57.1**
-
 *COPYRIGHT AND PERMISSION NOTICE*
 
 * Copyright © 1995-2010 &nbsp; **International Business Machines Corporation**
    and others
-
-All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the “Software”), to deal
@@ -871,9 +847,6 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.**
 Except as contained in this notice, the name of a copyright holder shall not
 be used in advertising or otherwise to promote the sale, use or other dealings
 in this Software without prior written authorization of the copyright holder.
-
-All trademarks and registered trademarks mentioned herein are the property
-of their respective owners.
 
 ----
 
@@ -926,7 +899,7 @@ of their respective owners.
    \<[`antirez@gmail.com`](mailto:antirez@gmail.com)\>
 * Copyright © 2010-2013 &nbsp; **Pieter Noordhuis** &nbsp;
    \<[`pcnoordhuis@gmail.com`](mailto:pcnoordhuis@gmail.com)\>
-* Copyright © 2021-2023 &nbsp; **The DPS8M Development Team**
+* Copyright © 2021-2024 &nbsp; **The DPS8M Development Team**
 
 All rights reserved.
 
@@ -969,7 +942,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.**
 **BSD Random License**
 
 * Copyright © 1983-1991 &nbsp; **The Regents of the University of California**
-* Copyright © 2021-2023 &nbsp; **The DPS8M Development Team**
+* Copyright © 2021-2024 &nbsp; **The DPS8M Development Team**
 
 All rights reserved.
 
@@ -1062,7 +1035,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.**
 **empty License**
 
 * Copyright © 2005-2015 &nbsp; **Mikhail E. Zakharov**
-* Copyright © 2022-2023 &nbsp; **The DPS8M Development Team**
+* Copyright © 2022-2024 &nbsp; **The DPS8M Development Team**
 
 **empty** was written by *Mikhail E. Zakharov*. This software was based on
 the basic idea of pty version 4.0, Copyright © 1992 *Daniel J.* *Bernstein*,
@@ -1111,7 +1084,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.**
 * Copyright © 2009-2017 &nbsp; **Doug Hoyte** and contributors.
 * Copyright © 2020-2021 &nbsp; **Jeffrey H. Johnson** &nbsp;
    \<[`trnsz@pobox.com`](mailto:trnsz@pobox.com)\>
-* Copyright © 2021-2023 &nbsp; **The DPS8M Development Team**
+* Copyright © 2021-2024 &nbsp; **The DPS8M Development Team**
 
 All rights reserved.
 
@@ -1194,7 +1167,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.**
    \<[`dteske@FreeBSD.org`](mailto:dteske@FreeBSD.org)\>
 * Copyright © 2020-2021 &nbsp; **Jeffrey H. Johnson** &nbsp;
    \<[`trnsz@pobox.com`](mailto:trnsz@pobox.com)\>
-* Copyright © 2021-2023 &nbsp; **The DPS8M Development Team**
+* Copyright © 2021-2024 &nbsp; **The DPS8M Development Team**
 
 All rights reserved.
 
@@ -1238,7 +1211,7 @@ THE POSSIBILITY OF SUCH DAMAGE.**
 **novdso License**
 
 * Copyright © 2020 &nbsp; **Daniel Teunis**
-* Copyright © 2022-2023 &nbsp; **The DPS8M Development Team**
+* Copyright © 2022-2024 &nbsp; **The DPS8M Development Team**
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the “Software”),
@@ -1257,49 +1230,6 @@ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.**
-
-----
-
-<!-- pagebreak -->
-
-#### Fair CPU Dispatch
-
-* **Fair CPU Dispatch** is a collection of routines which modify
-  the behavior of the Intel CPU feature dispatcher to the improve
-  performance and compatibility of the *Intel Math Kernel Library*
-  (*MKL*) and code generated by the *Intel C/C++* and *DPC++/C++ compilers*
-  on non-Intel processors. These routines are derived from code provided
-  by **Agner Fog** of the *Technical University of Denmark*, and distributed
-  under the terms of a **two-clause BSD license**.
-
-<!-- br -->
-
-**Fair CPU Dispatch License**
-
-* Copyright © 2009-2019 &nbsp; **Agner Fog**
-* Copyright © 2021-2023 &nbsp; **The DPS8M Development Team**
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
- 1. Redistributions of source code must retain the above copyright notice,
-    this list of conditions and the following disclaimer.
-
- 2. Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution.
-
-**THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS “_AS IS_”
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS
-BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
-THE POSSIBILITY OF SUCH DAMAGE.**
 
 ----
 

@@ -3,7 +3,7 @@ weight: 8000
 title: Community
 ---
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Copyright (c) 2016-2023 The DPS8M Development Team -->
+<!-- Copyright (c) 2016-2024 The DPS8M Development Team -->
 ## Mailing Lists
 
 * The **DPS8M Development Team** offers **mailing lists** for discussing the simulator.
@@ -37,14 +37,17 @@ title: Community
 | #**dps8**            | DPS8M simulator discussion   | {{< button href="https://multics-os.slack.com/archives/C020N2GBLNN" >}}Join Channel{{< /button >}}{{< button href="https://join.slack.com/t/multics-os/shared_invite/zt-1ejykw0eu-mHHr0_FS8o4GOeAVXKmQew" >}}Request Access{{< /button >}} |
 | #**dps8‑doc**        | DPS8M simulator documentation | {{< button href="https://multics-os.slack.com/archives/C026M3XU6H5" >}}Join Channel{{< /button >}}{{< button href="https://join.slack.com/t/multics-os/shared_invite/zt-1ejykw0eu-mHHr0_FS8o4GOeAVXKmQew" >}}Request Access{{< /button >}} |
 
+* Additional channels are available for members of the Slack workspace.
+
 ## Notifications
 
 * The following **RSS/Atom** feeds provide updates about the simulator and related topics.
 
 | RSS/Atom feed  | Purpose                |                    |
 |:-------------- | ---------------------- | ------------------ |
-| **DPS8M**      | Notifications of all DPS8M Development Team project activity | {{< button href="https://gitlab.com/dps8m/dps8m.atom" >}}Subscribe{{< /button >}} |
-| **Releases**   | Notifications of new DPS8M simulator releases      | {{< button href="https://gitlab.com/dps8m/dps8m/-/tags?format=atom" >}}Subscribe{{< /button >}} |
-| **Issues**     | Notifications of all DPS8M issue tracking activity | {{< button href="https://gitlab.com/dps8m/dps8m/-/issues.atom" >}}Subscribe{{< /button >}} |
+| **DPS8M**      | Notifications of all DPS8M Development Team [project activity](https://gitlab.com/dps8m/dps8m/activity) | {{< button href="https://gitlab.com/dps8m/dps8m.atom" >}}Subscribe{{< /button >}} |
+| **Blog**       | Notifications of all DPS8M [blog](https://dps8m.gitlab.io/blog/) posts | {{< button href="https://dps8m.gitlab.io/blog/feed.xml" >}}Subscribe{{< /button >}} |
+| **Releases**   | Notifications of new DPS8M simulator [releases](https://dps8m.gitlab.io/dps8m/Releases/) | {{< button href="https://gitlab.com/dps8m/dps8m/-/tags?format=atom" >}}Subscribe{{< /button >}} |
+| **Issues**     | Notifications of all DPS8M [issue tracking](https://gitlab.com/dps8m/dps8m/-/issues) activity | {{< button href="https://gitlab.com/dps8m/dps8m/-/issues.atom" >}}Subscribe{{< /button >}} |
 | **Multics** | Recent changes to the [Multics Development Wiki](https://multics-wiki.swenson.org/) | {{< button href="https://multics-wiki.swenson.org/api.php?hidebots=1&days=365&limit=250&action=feedrecentchanges&feedformat=atom" >}}Subscribe{{< /button >}} |
 | **Multicians** | Recent changes to the [Multicians.org](https://multicians.org) website | {{< button href="https://multicians.org/rss.xml" >}}Subscribe{{< /button >}} |

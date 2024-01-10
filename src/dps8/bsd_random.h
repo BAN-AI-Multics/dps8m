@@ -5,7 +5,7 @@
  *
  * ---------------------------------------------------------------------------
  *
- * Copyright (c) 2021-2023 The DPS8M Development Team
+ * Copyright (c) 2021-2024 The DPS8M Development Team
  *
  * All rights reserved.
  *

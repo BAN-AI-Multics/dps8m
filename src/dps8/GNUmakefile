@@ -9,14 +9,11 @@
 # Copyright (c) 2013-2016 Charles Anthony
 # Copyright (c) 2016 Jean-Michel Merliot
 # Copyright (c) 2016 Michal Tomek
-# Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
-# Copyright (c) 2021-2023 The DPS8M Development Team
+# Copyright (c) 2021 Jeffrey H. Johnson
+# Copyright (c) 2021-2024 The DPS8M Development Team
 #
-# All rights reserved.
-#
-# This software is made available under the terms of the ICU
-# License, version 1.8.1 or later.  For more details, see the
-# LICENSE.md file at the top-level directory of this distribution.
+# This software is made available under the terms of the ICU License.
+# See the LICENSE.md file at the top-level directory of this distribution.
 #
 ###############################################################################
 
@@ -326,10 +323,9 @@ H_SRCS += ucache.h
 
 ###############################################################################
 
-SIMH_OBJS = ../simh/dispatch.o     ../simh/sim_console.o   ../simh/sim_disk.o \
-            ../simh/sim_fio.o      ../simh/sim_sock.o      ../simh/sim_tape.o \
-            ../simh/sim_timer.o    ../simh/sim_tmxr.o      ../simh/scp.o      \
-            ../simh/linehistory.o
+SIMH_OBJS = ../simh/sim_console.o  ../simh/sim_disk.o  ../simh/sim_tape.o     \
+            ../simh/sim_fio.o      ../simh/sim_sock.o  ../simh/scp.o          \
+            ../simh/sim_timer.o    ../simh/sim_tmxr.o  ../simh/linehistory.o
 
 ###############################################################################
 

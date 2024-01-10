@@ -1,7 +1,7 @@
 <!-- vim: set nocp ft=markdown ts=2 sw=2 ai cc=80 et nolist wrap lbr :-->
 <!-- SPDX-License-Identifier: MIT-0 -->
 <!-- scspell-id: 234ac36d-f778-11ec-8863-80ee73e9b8e7 -->
-<!-- Copyright (c) 2006-2023 The DPS8M Development Team -->
+<!-- Copyright (c) 2006-2024 The DPS8M Development Team -->
 
 # DPS8M Simulator
 

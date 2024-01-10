@@ -5,8 +5,8 @@
  *
  * -------------------------------------------------------------------------
  *
- * Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
- * Copyright (c) 2021-2023 The DPS8M Development Team
+ * Copyright (c) 2021 Jeffrey H. Johnson
+ * Copyright (c) 2021-2024 The DPS8M Development Team
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions

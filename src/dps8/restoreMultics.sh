@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: MIT-0
 # scspell-id: bce8f1e5-f62f-11ec-9d8e-80ee73e9b8e7
 # Copyright (c) 2016-2021 Charles Anthony
-# Copyright (c) 2021-2023 The DPS8M Development Team
+# Copyright (c) 2021-2024 The DPS8M Development Team
 
 ##############################################################################
 

@@ -1,6 +1,6 @@
 <!-- SPDX-License-Identifier: MIT-0 -->
 <!-- scspell-id: 6a2354d8-f90e-11ec-8827-80ee73e9b8e7 -->
-<!-- Copyright (c) 2021-2023 The DPS8M Development Team -->
+<!-- Copyright (c) 2021-2024 The DPS8M Development Team -->
 
 ```text
 Performance Testing

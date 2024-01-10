@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2005-2015 Mikhail E. Zakharov
- * Copyright (c) 2022-2023 The DPS8M Development Team
+ * Copyright (c) 2022-2024 The DPS8M Development Team
  *
  * empty was written by Mikhail E. Zakharov. This software was based
  * on the basic idea of pty version 4.0, Copyright (c) 1992 Daniel J.

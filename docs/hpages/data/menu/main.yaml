@@ -54,6 +54,10 @@ main:
   - name: ""
   - name: "Community"
     sub:
+      - name: "Blog"
+        icon: "gdoc_date"
+        ref: "https://dps8m.gitlab.io/blog"
+        external: true
       - name: "Mailing Lists"
         icon: "gdoc_email"
         ref: "/Community"

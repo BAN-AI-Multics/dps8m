@@ -1,13 +1,19 @@
 /*
- * vim: filetype=c:tabstop=4:ai:expandtab
- * SPDX-License-Identifier: BSD-2-Clause
+ * mcmb.c
+ *
+ * Version: 2120.4.17-dps (libcmb 3.5.6)
+ *
+ * -----------------------------------------------------------------------------
+ *
  * scspell-id: ec490dbd-f630-11ec-a71d-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
  * Copyright (c) 2002-2019 Devin Teske <dteske@FreeBSD.org>
  * Copyright (c) 2020-2023 Jeffrey H. Johnson <trnsz@pobox.com>
- * Copyright (c) 2021-2023 The DPS8M Development Team
+ * Copyright (c) 2021-2024 The DPS8M Development Team
  *
  * All rights reserved.
  *
@@ -36,6 +42,8 @@
  *
  * ---------------------------------------------------------------------------
  */
+
+//-V::550,575,629,701,1048,1059
 
 /*
  * mcmb - (miniature) combinatorics utility
@@ -487,7 +495,7 @@ static struct cmb_xitem *cmb_transform_find;
 # define CMB_PARSE_FRAGSIZE 512
 #endif /* ifndef CMB_PARSE_FRAGSIZE */
 
-static const char mcmbver[]         = "2120.4.16-dps";
+static const char mcmbver[]         = "2120.4.17-dps";
 static const char libversion[]      = "libcmb 3.5.6";
 
 /*
@@ -1896,19 +1904,24 @@ main(int argc, char *argv[])
 #  ifdef __GNUC__
 #   if !defined (__clang_version__) || defined(__INTEL_COMPILER)
       char xcmp[2];
+      /* cppcheck-suppress invalidPrintfArgType_s */
       sprintf(xcmp, "%.1s", __VERSION__ );
       if (!isdigit((int)xcmp[0]))
         {
+          /* cppcheck-suppress invalidPrintfArgType_s */
           (void)fprintf(stdout, "Compiler: %s\n", __VERSION__ );
         }
       else
         {
+          /* cppcheck-suppress invalidPrintfArgType_s */
           (void)fprintf(stdout, "Compiler: GCC %s\n", __VERSION__ );
         }
 #   else
+      /* cppcheck-suppress invalidPrintfArgType_s */
       (void)fprintf(stdout, "Compiler: Clang %s\n", __clang_version__ );
 #   endif /* if !defined (__clang_version__) || defined(__INTEL_COMPILER) */
 #  else
+      /* cppcheck-suppress invalidPrintfArgType_s */
       (void)fprintf(stdout, "Compiler: %s\n", __VERSION__ );
 #  endif /* ifdef __GNUC__ */
 # endif /* ifdef __VERSION__ */
@@ -2235,7 +2248,7 @@ main(int argc, char *argv[])
 
               if (( cp = strchr(items[n], '.')) != NULL)
                 {
-                  len = strlen(items[n]);
+                  len = (int)strlen(items[(long)n]);
                   len -= (cp - items[(long)n] + 1);
                   if (len > cmb_transform_precision)
                     {
@@ -3005,3 +3018,5 @@ static CMB_TRANSFORM_OP_FIND(*, cmb_mul_find)
 static CMB_TRANSFORM_OP_FIND(/, cmb_div_find)
 static CMB_TRANSFORM_OP_FIND(+, cmb_add_find)
 static CMB_TRANSFORM_OP_FIND(-, cmb_sub_find)
+
+// vim: filetype=c:tabstop=4:ai:expandtab
