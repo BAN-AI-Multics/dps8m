@@ -18,6 +18,8 @@ title: License Information
   * [ICU License](#icu-license)
   * [Multics License](#multics-license)
 - [Third-party Software](#third-party-software)
+- [Miscellaneous](#miscellaneous)
+- [Disclaimer](#disclaimer)
 
 <!-- tocstop -->
 
@@ -26,11 +28,16 @@ title: License Information
 ### ICU License
 
 &nbsp;[![ICU License](https://img.shields.io/badge/license-ICU-passing.svg)](#icu-license)
-
 * The **DPS8M Simulator** (“**DPS8M**”) is distributed under the
   **ICU License**.
+  * The **ICU License** is an
+    [**Open Source Initiative**](https://opensource.org/)
+    [approved open source license](https://opensource.org/license/icu-license/)
+    and a
+    [**Blue Oak Council**](https://blueoakcouncil.org/)
+    [Certified permissive license](https://blueoakcouncil.org/list#ICU).
 
-```
+```text
 COPYRIGHT AND PERMISSION NOTICE
 
 Copyright © 2006-2023 Michael Mondy, Harry Reed, Charles Anthony, and others
@@ -74,14 +81,17 @@ in this Software without prior written authorization of the copyright holder.
 * The **DPS8M Simulator** (“**DPS8M**”) **source code** may contain **code
   comments** that adapt, include, and/or incorporate Multics program code
   and/or documentation distributed under the **Multics License**.
-* In the event of any discrepancy between the source code comments and the
-  original Multics materials, the original Multics materials should be
-  considered authoritative unless otherwise noted.
+  * The **Multics License** is an
+    [**Open Source Initiative**](https://opensource.org/)
+    [approved open source license](https://opensource.org/license/multics-txt/)
+    and a
+    [**Blue Oak Council**](https://blueoakcouncil.org/)
+    [Certified permissive license](https://blueoakcouncil.org/list#Multics).
 * The **Multics License** covers **only** the simulator's source code
   comments, and **is not** applicable to compiled object code or binary
   distributions of the simulator.
 
-```
+```text
 Multics License
 
 Copyright © 1972 The Massachusetts Institute of Technology
@@ -138,3 +148,42 @@ to distribution of the programs without specific prior written permission.
   of the
   [**DPS8M Omnibus Documentation**](https://dps8m.gitlab.io/dps8m/master/dps8m-omnibus.pdf)
   for authoritative information.
+
+## Miscellaneous
+
+&nbsp;[![MIT-0 License](https://img.shields.io/badge/license-MIT0-passing.svg)](#miscellaneous)
+
+* A limited number of miscellaneous example, support, documentation, and
+  configuration files included with **DPS8M** are distributed under the
+  **MIT No Attribution License** **(MIT-0)**.
+  * The **MIT No Attribution License** is an
+    [**Open Source Initiative**](https://opensource.org/)
+    [approved open source license](https://opensource.org/license/mit-0/)
+    and a
+    [**Blue Oak Council**](https://blueoakcouncil.org/)
+    [Certified permissive license](https://blueoakcouncil.org/list#MIT-0).
+
+```text
+MIT No Attribution License
+
+Copyright © 2006-2024 The DPS8M Development Team
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+IN THE SOFTWARE.
+```
+
+## Disclaimer
+
+* This site is not affiliated with or endorsed by the [Open Source Initiative](https://opensource.org/) or the [Blue Oak Council](https://blueoakcouncil.org/).
