@@ -10,7 +10,6 @@ insert_final_newline = true
 trim_trailing_whitespace = true
 
 [{GNUmakefile,Makefile,ci.makefile,Makefile.dev,Makefile.doc,Makefile.env,Makefile.loc,Makefile.mk,Makefile.pre,Makefile.scc,Makefile.var}]
-indent_style = tab
 insert_final_newline = true
 trim_trailing_whitespace = true
 

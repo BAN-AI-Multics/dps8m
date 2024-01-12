@@ -8,12 +8,12 @@
 
 |    |    |
 |:--:|:--:|
-| <img src="6180.jpg" size=50%> | <img src="dps8.jpg"> |
+| <img src="6180.jpg" size=50% alt="MIT-MULTICS: Honeywell 6180 - 1972"> | <img src="dps8.jpg" alt="Bull System X: DPS-8/M & Level 68 - 1982"> |
 ### Project News
 {{< hint type="warning" icon="gdoc_fire" title=" DPS8M Release 3.0.1 (2023-08-10)" >}}
-* [**DPS8M R3.0.1**](https://dps8m.gitlab.io/dps8m/Releases/#stable-release) released, featuring improved performance and functionality.
+* [**DPS8M R3.0.1**](https://dps8m.gitlab.io/dps8m/Releases/#stable-release) released, featuring improved performance and functionality. <small>\[[Announcement](https://dps8m.gitlab.io/blog/posts/20230810_DPS8M_R3.0.1/)\]</small>
 {{< /hint >}}
 #### Old News
 {{< hint type="info" icon="gdoc_info_outline" title=" DPS8M Release 3.0.0 (2022-11-23)" >}}
-* [**DPS8M R3.0.0**](https://dps8m.gitlab.io/dps8m/Releases/Historical_Archives#dps8m-r300--2022-11-23) released &mdash; a new stable major release!
+* [**DPS8M R3.0.0**](https://dps8m.gitlab.io/dps8m/Releases/Historical_Archives#dps8m-r300--2022-11-23) released &mdash; a new stable major release! <small>\[[Announcement](https://dps8m.gitlab.io/blog/posts/20221123_DPS8M_R3.0.0/)\]</small>
 {{< /hint >}}

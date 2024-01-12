@@ -7022,6 +7022,7 @@ pagecolor
 parskip
 passwd
 pdftk
+pglobe
 pigz
 pipefail
 pkill
@@ -7071,6 +7072,7 @@ suncc
 swupd
 tcolorbox
 tcsh
+tikzfill
 tsflags
 ucharcat
 ulem
@@ -7578,6 +7580,7 @@ sourcesanspro
 symlinks
 tcolorbox
 tcsh
+tikzfill
 ucharcat
 ulem
 upquote
@@ -8096,8 +8099,10 @@ listchars
 
 FILEID: 4c223701-f778-11ec-9b52-80ee73e9b8e7
 bgitlab
+blueoakcouncil
 fdps
 nolist
+opensource
 spell
 tocstop
 
@@ -8301,6 +8306,120 @@ examdiffpro
 FILEID: 050905c8-4812-11ed-9ae9-80ee73e9b8e7
 elease
 
+FILEID: dc4af77e-b0a3-11ee-91f6-80ee73e9b8e7
+abap
+akefile
+antlr
+asax
+ascx
+ashx
+asmx
+aspx
+asymptote
+caml
+ceylon
+cfml
+clisp
+cljc
+cljs
+ctagscom
+ctagslib
+cuda
+cython
+drupal
+dtsi
+duby
+dylan
+ebuild
+eclass
+elixir
+escript
+evoque
+fancypack
+fantom
+felix
+fhtml
+flxh
+flymake
+gdbinit
+gemspec
+genshi
+gherkin
+globalrc
+glsl
+gosu
+gtagslabel
+gvimrc
+haml
+htags
+hxml
+hybris
+iniconf
+ioke
+itcl
+jags
+jbst
+koka
+kotlin
+langmap
+lasso
+libdir
+logtalk
+mako
+maql
+mhtml
+modelica
+modula
+mxml
+myghty
+myrddin
+nasm
+nemerle
+newspeak
+nimrod
+passwd
+phtml
+plist
+protobuf
+pygments
+pygmentslib
+ragel
+rebol
+redcode
+rhtml
+rktl
+scaml
+scilab
+scons
+smarty
+tama
+tcsh
+treetop
+ttcn
+urbi
+vala
+vapi
+vark
+vera
+vimrc
+wlua
+xquery
+xslt
+xtend
+zephir
+
+FILEID: d64088ee-b0a3-11ee-bb86-80ee73e9b8e7
+cccc
+curline
+flist
+lightblue
+lightcyan
+lightgray
+nowrap
+poweredby
+standout
+tama
+
 NATURAL:
 abandon
 abandoned
@@ -8422,6 +8541,7 @@ aerospace
 afaict
 affected
 affects
+affiliated
 affiliation
 affinity
 afraid
@@ -8528,6 +8648,7 @@ appending
 appendix
 appends
 apple
+applescript
 applicable
 applications
 applied
@@ -8541,6 +8662,7 @@ approaches
 appropriate
 appropriately
 approve
+approved
 approximately
 approximation
 apps
@@ -8647,13 +8769,16 @@ authors
 authorship
 auto
 autocomplete
+autoconf
 autoindent
 autoinput
+automake
 automate
 automated
 automatically
 automating
 automation
+automount
 autosized
 auxiliary
 availability
@@ -8792,6 +8917,7 @@ bleeding
 bless
 bling
 blinken
+blitz
 blob
 block
 blocked
@@ -8830,6 +8956,7 @@ boundaries
 boundary
 bounded
 bounds
+brace
 bracket
 bracketed
 brackets
@@ -8972,6 +9099,7 @@ caught
 caused
 causes
 causing
+caution
 cbridge
 cctree
 ceiling
@@ -9075,6 +9203,7 @@ clients
 clipping
 clock
 clocks
+clojure
 clone
 cloned
 cloning
@@ -9346,6 +9475,7 @@ cosmetics
 cost
 couch
 could
+council
 countdown
 counted
 counter
@@ -9405,6 +9535,7 @@ customer
 customized
 cutoff
 cutting
+cvsroot
 cycle
 cycles
 cyclically
@@ -9422,6 +9553,7 @@ damages
 dang
 dangling
 daniel
+dart
 darwin
 dash
 dashed
@@ -9472,6 +9604,7 @@ decoder
 decompress
 decompressing
 decorate
+decoration
 decrease
 decreased
 decreasing
@@ -9777,6 +9910,7 @@ drumstick
 dteske
 dual
 dubious
+duel
 duma
 dumb
 dummy
@@ -9818,6 +9952,7 @@ efficiency
 efficient
 effort
 efforts
+eiffel
 eight
 eighteen
 eisvogel
@@ -9872,6 +10007,7 @@ endian
 endianness
 endings
 endorse
+endorsed
 endorsement
 ends
 enforce
@@ -9916,6 +10052,7 @@ erased
 erasing
 erasure
 eric
+erlang
 error
 erroring
 errors
@@ -10065,6 +10202,7 @@ extracting
 extractors
 extracts
 extras
+exuberant
 fabs
 facilitate
 facilitates
@@ -10081,12 +10219,14 @@ failures
 fairly
 faith
 fake
+falcon
 fallback
 falling
 falls
 false
 fames
 family
+fancy
 faqs
 farlane
 fashion
@@ -10174,6 +10314,7 @@ flavored
 flaw
 flawfinder
 flawless
+flex
 flickering
 flip
 flipped
@@ -10275,6 +10416,7 @@ gary
 gate
 gateway
 gather
+gawk
 gcos
 gear
 general
@@ -10300,6 +10442,7 @@ gitlab
 given
 gives
 giving
+glade
 glibc
 globally
 globals
@@ -10308,6 +10451,7 @@ gmail
 gmake
 gnomes
 gnubin
+gnuplot
 goal
 goals
 goes
@@ -10337,6 +10481,7 @@ greenberg
 grep
 grid
 grok
+groovy
 gross
 ground
 group
@@ -10492,6 +10637,7 @@ hotplug
 hours
 house
 housekeeping
+hover
 howard
 however
 hoytech
@@ -10514,6 +10660,7 @@ hyphenating
 hyphens
 hypothetical
 icon
+icons
 idea
 ideal
 ideally
@@ -10663,6 +10810,7 @@ initiated
 initiates
 initiating
 initiation
+initiative
 injected
 injecting
 inline
@@ -10762,6 +10910,7 @@ introduce
 introduces
 introducing
 introduction
+introspect
 invalid
 invalidate
 invented
@@ -10800,6 +10949,7 @@ iteration
 iterations
 itself
 iwmmxt
+jade
 january
 java
 jean
@@ -10820,6 +10970,7 @@ jose
 jowl
 json
 juergen
+julia
 july
 jump
 jumping
@@ -11024,6 +11175,7 @@ login
 logistics
 logoff
 logon
+logos
 logout
 logs
 loin
@@ -11083,6 +11235,7 @@ main
 mainframe
 mainframes
 mainly
+mains
 maintain
 maintained
 maintainer
@@ -11135,6 +11288,7 @@ mars
 masked
 masking
 masks
+mason
 massachusetts
 master
 matched
@@ -11144,11 +11298,14 @@ materials
 mathematical
 mathematically
 mathlib
+matlab
 matrix
 matter
 matters
 matthew
 matzka
+maven
+mawk
 maxima
 maximum
 maybe
@@ -11272,9 +11429,11 @@ mondy
 monitored
 monitoring
 monitors
+monkey
 monospace
 monotonic
 month
+moon
 more
 moreover
 most
@@ -11482,6 +11641,7 @@ occurring
 occurs
 octagon
 octal
+octave
 octet
 octets
 october
@@ -11647,6 +11807,7 @@ parity
 parse
 parsed
 parser
+parsers
 parses
 parsing
 partial
@@ -11686,6 +11847,7 @@ paul
 pause
 paused
 pausing
+pawn
 payload
 payloads
 pcnoordhuis
@@ -11762,6 +11924,7 @@ play
 playing
 please
 plenty
+plot
 plug
 plugins
 plus
@@ -11821,6 +11984,7 @@ posts
 postscript
 potentially
 power
+powered
 powering
 powerpc
 powers
@@ -11983,6 +12147,7 @@ punched
 punches
 punt
 punutil
+puppet
 pure
 purge
 purpose
@@ -12029,6 +12194,7 @@ quotient
 quoting
 race
 races
+racket
 radically
 radix
 rage
@@ -12036,6 +12202,7 @@ railway
 raise
 raised
 raises
+rake
 random
 randomized
 randomly
@@ -12434,9 +12601,11 @@ running
 runout
 runs
 runtime
+rust
 sadly
 safely
 safety
+sage
 saintly
 sale
 salvage
@@ -12473,6 +12642,7 @@ scanning
 scans
 scatter
 scavenge
+sccs
 sceenful
 scheduled
 scheduler
@@ -12587,6 +12757,7 @@ shape
 shared
 shares
 sharing
+sharp
 sheet
 shell
 shells
@@ -12674,6 +12845,7 @@ size
 sized
 sizes
 sizzle
+skeleton
 skew
 skins
 skip
@@ -12697,6 +12869,7 @@ slower
 slows
 smaller
 smallest
+smalltalk
 smart
 smartcard
 smoke
@@ -12706,6 +12879,7 @@ snapped
 snapshot
 snapshots
 snarl
+snobol
 snow
 sock
 socket
@@ -12766,6 +12940,7 @@ spill
 spin
 spirit
 spit
+spitfire
 split
 splitting
 sponsorship
@@ -12997,12 +13172,14 @@ sysctl
 sysdefs
 system
 systematically
+systemd
 systems
 sysv
 table
 tables
 tabstop
 tagged
+tagging
 tags
 tail
 takedown
@@ -13037,6 +13214,7 @@ tenderloin
 tends
 tens
 tenths
+termcap
 terminal
 terminals
 terminate
@@ -13488,6 +13666,7 @@ vector
 vectorize
 vectors
 vehicle
+velocity
 vendored
 verbatim
 verbose
@@ -13496,12 +13675,14 @@ verification
 verified
 verify
 verifying
+verilog
 versa
 version
 versions
 vertical
 very
 vested
+vhdl
 vice
 victor
 video
@@ -13515,6 +13696,7 @@ violations
 virtual
 visible
 visit
+visited
 visual
 visually
 vmpctool
@@ -13657,10 +13839,12 @@ xfer
 xilinx
 xopen
 xxxxxxxxxxx
+yacc
 yaml
 yeah
 year
 years
+yellow
 yield
 yielding
 yost

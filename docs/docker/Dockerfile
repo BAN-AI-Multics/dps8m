@@ -6,7 +6,7 @@
 
 FROM fedora:##RELEASEVER##
 WORKDIR /builds
-RUN \
+RUN set -x; \
 dnf -y --setopt=keepcache=True --setopt=install_weak_deps=True \
  --allowerasing --refresh update && printf %s\\n "" && \
 dnf -y --setopt=keepcache=True --setopt=install_weak_deps=True \
@@ -45,6 +45,7 @@ diffutils \
 dos2unix \
 emacs \
 expect \
+file \
 gcc \
 ghostscript \
 git \
@@ -117,6 +118,7 @@ texlive-scheme-basic \
 texlive-sourcecodepro \
 texlive-sourcesanspro \
 texlive-tcolorbox \
+texlive-tikzfill \
 texlive-titling \
 texlive-ucharcat \
 texlive-ulem \
