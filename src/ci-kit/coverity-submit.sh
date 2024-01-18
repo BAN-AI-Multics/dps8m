@@ -140,7 +140,7 @@ rm -f  ./dps8m-simulator.xz > /dev/null 2>&1
 
 printf '%s\n' '#### Notice: Downloading latest Coverity Tools checksum.'
 
-wget --show-progress --quiet                                           \
+wget --quiet                                                           \
       "https://scan.coverity.com/download/linux64"                     \
      --post-data                                                       \
        "token=${COVERITY_TOKEN:?}&project=${COVERITY_PROJECT:?}&md5=1" \
@@ -177,7 +177,7 @@ test "$(2> /dev/null md5sum "${COVERITY_DLDIR:?}/coverity_tool.tgz" | \
 test -z "${COVERITY_NEED_UPDATE:-}" ||
   {
     printf '%s\n' '#### Notice: Downloading latest Coverity Tools archive.'
-    wget --show-progress --quiet                                    \
+    wget --quiet                                                    \
           "https://scan.coverity.com/download/linux64"              \
          --post-data                                                \
           "token=${COVERITY_TOKEN:?}&project=${COVERITY_PROJECT:?}" \

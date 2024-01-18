@@ -536,15 +536,12 @@ title: DPS8M Releases
 {{< tab "AIX" >}}
 
 {{< expand "Power ISA (64-bit)" "…" >}}
-| File                                                                                       | Platform                   |
-|:------------------------------------------------------------------------------------------ |:-------------------------- |
-| [**dps8m-git-aixv7-p10.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-p10.tar.gz) | Power10                    |
-| [**dps8m-git-aixv7-pw9.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-pw9.tar.gz) | POWER9                     |
-| [**dps8m-git-aixv7-pw8.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-pw8.tar.gz) | POWER8 (GCC&nbsp;12)       |
-| [**dps8m-git-aixv7-gcc.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-gcc.tar.gz) | POWER8 (GCC&nbsp;11)       |
-| [**dps8m-git-aixv7-xlc.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-xlc.tar.gz) | POWER8 (XL&nbsp;C&nbsp;16) |
-| [**dps8m-git-aixv7-pw7.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-pw7.tar.gz) | POWER7                     |
-| [**dps8m-git-aixv7-pw6.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-pw6.tar.gz) | POWER6                     |
+| File                                                                                       | Platform |
+|:------------------------------------------------------------------------------------------ |:---------|
+| [**dps8m-git-aixv7-p10.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-p10.tar.gz) | Power10  |
+| [**dps8m-git-aixv7-pw9.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-pw9.tar.gz) | POWER9   |
+| [**dps8m-git-aixv7-pw8.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-pw8.tar.gz) | POWER8   |
+| [**dps8m-git-aixv7-pw7.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-pw7.tar.gz) | POWER7   |
 {{< /expand >}}
 {{< /tab >}}
 {{< tab "Android" >}}
@@ -616,8 +613,6 @@ title: DPS8M Releases
 {{< expand "Intel x86_64 (AMD64)" "…" >}}
 | File                                                                                       | Platform                           |
 |:------------------------------------------------------------------------------------------ |:---------------------------------- |
-| [**dps8m-git-fbd13-x63.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-fbd13-x63.tar.gz) | x86_64‑v3 (AVX2&nbsp;+&nbsp;FMA)   |
-| [**dps8m-git-fbd13-x62.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-fbd13-x62.tar.gz) | x86_64‑v2 (SSE4&nbsp;+&nbsp;SSSE3) |
 | [**dps8m-git-fbd13-x61.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-fbd13-x61.tar.gz) | x86_64                             |
 {{< /expand >}}
 
@@ -633,12 +628,6 @@ title: DPS8M Releases
 | :----------------------------------------------------------------------------------------- | :------- |
 | [**dps8m-git-fbd13-a64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-fbd13-a64.tar.gz) | ARMv8‑A  |
 {{< /expand >}}
-
-{{< expand "PowerPC (32-bit, big-endian)" "…" >}}
-| File                                                                                       | Platform   |
-| :----------------------------------------------------------------------------------------- | :--------- |
-| [**dps8m-git-fbd13-a32.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-fbd13-a32.tar.gz) | G3&nbsp;/&nbsp;PPC740 |
-{{< /expand >}}
 {{< /expand >}}
 
 {{< expand "NetBSD 9.3" "…" >}}
@@ -646,8 +635,6 @@ title: DPS8M Releases
 {{< expand "Intel x86_64 (AMD64)" "…" >}}
 | File                                                                                       | Platform                           |
 |:------------------------------------------------------------------------------------------ |:---------------------------------- |
-| [**dps8m-git-nbd93-x63.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-x63.tar.gz) | x86_64‑v3 (AVX2&nbsp;+&nbsp;FMA)   |
-| [**dps8m-git-nbd93-x62.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-x62.tar.gz) | x86_64‑v2 (SSE4&nbsp;+&nbsp;SSSE3) |
 | [**dps8m-git-nbd93-x61.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-x61.tar.gz) | x86_64                             |
 {{< /expand >}}
 
@@ -687,36 +674,10 @@ title: DPS8M Releases
 | [**dps8m-git-nbd93-740.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-740.tar.gz) | G3&nbsp;/&nbsp;PPC740  |
 {{< /expand >}}
 
-{{< expand "Alpha" "…" >}}
-| File                                                                                       | Platform |
-|:------------------------------------------------------------------------------------------ |:-------- |
-| [**dps8m-git-nbd93-ax6.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-ax6.tar.gz) | EV6      |
-| [**dps8m-git-nbd93-ax5.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-ax5.tar.gz) | EV5      |
-| [**dps8m-git-nbd93-axp.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-axp.tar.gz) | EV4      |
-{{< /expand >}}
-
 {{< expand "VAX" "…" >}}
 | File                                                                                       |
 |:------------------------------------------------------------------------------------------ |
 | [**dps8m-git-nbd93-vax.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-vax.tar.gz) |
-{{< /expand >}}
-{{< /expand >}}
-
-{{< expand "OpenBSD 7.2" "…" >}}
-{{< expand "Intel x86_64 (AMD64)" "…" >}}
-| File                                                                                       | Platform                           |
-|:------------------------------------------------------------------------------------------ |:---------------------------------- |
-| [**dps8m-git-obd72-x64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-obd72-x64.tar.gz) | x86_64                             |
-{{< /expand >}}
-{{< /expand >}}
-
-{{< expand "DragonFly BSD 6.4.0" "…" >}}
-{{< expand "Intel x86_64 (AMD64)" "…" >}}
-| File                                                                                       | Platform                           |
-|:------------------------------------------------------------------------------------------ |:---------------------------------- |
-| [**dps8m-git-df640-643.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-df640-643.tar.gz) | x86_64‑v3 (AVX2&nbsp;+&nbsp;FMA)   |
-| [**dps8m-git-df640-642.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-df640-642.tar.gz) | x86_64‑v2 (SSE4&nbsp;+&nbsp;SSSE3) |
-| [**dps8m-git-df640-641.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-df640-641.tar.gz) | x86_64                             |
 {{< /expand >}}
 {{< /expand >}}
 {{< /tab >}}
@@ -743,7 +704,6 @@ title: DPS8M Releases
 | File                                                                                       | Platform |
 | :----------------------------------------------------------------------------------------- | :------- |
 | [**dps8m-git-linux-686.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-686.tar.gz) | i686     |
-| [**dps8m-git-linux-586.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-586.tar.gz) | i586     |
 {{< /expand >}}
 {{< /expand >}}
 
@@ -752,11 +712,11 @@ title: DPS8M Releases
 | File                                                                                       | Platform             |
 | :----------------------------------------------------------------------------------------- | :------------------- |
 | [**dps8m-git-linux-p10.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-p10.tar.gz) | Power10              |
-| [**dps8m-git-linux-att.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-att.tar.gz) | Power10 (AT&nbsp;16) |
+| [**dps8m-git-linux-att.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-att.tar.gz) | Power10 (AT&nbsp;17) |
 | [**dps8m-git-linux-pw9.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-pw9.tar.gz) | POWER9               |
-| [**dps8m-git-linux-atn.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-atn.tar.gz) | POWER9 (AT&nbsp;16)  |
+| [**dps8m-git-linux-atn.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-atn.tar.gz) | POWER9 (AT&nbsp;17)  |
 | [**dps8m-git-linux-pw8.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-pw8.tar.gz) | POWER8               |
-| [**dps8m-git-linux-ate.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-ate.tar.gz) | POWER8 (AT&nbsp;16)  |
+| [**dps8m-git-linux-ate.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-ate.tar.gz) | POWER8 (AT&nbsp;17)  |
 | [**dps8m-git-linux-ox8.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-ox8.tar.gz) | POWER8 (OXLC&nbsp;17 + glibc&nbsp;2.38+) |
 | [**dps8m-git-linux-xlc.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-xlc.tar.gz) | POWER8 (XLC&nbsp;16 + glibc&nbsp;2.38+) |
 {{< /expand >}}
@@ -792,7 +752,6 @@ title: DPS8M Releases
 | File                                                                                       | Platform  |
 | :----------------------------------------------------------------------------------------- | :-------- |
 | [**dps8m-git-linux-a8a.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-a8a.tar.gz) | ARMv8‑A   |
-| [**dps8m-git-linux-a8r.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-a8r.tar.gz) | ARMv8‑R   |
 {{< /expand >}}
 
 {{< expand "ARM64 (big-endian)" "…" >}}
@@ -816,7 +775,6 @@ title: DPS8M Releases
 | :----------------------------------------------------------------------------------------- | :------- |
 | [**dps8m-git-linux-040.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-040.tar.gz) | 68040    |
 | [**dps8m-git-linux-030.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-030.tar.gz) | 68030    |
-| [**dps8m-git-linux-020.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-020.tar.gz) | 68020    |
 {{< /expand >}}
 
 {{< expand "SPARC" "…" >}}
@@ -883,19 +841,6 @@ title: DPS8M Releases
 {{< /expand >}}
 {{< /expand >}}
 
-{{< expand "SuperH" "…" >}}
-{{< expand "SH-4A (32-bit, little-endian)" "…" >}}
-| File                                                                                       |
-| :----------------------------------------------------------------------------------------- |
-| [**dps8m-git-linux-l4a.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-l4a.tar.gz) |
-{{< /expand >}}
-{{< expand "SH-4A (32-bit, big-endian)" "…" >}}
-| File                                                                                       |
-| :----------------------------------------------------------------------------------------- |
-| [**dps8m-git-linux-b4a.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-b4a.tar.gz) |
-{{< /expand >}}
-{{< /expand >}}
-
 {{< expand "z/Architecture" "…" >}}
 | File                                                                                       |
 | :----------------------------------------------------------------------------------------- |
@@ -922,8 +867,6 @@ title: DPS8M Releases
 {{< expand "Intel x86_64 (AMD64)" "…" >}}
 | File                                                                                     | Platform                           |
 | :--------------------------------------------------------------------------------------- |:---------------------------------- |
-| [**dps8m-git-s114-643.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-s114-643.tar.gz) | x86_64‑v3 (AVX2&nbsp;+&nbsp;FMA)   |
-| [**dps8m-git-s114-642.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-s114-642.tar.gz) | x86_64‑v2 (SSE4&nbsp;+&nbsp;SSSE3) |
 | [**dps8m-git-s114-641.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-s114-641.tar.gz) | x86_64                             |
 {{< /expand >}}
 {{< /expand >}}
@@ -932,8 +875,6 @@ title: DPS8M Releases
 {{< expand "Intel x86_64 (AMD64)" "…" >}}
 | File                                                                                     | Platform                           |
 | :--------------------------------------------------------------------------------------- |:---------------------------------- |
-| [**dps8m-git-iloi-643.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-iloi-643.tar.gz) | x86_64‑v3 (AVX2&nbsp;+&nbsp;FMA)   |
-| [**dps8m-git-iloi-642.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-iloi-642.tar.gz) | x86_64‑v2 (SSE4&nbsp;+&nbsp;SSSE3) |
 | [**dps8m-git-iloi-641.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-iloi-641.tar.gz) | x86_64                             |
 {{< /expand >}}
 {{< /expand >}}
@@ -958,7 +899,6 @@ title: DPS8M Releases
 | File                                                                                       | Platform                |
 |:------------------------------------------------------------------------------------------ |:----------------------- |
 | [**dps8m-git-mingw-x32.zip**](https://dps8m.gitlab.io/dps8m/dps8m-git-mingw-x32.zip)       | i686                    |
-| [**dps8m-git-cygwin-32.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-cygwin-32.tar.gz) | Cygwin&nbsp;/&nbsp;i686 |
 {{< /expand >}}
 {{< /expand >}}
 

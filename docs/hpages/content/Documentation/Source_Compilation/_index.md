@@ -786,7 +786,7 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
   /opt/freeware/bin/dnf install sed gmake libuv libuv-devel popt coreutils gawk
   ```
 
-* *Optionally* install **GCC 11** (or **GCC 12**) from the [IBM AIX Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository (as *root*):
+* *Optionally* install **GCC 11** (or **GCC 12** on **AIX 7.3**) from the [IBM AIX Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository (as *root*):
 
   * Install **GCC 11**:
 
@@ -794,7 +794,7 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
     /opt/freeware/bin/dnf install gcc gcc11
     ```
 
-  * Install **GCC 12**:
+  * Install **GCC 12** (on **AIX 7.3**):
 
     ```sh
     /opt/freeware/bin/dnf install gcc gcc12
@@ -1110,7 +1110,7 @@ Examples of building the simulator on **Linux** using various popular compilers 
 
 #### IBM XL C/C++ for Linux
 
-* Build the simulator using **IBM XL C/C++ for Linux V16.1.1 Fix Pack 15** (*September 2023) for Linux on POWER:
+* Build the simulator using **IBM XL C/C++ for Linux V16.1.1 Fix Pack 15** (*September 2023*) for Linux on POWER:
 
   ```sh
   env CFLAGS="-qtls -qarch=pwr8"          \
@@ -1294,7 +1294,7 @@ The [**GNU Toolchain for the Arm Architecture**](https://developer.arm.com/Tools
 
 #### Linaro GNU Toolchain
 
-The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**](https://snapshots.linaro.org/gnu-toolchain), provides Linux/**ARM** and Linux/**ARM64** reference toolchains, closely tracking upstream repositories, allowing developers to easily test new compiler and processor features before the next [**Arm GNU Toolchain**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) release.
+The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**](https://snapshots.linaro.org/gnu-toolchain) provides Linux/**ARM** and Linux/**ARM64** reference toolchains, closely tracking upstream repositories, allowing developers to easily test new compiler and processor features before the next [**Arm GNU Toolchain**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) release.
 
 ##### Linux/ARMv7-HF
 
@@ -1355,7 +1355,7 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
 
     ```sh
     export CTNG="riscv64-local-linux-musl" &&               \
-    env CC="/home/jhj/x-tools/${CTNG}/bin/${CTNG}-gcc"      \
+    env CC="/home/user/x-tools/${CTNG}/bin/${CTNG}-gcc"     \
         LOCAL_CONFOPTS="--host=${CTNG}"                     \
       make libuvrel
     ```
@@ -1363,7 +1363,7 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
   * Build the simulator:
 
     ```sh
-    env CC="/home/jhj/x-tools/${CTNG}/bin/${CTNG}-gcc"      \
+    env CC="/home/user/x-tools/${CTNG}/bin/${CTNG}-gcc"     \
         LDFLAGS="-static"                                   \
         LOCALLIBS="-latomic"                                \
       make
@@ -1377,7 +1377,7 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
 
     ```sh
     export CTNG="i686-local-linux-musl" &&                  \
-    env CC="/home/jhj/x-tools/${CTNG}/bin/${CTNG}-gcc"      \
+    env CC="/home/user/x-tools/${CTNG}/bin/${CTNG}-gcc"     \
         LOCAL_CONFOPTS="--host=${CTNG}"                     \
       make libuvrel
     ```
@@ -1385,7 +1385,7 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
   * Build the simulator:
 
     ```sh
-    env CC="/home/jhj/x-tools/${CTNG}/bin/${CTNG}-gcc"      \
+    env CC="/home/user/x-tools/${CTNG}/bin/${CTNG}-gcc"     \
         LDFLAGS="-static"                                   \
         LOCALLIBS="-latomic"                                \
         NEED_128=1                                          \
@@ -1400,7 +1400,7 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
 
     ```sh
     export CTNG="armv6-local-linux-gnueabihf" &&            \
-    env CC="/home/jhj/x-tools/${CTNG}/bin/${CTNG}-gcc"      \
+    env CC="/home/user/x-tools/${CTNG}/bin/${CTNG}-gcc"     \
         LOCAL_CONFOPTS="--host=${CTNG}"                     \
         CFLAGS="-march=armv6+fp"                            \
       make libuvrel
@@ -1409,7 +1409,7 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
   * Build the simulator:
 
     ```sh
-    env CC="/home/jhj/x-tools/${CTNG}/bin/${CTNG}-gcc"      \
+    env CC="/home/user/x-tools/${CTNG}/bin/${CTNG}-gcc"     \
         CFLAGS="-march=armv6+fp"                            \
         LOCALLIBS="-latomic"                                \
         NEED_128=1                                          \
@@ -1424,7 +1424,7 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
 
     ```sh
     export CTNG="powerpc64le-local-linux-musl" &&           \
-    env CC="/home/jhj/x-tools/${CTNG}/bin/${CTNG}-gcc"      \
+    env CC="/home/user/x-tools/${CTNG}/bin/${CTNG}-gcc"     \
         LOCAL_CONFOPTS="--host=${CTNG}"                     \
         CFLAGS="-mcpu=power9"                               \
       make libuvrel
@@ -1433,7 +1433,7 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
   * Build the simulator:
 
     ```sh
-    env CC="/home/jhj/x-tools/${CTNG}/bin/${CTNG}-gcc"      \
+    env CC="/home/user/x-tools/${CTNG}/bin/${CTNG}-gcc"     \
         CFLAGS="-mcpu=power9"                               \
         LDFLAGS="-static"                                   \
         LOCALLIBS="-latomic"                                \
