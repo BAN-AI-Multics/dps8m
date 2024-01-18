@@ -31,7 +31,6 @@ Official releases of the simulator are available from:
   * **macOS**
   * **FreeBSD**
   * **NetBSD**
-  * **OpenBSD**
   * **Windows**
   * **Solaris**
   * **illumos**

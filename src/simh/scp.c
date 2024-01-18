@@ -1724,8 +1724,8 @@ for (i = 1; i < argc; i++) {                            /* loop thru args */
 # endif /* ifdef USE_DUMA */
 if (!nodist) {
         fprintf (stdout, "\n This software is made available under the terms of the ICU License.");
-        fprintf (stdout, "\n For complete license details, see the \"LICENSE.md\" file included with");
-        fprintf (stdout, "\n the software or https://gitlab.com/dps8m/dps8m/-/blob/master/LICENSE.md\n");
+        fprintf (stdout, "\n For complete license details, see the LICENSE file included with the");
+        fprintf (stdout, "\n software or https://gitlab.com/dps8m/dps8m/-/blob/master/LICENSE.md\n");
 }
 else
 {
@@ -5146,9 +5146,9 @@ if (flag) {
     else
       {
         fprintf (st, "\n");
-        fprintf (st, "\n This software is made available under the terms of the ICU License,");
-        fprintf (st, "\n For complete license details, see the \"LICENSE.md\" file included with");
-        fprintf (st, "\n the software or https://gitlab.com/dps8m/dps8m/-/blob/master/LICENSE.md");
+        fprintf (st, "\n This software is made available under the terms of the ICU License.");
+        fprintf (st, "\n For complete license details, see the LICENSE file included with the");
+        fprintf (st, "\n software or https://gitlab.com/dps8m/dps8m/-/blob/master/LICENSE.md");
       }
         fprintf (st, "\n");
     }
