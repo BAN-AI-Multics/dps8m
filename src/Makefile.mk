@@ -359,11 +359,22 @@ else
   endif
 
 ###############################################################################
-# IBM AIX
+# IBM i (OS/400) PASE
 
-# Operating System: IBM AIX 6.1, 7.1, and 7.2 for IBM POWER7+ on IBM pSeries.
-# libuv: IBM AIX Toolbox libuv 1.38.1 (libuv-{devel}-1.38.1-1), or later, and,
-# libpopt: IBM AIX Toolbox libpopt 1.18 (libpopt-1.18-1) or later is required.
+  ifeq ($(UNAME_S),OS400)
+    KRNBITS:=$(shell getconf KERNEL_BITMODE 2> /dev/null || printf '%s' "64")
+    CFLAGS += $(OVR_FLOCK) -DUSE_FCNTL=1 -DHAVE_POPT=1 -maix$(KRNBITS)        \
+              -Wl,-b$(KRNBITS) -pthread -D_THREAD_SAFE -Wl,-brtl
+    LDFLAGS += $(MATHLIB) -lpthread -lpopt -lbsd -lutil -maix$(KRNBITS)       \
+               -Wl,-b$(KRNBITS) -pthread -D_THREAD_SAFE -Wl,-brtl
+    CC?=gcc
+    export NO_LTO=1
+    export ATOMICS=AIX
+    export LIBRT=
+  endif
+
+###############################################################################
+# IBM AIX
 
   ifeq ($(UNAME_S),AIX)
     KRNBITS:=$(shell getconf KERNEL_BITMODE 2> /dev/null || printf '%s' "64")

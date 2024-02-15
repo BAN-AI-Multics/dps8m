@@ -609,9 +609,9 @@ unsigned long  sleepCPU (unsigned long usec) {
 # endif /* ifdef MACOSXPPC */
 #endif /* ifdef USE_MONOTONIC */
   absTime = startTime;
-  int64_t nsec = ((int64_t) usec) * 1000 + (int64_t)startTime.tv_nsec;
-  absTime.tv_nsec = nsec % 1000000000;
-  absTime.tv_sec += nsec / 1000000000;
+  int64_t nsec = ((int64_t) usec) * 1000L + (int64_t)startTime.tv_nsec;
+  absTime.tv_nsec = nsec % 1000000000L;
+  absTime.tv_sec += nsec / 1000000000L;
 
   rc = pthread_cond_timedwait (& p->sleepCond, & scu_lock, & absTime);
 
@@ -644,7 +644,7 @@ unsigned long  sleepCPU (unsigned long usec) {
 
   if (delta.tv_nsec < 0)
     return 0; // safety
-  return (unsigned long) delta.tv_nsec / 1000;
+  return (unsigned long) delta.tv_nsec / 1000L;
 }
 
 // Called to wake sleeping CPU; such as interrupt during DIS

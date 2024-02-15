@@ -4921,16 +4921,16 @@ if (flag) {
              _MSC_FULL_VER%100000,
              _MSC_BUILD);
 #elif ( defined (__xlc__) && !defined(__clang_version__) )
-# if defined (_AIX) && defined (PASE)
+# if defined (_AIX) && defined (__PASE__)
     fprintf (st, "\n  Compiler: IBM XL C/C++ V%s (PASE for IBM i)", __xlc__);
 # endif
-# if defined (_AIX) && !defined (PASE)
+# if defined (_AIX) && !defined (__PASE__)
     fprintf (st, "\n  Compiler: IBM XL C/C++ for AIX V%s", __xlc__);
 # endif
-# if defined (__linux__) && ( !defined(_AIX) || !defined(PASE) )
+# if defined (__linux__) && ( !defined(_AIX) || !defined(__PASE__) )
     fprintf (st, "\n  Compiler: IBM XL C/C++ for Linux V%s", __xlc__);
 # endif
-# if ( !defined(_AIX) && !defined(__clang_version__) && !defined(PASE) && !defined(__linux__) && defined(__xlc__) )
+# if ( !defined(_AIX) && !defined(__clang_version__) && !defined(__PASE__) && !defined(__linux__) && defined(__xlc__) )
 #  if defined(__PPC__) && defined(__APPLE__)
     fprintf (st, "\n  Compiler: IBM XL C/C++ V%s for Mac OS X", __xlc__);
 #  else
@@ -5086,6 +5086,9 @@ if (flag) {
 # ifndef _AIX
         if ((f = popen ("uname -mrs 2> /dev/null", "r"))) {
 # else
+#  ifdef __PASE__
+        if ((f = popen ("sh -c 'echo \"$(command -p env uname -v 2> /dev/null).$(command -p env uname -r 2> /dev/null) $(command -p env uname -p 2> /dev/null)\"' 2> /dev/null", "r"))) {
+#  else
         if ((f = popen                                              \
           ("sh -c 'command -p env uname -svM   2> /dev/null'        \
                                                2> /dev/null    ||   \
@@ -5102,6 +5105,7 @@ if (flag) {
                             uname -svp         2> /dev/null         \
                               ", "r")))                             \
          {
+#  endif /* ifdef __PASE__ */
 # endif /* ifndef _AIX */
             memset (osversion, 0, sizeof(osversion));
             do {
@@ -5123,13 +5127,21 @@ if (flag) {
             fprintf (st, "\n   Host OS: %s", osversion);
 # else
             strremove(osversion, "AIX ");
+#  ifndef __PASE__
             fprintf (st, "\n   Host OS: IBM AIX %s", osversion);
+#  else
+            fprintf (st, "\n   Host OS: IBM OS/400 (PASE) %s", osversion);
+#  endif /* ifndef __PASE__ */
 # endif /* ifndef _AIX */
     } else {
 # ifndef _AIX
         fprintf (st, "\n   Host OS: Unknown");
 # else
+#  ifndef __PASE__
         fprintf (st, "\n   Host OS: IBM AIX");
+#  else
+        fprintf (st, "\n   Host OS: IBM OS/400 (PASE)");
+#  endif /* ifndef __PASE__ */
 # endif /* ifndef _AIX */
     }
 #endif

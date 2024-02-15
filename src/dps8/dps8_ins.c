@@ -9157,9 +9157,9 @@ static int emCall (void)
        // OP 4: Report CPU clock
        case 4:
          {
-#define ns_sec  (1000000000)
-#define ns_msec (1000000000 / 1000)
-#define ns_usec (1000000000 / 1000 / 1000)
+#define ns_sec  (1000000000L)
+#define ns_msec (1000000000L / 1000L)
+#define ns_usec (1000000000L / 1000L / 1000L)
            uv_rusage_t now;
            uv_getrusage (& now);
            uint64_t start            = (uint64_t)(startTime.ru_utime.tv_usec * 1000 +
