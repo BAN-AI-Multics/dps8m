@@ -889,6 +889,7 @@ void *ptr = &ptr;
 h = hash32s(&ptr, sizeof(ptr), h);
 time_t t = time(0);
 h = hash32s(&t, sizeof(t), h);
+#if !defined(_AIX)
 for (int i = 0; i < 1000; i++)
   {
     unsigned long counter = 0;
@@ -900,6 +901,7 @@ for (int i = 0; i < 1000; i++)
     h = hash32s(&start, sizeof(start), h);
     h = hash32s(&counter, sizeof(counter), h);
   }
+#endif /* if !defined(_AIX) */
 int mypid = (int)getpid();
 h = hash32s(&mypid, sizeof(mypid), h);
 char rnd[4];

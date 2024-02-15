@@ -2879,10 +2879,10 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   //sim_usleep (sys_opts.sys_poll_interval * 1000 /*10000*/ );
                   struct timespec req, rem;
                   uint ms        = sys_opts.sys_poll_interval;
-                  long int nsec  = (long int) ms * 1000 * 1000;
+                  long int nsec  = (long int) ms * 1000L * 1000L;
                   req.tv_nsec    = nsec;
-                  req.tv_sec    += req.tv_nsec / 1000000000;
-                  req.tv_nsec   %= 1000000000;
+                  req.tv_sec    += req.tv_nsec / 1000000000L;
+                  req.tv_nsec   %= 1000000000L;
                   int rc         = nanosleep (& req, & rem); // XXX Does this work on Windows ???
                   // Awakened early?
                   if (rc == -1)
@@ -2917,7 +2917,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                     {
                       // sleepCPU uses a clock that is not guaranteed to be monotonic, and occasionally returns nowLeft > left.
                       // Don't run rTR backwards if that happens
-                      if (nowLeft < left) {
+                      if (nowLeft <= left) {
                         cpu.rTR = (word27) (left * 64 / 125);
                       }
                     }
@@ -4840,7 +4840,11 @@ void setupPROM (uint cpuNo, unsigned char * PROM) {
 # elif defined(__DragonFly__)
 #  define VER_H_PROM_TSV_TEXT "DragonFly BSD       "
 # elif defined(_AIX)
-#  define VER_H_PROM_TSV_TEXT "IBM AIX             "
+#  if !defined(__PASE__)
+#   define VER_H_PROM_TSV_TEXT "IBM AIX             "
+#  else
+#   define VER_H_PROM_TSV_TEXT "IBM OS/400 (PASE)   "
+#  endif
 # elif defined(__VXWORKS__) || defined(__VXWORKS) || defined(__vxworks) || defined(__vxworks__) || defined(_VxWorks)
 #  if !defined(__RTP__)
 #   define VER_H_PROM_TSV_TEXT "VxWorks             "

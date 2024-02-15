@@ -2575,6 +2575,7 @@ PVS-Studio:
     - Linux
     - Docker-x64
     - amd64
+    - AVX
   script:
     - export GLCICD_JOB="PVSStudioJob" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
     - *scriptDnfSetup
@@ -2594,10 +2595,13 @@ PVS-Studio:
     - env WITH_ABSI_DEV=1 WITH_MGP_DEV=1 WITH_SOCKET_DEV=1 bear -- gmake WITH_ABSI_DEV=1 WITH_MGP_DEV=1 WITH_SOCKET_DEV=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
     - ./src/dps8/dps8 --version
     - pvs-studio-analyzer analyze --intermodular -o log.pvs -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") || true
-    - plog-converter -a "GA:1,2" -t fullhtml log.pvs -o pvsreport -d V576,V629,V701,V768 || true
-    - mkdir -p pvsreport
+    - plog-converter -a "GA:1,2" -t fullhtml log.pvs -o pvsreport -d V576,V629,V701,V768 > pvs.txt 2>&1 || true
+    - cat pvs.txt || true
+    - grep -Eiq 'Exception. No valid messages' pvs.txt && { echo 'PASSED'; mkdir -p ./pvsreport; printf '%s\n' "Congratulations!" > ./pvsreport/index.html; } || true
+    - mkdir -p ./pvsreport
     - touch pvsreport/index.html
-    - grep -q 'PVS-Studio has not found any issues' pvsreport/index.html
+    - rm -f pvs.txt || true
+    - grep -q 'Congratulations!' pvsreport/index.html
   dependencies: []
   artifacts:
     when: always

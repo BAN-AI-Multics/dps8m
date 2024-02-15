@@ -143,8 +143,13 @@ if ((below_normal_above < -1) || (below_normal_above > 1))
     return SCPE_ARG;
 
 pthread_getschedparam (pthread_self(), &sched_policy, &sched_priority);
+#  if !defined(__PASE__)
 min_prio = sched_get_priority_min(sched_policy);
 max_prio = sched_get_priority_max(sched_policy);
+#  else
+min_prio = 1;
+max_prio = 127;
+#  endif /* if !defined(__PASE__) */
 switch (below_normal_above) {
     case PRIORITY_BELOW_NORMAL:
         sched_priority.sched_priority = min_prio;
@@ -280,14 +285,14 @@ sim_timespec_diff (struct timespec *diff, const struct timespec *min, struct tim
 /* Borrow as needed for the nsec value */
 while (sub->tv_nsec > diff->tv_nsec) {
     --diff->tv_sec;
-    diff->tv_nsec += 1000000000;
+    diff->tv_nsec += 1000000000L;
     }
 diff->tv_nsec -= sub->tv_nsec;
 diff->tv_sec -= sub->tv_sec;
 /* Normalize the result */
-while (diff->tv_nsec > 1000000000) {
+while (diff->tv_nsec > 1000000000L) {
     ++diff->tv_sec;
-    diff->tv_nsec -= 1000000000;
+    diff->tv_nsec -= 1000000000L;
     }
 }
 
@@ -723,19 +728,23 @@ sim_usleep(useconds_t tusleep)
 
   return 0;
 # else
+#  if !defined(__PASE__)
   struct timespec rqt;
-  rqt.tv_sec  = tusleep / 1000000;
-  rqt.tv_nsec = (tusleep % 1000000) * 1000;
+  rqt.tv_sec  = tusleep / 1000000L;
+  rqt.tv_nsec = (tusleep % 1000000L) * 1000L;
 
   return clock_nanosleep(CLOCK_MONOTONIC, 0, &rqt, NULL);
+#  else
+  return usleep(tusleep);
+#  endif /* if !defined(__PASE__) */
 # endif /* if !defined(__CYGWIN__) &&
             ( defined(_WIN32) || defined(__MINGW32__) || defined(__MINGW64__) ||
              defined(CROSS_MINGW32) || defined(CROSS_MINGW64) ) */
 #else
 # if defined(__APPLE__) && !defined(MACOSXPPC)
   struct timespec rqt;
-  rqt.tv_sec  = tusleep / 1000000;
-  rqt.tv_nsec = (tusleep % 1000000) * 1000;
+  rqt.tv_sec  = tusleep / 1000000L;
+  rqt.tv_nsec = (tusleep % 1000000L) * 1000L;
   return nanosleep(&rqt, NULL);
 # else
   return usleep(tusleep);
