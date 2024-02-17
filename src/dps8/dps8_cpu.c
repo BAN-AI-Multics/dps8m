@@ -765,9 +765,9 @@ static t_stat cpu_show_stall (UNUSED FILE * st, UNUSED UNIT * uptr,
       if (stall_points[i].segno || stall_points[i].offset)
         {
 #ifdef WIN_STDIO
-          sim_printf ("%2ld %05o:%06o %6lu\n",
+          sim_printf ("%2ld %05o:%06o %10lu\n",
 #else
-          sim_printf ("%2ld %05o:%06o %'6lu\n",
+          sim_printf ("%2ld %05o:%06o %'10lu\n",
 #endif
                  (long)i, stall_points[i].segno, stall_points[i].offset,
                  (unsigned long)stall_points[i].time);
