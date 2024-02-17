@@ -740,7 +740,7 @@ static t_stat cpu_set_kips (UNUSED UNIT * uptr, UNUSED int32 value,
     if (! cptr)
       return SCPE_ARG;
     int n = atoi (cptr);
-    if (n < 1 || n > 1000000)
+    if (n < 1 || n > 4000000)
       return SCPE_ARG;
     kips = (uint) n;
     luf_limits[0] =  2000*kips/1000;
@@ -764,8 +764,13 @@ static t_stat cpu_show_stall (UNUSED FILE * st, UNUSED UNIT * uptr,
     for (int i = 0; i < N_STALL_POINTS; i ++)
       if (stall_points[i].segno || stall_points[i].offset)
         {
-          sim_printf ("%2ld %05o:%06o %6lu\n", (long)i, stall_points[i].segno,
-                 stall_points[i].offset, (unsigned long)stall_points[i].time);
+#ifdef WIN_STDIO
+          sim_printf ("%2ld %05o:%06o %6lu\n",
+#else
+          sim_printf ("%2ld %05o:%06o %'6lu\n",
+#endif
+                 (long)i, stall_points[i].segno, stall_points[i].offset,
+                 (unsigned long)stall_points[i].time);
         }
     return SCPE_OK;
   }
@@ -806,7 +811,7 @@ static t_stat cpu_set_stall (UNUSED UNIT * uptr, UNUSED int32 value,
     t = strtol (end + 1, & end, 0);
     if (* end != 0)
       return SCPE_ARG;
-    if (t < 0 || t >= 1000000)
+    if (t < 0 || t > 30000000)
       return SCPE_ARG;
 
     stall_points[n].segno  = (word15) s;
