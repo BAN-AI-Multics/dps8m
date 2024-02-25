@@ -67,6 +67,11 @@ typedef struct { int64_t h;  uint64_t l; } x__int128_t;
 #  undef UCACHE_STATS
 # endif /* ifndef OLDAPP */
 
+// Shift/rotate instruction barrel shifter
+# ifndef BARREL_SHIFTER
+#  define BARREL_SHIFTER 1
+# endif
+
 //
 // Dependencies
 //

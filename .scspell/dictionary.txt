@@ -8817,6 +8817,7 @@ band
 banks
 banner
 bare
+barrel
 barrett
 barrier
 bars
@@ -12765,6 +12766,7 @@ shield
 shields
 shift
 shifted
+shifter
 shifting
 shifts
 ship
