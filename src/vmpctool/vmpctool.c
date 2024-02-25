@@ -60,6 +60,10 @@
 #define MAX_NUMBER_OF_FILENAME_FILTERS 1 * KiB + 1
 #define VBUFSIZ                        4 * KiB + 1
 
+#if !defined(_GNU_SOURCE)
+# define _GNU_SOURCE
+#endif
+
 #if defined( __linux__ ) || defined( __SVR4__ )
 # define _FILE_OFFSET_BITS 64
 # define _POSIX_SOURCE     1
@@ -69,7 +73,6 @@
 # endif /* ifdef _XOPEN_SOURCE */
 # define _DEFAULT_SOURCE   1
 # define _BSD_SOURCE       1
-# define _GNU_SOURCE       1
 #endif /* if defined( __linux__ ) || defined( __SVR4__ ) */
 
 #if defined ( __linux__ ) && defined ( __GNU_LIBRARY__ )
@@ -100,6 +103,9 @@
 #include <inttypes.h>
 #include <libgen.h>
 #include <limits.h>
+#if defined(__APPLE__)
+# include <xlocale.h>
+#endif
 #include <locale.h>
 #include <math.h>
 #include <search.h>
@@ -192,6 +198,59 @@
   } while(0)
 #endif /* ifdef TESTING */
 
+#undef XSTR_EMAXLEN
+#if defined(_POSIX_SSIZE_MAX)
+# define XSTR_EMAXLEN _POSIX_SSIZE_MAX
+#else
+# define XSTR_EMAXLEN 32767
+#endif
+
+static const char
+*xstrerror_l(int errnum)
+{
+  int saved = errno;
+  const char *ret = NULL;
+  static /* __thread */ char buf[XSTR_EMAXLEN];
+
+#if defined(__APPLE__) || defined(_AIX) || \
+      defined(__MINGW32__) || defined(__MINGW64__) || \
+        defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
+# if defined(__MINGW32__) || defined(__MINGW64__) || \
+        defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
+  if (strerror_s(buf, sizeof(buf), errnum) == 0) ret = buf; /*LINTOK: xstrerror_l*/
+# else
+  if (strerror_r(errnum, buf, sizeof(buf)) == 0) ret = buf; /*LINTOK: xstrerror_l*/
+# endif
+#else
+# if defined(__NetBSD__)
+  locale_t loc = LC_GLOBAL_LOCALE;
+# else
+  locale_t loc = uselocale((locale_t)0);
+# endif
+  locale_t copy = loc;
+  if (copy == LC_GLOBAL_LOCALE)
+    copy = duplocale(copy);
+
+  if (copy != (locale_t)0)
+    {
+      ret = strerror_l(errnum, copy); /*LINTOK: xstrerror_l*/
+      if (loc == LC_GLOBAL_LOCALE)
+        {
+          freelocale(copy);
+        }
+    }
+#endif
+
+  if (!ret)
+    {
+      (void)snprintf(buf, sizeof(buf), "Unknown error %d", errnum);
+      ret = buf;
+    }
+
+  errno = saved;
+  return ret;
+}
+
 struct dev_and_inode
 {
   dev_t dev;
@@ -242,7 +301,7 @@ send_exit_signal(char code)
         {
           (void)fprintf(stderr,
             "%s: write: %s (error %d)",
-            __func__, strerror(errno), errno);
+            __func__, xstrerror_l(errno), errno);
         }
     }
 }
@@ -324,7 +383,7 @@ reopen_all(void)
     {
       fatal(
         "%s:%d: freopen failed\r\n       -> %s (error %d)",
-        __func__, __LINE__, strerror(errno), errno);
+        __func__, __LINE__, xstrerror_l(errno), errno);
       /* NOTREACHED */
       _Exit(1);
     }
@@ -350,7 +409,7 @@ wait_for_child(void)
         {
           fatal(
             "%s:%d: select failed\r\n       -> %s (error %d)",
-            __func__, __LINE__, strerror(errno), errno);
+            __func__, __LINE__, xstrerror_l(errno), errno);
           /* NOTREACHED */
           _Exit(1);
         }
@@ -374,7 +433,7 @@ wait_for_child(void)
     {
       fatal(
         "%s:%d: read failure\r\n       -> %s (error %d)",
-        __func__, __LINE__, strerror(errno), errno);
+        __func__, __LINE__, xstrerror_l(errno), errno);
       /* NOTREACHED */
       _Exit(1);
     }
@@ -390,7 +449,7 @@ go_daemon(void)
     {
       fatal(
         "%s:%d: fork failure\r\n       -> %s (error %d)",
-        __func__, __LINE__, strerror(errno), errno);
+        __func__, __LINE__, xstrerror_l(errno), errno);
       /* NOTREACHED */
       _Exit(1);
     }
@@ -408,7 +467,7 @@ go_daemon(void)
     {
       fatal(
         "%s:%d: setsid failure\r\n       -> %s (error %d)",
-        __func__, __LINE__, strerror(errno), errno);
+        __func__, __LINE__, xstrerror_l(errno), errno);
       /* NOTREACHED */
       _Exit(1);
     }
@@ -712,7 +771,7 @@ increment_nofile_rlimit(void)
     {
       fatal(
         "%s:%d: increment_nofile_rlimit: getrlimit failed\r\n       -> %s (error %d)",
-        __func__, __LINE__, strerror(errno), errno);
+        __func__, __LINE__, xstrerror_l(errno), errno);
       /* NOTREACHED */
       _Exit(1);
     }
@@ -728,21 +787,21 @@ increment_nofile_rlimit(void)
             {
               fatal(
                 "%s:%d: system file limit reached\r\n       -> %s (error %d)",
-                __func__, __LINE__, strerror(errno), errno);
+                __func__, __LINE__, xstrerror_l(errno), errno);
               /* NOTREACHED */
               exit(errno);
             }
 
           fatal(
             "%s:%d: user file limit reached\r\n       -> %s (error %d)",
-            __func__, __LINE__, strerror(errno), errno);
+            __func__, __LINE__, xstrerror_l(errno), errno);
           /* NOTREACHED */
           exit(errno);
         }
 
       fatal(
         "%s:%d: increment_nofile_rlimit: setrlimit failed\r\n       -> %s (error %d)",
-        __func__, __LINE__, strerror(errno), errno);
+        __func__, __LINE__, xstrerror_l(errno), errno);
       /* NOTREACHED */
       exit(errno);
     }
@@ -761,7 +820,7 @@ gettimeofday_as_double(void)
         {
           fatal(
             "%s:%d: gettimeofday failure\r\n       -> %s (error %d)",
-            __func__, __LINE__, strerror(errno), errno);
+            __func__, __LINE__, xstrerror_l(errno), errno);
           /* NOTREACHED */
           exit(errno);
         }
@@ -981,7 +1040,7 @@ retry_open:
 
       warning(
         "%s:%d: unable to open %s\r\n      -> %s (error %d)",
-        __func__, __LINE__, path, strerror(errno), errno);
+        __func__, __LINE__, path, xstrerror_l(errno), errno);
       goto bail;
     }
 
@@ -991,7 +1050,7 @@ retry_open:
     {
       warning(
         "%s:%d: unable to fstat %s\r\n      -> %s (error %d)",
-        __func__, __LINE__, path, strerror(errno), errno);
+        __func__, __LINE__, path, xstrerror_l(errno), errno);
       goto bail;
     }
 
@@ -1002,7 +1061,7 @@ retry_open:
         {
           warning(
             "%s:%d: unable to ioctl %s\r\n      -> %s (error %d)",
-            __func__, __LINE__, path, strerror(errno), errno);
+            __func__, __LINE__, path, xstrerror_l(errno), errno);
           goto bail;
         }
 
@@ -1056,7 +1115,7 @@ retry_open:
     {
       warning(
         "%s:%d: unable to mmap file %s\r\n      -> %s (error %d)",
-        __func__, __LINE__, path, strerror(errno), errno);
+        __func__, __LINE__, path, xstrerror_l(errno), errno);
       goto bail;
     }
 
@@ -1088,7 +1147,7 @@ retry_open:
         {
           warning(
             "%s:%d: unable to posix_fadvise file %s\r\n      -> %s (error %d)",
-            __func__, __LINE__, path, strerror(errno), errno);
+            __func__, __LINE__, path, xstrerror_l(errno), errno);
         }
 # endif /* ifdef POSIX_FADV_DONTNEED */
 
@@ -1098,7 +1157,7 @@ retry_open:
         {
           warning(
             "%s:%d: unable to msync invalidate file %s\r\n      -> %s (error %d)",
-            __func__, __LINE__, path, strerror(errno), errno);
+            __func__, __LINE__, path, xstrerror_l(errno), errno);
         }
 
 #else  /* if defined( __linux__ ) */
@@ -1115,7 +1174,7 @@ retry_open:
         {
           fatal(
             "%s:%d: failed to malloc mincore\r\n       -> %s (error %d)",
-            __func__, __LINE__, strerror(errno), errno);
+            __func__, __LINE__, xstrerror_l(errno), errno);
           /* NOTREACHED */
           exit(errno);
         }
@@ -1124,7 +1183,7 @@ retry_open:
         {
           fatal(
             "%s:%d: mincore failed for %s\r\n       -> %s (error %d)",
-            __func__, __LINE__, path, strerror(errno), errno);
+            __func__, __LINE__, path, xstrerror_l(errno), errno);
           /* NOTREACHED */
           _Exit(1);
         }
@@ -1213,7 +1272,7 @@ retry_open:
         {
           fatal(
             "%s:%d: mlock failed for %s\r\n       -> %s (error %d)",
-            __func__, __LINE__, path, strerror(errno), errno);
+            __func__, __LINE__, path, xstrerror_l(errno), errno);
           /* NOTREACHED */
           exit(errno);
         }
@@ -1226,7 +1285,7 @@ bail:
         {
           warning(
             "%s:%d: unable to munmap file %s\r\n      -> %s (error %d)",
-            __func__, __LINE__, path, strerror(errno), errno);
+            __func__, __LINE__, path, xstrerror_l(errno), errno);
         }
     }
 
@@ -1392,7 +1451,7 @@ vmpc_rdir(char *path)
     {
       warning(
         "%s:%d: unable to stat %s\r\n      -> %s (error %d)",
-        __func__, __LINE__, path, strerror(errno), errno);
+        __func__, __LINE__, path, xstrerror_l(errno), errno);
       return;
     }
   else
@@ -1469,7 +1528,7 @@ retry_opendir:
 
               warning(
                 "%s:%d: unable to opendir %s\r\n      -> %s (error %d)",
-                __func__, __LINE__, path, strerror(errno), errno);
+                __func__, __LINE__, path, xstrerror_l(errno), errno);
               return;
             }
 
@@ -1498,7 +1557,7 @@ bail:
             {
               warning(
                 "%s:%d: unable to closedir %s\r\n      -> %s (error %d)",
-                __func__, __LINE__, path, strerror(errno), errno);
+                __func__, __LINE__, path, xstrerror_l(errno), errno);
               return;
             }
         }
@@ -1623,7 +1682,7 @@ vmpc_batch_crawl(const char *path)
         {
           warning(
             "%s:%d: unable to open %s\r\n      -> %s (error %d)",
-            __func__, __LINE__, path, strerror(errno), errno);
+            __func__, __LINE__, path, xstrerror_l(errno), errno);
           return;
         }
     }
@@ -1656,7 +1715,7 @@ remove_pidfile(void)
     {
       warning(
         "%s:%d: unable to remove pidfile %s\r\n      -> %s (error %d)",
-        __func__, __LINE__, o_pidfile, strerror(errno), errno);
+        __func__, __LINE__, o_pidfile, xstrerror_l(errno), errno);
     }
 }
 
@@ -1671,7 +1730,7 @@ write_pidfile(void)
     {
       warning(
         "%s:%d: unable to open pidfile %s\r\n      -> %s (error %d)",
-        __func__, __LINE__, o_pidfile, strerror(errno), errno);
+        __func__, __LINE__, o_pidfile, xstrerror_l(errno), errno);
       return;
     }
 
@@ -1683,7 +1742,7 @@ write_pidfile(void)
     {
       warning(
         "%s:%d: unable to write pidfile %s\r\n      -> %s (error %d)",
-        __func__, __LINE__, o_pidfile, strerror(errno), errno);
+        __func__, __LINE__, o_pidfile, xstrerror_l(errno), errno);
       remove_pidfile();
     }
 }
@@ -1699,7 +1758,7 @@ static void
 register_signals_for_pidfile(void)
 {
   struct sigaction sa;;
-  memset( &sa, 0, sizeof(sa) );
+  (void)memset( &sa, 0, sizeof(sa) );
 
   sa.sa_handler = signal_handler_clear_pidfile;
   if (sigaction(SIGINT, &sa, NULL) < 0 || sigaction(SIGTERM, &sa, NULL) < 0
@@ -1707,7 +1766,7 @@ register_signals_for_pidfile(void)
     {
       warning(
         "%s:%d: unable to register signal handler\r\n      -> %s (error %d)",
-        __func__, __LINE__, strerror(errno), errno);
+        __func__, __LINE__, xstrerror_l(errno), errno);
     }
 }
 
@@ -1719,13 +1778,13 @@ main(int argc, char **argv)
   struct timeval start_time;
   struct timeval end_time;
 
-  setlocale(LC_NUMERIC, "");
+  (void)setlocale(LC_ALL, "");
 
   if (pipe(exit_pipe))
     {
       fatal(
         "%s:%d: pipe failure\r\n       -> %s (error %d)",
-        __func__, __LINE__, strerror(errno), errno);
+        __func__, __LINE__, xstrerror_l(errno), errno);
       /* NOTREACHED */
       exit(errno);
     }
@@ -1945,7 +2004,7 @@ main(int argc, char **argv)
           fatal(
             "%s:%d: gettimeofday failure\r\n       -> %s (error %d)",
             __func__, __LINE__,
-            strerror(errno),
+            xstrerror_l(errno),
             errno);
           /* NOTREACHED */
           exit(errno);
@@ -1977,7 +2036,7 @@ main(int argc, char **argv)
           fatal(
             "%s:%d: gettimeofday failure\r\n       -> %s (error %d)",
             __func__, __LINE__,
-            strerror(errno),
+            xstrerror_l(errno),
             errno);
           /* NOTREACHED */
           exit(errno);
@@ -2008,7 +2067,7 @@ main(int argc, char **argv)
               fatal(
                 "%s:%d: unable to mlockall\r\n       -> %s (error %d)",
                 __func__, __LINE__,
-                strerror(errno),
+                xstrerror_l(errno),
                 errno);
               /* NOTREACHED */
               exit(errno);

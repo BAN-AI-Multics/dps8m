@@ -45,8 +45,15 @@
  * carries a more liberal license.
  */
 
+#if !defined(_GNU_SOURCE)
+# define _GNU_SOURCE
+#endif
+
 #include <stdlib.h>
 #include <getopt.h>
+#if defined(__APPLE__)
+# include <xlocale.h>
+#endif
 #include <locale.h>
 
 #include "unifdef.h"
@@ -243,6 +250,59 @@ static const char   *xstrdup                (const char *, const char *);
 
 #define endsym(c) ( !isalnum((unsigned char)c) && c != '_' )
 
+#undef XSTR_EMAXLEN
+#if defined(_POSIX_SSIZE_MAX)
+# define XSTR_EMAXLEN _POSIX_SSIZE_MAX
+#else
+# define XSTR_EMAXLEN 32767
+#endif
+
+static const char
+*xstrerror_l(int errnum)
+{
+  int saved = errno;
+  const char *ret = NULL;
+  static /* __thread */ char buf[XSTR_EMAXLEN];
+
+#if defined(__APPLE__) || defined(_AIX) || \
+      defined(__MINGW32__) || defined(__MINGW64__) || \
+        defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
+# if defined(__MINGW32__) || defined(__MINGW64__) || \
+        defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
+  if (strerror_s(buf, sizeof(buf), errnum) == 0) ret = buf; /*LINTOK: xstrerror_l*/
+# else
+  if (strerror_r(errnum, buf, sizeof(buf)) == 0) ret = buf; /*LINTOK: xstrerror_l*/
+# endif
+#else
+# if defined(__NetBSD__)
+  locale_t loc = LC_GLOBAL_LOCALE;
+# else
+  locale_t loc = uselocale((locale_t)0);
+# endif
+  locale_t copy = loc;
+  if (copy == LC_GLOBAL_LOCALE)
+    copy = duplocale(copy);
+
+  if (copy != (locale_t)0)
+    {
+      ret = strerror_l(errnum, copy); /*LINTOK: xstrerror_l*/
+      if (loc == LC_GLOBAL_LOCALE)
+        {
+          freelocale(copy);
+        }
+    }
+#endif
+
+  if (!ret)
+    {
+      (void)snprintf(buf, sizeof(buf), "Unknown error %d", errnum);
+      ret = buf;
+    }
+
+  errno = saved;
+  return ret;
+}
+
 /*
  * The main program.
  */
@@ -250,7 +310,7 @@ static const char   *xstrdup                (const char *, const char *);
 int
 main(int argc, char *argv[])
 {
-  setlocale(LC_NUMERIC, "");
+  (void)setlocale(LC_ALL, "");
 
   int opt;
 
@@ -495,7 +555,7 @@ processinout(const char *ifn, const char *ofn)
       input    = fopen(ifn, "rb");
       if (input == NULL)
         {
-          (void)fprintf(stderr, "ERROR: can't open %s\n", ifn);
+          (void)fprintf(stderr, "ERROR: can't open %s: %s (Error %d)\n", ifn, xstrerror_l(errno), errno);
           exit(1);
         }
     }
@@ -513,7 +573,7 @@ processinout(const char *ifn, const char *ofn)
       output = fopen(ofn, "wb");
       if (output == NULL)
         {
-          (void)fprintf(stderr, "ERROR: can't create %s\n", ofn);
+          (void)fprintf(stderr, "ERROR: can't create %s: %s (Error %d)\n", ofn, xstrerror_l(errno), errno);
           exit(1);
         }
 
@@ -527,7 +587,7 @@ processinout(const char *ifn, const char *ofn)
 
   if (output == NULL)
     {
-      (void)fprintf(stderr, "ERROR: can't create %s\n", tempname);
+      (void)fprintf(stderr, "ERROR: can't create %s: %s (Error %d)s\n", tempname, xstrerror_l(errno), errno);
       exit(1);
     }
 
@@ -539,7 +599,7 @@ processinout(const char *ifn, const char *ofn)
       // deepcode ignore PathTraversal: vendored BSD code, not untrusted
       if (rename(ofn, backname) < 0)
         {
-          (void)fprintf(stderr, "ERROR: can't rename \"%s\" to \"%s\"\n", ofn, backname);
+          (void)fprintf(stderr, "ERROR: can't rename \"%s\" to \"%s\": %s (Error %d)\n", ofn, backname, xstrerror_l(errno), errno);
           exit(1);
         }
 
@@ -552,12 +612,12 @@ processinout(const char *ifn, const char *ofn)
     {
       if (remove(tempname) < 0)
         {
-          (void)fprintf(stderr, "WARNING: can't remove \"%s\"\n", tempname);
+          (void)fprintf(stderr, "WARNING: can't remove \"%s\": %s (Error %d)\n", tempname, xstrerror_l(errno), errno);
         }
     }
   else if (replace(tempname, ofn) < 0)
     {
-      (void)fprintf(stderr, "ERROR: can't rename \"%s\" to \"%s\"\n", tempname, ofn);
+      (void)fprintf(stderr, "ERROR: can't rename \"%s\" to \"%s\": %s (Error %d)\n", tempname, ofn, xstrerror_l(errno), errno);
       exit(1);
     }
 
@@ -1241,7 +1301,7 @@ closeio(void)
 
   if (output != NULL && ( ferror(output) || fclose(output) == EOF ))
    {
-      (void)fprintf(stderr, "ERROR: %s: can't write to output\n", filename);
+      (void)fprintf(stderr, "ERROR: %s: can't write to output: %s (Error %d)\n", filename, xstrerror_l(errno), errno);
       exit(1);
    }
 
@@ -1406,7 +1466,7 @@ parseline(void)
         {
           if (ferror(input))
             {
-              (void)fprintf(stderr, "ERROR: can't read %s\n", filename);
+              (void)fprintf(stderr, "ERROR: can't read %s: %s (Error %d)\n", filename, xstrerror_l(errno), errno);
               exit(1);
             }
 
@@ -1898,7 +1958,7 @@ skiphash(void)
     {
       if (ferror(input))
         {
-          (void)fprintf(stderr, "ERROR: can't read %s\n", filename);
+          (void)fprintf(stderr, "ERROR: can't read %s: %s (Error %d)\n", filename, xstrerror_l(errno), errno);
           exit(1);
         }
       else
@@ -2430,7 +2490,7 @@ defundefile(const char *fn)
 
   if (input == NULL)
     {
-      (void)fprintf(stderr, "ERROR: can't open %s\n", fn);
+      (void)fprintf(stderr, "ERROR: can't open %s: %s (Error %d)\n", fn, xstrerror_l(errno), errno);
       exit(1);
     }
 
@@ -2443,7 +2503,7 @@ defundefile(const char *fn)
 
   if (ferror(input))
     {
-      (void)fprintf(stderr, "ERROR: can't read %s\n", filename);
+      (void)fprintf(stderr, "ERROR: can't read %s: %s (Error %d)\n", filename, xstrerror_l(errno), errno);
       exit(1);
     }
   else

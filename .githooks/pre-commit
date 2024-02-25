@@ -132,6 +132,17 @@ printf "%s\n" "${TLIST:-}" | grep -v '^$' 2> /dev/null | grep . >&2 &&
 
 ####################################################################################################
 
+${DEBUG_CALL:?} Checking for strerror misuse in C source code files ...
+TLIST="$(${HOOK_CALL:?} | grep '\.[ch]$' | xargs -L 1 -I{} \
+  grep -HEn 'strerror' "{}" 2> /dev/null | \
+    grep -Ev '(xstrerror_l|uv_strerror|LINTOK )' 2> /dev/null || true 2> /dev/null)";
+printf "%s\n" "${TLIST:-}" | grep -v '^$' 2> /dev/null | grep . >&2 &&
+  {
+    printf '%s\n' "ERROR: strerror check failed!" >&2;
+    exit "${EXIT_STATUS:-1}";
+  }
+####################################################################################################
+
 ${DEBUG_CALL:?} Checking for trailing whitespace ...
 TLIST="$(${HOOK_CALL:?} | grep -Ev '(mcmb$|unifdef$|tags$|vmpctool$|prt2pdf$|GRTAGS$|GTAGS$)' |
  grep -Ev '(punutil$|dps8$|l68$|empty$|\.out$|\.tmp$|~$|\.exe$|\.dll$|\.o$|core$|\.git/.)' |

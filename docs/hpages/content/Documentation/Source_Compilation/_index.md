@@ -1125,13 +1125,13 @@ Examples of building the simulator on **Linux** using various popular compilers 
 
 #### NVIDIA HPC SDK C Compiler
 
-* Build the simulator using **NVIDIA HPC SDK C Compiler** (**NVC**), version 23.11, for Linux/**x86_64** (also available for Linux/**ARM64** and Linux/**OpenPOWER**):
+* Build the simulator using **NVIDIA HPC SDK C Compiler** (**NVC**), version 24.1, for Linux/**x86_64** (also available for Linux/**ARM64** and Linux/**OpenPOWER**):
 
   ```sh
-  export NVCVER="23.11" &&                                            \
+  export NVCVER="24.1" &&                                             \
   export NVCPATH="/opt/nvidia/hpc_sdk/Linux_x86_64/${NVCVER}/bin" &&  \
   env CFLAGS="-noswitcherror" CC="${NVCPATH}/nvc" NO_LTO=1            \
-    make OPTFLAGS="-fast -O4 -Mipa=fast,inline"
+    make OPTFLAGS="-fast -O4"
   ```
 
   * The **NVIDIA HPC SDK C Compiler** is the successor to the **PGI C Compiler** product. If you are using the earlier **PGI C Compiler** (**PGCC**), adjust paths appropriately, and replace '**`nvc`**' with '**`pgcc`**' in the above invocation.

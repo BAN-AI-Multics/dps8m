@@ -106,5 +106,6 @@ SOCKET sim_err_sock (SOCKET sock, const char *emsg);
 int sim_getnames_sock (SOCKET sock, char **socknamebuf, char **peernamebuf);
 void sim_init_sock (void);
 void sim_cleanup_sock (void);
+extern const char *xstrerror_l(int errnum);
 
 #endif

@@ -35,6 +35,10 @@
  * ----------------------------------------------------------------------------
  */
 
+#if !defined(_GNU_SOURCE)
+# define _GNU_SOURCE
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -50,6 +54,7 @@
 # include <sys/ptrace.h>
 # include <sys/reg.h>
 # include <sys/wait.h>
+# include <locale.h>
 
 static void
 removeVDSO(int pid)
@@ -135,6 +140,59 @@ traceProcess(int pid)
   return (exitStatus);
 }
 
+# undef XSTR_EMAXLEN
+# if defined(_POSIX_SSIZE_MAX)
+#  define XSTR_EMAXLEN _POSIX_SSIZE_MAX
+# else
+#  define XSTR_EMAXLEN 32767
+# endif
+
+static const char
+*xstrerror_l(int errnum)
+{
+  int saved = errno;
+  const char *ret = NULL;
+  static /* __thread */ char buf[XSTR_EMAXLEN];
+
+# if defined(__APPLE__) || defined(_AIX) || \
+      defined(__MINGW32__) || defined(__MINGW64__) || \
+        defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
+#  if defined(__MINGW32__) || defined(__MINGW64__) || \
+        defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
+  if (strerror_s(buf, sizeof(buf), errnum) == 0) ret = buf; /*LINTOK: xstrerror_l*/
+#  else
+  if (strerror_r(errnum, buf, sizeof(buf)) == 0) ret = buf; /*LINTOK: xstrerror_l*/
+#  endif
+# else
+#  if defined(__NetBSD__)
+  locale_t loc = LC_GLOBAL_LOCALE;
+#  else
+  locale_t loc = uselocale((locale_t)0);
+#  endif
+  locale_t copy = loc;
+  if (copy == LC_GLOBAL_LOCALE)
+    copy = duplocale(copy);
+
+  if (copy != (locale_t)0)
+    {
+      ret = strerror_l(errnum, copy); /*LINTOK: xstrerror_l*/
+      if (loc == LC_GLOBAL_LOCALE)
+        {
+          freelocale(copy);
+        }
+    }
+# endif
+
+  if (!ret)
+    {
+      (void)snprintf(buf, sizeof(buf), "Unknown error %d", errnum);
+      ret = buf;
+    }
+
+  errno = saved;
+  return ret;
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -162,7 +220,7 @@ main(int argc, char *argv[])
       (void)kill(getpid(), SIGSTOP);
       if (execvp(myfile, myargv))
         {
-          (void)fprintf(stderr, "\r%s: %s\r\n", myfile, strerror(errno));
+          (void)fprintf(stderr, "\r%s: %s (%d)\r\n", myfile, xstrerror_l(errno), errno);
         }
     }
   else

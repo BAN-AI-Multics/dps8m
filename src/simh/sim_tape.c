@@ -1821,7 +1821,7 @@ return ((uptr->flags & MTUF_WRP) || (MT_GET_FMT (uptr) == MTUF_F_TPC))? TRUE: FA
 
 static t_stat sim_tape_ioerr (UNIT *uptr)
 {
-sim_printf ("%s: Magtape library I/O error: %s\n", sim_uname (uptr), strerror (errno));
+sim_printf ("%s: Magtape library I/O error: %s (Error %d)\r\n", sim_uname (uptr), xstrerror_l(errno), errno);
 clearerr (uptr->fileref);
 return MTSE_IOERR;
 }

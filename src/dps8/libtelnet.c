@@ -295,7 +295,7 @@ static __inline__ void _set_rfc1143(telnet_t *telnet, unsigned char telopt,
                if ((qtmp = (telnet_rfc1143_t *)realloc(telnet->q,
                        sizeof(telnet_rfc1143_t) * (telnet->q_size + QUANTUM))) == 0) {
                        _error(telnet, __LINE__, __func__, TELNET_ENOMEM, 0,
-                                       "realloc() failed: %s", strerror(errno));
+                                       "realloc() failed: %s", xstrerror_l(errno));
                        return;
                }
                memset(&qtmp[telnet->q_size], 0, sizeof(telnet_rfc1143_t) * QUANTUM);
@@ -546,7 +546,7 @@ static int _environ_telnet(telnet_t *telnet, unsigned char type,
         if ((values = (struct telnet_environ_t *)calloc(count,
                         sizeof(struct telnet_environ_t))) == 0) {
                 _error(telnet, __LINE__, __func__, TELNET_ENOMEM, 0,
-                                "calloc() failed: %s", strerror(errno));
+                                "calloc() failed: %s", xstrerror_l(errno));
                 return 0;
         }
 
@@ -646,7 +646,7 @@ static int _ttype_telnet(telnet_t *telnet, const char* buffer, size_t size) {
                 /* allocate space for name */
                 if ((name = (char *)malloc(size)) == 0) {
                         _error(telnet, __LINE__, __func__, TELNET_ENOMEM, 0,
-                                        "malloc() failed: %s", strerror(errno));
+                                        "malloc() failed: %s", xstrerror_l(errno));
                         return 0;
                 }
                 memcpy(name, buffer + 1, size - 1);
@@ -1164,7 +1164,7 @@ int telnet_vprintf(telnet_t *telnet, const char *fmt, va_list va) {
                 output = (char*)malloc((unsigned long) ((unsigned long)rs + 1L));
                 if (output == 0) {
                         _error(telnet, __LINE__, __func__, TELNET_ENOMEM, 0,
-                                        "malloc() failed: %s", strerror(errno));
+                                        "malloc() failed: %s", xstrerror_l(errno));
                         va_end(va2);
                         return -1;
                 }
@@ -1234,7 +1234,7 @@ int telnet_raw_vprintf(telnet_t *telnet, const char *fmt, va_list va) {
                 output = (char*)malloc((unsigned long) rs + 1);
                 if (output == 0) {
                         _error(telnet, __LINE__, __func__, TELNET_ENOMEM, 0,
-                                        "malloc() failed: %s", strerror(errno));
+                                        "malloc() failed: %s", xstrerror_l(errno));
                         va_end(va2);
                         return -1;
                 }

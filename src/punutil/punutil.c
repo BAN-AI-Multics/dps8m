@@ -15,12 +15,19 @@
 
 //-V::1048
 
+#if !defined(_GNU_SOURCE)
+# define _GNU_SOURCE
+#endif
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <unistd.h>
 #include <stdbool.h>
+#if defined(__APPLE__)
+# include <xlocale.h>
+#endif
 #include <locale.h>
 #ifdef _AIX
 # ifndef USE_POPT
@@ -1362,7 +1369,7 @@ static void dump_raw(FILE *out_file)
 
 int main(int argc, char *argv[])
 {
-    setlocale(LC_NUMERIC, "");
+    (void)setlocale(LC_ALL, "");
 
     fprintf(stderr, "****\nPunch File Utility\n****\n");
 

@@ -4565,7 +4565,7 @@ static void dps8_init (void) {
     int svErrno = errno;
     fflush(stderr); fflush(stdout);
     sim_warn ("\rFATAL: %s: aborting at %s[%s:%d]\r\n",
-              strerror (svErrno),
+              xstrerror_l(svErrno),
               __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
 # ifdef SIGUSR2

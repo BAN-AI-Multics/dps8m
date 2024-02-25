@@ -1852,7 +1852,7 @@ static t_stat prt_show_path (UNUSED FILE * st, UNUSED UNUSED UNIT * uptr,
             if (errno)
               {
                 sim_printf("Path to PRT files is unavailable (%s)\n",
-                           strerror(errno));
+                           xstrerror_l(errno));
               }
             else
               {

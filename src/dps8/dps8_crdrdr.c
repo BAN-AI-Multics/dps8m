@@ -822,7 +822,7 @@ static void scanForCards(uint16 readerIndex)
 
         if (stat(fqname, &info) != 0)
           {
-            sim_warn("crdrdr: scanForCards stat() error for %s: %s\n", fqname, strerror(errno));
+            sim_warn("crdrdr: scanForCards stat() error for %s: %s\n", fqname, xstrerror_l(errno));
             continue;
           }
 

@@ -1148,7 +1148,7 @@ mgp_init_dev_state(void)
   if (pipe(status_conns) < 0)
     {
       sim_printf("%s: error from pipe(): %s (%d)\n",
-                 __func__, strerror(errno), errno);
+                 __func__, xstrerror_l(errno), errno);
     }
 
   // Init randomness
@@ -1292,7 +1292,7 @@ cbridge_open_socket(void)
     {
       // Check for "out of sockets" or similar?
       sim_printf("%s: socket(AF_UNIX) error: %s (%d)",
-                 __func__, strerror(errno), errno); // @@@@ handle error better?
+                 __func__, xstrerror_l(errno), errno); // @@@@ handle error better?
 
       return sock;
     }
@@ -1304,7 +1304,7 @@ cbridge_open_socket(void)
   if (connect(sock, (struct sockaddr *)&server, slen) < 0)
     {
       sim_printf("%s: connect(%s) error: %s (%d)", __func__,
-                 server.sun_path, strerror(errno), errno);
+                 server.sun_path, xstrerror_l(errno), errno);
       // @@@@ let the device go down, instead
       close(sock);
       sock = 0;
@@ -1357,13 +1357,13 @@ cbridge_send_packet(int i, u_char *pkt, int len)
        || ( errno == EPIPE      ))
         {
           sim_printf("%s: socket seems to have closed: %s\n",
-                     __func__, strerror(errno));
+                     __func__, xstrerror_l(errno));
           close_conn(i);
         }
       else
         {
           sim_warn("%s: socket write error: %s (%d)\n",
-                   __func__, strerror(errno), errno);
+                   __func__, xstrerror_l(errno), errno);
         }
     }
   else if (x != len)
@@ -1626,7 +1626,7 @@ handle_mgp_packet(word36 *buf, uint words)
             {
               sim_printf(
                   "%s: write() on status_conns failed: %s (%d)\n",
-                  __func__, strerror(errno), errno);
+                  __func__, xstrerror_l(errno), errno);
               status_conns[1] = status_conns[0] = 0;
             }
         }
@@ -1671,7 +1671,7 @@ handle_mgp_packet(word36 *buf, uint words)
                 if (write(status_conns[1], b, 1) < 0)
                   {
                     sim_printf("%s: write() on status_conns failed: %s (%d)\n",
-                               __func__, strerror(errno), errno);
+                               __func__, xstrerror_l(errno), errno);
                     status_conns[1] = status_conns[0] = 0;
                   }
               }
@@ -2024,7 +2024,7 @@ poll_from_cbridge(word36 *buf, uint words, uint probe_only)
                 {
                   sim_printf(
                        "%s: select() error, maxfd %d, numfds %d: %s (%d)\n",
-                       __func__, maxfd, numfds, strerror(errno), errno);
+                       __func__, maxfd, numfds, xstrerror_l(errno), errno);
                 }
 
               return -1;
@@ -2044,7 +2044,7 @@ poll_from_cbridge(word36 *buf, uint words, uint probe_only)
                   if (s < 0)
                     {
                       sim_warn("%s: read on status_conns failed: %s (%d)\n",
-                               __func__, strerror(errno), errno);
+                               __func__, xstrerror_l(errno), errno);
                       status_conns[0] = status_conns[1] = 0;
                     }
                   else if (s == 0)
@@ -2077,7 +2077,7 @@ poll_from_cbridge(word36 *buf, uint words, uint probe_only)
                           // @@@@ handle error, socket closed, pass on to Multics
                           sim_printf(
                               "%s: read() header error for conn %d: %s (%d)\n",
-                              __func__, i, strerror(errno), errno);
+                              __func__, i, xstrerror_l(errno), errno);
                           FD_CLR(mgp_dev_state.conns[i].skt, &rfd);
                           numfds--;
                           close_conn(i);
@@ -2130,7 +2130,7 @@ poll_from_cbridge(word36 *buf, uint words, uint probe_only)
                           // @@@@ handle error, socket closed, pass on to Multics
                           sim_printf(
                                "%s: read() body error for conn %d: %s (%d)\n",
-                               __func__, i, strerror(errno), errno);
+                               __func__, i, xstrerror_l(errno), errno);
                           FD_CLR(mgp_dev_state.conns[i].skt, &rfd);
                           numfds--;
                           close_conn(i);

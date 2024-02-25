@@ -1987,6 +1987,7 @@ static inline void trackport (word24 a, word36 d)
 #endif
 
 #if defined(SPEED) && defined(INLINE_CORE)
+# error INLINE_CORE has known issues.
 // Ugh. Circular dependencies XXX
 void doFault (_fault faultNumber, _fault_subtype faultSubtype,
               const char * faultMsg) NO_RETURN;

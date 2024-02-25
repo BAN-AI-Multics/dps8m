@@ -40,6 +40,10 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // scspell-id: 8a648643-f630-11ec-afc6-80ee73e9b8e7
 
+#if !defined(_GNU_SOURCE)
+# define _GNU_SOURCE
+#endif
+
 #if defined(__GLIBC__)
 # if !defined(_DEFAULT_SOURCE)
 #  define _DEFAULT_SOURCE
@@ -153,7 +157,7 @@ static struct sembuf free_sem = {
 int
 main(int argc, char *argv[])
 {
-  setlocale(LC_NUMERIC, "");
+  (void)setlocale(LC_ALL, "");
   struct winsize win;
   struct termios tt;
   int i, bl, cc, n, ch;
