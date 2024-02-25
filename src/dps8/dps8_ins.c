@@ -62,6 +62,40 @@ static int doABSA (word36 * result);
 static t_stat doInstruction (void);
 static int emCall (void);
 
+#if BARREL_SHIFTER
+static word36 barrelLeftMaskTable[37] = {
+              0000000000000ull,
+              0400000000000ull, 0600000000000ull, 0700000000000ull,
+              0740000000000ull, 0760000000000ull, 0770000000000ull,
+              0774000000000ull, 0776000000000ull, 0777000000000ull,
+              0777400000000ull, 0777600000000ull, 0777700000000ull,
+              0777740000000ull, 0777760000000ull, 0777770000000ull,
+              0777774000000ull, 0777776000000ull, 0777777000000ull,
+              0777777400000ull, 0777777600000ull, 0777777700000ull,
+              0777777740000ull, 0777777760000ull, 0777777770000ull,
+              0777777774000ull, 0777777776000ull, 0777777777000ull,
+              0777777777400ull, 0777777777600ull, 0777777777700ull,
+              0777777777740ull, 0777777777760ull, 0777777777770ull,
+              0777777777774ull, 0777777777776ull, 0777777777777ull
+            };
+static word36 barrelRightMaskTable[37] = {
+              0000000000000ull,
+              0000000000001ull, 0000000000003ull, 0000000000007ull,
+              0000000000017ull, 0000000000037ull, 0000000000077ull,
+              0000000000177ull, 0000000000377ull, 0000000000777ull,
+              0000000001777ull, 0000000003777ull, 0000000007777ull,
+              0000000017777ull, 0000000037777ull, 0000000077777ull,
+              0000000177777ull, 0000000377777ull, 0000000777777ull,
+              0000001777777ull, 0000003777777ull, 0000007777777ull,
+              0000017777777ull, 0000037777777ull, 0000077777777ull,
+              0000177777777ull, 0000377777777ull, 0000777777777ull,
+              0001777777777ull, 0003777777777ull, 0007777777777ull,
+              0017777777777ull, 0037777777777ull, 0077777777777ull,
+              0177777777777ull, 0377777777777ull, 0777777777777ull,
+            };
+# define BS_COMPL(HI) ((~(HI)) & MASK36)
+#endif // BARREL_SHIFTER
+
 #ifdef LOOPTRC
 void elapsedtime (void)
   {
@@ -3067,6 +3101,33 @@ static t_stat doInstruction (void)
 #ifdef TESTING
             HDBGRegAR ("als");
 #endif
+#if BARREL_SHIFTER
+            uint cnt = (uint) cpu.TPR.CA & 0177;   // 0-127
+
+            // Capture the bits shifted through A0
+            word36 capture;
+            // If count is > 36, than all of the bits will rotate through A
+            if (cnt < 36) {
+              // +1 is A0 plus the bits that will get shifted into A0
+              capture = cpu.rA & barrelLeftMaskTable[cnt + 1];
+
+              // Do the shift
+              cpu.rA <<= cnt;
+              cpu.rA &= DMASK;    // keep to 36-bits
+
+              // If the captured bits are all 0 or all 1, then
+              // A0 will not have changed during the rotate
+
+            } else {
+              capture = cpu.rA;
+              cpu.rA = 0;
+            }
+
+            if (capture == 0 || capture == (MASK36 & barrelLeftMaskTable[cnt + 1]))
+              CLR_I_CARRY;
+            else
+              SET_I_CARRY;
+#else // !BARREL_SHIFTER
             word36 tmp36 = cpu.TPR.CA & 0177;   // CY bits 11-17
 
             word36 tmpSign = cpu.rA & SIGN36;
@@ -3079,6 +3140,7 @@ static t_stat doInstruction (void)
                   SET_I_CARRY;
               }
             cpu.rA &= DMASK;    // keep to 36-bits
+#endif // BARREL_SHIFTER
 #ifdef TESTING
             HDBGRegAW ("als");
 #endif
@@ -3368,6 +3430,33 @@ static t_stat doInstruction (void)
 #ifdef TESTING
             HDBGRegQR ("qls");
 #endif
+#if BARREL_SHIFTER
+            uint cnt = (uint) cpu.TPR.CA & 0177;   // 0-127
+
+            // Capture the bits shifted through Q0
+            word36 capture;
+            // If count is > 36, than all of the bits will rotate through Q
+            if (cnt < 36) {
+              // +1 is Q0 plus the bits that will get shifted into Q0
+              capture = cpu.rQ & barrelLeftMaskTable[cnt + 1];
+
+              // Do the shift
+              cpu.rQ <<= cnt;
+              cpu.rQ &= DMASK;    // keep to 36-bits
+
+              // If the captured bits are all 0 or all 1, then
+              // Q0 will not have changed during the rotate
+
+            } else {
+              capture = cpu.rQ;
+              cpu.rQ = 0;
+            }
+
+            if (capture == 0 || capture == (MASK36 & barrelLeftMaskTable[cnt + 1]))
+              CLR_I_CARRY;
+            else
+              SET_I_CARRY;
+#else // !BARREL_SHIFTER
             word36 tmp36   = cpu.TPR.CA & 0177;   // CY bits 11-17
             word36 tmpSign = cpu.rQ & SIGN36;
             CLR_I_CARRY;
@@ -3379,6 +3468,7 @@ static t_stat doInstruction (void)
                   SET_I_CARRY;
               }
             cpu.rQ &= DMASK;    // keep to 36-bits
+#endif // BARREL_SHIFTER
 #ifdef TESTING
             HDBGRegQW ("qls");
 #endif
@@ -3930,6 +4020,17 @@ static t_stat doInstruction (void)
 #ifdef TESTING
               HDBGRegAR ("alr");
 #endif
+#if BARREL_SHIFTER
+            uint cnt = (uint) cpu.TPR.CA & 0177;   // 0-127
+            cnt %= 36;
+
+            word36 highA = cpu.rA & barrelLeftMaskTable[cnt];
+            cpu.rA <<= cnt;
+            highA >>= (36 - cnt);
+            highA &= barrelRightMaskTable[cnt];
+            cpu.rA |= highA;
+            cpu.rA &= DMASK;    // keep to 36-bits
+#else // !BARREL_SHIFTER
               word36 tmp36 = cpu.TPR.CA & 0177;   // CY bits 11-17
               for (uint j = 0 ; j < tmp36 ; j++)
               {
@@ -3939,6 +4040,7 @@ static t_stat doInstruction (void)
                       cpu.rA |= 1;
               }
               cpu.rA &= DMASK;    // keep to 36-bits
+#endif // BARREL_SHIFTER
 #ifdef TESTING
               HDBGRegAW ("alr");
 #endif
@@ -3980,6 +4082,24 @@ static t_stat doInstruction (void)
 #ifdef TESTING
             HDBGRegAR ("ars");
 #endif
+#if BARREL_SHIFTER
+            uint cnt = (uint) cpu.TPR.CA & 0177;   // 0-127
+            bool A0 = (cpu.rA & SIGN36) != 0;
+
+            if (cnt >= 36) {
+              cpu.rA = A0 ? MASK36 : 0;
+            } else {
+              // Shift rA
+              cpu.rA >>= cnt;
+              // Mask out the high bits
+              if (A0) {
+                cpu.rA |= barrelLeftMaskTable[cnt];
+              } else {
+                cpu.rA &= BS_COMPL (barrelLeftMaskTable[cnt]);
+              }
+            }
+            cpu.rA &= DMASK;    // keep to 36-bits
+#else // !BARREL_SHIFTER
             cpu.rA &= DMASK; // Make sure the shifted in bits are 0
             word18 tmp18 = cpu.TPR.CA & 0177;   // CY bits 11-17
 
@@ -3991,6 +4111,7 @@ static t_stat doInstruction (void)
                     cpu.rA |= SIGN36;
               }
             cpu.rA &= DMASK;    // keep to 36-bits
+#endif // BARREL_SHIFTER
 #ifdef TESTING
             HDBGRegAW ("ars");
 #endif
@@ -4009,6 +4130,22 @@ static t_stat doInstruction (void)
             HDBGRegAR ("llr");
             HDBGRegQR ("llr");
 #endif
+#if BARREL_SHIFTER
+            uint cnt = (uint) cpu.TPR.CA & 0177;   // 0-127
+            cnt = cnt % 72;  // 0-71
+            if (cnt > 35) {
+              cnt = cnt - 36;
+              word36 tmp = cpu.rA;
+              cpu.rA = cpu.rQ;
+              cpu.rQ = tmp;
+            }
+            word36 highA = cpu.rA & barrelLeftMaskTable[cnt];
+            word36 lowA  = cpu.rA & BS_COMPL(barrelLeftMaskTable[cnt]);
+            word36 highQ = cpu.rQ & barrelLeftMaskTable[cnt];
+            word36 lowQ  = cpu.rQ & BS_COMPL(barrelLeftMaskTable[cnt]);
+            cpu.rA = (lowA << cnt) | (highQ >> (36 - cnt));
+            cpu.rQ = (lowQ << cnt) | (highA >> (36 - cnt));
+#else // !BARREL_SHIFTER
             word36 tmp36 = cpu.TPR.CA & 0177;      // CY bits 11-17
             for (uint j = 0 ; j < tmp36 ; j++)
               {
@@ -4026,6 +4163,7 @@ static t_stat doInstruction (void)
                   cpu.rQ |= 1;
               }
 
+#endif // BARREL_SHIFTER
             cpu.rA &= DMASK;    // keep to 36-bits
             cpu.rQ &= DMASK;
 #ifdef TESTING
@@ -4042,13 +4180,52 @@ static t_stat doInstruction (void)
           {
             // Shift C(AQ) left the number of positions given in
             // C(TPR.CA)11,17; filling vacated positions with zeros.
+#if BARREL_SHIFTER
+            uint cnt = (uint) cpu.TPR.CA & 0177;   // 0-127
+
+            // Capture the bits shifted through A0
+            word36 captureA, captureQ;
+            // If count > 72, tan all of the bits will rotate through A0
+            if (cnt < 36) {
+               // Only bits in A will rotate through A0
+               captureA = cpu.rA & barrelLeftMaskTable[cnt + 1];
+               if (captureA == 0 || captureA == (MASK36 & barrelLeftMaskTable[cnt + 1]))
+                 CLR_I_CARRY;
+               else
+                 SET_I_CARRY;
+            } else {
+               // All of A and some or all of b
+               uint cnt72 = cnt < 72 ? cnt : 71;
+               captureA = cpu.rA;
+               captureQ = cpu.rQ & barrelLeftMaskTable[cnt72 + 1 - 36];
+               if (captureA == 0 && ((captureQ & barrelLeftMaskTable[cnt72 + 1 - 36]) == 0))
+                 CLR_I_CARRY;
+               else if (captureA == MASK36 &&
+                        ((captureQ & barrelLeftMaskTable[cnt72 + 1 - 36]) == (MASK36 & barrelLeftMaskTable[cnt72 + 1 - 36])))
+                 CLR_I_CARRY;
+               else
+                 SET_I_CARRY;
+            }
+            cnt = cnt % 72;  // 0-71
+            if (cnt > 35) {
+              cnt = cnt - 36;
+              cpu.rA = cpu.rQ;
+              cpu.rQ = 0;
+            }
+            //word36 highA = cpu.rA & barrelLeftMaskTable[cnt];
+            word36 lowA  = cpu.rA & BS_COMPL(barrelLeftMaskTable[cnt]);
+            word36 highQ = cpu.rQ & barrelLeftMaskTable[cnt];
+            word36 lowQ  = cpu.rQ & BS_COMPL(barrelLeftMaskTable[cnt]);
+            cpu.rA = (lowA << cnt) | (highQ >> (36 - cnt));
+            cpu.rQ = (lowQ << cnt) /*| (highA >> (36 - cnt)) */;
+#else // !BARREL_SHIFTER
 
             CLR_I_CARRY;
 
-#ifdef TESTING
+# ifdef TESTING
             HDBGRegAR ("lls");
             HDBGRegQR ("lls");
-#endif
+# endif
             word36 tmp36   = cpu.TPR.CA & 0177;   // CY bits 11-17
             word36 tmpSign = cpu.rA & SIGN36;
             for (uint j = 0 ; j < tmp36 ; j ++)
@@ -4067,6 +4244,7 @@ static t_stat doInstruction (void)
 
             cpu.rA &= DMASK;    // keep to 36-bits
             cpu.rQ &= DMASK;
+#endif // BARREL_SHIFTER
 #ifdef TESTING
             HDBGRegAW ("lls");
             HDBGRegQW ("lls");
@@ -4085,6 +4263,36 @@ static t_stat doInstruction (void)
             HDBGRegAR ("lrl");
             HDBGRegQR ("lrl");
 #endif
+#if BARREL_SHIFTER
+            uint cnt = (uint) cpu.TPR.CA & 0177;   // 0-127
+            if (cnt >= 72) {
+               cpu.rA = 0;
+               cpu.rQ = 0;
+            } else if (cnt < 36) {
+              // Shift rQ
+              cpu.rQ >>= cnt;
+              // Mask out the high bits
+              cpu.rQ &= BS_COMPL (barrelLeftMaskTable[cnt]);
+              // Capture the low bits in A
+              word36 lowA = cpu.rA & barrelRightMaskTable[cnt];
+              // Shift A
+              cpu.rA >>= cnt;
+              // Mask out the high bits
+              cpu.rA &= BS_COMPL (barrelLeftMaskTable[cnt]);
+              // Move the low A bits left
+              lowA <<= (36 - cnt);
+              // Put them in high Q
+              cpu.rQ |= lowA;
+            } else { // 36-71
+              // Shift rQ
+              cpu.rQ = cpu.rA >> (cnt - 36);
+              // Mask out the high bits
+              cpu.rQ &= BS_COMPL (barrelLeftMaskTable[cnt - 36]);
+              cpu.rA = 0;
+            }
+            cpu.rA &= DMASK;    // keep to 36-bits
+            cpu.rQ &= DMASK;
+#else // !BARREL_SHIFTER
             cpu.rA &= DMASK; // Make sure the shifted in bits are 0
             cpu.rQ &= DMASK; // Make sure the shifted in bits are 0
             word36 tmp36 = cpu.TPR.CA & 0177;   // CY bits 11-17
@@ -4100,6 +4308,7 @@ static t_stat doInstruction (void)
               }
             cpu.rA &= DMASK;    // keep to 36-bits
             cpu.rQ &= DMASK;
+#endif // BARREL_SHIFTER
 #ifdef TESTING
             HDBGRegAW ("lrl");
             HDBGRegQW ("lrl");
@@ -4119,6 +4328,44 @@ static t_stat doInstruction (void)
             HDBGRegAR ("lrs");
             HDBGRegQR ("lrs");
 #endif
+#if BARREL_SHIFTER
+            uint cnt = (uint) cpu.TPR.CA & 0177;   // 0-127
+            bool AQ0 = (cpu.rA & SIGN36) != 0;
+            if (cnt >= 72) {
+               cpu.rA = cpu.rQ = AQ0 ? MASK36 : 0;
+            } else if (cnt < 36) {
+              // Shift rQ
+              cpu.rQ >>= cnt;
+              // Mask out the high bits
+              cpu.rQ &= BS_COMPL (barrelLeftMaskTable[cnt]);
+              // Capture the low bits in A
+              word36 lowA = cpu.rA & barrelRightMaskTable[cnt];
+              // Shift A
+              cpu.rA >>= cnt;
+              // Set the high bits to AQ0
+              if (AQ0)
+                cpu.rA |= barrelLeftMaskTable[cnt];
+              else
+                cpu.rA &= BS_COMPL (barrelLeftMaskTable[cnt]);
+              // Move the low A bits left
+              lowA <<= (36 - cnt);
+              // Put them in high Q
+              cpu.rQ |= lowA;
+            } else { // 36-71
+              // Shift rQ
+              cpu.rQ = cpu.rA >> (cnt - 36);
+              // Mask out the high bits
+              if (AQ0) {
+                cpu.rQ |= barrelLeftMaskTable[cnt - 36];
+                cpu.rA = MASK36;
+              } else {
+                cpu.rQ &= BS_COMPL (barrelLeftMaskTable[cnt - 36]);
+                cpu.rA = 0;
+              }
+            }
+            cpu.rA &= DMASK;    // keep to 36-bits
+            cpu.rQ &= DMASK;
+#else // !BARREL_SHIFTER
             word36 tmp36  = cpu.TPR.CA & 0177;   // CY bits 11-17
             cpu.rA       &= DMASK; // Make sure the shifted in bits are 0
             cpu.rQ       &= DMASK; // Make sure the shifted in bits are 0
@@ -4138,6 +4385,7 @@ static t_stat doInstruction (void)
               }
             cpu.rA &= DMASK;    // keep to 36-bits (probably ain't necessary)
             cpu.rQ &= DMASK;
+#endif // BARREL_SHIFTER
 #ifdef TESTING
             HDBGRegAW ("lrs");
             HDBGRegQW ("lrs");
@@ -4155,6 +4403,17 @@ static t_stat doInstruction (void)
 #ifdef TESTING
             HDBGRegQR ("qlr");
 #endif
+#if BARREL_SHIFTER
+            uint cnt = (uint) cpu.TPR.CA & 0177;   // 0-127
+            cnt %= 36;
+
+            word36 highQ = cpu.rQ & barrelLeftMaskTable[cnt];
+            cpu.rQ <<= cnt;
+            highQ >>= (36 - cnt);
+            highQ &= barrelRightMaskTable[cnt];
+            cpu.rQ |= highQ;
+            cpu.rQ &= DMASK;    // keep to 36-bits
+#else // !BARREL_SHIFTER
             word36 tmp36 = cpu.TPR.CA & 0177;   // CY bits 11-17
             for (uint j = 0 ; j < tmp36 ; j++)
               {
@@ -4164,6 +4423,7 @@ static t_stat doInstruction (void)
                   cpu.rQ |= 1;
               }
             cpu.rQ &= DMASK;    // keep to 36-bits
+#endif // BARREL_SHIFTER
 #ifdef TESTING
             HDBGRegQW ("qlr");
 #endif
@@ -4206,6 +4466,24 @@ static t_stat doInstruction (void)
 #ifdef TESTING
             HDBGRegQR ("qrs");
 #endif
+#if BARREL_SHIFTER
+            uint cnt = (uint) cpu.TPR.CA & 0177;   // 0-127
+            bool Q0 = (cpu.rQ & SIGN36) != 0;
+
+            if (cnt >= 36) {
+              cpu.rQ = Q0 ? MASK36 : 0;
+            } else {
+              // Shift rQ
+              cpu.rQ >>= cnt;
+              // Mask out the high bits
+              if (Q0) {
+                cpu.rQ |= barrelLeftMaskTable[cnt];
+              } else {
+                cpu.rQ &= BS_COMPL (barrelLeftMaskTable[cnt]);
+              }
+            }
+            cpu.rQ &= DMASK;    // keep to 36-bits
+#else // !BARREL_SHIFTER
             cpu.rQ &= DMASK; // Make sure the shifted in bits are 0
             word36 tmp36 = cpu.TPR.CA & 0177;   // CY bits 11-17
             bool q0 = cpu.rQ & SIGN36;    // Q0
@@ -4216,6 +4494,7 @@ static t_stat doInstruction (void)
                   cpu.rQ |= SIGN36;
               }
             cpu.rQ &= DMASK;    // keep to 36-bits
+#endif // BARREL_SHIFTER
 #ifdef TESTING
             HDBGRegQW ("qrs");
 #endif
