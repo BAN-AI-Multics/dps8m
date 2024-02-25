@@ -20,6 +20,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#if defined(__APPLE__)
+# include <xlocale.h>
+#endif
 #include <locale.h>
 
 #include "dps8.h"
@@ -271,7 +274,7 @@ static t_stat bload (char * p2, char * p3)
     int deckfd = open (p3, O_RDONLY);
     if (deckfd < 0)
       {
-        if (errno) sim_printf ("Error: %s\n", strerror(errno));
+        if (errno) sim_printf ("Error: %s\n", xstrerror_l(errno));
         sim_printf ("Unable to open '%s'\n", p3);
 #ifdef PERF_STRIP
         exit(1);
@@ -339,7 +342,7 @@ static t_stat msave (char * p2, word24 sz)
     int fd = open (p2, O_WRONLY | O_CREAT, 0664);
     if (fd < 0)
       {
-        if (errno) sim_printf ("Error: %s\n", strerror(errno));
+        if (errno) sim_printf ("Error: %s\n", xstrerror_l(errno));
         sim_printf ("Unable to open '%s'\n", p2);
 #ifdef PERF_STRIP
         exit(1);
@@ -350,7 +353,7 @@ static t_stat msave (char * p2, word24 sz)
     ssize_t n = write (fd, (void *) M, wrsz);
     if (n != wrsz)
       {
-        if (errno) sim_printf ("Error: %s\n", strerror(errno));
+        if (errno) sim_printf ("Error: %s\n", xstrerror_l(errno));
         sim_printf ("Unable to write '%s'\n", p2);
 #ifdef PERF_STRIP
         exit(1);
@@ -367,7 +370,7 @@ static t_stat mrestore (char * p2)
     int fd = open (p2, O_RDONLY);
     if (fd < 0)
       {
-        if (errno) sim_printf ("Error: %s\n", strerror(errno));
+        if (errno) sim_printf ("Error: %s\n", xstrerror_l(errno));
         sim_printf ("Unable to open '%s'\n", p2);
 #ifdef PERF_STRIP
         exit(1);
@@ -378,7 +381,7 @@ static t_stat mrestore (char * p2)
     ssize_t n = read (fd, (void *) M, msize);
     if (n < 1)
       {
-        if (errno) sim_printf ("Error: %s\n", strerror(errno));
+        if (errno) sim_printf ("Error: %s\n", xstrerror_l(errno));
         sim_printf ("Unable to read '%s'\n", p2);
         (void) close (fd);
 #ifdef PERF_STRIP
@@ -455,7 +458,7 @@ t_stat segment_loader (int32 arg, const char * buf)
 extern DEVICE opc_dev;
 int main (int argc, char * argv[])
   {
-    setlocale(LC_NUMERIC, "");
+    (void)setlocale(LC_ALL, "");
     void dps8_init_strip (void);
     dps8_init_strip ();
     cpus[0].tweaks.enable_emcall = 1;

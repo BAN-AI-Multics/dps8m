@@ -266,8 +266,8 @@ if (writable && !sim_nolock) {
     rc = fcntl (fileno(fsc), F_SETLK, &lock);
   if (rc < 0) {
     if (!sim_quiet) {
-      sim_printf ("%s(%s): %s",
-                  __func__, mode, strerror(errno));
+      sim_printf ("%s(%s): %s [Error %d]",
+                  __func__, mode, xstrerror_l(errno), errno);
       if (fcntl(fileno(fsc), F_GETLK, &lock) == 0 && lock.l_pid > 0)
         sim_printf (" (locked by PID %lu)",
                    (unsigned long)lock.l_pid);
@@ -282,8 +282,8 @@ if (writable && !sim_nolock) {
     rc = flock (fileno(fsc), LOCK_EX | LOCK_NB);
   if (rc < 0) {
     if (!sim_quiet)
-      sim_printf ("%s(%s): %s (locked?)\r\n",
-                  __func__, mode, strerror(errno));
+      sim_printf ("%s(%s): %s [Error %d] (locked?)\r\n",
+                  __func__, mode, xstrerror_l(errno), errno);
     if (!sim_iglock) return NULL;
   }
 }

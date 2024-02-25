@@ -913,6 +913,7 @@ dumpinput
 dumpkst
 dumpoutput
 dunused
+duplocale
 dvacc
 dvfdbg
 dvsr
@@ -985,6 +986,7 @@ ello
 elongdouble
 eltrue
 emax
+emaxlen
 emcall
 emfile
 emsg
@@ -1038,6 +1040,7 @@ erofs
 errabort
 errno
 errnos
+errnum
 errormsg
 errstr
 ersa
@@ -1204,6 +1207,7 @@ franing
 fread
 freeaddrinfo
 freeing
+freelocale
 freopen
 frexp
 frexpl
@@ -1641,6 +1645,7 @@ lineval
 linkinfo
 linkno
 linted
+lintok
 listennotelnet
 listenport
 litend
@@ -1909,6 +1914,7 @@ netinet
 netmask
 netpath
 newenv
+newlocale
 newp
 newport
 newrhs
@@ -3183,6 +3189,7 @@ usec
 useconds
 usecs
 useint
+uselocale
 usemap
 uservar
 ushort
@@ -3346,6 +3353,7 @@ xlat
 xlate
 xlation
 xlineno
+xlocale
 xmit
 xmte
 xpdf
@@ -3355,6 +3363,7 @@ xrefs
 xrot
 xstr
 xstrdup
+xstrerror
 xstring
 xtrc
 xvalue
@@ -3775,6 +3784,7 @@ eprotocol
 eraq
 errcode
 errno
+errnum
 ersa
 ersq
 ersx
@@ -4712,6 +4722,7 @@ xipmask
 xipmaskval
 xlineno
 xmte
+xstrerror
 yblock
 ypair
 ypairto
@@ -5739,7 +5750,10 @@ preg
 
 FILETYPE: Make; .mk
 arml
+brtl
 iwmmxt
+librt
+lutil
 
 FILETYPE: NSIS; .nsi
 abortwarning
@@ -8040,10 +8054,13 @@ nolist
 
 FILEID: 6fefda68-f778-11ec-85a4-80ee73e9b8e7
 elif
+lintok
 printf
 shellcheck
+strerror
 tlist
 uchng
+xstrerror
 
 FILEID: 428ea8be-f631-11ec-9caa-80ee73e9b8e7
 cpufre
@@ -8419,6 +8436,9 @@ nowrap
 poweredby
 standout
 tama
+
+FILEID: a5f69ec5-f630-11ec-bcc3-80ee73e9b8e7
+ertv
 
 NATURAL:
 abandon
@@ -9362,6 +9382,7 @@ conforms
 confused
 confuses
 confusing
+congratulations
 connect
 connectability
 connected
@@ -11121,6 +11142,7 @@ linked
 linker
 linking
 links
+linted
 linter
 linus
 linux

@@ -64,7 +64,7 @@ static void accessWriteCallback (uv_write_t * req, int status)
         else
           {
             sim_warn ("accessWriteCallback status %d (%s)\n", -status,
-                      strerror (-status));
+                      xstrerror_l(-status));
           }
 
         // connection reset by peer
@@ -546,7 +546,7 @@ static void onNewAccess (uv_stream_t * server, int status)
   {
     if (status < 0)
       {
-        fprintf (stderr, "\r[OPC emulation: new connection error %s]\r\n", uv_strerror (status));
+        fprintf (stderr, "\r[OPC emulation: new connection error %s]\r\n", uv_strerror(status));
         // error!
         return;
       }
@@ -652,7 +652,7 @@ void uv_open_access (uv_access * access)
                        onNewAccess);
     if (r)
      {
-        fprintf (stderr, "\r[OPC emulation: listen error: %s:%ld: %s]\r\n", access->address, (long) access->port, uv_strerror (r));
+        fprintf (stderr, "\r[OPC emulation: listen error: %s:%ld: %s]\r\n", access->address, (long) access->port, uv_strerror(r));
       }
     access->open = true;
     if (access->address != NULL)

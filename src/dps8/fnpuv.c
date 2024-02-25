@@ -459,7 +459,7 @@ static void fuv_write_cb (uv_write_t * req, int status)
           }
         else
           {
-            sim_warn ("fuv_write_cb status %d (%s)\n", -status, strerror (-status));
+            sim_warn ("fuv_write_cb status %d (%s)\n", -status, xstrerror_l(-status));
           }
 
         // connection reset by peer
@@ -785,7 +785,7 @@ static void on_new_connection (uv_stream_t * server, int status)
   {
     if (status < 0)
       {
-        sim_printf ("\r[FNP emulation: new connection error: %s]\r\n", uv_strerror (status));
+        sim_printf ("\r[FNP emulation: new connection error: %s]\r\n", uv_strerror(status));
         // error!
         return;
       }
@@ -935,7 +935,7 @@ int fnpuvInit (int telnet_port, char * telnet_address)
                        on_new_connection);
     if (r)
      {
-        sim_printf ("\r[FNP emulation: listen error: %s:%ld: %s]\r\n", telnet_address, (long) telnet_port, uv_strerror (r));
+        sim_printf ("\r[FNP emulation: listen error: %s:%ld: %s]\r\n", telnet_address, (long) telnet_port, uv_strerror(r));
         return 1;
      }
     fnpData.du_server_inited = true;
@@ -977,7 +977,7 @@ static void on_dialout_connect (uv_connect_t * server, int status)
     struct t_line * linep = & fnpData.fnpUnitData[p->fnpno].MState.line[p->lineno];
     if (status < 0)
       {
-        sim_printf ("\r[FNP emulation: dialout connection error: %s]\r\n", uv_strerror (status));
+        sim_printf ("\r[FNP emulation: dialout connection error: %s]\r\n", uv_strerror(status));
         //sim_printf ("%p\n", p);
         //sim_printf ("%d.%d\n", p->fnpno, p->lineno);
         linep->acu_dial_failure = true;
@@ -1168,7 +1168,7 @@ static void on_slave_connect (uv_stream_t * server, int status)
     struct t_line * linep = & fnpData.fnpUnitData[p->fnpno].MState.line[p->lineno];
     if (status < 0)
       {
-        sim_printf ("Slave connection error %s\n", uv_strerror (status));
+        sim_printf ("Slave connection error %s\n", uv_strerror(status));
         //linep->acu_dial_failure = true;
         return;
       }
@@ -1231,7 +1231,7 @@ void fnpuv_open_slave (uint fnpno, uint lineno)
                        on_new_connection);
     if (r)
      {
-        sim_printf ("\r[FNP emulation: listen error: %s:%ld: %s]\r\n", fnpData.telnet_address, (long) linep->port, uv_strerror (r));
+        sim_printf ("\r[FNP emulation: listen error: %s:%ld: %s]\r\n", fnpData.telnet_address, (long) linep->port, uv_strerror(r));
      }
     sim_printf ("\r[FNP emulation: listening on %s:%ld]\r\n", fnpData.telnet_address, (long) linep->port);
 
@@ -1283,7 +1283,7 @@ sim_printf ("listening on port %d\n", linep->port);
                        on_slave_connect);
     if (r)
      {
-        fprintf (stderr, "Listen error %s\n", uv_strerror (r));
+        fprintf (stderr, "Listen error %s\n", uv_strerror(r));
       }
 #endif
   }
@@ -1467,7 +1467,7 @@ static void on_new_3270_connection (uv_stream_t * server, int status)
   {
     if (status < 0)
       {
-        sim_printf ("\r[FNP emulation: TN3270 new connection error: %s]\r\n", uv_strerror (status));
+        sim_printf ("\r[FNP emulation: TN3270 new connection error: %s]\r\n", uv_strerror(status));
         // error!
         return;
       }
@@ -1626,7 +1626,7 @@ int fnpuv3270Init (int telnet3270_port)
                    on_new_3270_connection);
     if (r)
      {
-        sim_printf ("\r[FNP emulation: listen error: %s:%ld: %s]\r\n", fnpData.telnet_address, (long) telnet3270_port, uv_strerror (r));
+        sim_printf ("\r[FNP emulation: listen error: %s:%ld: %s]\r\n", fnpData.telnet_address, (long) telnet3270_port, uv_strerror(r));
         return 1;
      }
     fnpData.du3270_server_inited = true;

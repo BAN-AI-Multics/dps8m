@@ -126,12 +126,12 @@ static char err_buf[512];
 for (i=0; (sock_errors[i].text) && (sock_errors[i].value != err); i++)
     ;
 if (sock_errors[i].value == err)
-    sprintf (err_buf, "Sockets: %s error %d - %s\n", emsg, err, sock_errors[i].text);
+    sprintf (err_buf, "Sockets: %s error %d - %s\r\n", emsg, err, sock_errors[i].text);
 else
 #if defined(_WIN32)
-    sprintf (err_buf, "Sockets: %s error %d\n", emsg, err);
+    sprintf (err_buf, "Sockets: %s error %d\r\n", emsg, err);
 #else
-    sprintf (err_buf, "Sockets: %s error %d - %s\n", emsg, err, strerror(err));
+    sprintf (err_buf, "Sockets: %s error %d - %s\r\n", emsg, err, xstrerror_l(err));
 #endif /* if defined(_WIN32) */
 return err_buf;
 }

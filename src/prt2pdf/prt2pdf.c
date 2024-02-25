@@ -59,12 +59,19 @@
 
 /* ============================================================================================================================== */
 
+#if !defined(_GNU_SOURCE)
+# define _GNU_SOURCE
+#endif
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <unistd.h>
 #include <getopt.h>
+#if defined(__APPLE__)
+# include <xlocale.h>
+#endif
 #include <locale.h>
 
 #undef FREE
@@ -85,45 +92,45 @@
 /* ============================================================================================================================== */
 /* size of printable area */
 /* Default unit is 72 points per inch */
- float GLOBAL_PAGE_DEPTH;
- float GLOBAL_PAGE_WIDTH;
- float GLOBAL_PAGE_MARGIN_LEFT;
- float GLOBAL_PAGE_MARGIN_RIGHT;
- float GLOBAL_PAGE_MARGIN_TOP;
- float GLOBAL_PAGE_MARGIN_BOTTOM;
- float GLOBAL_UNIT_MULTIPLIER=72.0;
- int   GLOBAL_SHADE_STEP=2;
- static  char GLOBAL_DASHCODE[256];
- static  char GLOBAL_FONT[256];
- int GLOBAL_SHIFT = 0;
- int GLOBAL_LINECOUNT=0;
- int GLOBAL_PAGES=0;
- int GLOBAL_PAGECOUNT=0;
- int GLOBAL_LINENUMBERS = 0;
+ static float GLOBAL_PAGE_DEPTH;
+ static float GLOBAL_PAGE_WIDTH;
+ static float GLOBAL_PAGE_MARGIN_LEFT;
+ static float GLOBAL_PAGE_MARGIN_RIGHT;
+ static float GLOBAL_PAGE_MARGIN_TOP;
+ static float GLOBAL_PAGE_MARGIN_BOTTOM;
+ static float GLOBAL_UNIT_MULTIPLIER=72.0;
+ static int   GLOBAL_SHADE_STEP=2;
+ static char  GLOBAL_DASHCODE[256];
+ static char  GLOBAL_FONT[256];
+ static int   GLOBAL_SHIFT = 0;
+ static int   GLOBAL_LINECOUNT=0;
+ static int   GLOBAL_PAGES=0;
+ static int   GLOBAL_PAGECOUNT=0;
+ static int   GLOBAL_LINENUMBERS = 0;
 
- float GLOBAL_LINES_PER_PAGE;
+ static float GLOBAL_LINES_PER_PAGE;
 
- float GLOBAL_GRAY_SCALE;
-int GLOBAL_GREEN_BAR;
+ static float GLOBAL_GRAY_SCALE;
+ static int   GLOBAL_GREEN_BAR;
 
- static char GLOBAL_CENTER_TITLE[256];
- static char GLOBAL_LEFT_TITLE[256];
- float GLOBAL_TITLE_SIZE;
+ static char  GLOBAL_CENTER_TITLE[256];
+ static char  GLOBAL_LEFT_TITLE[256];
+ static float GLOBAL_TITLE_SIZE;
 
 /* ============================================================================================================================== */
- int GLOBAL_ADD=0;
- int GLOBAL_VERSION = 3;
- int GLOBAL_VERSION_PATCH = 1;
- float GLOBAL_LEAD_SIZE;
- float GLOBAL_FONT_SIZE;
- int GLOBAL_OBJECT_ID = 1;
- int GLOBAL_PAGE_TREE_ID;
- int GLOBAL_NUM_PAGES = 0;
- int GLOBAL_NUM_XREFS = 0;
- long *GLOBAL_XREFS = NULL;
- int GLOBAL_STREAM_ID, GLOBAL_STREAM_LEN_ID;
- long GLOBAL_STREAM_START;
- float GLOBAL_YPOS;
+ static int   GLOBAL_ADD=0;
+ static int   GLOBAL_VERSION = 3;
+ static int   GLOBAL_VERSION_PATCH = 1;
+ static float GLOBAL_LEAD_SIZE;
+ static float GLOBAL_FONT_SIZE;
+ static int   GLOBAL_OBJECT_ID = 1;
+ static int   GLOBAL_PAGE_TREE_ID;
+ static int   GLOBAL_NUM_PAGES = 0;
+ static int   GLOBAL_NUM_XREFS = 0;
+ static long *GLOBAL_XREFS = NULL;
+ static int   GLOBAL_STREAM_ID, GLOBAL_STREAM_LEN_ID;
+ static long  GLOBAL_STREAM_START;
+ static float GLOBAL_YPOS;
 
  typedef struct _PageList {
 
@@ -136,11 +143,11 @@ int GLOBAL_GREEN_BAR;
 
  } PageList;
 
- PageList *GLOBAL_PAGE_LIST = NULL;
- PageList **GLOBAL_INSERT_PAGE = &GLOBAL_PAGE_LIST;
+ static PageList *GLOBAL_PAGE_LIST = NULL;
+ static PageList **GLOBAL_INSERT_PAGE = &GLOBAL_PAGE_LIST;
 
 /* ============================================================================================================================== */
- void store_page(int id){
+ static void store_page(int id){
 
    PageList *n = (PageList *)malloc(sizeof(*n));
 
@@ -159,7 +166,7 @@ int GLOBAL_GREEN_BAR;
    GLOBAL_NUM_PAGES++;
  }
 /* ============================================================================================================================== */
- void start_object(int id){
+ static void start_object(int id){
         if(id >= GLOBAL_NUM_XREFS) {
 
            long *new_xrefs;
@@ -180,18 +187,18 @@ int GLOBAL_GREEN_BAR;
               abort();
            }
 
-           memcpy(new_xrefs, GLOBAL_XREFS, GLOBAL_NUM_XREFS * sizeof(*GLOBAL_XREFS));
+           (void)memcpy(new_xrefs, GLOBAL_XREFS, GLOBAL_NUM_XREFS * sizeof(*GLOBAL_XREFS));
            FREE(GLOBAL_XREFS);
            GLOBAL_XREFS = new_xrefs;
            GLOBAL_NUM_XREFS = new_num_xrefs;
         }
 
         GLOBAL_XREFS[id] = ftell(stdout);
-        printf("%d 0 obj\n", id);
+        (void)printf("%d 0 obj\n", id);
 
  }
 /* ============================================================================================================================== */
- void print_bars(void){
+ static void print_bars(void){
 
         float x1;
         float yyy1;
@@ -289,10 +296,10 @@ int GLOBAL_GREEN_BAR;
 
  }
 /* ============================================================================================================================== */
- void printstring(char *buffer){
+ static void printstring(char *buffer){
  /* Print string as (escaped_string) where ()\ have a preceding \ character added */
         char c;
-        putchar('(');
+        (void)putchar('(');
         if(GLOBAL_LINENUMBERS != 0){
         (void)fprintf(stdout,"%6d ",GLOBAL_LINECOUNT);
         }
@@ -301,14 +308,14 @@ int GLOBAL_GREEN_BAR;
                        case '(':
                        case ')':
                        case '\\':
-                          putchar('\\');
+                          (void)putchar('\\');
                     }
-                    putchar(c+GLOBAL_ADD);
+                    (void)putchar(c+GLOBAL_ADD);
         }
-        putchar(')');
+        (void)putchar(')');
  }
 /* ============================================================================================================================== */
- void printme(float xvalue,float yvalue,char *string){
+ static void printme(float xvalue,float yvalue,char *string){
         //float charwidth;
         //float start;
         (void)fprintf(stdout,"BT /F2 %f Tf %f %f Td",GLOBAL_TITLE_SIZE,xvalue,yvalue);
@@ -316,7 +323,7 @@ int GLOBAL_GREEN_BAR;
         (void)fprintf(stdout," Tj ET\n");
  }
 /* ============================================================================================================================== */
- void printme_top(void){
+ static void printme_top(void){
         char *varname;
         if( (varname=getenv("IMPACT_TOP")) != (char *)NULL ) {
            char IMPACT_TOP[256];
@@ -324,7 +331,7 @@ int GLOBAL_GREEN_BAR;
            float charwidth;
            float xvalue;
            float yvalue;
-           strncpy(IMPACT_TOP,varname,255);
+           (void)strncpy(IMPACT_TOP,varname,255);
            charwidth=text_size*0.60; /* assuming fixed-space font Courier-Bold */
            (void)fprintf(stdout,"1.0 0.0 0.0 rg\n"); /* gray-scale value */
            yvalue=GLOBAL_PAGE_DEPTH-text_size;
@@ -340,7 +347,7 @@ int GLOBAL_GREEN_BAR;
         }
  }
 /* ============================================================================================================================== */
- void print_margin_label(void){
+ static void print_margin_label(void){
      float charwidth;
      float start;
      int hold;
@@ -364,7 +371,7 @@ int GLOBAL_GREEN_BAR;
      if(GLOBAL_PAGES != 0 ) {
         char line[80];
         charwidth=GLOBAL_TITLE_SIZE*0.60; /* assuming fixed-space font Courier-Bold */
-        sprintf(line,"Page %4d",GLOBAL_PAGECOUNT);
+        (void)sprintf(line,"Page %4d",GLOBAL_PAGECOUNT);
         start=((GLOBAL_PAGE_WIDTH-GLOBAL_PAGE_MARGIN_RIGHT)-(strlen(line)*charwidth)); /* Right Justified */
         printme(start,GLOBAL_PAGE_DEPTH-GLOBAL_PAGE_MARGIN_TOP+0.12*GLOBAL_TITLE_SIZE,line);
         printme(start,GLOBAL_PAGE_MARGIN_BOTTOM-GLOBAL_TITLE_SIZE,line);
@@ -379,44 +386,44 @@ int GLOBAL_GREEN_BAR;
 
  }
 /* ============================================================================================================================== */
- void start_page(void) {
+ static void start_page(void) {
    GLOBAL_STREAM_ID = GLOBAL_OBJECT_ID++;
    GLOBAL_STREAM_LEN_ID = GLOBAL_OBJECT_ID++;
    GLOBAL_PAGECOUNT++;
    start_object(GLOBAL_STREAM_ID);
-   printf("<< /Length %d 0 R >>\n", GLOBAL_STREAM_LEN_ID);
-   printf("stream\n");
+   (void)printf("<< /Length %d 0 R >>\n", GLOBAL_STREAM_LEN_ID);
+   (void)printf("stream\n");
    GLOBAL_STREAM_START = ftell(stdout);
    print_bars();
    print_margin_label();
-   printf("BT\n/F0 %g Tf\n", GLOBAL_FONT_SIZE);
+   (void)printf("BT\n/F0 %g Tf\n", GLOBAL_FONT_SIZE);
    GLOBAL_YPOS = GLOBAL_PAGE_DEPTH - GLOBAL_PAGE_MARGIN_TOP;
-   printf("%g %g Td\n", GLOBAL_PAGE_MARGIN_LEFT, GLOBAL_YPOS);
-   printf("%g TL\n", GLOBAL_LEAD_SIZE);
+   (void)printf("%g %g Td\n", GLOBAL_PAGE_MARGIN_LEFT, GLOBAL_YPOS);
+   (void)printf("%g TL\n", GLOBAL_LEAD_SIZE);
  }
 /* ============================================================================================================================== */
- void end_page(void){
+ static void end_page(void){
 
     long stream_len;
     int page_id = GLOBAL_OBJECT_ID++;
 
     store_page(page_id);
-    printf("ET\n");
+    (void)printf("ET\n");
     stream_len = ftell(stdout) - GLOBAL_STREAM_START;
-    printf("endstream\nendobj\n");
+    (void)printf("endstream\nendobj\n");
     start_object(GLOBAL_STREAM_LEN_ID);
-    printf("%ld\nendobj\n", (long) stream_len);
+    (void)printf("%ld\nendobj\n", (long) stream_len);
     start_object(page_id);
-    printf("<</Type/Page/Parent %d 0 R/Contents %d 0 R>>\nendobj\n", GLOBAL_PAGE_TREE_ID, GLOBAL_STREAM_ID);
+    (void)printf("<</Type/Page/Parent %d 0 R/Contents %d 0 R>>\nendobj\n", GLOBAL_PAGE_TREE_ID, GLOBAL_STREAM_ID);
  }
 /* ============================================================================================================================== */
-void increment_ypos(float mult){
+ static void increment_ypos(float mult){
    if (GLOBAL_YPOS < GLOBAL_PAGE_DEPTH - GLOBAL_PAGE_MARGIN_TOP ){  /* if not at top of page */
       GLOBAL_YPOS += GLOBAL_LEAD_SIZE*mult;
    }
 }
 /* ============================================================================================================================== */
-void do_text (void)
+ static void do_text (void)
   {
 
     char buffer [8192];
@@ -459,7 +466,7 @@ printline:
 
         buffer [i ++] = 0;
         printstring (buffer);
-        printf ("'\n");
+        (void)printf ("'\n");
 
         if (c == '\f')
           {
@@ -475,11 +482,11 @@ printline:
    end_page();
 }
 /* ============================================================================================================================== */
-void dopages(void){
+ static void dopages(void){
         int i, catalog_id, font_id0, font_id1;
         long start_xref;
 
-        printf("%%PDF-1.0\n");
+        (void)printf("%%PDF-1.0\n");
 
         /*
            Note: If a PDF file contains binary data, as most do, it is
@@ -504,48 +511,48 @@ void dopages(void){
 
         font_id0 = GLOBAL_OBJECT_ID++;
         start_object(font_id0);
-        printf("<</Type/Font/Subtype/Type1/BaseFont/%s/Encoding/WinAnsiEncoding>>\nendobj\n",GLOBAL_FONT);
+        (void)printf("<</Type/Font/Subtype/Type1/BaseFont/%s/Encoding/WinAnsiEncoding>>\nendobj\n",GLOBAL_FONT);
 
         font_id1 = GLOBAL_OBJECT_ID++;
         start_object(font_id1);
-        printf("<</Type/Font/Subtype/Type1/BaseFont/%s/Encoding/WinAnsiEncoding>>\nendobj\n",GLOBAL_FONT);
+        (void)printf("<</Type/Font/Subtype/Type1/BaseFont/%s/Encoding/WinAnsiEncoding>>\nendobj\n",GLOBAL_FONT);
 
         start_object(GLOBAL_PAGE_TREE_ID);
 
-        printf("<</Type /Pages /Count %d\n", GLOBAL_NUM_PAGES);
+        (void)printf("<</Type /Pages /Count %d\n", GLOBAL_NUM_PAGES);
 
         {
            PageList *ptr = GLOBAL_PAGE_LIST;
-           printf("/Kids[\n");
+           (void)printf("/Kids[\n");
            while(ptr != NULL) {
-              printf("%d 0 R\n", ptr->page_id);
+              (void)printf("%d 0 R\n", ptr->page_id);
               ptr = ptr->next;
            }
-           printf("]\n");
+           (void)printf("]\n");
         }
 
-        printf("/Resources<</ProcSet[/PDF/Text]/Font<</F0 %d 0 R\n", font_id0);
-        printf("/F1 %d 0 R\n", font_id1);
-        printf(" /F2<</Type/Font/Subtype/Type1/BaseFont/Courier-Bold/Encoding/WinAnsiEncoding >> >>\n");
-        printf(">>/MediaBox [ 0 0 %g %g ]\n", GLOBAL_PAGE_WIDTH, GLOBAL_PAGE_DEPTH);
-        printf(">>\nendobj\n");
+        (void)printf("/Resources<</ProcSet[/PDF/Text]/Font<</F0 %d 0 R\n", font_id0);
+        (void)printf("/F1 %d 0 R\n", font_id1);
+        (void)printf(" /F2<</Type/Font/Subtype/Type1/BaseFont/Courier-Bold/Encoding/WinAnsiEncoding >> >>\n");
+        (void)printf(">>/MediaBox [ 0 0 %g %g ]\n", GLOBAL_PAGE_WIDTH, GLOBAL_PAGE_DEPTH);
+        (void)printf(">>\nendobj\n");
         catalog_id = GLOBAL_OBJECT_ID++;
         start_object(catalog_id);
-        printf("<</Type/Catalog/Pages %d 0 R>>\nendobj\n", GLOBAL_PAGE_TREE_ID);
+        (void)printf("<</Type/Catalog/Pages %d 0 R>>\nendobj\n", GLOBAL_PAGE_TREE_ID);
         start_xref = ftell(stdout);
-        printf("xref\n");
-        printf("0 %d\n", GLOBAL_OBJECT_ID);
-        printf("0000000000 65535 f \n");
+        (void)printf("xref\n");
+        (void)printf("0 %d\n", GLOBAL_OBJECT_ID);
+        (void)printf("0000000000 65535 f \n");
 
         for(i = 1; i < GLOBAL_OBJECT_ID; i++){
-           printf("%010ld 00000 n \n", GLOBAL_XREFS[i]);
+           (void)printf("%010ld 00000 n \n", GLOBAL_XREFS[i]);
         }
 
-        printf("trailer\n<<\n/Size %d\n/Root %d 0 R\n>>\n", GLOBAL_OBJECT_ID, catalog_id);
-        printf("startxref\n%ld\n%%%%EOF\n", (long) start_xref);
+        (void)printf("trailer\n<<\n/Size %d\n/Root %d 0 R\n>>\n", GLOBAL_OBJECT_ID, catalog_id);
+        (void)printf("startxref\n%ld\n%%%%EOF\n", (long) start_xref);
  }
 /* ============================================================================================================================== */
-void showhelp(int itype){
+static void showhelp(int itype){
 switch (itype){
 case 1:
    (void)fprintf(stderr," +------------------------------------------------------------------------------+\n");
@@ -639,11 +646,11 @@ case 1:
    (void)fprintf(stderr," | env IMPACT_GRAY=1 IMPACT_TOP=CONFIDENTIAL prt2pdf < test.txt > test.pdf      |\n");
    (void)fprintf(stderr," !-----------------                                                             |\n");
    (void)fprintf(stderr," | # 132 landscape                                                              |\n");
-   (void)fprintf(stderr," |  prt2pdf -s LANDSCAPE <prt2pdf.c >junko.A.pdf                                |\n");
+   (void)fprintf(stderr," |  prt2pdf -s LANDSCAPE < prt2pdf.c > junko.A.pdf                              |\n");
    (void)fprintf(stderr," !-----------------                                                             |\n");
    (void)fprintf(stderr," | # 132 landscape with line numbers with dashed lines                          |\n");
    (void)fprintf(stderr," |  prt2pdf -s 'LANDSCAPE LINE NUMBERS' -d '3 1 2' \\                            |\n");
-   (void)fprintf(stderr," |  -N -T .9 <prt2pdf.c >test.pdf                                               |\n");
+   (void)fprintf(stderr," |  -N -T .9 < prt2pdf.c > test.pdf                                             |\n");
    (void)fprintf(stderr," !-----------------                                                             |\n");
    (void)fprintf(stderr," | # portrait 80 non-ASA file with dashed lines                                 |\n");
    (void)fprintf(stderr," |  prt2pdf -s PORTRAIT -S 1 -W 8.5 -H 11 -i 1 -d '2 4 1' \\                     |\n");
@@ -655,7 +662,7 @@ case 1:
    (void)fprintf(stderr," !-----------------                                                             |\n");
    (void)fprintf(stderr," | # titling                                                                    |\n");
    (void)fprintf(stderr," |  prt2pdf -d '1 0 1' -t \"$USER\" -i 1 -P -N -T 1 \\                             |\n");
-   (void)fprintf(stderr," |  -s \"prt2pdf.c\" <prt2pdf.c >test.pdf                                         |\n");
+   (void)fprintf(stderr," |  -s \"prt2pdf.c\" < prt2pdf.c > test.pdf                                       |\n");
    (void)fprintf(stderr," +------------------------------------------------------------------------------+\n");
 
 break;
@@ -703,7 +710,7 @@ int main(int argc, char **argv) {
      * A second loop is used to process the remaining non-option
        arguments.
 */
-   setlocale(LC_NUMERIC, "");
+   (void)setlocale(LC_ALL, "");
 
    char *varname;
 
@@ -736,8 +743,8 @@ int main(int argc, char **argv) {
 
    opterr = 0;
 
-   strncpy(GLOBAL_DASHCODE,"",255);
-   strncpy(GLOBAL_FONT,"Courier",255);
+   (void)strncpy(GLOBAL_DASHCODE,"",255);
+   (void)strncpy(GLOBAL_FONT,"Courier",255);
    GLOBAL_TITLE_SIZE=20.0;
 
    while ((c = getopt (argc, argv, "B:d:f:g:H:hi:L:l:GNPR:s:S:t:T:u:W:vVX")) != -1)
@@ -756,11 +763,11 @@ int main(int argc, char **argv) {
            case 'i': GLOBAL_SHADE_STEP =          strtod(optarg,NULL);                        break; /* increment for bars       */
            case 'S': GLOBAL_SHIFT =               MAX(0,strtod(optarg,NULL));                 break; /* right shift              */
 
-           case 's': strncpy(GLOBAL_CENTER_TITLE,optarg,255);                                 break; /* special label            */
-           case 't': strncpy(GLOBAL_LEFT_TITLE,optarg,255);                                   break; /* margin left label        */
+           case 's': (void)strncpy(GLOBAL_CENTER_TITLE,optarg,255);                           break; /* special label            */
+           case 't': (void)strncpy(GLOBAL_LEFT_TITLE,optarg,255);                             break; /* margin left label        */
 
-           case 'd': strncpy(GLOBAL_DASHCODE,optarg,255);                                     break; /* dash code                */
-           case 'f': strncpy(GLOBAL_FONT,optarg,255);                                         break; /* font                     */
+           case 'd': (void)strncpy(GLOBAL_DASHCODE,optarg,255);                               break; /* dash code                */
+           case 'f': (void)strncpy(GLOBAL_FONT,optarg,255);                                   break; /* font                     */
 
            case 'N': GLOBAL_LINENUMBERS=1;                                                    break; /* number lines             */
            case 'P': GLOBAL_PAGES=1;                                                          break; /* number pages             */
@@ -772,7 +779,7 @@ int main(int argc, char **argv) {
 # ifdef __GNUC__
 #  if !defined (__clang_version__) || defined(__INTEL_COMPILER)
                      char xcmp[2];
-                     sprintf(xcmp, "%.1s", __VERSION__ );
+                     (void)sprintf(xcmp, "%.1s", __VERSION__ );
                      if (!isdigit((int)xcmp[0]))
                      {
                          (void)fprintf (stderr, "Compiler: %s\n", __VERSION__ );

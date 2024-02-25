@@ -14,6 +14,10 @@
  * ---------------------------------------------------------------------------
  */
 
+#if !defined(_GNU_SOURCE)
+# define _GNU_SOURCE
+#endif
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <sys/stat.h>
@@ -24,6 +28,9 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <string.h>
+#if defined(__APPLE__)
+# include <xlocale.h>
+#endif
 #include <locale.h>
 #include <gtk/gtk.h>
 
@@ -62,9 +69,11 @@ static uint32_t lookup (struct system_state_s * p, uint32_t stype, char * name, 
       return * value;
     }
   }
-  fprintf (stderr, "\rFATAL: Lookup of '%s' failed, aborting %s[%s:%d]\r\n",
-           name, __func__, __FILE__, __LINE__);
+  fprintf(stderr, "\rFATAL: Lookup of '%s' failed, aborting %s[%s:%d]\r\n",
+          name, __func__, __FILE__, __LINE__);
   exit (1);
+  /*NOTREACHED*/ /* unreachable */
+  return 1;
 }
 
 static GdkRGBA lightOn, lightOff;
@@ -75,6 +84,8 @@ gboolean window_delete (GtkWidget * widget, cairo_t * cr, gpointer data) {
   (void)data;
   //return true;
   exit (0);
+  /*NOTREACHED*/ /* unreachable */
+  return 1;
 }
 
 gboolean draw_callback (GtkWidget * widget, cairo_t * cr, gpointer data) {
@@ -369,30 +380,87 @@ static gboolean time_handler (GtkWidget * widget) {
   return TRUE;
 }
 
-#define handleError(msg) do { perror(msg); exit(EXIT_FAILURE); } while (0)
+#undef XSTR_EMAXLEN
+#if defined(_POSIX_SSIZE_MAX)
+# define XSTR_EMAXLEN _POSIX_SSIZE_MAX
+#else
+# define XSTR_EMAXLEN 32767
+#endif
+
+static const char
+*xstrerror_l(int errnum)
+{
+  int saved = errno;
+  const char *ret = NULL;
+  static /* __thread */ char buf[XSTR_EMAXLEN];
+
+#if defined(__APPLE__) || defined(_AIX) || \
+      defined(__MINGW32__) || defined(__MINGW64__) || \
+        defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
+# if defined(__MINGW32__) || defined(__MINGW64__) || \
+        defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
+  if (strerror_s(buf, sizeof(buf), errnum) == 0) ret = buf; /*LINTOK: xstrerror_l*/
+# else
+  if (strerror_r(errnum, buf, sizeof(buf)) == 0) ret = buf; /*LINTOK: xstrerror_l*/
+# endif
+#else
+# if defined(__NetBSD__)
+  locale_t loc = LC_GLOBAL_LOCALE;
+# else
+  locale_t loc = uselocale((locale_t)0);
+# endif
+  locale_t copy = loc;
+  if (copy == LC_GLOBAL_LOCALE)
+    copy = duplocale(copy);
+
+  if (copy != (locale_t)0)
+    {
+      ret = strerror_l(errnum, copy); /*LINTOK: xstrerror_l*/
+      if (loc == LC_GLOBAL_LOCALE)
+        {
+          freelocale(copy);
+        }
+    }
+#endif
+
+  if (!ret)
+    {
+      (void)snprintf(buf, sizeof(buf), "Unknown error %d", errnum);
+      ret = buf;
+    }
+
+  errno = saved;
+  return ret;
+}
 
 static void * openShm (char * key) {
   void * p;
   char buf [256];
   sprintf (buf, "dps8m.%s", key);
   int fd = open (buf, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
-  if (fd == -1)
-    handleError ("open");
+  if (fd == -1) {
+    fprintf(stderr, "FATAL: open failed: %s (Error %d)\r\n", xstrerror_l(errno), errno);
+    exit(EXIT_FAILURE);
+  }
 
   struct stat sb;
-  if (fstat(fd, &sb) == -1) /* To obtain file size */
-    handleError ("fstat");
+  if (fstat(fd, &sb) == -1) { /* To obtain file size */
+    fprintf(stderr, "FATAL: fstat failed: %s (Error %d)\r\n", xstrerror_l(errno), errno);
+    exit(EXIT_FAILURE);
+  }
 
   p = mmap (NULL, sb.st_size, PROT_READ, MAP_SHARED, fd, 0);
 
-  if (p == MAP_FAILED)
-    handleError ("mmap");
+  if (p == MAP_FAILED) {
+    fprintf(stderr, "FATAL: mmap failed: %s (Error %d)\r\n", xstrerror_l(errno), errno);
+    exit(EXIT_FAILURE);
+  }
 
   return p;
 }
 
 int main (int argc, char * argv []) {
-  setlocale(LC_NUMERIC, "");
+  (void)setlocale(LC_ALL, "");
 
   struct sigaction quit_action;
   quit_action.sa_handler = SIG_IGN;
@@ -408,15 +476,16 @@ int main (int argc, char * argv []) {
       argv [1] [0] = 0;
     }
   }
+
   if (cpunum < 0 || cpunum > 8 /*N_CPU_UNITS_MAX*/ - 1) {
-    printf ("Invalid cpu number %ld\n", (long) cpunum);
-    return 1;
+    fprintf (stderr, "FATAL: Invalid CPU number %ld: expected 0..7\r\n", (long) cpunum);
+    return EXIT_FAILURE;
   }
 
   system_state = (struct system_state_s *) openShm ("state");
   if (! system_state) {
-    perror ("system state open_shm");
-    return 1;
+    fprintf (stderr, "FATAL: system state open_shm failed: %s (Error %d)\r\n", xstrerror_l(errno), errno);
+    return EXIT_FAILURE;
   }
 
   ss_p = (byte *) system_state;
@@ -867,5 +936,5 @@ int main (int argc, char * argv []) {
 
   gtk_main ();
 
-  return 0;
+  return EXIT_SUCCESS;
 }

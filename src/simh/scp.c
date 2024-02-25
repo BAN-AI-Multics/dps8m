@@ -39,6 +39,18 @@
 
 //-V::701
 
+#if !defined(__EXTENSIONS__)
+# define __EXTENSIONS__
+#endif
+
+#if !defined(__STDC_WANT_LIB_EXT1__)
+# define __STDC_WANT_LIB_EXT1__ 1
+#endif
+
+#if !defined(_GNU_SOURCE)
+# define _GNU_SOURCE
+#endif
+
 /* Macros and data structures */
 
 #include "sim_defs.h"
@@ -49,6 +61,7 @@
 #include <ctype.h>
 #include <time.h>
 #include <math.h>
+#include <stddef.h>
 #if defined(_WIN32)
 # ifndef WIN32_LEAN_AND_MEAN
 #  define WIN32_LEAN_AND_MEAN
@@ -70,6 +83,9 @@
 #endif /* if !defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) */
 #include <setjmp.h>
 #include <limits.h>
+#if defined(__APPLE__)
+# include <xlocale.h>
+#endif
 #include <locale.h>
 
 #include "linehistory.h"
@@ -1359,6 +1375,59 @@ trealloc(void *ptr, size_t size)
 # endif /* ifdef USE_TREALLOC */
 #endif /* ifdef TESTING */
 
+#undef XSTR_EMAXLEN
+#if defined(_POSIX_SSIZE_MAX)
+# define XSTR_EMAXLEN _POSIX_SSIZE_MAX
+#else
+# define XSTR_EMAXLEN 32767
+#endif
+
+const char
+*xstrerror_l(int errnum)
+{
+  int saved = errno;
+  const char *ret = NULL;
+  static __thread char buf[XSTR_EMAXLEN];
+
+#if defined(__APPLE__) || defined(_AIX) || \
+      defined(__MINGW32__) || defined(__MINGW64__) || \
+        defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
+# if defined(__MINGW32__) || defined(__MINGW64__) || \
+        defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
+  if (strerror_s(buf, sizeof(buf), errnum) == 0) ret = buf; /*LINTOK: xstrerror_l*/
+# else
+  if (strerror_r(errnum, buf, sizeof(buf)) == 0) ret = buf; /*LINTOK: xstrerror_l*/
+# endif
+#else
+# if defined(__NetBSD__)
+  locale_t loc = LC_GLOBAL_LOCALE;
+# else
+  locale_t loc = uselocale((locale_t)0);
+# endif
+  locale_t copy = loc;
+  if (copy == LC_GLOBAL_LOCALE)
+    copy = duplocale(copy);
+
+  if (copy != (locale_t)0)
+    {
+      ret = strerror_l(errnum, copy); /*LINTOK: xstrerror_l*/
+      if (loc == LC_GLOBAL_LOCALE)
+        {
+          freelocale(copy);
+        }
+    }
+#endif
+
+  if (!ret)
+    {
+      (void)snprintf(buf, sizeof(buf), "Unknown error %d", errnum);
+      ret = buf;
+    }
+
+  errno = saved;
+  return ret;
+}
+
 t_stat process_stdin_commands (t_stat stat, char *argv[]);
 
 /* Check if running on Rosetta 2 */
@@ -1566,7 +1635,7 @@ DUMA_SET_FILL(0x2E);
 #  endif /* ifdef BACKTRACE_SUPPORTED */
 # endif /* ifdef USE_BACKTRACE */
 
-setlocale(LC_NUMERIC, "");
+(void)setlocale(LC_ALL, "");
 
 # if defined(NEED_CONSOLE_SETUP) && defined(_WIN32)
 #  include <windows.h>
@@ -5836,7 +5905,8 @@ if (uptr->flags & UNIT_BUF) {
         rewind (uptr->fileref);
         sim_fwrite (uptr->filebuf, SZ_D (dptr), cap, uptr->fileref);
         if (ferror (uptr->fileref))
-            sim_printf ("%s: I/O error - %s", sim_dname (dptr), strerror (errno));
+            sim_printf ("%s: I/O error - %s (Error %d)",
+                        sim_dname (dptr), xstrerror_l(errno), errno);
         }
     if (uptr->flags & UNIT_MUSTBUF) {                   /* dyn alloc? */
         FREE (uptr->filebuf);                           /* free buf */
@@ -10605,7 +10675,8 @@ FILE *tmp = tmpfile();
 #endif
 
 if (!tmp) {
-    fprintf (st, "Unable to create temporary file: %s\n", strerror (errno));
+    fprintf (st, "Unable to create temporary file: %s (Error %d)\n",
+             xstrerror_l(errno), errno);
     return;
     }
 

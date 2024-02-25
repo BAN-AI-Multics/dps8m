@@ -68,6 +68,9 @@
 #include <sys/types.h>
 #include <netdb.h>
 #include <errno.h>
+#if defined(__APPLE__)
+# include <xlocale.h>
+#endif
 #include <locale.h>
 #include <netinet/in.h>
 
@@ -645,10 +648,10 @@ return SCPE_OK;
 
 int main (int argc, char * argv [])
   {
-    setlocale(LC_NUMERIC, "");
-
     int rc;
     int linkno;
+
+    (void)setlocale(LC_ALL, "");
     rc = udp_create ("4500::4426", & linkno);
     if (rc < 0)
       {
