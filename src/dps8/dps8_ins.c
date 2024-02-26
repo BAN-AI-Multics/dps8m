@@ -93,8 +93,7 @@ static word36 barrelRightMaskTable[37] = {
               0017777777777ull, 0037777777777ull, 0077777777777ull,
               0177777777777ull, 0377777777777ull, 0777777777777ull,
             };
-//# define BS_COMPL(HI) ((~(HI)) & MASK36)
-# define BS_COMPL(HI) ((HI) ^ (MASK36))
+# define BS_COMPL(HI) ((~(HI)) & MASK36)
 #endif // BARREL_SHIFTER
 
 #ifdef LOOPTRC
@@ -3118,20 +3117,16 @@ static t_stat doInstruction (void)
 
               // If the captured bits are all 0 or all 1, then
               // A0 will not have changed during the rotate
-              if (capture == 0 || capture == (MASK36 & barrelLeftMaskTable[cnt + 1]))
-                CLR_I_CARRY;
-              else
-                SET_I_CARRY;
 
             } else {
               capture = cpu.rA;
               cpu.rA = 0;
-              if (capture == 0 || capture == MASK36)
-                CLR_I_CARRY;
-              else
-                SET_I_CARRY;
             }
 
+            if (capture == 0 || capture == (MASK36 & barrelLeftMaskTable[cnt + 1]))
+              CLR_I_CARRY;
+            else
+              SET_I_CARRY;
 #else // !BARREL_SHIFTER
             word36 tmp36 = cpu.TPR.CA & 0177;   // CY bits 11-17
 
@@ -3451,19 +3446,16 @@ static t_stat doInstruction (void)
 
               // If the captured bits are all 0 or all 1, then
               // Q0 will not have changed during the rotate
-              if (capture == 0 || capture == (MASK36 & barrelLeftMaskTable[cnt + 1]))
-                CLR_I_CARRY;
-              else
-                SET_I_CARRY;
 
             } else {
               capture = cpu.rQ;
               cpu.rQ = 0;
-              if (capture == 0 || capture == MASK36)
-                CLR_I_CARRY;
-              else
-                SET_I_CARRY;
             }
+
+            if (capture == 0 || capture == (MASK36 & barrelLeftMaskTable[cnt + 1]))
+              CLR_I_CARRY;
+            else
+              SET_I_CARRY;
 #else // !BARREL_SHIFTER
             word36 tmp36   = cpu.TPR.CA & 0177;   // CY bits 11-17
             word36 tmpSign = cpu.rQ & SIGN36;
