@@ -380,12 +380,7 @@ static gboolean time_handler (GtkWidget * widget) {
   return TRUE;
 }
 
-#undef XSTR_EMAXLEN
-#if defined(_POSIX_SSIZE_MAX)
-# define XSTR_EMAXLEN _POSIX_SSIZE_MAX
-#else
-# define XSTR_EMAXLEN 32767
-#endif
+#define XSTR_EMAXLEN 32767
 
 static const char
 *xstrerror_l(int errnum)
