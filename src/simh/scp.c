@@ -1375,12 +1375,7 @@ trealloc(void *ptr, size_t size)
 # endif /* ifdef USE_TREALLOC */
 #endif /* ifdef TESTING */
 
-#undef XSTR_EMAXLEN
-#if defined(_POSIX_SSIZE_MAX)
-# define XSTR_EMAXLEN _POSIX_SSIZE_MAX
-#else
-# define XSTR_EMAXLEN 32767
-#endif
+#define XSTR_EMAXLEN 32767
 
 const char
 *xstrerror_l(int errnum)

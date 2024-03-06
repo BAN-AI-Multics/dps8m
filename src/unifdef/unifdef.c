@@ -250,12 +250,7 @@ static const char   *xstrdup                (const char *, const char *);
 
 #define endsym(c) ( !isalnum((unsigned char)c) && c != '_' )
 
-#undef XSTR_EMAXLEN
-#if defined(_POSIX_SSIZE_MAX)
-# define XSTR_EMAXLEN _POSIX_SSIZE_MAX
-#else
-# define XSTR_EMAXLEN 32767
-#endif
+#define XSTR_EMAXLEN 32767
 
 static const char
 *xstrerror_l(int errnum)
