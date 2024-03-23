@@ -261,7 +261,14 @@ enableRawMode(int fd)
   raw.c_cc[VTIME] = 0; /* 1 byte, no timer */
 
   /* put terminal in raw mode after flushing */
-  if (tcsetattr(fd, TCSAFLUSH, &raw) < 0)
+# if defined(__ANDROID__)
+#  define TCSA_TYPE TCSANOW
+  (void)fflush(stdout);
+  (void)fflush(stderr);
+# else
+#  define TCSA_TYPE TCSAFLUSH
+# endif
+  if (tcsetattr(fd, TCSA_TYPE, &raw) < 0)
   {
     goto fatal;
   }
@@ -278,7 +285,11 @@ static void
 disableRawMode(int fd)
 {
   /* Don't even check the return value as it's too late. */
-  if (rawmode && tcsetattr(fd, TCSAFLUSH, &orig_termios) != -1)
+# if defined(__ANDROID__)
+  (void)fflush(stdout);
+  (void)fflush(stderr);
+# endif
+  if (rawmode && tcsetattr(fd, TCSA_TYPE, &orig_termios) != -1)
   {
     rawmode = 0;
   }

@@ -830,7 +830,14 @@ main(int argc, char *argv[])
       tt.c_cflag = CBAUD | CS8 | CREAD;
 #endif /* if defined( __SVR4 ) || defined( _AIX ) */
       tt.c_lflag &= ~ECHO;
-      (void)tcsetattr(STDIN_FILENO, TCSAFLUSH, &tt);
+#if defined(__ANDROID__)
+# define TCSA_TYPE TCSANOW
+      (void)fflush(stdout);
+      (void)fflush(stderr);
+#else
+# define TCSA_TYPE TCSAFLUSH
+#endif
+      (void)tcsetattr(STDIN_FILENO, TCSA_TYPE, &tt);
 
       (void)strncpy(buf, argv[0], sizeof ( buf ) - 1);
       buf[sizeof ( buf ) - 1] = '\0';

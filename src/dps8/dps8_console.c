@@ -622,7 +622,14 @@ static void newlineOff (void)
     struct termios runtty;
     runtty = ttyTermios;
     runtty.c_oflag &= (unsigned int) ~OPOST; /* no output edit */
-    tcsetattr (0, TCSAFLUSH, & runtty);
+#  if defined(__ANDROID__)
+#   define TCSA_TYPE TCSANOW
+    (void)fflush(stdout);
+    (void)fflush(stderr);
+#  else
+#   define TCSA_TYPE TCSAFLUSH
+#  endif
+    tcsetattr (0, TCSA_TYPE, & runtty);
   }
 
 static void newlineOn (void)
@@ -631,7 +638,11 @@ static void newlineOn (void)
       return;
     if (! ttyTermiosOk)
       return;
-    tcsetattr (0, TCSAFLUSH, & ttyTermios);
+#  if defined(__ANDROID__)
+    (void)fflush(stdout);
+    (void)fflush(stderr);
+#  endif
+    tcsetattr (0, TCSA_TYPE, & ttyTermios);
   }
 # endif /* ifndef __MINGW32__ */
 #endif /* ifndef __MINGW64__ */
