@@ -762,7 +762,7 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 
 * The simulator can be built for **64-bit** **AIX®** using [**IBM XL C/C++ for AIX**](https://www.ibm.com/products/xl-c-aix-compiler-power) (**`xlc`**), [**IBM Open XL C/C++ for AIX**](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) (**`ibm-clang`**), or **GNU C** (**`gcc`**).
 * **The DPS8M Development Team** recommends building with **IBM Open XL C/C++ V17.1.2** (or later) or **GCC 11** (or later) for optimal performance.
-* [**IBM Open XL C/C++ for AIX V17.1.2 Fix Pack 2** (February 2024)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the *minimum* recommended version of the **Open XL C/C++** compiler on **POWER8**, **POWER9**, and **Power10** systems.
+* [**IBM Open XL C/C++ for AIX V17.1.2 Fix Pack 4** (March 2024)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the *minimum* recommended version of the **Open XL C/C++** compiler on **POWER8**, **POWER9**, and **Power10** systems.
 * [**IBM XL C/C++ for AIX V16.1.0 Fix Pack 16** (February 2024)](https://www.ibm.com/support/pages/ibm-xl-cc-aix-161) is the *minimum* recommended version of the **IBM XL C/C++** compiler on **POWER8** and **POWER9** systems.
 
 []()
