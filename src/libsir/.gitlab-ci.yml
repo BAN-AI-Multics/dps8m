@@ -1,0 +1,5353 @@
+# .gitlab-ci.yml
+
+# GitLab CI/CD configuration
+################################################################################
+#
+# Version: 2.2.5
+#
+################################################################################
+#
+# SPDX-License-Identifier: MIT
+#
+# Copyright (c) 2018-2024 Ryan M. Lederman <lederman@gmail.com>
+# Copyright (c) 2018-2024 Jeffrey H. Johnson <trnsz@pobox.com>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+################################################################################
+
+################################################################################
+
+stages:
+  - sanity
+  - build_linux
+  - build_freebsd
+  - build_openbsd
+  - build_netbsd
+  - build_android
+  - build_windows
+  - build_windows_msbuild
+  - build_cygwin
+  - build_js
+  - build_os400
+  - build_python
+  - build_ch
+  - coverage
+  - lint_static
+  - lint_dynamic
+  - deploy
+  - coverity
+
+################################################################################
+
+.ClangDisableWarnings: &ClangDisableWarnings |
+  # *ClangDisableWarnings - Disable excessive Clang-CL Warnings
+  echo -e "section_start:`date +%s`:DClW_section[collapsed=false]\r\e[0K\033[0;36mDisable excessive Clang-CL Warnings ...\033[0m" || true
+  export DISABLE_WARNINGS="-Wno-bad-function-cast -Wno-cast-align -Wno-cast-function-type -Wno-cast-function-type-strict -Wno-cast-qual -Wno-covered-switch-default -Wno-declaration-after-statement -Wno-deprecated-declarations -Wno-incompatible-pointer-types-discards-qualifiers -Wno-missing-variable-declarations -Wno-nonportable-system-include-path -Wno-reserved-identifier -Wno-reserved-macro-identifier -Wno-sign-conversion -Wno-unknown-argument -Wno-unsafe-buffer-usage -Wno-unused-command-line-argument -Wno-language-extension-token"
+  echo -e "section_end:`date +%s`:DClW_section\r\e[0K" || true
+
+################################################################################
+
+.Configuration: &Configuration |
+  # *Configuration - CI/CD Configuration
+  echo -e "section_start:`date +%s`:Configuration_section[collapsed=false]\r\e[0K\033[0;36mCI/CD Configuration ...\033[0m" || true
+  export TERM=xterm-color
+  ulimit -n 65535 > /dev/null 2>&1 || true
+  test -f 2> /dev/null /.dockerenv && { git config --global --add safe.directory '*' > /dev/null 2>&1 || true; } || true
+  echo "Project Name                : ${CI_PROJECT_TITLE:-Unknown}"
+  echo "Project Git Commit          : ${CI_COMMIT_SHA:-Unknown}"
+  echo "Project Git Branch          : ${CI_COMMIT_BRANCH:-Unknown}"
+  echo "GitLab CI User Details      : ${GITLAB_USER_LOGIN:-Unknown} - ${GITLAB_USER_NAME:-Unknown} (${GITLAB_USER_ID:-Unknown}) ${GITLAB_USER_EMAIL:-}"
+  echo "GitLab CI Pipeline IID      : ${CI_PIPELINE_IID:-Unknown}"
+  echo "GitLab CI Job Name          : ${CI_JOB_NAME:-Unknown}"
+  echo "GitLab CI Job ID            : ${CI_JOB_ID:-Unknown}"
+  echo "GitLab CI Job Stage         : ${CI_JOB_STAGE:-Unknown}"
+  echo "GitLab CI Runner Details    : ${CI_RUNNER_VERSION:-Unknown} (${CI_RUNNER_REVISION:-Unknown})"
+  echo "GitLab CI Project Directory : ${CI_PROJECT_DIR:-Unknown}"
+  echo -e "section_end:`date +%s`:Configuration_section\r\e[0K" || true
+
+################################################################################
+
+.CheckLogRemnants: &CheckLogRemnants |
+  # *CheckLogRemnants - Check logs/* for remaining files
+  echo -e "section_start:`date +%s`:CheckLogRemnants_section[collapsed=false]\r\e[0K\033[0;36mCheck logs/* for remaining files ...\033[0m" || true
+  test -f logs/* && { ls -l logs/* && exit 1; false; }; true
+  echo -e "section_end:`date +%s`:CheckLogRemnants_section\r\e[0K" || true
+
+################################################################################
+
+.WineBoot: &WineBoot |
+  # *WineBoot - Start Wine
+  echo -e "section_start:`date +%s`:WineBoot_section[collapsed=true]\r\e[0K\033[0;36mStart Wine ...\033[0m" || true
+  echo -n "Starting Wine... "
+  env WINEDEBUG=-all $(command -v wine64 || command -v wine || false) wineboot --init > /dev/null 2>&1
+  cp -f /usr/i686-w64-mingw32/sys-root/mingw/bin/iconv.dll ~/.wine/drive_c/windows/system/ > /dev/null 2>&1 || true
+  cp -f /usr/x86_64-w64-mingw32/sys-root/mingw/bin/iconv.dll ~/.wine/drive_c/windows/system32/ > /dev/null 2>&1 || true
+  while pgrep wineserver > /dev/null 2>&1; do sleep 1; done
+  echo "OK."
+  wine64 --version 2> /dev/null || wine --version 2> /dev/null || true
+  echo -e "section_end:`date +%s`:WineBoot_section\r\e[0K" || true
+
+################################################################################
+
+.BuildInformation: &BuildInformation |
+  # *BuildInformation - Show build information
+  echo -e "section_start:`date +%s`:BuildInformation_section[collapsed=true]\r\e[0K\033[0;36mBuild information ...\033[0m" || true
+  find build/bin build/lib -type f -exec sh -c "ls -la {};file {}" \; 2> /dev/null | grep -v "file\.exists" 2> /dev/null || true
+  echo -e "section_end:`date +%s`:BuildInformation_section\r\e[0K" || true
+
+################################################################################
+
+Linux/x86_64 (G++, GCC):
+  stage: build_linux
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export CC="gcc"
+    - export CXX="g++"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - make
+    - make tests++
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirexample
+    - stdbuf -o L ./build/bin/sirtests
+    - stdbuf -o L ./build/bin/sirtests++
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Verify Rollover:
+  stage: lint_dynamic
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - make
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirtests --perf --leave-logs > /dev/null 2>&1
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - |
+      # Check logs/* to ensure rollover
+      echo -e "section_start:`date +%s`:CheckLogsRolled_section[collapsed=false]\r\e[0K\033[0;36mCheck logs output to ensure rollover ...\033[0m" || true
+      ls -lat logs/libsir-perf*
+      ls -1 logs/libsir-perf* | wc -l | grep -q -Ev '(^1$|^0$)' || exit $?; true
+      echo -e "section_end:`date +%s`:CheckLogsRolled_section\r\e[0K" || true
+    - make clean
+    - mkdir -p logs
+    - mkdir -p build
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Linux/i686 (G++, GCC):
+  stage: build_linux
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export CFLAGS="-m32 -D_FILE_OFFSET_BITS=64"
+    - export CXXFLAGS="-m32 -DSIR_NO_BOOST_FORMAT=1 -D_FILE_OFFSET_BITS=64"
+    - export LDFLAGS="-m32"
+    - export CC="gcc"
+    - export CXX="g++"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - make
+    - make tests++
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - ./build/bin/sirexample
+    - ./build/bin/sirtests
+    - ./build/bin/sirtests++
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+.Linux/x86_64 (musl-libc, G++, GCC):
+  stage: build_linux
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export CC="musl-gcc"
+    - ${CC:?} --version
+    - make
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - ./build/bin/sirexample
+    - ./build/bin/sirtests
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Linux/x86_64 (Clang++, Clang):
+  stage: build_linux
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export RANLIB="llvm-ranlib"
+    - export CC="clang"
+    - export CXX="clang++"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - make
+    - make tests++
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirexample
+    - stdbuf -o L ./build/bin/sirtests
+    - stdbuf -o L ./build/bin/sirtests++
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Linux/i686 (Clang++, Clang):
+  stage: build_linux
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export RANLIB="llvm-ranlib"
+    - export CFLAGS="-m32 -D_FILE_OFFSET_BITS=64"
+    - export CXXFLAGS="-m32 -DSIR_NO_BOOST_FORMAT=1 -D_FILE_OFFSET_BITS=64"
+    - export LDFLAGS="-m32"
+    - export CC="clang"
+    - export CXX="clang++"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - make
+    - make tests++
+    - |
+      # End of Build ... echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - ./build/bin/sirexample
+    - ./build/bin/sirtests
+    - ./build/bin/sirtests++
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Linux/x86_64 (AOCC++, AOCC):
+  stage: build_linux
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - . /opt/AMD/aocc-compiler-4.2.0/setenv_AOCC.sh
+    - export CC="clang"
+    - export CXX="clang++"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - make
+    - make tests++
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirexample
+    - stdbuf -o L ./build/bin/sirtests
+    - stdbuf -o L ./build/bin/sirtests++
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Linux/i686 (AOCC++, AOCC):
+  stage: build_linux
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - . /opt/AMD/aocc-compiler-4.2.0/setenv_AOCC.sh
+    - export CC="clang"
+    - export CXX="clang++"
+    - export CFLAGS="-m32 -D_FILE_OFFSET_BITS=64"
+    - export CXXFLAGS="-m32 -DSIR_NO_BOOST_FORMAT=1 -D_FILE_OFFSET_BITS=64"
+    - export LDFLAGS="-m32"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - make
+    - make tests++
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - ./build/bin/sirexample
+    - ./build/bin/sirtests
+    - ./build/bin/sirtests++
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Linux/x86_64 (Intel oneAPI, ICPX, ICX):
+  stage: build_linux
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/intel:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="${PATH:-}:/opt/anaconda/bin:/opt/anaconda/sbin"
+    - source /opt/anaconda/bin/activate
+    - export WPEDANTIC="-Wno-gnu-include-next -Wno-tautological-constant-compare"
+    - export CC="icx"
+    - export CXX="icpx"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - make
+    - make tests++
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirexample
+    - stdbuf -o L ./build/bin/sirtests
+    - stdbuf -o L ./build/bin/sirtests++
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Linux/x86_64 (Chamois-CompCert, C-only):
+  stage: build_linux
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/chamois-compcert:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/chamois-compcert/bin:${PATH:-}"
+    - export CC="/opt/chamois-compcert/bin/ccomp"
+    - ${CC:?} --version
+    - env CFLAGS="-D_sir_thread_local=_Thread_local ${CFLAGS:-}" make
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirexample
+    - stdbuf -o L ./build/bin/sirtests
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Linux/i386 (Chamois-CompCert, C-only):
+  stage: build_linux
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/chamois-compcert:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/chamois-compcert-i386/bin:${PATH:-}"
+    - export CC="/opt/chamois-compcert-i386/bin/ccomp"
+    - ${CC:?} --version
+    - env CFLAGS="-D_sir_thread_local=_Thread_local -D_FILE_OFFSET_BITS=64 ${CFLAGS:-}" make
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - ./build/bin/sirexample
+    - ./build/bin/sirtests
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Linux/x86_64 (Oracle Studio C, C-only):
+  stage: build_linux
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Docker-x64-SmallFS
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/oracle:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export CC="/opt/oracle/developerstudio-latest/bin/suncc -m64"
+    - ${CC:?} -V
+    - make
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirexample
+    - stdbuf -o L ./build/bin/sirtests
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Linux/i686 (Oracle Studio C, C-only):
+  stage: build_linux
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Docker-x64-SmallFS
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/oracle:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export CC="/opt/oracle/developerstudio-latest/bin/suncc"
+    - export CFLAGS="-m32 -D_FILE_OFFSET_BITS=64"
+    - export LDFLAGS="-m32 -D_FILE_OFFSET_BITS=64"
+    - ${CC:?} -V
+    - make
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - ./build/bin/sirexample
+    - ./build/bin/sirtests
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Linux/x86_64 (NVIDIA HPC SDK C++, C):
+  stage: build_linux
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+    - AVX
+  image:
+    name: registry.gitlab.com/libsir/libsir/nvhpc:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - NVC="$(command -v /opt/nvidia/hpc_sdk/Linux_x86_64/*/compilers/bin/nvc | sort -V | head -n 1)"
+    - export NVC
+    - export CC="${NVC:?}"
+    - ${CC:?} -V
+    - NVCC="$(command -v /opt/nvidia/hpc_sdk/Linux_x86_64/*/compilers/bin/nvc++ | sort -V | head -n 1)"
+    - export NVCC
+    - export CXX="${NVCC:?}"
+    - ${CXX:?} -V
+    - make
+    - make tests++
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirexample
+    - stdbuf -o L ./build/bin/sirtests
+    - stdbuf -o L ./build/bin/sirtests++
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Linux/x86_64 (Chibicc, C-only):
+  stage: build_linux
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/chibicc:${PATH:?}"
+    - export CFLAGS="-I/opt/chibicc/include"
+    - export CC="chibicc"
+    - make
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirexample
+    - stdbuf -o L ./build/bin/sirtests
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Windows/x64 (LLVM-MinGW, Clang++, Clang):
+  stage: build_windows
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/llvm-mingw:latest
+  script:
+    - *Configuration
+    - *WineBoot
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - mkdir -p build/bin && touch -f build/bin/mcmb.exe
+    - export RANLIB="llvm-ranlib"
+    - export CC="x86_64-w64-mingw32-clang"
+    - export CXX="x86_64-w64-mingw32-clang++"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - export CFLAGS="-Wno-ignored-attributes -Wno-unknown-pragmas"
+    - make PLATFORM_LIB_EXT=".a"
+    - make tests++ PLATFORM_LIB_EXT=".a"
+    - cp -f /opt/llvm-mingw/x86_64-w64-mingw32/bin/libwinpthread-1.dll build/bin
+    - cp -f /opt/llvm-mingw/x86_64-w64-mingw32/bin/libunwind.dll build/bin
+    - cp -f /opt/llvm-mingw/x86_64-w64-mingw32/bin/libc++.dll build/bin
+    - rm -f build/bin/mcmb.exe
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - mkdir -p logs
+    - touch build/bin/file.exists
+    - export WINEDEBUG=-all
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirexample.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirexample.out
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirtests.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirtests.out
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirtests++.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirtests++.out
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+      - screenlog.0
+      - ./*.out
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Windows/Arm (LLVM-MinGW, Clang++, Clang):
+  stage: build_windows
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/llvm-mingw:latest
+  script:
+    - *Configuration
+    - *WineBoot
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - mkdir -p build/bin && touch -f build/bin/mcmb.exe
+    - export RANLIB="llvm-ranlib"
+    - export CC="armv7-w64-mingw32-clang"
+    - export CXX="armv7-w64-mingw32-clang++"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - export CFLAGS="-Wno-ignored-attributes -Wno-unknown-pragmas"
+    - make
+    - make tests++
+    - cp -f /opt/llvm-mingw/armv7-w64-mingw32/bin/libwinpthread-1.dll build/bin
+    - cp -f /opt/llvm-mingw/armv7-w64-mingw32/bin/libunwind.dll build/bin
+    - cp -f /opt/llvm-mingw/armv7-w64-mingw32/bin/libc++.dll build/bin
+    - rm -f build/bin/mcmb.exe
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Windows/Arm64 (LLVM-MinGW, Clang++, Clang):
+  stage: build_windows
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/llvm-mingw:latest
+  script:
+    - *Configuration
+    - *WineBoot
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - mkdir -p build/bin && touch -f build/bin/mcmb.exe
+    - export RANLIB="llvm-ranlib"
+    - export CC="aarch64-w64-mingw32-clang"
+    - export CXX="aarch64-w64-mingw32-clang++"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - CFLAGS="-Wno-ignored-attributes -Wno-unknown-pragmas"
+    - make
+    - make tests++
+    - cp -f /opt/llvm-mingw/aarch64-w64-mingw32/bin/libwinpthread-1.dll build/bin
+    - cp -f /opt/llvm-mingw/aarch64-w64-mingw32/bin/libunwind.dll build/bin
+    - cp -f /opt/llvm-mingw/aarch64-w64-mingw32/bin/libc++.dll build/bin
+    - rm -f build/bin/mcmb.exe
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Linux/x86_64 (AMD Open64, C-only):
+  allow_failure: true
+  needs:
+    - job: Style check
+  stage: build_linux
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/ao64:latest
+  script:
+    - *Configuration
+    - /opt/x86_open64-4.5.2.1/bin/opencc --version
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/x86_open64-4.5.2.1/bin:${PATH:?}"
+    - export CC="opencc"
+    - export NO_DEFAULT_CFLAGS="1"
+    - export SIR_CSTD="-std=gnu9x"
+    - export CFLAGS="-Iinclude -Wall -Wextra -Wno-missing-braces -Wno-missing-field-initializers -Wno-strict-aliasing -fno-strict-aliasing -fPIC -O3"
+    - export LDFLAGS="-lmcompat"
+    - make
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirexample
+    - stdbuf -o L ./build/bin/sirtests
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Windows/i686 (LLVM-MinGW, Clang++, Clang):
+  stage: build_windows
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/llvm-mingw:latest
+  script:
+    - *Configuration
+    - *WineBoot
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - mkdir -p build/bin && touch -f build/bin/mcmb.exe
+    - export RANLIB="llvm-ranlib"
+    - export CC="i686-w64-mingw32-clang"
+    - export CXX="i686-w64-mingw32-clang++"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - export CFLAGS="-Wno-ignored-attributes -Wno-incompatible-function-pointer-types -Wno-unknown-pragmas"
+    - make PLATFORM_LIB_EXT=".a"
+    - make tests++ PLATFORM_LIB_EXT=".a"
+    - cp -f /opt/llvm-mingw/i686-w64-mingw32/bin/libwinpthread-1.dll build/bin
+    - cp -f /opt/llvm-mingw/i686-w64-mingw32/bin/libunwind.dll build/bin
+    - cp -f /opt/llvm-mingw/i686-w64-mingw32/bin/libc++.dll build/bin
+    - rm -f build/bin/mcmb.exe
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - mkdir -p logs
+    - touch build/bin/file.exists
+    - export WINEDEBUG=-all
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirexample.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirexample.out
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirtests.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirtests.out
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirtests++.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirtests++.out
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+      - screenlog.0
+      - ./*.out
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Android/x86_64 (API Level 21, Clang++, Clang):
+  stage: build_android
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/ndk:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/android-ndk/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH:?}"
+    - export LDFLAGS="-static"
+    - export CC="x86_64-linux-android21-clang"
+    - export CXX="x86_64-linux-android21-clang++"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - make SIR_NO_PLUGINS=1
+    - make tests++ SIR_NO_PLUGINS=1
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - ./build/bin/sirexample
+    - ./build/bin/sirtests
+    - ./build/bin/sirtests++
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Android/i686 (API Level 21, Clang++, Clang):
+  stage: build_android
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Docker-x64-SmallFS
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/ndk:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/android-ndk/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH:?}"
+    - export LDFLAGS="-static"
+    - export CC="i686-linux-android21-clang"
+    - export CXX="i686-linux-android21-clang++"
+    - export CFLAGS="-D_FILE_OFFSET_BITS=64"
+    - export CXXFLAGS="-D_FILE_OFFSET_BITS=64"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - make SIR_NO_PLUGINS=1
+    - make tests++ SIR_NO_PLUGINS=1
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - ./build/bin/sirexample
+    - ./build/bin/sirtests
+    - ./build/bin/sirtests++
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Android/ARM64 (API Level 21, Clang++, Clang):
+  stage: build_android
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/ndk:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/android-ndk/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH:?}"
+    - export CC="aarch64-linux-android21-clang"
+    - export CXX="aarch64-linux-android21-clang++"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - make
+    - make tests++
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Android/ARMv7A (API Level 21, Clang++, Clang):
+  stage: build_android
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/ndk:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/android-ndk/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH:?}"
+    - export CC="armv7a-linux-androideabi21-clang"
+    - export CXX="armv7a-linux-androideabi21-clang++"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - make
+    - make tests++
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Android/x86_64 (API Level 35, Clang++, Clang):
+  stage: build_android
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/ndk:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/android-ndk/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH:?}"
+    - export LDFLAGS="-static"
+    - export CC="x86_64-linux-android35-clang"
+    - export CXX="x86_64-linux-android35-clang++"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - make SIR_NO_PLUGINS=1
+    - make tests++ SIR_NO_PLUGINS=1
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - ./build/bin/sirexample
+    - ./build/bin/sirtests
+    - ./build/bin/sirtests++
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Android/i686 (API Level 35, Clang++, Clang):
+  stage: build_android
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Docker-x64-SmallFS
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/ndk:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/android-ndk/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH:?}"
+    - export LDFLAGS="-static"
+    - export CC="i686-linux-android35-clang"
+    - export CXX="i686-linux-android35-clang++"
+    - export CFLAGS="-D_FILE_OFFSET_BITS=64"
+    - export CXXFLAGS="-D_FILE_OFFSET_BITS=64"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - make SIR_NO_PLUGINS=1
+    - make tests++ SIR_NO_PLUGINS=1
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - ./build/bin/sirexample
+    - ./build/bin/sirtests
+    - ./build/bin/sirtests++
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Android/ARM64 (API Level 35, Clang++, Clang):
+  stage: build_android
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/ndk:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/android-ndk/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH:?}"
+    - export CC="aarch64-linux-android35-clang"
+    - export CXX="aarch64-linux-android35-clang++"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - make
+    - make tests++
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Android/ARMv7A (API Level 35, Clang++, Clang):
+  stage: build_android
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/ndk:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/android-ndk/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH:?}"
+    - export CC="armv7a-linux-androideabi35-clang"
+    - export CXX="armv7a-linux-androideabi35-clang++"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - make
+    - make tests++
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Windows/Arm64 (MSVC, C++, C):
+  stage: build_windows
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/msvc:latest
+  script:
+    - *Configuration
+    - *WineBoot
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/msvc/bin/arm64:${PATH:?}"
+    - cl.exe 2>&1 | head -3 | grep -v '^$' || true
+    - mkdir -p build/bin
+    - cl.exe src/*.c example/*.c -Iinclude /Ob3 /volatile:iso /GS- /Oi /O2 /W4 /std:c11 /experimental:c11atomics /wd4996 /Febuild\\bin\\sirexample.exe /DNDEBUG=1 /DSIR_NO_PLUGINS=1
+    - cl.exe src/*.c tests/*.c -Iinclude /Ob3 /volatile:iso /GS- /Oi /O2 /W4 /std:c11 /experimental:c11atomics /wd4996 /Febuild\\bin\\sirtests.exe /DNDEBUG=1 /DSIR_NO_PLUGINS=1
+    - cl.exe src/*.c tests/*.c -c -Itests -Iinclude /Ob3 /volatile:iso /GS- /Oi /O2 /W4 /std:c11 /experimental:c11atomics /wd4996 /DNDEBUG=1 /DSIR_NO_PLUGINS=1
+    - rm -f tests.obj > /dev/null 2>&1 || true
+    - rm -f example.obj > /dev/null 2>&1 || true
+    - cl.exe tests/*.cc -c -Iinclude /permissive- /EHsc /Ob3 /volatile:iso /GS- /Oi /O2 /W4 /std:c++20 /wd4996 /wd4127 /DNDEBUG=1 /DSIR_NO_PLUGINS=1
+    - link.exe /OUT:build\\bin\\sirtests++.exe *.obj
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Windows/Arm (MSVC, C++, C):
+  stage: build_windows
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/msvc:latest
+  script:
+    - *Configuration
+    - *WineBoot
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/msvc/bin/arm:${PATH:?}"
+    - cl.exe 2>&1 | head -3 | grep -v '^$' || true
+    - mkdir -p build/bin
+    - cl.exe src/*.c example/*.c -Iinclude /Ob3 /volatile:iso /GS- /Oi /O2 /W4 /std:c11 /experimental:c11atomics /wd4996 /Febuild\\bin\\sirexample.exe /DNDEBUG=1 /DSIR_NO_PLUGINS=1
+    - cl.exe src/*.c tests/*.c -Iinclude /Ob3 /volatile:iso /GS- /Oi /O2 /W4 /std:c11 /experimental:c11atomics /wd4996 /Febuild\\bin\\sirtests.exe /DNDEBUG=1 /DSIR_NO_PLUGINS=1
+    - cl.exe src/*.c tests/*.c -c -Itests -Iinclude /Ob3 /volatile:iso /GS- /Oi /O2 /W4 /std:c11 /experimental:c11atomics /wd4996 /DNDEBUG=1 /DSIR_NO_PLUGINS=1
+    - rm -f tests.obj > /dev/null 2>&1 || true
+    - rm -f example.obj > /dev/null 2>&1 || true
+    - cl.exe tests/*.cc -c -Iinclude /permissive- /EHsc /Ob3 /volatile:iso /GS- /Oi /O2 /W4 /std:c++20 /wd4996 /wd4127 /DNDEBUG=1 /DSIR_NO_PLUGINS=1
+    - link.exe /OUT:build\\bin\\sirtests++.exe *.obj
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Windows/x64 (MSVC, C++, C):
+  stage: build_windows
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/msvc:latest
+  script:
+    - *Configuration
+    - *WineBoot
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/msvc/bin/x64:${PATH:?}"
+    - cl.exe 2>&1 | head -3 | grep -v '^$' || true
+    - mkdir -p build/bin
+    - cl.exe src/*.c example/*.c -Iinclude /Ob3 /volatile:iso /GS- /Oi /O2 /W4 /std:c11 /experimental:c11atomics /wd4996 /Febuild\\bin\\sirexample.exe /DNDEBUG=1 /DSIR_NO_PLUGINS=1
+    - cl.exe src/*.c tests/*.c -Iinclude /Ob3 /volatile:iso /GS- /Oi /O2 /W4 /std:c11 /experimental:c11atomics /wd4996 /Febuild\\bin\\sirtests.exe /DNDEBUG=1 /DSIR_NO_PLUGINS=1
+    - cl.exe src/*.c tests/*.c -c -Itests -Iinclude /Ob3 /volatile:iso /GS- /Oi /O2 /W4 /std:c11 /experimental:c11atomics /wd4996 /DNDEBUG=1 /DSIR_NO_PLUGINS=1
+    - rm -f tests.obj > /dev/null 2>&1 || true
+    - rm -f example.obj > /dev/null 2>&1 || true
+    - cl.exe tests/*.cc -c -Iinclude /permissive- /EHsc /Ob3 /volatile:iso /GS- /Oi /O2 /W4 /std:c++20 /wd4996 /wd4127 /DNDEBUG=1 /DSIR_NO_PLUGINS=1
+    - link.exe /OUT:build\\bin\\sirtests++.exe *.obj
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - mkdir -p logs
+    - touch build/bin/file.exists
+    - export WINEDEBUG=-all
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirexample.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirexample.out
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirtests.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirtests.out
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirtests++.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirtests++.out
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+      - screenlog.0
+      - ./*.out
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Windows/i686 (MSVC, C++, C):
+  stage: build_windows
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/msvc:latest
+  script:
+    - *Configuration
+    - *WineBoot
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/msvc/bin/x86:${PATH:?}"
+    - cl.exe 2>&1 | head -3 | grep -v '^$' || true
+    - mkdir -p build/bin
+    - cl.exe src/*.c example/*.c -Iinclude /Ob3 /volatile:iso /GS- /Oi /O2 /W4 /std:c11 /experimental:c11atomics /wd4996 /Febuild\\bin\\sirexample.exe /DNDEBUG=1 /DSIR_NO_PLUGINS=1
+    - cl.exe src/*.c tests/*.c -Iinclude /Ob3 /volatile:iso /GS- /Oi /O2 /W4 /std:c11 /experimental:c11atomics /wd4996 /Febuild\\bin\\sirtests.exe /DNDEBUG=1 /DSIR_NO_PLUGINS=1
+    - cl.exe src/*.c tests/*.c -c -Itests -Iinclude /Ob3 /volatile:iso /GS- /Oi /O2 /W4 /std:c11 /experimental:c11atomics /wd4996 /DNDEBUG=1 /DSIR_NO_PLUGINS=1
+    - rm -f tests.obj > /dev/null 2>&1 || true
+    - rm -f example.obj > /dev/null 2>&1 || true
+    - cl.exe tests/*.cc -c -Iinclude /permissive- /EHsc /Ob3 /volatile:iso /GS- /Oi /O2 /W4 /std:c++20 /wd4996 /wd4127 /DNDEBUG=1 /DSIR_NO_PLUGINS=1
+    - link.exe /OUT:build\\bin\\sirtests++.exe *.obj
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - mkdir -p logs
+    - touch build/bin/file.exists
+    - export WINEDEBUG=-all
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirexample.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirexample.out
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirtests.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirtests.out
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirtests++.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirtests++.out
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+      - screenlog.0
+      - ./*.out
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Windows/x64 (MinGW-MSVCRT, G++, GCC):
+  stage: build_windows
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - *WineBoot
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - mkdir -p build/bin && touch -f build/bin/mcmb.exe
+    - export CC="x86_64-w64-mingw32-gcc"
+    - export CXX="x86_64-w64-mingw32-g++"
+    - export SIR_MSVCRT_MINGW="1"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - make
+    - make tests++
+    - cp -f /usr/x86_64-w64-mingw32/sys-root/mingw/bin/libwinpthread-1.dll build/bin
+    - cp -f /usr/x86_64-w64-mingw32/sys-root/mingw/bin/libstdc++-6.dll build/bin
+    - cp -f /usr/x86_64-w64-mingw32/sys-root/mingw/bin/libgcc*.dll build/bin
+    - rm -f build/bin/mcmb.exe
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - mkdir -p logs
+    - touch build/bin/file.exists
+    - export WINEDEBUG=-all
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirexample.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirexample.out
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirtests.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirtests.out
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirtests++.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirtests++.out
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+      - screenlog.0
+      - ./*.out
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Windows/x64 (MinGW-UCRT, G++, GCC):
+  stage: build_windows
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - *WineBoot
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - mkdir -p build/bin && touch -f build/bin/mcmb.exe
+    - export CC="x86_64-w64-mingw32ucrt-gcc"
+    - export CXX="x86_64-w64-mingw32ucrt-g++"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - make
+    - make tests++
+    - cp -f /usr/x86_64-w64-mingw32ucrt/sys-root/mingw/bin/libwinpthread-1.dll build/bin
+    - cp -f /usr/x86_64-w64-mingw32/sys-root/mingw/bin/libstdc++-6.dll build/bin
+    - cp -f /usr/x86_64-w64-mingw32/sys-root/mingw/bin/libgcc*.dll build/bin
+    - rm -f build/bin/mcmb.exe
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - mkdir -p logs
+    - touch build/bin/file.exists
+    - export WINEDEBUG=-all
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirexample.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirexample.out
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirtests.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirtests.out
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirtests++.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirtests++.out
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+      - screenlog.0
+      - ./*.out
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Windows/i686 (MinGW, G++, GCC):
+  stage: build_windows
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - *WineBoot
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - mkdir -p build/bin && touch -f build/bin/mcmb.exe
+    - export CC="i686-w64-mingw32-gcc"
+    - export CXX="i686-w64-mingw32-g++"
+    - export SIR_MSVCRT_MINGW="1"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - make
+    - make tests++
+    - cp -f /usr/i686-w64-mingw32/sys-root/mingw/bin/libwinpthread-1.dll build/bin
+    - cp -f /usr/i686-w64-mingw32/sys-root/mingw/bin/libstdc++-6.dll build/bin
+    - cp -f /usr/i686-w64-mingw32/sys-root/mingw/bin/libgcc*.dll build/bin
+    - rm -f build/bin/mcmb.exe
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - mkdir -p logs
+    - touch build/bin/file.exists
+    - export WINEDEBUG=-all
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirexample.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirexample.out
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirtests.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirtests.out
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirtests++.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirtests++.out
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+      - screenlog.0
+      - ./*.out
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Cygwin/x86_64 (G++, GCC):
+  stage: build_cygwin
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export CC="x86_64-pc-cygwin-gcc"
+    - export CXX="x86_64-pc-cygwin-g++"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - make
+    - make tests++
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Cygwin/i686 (GCC, C-only):
+  stage: build_cygwin
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export CC="i686-pc-cygwin-gcc"
+    - ${CC:?} --version
+    - make
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Coverage:
+  stage: coverage
+  needs:
+    - job: Style check
+    - job: Linux/x86_64 (Clang++, Clang)
+    - job: Linux/x86_64 (G++, GCC)
+    - job: Windows/x64 (MSVC, C++, C)
+  coverage: '/^TOTAL.*\s+(\d+\%)$/'
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Coverage ...
+      echo -e "section_start:`date +%s`:Cover_section[collapsed=true]\r\e[0K\033[0;36mCoverage test ...\033[0m" || true
+    - export NO_CLEANUP="1"
+    - export NO_APTSETUP="1"
+    - ./.coveralls.sh
+    - |
+      # End of Coverage ...
+      echo -e "section_end:`date +%s`:Cover_section\r\e[0K" || true
+    - |
+      # Start of Compress artifacts ...
+      echo -e "section_start:`date +%s`:Comp_section[collapsed=true]\r\e[0K\033[0;36mCompress artifacts ...\033[0m" || true
+    - lzip --fast -v $(ls -1 ./coverage* | grep -Ev '(\.html$|\.css$)' 2> /dev/null || true) || true
+    - |
+      # End of Compress artifacts ...
+      echo -e "section_end:`date +%s`:Comp_section\r\e[0K" || true
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+      - cover*
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Generate tags:
+  stage: sanity
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/style:latest
+  script:
+    - *Configuration
+    - |
+      # Start of tag generation ...
+      echo -e "section_start:`date +%s`:tag_section[collapsed=false]\r\e[0K\033[0;36mTag generation ...\033[0m" || true
+    - make tags
+    - htags --map-file --auto-completion --colorize-warned-line -h -I --tabs 4 -v -n -o -s --table-flist --statistics docs
+    - |
+      # End of tag generation ...
+      echo -e "section_end:`date +%s`:tag_section\r\e[0K" || true
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - ./docs/HTML
+      - ./tags
+      - ./TAGS
+      - ./G*
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Style check:
+  stage: sanity
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/style:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Style ...
+      echo -e "section_start:`date +%s`:Style_section[collapsed=false]\r\e[0K\033[0;36mStyle test ...\033[0m" || true
+    - |
+      # Checking for bad file names ...
+      ./.lint.sh spaces
+    - |
+      # Checking for tabs ...
+      ./.lint.sh tabs
+    - |
+      # Checking for extra whitespaces ...
+      ./.lint.sh whitespace
+    - |
+      # Checking preprocessor directive indentation ...
+      ./autoformat.sh || true
+      git diff | grep . && { printf '%s\n' "autoformat check failed!"; exit 1; } || true
+    - |
+      # Checking for extra newlines ...
+      git ls-files '*.c' '*.h' '*.cc' '*.hh' | xargs -L1 sed -i -e '/./,$!d' -e :a -e '/^\n*$/{$d;N;ba' -e '}' || true
+      git diff | grep '.' && { printf '%s\n' "whitespace check failed!"; exit 1; } || true
+    - |
+      # Checking compliance with editorconfig ...
+      ${HOME:?}/go/bin/editorconfig-checker
+    - |
+      # End of Style ...
+      echo -e "section_end:`date +%s`:Style_section\r\e[0K" || true
+  dependencies: []
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+MSVC Static Analyzer:
+  stage: lint_static
+  needs:
+    - job: Style check
+    - job: Windows/x64 (MSVC, C++, C)
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/msvc:latest
+  script:
+    - *Configuration
+    - |
+      # Start of MSVC Analyzer ...
+      echo -e "section_start:`date +%s`:MSVCA_section[collapsed=true]\r\e[0K\033[0;36mMSVC Analyzer test ...\033[0m" || true
+    - export PATH="/opt/msvc/bin/x64:${PATH:?}"
+    - cl.exe 2>&1 | head -3 | grep -v '^$' || true
+    - cl.exe src/*.c example/*.c -Iinclude /Oi /O2 /GL /W4 /WX /analyze /std:c11 /experimental:c11atomics /sdl /wd4996 /wd28251 /DNDEBUG=1 /DSIR_NO_PLUGINS=1
+    - cl.exe src/*.c tests/*.c -Iinclude /Oi /O2 /GL /W4 /WX /analyze /std:c11 /experimental:c11atomics /sdl /wd4996 /wd28251 /DNDEBUG=1 /DSIR_NO_PLUGINS=1
+    - rm -f tests.obj > /dev/null 2>&1 || true
+    - rm -f example.obj > /dev/null 2>&1 || true
+    - cl.exe tests/*.cc -c -Itests -Iinclude /permissive- /GL /analyze /EHsc /Ob3 /volatile:iso /Oi /O2 /W4 /std:c++20 /wd4996 /wd28251 /wd4127 /sdl /DNDEBUG=1 /DSIR_NO_PLUGINS=1
+    - link.exe /LTCG /OUT:sirtests++.exe *.obj
+    - |
+      # End of MSVC Analyzer ...
+      echo -e "section_end:`date +%s`:MSVCA_section\r\e[0K" || true
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Clang Static Analyzer:
+  stage: lint_static
+  needs:
+    - job: Style check
+    - job: Linux/x86_64 (Clang++, Clang)
+  tags:
+    - Docker-x64
+    - Linux
+    - Docker-x64-fast
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Clang Analyzer ...
+      echo -e "section_start:`date +%s`:ClangA_section[collapsed=true]\r\e[0K\033[0;36mClang Analyzer test ...\033[0m" || true
+    - ./.lint.sh scanbuild
+    - |
+      # End of Clang Analzyer ...
+      echo -e "section_end:`date +%s`:ClangA_section\r\e[0K" || true
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Clang (Extra Warnings):
+  stage: lint_static
+  needs:
+    - job: Style check
+    - job: Linux/x86_64 (Clang++, Clang)
+  tags:
+    - Docker-x64
+    - Linux
+    - Docker-x64-fast
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Clang Extra Warnings ...
+      echo -e "section_start:`date +%s`:ClangEx_section[collapsed=true]\r\e[0K\033[0;36mClang Extra Warnings test ...\033[0m" || true
+    - ./.lint.sh extra
+    - |
+      # End of Clang Extra Warnings...
+      echo -e "section_end:`date +%s`:ClangEx_section\r\e[0K" || true
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+GCC (Extra Warnings):
+  stage: lint_static
+  needs:
+    - job: Style check
+    - job: Linux/x86_64 (G++, GCC)
+  tags:
+    - Docker-x64
+    - Linux
+    - Docker-x64-fast
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of GCC Extra Warnings ...
+      echo -e "section_start:`date +%s`:GCCEx_section[collapsed=true]\r\e[0K\033[0;36mGCC Extra Warnings test ...\033[0m" || true
+    - ./.lint.sh gccextra
+    - |
+      # End of GCC Extra Warnings ...
+      echo -e "section_end:`date +%s`:GCCEx_section\r\e[0K" || true
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Flawfinder:
+  needs:
+    - job: Style check
+  stage: lint_static
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Flawfinder ...
+      echo -e "section_start:`date +%s`:Flawfinder_section[collapsed=true]\r\e[0K\033[0;36mFlawfinder ...\033[0m" || true
+    - ./.lint.sh flawfinder
+    - |
+      # End of Flawfinder ...
+      echo -e "section_end:`date +%s`:Flawfinder_section\r\e[0K" || true
+  dependencies: []
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Cppcheck:
+  needs:
+    - job: Style check
+  stage: lint_static
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Cppcheck ...
+      echo -e "section_start:`date +%s`:CppcheckA_section[collapsed=true]\r\e[0K\033[0;36mCppcheck ...\033[0m" || true
+    - ./.lint.sh cppcheck
+    - mkdir -p cppcheck > /dev/null 2>&1 || true
+    - touch cppcheck.xml > /dev/null 2>&1 || true
+    - |
+      # End of Cppcheck ...
+      echo -e "section_end:`date +%s`:CppcheckA_section\r\e[0K" || true
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - cppcheck/
+      - cppcheck.xml
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Valgrind:
+  needs:
+    - job: Style check
+  stage: lint_dynamic
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Valgrind ...
+      echo -e "section_start:`date +%s`:Valgrind_section[collapsed=true]\r\e[0K\033[0;36mValgrind ...\033[0m" || true
+    - ./.lint.sh valgrind
+    - |
+      # End of Valgrind
+      echo -e "section_end:`date +%s`:Valgrind_section\r\e[0K" || true
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+REUSE:
+  needs:
+    - job: Style check
+  stage: lint_static
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of REUSE ...
+      echo -e "section_start:`date +%s`:REUSE_section[collapsed=false]\r\e[0K\033[0;36mREUSE ...\033[0m" || true
+    - ./.lint.sh reuse
+    - |
+      # End of REUSE ...
+      echo -e "section_end:`date +%s`:REUSE_section\r\e[0K" || true
+  dependencies: []
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+PVS-Studio:
+  needs:
+    - job: Style check
+  stage: lint_static
+  tags:
+    - Docker-x64
+    - Linux
+    - AVX
+  image:
+    name: registry.gitlab.com/libsir/libsir/pvs:latest
+  script:
+    - *Configuration
+    - |
+      # Start of PVS-Studio Configuration ...
+      echo -e "section_start:`date +%s`:PVSConfig_section[collapsed=true]\r\e[0K\033[0;36mPVS-Studio Configuration ...\033[0m" || true
+    - pvs-studio-analyzer credentials "${PVS_STUDIO_NAME:?}" "${PVS_STUDIO_KEY:?}" || true
+    - |
+      # End of PVS-Studio Configuration ...
+      echo -e "section_end:`date +%s`:PVSConfig_section\r\e[0K" || true
+    - |
+      # Start of PVS-Studio Analysis ...
+      echo -e "section_start:`date +%s`:PVSStudio_section[collapsed=true]\r\e[0K\033[0;36mPVS-Studio Analysis ...\033[0m" || true
+    - pvs-studio --version
+    - ./.lint.sh pvs
+    - mkdir -p pvsreport > /dev/null 2>&1 || true
+    - touch pvs.log > /dev/null 2>&1 || true
+    - |
+      # End of PVS-Studio Analysis ...
+      echo -e "section_end:`date +%s`:PVSStudio_section\r\e[0K" || true
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+      - pvsreport/
+      - pvs.log
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Coverity:
+  needs:
+    - job: Style check
+  only:
+    - master
+  when: manual
+  allow_failure: true
+  stage: coverity
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Coverity submission ...
+      echo -e "section_start:`date +%s`:Coverity_section[collapsed=true]\r\e[0K\033[0;36mCoverity Submission ...\033[0m" || true
+    - ./.coverity.sh
+    - |
+      # End of Coverity submission ...
+      echo -e "section_end:`date +%s`:Coverity_section\r\e[0K" || true
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Windows/i686 (OrangeC, C-only):
+  needs:
+    - job: Style check
+  stage: build_windows
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/orangec:latest
+  script:
+    - *Configuration
+    - *WineBoot
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export WINEDEBUG=-all
+    - $(command -v wine64 || command -v wine || false) /opt/orangec/bin/occ.exe --version
+    - mkdir -p build/bin
+    - $(command -v wine64 || command -v wine || false) /opt/orangec/bin/occ.exe /1 /O2 -Iinclude src/*.c example/*.c -o build/bin/sirexample.exe -DSIR_NO_PLUGINS=1
+    - $(command -v wine64 || command -v wine || false) /opt/orangec/bin/occ.exe /1 /O2 -Iinclude src/*.c tests/*.c -o build/bin/sirtests.exe -DSIR_NO_PLUGINS=1
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - mkdir -p logs
+    - touch build/bin/file.exists
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirexample.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirexample.out
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirtests.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirtests.out
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+      - screenlog.0
+      - ./*.out
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Linux/x86_64 (DMD64 ImportC, C-only):
+  stage: build_linux
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/dmd:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - mkdir -p build/bin
+    - touch build/bin/file.exists
+    - mkdir -p logs
+    - mkdir -p d
+    - cd d
+    - ln -s ../src/* ../include/sir/* ../include/sir.h .
+    - ln -s . sir
+    - ln -s ../example/* .
+    - dmd --version
+    - dmd -betterC -nothrow -inline -m64 -fPIC -fPIE -O -release -check=off -boundscheck=off -P=-DSIR_NO_PLUGINS=1 *.c -of=../build/bin/sirexample
+    - rm -f example*
+    - ln -s ../tests/* .
+    - dmd -betterC -nothrow -inline -m64 -fPIC -fPIE -O -release -check=off -boundscheck=off -P=-DSIR_NO_PLUGINS=1 *.c -of=../build/bin/sirtests
+    - cd ..
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirexample
+    - stdbuf -o L ./build/bin/sirtests
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Linux/i686 (DMD64 ImportC, C-only):
+  stage: build_linux
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/dmd:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - mkdir -p build/bin
+    - touch build/bin/file.exists
+    - mkdir -p logs
+    - mkdir -p d
+    - cd d
+    - ln -s ../src/* ../include/sir/* ../include/sir.h .
+    - ln -s . sir
+    - ln -s ../example/* .
+    - dmd --version
+    - dmd -betterC -nothrow -inline -m32 -fPIC -fPIE -O -release -check=off -boundscheck=off -P=-D_FILE_OFFSET_BITS=64 -P=-DSIR_NO_PLUGINS=1 *.c -of=../build/bin/sirexample
+    - rm -f example*
+    - ln -s ../tests/* .
+    - dmd -betterC -nothrow -inline -m32 -fPIC -fPIE -O -release -check=off -boundscheck=off -P=-D_FILE_OFFSET_BITS=64 -P=-DSIR_NO_PLUGINS=1 *.c -of=../build/bin/sirtests
+    - cd ..
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - ./build/bin/sirexample
+    - ./build/bin/sirtests
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+GCC Static Analyzer (Release):
+  stage: lint_static
+  needs:
+    - job: Style check
+    - job: Linux/x86_64 (G++, GCC)
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of GCC Static Analyzer ...
+      echo -e "section_start:`date +%s`:GCCSA_section[collapsed=true]\r\e[0K\033[0;36mGCC Static Analyzer ...\033[0m" || true
+    - export CC="gcc"
+    - ${CC:?} --version
+    - export CFLAGS="-fanalyzer -fanalyzer-verbosity=3 -DGCC_STATIC_ANALYZER -Werror"
+    - make FORTIFY_FLAGS="-U_FORTIFY_SOURCE"
+    - |
+      # End of GCC Static Analyzer ...
+      echo -e "section_end:`date +%s`:GCCSA_section\r\e[0K" || true
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+GCC Static Analyzer (Debug):
+  stage: lint_static
+  needs:
+    - job: Style check
+    - job: Linux/x86_64 (G++, GCC)
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of GCC Static Analyzer ...
+      echo -e "section_start:`date +%s`:GCCDA_section[collapsed=true]\r\e[0K\033[0;36mGCC Static Analyzer ...\033[0m" || true
+    - export CC="gcc"
+    - ${CC:?} --version
+    - export CFLAGS="-fno-inline -fanalyzer -fanalyzer-verbosity=3 -DGCC_STATIC_ANALYZER -Werror"
+    - make SIR_DEBUG=1 FORTIFY_FLAGS="-U_FORTIFY_SOURCE"
+    - |
+      # End of GCC Static Analyzer ...
+      echo -e "section_end:`date +%s`:GCCDA_section\r\e[0K" || true
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Windows/x64 (Embarcadero Alexandria, BCC64, C-only):
+  stage: build_windows
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/embarcadero:latest
+  script:
+    - *Configuration
+    - *WineBoot
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export WINEDEBUG=-all
+    - $(command -v wine64 || command -v wine || false) ~/.wine/drive_c/Program\ Files\ \(x86\)/Embarcadero/Studio/22.0/bin/bcc64.exe --version
+    - mkdir -p build/bin
+    - $(command -v wine64 || command -v wine || false) ~/.wine/drive_c/Program\ Files\ \(x86\)/Embarcadero/Studio/22.0/bin/bcc64.exe tests/*.c src/* -Iinclude -tM -DSIR_NO_PLUGINS=1 -Wall -Wextra -Wno-missing-braces -Wno-missing-field-initializers
+    - mv tests.exe build/bin/sirtests.exe
+    - $(command -v wine64 || command -v wine || false) ~/.wine/drive_c/Program\ Files\ \(x86\)/Embarcadero/Studio/22.0/bin/bcc64.exe example/*.c src/* -Iinclude -tM -DSIR_NO_PLUGINS=1 -Wall -Wextra -Wno-missing-braces -Wno-missing-field-initializers
+    - mv example.exe build/bin/sirexample.exe
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - mkdir -p logs
+    - touch build/bin/file.exists
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirexample.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirexample.out
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirtests.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirtests.out
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+      - screenlog.0
+      - ./*.out
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Windows/i686 (Embarcadero Alexandria, BCC32X, C-only):
+  stage: build_windows
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/embarcadero:latest
+  script:
+    - *Configuration
+    - *WineBoot
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export WINEDEBUG=-all
+    - $(command -v wine64 || command -v wine || false) ~/.wine/drive_c/Program\ Files\ \(x86\)/Embarcadero/Studio/22.0/bin/bcc32x.exe --version
+    - mkdir -p build/bin
+    - $(command -v wine64 || command -v wine || false) ~/.wine/drive_c/Program\ Files\ \(x86\)/Embarcadero/Studio/22.0/bin/bcc32x.exe tests/*.c src/* -Iinclude -tM -DSIR_NO_PLUGINS=1 -Wall -Wextra -Wno-missing-braces -Wno-missing-field-initializers
+    - mv tests.exe build/bin/sirtests.exe
+    - $(command -v wine64 || command -v wine || false) ~/.wine/drive_c/Program\ Files\ \(x86\)/Embarcadero/Studio/22.0/bin/bcc32x.exe example/*.c src/* -Iinclude -tM -DSIR_NO_PLUGINS=1 -Wall -Wextra -Wno-missing-braces -Wno-missing-field-initializers
+    - mv example.exe build/bin/sirexample.exe
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - mkdir -p logs
+    - touch build/bin/file.exists
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirexample.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirexample.out
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirtests.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirtests.out
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+      - screenlog.0
+      - ./*.out
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Windows/x64 (Embarcadero Athens, BCC64, C-only):
+  stage: build_windows
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/embarcadero23:latest
+  script:
+    - *Configuration
+    - *WineBoot
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export WINEDEBUG=-all
+    - $(command -v wine64 || command -v wine || false) ~/.wine/drive_c/Program\ Files\ \(x86\)/Embarcadero/Studio/23.0/bin/bcc64.exe --version
+    - mkdir -p build/bin
+    - $(command -v wine64 || command -v wine || false) ~/.wine/drive_c/Program\ Files\ \(x86\)/Embarcadero/Studio/23.0/bin/bcc64.exe tests/*.c src/* -Iinclude -tM -DSIR_NO_PLUGINS=1 -Wall -Wextra -Wno-missing-braces -Wno-missing-field-initializers
+    - mv tests.exe build/bin/sirtests.exe
+    - $(command -v wine64 || command -v wine || false) ~/.wine/drive_c/Program\ Files\ \(x86\)/Embarcadero/Studio/23.0/bin/bcc64.exe example/*.c src/* -Iinclude -tM -DSIR_NO_PLUGINS=1 -Wall -Wextra -Wno-missing-braces -Wno-missing-field-initializers
+    - mv example.exe build/bin/sirexample.exe
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - mkdir -p logs
+    - touch build/bin/file.exists
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirexample.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirexample.out
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirtests.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirtests.out
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+      - screenlog.0
+      - ./*.out
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Windows/x64 (Embarcadero Athens, BCC64X, C-only):
+  stage: build_windows
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/embarcadero23:latest
+  script:
+    - *Configuration
+    - *WineBoot
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export WINEDEBUG=-all
+    - $(command -v wine64 || command -v wine || false) ~/.wine/drive_c/Program\ Files\ \(x86\)/Embarcadero/Studio/23.0/bin/bcc64x.exe --version
+    - mkdir -p build/bin
+    - $(command -v wine64 || command -v wine || false) ~/.wine/drive_c/Program\ Files\ \(x86\)/Embarcadero/Studio/23.0/bin/bcc64x.exe tests/*.c src/* -Iinclude -tM -DSIR_NO_PLUGINS=1 -Wall -Wextra -Wno-missing-braces -Wno-missing-field-initializers -std=c11 -Wno-pragma-pack -Wno-unknown-pragmas -Wno-nonportable-include-path -Wno-macro-redefined -Wno-microsoft-anon-tag -I${HOME:-/home/user}/.wine/drive_c/Program\ Files\ \(x86\)/Embarcadero/Studio/23.0/include/windows/sdk
+    - mv tests.exe build/bin/sirtests.exe
+    - $(command -v wine64 || command -v wine || false) ~/.wine/drive_c/Program\ Files\ \(x86\)/Embarcadero/Studio/23.0/bin/bcc64x.exe example/*.c src/* -Iinclude -tM -DSIR_NO_PLUGINS=1 -Wall -Wextra -Wno-missing-braces -Wno-missing-field-initializers -std=c11 -Wno-pragma-pack -Wno-unknown-pragmas -Wno-nonportable-include-path -Wno-macro-redefined -Wno-microsoft-anon-tag -I${HOME:-/home/user}/.wine/drive_c/Program\ Files\ \(x86\)/Embarcadero/Studio/23.0/include/windows/sdk
+    - mv example.exe build/bin/sirexample.exe
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - mkdir -p logs
+    - touch build/bin/file.exists
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirexample.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirexample.out
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirtests.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirtests.out
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+      - screenlog.0
+      - ./*.out
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Windows/i686 (Embarcadero Athens, BCC32X, C-only):
+  stage: build_windows
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/embarcadero23:latest
+  script:
+    - *Configuration
+    - *WineBoot
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export WINEDEBUG=-all
+    - $(command -v wine64 || command -v wine || false) ~/.wine/drive_c/Program\ Files\ \(x86\)/Embarcadero/Studio/23.0/bin/bcc32x.exe --version
+    - mkdir -p build/bin
+    - $(command -v wine64 || command -v wine || false) ~/.wine/drive_c/Program\ Files\ \(x86\)/Embarcadero/Studio/23.0/bin/bcc32x.exe tests/*.c src/* -Iinclude -tM -DSIR_NO_PLUGINS=1 -Wall -Wextra -Wno-missing-braces -Wno-missing-field-initializers
+    - mv tests.exe build/bin/sirtests.exe
+    - $(command -v wine64 || command -v wine || false) ~/.wine/drive_c/Program\ Files\ \(x86\)/Embarcadero/Studio/23.0/bin/bcc32x.exe example/*.c src/* -Iinclude -tM -DSIR_NO_PLUGINS=1 -Wall -Wextra -Wno-missing-braces -Wno-missing-field-initializers
+    - mv example.exe build/bin/sirexample.exe
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - mkdir -p logs
+    - touch build/bin/file.exists
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirexample.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirexample.out
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirtests.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirtests.out
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+      - screenlog.0
+      - ./*.out
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Clang Sanitizer (UB, 32-bit, C-only):
+  stage: lint_dynamic
+  needs:
+    - job: Style check
+    - job: Linux/x86_64 (Clang++, Clang)
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build32_section[collapsed=true]\r\e[0K\033[0;36mBuild 32-bit ...\033[0m" || true
+    - export UBSAN_OPTIONS="print_stacktrace=1"
+    - export UBSAN_FLAGS="-fsanitize=undefined,float-divide-by-zero,unsigned-integer-overflow,implicit-conversion,local-bounds,nullability-arg,nullability-assign,nullability-return"
+    - export UBSAN_CFLAGS="-D_FILE_OFFSET_BITS=64 ${UBSAN_FLAGS:?} -fno-omit-frame-pointer -fno-sanitize-trap -fno-sanitize-recover"
+    - export CC="clang -m32 ${UBSAN_CFLAGS:?} -Werror"
+    - export LDFLAGS="${UBSAN_FLAGS:?}"
+    - ${CC:?} --version
+    - make SIR_DEBUG=1 SIR_SELFLOG=1
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build32_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test32_section[collapsed=true]\r\e[0K\033[0;36mTest 32-bit ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirexample 2>&1
+    - stdbuf -o L ./build/bin/sirtests 2>&1
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test32_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Clang Sanitizer (UB, 64-bit, C-only):
+  stage: lint_dynamic
+  needs:
+    - job: Style check
+    - job: Linux/x86_64 (Clang++, Clang)
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build64_section[collapsed=true]\r\e[0K\033[0;36mBuild 64-bit ...\033[0m" || true
+    - export UBSAN_OPTIONS="print_stacktrace=1"
+    - export UBSAN_FLAGS="-fsanitize=undefined,float-divide-by-zero,unsigned-integer-overflow,implicit-conversion,local-bounds,nullability-arg,nullability-assign,nullability-return"
+    - export UBSAN_CFLAGS="${UBSAN_FLAGS:?} -fno-omit-frame-pointer -fno-sanitize-trap -fno-sanitize-recover"
+    - export CC="clang -m64 ${UBSAN_CFLAGS:?} -Werror"
+    - export LDFLAGS="${UBSAN_FLAGS:?}"
+    - ${CC:?} --version
+    - make SIR_DEBUG=1 SIR_SELFLOG=1
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build64_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test64_section[collapsed=true]\r\e[0K\033[0;36mTest 64-bit ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirexample 2>&1
+    - stdbuf -o L ./build/bin/sirtests 2>&1
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test64_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Clang Sanitizer (Memory, C-only):
+  stage: lint_dynamic
+  needs:
+    - job: Style check
+    - job: Linux/x86_64 (Clang++, Clang)
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export MSAN_FLAGS="-fsanitize=memory -fsanitize-memory-track-origins=2"
+    - export MSAN_CFLAGS="${MSAN_FLAGS:?} -fno-omit-frame-pointer -fno-sanitize-trap -fno-sanitize-recover"
+    - export CC="clang -m64 ${MSAN_CFLAGS:?} -Werror"
+    - export LDFLAGS="${MSAN_FLAGS:?}"
+    - ${CC:?} --version
+    - make SIR_DEBUG=1 SIR_SELFLOG=1
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirexample 2>&1
+    - stdbuf -o L ./build/bin/sirtests 2>&1
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Clang Sanitizer (CFI, 64-bit, C++, C):
+  stage: lint_dynamic
+  needs:
+    - job: Style check
+    - job: Linux/x86_64 (Clang++, Clang)
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build64_section[collapsed=true]\r\e[0K\033[0;36mBuild 64-bit ...\033[0m" || true
+    - export CSAN_FLAGS="-fsanitize=cfi -fvisibility=hidden -fcomplete-member-pointers"
+    - export CSAN_CFLAGS="${CSAN_FLAGS:?} -fno-omit-frame-pointer -fno-sanitize-trap -fno-sanitize-recover -flto"
+    - export CC="clang -m64 ${CSAN_CFLAGS:?} -Werror"
+    - export CXX="clang++ -m64 ${CSAN_CFLAGS:?} -Werror"
+    - export CXXFLAGS="-DSIR_NO_BOOST_FORMAT=1"
+    - export LDFLAGS="${CSAN_FLAGS:?}"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - make SIR_DEBUG=1 SIR_SELFLOG=1 SIR_NO_PLUGINS=1
+    - make tests++ SIR_DEBUG=1 SIR_SELFLOG=1 SIR_NO_PLUGINS=1
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build64_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test64_section[collapsed=true]\r\e[0K\033[0;36mTest 64-bit ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirexample 2>&1
+    - stdbuf -o L ./build/bin/sirtests 2>&1
+    - stdbuf -o L ./build/bin/sirtests++ 2>&1
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test64_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Clang Sanitizer (CFI, 32-bit, C++, C):
+  stage: lint_dynamic
+  needs:
+    - job: Style check
+    - job: Linux/x86_64 (Clang++, Clang)
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build32_section[collapsed=true]\r\e[0K\033[0;36mBuild 32-bit ...\033[0m" || true
+    - export CSAN_FLAGS="-fsanitize=cfi -fvisibility=hidden -fcomplete-member-pointers"
+    - export CSAN_CFLAGS="-D_FILE_OFFSET_BITS=64 ${CSAN_FLAGS:?} -fno-omit-frame-pointer -fno-sanitize-trap -fno-sanitize-recover -flto"
+    - export CC="clang -m32 ${CSAN_CFLAGS:?} -Werror"
+    - export CXX="clang++ -m32 ${CSAN_CFLAGS:?} -Werror"
+    - export CXXFLAGS="-DSIR_NO_BOOST_FORMAT=1"
+    - export LDFLAGS="${CSAN_FLAGS:?}"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - make SIR_DEBUG=1 SIR_SELFLOG=1 SIR_NO_PLUGINS=1
+    - make tests++ SIR_DEBUG=1 SIR_SELFLOG=1 SIR_NO_PLUGINS=1
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build32_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test32_section[collapsed=true]\r\e[0K\033[0;36mTest 32-bit ...\033[0m" || true
+    - ./build/bin/sirexample 2>&1
+    - ./build/bin/sirtests 2>&1
+    - ./build/bin/sirtests++ 2>&1
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test32_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Clang Sanitizer (Address, 64-bit, C++, C):
+  stage: lint_dynamic
+  needs:
+    - job: Style check
+    - job: Linux/x86_64 (Clang++, Clang)
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build64_section[collapsed=true]\r\e[0K\033[0;36mBuild 64-bit ...\033[0m" || true
+    - export ASAN_OPTIONS="check_initialization_order=1"
+    - export ASAN_FLAGS="-fsanitize=address -fsanitize-address-use-after-scope"
+    - export ASAN_CFLAGS="${ASAN_FLAGS:?} -fno-omit-frame-pointer -fno-sanitize-trap -fno-sanitize-recover"
+    - export CC="clang -m64 ${ASAN_CFLAGS:?} -Werror"
+    - export CXX="clang++ -m64 ${ASAN_CFLAGS:?} -Werror"
+    - export CXXFLAGS="-DSIR_NO_BOOST_FORMAT=1"
+    - export LDFLAGS="${ASAN_FLAGS:?}"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - make SIR_DEBUG=1 SIR_SELFLOG=1
+    - make tests++ SIR_DEBUG=1 SIR_SELFLOG=1
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build64_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test64_section[collapsed=true]\r\e[0K\033[0;36mTest 64-bit ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirexample 2>&1
+    - stdbuf -o L ./build/bin/sirtests 2>&1
+    - stdbuf -o L ./build/bin/sirtests++ 2>&1
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test64_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Clang Sanitizer (Address, 32-bit, C++, C):
+  stage: lint_dynamic
+  needs:
+    - job: Style check
+    - job: Linux/x86_64 (Clang++, Clang)
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build32_section[collapsed=true]\r\e[0K\033[0;36mBuild 32-bit ...\033[0m" || true
+    - export ASAN_OPTIONS="check_initialization_order=1"
+    - export ASAN_FLAGS="-fsanitize=address -fsanitize-address-use-after-scope"
+    - export ASAN_CFLAGS="-D_FILE_OFFSET_BITS=64 ${ASAN_FLAGS:?} -fno-omit-frame-pointer -fno-sanitize-trap -fno-sanitize-recover"
+    - export CC="clang -m32 ${ASAN_CFLAGS:?} -Werror"
+    - export CXX="clang++ -m32 ${ASAN_CFLAGS:?} -Werror"
+    - export LDFLAGS="${ASAN_FLAGS:?}"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - make SIR_DEBUG=1 SIR_SELFLOG=1
+    - env CXXFLAGS="-DSIR_NO_BOOST_FORMAT=1 -D__MINGW32__ -U__MINGW64_VERSION_MAJOR" make tests++ SIR_DEBUG=1 SIR_SELFLOG=1
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build32_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test32_section[collapsed=true]\r\e[0K\033[0;36mTest 32-bit ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirexample 2>&1
+    - stdbuf -o L ./build/bin/sirtests 2>&1
+    - stdbuf -o L ./build/bin/sirtests++ 2>&1
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test32_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+DUMA:
+  stage: lint_dynamic
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - duma true
+    - |
+      # Start of DUMA ...
+      echo -e "section_start:`date +%s`:DUMA_section[collapsed=true]\r\e[0K\033[0;36mDUMA ...\033[0m" || true
+    - ./.lint.sh duma
+    - |
+      # End of DUMA ...
+      echo -e "section_end:`date +%s`:DUMA_section\r\e[0K" || true
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+      - ./duma*.log
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+OpenOSC (MM=1, GCC, C++, C):
+  stage: lint_dynamic
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/openosc:latest
+  script:
+    - *Configuration
+    - |
+      # Start of OpenOSC GCC MM=1 build ...
+      echo -e "section_start:`date +%s`:openosc_gcc1_section[collapsed=true]\r\e[0K\033[0;36mOpenOSC GCC MM=1 build ...\033[0m" || true
+    - export CC="gcc"
+    - export CXX="g++"
+    - export CFLAGS="-DOPENOSC_MM=1"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - make OPENOSC=1
+    - make tests++ OPENOSC=1
+    - |
+      # End of OpenOSC GCC MM=1 build ...
+      echo -e "section_end:`date +%s`:openosc_gcc1_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of OpenOSC GCC MM=1 test ...
+      echo -e "section_start:`date +%s`:openosc_gcc1test_section[collapsed=true]\r\e[0K\033[0;36mOpenOSC GCC MM=1 test ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirexample
+    - stdbuf -o L ./build/bin/sirtests
+    - stdbuf -o L ./build/bin/sirtests++
+    - |
+      # End of OpenOSC GCC MM=1 test ...
+      echo -e "section_end:`date +%s`:openosc_gcc1test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+OpenOSC (MM=1, Clang, C-only):
+  stage: lint_dynamic
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/openosc:latest
+  script:
+    - *Configuration
+    - |
+      # Start of OpenOSC Clang MM=1 build ...
+      echo -e "section_start:`date +%s`:openosc_clang1_section[collapsed=true]\r\e[0K\033[0;36mOpenOSC Clang MM=1 build ...\033[0m" || true
+    - export CC="clang"
+    - export CFLAGS="-DOPENOSC_MM=1"
+    - ${CC:?} --version
+    - make OPENOSC=1
+    - |
+      # End of OpenOSC Clang MM=1 build ...
+      echo -e "section_end:`date +%s`:openosc_clang1_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of OpenOSC Clang MM=1 test ...
+      echo -e "section_start:`date +%s`:openosc_clang1test_section[collapsed=true]\r\e[0K\033[0;36mOpenOSC Clang MM=1 Test ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirexample
+    - stdbuf -o L ./build/bin/sirtests
+    - |
+      # End of OpenOSC Clang MM=1 test ...
+      echo -e "section_end:`date +%s`:openosc_clang1test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+OpenOSC (MM=2, GCC, C++, C):
+  stage: lint_dynamic
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/openosc:latest
+  script:
+    - *Configuration
+    - |
+      # Start of OpenOSC GCC MM=2 build ...
+      echo -e "section_start:`date +%s`:openosc_gcc2_section[collapsed=true]\r\e[0K\033[0;36mOpenOSC GCC MM=2 build ...\033[0m" || true
+    - export CC="gcc"
+    - export CXX="g++"
+    - export CFLAGS="-DOPENOSC_MM=2 -Wno-format"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - make OPENOSC=1
+    - make tests++ OPENOSC=1
+    - |
+      # End of OpenOSC GCC MM=2 build ...
+      echo -e "section_end:`date +%s`:openosc_gcc2_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of OpenOSC GCC MM=2 test ...
+      echo -e "section_start:`date +%s`:openosc_gcc2test_section[collapsed=true]\r\e[0K\033[0;36mOpenOSC GCC MM=2 test ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirexample
+    - stdbuf -o L ./build/bin/sirtests
+    - stdbuf -o L ./build/bin/sirtests++
+    - |
+      # End of OpenOSC GCC MM=2 test ...
+      echo -e "section_end:`date +%s`:openosc_gcc2test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+OpenOSC (MM=2, Clang, C-only):
+  stage: lint_dynamic
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/openosc:latest
+  script:
+    - *Configuration
+    - |
+      # Start of OpenOSC Clang MM=2 build ...
+      echo -e "section_start:`date +%s`:openosc_clang2_section[collapsed=true]\r\e[0K\033[0;36mOpenOSC Clang MM=2 build ...\033[0m" || true
+    - export CC="clang"
+    - export CFLAGS="-DOPENOSC_MM=2"
+    - ${CC:?} --version
+    - make OPENOSC=1
+    - |
+      # End of OpenOSC Clang MM=2 build ...
+      echo -e "section_end:`date +%s`:openosc_clang2_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of OpenOSC Clang MM=2 test ...
+      echo -e "section_start:`date +%s`:openosc_clang2test_section[collapsed=true]\r\e[0K\033[0;36mOpenOSC Clang MM=2 Test ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirexample
+    - stdbuf -o L ./build/bin/sirtests
+    - |
+      # End of OpenOSC Clang MM=2 test ...
+      echo -e "section_end:`date +%s`:openosc_clang2test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Oracle Lint:
+  stage: lint_static
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Docker-x64-SmallFS
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/oracle:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Lint ...
+      echo -e "section_start:`date +%s`:Lint_section[collapsed=true]\r\e[0K\033[0;36mLint ...\033[0m" || true
+    - /opt/oracle/developerstudio-latest/bin/lint -V
+    - make clean
+    - rm -f orstlint.txt > /dev/null 2>&1 || true
+    - export CFLAGS="-D_FILE_OFFSET_BITS=64 -errsecurity=extended -errtags=yes -erroff=E_GLOBAL_COULD_BE_STATIC2,E_FUNC_RET_ALWAYS_IGNOR2,E_FUNC_RET_MAYBE_IGNORED2,E_NAME_DEF_NOT_USED2,E_SEC_READLINK_WARN,E_CONST_EXPR,E_SEC_RAND_WARN,E_PTRDIFF_OVERFLOW,E_CONSTANT_CONDITION,E_STATIC_UNUSED -fd -m64 -XCC=yes -errchk=structarg,parentheses,signext,locfmtchk -errfmt=src -errtags=yes -Xalias_level=any"
+    - eval /opt/oracle/developerstudio-latest/bin/lint -DSUNPRO=1 -DSUNLINT=1 ${CFLAGS:?} src/*.c -Iinclude -Itests tests/*.c 2>&1 | tee orstlint.txt
+    - eval /opt/oracle/developerstudio-latest/bin/lint -DSUNPRO=1 -DSUNLINT=1 ${CFLAGS:?} src/*.c -Iinclude -Iexample example/*.c 2>&1 | tee -a orstlint.txt
+    - ( grep "E_" orstlint.txt || exit 0 && exit 1 )
+    - mkdir -p build > /dev/null 2>&1 || true
+    - mkdir -p logs > /dev/null 2>&1 || true
+    - |
+      # End of Lint ...
+      echo -e "section_end:`date +%s`:Lint_section\r\e[0K" || true
+    - cp -f /tmpfs/user/orstlint.txt "${CI_PROJECT_DIR:?}" 2> /dev/null || true
+    - cp -f /tmpfs/user/logs/* "${CI_PROJECT_DIR:?}/logs" 2> /dev/null || true
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - orstlint.txt
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Linux/x86_64 (musl-libc, Kefir, C-only):
+  stage: build_linux
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/kefir:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export KEFIR_RTINC="/opt/kefir-musl/include/kefir/runtime"
+    - export PATH="/opt/kefir-musl/bin:${PATH:?}"
+    - export LDFLAGS="-static"
+    - export CC="kefir"
+    - ${CC:?} --compiler-info
+    - ${CC:?} --environment-info
+    - make SIR_NO_PLUGINS=1
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - ./build/bin/sirexample
+    - ./build/bin/sirtests
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Linux/x86_64 (Kefir, C-only):
+  stage: build_linux
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/kefir:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export KEFIR_RTINC="/opt/kefir/include/kefir/runtime"
+    - export PATH="/opt/kefir/bin:${PATH:?}"
+    - export CC="kefir"
+    - ${CC:?} --compiler-info
+    - ${CC:?} --environment-info
+    - make
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirexample
+    - stdbuf -o L ./build/bin/sirtests
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Linux/x86_64 (Portable C Compiler, C-only):
+  stage: build_linux
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/pcc:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/pcc/bin:${PATH:?}"
+    - export CC="pcc"
+    - export CFLAGS="-Wno-attributes"
+    - ${CC:?} --version
+    - make
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirexample
+    - stdbuf -o L ./build/bin/sirtests
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Linux/x86_64 (uClibc-ng, G++, GCC):
+  stage: build_linux
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/uclibc-ng:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="${HOME:?}/x-tools/x86_64-pc-linux-uclibc/x86_64-pc-linux-uclibc/bin:${HOME:?}/x-tools/x86_64-pc-linux-uclibc/bin:${PATH:?}"
+    - export LDFLAGS="-static"
+    - export CC="x86_64-pc-linux-uclibc-gcc"
+    - export CXX="x86_64-pc-linux-uclibc-g++"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - make SIR_NO_PLUGINS=1
+    - make tests++ SIR_NO_PLUGINS=1
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - ./build/bin/sirexample
+    - ./build/bin/sirtests
+    - ./build/bin/sirtests++
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Linux/x86_64 (Circle, C++-only):
+  stage: build_linux
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/circle:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export CC="gcc"
+    - export CXX="circle"
+    - export CXXFLAGS="-DSIR_NO_STD_IOSTREAM=1"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - make
+    - make tests++
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirexample
+    - stdbuf -o L ./build/bin/sirtests
+    - stdbuf -o L ./build/bin/sirtests++
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Node.js/WebAssembly (Emscripten, Em++, Emcc):
+  stage: build_js
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/emscripten:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    - export CC="emcc"
+    - export CXX="em++"
+    - export CFLAGS="-flto=full -fwasm-exceptions"
+    - export CXXFLAGS="-flto=full -fwasm-exceptions"
+    - export LDFLAGS="-sWASM=1 -fwasm-exceptions"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - node --version
+    - make
+    - make tests++
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L node ./build/bin/sirexample
+    - printf '%s\n' "#!/usr/bin/env sh" "set -eu" > test.sh
+    - ( stdbuf -o L node ./build/bin/sirtests --list | grep "$(printf '\t')" | tr "$(printf '\t')" "\n" | tr -d " $(printf '\t')" | grep -Ev '(^$|^filesystem$|^performance$)' | xargs -I{} echo "stdbuf -o L node ./build/bin/sirtests --only {}" ) >> test.sh || true
+    - stdbuf -o L sh -x ./test.sh
+    - rm -f ./test.sh
+    - stdbuf -o L node ./build/bin/sirtests++
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Node.js/JavaScript (Emscripten, Em++, Emcc):
+  stage: build_js
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/emscripten:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    - export CC="emcc"
+    - export CXX="em++"
+    - export CFLAGS="-flto=full -fexceptions"
+    - export CXXFLAGS="-flto=full -fexceptions"
+    - export LDFLAGS="-sWASM=0 -fexceptions -sNO_DISABLE_EXCEPTION_CATCHING=1"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - node --version
+    - make
+    - make tests++
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L node ./build/bin/sirexample
+    - printf '%s\n' "#!/usr/bin/env sh" "set -eu" > test.sh
+    - ( stdbuf -o L node ./build/bin/sirtests --list | grep "$(printf '\t')" | tr "$(printf '\t')" "\n" | tr -d " $(printf '\t')" | grep -Ev '(^$|^filesystem$|^performance$)' | xargs -I{} echo "stdbuf -o L node ./build/bin/sirtests --only {}" ) >> test.sh || true
+    - stdbuf -o L sh -x ./test.sh
+    - rm -f ./test.sh
+    - stdbuf -o L node ./build/bin/sirtests++
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Linux/x86_64 (GCC, Fedora Python):
+  stage: build_python
+  needs:
+    - job: Style check
+    - job: Linux/x86_64 (G++, GCC)
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export CC="gcc"
+    - command -v python3
+    - $(command -v python3) --version
+    - swig -version
+    - ${CC:?} --version
+    - make
+    - cd bindings/python
+    - make
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./sirtest.py
+    - stdbuf -o L cat sir-python.log
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - bindings/python/*.so
+      - bindings/python/build/
+      - bindings/python/sir.py
+      - bindings/python/*.log
+      - bindings/python/*cache*
+      - bindings/python/*wrap.c
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Linux/x86_64 (Oracle Studio C, Fedora Python):
+  stage: build_python
+  needs:
+    - job: Style check
+    - job: Linux/x86_64 (Oracle Studio C, C-only)
+  tags:
+    - Docker-x64
+    - Docker-x64-SmallFS
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/oracle:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export CC="/opt/oracle/developerstudio-latest/bin/suncc"
+    - export CFLAGS="-D_FILE_OFFSET_BITS=64"
+    - command -v python3
+    - $(command -v python3) --version
+    - swig -version
+    - ${CC:?} -V
+    - make
+    - cd bindings/python
+    - make
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./sirtest.py
+    - stdbuf -o L cat sir-python.log
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+  dependencies: []
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Linux/x86_64 (Clang, Fedora Python):
+  stage: build_python
+  needs:
+    - job: Style check
+    - job: Linux/x86_64 (Clang++, Clang)
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export RANLIB="llvm-ranlib"
+    - export CC="clang"
+    - command -v python3
+    - $(command -v python3) --version
+    - swig -version
+    - ${CC:?} --version
+    - make
+    - cd bindings/python
+    - make
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./sirtest.py
+    - stdbuf -o L cat sir-python.log
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - bindings/python/*.so
+      - bindings/python/build/
+      - bindings/python/sir.py
+      - bindings/python/*.log
+      - bindings/python/*cache*
+      - bindings/python/*wrap.c
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Linux/x86_64 (NVIDIA HPC SDK C, Fedora Python):
+  stage: build_python
+  needs:
+    - job: Style check
+    - job: Linux/x86_64 (NVIDIA HPC SDK C++, C)
+  tags:
+    - Docker-x64
+    - Linux
+    - AVX
+  image:
+    name: registry.gitlab.com/libsir/libsir/nvhpc:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - NVC="$(command -v /opt/nvidia/hpc_sdk/Linux_x86_64/*/compilers/bin/nvc | sort -V | head -n 1)"
+    - export NVC
+    - export CC="${NVC:?}"
+    - command -v python3
+    - $(command -v python3) --version
+    - swig -version
+    - ${CC:?} -V
+    - make
+    - cd bindings/python
+    - make
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./sirtest.py
+    - stdbuf -o L cat sir-python.log
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - bindings/python/*.so
+      - bindings/python/build/
+      - bindings/python/sir.py
+      - bindings/python/*.log
+      - bindings/python/*cache*
+      - bindings/python/*wrap.c
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Linux/x86_64 (Intel oneAPI, Intel Python):
+  stage: build_python
+  needs:
+    - job: Style check
+    - job: Linux/x86_64 (Intel oneAPI, ICPX, ICX)
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/intel:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="${PATH:-}:/opt/anaconda/bin:/opt/anaconda/sbin"
+    - source /opt/anaconda/bin/activate intelpython3
+    - export WPEDANTIC="-Wno-gnu-include-next -Wno-tautological-constant-compare"
+    - export CC="icx"
+    - command -v python3
+    - $(command -v python3) --version
+    - swig -version
+    - ${CC:?} --version
+    - make
+    - cd bindings/python
+    - make
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./sirtest.py
+    - stdbuf -o L cat sir-python.log
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - bindings/python/*.so
+      - bindings/python/build/
+      - bindings/python/sir.py
+      - bindings/python/*.log
+      - bindings/python/*cache*
+      - bindings/python/*wrap.c
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Linux/x86_64 (GCC, conda-forge Python):
+  stage: build_python
+  needs:
+    - job: Style check
+    - job: Linux/x86_64 (G++, GCC)
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/anaconda:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/anaconda/bin:/opt/anaconda/sbin:${PATH:-}"
+    - source /opt/anaconda/bin/activate
+    - export CC="gcc"
+    - conda --version
+    - command -v python3
+    - $(command -v python3) --version
+    - swig -version
+    - ${CC:?} --version
+    - make
+    - cd bindings/python
+    - make
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./sirtest.py
+    - stdbuf -o L cat sir-python.log
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - bindings/python/*.so
+      - bindings/python/build/
+      - bindings/python/sir.py
+      - bindings/python/*.log
+      - bindings/python/*cache*
+      - bindings/python/*wrap.c
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Linux/x86_64 (AOCC, Fedora Python):
+  stage: build_python
+  needs:
+    - job: Style check
+    - job: Linux/x86_64 (AOCC++, AOCC)
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - . /opt/AMD/aocc-compiler-4.2.0/setenv_AOCC.sh
+    - export CC="clang"
+    - command -v python3
+    - $(command -v python3) --version
+    - swig -version
+    - ${CC:?} --version
+    - make
+    - cd bindings/python
+    - make
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./sirtest.py
+    - stdbuf -o L cat sir-python.log
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - bindings/python/*.so
+      - bindings/python/build/
+      - bindings/python/sir.py
+      - bindings/python/*.log
+      - bindings/python/*cache*
+      - bindings/python/*wrap.c
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Semgrep (Cloud Rules):
+  needs:
+    - job: Style check
+  allow_failure: true
+  timeout: 12 minutes
+  tags:
+    - Docker-x64
+    - Linux
+  stage: lint_static
+  needs:
+    - job: Linux/x86_64 (G++, GCC)
+  image:
+    name: returntocorp/semgrep:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Semgrep Cloud ...
+      echo -e "section_start:`date +%s`:SemgrepCloud_section[collapsed=true]\r\e[0K\033[0;36mSemgrep Cloud ...\033[0m" || true
+    - apk update > /dev/null 2>&1 || true
+    - apk upgrade > /dev/null 2>&1 || true
+    - semgrep login > /dev/null
+    - semgrep install-semgrep-pro || true
+    - semgrep ci --no-suppress-errors --pro-intrafile --exclude-rule="c.lang.security.insecure-use-memset.insecure-use-memset"
+    - |
+      # End of Semgrep Cloud ...
+      echo -e "section_end:`date +%s`:SemgrepCloud_section\r\e[0K" || true
+  dependencies: []
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Linux/x86_64 (Ch Professional 8.5):
+  stage: build_ch
+  needs:
+    - job: Style check
+    - job: Linux/x86_64 (G++, GCC)
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/ch:latest
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - ch -v | grep version | tr -cd '.[0-9]\n'
+    - make
+    - cd bindings/ch
+    - make
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./sirtest.ch
+    - stdbuf -o L cat libsir-chdemo.log
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - bindings/ch/*.dl
+      - bindings/ch/*.o
+      - bindings/ch/*.log
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Windows/x64 (Clang-CL, C++, C):
+  stage: build_windows
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/msvc:latest
+  script:
+    - *Configuration
+    - *WineBoot
+    - *ClangDisableWarnings
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/msvc/bin/x64:${PATH:?}"
+    - BIN=/opt/msvc/bin/x64 . /opt/msvc/msvcenv-native.sh
+    - export RANLIB="llvm-ranlib"
+    - export CXX="clang++"
+    - export CC="clang-cl"
+    - export LD="lld-link"
+    - export COMMON_FLAGS="--target=x86_64-windows-msvc -fuse-ld=lld-link"
+    - export CFLAGS="${COMMON_FLAGS:?} ${DISABLE_WARNINGS:?}"
+    - export CXXFLAGS="${COMMON_FLAGS:?} ${DISABLE_WARNINGS:?}"
+    - export LDFLAGS="${COMMON_FLAGS:?} -Wno-unknown-argument"
+    - export SIR_SHARED="/LD"
+    - ${CC:?} -Wno-unknown-argument --version
+    - ${CXX:?} -Wno-unknown-argument --version
+    - ${LD:?} --version
+    - make PLATFORM_EXE_EXT=.exe PLATFORM_DLL_EXT=.dll PLATFORM_LIB_EXT=.lib PTHOPT= LIBDL= SIR_FPIC= LIBSIR_S="build/lib/libsir_s.lib" all tests++
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - export WINEDEBUG=-all
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirexample.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirexample.out
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirtests.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirtests.out
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirtests++.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirtests++.out
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+      - screenlog.0
+      - ./*.out
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Windows/i686 (Clang-CL, C++, C):
+  stage: build_windows
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/msvc:latest
+  script:
+    - *Configuration
+    - *WineBoot
+    - *ClangDisableWarnings
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/msvc/bin/x86:${PATH:?}"
+    - BIN=/opt/msvc/bin/x86 . /opt/msvc/msvcenv-native.sh
+    - export RANLIB="llvm-ranlib"
+    - export CXX="clang++"
+    - export CC="clang-cl"
+    - export LD="lld-link"
+    - export COMMON_FLAGS="--target=i686-windows-msvc -fuse-ld=lld-link"
+    - export CFLAGS="${COMMON_FLAGS:?} ${DISABLE_WARNINGS:?}"
+    - export CXXFLAGS="${COMMON_FLAGS:?} ${DISABLE_WARNINGS:?}"
+    - export LDFLAGS="${COMMON_FLAGS:?} -Wno-unknown-argument"
+    - export SIR_SHARED="/LD"
+    - ${CC:?} -Wno-unknown-argument --version
+    - ${CXX:?} -Wno-unknown-argument --version
+    - ${LD:?} --version
+    - make PLATFORM_EXE_EXT=.exe PLATFORM_DLL_EXT=.dll PLATFORM_LIB_EXT=.lib PTHOPT= LIBDL= SIR_FPIC= LIBSIR_S="build/lib/libsir_s.lib" all tests++
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - export WINEDEBUG=-all
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirexample.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirexample.out
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirtests.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirtests.out
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirtests++.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirtests++.out
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+      - screenlog.0
+      - ./*.out
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Windows/Arm (Clang-CL, C-only):
+  stage: build_windows
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/msvc:latest
+  script:
+    - *Configuration
+    - *WineBoot
+    - *ClangDisableWarnings
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/msvc/bin/arm:${PATH:?}"
+    - BIN=/opt/msvc/bin/arm . /opt/msvc/msvcenv-native.sh
+    - export RANLIB="llvm-ranlib"
+    - export CXX="clang++"
+    - export CC="clang-cl"
+    - export LD="lld-link"
+    - export COMMON_FLAGS="--target=arm-windows-msvc -fuse-ld=lld-link"
+    - export CFLAGS="${COMMON_FLAGS:?} ${DISABLE_WARNINGS:?}"
+    - export CXXFLAGS="${COMMON_FLAGS:?} ${DISABLE_WARNINGS:?}"
+    - export LDFLAGS="${COMMON_FLAGS:?} -Wno-unknown-argument"
+    - export SIR_SHARED="/LD"
+    - ${CC:?} -Wno-unknown-argument --version
+    - ${LD:?} --version
+    - make PLATFORM_EXE_EXT=.exe PLATFORM_DLL_EXT=.dll PLATFORM_LIB_EXT=.lib PTHOPT= LIBDL= SIR_FPIC= LIBSIR_S="build/lib/libsir_s.lib" all
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+      - ./*.out
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Windows/Arm64 (Clang-CL, C++, C):
+  stage: build_windows
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/msvc:latest
+  script:
+    - *Configuration
+    - *WineBoot
+    - *ClangDisableWarnings
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/msvc/bin/arm64:${PATH:?}"
+    - BIN=/opt/msvc/bin/arm64 . /opt/msvc/msvcenv-native.sh
+    - export RANLIB="llvm-ranlib"
+    - export CXX="clang++"
+    - export CC="clang-cl"
+    - export LD="lld-link"
+    - export COMMON_FLAGS="--target=arm64-windows-msvc -fuse-ld=lld-link"
+    - export CFLAGS="${COMMON_FLAGS:?} ${DISABLE_WARNINGS:?}"
+    - export CXXFLAGS="${COMMON_FLAGS:?} ${DISABLE_WARNINGS:?}"
+    - export LDFLAGS="${COMMON_FLAGS:?} -Wno-unknown-argument"
+    - export SIR_SHARED="/LD"
+    - ${CC:?} -Wno-unknown-argument --version
+    - ${CXX:?} -Wno-unknown-argument --version
+    - ${LD:?} --version
+    - make PLATFORM_EXE_EXT=.exe PLATFORM_DLL_EXT=.dll PLATFORM_LIB_EXT=.lib PTHOPT= LIBDL= SIR_FPIC= LIBSIR_S="build/lib/libsir_s.lib" all tests++
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+      - ./*.out
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+pages:
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/base:latest
+  script:
+    - *Configuration
+    - |
+      # Start of HTML generation ...
+      echo -e "section_start:`date +%s`:HTML_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - grep -rl 'PRINTF_FORMAT_ATTR([0-9]\+, [0-9]\+)$' | xargs -I{} sed -i "{}" -e 's/PRINTF_FORMAT_ATTR([0-9]\+, [0-9]\+)$//g'
+    - grep -rl 'SANITIZE_SUPPRESS(.*)$' | xargs -I{} sed -i "{}" -e 's/SANITIZE_SUPPRESS(.*)$//g'
+    - git restore "include/sir/platform.h"
+    - make docs
+    - mv -f docs/HTML public
+    - |
+      # End of HTML generation ...
+      echo -e "section_end:`date +%s`:HTML_section\r\e[0K" || true
+    - |
+      # Start of HTML compression ...
+      echo -e "section_start:`date +%s`:HTMc_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - find "public" -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\)$' -exec brotli -f -k -v -Z -- "{}" \; || true
+    - find "public" -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\)$' -exec pigz -9 -f -k -m -v -- "{}" \; || true
+    - |
+      # End of HTML compression ...
+      echo -e "section_end:`date +%s`:HTMc_section\r\e[0K" || true
+    - |
+      # Start of file listing ...
+      echo -e "section_start:`date +%s`:flst_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - ls -laR -- "public" || true
+    - |
+      # End of file listing ...
+      echo -e "section_end:`date +%s`:flst_section\r\e[0K" || true
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - public
+  retry: 2
+  timeout: 30 minutes
+  interruptible: false
+
+################################################################################
+
+FreeBSD/amd64 (G++, GCC):
+  stage: build_freebsd
+  needs:
+    - job: Style check
+  tags:
+    - Shell-x64
+    - FreeBSD
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export CC="/usr/local/bin/gcc13"
+    - export CXX="/usr/local/bin/g++13"
+    - export CFLAGS="-I/usr/local/include"
+    - export CXXFLAGS="-I/usr/local/include"
+    - export LDFLAGS="-Wl,-rpath=/usr/local/lib/gcc13 -L/usr/local/lib/gcc13 -L/usr/local/lib"
+    - freebsd-version -kru | xargs
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - gmake
+    - gmake tests++
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirexample
+    - stdbuf -o L ./build/bin/sirtests
+    - stdbuf -o L ./build/bin/sirtests++
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+FreeBSD/amd64 (Clang++, Clang):
+  stage: build_freebsd
+  needs:
+    - job: Style check
+  tags:
+    - Shell-x64
+    - FreeBSD
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export CC="/usr/local/bin/clang17"
+    - export CXX="/usr/local/bin/clang++17"
+    - export CFLAGS="-I/usr/local/include"
+    - export CXXFLAGS="-I/usr/local/include"
+    - export LDFLAGS="-Wl,-rpath=/usr/local/llvm17/lib/ -L/usr/local/llvm17/lib/ -L/usr/local/lib"
+    - freebsd-version -kru | xargs
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - gmake
+    - gmake tests++
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirexample
+    - stdbuf -o L ./build/bin/sirtests
+    - stdbuf -o L ./build/bin/sirtests++
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+FreeBSD/amd64 (DMD64 ImportC, C-only):
+  stage: build_freebsd
+  needs:
+    - job: Style check
+  tags:
+    - Shell-x64
+    - FreeBSD
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/dmd2/freebsd/bin64:${PATH:-}"
+    - export CFLAGS="-I/usr/local/include"
+    - export LDFLAGS="-Wl,-rpath=/opt/dmd2/freebsd/lib64 -L/opt/dmd2/freebsd/lib64 -L/usr/local/lib"
+    - mkdir -p build/bin
+    - touch build/bin/file.exists
+    - mkdir -p logs
+    - mkdir -p d
+    - cd d
+    - ln -s ../src/* ../include/sir/* ../include/sir.h .
+    - ln -s . sir
+    - ln -s ../example/* .
+    - freebsd-version -kru | xargs
+    - dmd --version
+    - dmd -nothrow -inline -m64 -fPIC -fPIE -O -release -check=off -boundscheck=off -P=-DSIR_NO_PLUGINS=1 *.c -of=../build/bin/sirexample
+    - rm -f example*
+    - ln -s ../tests/* .
+    - dmd -nothrow -inline -m64 -fPIC -fPIE -O -release -check=off -boundscheck=off -P=-DSIR_NO_PLUGINS=1 *.c -of=../build/bin/sirtests
+    - cd ..
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirexample
+    - stdbuf -o L ./build/bin/sirtests
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+OpenBSD/amd64 (DMD64 ImportC, C-only):
+  stage: build_openbsd
+  needs:
+    - job: Style check
+  tags:
+    - Shell-x64
+    - OpenBSD
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - mkdir -p build/bin
+    - touch build/bin/file.exists
+    - mkdir -p logs
+    - mkdir -p d
+    - cd d
+    - ln -s ../src/* ../include/sir/* ../include/sir.h .
+    - ln -s . sir
+    - ln -s ../example/* .
+    - uname -a
+    - dmd --version
+    - dmd -inline -m64 -fPIC -fPIE -O -release -check=off -boundscheck=off -P=-DSIR_NO_PLUGINS=1 *.c -of=../build/bin/sirexample
+    - rm -f example*
+    - ln -s ../tests/* .
+    - dmd -inline -m64 -fPIC -fPIE -O -release -check=off -boundscheck=off -P=-DSIR_NO_PLUGINS=1 *.c -of=../build/bin/sirtests
+    - cd ..
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - gstdbuf -o L ./build/bin/sirexample
+    - gstdbuf -o L ./build/bin/sirtests
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+FreeBSD/amd64 (GCC, FreeBSD Python):
+  stage: build_python
+  needs:
+    - job: Style check
+    - job: FreeBSD/amd64 (G++, GCC)
+  tags:
+    - Shell-x64
+    - FreeBSD
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export CC="/usr/local/bin/gcc13"
+    - export CFLAGS="-I/usr/local/include"
+    - export LDFLAGS="-Wl,-rpath=/usr/local/lib/gcc13 -L/usr/local/lib/gcc13 -L/usr/local/lib"
+    - freebsd-version -kru | xargs
+    - command -v python3
+    - $(command -v python3) --version
+    - swig -version
+    - ${CC:?} --version
+    - gmake
+    - cd bindings/python
+    - gmake
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./sirtest.py
+    - stdbuf -o L cat sir-python.log
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - bindings/python/*.so
+      - bindings/python/build/
+      - bindings/python/sir.py
+      - bindings/python/*.log
+      - bindings/python/*cache*
+      - bindings/python/*wrap.c
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+OpenBSD/amd64 (Clang++, Clang):
+  stage: build_openbsd
+  needs:
+    - job: Style check
+  tags:
+    - Shell-x64
+    - OpenBSD
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export CC="/usr/local/bin/clang-17"
+    - export CXX="/usr/local/bin/clang++-17"
+    - export CFLAGS="-I/usr/local/include"
+    - export CXXFLAGS="-DSIR_NO_STD_FORMAT=1 -I/usr/local/include"
+    - export LDFLAGS="-Wl,-rpath=/usr/local/llvm17/lib/ -L/usr/local/llvm17/lib/ -L/usr/local/lib"
+    - uname -a
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - gmake
+    - gmake tests++
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - gstdbuf -o L ./build/bin/sirexample
+    - gstdbuf -o L ./build/bin/sirtests
+    - gstdbuf -o L ./build/bin/sirtests++
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+OpenBSD/amd64 (CC, OpenBSD Python):
+  stage: build_python
+  needs:
+    - job: Style check
+    - job: OpenBSD/amd64 (C++, CC)
+  tags:
+    - Shell-x64
+    - OpenBSD
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export CC="cc"
+    - export CFLAGS="-I/usr/local/include"
+    - export LDFLAGS="-L/usr/local/lib"
+    - uname -a
+    - command -v python3
+    - $(command -v python3) --version
+    - swig -version
+    - ${CC:?} --version
+    - gmake
+    - cd bindings/python
+    - gmake
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - gstdbuf -o L ./sirtest.py
+    - gstdbuf -o L cat sir-python.log
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - bindings/python/*.so
+      - bindings/python/build/
+      - bindings/python/sir.py
+      - bindings/python/*.log
+      - bindings/python/*cache*
+      - bindings/python/*wrap.c
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+OpenBSD/amd64 (C++, CC):
+  stage: build_openbsd
+  needs:
+    - job: Style check
+  tags:
+    - Shell-x64
+    - OpenBSD
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export CC="cc"
+    - export CXX="c++"
+    - export CFLAGS="-I/usr/local/include"
+    - export CXXFLAGS="-DSIR_NO_STD_FORMAT=1 -I/usr/local/include"
+    - export LDFLAGS="-L/usr/local/lib"
+    - uname -a
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - gmake
+    - gmake tests++
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - gstdbuf -o L ./build/bin/sirexample
+    - gstdbuf -o L ./build/bin/sirtests
+    - gstdbuf -o L ./build/bin/sirtests++
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+FreeBSD/amd64 (C++, CC):
+  stage: build_freebsd
+  needs:
+    - job: Style check
+  tags:
+    - Shell-x64
+    - FreeBSD
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export CC="cc"
+    - export CXX="c++"
+    - export CFLAGS="-I/usr/local/include"
+    - export CXXFLAGS="-I/usr/local/include"
+    - export LDFLAGS="-L/usr/local/lib"
+    - freebsd-version -kru | xargs
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - gmake
+    - gmake tests++
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirexample
+    - stdbuf -o L ./build/bin/sirtests
+    - stdbuf -o L ./build/bin/sirtests++
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+NetBSD/amd64 (C++, CC):
+  stage: build_netbsd
+  needs:
+    - job: Style check
+  tags:
+    - Shell-x64
+    - NetBSD
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export CC="cc"
+    - export CXX="c++"
+    - export CFLAGS="-I/usr/pkg/include -I/usr/local/include"
+    - export CXXFLAGS="-Wno-stringop-overflow -I/usr/pkg/include -I/usr/local/include"
+    - export LDFLAGS="-L/usr/pkg/lib -L/usr/local/lib"
+    - uname -prs
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - gmake
+    - gmake tests++
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - gstdbuf -o L ./build/bin/sirexample
+    - gstdbuf -o L ./build/bin/sirtests
+    - gstdbuf -o L ./build/bin/sirtests++
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+NetBSD/amd64 (G++, GCC):
+  stage: build_netbsd
+  needs:
+    - job: Style check
+  tags:
+    - Shell-x64
+    - NetBSD
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export CC="/usr/pkg/gcc13/bin/gcc"
+    - export CXX="/usr/pkg/gcc13/bin/g++"
+    - export CFLAGS="-I/usr/pkg/include -I/usr/local/include"
+    - export CXXFLAGS="-I/usr/pkg/include -I/usr/local/include"
+    - export LDFLAGS="-Wl,-rpath,/usr/pkg/gcc13/lib -L/usr/pkg/gcc13/lib -L/usr/pkg/lib -L/usr/local/lib"
+    - uname -prs
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - gmake
+    - gmake tests++
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - gstdbuf -o L ./build/bin/sirexample
+    - gstdbuf -o L ./build/bin/sirtests
+    - gstdbuf -o L ./build/bin/sirtests++
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+NetBSD/amd64 (Clang++, Clang):
+  stage: build_netbsd
+  needs:
+    - job: Style check
+  tags:
+    - Shell-x64
+    - NetBSD
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export CC="/usr/pkg/bin/clang"
+    - export CXX="/usr/pkg/bin/clang++"
+    - export CFLAGS="-I/usr/pkg/include -I/usr/local/include"
+    - export CXXFLAGS="-I/usr/pkg/include -I/usr/local/include"
+    - export LDFLAGS="-L/usr/pkg/lib -L/usr/local/lib"
+    - uname -prs
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - gmake
+    - gmake tests++
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - gstdbuf -o L ./build/bin/sirexample
+    - gstdbuf -o L ./build/bin/sirtests
+    - gstdbuf -o L ./build/bin/sirtests++
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+NetBSD/amd64 (CC, NetBSD Python):
+  stage: build_python
+  needs:
+    - job: Style check
+    - job: NetBSD/amd64 (C++, CC)
+  tags:
+    - Shell-x64
+    - NetBSD
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export CC="cc"
+    - export CFLAGS="-I/usr/pkg/include -I/usr/local/include"
+    - export LDFLAGS="-L/usr/pkg/lib -L/usr/local/lib"
+    - uname -prs
+    - command -v python3
+    - $(command -v python3) --version
+    - swig -version
+    - ${CC:?} --version
+    - gmake
+    - cd bindings/python
+    - gmake
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - gstdbuf -o L ./sirtest.py
+    - gstdbuf -o L cat sir-python.log
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - bindings/python/*.so
+      - bindings/python/build/
+      - bindings/python/sir.py
+      - bindings/python/*.log
+      - bindings/python/*cache*
+      - bindings/python/*wrap.c
+      - logs/
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Windows/x64 (MSVC, MSBuild, Release, C++, C):
+  stage: build_windows_msbuild
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/msvc:latest
+  script:
+    - *Configuration
+    - *WineBoot
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/msvc/bin/x64:${PATH:?}"
+    - BIN=/opt/msvc/bin/x64 . /opt/msvc/msvcenv-native.sh
+    - export UseEnv=true
+    - cl.exe 2>&1 | head -3 | grep -v '^$' || true
+    - msbuild ./msvs/libsir.sln -t:Rebuild -p:Configuration=Release -p:Platform=x64
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - mkdir -p logs
+    - touch build/bin/file.exists
+    - export WINEDEBUG=-all
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirexample.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirexample.out
+    - screen -mDL sh -c '$(command -v wine64 || command -v wine || false) build/bin/sirtests.exe; printf "\n%s\n" "$?"' && tail -1 screenlog.0 | dos2unix -f | ansifilter | grep -qE '^0$'
+    - mv -f screenlog.0 sirtests.out
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+      - screenlog.0
+      - ./*.out
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Windows/x64 (MSVC, MSBuild, Debug, C++, C):
+  stage: build_windows_msbuild
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/msvc:latest
+  script:
+    - *Configuration
+    - *WineBoot
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/msvc/bin/x64:${PATH:?}"
+    - BIN=/opt/msvc/bin/x64 . /opt/msvc/msvcenv-native.sh
+    - export UseEnv=true
+    - cl.exe 2>&1 | head -3 | grep -v '^$' || true
+    - msbuild ./msvs/libsir.sln -t:Rebuild -p:Configuration=Debug -p:Platform=x64
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+      - ./*.out
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Windows/x64 (MSVC, MSBuild, Profiling, C++, C):
+  stage: build_windows_msbuild
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/msvc:latest
+  script:
+    - *Configuration
+    - *WineBoot
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/msvc/bin/x64:${PATH:?}"
+    - BIN=/opt/msvc/bin/x64 . /opt/msvc/msvcenv-native.sh
+    - export UseEnv=true
+    - cl.exe 2>&1 | head -3 | grep -v '^$' || true
+    - msbuild ./msvs/libsir.sln -t:Rebuild -p:Configuration=Profiling -p:Platform=x64
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+      - ./*.out
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Windows/Arm64 (MSVC, MSBuild, Release, C++, C):
+  stage: build_windows_msbuild
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/msvc:latest
+  script:
+    - *Configuration
+    - *WineBoot
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/msvc/bin/arm64:${PATH:?}"
+    - BIN=/opt/msvc/bin/arm64 . /opt/msvc/msvcenv-native.sh
+    - export UseEnv=true
+    - cl.exe 2>&1 | head -3 | grep -v '^$' || true
+    - msbuild ./msvs/libsir.sln -t:Rebuild -p:Configuration=Release -p:Platform=Arm64
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+      - ./*.out
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Windows/Arm64 (MSVC, MSBuild, Debug, C++, C):
+  stage: build_windows_msbuild
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/msvc:latest
+  script:
+    - *Configuration
+    - *WineBoot
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/msvc/bin/arm64:${PATH:?}"
+    - BIN=/opt/msvc/bin/arm64 . /opt/msvc/msvcenv-native.sh
+    - export UseEnv=true
+    - cl.exe 2>&1 | head -3 | grep -v '^$' || true
+    - msbuild ./msvs/libsir.sln -t:Rebuild -p:Configuration=Debug -p:Platform=Arm64
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+      - ./*.out
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+Windows/Arm64 (MSVC, MSBuild, Profiling, C++, C):
+  stage: build_windows_msbuild
+  needs:
+    - job: Style check
+  tags:
+    - Docker-x64
+    - Linux
+  image:
+    name: registry.gitlab.com/libsir/libsir/msvc:latest
+  script:
+    - *Configuration
+    - *WineBoot
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export PATH="/opt/msvc/bin/arm64:${PATH:?}"
+    - BIN=/opt/msvc/bin/arm64 . /opt/msvc/msvcenv-native.sh
+    - export UseEnv=true
+    - cl.exe 2>&1 | head -3 | grep -v '^$' || true
+    - msbuild ./msvs/libsir.sln -t:Rebuild -p:Configuration=Profiling -p:Platform=Arm64
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+      - ./*.out
+  retry: 2
+  interruptible: true
+
+################################################################################
+
+OS400/ppc64 (GCC-10, PASE, G++, GCC):
+  stage: build_os400
+  needs:
+    - job: Style check
+  tags:
+    - OS400
+    - SSH-ppc64
+  script:
+    - *Configuration
+    - |
+      # Start of Build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - export CC="gcc-10"
+    - export CXX="g++-10"
+    - ${CC:?} --version
+    - ${CXX:?} --version
+    - gmake
+    - gmake tests++
+    - |
+      # End of Build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *BuildInformation
+    - |
+      # Start of Test ...
+      echo -e "section_start:`date +%s`:Test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || true
+    - stdbuf -o L ./build/bin/sirexample
+    - stdbuf -o L ./build/bin/sirtests
+    - stdbuf -o L ./build/bin/sirtests++
+    - |
+      # End of Test ...
+      echo -e "section_end:`date +%s`:Test_section\r\e[0K" || true
+    - *CheckLogRemnants
+  dependencies: []
+  interruptible: false
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/
+      - logs/
+  retry: 2
+  allow_failure: true
+
+################################################################################
