@@ -4962,6 +4962,7 @@ if (flag) {
     strremove(postver, ".module+el8.7.0+20823+214a699d");
     strremove(postver, "17.1.1 (5725-C72, 5765-J20), version ");
     strremove(postver, "17.1.1 (5725-C72, 5765-J18), version ");
+    strremove(postver, "llvmorg-16.0.6-0-");
     strremove(postver, " Clang 15.0.0 (build 760095e)");
     strremove(postver, " Clang 15.0.0 (build 6af5742)");
     strremove(postver, " Clang 15.0.0 (build ca7115e)");

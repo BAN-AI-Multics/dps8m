@@ -386,7 +386,7 @@ Install the required prerequisites (using NetBSD Packages or [pkgsrc](https://ww
 
   ```sh
   env CC="clang" \
-    LDFLAGS="-L/usr/lib -L/usr/pkg/lib -fuse-ld="$(command -v ld.lld)" gmake
+    LDFLAGS="-L/usr/lib -L/usr/pkg/lib -fuse-ld=\"$(command -v ld.lld)\"" gmake
   ```
 
 ### blinkenLights2 on NetBSD
