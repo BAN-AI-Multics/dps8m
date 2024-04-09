@@ -307,6 +307,7 @@ lmscspell:                                                                    \
      $(GREP) -riaL 'scspell-id: '                                           | \
      $(GREP) -Ev '(\.ascii$$)'                                              | \
      $(GREP) -Ev '(src/libsir/)'                                            | \
+     $(GREP) -Ev '(libuv-local/)'                                           | \
      $(GREP) -Ev '(\.envrc$$)'                                              | \
      $(GREP) -Ev '(\.Attic/.)'                                              | \
      $(GREP) -Ev '(bound_library_wired_$$)'                                 | \

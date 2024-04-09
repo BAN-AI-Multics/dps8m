@@ -147,9 +147,9 @@ if (sim_end || (size == sizeof (char))) {
     return;
     }
 for (j = 0; j < count; j++) {                           /* loop on items */
-    /* Unsigned countdown loop. Predecrement k before it's used inside the
+    /* Unsigned countdown loop. Pre-decrement k before it's used inside the
        loop so that k == 0 in the loop body to process the last item, then
-       terminate. Initialize k to size for the same reason: the predecrement
+       terminate. Initialize k to size for the same reason: the pre-decrement
        gives us size - 1 in the loop body. */
     for (k = size; k > 0; /* empty */)
         *(dptr + --k) = *sptr++;
