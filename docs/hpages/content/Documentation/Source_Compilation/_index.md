@@ -856,18 +856,18 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 * Using **IBM Open XL C/C++ for AIX V17.1.2**:
 
   ```sh
-  env PATH="/opt/freeware/bin:${PATH}"                                     \
-      CC="/opt/IBM/openxlC/17.1.2/bin/ibm-clang_r"                         \
-      ATOMICS="AIX"                                                        \
-      AWK="gawk"                                                           \
-      OBJECT_MODE=64                                                       \
-    gmake PULIBS="-lpopt"                                                  \
-          LDFLAGS="-L/opt/freeware/lib -L/usr/local/lib -flto=auto -b64"   \
-          LIBS="-lpthread -luv -lbsd -lm"                                  \
-          CFLAGS="-flto=auto -I/opt/freeware/include -I/usr/local/include  \
-                  -I../simh -I../decNumber -DUSE_FLOCK=1 -DUSE_FCNTL=1     \
-                  -DHAVE_POPT=1 -DAIX_ATOMICS=1 -m64                       \
-                  -DLOCKLESS=1 -D_ALL_SOURCE -D_GNU_SOURCE -O3             \
+  env PATH="/opt/freeware/bin:${PATH}"                                      \
+      CC="/opt/IBM/openxlC/17.1.2/bin/ibm-clang_r"                          \
+      ATOMICS="AIX"                                                         \
+      AWK="gawk"                                                            \
+      OBJECT_MODE=64                                                        \
+    gmake PULIBS="-lpopt"                                                   \
+          LDFLAGS="-L/opt/freeware/lib -L/usr/local/lib -flto=auto -b64"    \
+          LIBS="-lpthread -luv -lbsd -lm"                                   \
+          CFLAGS="-flto=auto -I/opt/freeware/include -I/usr/local/include   \
+                  -I../simh -I../decNumber -DUSE_FLOCK=1 -DUSE_FCNTL=1      \
+                  -DHAVE_POPT=1 -DAIX_ATOMICS=1 -m64                        \
+                  -DLOCKLESS=1 -D_ALL_SOURCE -D_GNU_SOURCE -O3              \
                   -U__STRICT_POSIX__ -fno-strict-aliasing -mcpu=power8"
   ```
 
@@ -878,19 +878,19 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 * Using **IBM Open XL C/C++ for AIX V17.1.1**:
 
   ```sh
-  env PATH="/opt/freeware/bin:${PATH}"                                     \
-      CC="/opt/IBM/openxlC/17.1.1/bin/ibm-clang_r"                         \
-      ATOMICS="AIX"                                                        \
-      AWK="gawk"                                                           \
-      OBJECT_MODE=64                                                       \
-      NEED_128=1                                                           \
-    gmake PULIBS="-lpopt"                                                  \
-          LDFLAGS="-L/opt/freeware/lib -L/usr/local/lib -flto=auto -b64"   \
-          LIBS="-lpthread -luv -lbsd -lm"                                  \
-          CFLAGS="-flto=auto -I/opt/freeware/include -I/usr/local/include  \
-                  -I../simh -I../decNumber -DUSE_FLOCK=1 -DUSE_FCNTL=1     \
-                  -DHAVE_POPT=1 -DNEED_128=1 -DAIX_ATOMICS=1 -m64          \
-                  -DLOCKLESS=1 -D_ALL_SOURCE -D_GNU_SOURCE -O3             \
+  env PATH="/opt/freeware/bin:${PATH}"                                      \
+      CC="/opt/IBM/openxlC/17.1.1/bin/ibm-clang_r"                          \
+      ATOMICS="AIX"                                                         \
+      AWK="gawk"                                                            \
+      OBJECT_MODE=64                                                        \
+      NEED_128=1                                                            \
+    gmake PULIBS="-lpopt"                                                   \
+          LDFLAGS="-L/opt/freeware/lib -L/usr/local/lib -flto=auto -b64"    \
+          LIBS="-lpthread -luv -lbsd -lm"                                   \
+          CFLAGS="-flto=auto -I/opt/freeware/include -I/usr/local/include   \
+                  -I../simh -I../decNumber -DUSE_FLOCK=1 -DUSE_FCNTL=1      \
+                  -DHAVE_POPT=1 -DNEED_128=1 -DAIX_ATOMICS=1 -m64           \
+                  -DLOCKLESS=1 -D_ALL_SOURCE -D_GNU_SOURCE -O3              \
                   -U__STRICT_POSIX__ -fno-strict-aliasing -mcpu=power8"
   ```
 
@@ -903,18 +903,18 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 * Using mainline **Clang 18.1.3**:
 
   ```sh
-  env PATH="/opt/llvm/bin:/opt/freeware/bin:${PATH}"                       \
-      CC="/opt/llvm/bin/clang"                                             \
-      ATOMICS="AIX"                                                        \
-      AWK="gawk"                                                           \
-      OBJECT_MODE=64                                                       \
-    gmake PULIBS="-lpopt"                                                  \
-          LDFLAGS="-L/opt/freeware/lib -L/usr/local/lib -flto=auto -b64"   \
-          LIBS="-lpthread -luv -lbsd -lm"                                  \
-          CFLAGS="-flto=auto -I/opt/freeware/include -I/usr/local/include  \
-                  -I../simh -I../decNumber -DUSE_FLOCK=1 -DUSE_FCNTL=1     \
-                  -DHAVE_POPT=1 -DAIX_ATOMICS=1 -m64                       \
-                  -DLOCKLESS=1 -D_ALL_SOURCE -D_GNU_SOURCE -O3             \
+  env PATH="/opt/llvm/bin:/opt/freeware/bin:${PATH}"                        \
+      CC="/opt/llvm/bin/clang"                                              \
+      ATOMICS="AIX"                                                         \
+      AWK="gawk"                                                            \
+      OBJECT_MODE=64                                                        \
+    gmake PULIBS="-lpopt"                                                   \
+          LDFLAGS="-L/opt/freeware/lib -L/usr/local/lib -flto=auto -b64"    \
+          LIBS="-lpthread -luv -lbsd -lm"                                   \
+          CFLAGS="-flto=auto -I/opt/freeware/include -I/usr/local/include   \
+                  -I../simh -I../decNumber -DUSE_FLOCK=1 -DUSE_FCNTL=1      \
+                  -DHAVE_POPT=1 -DAIX_ATOMICS=1 -m64                        \
+                  -DLOCKLESS=1 -D_ALL_SOURCE -D_GNU_SOURCE -O3              \
                   -U__STRICT_POSIX__ -fno-strict-aliasing -mcpu=power8"
   ```
 
