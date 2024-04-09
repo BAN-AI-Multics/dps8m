@@ -105,8 +105,8 @@ return sim_end;
 
 void sim_buf_swap_data (void *bptr, size_t size, size_t count)
 {
-uint32 j;
-int32 k;
+size_t j;
+size_t k;
 unsigned char by, *sptr, *dptr;
 
 if (sim_end || (count == 0) || (size == sizeof (char)))
@@ -138,7 +138,7 @@ return c;
 void sim_buf_copy_swapped (void *dbuf, const void *sbuf, size_t size, size_t count)
 {
 size_t j;
-int32 k;
+size_t k;
 const unsigned char *sptr = (const unsigned char *)sbuf;
 unsigned char *dptr = (unsigned char *)dbuf;
 
@@ -147,8 +147,12 @@ if (sim_end || (size == sizeof (char))) {
     return;
     }
 for (j = 0; j < count; j++) {                           /* loop on items */
-    for (k = (int32)(size - 1); k >= 0; k--)
-        *(dptr + k) = *sptr++;
+    /* Unsigned countdown loop. Predecrement k before it's used inside the
+       loop so that k == 0 in the loop body to process the last item, then
+       terminate. Initialize k to size for the same reason: the predecrement
+       gives us size - 1 in the loop body. */
+    for (k = size; k > 0; /* empty */)
+        *(dptr + --k) = *sptr++;
     dptr = dptr + size;
     }
 }

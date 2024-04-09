@@ -475,27 +475,27 @@ struct UNIT {
 # define UNIT_S_DF_TAPE  3               /* Bits Reserved for Tape Density */
 
 struct BITFIELD {
-    const char      *name;                              /* field name */
-    uint32          offset;                             /* starting bit */
-    uint32          width;                              /* width */
-    const char      **valuenames;                       /* map of values to strings */
-    const char      *format;                            /* value format string */
+    const char      *name;                               /* field name */
+    uint32          offset;                              /* starting bit */
+    uint32          width;                               /* width */
+    const char      **valuenames;                        /* map of values to strings */
+    const char      *format;                             /* value format string */
     };
 
 /* Register data structure */
 
 struct REG {
-    CONST char          *name;                          /* name */
-    void                *loc;                           /* location */
-    uint32              radix;                          /* radix */
-    uint32              width;                          /* width */
-    uint32              offset;                         /* starting bit */
-    uint32              depth;                          /* save depth */
-    const char          *desc;                          /* description */
-    BITFIELD            *fields;                        /* bit fields */
-    uint32              flags;                          /* flags */
-    uint32              qptr;                           /* circ q ptr */
-    size_t              str_size;                       /* structure size */
+    CONST char          *name;                           /* name */
+    void                *loc;                            /* location */
+    uint32              radix;                           /* radix */
+    uint32              width;                           /* width */
+    uint32              offset;                          /* starting bit */
+    uint32              depth;                           /* save depth */
+    const char          *desc;                           /* description */
+    BITFIELD            *fields;                         /* bit fields */
+    uint32              flags;                           /* flags */
+    uint32              qptr;                            /* circ q ptr */
+    size_t              str_size;                        /* structure size */
     };
 
 /* Register flags */
@@ -519,47 +519,47 @@ struct REG {
 /* Command tables, base and alternate formats */
 
 struct CTAB {
-    const char          *name;                          /* name */
+    const char          *name;                           /* name */
     t_stat              (*action)(int32 flag, CONST char *cptr);
-                                                        /* action routine */
-    int32               arg;                            /* argument */
-    const char          *help;                          /* help string/structured locator */
-    const char          *help_base;                     /* structured help base*/
+                                                         /* action routine */
+    int32               arg;                             /* argument */
+    const char          *help;                           /* help string/structured locator */
+    const char          *help_base;                      /* structured help base*/
     void                (*message)(const char *unechoed_cmdline, t_stat stat);
-                                                        /* message printing routine */
+                                                         /* message printing routine */
     };
 
 struct C1TAB {
-    const char          *name;                          /* name */
+    const char          *name;                           /* name */
     t_stat              (*action)(DEVICE *dptr, UNIT *uptr,
                             int32 flag, CONST char *cptr);/* action routine */
-    int32               arg;                            /* argument */
-    const char          *help;                          /* help string */
+    int32               arg;                             /* argument */
+    const char          *help;                           /* help string */
     };
 
 struct SHTAB {
-    const char          *name;                          /* name */
+    const char          *name;                           /* name */
     t_stat              (*action)(FILE *st, DEVICE *dptr,
                             UNIT *uptr, int32 flag, CONST char *cptr);
-    int32               arg;                            /* argument */
-    const char          *help;                          /* help string */
+    int32               arg;                             /* argument */
+    const char          *help;                           /* help string */
     };
 
 /* Modifier table - only extended entries have disp, reg, or flags */
 
 struct MTAB {
-    uint32              mask;                           /* mask */
-    uint32              match;                          /* match */
-    const char          *pstring;                       /* print string */
-    const char          *mstring;                       /* match string */
+    uint32              mask;                            /* mask */
+    uint32              match;                           /* match */
+    const char          *pstring;                        /* print string */
+    const char          *mstring;                        /* match string */
     t_stat              (*valid)(UNIT *up, int32 v, CONST char *cp, void *dp);
-                                                        /* validation routine */
+                                                         /* validation routine */
     t_stat              (*disp)(FILE *st, UNIT *up, int32 v, CONST void *dp);
-                                                        /* display routine */
-    void                *desc;                          /* value descriptor */
-                                                        /* REG * if MTAB_VAL */
-                                                        /* int * if not */
-    const char          *help;                          /* help string */
+                                                         /* display routine */
+    void                *desc;                           /* value descriptor */
+                                                         /* REG * if MTAB_VAL */
+                                                         /* int * if not */
+    const char          *help;                           /* help string */
     };
 
 /* mtab mask flag bits */
@@ -578,88 +578,88 @@ struct MTAB {
 /* Search table */
 
 struct SCHTAB {
-    int32               logic;                          /* logical operator */
-    int32               boolop;                         /* boolean operator */
-    uint32              count;                          /* value count in mask and comp arrays */
-    t_value             *mask;                          /* mask for logical */
-    t_value             *comp;                          /* comparison for boolean */
+    size_t              logic;                           /* logical operator */
+    size_t              boolop;                          /* boolean operator */
+    uint32              count;                           /* value count in mask and comp arrays */
+    t_value             *mask;                           /* mask for logical */
+    t_value             *comp;                           /* comparison for boolean */
     };
 
 /* Breakpoint table */
 
 struct BRKTAB {
-    t_addr              addr;                           /* address */
-    uint32              typ;                            /* mask of types */
+    t_addr              addr;                            /* address */
+    uint32              typ;                             /* mask of types */
 # define BRK_TYP_USR_TYPES       ((1 << ('Z'-'A'+1)) - 1)/* all types A-Z */
 # define BRK_TYP_DYN_STEPOVER    (SWMASK ('Z'+1))
 # define BRK_TYP_DYN_USR         (SWMASK ('Z'+2))
 # define BRK_TYP_DYN_ALL         (BRK_TYP_DYN_USR|BRK_TYP_DYN_STEPOVER) /* Mask of All Dynamic types */
 # define BRK_TYP_TEMP            (SWMASK ('Z'+3))        /* Temporary (one-shot) */
 # define BRK_TYP_MAX             (('Z'-'A')+3)           /* Maximum breakpoint type */
-    int32               cnt;                            /* proceed count */
-    char                *act;                           /* action string */
-    double              time_fired[SIM_BKPT_N_SPC];     /* instruction count when match occurred */
-    BRKTAB *next;                                       /* list with same address value */
+    int32               cnt;                             /* proceed count */
+    char                *act;                            /* action string */
+    double              time_fired[SIM_BKPT_N_SPC];      /* instruction count when match occurred */
+    BRKTAB *next;                                        /* list with same address value */
     };
 
 /* Breakpoint table */
 
 struct BRKTYPTAB {
-    uint32      btyp;                                   /* type mask */
-    const char *desc;                                   /* description */
+    uint32      btyp;                                    /* type mask */
+    const char *desc;                                    /* description */
     };
 # define BRKTYPE(typ,descrip) {SWMASK(typ), descrip}
 
 /* Expect rule */
 
 struct EXPTAB {
-    uint8               *match;                         /* match string */
-    uint32              size;                           /* match string size */
-    char                *match_pattern;                 /* match pattern for format */
-    int32               cnt;                            /* proceed count */
-    int32               switches;                       /* flags */
-# define EXP_TYP_PERSIST         (SWMASK ('P'))      /* rule persists after match, default is once a rule matches, it is removed */
-# define EXP_TYP_CLEARALL        (SWMASK ('C'))      /* clear all rules after matching this rule, default is to once a rule matches, it is removed */
-# define EXP_TYP_REGEX           (SWMASK ('R'))      /* rule pattern is a regular expression */
-# define EXP_TYP_REGEX_I         (SWMASK ('I'))      /* regular expression pattern matching should be case independent */
-# define EXP_TYP_TIME            (SWMASK ('T'))      /* halt delay is in microseconds instead of instructions */
-    char                *act;                           /* action string */
+    uint8               *match;                          /* match string */
+    size_t              size;                            /* match string size */
+    char                *match_pattern;                  /* match pattern for format */
+    int32               cnt;                             /* proceed count */
+    int32               switches;                        /* flags */
+# define EXP_TYP_PERSIST         (SWMASK ('P'))          /* rule persists after match, default is once a rule matches, it is removed */
+# define EXP_TYP_CLEARALL        (SWMASK ('C'))          /* clear all rules after matching this rule, default is to once a rule matches, it is removed */
+# define EXP_TYP_REGEX           (SWMASK ('R'))          /* rule pattern is a regular expression */
+# define EXP_TYP_REGEX_I         (SWMASK ('I'))          /* regular expression pattern matching should be case independent */
+# define EXP_TYP_TIME            (SWMASK ('T'))          /* halt delay is in microseconds instead of instructions */
+    char                *act;                            /* action string */
     };
 
 /* Expect Context */
 
 struct EXPECT {
-    DEVICE              *dptr;                          /* Device (for Debug) */
-    uint32              dbit;                           /* Debugging Bit */
-    EXPTAB              *rules;                         /* match rules */
-    int32               size;                           /* count of match rules */
-    uint32              after;                          /* delay before halting */
-    uint8               *buf;                           /* buffer of output data which has produced */
-    uint32              buf_ins;                        /* buffer insertion point for the next output data */
-    uint32              buf_size;                       /* buffer size */
+    DEVICE              *dptr;                           /* Device (for Debug) */
+    uint32              dbit;                            /* Debugging Bit */
+    EXPTAB              *rules;                          /* match rules */
+    size_t              size;                            /* count of match rules */
+    uint32              after;                           /* delay before halting */
+    uint8               *buf;                            /* buffer of output data which has produced */
+    size_t              buf_ins;                         /* buffer insertion point for the next output data */
+    size_t              buf_size;                        /* buffer size */
     };
 
 /* Send Context */
 
 struct SEND {
-    uint32              delay;                          /* instruction delay between sent data */
+    uint32              delay;                           /* instruction delay between sent data */
 # define SEND_DEFAULT_DELAY  1000                        /* default delay instruction count */
-    DEVICE              *dptr;                          /* Device (for Debug) */
-    uint32              dbit;                           /* Debugging Bit */
-    uint32              after;                          /* instruction delay before sending any data */
-    double              next_time;                      /* execution time when next data can be sent */
-    uint8               *buffer;                        /* buffer */
-    size_t              bufsize;                        /* buffer size */
-    int32               insoff;                         /* insert offset */
-    int32               extoff;                         /* extra offset */
+    DEVICE              *dptr;                           /* Device (for Debug) */
+    uint32              dbit;                            /* Debugging Bit */
+    uint32              after;                           /* instruction delay before sending any data */
+    double              next_time;                       /* execution time when next data can be sent */
+    uint8               *buffer;                         /* buffer */
+    size_t              bufsize;                         /* buffer size */
+    size_t              insoff;                          /* insert offset */
+    size_t              extoff;                          /* extra offset */
     };
 
 /* Debug table */
 
 struct DEBTAB {
-    const char          *name;                          /* control name */
-    uint32              mask;                           /* control bit */
-    const char          *desc;                          /* description */
+    const char          *name;                           /* control name */
+    uint32              mask;                            /* control bit */
+    const char          *desc;                           /* description */
     };
 
 /* Deprecated Debug macros.  Use sim_debug() */
@@ -675,9 +675,9 @@ struct DEBTAB {
 
 /* File Reference */
 struct FILEREF {
-    char                name[CBUFSIZE];                 /* file name */
-    FILE                *file;                          /* file handle */
-    int32               refcount;                       /* reference count */
+    char                name[CBUFSIZE];                  /* file name */
+    FILE                *file;                           /* file handle */
+    int32               refcount;                        /* reference count */
     };
 
 /*

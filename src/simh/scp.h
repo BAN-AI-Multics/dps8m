@@ -149,12 +149,12 @@ t_value get_uint (const char *cptr, uint32 radix, t_value max, t_stat *status);
 CONST char *get_range (DEVICE *dptr, CONST char *cptr, t_addr *lo, t_addr *hi,
     uint32 rdx, t_addr max, char term);
 t_stat sim_decode_quoted_string (const char *iptr, uint8 *optr, uint32 *osize);
-char *sim_encode_quoted_string (const uint8 *iptr, uint32 size);
-void fprint_buffer_string (FILE *st, const uint8 *buf, uint32 size);
+char *sim_encode_quoted_string (const uint8 *iptr, size_t size);
+void fprint_buffer_string (FILE *st, const uint8 *buf, size_t size);
 t_value strtotv (CONST char *cptr, CONST char **endptr, uint32 radix);
 int Fprintf (FILE *f, const char *fmt, ...) GCC_FMT_ATTR(2, 3);
 t_stat fprint_val (FILE *stream, t_value val, uint32 rdx, uint32 wid, uint32 fmt);
-t_stat sprint_val (char *buf, t_value val, uint32 rdx, uint32 wid, uint32 fmt);
+t_stat sprint_val (char *buf, t_value val, uint32 rdx, size_t wid, uint32 fmt);
 const char *sim_fmt_secs (double seconds);
 const char *sprint_capac (DEVICE *dptr, UNIT *uptr);
 char *read_line (char *cptr, int32 size, FILE *stream);

@@ -588,7 +588,7 @@ static void _sim_rem_log_out (TMLN *lp)
 char cbuf[4*CBUFSIZE];
 
 if (sim_log) {
-    int32 unwritten;
+    size_t unwritten;
 
     (void)fflush (sim_log);
     (void)sim_fseeko (sim_log, sim_rem_cmd_log_start, SEEK_SET);
@@ -1620,7 +1620,8 @@ if (cptr && (*cptr != 0))
 if (!sim_con_tmxr.ldsc->txbfd)
     fprintf (st, "Unbuffered\n");
 else
-    fprintf (st, "Buffer Size = %d\n", sim_con_tmxr.ldsc->txbsz);
+    fprintf (st, "Buffer Size = %lld\n",
+             (long long)sim_con_tmxr.ldsc->txbsz);
 return SCPE_OK;
 }
 
