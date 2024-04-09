@@ -71,9 +71,16 @@ Review the complete [**DPS8M Omnibus Documentation**](https://dps8m.gitlab.io/dp
 []()
 
 - [AIX](#aix)
+  * [Recommended compilers](#recommended-compilers)
+    + [Other supported compilers](#other-supported-compilers)
   * [AIX prerequisites](#aix-prerequisites)
+    + [Libraries and tools](#libraries-and-tools)
+    + [GNU C compilers](#gnu-c-compilers)
+    + [Clang compilers](#clang-compilers)
+    + [IBM compiler support](#ibm-compiler-support)
   * [AIX compilation](#aix-compilation)
     + [IBM Open XL C/C++ for AIX](#ibm-open-xl-cc-for-aix)
+    + [Clang](#clang-1)
     + [IBM XL C/C++ for AIX](#ibm-xl-cc-for-aix)
     + [GCC](#gcc-1)
 
@@ -96,7 +103,7 @@ Review the complete [**DPS8M Omnibus Documentation**](https://dps8m.gitlab.io/dp
   * [Linux prerequisites](#linux-prerequisites)
   * [Standard Linux compilation](#standard-linux-compilation)
   * [Alternative Linux compilation](#alternative-linux-compilation)
-    + [Clang](#clang-1)
+    + [Clang](#clang-2)
     + [Intel oneAPI DPC++/C++](#intel-oneapi-dpcc)
     + [AMD Optimizing C/C++](#amd-optimizing-cc)
       - [AOCC with AMD Optimized CPU Libraries](#aocc-with-amd-optimized-cpu-libraries)
@@ -760,25 +767,49 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 
 []()
 
-* The simulator can be built for **64-bit** **AIX®** using [**IBM XL C/C++ for AIX**](https://www.ibm.com/products/xl-c-aix-compiler-power) (**`xlc`**), [**IBM Open XL C/C++ for AIX**](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) (**`ibm-clang`**), or **GNU C** (**`gcc`**).
-* **The DPS8M Development Team** recommends building with **IBM Open XL C/C++ V17.1.2** (or later) or **GCC 11** (or later) for optimal performance.
-* [**IBM Open XL C/C++ for AIX V17.1.2 Fix Pack 4** (March 2024)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the *minimum* recommended version of the **Open XL C/C++** compiler on **POWER8**, **POWER9**, and **Power10** systems.
-* [**IBM XL C/C++ for AIX V16.1.0 Fix Pack 16** (February 2024)](https://www.ibm.com/support/pages/ibm-xl-cc-aix-161) is the *minimum* recommended version of the **IBM XL C/C++** compiler on **POWER8** and **POWER9** systems.
+* The simulator can be built for **64-bit** **AIX®** using [**IBM XL C/C++ for AIX**](https://www.ibm.com/products/xl-c-aix-compiler-power) (**`xlc`**), [**IBM Open XL C/C++ for AIX**](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) (**`ibm-clang`**), mainline **Clang** (**`clang`**), and **GNU C** (**`gcc`**).  When using **XL compilers**, ensure that you are using the [latest available XL compiler and associated PTF updates](https://www.ibm.com/support/pages/aix-os-levels-supported-xl-compilers) for your **IBM AIX** OS level. Review the current [fix list for XL compilers on AIX](https://www.ibm.com/support/pages/fix-list-xl-cc-aix) for complete details.
 
 []()
 
-* Ensure that you are using the [latest available XL compiler and associated PTF updates](https://www.ibm.com/support/pages/aix-os-levels-supported-xl-compilers) for your **IBM AIX** OS level.
+* **The DPS8M Development Team** recommends building with **IBM Open XL C/C++ V17.1.2** (or later) or mainline **Clang 18** (or later) for optimal performance. Building with **GNU C** is supported (*but not recommended*) when using **GCC 10** (or later).
+
+### Recommended compilers
+
+* [**IBM Open XL C/C++ for AIX V17.1.2 Fix Pack 4** (March 2024)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the *minimum* recommended version of the **Open XL C/C++ V17.1.2** compiler on **POWER8**, **POWER9**, and **Power10** systems.
+  * LTO (*link-time optimization*) and native 128-bit integer operations are both fully supported.
 
 []()
 
-* When building the simulator using **GNU C**, it recommended to use **GCC 11** (or later) for optimal performance.
-  * **GCC 11** can be installed from the [IBM AIX Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository.
+* [**Clang 18.1.3**](https://clang.llvm.org/) is the *minimum* recommended version of the **Clang** compiler on **POWER8**, **POWER9**, and **Power10** systems.
+  * LTO *(link-time optimization)* and native 128-bit integer operations are both fully supported.
+
+#### Other supported compilers
+
+* [**IBM Open XL C/C++ for AIX V17.1.1 Fix Pack 6** (February 2024)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the *minimum* recommended version of the **Open XL C/C++ V17.1.1** compiler on **POWER8**, **POWER9**, and **Power10** systems.
+  * LTO (*link-time optimization*) is supported, but 128-bit integer operations are **not supported**.
+    * Use of the **`NEED_128=1`** option is required when building with **Open XL C/C++ V17.1.1**.
 
 []()
 
-* Note that building for **IBM AIX** currently requires a non-trivial number of options to be specified *after* the `gmake` command, which overrides various build defaults appropriate for **Linux**, **macOS**, and **BSD** systems, but not IBM **AIX**.  This will be simplified in a future release of the simulator.
+* [**IBM XL C/C++ for AIX V16.1.0 Fix Pack 16** (February 2024)](https://www.ibm.com/support/pages/ibm-xl-cc-aix-161) is the *minimum* recommended version of the **IBM XL C/C++ V16.1.0** compiler on **POWER8** and **POWER9** systems.
+  * LTO (*link-time optimization*) and 128-bit integer operations are both **not supported**.
+    * Use of the **`NEED_128=1`** and **`NO_LTO=1`** options are required when building with **IBM XL C/C++ V16.1.0**.
+  * **IBM XL C/C++ V16.1.0** is **not** recommended for **Power10** systems.
+
+[]()
+
+* **GNU C 11.3.0** is the *minimum* recommended version of the **GNU C** compiler on **POWER8**, **POWER9**, and **Power10** systems.
+  * LTO (*link-time optimization*) and 128-bit integer operations are both **not supported**.
+    * Use of the **`NEED_128=1`** and **`NO_LTO=1`** options are required when building with **GNU C**.
+  * **GCC 11** and **GCC 12** can be installed from the [IBM AIX Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository.
+
+[]()
+
+* Note that building fully-featured binaries for **IBM AIX** currently requires a non-trivial number of options to be specified *after* the `gmake` command, which overrides various build defaults appropriate for **Linux**, **macOS**, and **BSD** systems, but not IBM **AIX**.  This will be simplified in a future release of the simulator.
 
 ### AIX prerequisites
+
+#### Libraries and tools
 
 * Install the required prerequisites from the [IBM AIX Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository (as *root*):
 
@@ -786,24 +817,35 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
   /opt/freeware/bin/dnf install sed gmake libuv libuv-devel popt coreutils gawk
   ```
 
-* *Optionally* install **GCC 11** (or **GCC 12** on **AIX 7.3**) from the [IBM AIX Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository (as *root*):
+#### GNU C compilers
 
-  * Install **GCC 11**:
+* *Optionally* install **GCC 11.3** (or **GCC 12.3**) from the [IBM AIX Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository (as *root*).
+  * GCC availability from the [IBM AIX Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) site varies depending on **IBM AIX** OS version.
+
+[]()
+
+  * Install **GCC 11.3**:
 
     ```sh
     /opt/freeware/bin/dnf install gcc gcc11
     ```
 
-  * Install **GCC 12** (on **AIX 7.3**):
+  * Install **GCC 12.3**:
 
     ```sh
     /opt/freeware/bin/dnf install gcc gcc12
     ```
 
-[]()
+#### Clang compilers
 
-* GCC availability from the [IBM AIX Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) site varies depending on **IBM AIX** version.
-* IBM does not provide support for **GCC** through **IBM AIX** support cases; we recommend using **Open XL C/C++** where possible.
+* *Optionally* install mainline **Clang**.  At the time of writing, mainline **Clang** for **AIX** was not yet available from the [IBM AIX Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository, but can be obtained from:
+
+  * [LLVM Downloads](https://releases.llvm.org/) (*source code*), or,
+  * [GitHub Releases](https://github.com/llvm/llvm-project/releases) (*source code and binary releases*)
+
+#### IBM compiler support
+
+* IBM does not provide support for any version of **GNU C** through **IBM AIX** support cases; we recommend IBM customers with support contracts use **Open XL C/C++** if possible.
 
 ### AIX compilation
 
@@ -816,6 +858,28 @@ Build the simulator from the top-level source directory (using **GNU Make**):
   ```sh
   env PATH="/opt/freeware/bin:${PATH}"                                     \
       CC="/opt/IBM/openxlC/17.1.2/bin/ibm-clang_r"                         \
+      ATOMICS="AIX"                                                        \
+      AWK="gawk"                                                           \
+      OBJECT_MODE=64                                                       \
+    gmake PULIBS="-lpopt"                                                  \
+          LDFLAGS="-L/opt/freeware/lib -L/usr/local/lib -flto=auto -b64"   \
+          LIBS="-lpthread -luv -lbsd -lm"                                  \
+          CFLAGS="-flto=auto -I/opt/freeware/include -I/usr/local/include  \
+                  -I../simh -I../decNumber -DUSE_FLOCK=1 -DUSE_FCNTL=1     \
+                  -DHAVE_POPT=1 -DAIX_ATOMICS=1 -m64                       \
+                  -DLOCKLESS=1 -D_ALL_SOURCE -D_GNU_SOURCE -O3             \
+                  -U__STRICT_POSIX__ -fno-strict-aliasing -mcpu=power8"
+  ```
+
+  * When building on IBM **POWER9** (or **Power10**) systems, ‘`-mcpu=power9`’ (*or* ‘`-mcpu=power10`’) should replace ‘`-mcpu=power8`’ in the above compiler invocation.
+
+  * Refer to the [**IBM Open XL C/C++ for AIX V17.1.2 documentation**](https://www.ibm.com/docs/en/openxl-c-and-cpp-aix/17.1.2) for additional information.
+
+* Using **IBM Open XL C/C++ for AIX V17.1.1**:
+
+  ```sh
+  env PATH="/opt/freeware/bin:${PATH}"                                     \
+      CC="/opt/IBM/openxlC/17.1.1/bin/ibm-clang_r"                         \
       ATOMICS="AIX"                                                        \
       AWK="gawk"                                                           \
       OBJECT_MODE=64                                                       \
@@ -832,7 +896,32 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
   * When building on IBM **POWER9** (or **Power10**) systems, ‘`-mcpu=power9`’ (*or* ‘`-mcpu=power10`’) should replace ‘`-mcpu=power8`’ in the above compiler invocation.
 
-  * Refer to the [**IBM Open XL C/C++ for AIX V17.1.2 documentation**](https://www.ibm.com/docs/en/openxl-c-and-cpp-aix/17.1.2) for additional information.
+  * Refer to the [**IBM Open XL C/C++ for AIX V17.1.1 documentation**](https://www.ibm.com/docs/en/openxl-c-and-cpp-aix/17.1.1) for additional information.
+
+#### Clang
+
+* Using mainline **Clang 18.1.3**:
+
+  ```sh
+  env PATH="/opt/llvm/bin:/opt/freeware/bin:${PATH}"                       \
+      CC="/opt/llvm/bin/clang"                                             \
+      ATOMICS="AIX"                                                        \
+      AWK="gawk"                                                           \
+      OBJECT_MODE=64                                                       \
+    gmake PULIBS="-lpopt"                                                  \
+          LDFLAGS="-L/opt/freeware/lib -L/usr/local/lib -flto=auto -b64"   \
+          LIBS="-lpthread -luv -lbsd -lm"                                  \
+          CFLAGS="-flto=auto -I/opt/freeware/include -I/usr/local/include  \
+                  -I../simh -I../decNumber -DUSE_FLOCK=1 -DUSE_FCNTL=1     \
+                  -DHAVE_POPT=1 -DAIX_ATOMICS=1 -m64                       \
+                  -DLOCKLESS=1 -D_ALL_SOURCE -D_GNU_SOURCE -O3             \
+                  -U__STRICT_POSIX__ -fno-strict-aliasing -mcpu=power8"
+  ```
+
+  * When building on IBM **POWER9** (or **Power10**) systems, ‘`-mcpu=power9`’ (*or* ‘`-mcpu=power10`’) should replace ‘`-mcpu=power8`’ in the above compiler invocation.
+
+  * Refer to the [**Clang documentation**](https://clang.llvm.org/docs/) for additional information.
+
 
 #### IBM XL C/C++ for AIX
 
@@ -868,19 +957,21 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 #### GCC
 
-* Using **GCC 11**:
+* Using **GCC 11.3**:
 
   ```sh
   env PATH="/opt/freeware/bin:${PATH}" CC="gcc-11" \
     ATOMICS="AIX" NO_LTO=1 gmake
   ```
+  * Refer to the [**GCC 11.3 online documentation**](https://gcc.gnu.org/onlinedocs/11.3.0/) for additional information.
 
-* Using **GCC 12**:
+* Using **GCC 12.3**:
 
   ```sh
   env PATH="/opt/freeware/bin:${PATH}" CC="gcc-12" \
     ATOMICS="AIX" NO_LTO=1 gmake
   ```
+  * Refer to the [**GCC 12.3 online documentation**](https://gcc.gnu.org/onlinedocs/12.3.0/) for additional information.
 
 <br>
 

@@ -4962,10 +4962,13 @@ if (flag) {
     strremove(postver, ".module+el8.7.0+20823+214a699d");
     strremove(postver, "17.1.1 (5725-C72, 5765-J20), version ");
     strremove(postver, "17.1.1 (5725-C72, 5765-J18), version ");
+    strremove(postver, "17.1.2 (5725-C72, 5765-J20), version ");
+    strremove(postver, "17.1.2 (5725-C72, 5765-J18), version ");
     strremove(postver, "llvmorg-16.0.6-0-");
     strremove(postver, " Clang 15.0.0 (build 760095e)");
     strremove(postver, " Clang 15.0.0 (build 6af5742)");
     strremove(postver, " Clang 15.0.0 (build ca7115e)");
+    strremove(postver, " Clang 17.0.6 (build 19a779f)");
 #endif
 #if ( defined (__GNUC__) && defined (__VERSION__) ) && !defined (__EDG__)
 # ifndef __clang_version__
@@ -4982,6 +4985,10 @@ if (flag) {
     (void)sprintf(clangllvmver, "%.1023s", __clang_version__);
     strremove(clangllvmver, "git://github.com/OpenIndiana/oi-userland.git ");
     strremove(clangllvmver, "https://github.com/OpenIndiana/oi-userland.git ");
+    strremove(clangllvmver, "c13b7485b87909fcf739f62cfa382b55407433c0");
+    strremove(clangllvmver, "https://github.com/llvm/llvm-project.git");
+    strremove(clangllvmver, " ( )");
+    strremove(clangllvmver, " ()");
     if (gnumver[0] == 'c' || gnumver[0] == 'C') {
         (void)fprintf (st, "\n  Compiler: Clang %s", clangllvmver);
     } else {
@@ -5219,26 +5226,7 @@ if (flag) {
 # ifndef _AIX
         if ((f = popen ("uname -mrs 2> /dev/null", "r"))) {
 # else
-#  ifdef __PASE__
         if ((f = popen ("sh -c 'echo \"$(command -p env uname -v 2> /dev/null).$(command -p env uname -r 2> /dev/null) $(command -p env uname -p 2> /dev/null)\"' 2> /dev/null", "r"))) {
-#  else
-        if ((f = popen                                              \
-          ("sh -c 'command -p env uname -svM   2> /dev/null'        \
-                                               2> /dev/null    ||   \
-              /bin/sh -c 'command -p env uname -svM                 \
-                                               2> /dev/null'        \
-                                               2> /dev/null    ||   \
-                  uname -svM                   2> /dev/null    ||   \
-                    sh -c 'command -p env uname -svp                \
-                                               2> /dev/null'        \
-                                               2> /dev/null    ||   \
-                        /bin/sh -c 'command -p env uname -svp       \
-                                               2> /dev/null'        \
-                                               2> /dev/null    ||   \
-                            uname -svp         2> /dev/null         \
-                              ", "r")))                             \
-         {
-#  endif /* ifdef __PASE__ */
 # endif /* ifndef _AIX */
             (void)memset (osversion, 0, sizeof(osversion));
             do {
