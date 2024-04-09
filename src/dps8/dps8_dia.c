@@ -366,7 +366,7 @@ struct mailbox
 void dia_init (void)
   {
     // 0 sets set service to service_undefined
-    memset(& dia_data, 0, sizeof(dia_data));
+    (void)memset(& dia_data, 0, sizeof(dia_data));
     for (uint unit_num = 0; unit_num < N_DIA_UNITS_MAX; unit_num ++)
       {
         cables -> cables_from_iom_to_dia [unit_num].iomUnitIdx = -1;
@@ -428,7 +428,7 @@ static void cmd_bootload (uint iom_unit_idx, uint dev_unit_idx, uint chan, word2
                           (uint16_t) sizeof (pkt), PFLG_FINAL);
     if (rc < 0)
       {
-        fprintf (stderr, "udp_send failed\n");
+        (void)fprintf (stderr, "udp_send failed\n");
       }
   }
 

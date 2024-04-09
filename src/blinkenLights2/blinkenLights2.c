@@ -69,8 +69,8 @@ static uint32_t lookup (struct system_state_s * p, uint32_t stype, char * name, 
       return * value;
     }
   }
-  fprintf(stderr, "\rFATAL: Lookup of '%s' failed, aborting %s[%s:%d]\r\n",
-          name, __func__, __FILE__, __LINE__);
+  (void)fprintf(stderr, "\rFATAL: Lookup of '%s' failed, aborting %s[%s:%d]\r\n",
+                name, __func__, __FILE__, __LINE__);
   exit (1);
   /*NOTREACHED*/ /* unreachable */
   return 1;
@@ -431,23 +431,23 @@ static const char
 static void * openShm (char * key) {
   void * p;
   char buf [256];
-  sprintf (buf, "dps8m.%s", key);
+  (void)sprintf (buf, "dps8m.%s", key);
   int fd = open (buf, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
   if (fd == -1) {
-    fprintf(stderr, "FATAL: open failed: %s (Error %d)\r\n", xstrerror_l(errno), errno);
+    (void)fprintf(stderr, "FATAL: open failed: %s (Error %d)\r\n", xstrerror_l(errno), errno);
     exit(EXIT_FAILURE);
   }
 
   struct stat sb;
   if (fstat(fd, &sb) == -1) { /* To obtain file size */
-    fprintf(stderr, "FATAL: fstat failed: %s (Error %d)\r\n", xstrerror_l(errno), errno);
+    (void)fprintf(stderr, "FATAL: fstat failed: %s (Error %d)\r\n", xstrerror_l(errno), errno);
     exit(EXIT_FAILURE);
   }
 
   p = mmap (NULL, sb.st_size, PROT_READ, MAP_SHARED, fd, 0);
 
   if (p == MAP_FAILED) {
-    fprintf(stderr, "FATAL: mmap failed: %s (Error %d)\r\n", xstrerror_l(errno), errno);
+    (void)fprintf(stderr, "FATAL: mmap failed: %s (Error %d)\r\n", xstrerror_l(errno), errno);
     exit(EXIT_FAILURE);
   }
 
@@ -467,19 +467,23 @@ int main (int argc, char * argv []) {
     char * end;
     long p = strtol (argv [1], & end, 0);
     if (* end == 0) {
-      cpunum = p;
+      cpunum = (int)p;
       argv [1] [0] = 0;
     }
   }
 
-  if (cpunum < 0 || cpunum > 8 /*N_CPU_UNITS_MAX*/ - 1) {
-    fprintf (stderr, "FATAL: Invalid CPU number %ld: expected 0..7\r\n", (long) cpunum);
+#if !defined(N_CPU_UNITS_MAX)
+# define N_CPU_UNITS_MAX 8
+#endif
+
+  if (cpunum < 0 || cpunum > N_CPU_UNITS_MAX - 1) {
+    (void)fprintf (stderr, "FATAL: Invalid CPU number %ld: expected 0..%ld\r\n", (long)cpunum, (long)N_CPU_UNITS_MAX);
     return EXIT_FAILURE;
   }
 
   system_state = (struct system_state_s *) openShm ("state");
   if (! system_state) {
-    fprintf (stderr, "FATAL: system state open_shm failed: %s (Error %d)\r\n", xstrerror_l(errno), errno);
+    (void)fprintf (stderr, "FATAL: system state open_shm failed: %s (Error %d)\r\n", xstrerror_l(errno), errno);
     return EXIT_FAILURE;
   }
 
@@ -575,10 +579,10 @@ int main (int argc, char * argv []) {
 
   PPR_display = gtk_grid_new ();
 
-  memset (PRR_state, 0, sizeof (PRR_state));
-  memset (PSR_state, 0, sizeof (PSR_state));
-  memset (P_state, 0, sizeof (P_state));
-  memset (IC_state, 0, sizeof (IC_state));
+  (void)memset (PRR_state, 0, sizeof (PRR_state));
+  (void)memset (PSR_state, 0, sizeof (PSR_state));
+  (void)memset (P_state, 0, sizeof (P_state));
+  (void)memset (IC_state, 0, sizeof (IC_state));
 
   GtkWidget * PRR_lights = createLightArray (3, PRR_state);
   GtkWidget * PSR_lights = createLightArray (15, PSR_state);
@@ -604,7 +608,7 @@ int main (int argc, char * argv []) {
 // instr
 
   inst_display = gtk_grid_new ();
-  memset (inst_state, 0, sizeof (inst_state));
+  (void)memset (inst_state, 0, sizeof (inst_state));
   GtkWidget * inst_lights = createLightArray (36, inst_state);
   GtkWidget * inst_label = gtk_label_new ("INSTRUCTION ");
   gtk_grid_attach (GTK_GRID (inst_display), inst_label,  0, 0, 1, 1);
@@ -613,7 +617,7 @@ int main (int argc, char * argv []) {
 // A
 
   A_display = gtk_grid_new ();
-  memset (A_state, 0, sizeof (A_state));
+  (void)memset (A_state, 0, sizeof (A_state));
   GtkWidget * A_lights = createLightArray (36, A_state);
   GtkWidget * A_label = gtk_label_new ("A ");
   gtk_grid_attach (GTK_GRID (A_display), A_label,  0, 0, 1, 1);
@@ -622,7 +626,7 @@ int main (int argc, char * argv []) {
 // Q
 
   Q_display = gtk_grid_new ();
-  memset (Q_state, 0, sizeof (Q_state));
+  (void)memset (Q_state, 0, sizeof (Q_state));
   GtkWidget * Q_lights = createLightArray (36, Q_state);
   GtkWidget * Q_label = gtk_label_new ("Q ");
   gtk_grid_attach (GTK_GRID (Q_display), Q_label,  0, 0, 1, 1);
@@ -631,7 +635,7 @@ int main (int argc, char * argv []) {
 // E
 
   E_display = gtk_grid_new ();
-  memset (E_state, 0, sizeof (E_state));
+  (void)memset (E_state, 0, sizeof (E_state));
   GtkWidget * E_lights = createLightArray (8, E_state);
   GtkWidget * E_label = gtk_label_new ("E ");
   gtk_grid_attach (GTK_GRID (E_display), E_label,  0, 0, 1, 1);
@@ -645,11 +649,11 @@ int main (int argc, char * argv []) {
     char X_text[4] = "Xn ";
     X_display[nreg] = gtk_grid_new ();
 
-    memset (X_state[nreg], 0, sizeof (X_state[nreg]));
+    (void)memset (X_state[nreg], 0, sizeof (X_state[nreg]));
 
     X_lights[nreg] = createLightArray (18, X_state[nreg]);
 
-    snprintf(X_text, sizeof(X_text), "X%d ", nreg);
+    (void)snprintf(X_text, sizeof(X_text), "X%d ", nreg);
     X_label[nreg] = gtk_label_new (X_text);
 
     gtk_grid_attach (GTK_GRID (X_display[nreg]), X_label[nreg],  0, 0, 1, 1);
@@ -659,7 +663,7 @@ int main (int argc, char * argv []) {
 // IR
 
   IR_display = gtk_grid_new ();
-  memset (IR_state, 0, sizeof (IR_state));
+  (void)memset (IR_state, 0, sizeof (IR_state));
   GtkWidget * IR_lights = createLightArray (18, IR_state);
   GtkWidget * IR_label = gtk_label_new ("IR ");
   gtk_grid_attach (GTK_GRID (IR_display), IR_label,  0, 0, 1, 1);
@@ -668,7 +672,7 @@ int main (int argc, char * argv []) {
 // TR
 
   TR_display = gtk_grid_new ();
-  memset (TR_state, 0, sizeof (TR_state));
+  (void)memset (TR_state, 0, sizeof (TR_state));
   GtkWidget * TR_lights = createLightArray (27, TR_state);
   GtkWidget * TR_label = gtk_label_new ("TR ");
   gtk_grid_attach (GTK_GRID (TR_display), TR_label,  0, 0, 1, 1);
@@ -677,7 +681,7 @@ int main (int argc, char * argv []) {
 // RALR
 
   RALR_display = gtk_grid_new ();
-  memset (RALR_state, 0, sizeof (RALR_state));
+  (void)memset (RALR_state, 0, sizeof (RALR_state));
   GtkWidget * RALR_lights = createLightArray (3, RALR_state);
   GtkWidget * RALR_label = gtk_label_new ("RALR ");
   gtk_grid_attach (GTK_GRID (RALR_display), RALR_label,  0, 0, 1, 1);
@@ -700,17 +704,17 @@ int main (int argc, char * argv []) {
     char PAR_text[6] = "PARn ";
 
     PAR_display[nreg] = gtk_grid_new ();
-    memset (SNR_state[nreg], 0, sizeof (SNR_state[nreg]));
-    memset (RNR_state[nreg], 0, sizeof (RNR_state[nreg]));
-    memset (BITNO_state[nreg], 0, sizeof (BITNO_state[nreg]));
-    memset (WORDNO_state[nreg], 0, sizeof (WORDNO_state[nreg]));
+    (void)memset (SNR_state[nreg], 0, sizeof (SNR_state[nreg]));
+    (void)memset (RNR_state[nreg], 0, sizeof (RNR_state[nreg]));
+    (void)memset (BITNO_state[nreg], 0, sizeof (BITNO_state[nreg]));
+    (void)memset (WORDNO_state[nreg], 0, sizeof (WORDNO_state[nreg]));
 
     SNR_lights[nreg] = createLightArray (15, SNR_state[nreg]);
     RNR_lights[nreg] = createLightArray (3, RNR_state[nreg]);
     BITNO_lights[nreg] = createLightArray (6, BITNO_state[nreg]);
     WORDNO_lights[nreg] = createLightArray (18, WORDNO_state[nreg]);
 
-    snprintf(PAR_text, sizeof(PAR_text), "PAR%d ", nreg);
+    (void)snprintf(PAR_text, sizeof(PAR_text), "PAR%d ", nreg);
     PAR_label[nreg] = gtk_label_new (PAR_text);
     SNR_label[nreg] = gtk_label_new (" SNR ");
     RNR_label[nreg] = gtk_label_new (" RNR ");
@@ -731,169 +735,169 @@ int main (int argc, char * argv []) {
   fault_display[0] = gtk_grid_new ();
   fault_display[1] = gtk_grid_new ();
 
-  memset (&FAULT_SDF_state, 0, sizeof (FAULT_SDF_state));
+  (void)memset (&FAULT_SDF_state, 0, sizeof (FAULT_SDF_state));
   GtkWidget * FAULT_SDF_lights = createLightArray (1, &FAULT_SDF_state);
   GtkWidget * FAULT_SDF_label = gtk_label_new ("SDF ");
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_SDF_label, 0, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_SDF_lights, 1, 0, 1, 1);
 
-  memset (&FAULT_STR_state, 0, sizeof (FAULT_STR_state));
+  (void)memset (&FAULT_STR_state, 0, sizeof (FAULT_STR_state));
   GtkWidget * FAULT_STR_lights = createLightArray (1, &FAULT_STR_state);
   GtkWidget * FAULT_STR_label = gtk_label_new ("STR ");
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_STR_label, 2, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_STR_lights, 3, 0, 1, 1);
 
-  memset (&FAULT_MME_state, 0, sizeof (FAULT_MME_state));
+  (void)memset (&FAULT_MME_state, 0, sizeof (FAULT_MME_state));
   GtkWidget * FAULT_MME_lights = createLightArray (1, &FAULT_MME_state);
   GtkWidget * FAULT_MME_label = gtk_label_new ("MME ");
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_MME_label, 4, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_MME_lights, 5, 0, 1, 1);
 
-  memset (&FAULT_F1_state, 0, sizeof (FAULT_F1_state));
+  (void)memset (&FAULT_F1_state, 0, sizeof (FAULT_F1_state));
   GtkWidget * FAULT_F1_lights = createLightArray (1, &FAULT_F1_state);
   GtkWidget * FAULT_F1_label = gtk_label_new ("F1 ");
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_F1_label, 6, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_F1_lights, 7, 0, 1, 1);
 
-  memset (&FAULT_TRO_state, 0, sizeof (FAULT_TRO_state));
+  (void)memset (&FAULT_TRO_state, 0, sizeof (FAULT_TRO_state));
   GtkWidget * FAULT_TRO_lights = createLightArray (1, &FAULT_TRO_state);
   GtkWidget * FAULT_TRO_label = gtk_label_new ("TRO ");
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_TRO_label, 8, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_TRO_lights, 9, 0, 1, 1);
 
-  memset (&FAULT_CMD_state, 0, sizeof (FAULT_CMD_state));
+  (void)memset (&FAULT_CMD_state, 0, sizeof (FAULT_CMD_state));
   GtkWidget * FAULT_CMD_lights = createLightArray (1, &FAULT_CMD_state);
   GtkWidget * FAULT_CMD_label = gtk_label_new ("CMD ");
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_CMD_label, 10, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_CMD_lights, 11, 0, 1, 1);
 
-  memset (&FAULT_DRL_state, 0, sizeof (FAULT_DRL_state));
+  (void)memset (&FAULT_DRL_state, 0, sizeof (FAULT_DRL_state));
   GtkWidget * FAULT_DRL_lights = createLightArray (1, &FAULT_DRL_state);
   GtkWidget * FAULT_DRL_label = gtk_label_new ("DRL ");
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_DRL_label, 12, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_DRL_lights, 13, 0, 1, 1);
 
-  memset (&FAULT_LUF_state, 0, sizeof (FAULT_LUF_state));
+  (void)memset (&FAULT_LUF_state, 0, sizeof (FAULT_LUF_state));
   GtkWidget * FAULT_LUF_lights = createLightArray (1, &FAULT_LUF_state);
   GtkWidget * FAULT_LUF_label = gtk_label_new ("LUF ");
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_LUF_label, 14, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_LUF_lights, 15, 0, 1, 1);
 
-  memset (&FAULT_CON_state, 0, sizeof (FAULT_CON_state));
+  (void)memset (&FAULT_CON_state, 0, sizeof (FAULT_CON_state));
   GtkWidget * FAULT_CON_lights = createLightArray (1, &FAULT_CON_state);
   GtkWidget * FAULT_CON_label = gtk_label_new ("CON ");
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_CON_label, 16, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_CON_lights, 17, 0, 1, 1);
 
-  memset (&FAULT_PAR_state, 0, sizeof (FAULT_PAR_state));
+  (void)memset (&FAULT_PAR_state, 0, sizeof (FAULT_PAR_state));
   GtkWidget * FAULT_PAR_lights = createLightArray (1, &FAULT_PAR_state);
   GtkWidget * FAULT_PAR_label = gtk_label_new ("PAR ");
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_PAR_label, 18, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_PAR_lights, 19, 0, 1, 1);
 
-  memset (&FAULT_IPR_state, 0, sizeof (FAULT_IPR_state));
+  (void)memset (&FAULT_IPR_state, 0, sizeof (FAULT_IPR_state));
   GtkWidget * FAULT_IPR_lights = createLightArray (1, &FAULT_IPR_state);
   GtkWidget * FAULT_IPR_label = gtk_label_new ("IPR ");
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_IPR_label, 20, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_IPR_lights, 21, 0, 1, 1);
 
-  memset (&FAULT_ONC_state, 0, sizeof (FAULT_ONC_state));
+  (void)memset (&FAULT_ONC_state, 0, sizeof (FAULT_ONC_state));
   GtkWidget * FAULT_ONC_lights = createLightArray (1, &FAULT_ONC_state);
   GtkWidget * FAULT_ONC_label = gtk_label_new ("ONC ");
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_ONC_label, 22, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_ONC_lights, 23, 0, 1, 1);
 
-  memset (&FAULT_SUF_state, 0, sizeof (FAULT_SUF_state));
+  (void)memset (&FAULT_SUF_state, 0, sizeof (FAULT_SUF_state));
   GtkWidget * FAULT_SUF_lights = createLightArray (1, &FAULT_SUF_state);
   GtkWidget * FAULT_SUF_label = gtk_label_new ("SUF ");
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_SUF_label, 24, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_SUF_lights, 25, 0, 1, 1);
 
-  memset (&FAULT_OFL_state, 0, sizeof (FAULT_OFL_state));
+  (void)memset (&FAULT_OFL_state, 0, sizeof (FAULT_OFL_state));
   GtkWidget * FAULT_OFL_lights = createLightArray (1, &FAULT_OFL_state);
   GtkWidget * FAULT_OFL_label = gtk_label_new ("OFL ");
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_OFL_label, 26, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_OFL_lights, 27, 0, 1, 1);
 
-  memset (&FAULT_DIV_state, 0, sizeof (FAULT_DIV_state));
+  (void)memset (&FAULT_DIV_state, 0, sizeof (FAULT_DIV_state));
   GtkWidget * FAULT_DIV_lights = createLightArray (1, &FAULT_DIV_state);
   GtkWidget * FAULT_DIV_label = gtk_label_new ("DIV ");
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_DIV_label, 28, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_DIV_lights, 29, 0, 1, 1);
 
-  memset (&FAULT_EXF_state, 0, sizeof (FAULT_EXF_state));
+  (void)memset (&FAULT_EXF_state, 0, sizeof (FAULT_EXF_state));
   GtkWidget * FAULT_EXF_lights = createLightArray (1, &FAULT_EXF_state);
   GtkWidget * FAULT_EXF_label = gtk_label_new ("EXF ");
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_EXF_label, 30, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_EXF_lights, 31, 0, 1, 1);
 
-  memset (&FAULT_DF0_state, 0, sizeof (FAULT_DF0_state));
+  (void)memset (&FAULT_DF0_state, 0, sizeof (FAULT_DF0_state));
   GtkWidget * FAULT_DF0_lights = createLightArray (1, &FAULT_DF0_state);
   GtkWidget * FAULT_DF0_label = gtk_label_new ("DF0 ");
   gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_DF0_label, 0, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_DF0_lights, 1, 0, 1, 1);
 
-  memset (&FAULT_DF1_state, 0, sizeof (FAULT_DF1_state));
+  (void)memset (&FAULT_DF1_state, 0, sizeof (FAULT_DF1_state));
   GtkWidget * FAULT_DF1_lights = createLightArray (1, &FAULT_DF1_state);
   GtkWidget * FAULT_DF1_label = gtk_label_new ("DF1 ");
   gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_DF1_label, 2, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_DF1_lights, 3, 0, 1, 1);
 
-  memset (&FAULT_DF2_state, 0, sizeof (FAULT_DF2_state));
+  (void)memset (&FAULT_DF2_state, 0, sizeof (FAULT_DF2_state));
   GtkWidget * FAULT_DF2_lights = createLightArray (1, &FAULT_DF2_state);
   GtkWidget * FAULT_DF2_label = gtk_label_new ("DF2 ");
   gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_DF2_label, 4, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_DF2_lights, 5, 0, 1, 1);
 
-  memset (&FAULT_DF3_state, 0, sizeof (FAULT_DF3_state));
+  (void)memset (&FAULT_DF3_state, 0, sizeof (FAULT_DF3_state));
   GtkWidget * FAULT_DF3_lights = createLightArray (1, &FAULT_DF3_state);
   GtkWidget * FAULT_DF3_label = gtk_label_new ("DF3 ");
   gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_DF3_label, 6, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_DF3_lights, 7, 0, 1, 1);
 
-  memset (&FAULT_ACV_state, 0, sizeof (FAULT_ACV_state));
+  (void)memset (&FAULT_ACV_state, 0, sizeof (FAULT_ACV_state));
   GtkWidget * FAULT_ACV_lights = createLightArray (1, &FAULT_ACV_state);
   GtkWidget * FAULT_ACV_label = gtk_label_new ("ACV ");
   gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_ACV_label, 8, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_ACV_lights, 9, 0, 1, 1);
 
-  memset (&FAULT_MME2_state, 0, sizeof (FAULT_MME2_state));
+  (void)memset (&FAULT_MME2_state, 0, sizeof (FAULT_MME2_state));
   GtkWidget * FAULT_MME2_lights = createLightArray (1, &FAULT_MME2_state);
   GtkWidget * FAULT_MME2_label = gtk_label_new ("MME2 ");
   gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_MME2_label, 10, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_MME2_lights, 11, 0, 1, 1);
 
-  memset (&FAULT_MME3_state, 0, sizeof (FAULT_MME3_state));
+  (void)memset (&FAULT_MME3_state, 0, sizeof (FAULT_MME3_state));
   GtkWidget * FAULT_MME3_lights = createLightArray (1, &FAULT_MME3_state);
   GtkWidget * FAULT_MME3_label = gtk_label_new ("MME3 ");
   gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_MME3_label, 12, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_MME3_lights, 13, 0, 1, 1);
 
-  memset (&FAULT_MME4_state, 0, sizeof (FAULT_MME4_state));
+  (void)memset (&FAULT_MME4_state, 0, sizeof (FAULT_MME4_state));
   GtkWidget * FAULT_MME4_lights = createLightArray (1, &FAULT_MME4_state);
   GtkWidget * FAULT_MME4_label = gtk_label_new ("MME4 ");
   gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_MME4_label, 14, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_MME4_lights, 15, 0, 1, 1);
 
-  memset (&FAULT_F2_state, 0, sizeof (FAULT_F2_state));
+  (void)memset (&FAULT_F2_state, 0, sizeof (FAULT_F2_state));
   GtkWidget * FAULT_F2_lights = createLightArray (1, &FAULT_F2_state);
   GtkWidget * FAULT_F2_label = gtk_label_new ("F2 ");
   gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_F2_label, 16, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_F2_lights, 17, 0, 1, 1);
 
-  memset (&FAULT_F3_state, 0, sizeof (FAULT_F3_state));
+  (void)memset (&FAULT_F3_state, 0, sizeof (FAULT_F3_state));
   GtkWidget * FAULT_F3_lights = createLightArray (1, &FAULT_F3_state);
   GtkWidget * FAULT_F3_label = gtk_label_new ("F3 ");
   gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_F3_label, 18, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_F3_lights, 19, 0, 1, 1);
 
-  memset (&FAULT_TRB_state, 0, sizeof (FAULT_TRB_state));
+  (void)memset (&FAULT_TRB_state, 0, sizeof (FAULT_TRB_state));
   GtkWidget * FAULT_TRB_lights = createLightArray (1, &FAULT_TRB_state);
   GtkWidget * FAULT_TRB_label = gtk_label_new ("TRB ");
   gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_TRB_label, 20, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_TRB_lights, 21, 0, 1, 1);
 
-//  memset (&FAULT_oob_state, 0, sizeof (FAULT_oob_state));
+//  (void)memset (&FAULT_oob_state, 0, sizeof (FAULT_oob_state));
 //  GtkWidget * FAULT_oob_lights = createLightArray (1, &FAULT_oob_state);
 //  GtkWidget * FAULT_oob_label = gtk_label_new ("oob ");
 //  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_oob_label, 22, 0, 1, 1);

@@ -126,7 +126,7 @@ struct tape_context {
 */
 static void _sim_tape_io_flush (UNIT *uptr)
 {
-fflush (uptr->fileref);
+(void)fflush (uptr->fileref);
 }
 
 /* Attach tape unit */

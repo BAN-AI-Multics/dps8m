@@ -594,8 +594,8 @@ static t_stat mt_add_tape_search_path(UNUSED UNIT * uptr, UNUSED int32 value,
     PATH_ENTRY *new_entry = malloc(sizeof(PATH_ENTRY));
     if (!new_entry)
       {
-        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                 __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
 # ifdef SIGUSR2
         (void)raise(SIGUSR2);
@@ -958,7 +958,7 @@ t_stat unloadTape (uint driveNumber)
 
 void mt_init(void)
   {
-    memset(tape_states, 0, sizeof(tape_states));
+    (void)memset(tape_states, 0, sizeof(tape_states));
     for (int i = 0; i < N_MT_UNITS_MAX; i ++)
       {
         mt_unit [i] . capac = 40000000;
@@ -1139,7 +1139,7 @@ static void mtInitRdMem (uint devUnitIdx, uint iomUnitIdx, uint chan)
         return;
       }
     uint16 mem [04000 * 2];
-    memset (mem, 0, sizeof (mem));
+    (void)memset (mem, 0, sizeof (mem));
 
     const uint charTableOS = 0xE0; // Mtc500 characteristics table at 00E0 (hex)
 
@@ -1185,7 +1185,7 @@ static void mtInitRdMem (uint devUnitIdx, uint iomUnitIdx, uint chan)
 
     word36 buf [tally];
     // Make clang analyzer happy
-    memset (buf, 0, sizeof (word36) * tally);
+    (void)memset (buf, 0, sizeof (word36) * tally);
     for (uint i = 0; i < tally; i ++)
       {
         putbits36_18 (buf + i,  0, mem [i * 2]);

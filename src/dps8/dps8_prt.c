@@ -349,8 +349,8 @@ static const uint8 cr[2]       = { '\r', '\n' };
 
 void prt_init (void)
   {
-    memset (prt_path, 0, sizeof (prt_path));
-    memset (prt_state, 0, sizeof (prt_state));
+    (void)memset (prt_path, 0, sizeof (prt_path));
+    (void)memset (prt_state, 0, sizeof (prt_state));
     for (int i = 0; i < N_PRT_UNITS_MAX; i ++)
       {
         prt_state[i].prtfile = -1;
@@ -448,12 +448,12 @@ static int openPrtFile (int prt_unit_num, word36 * buffer, uint tally)
     char split_prefix[6];
     split_prefix[0] = 0;
     if (prt_state [prt_unit_num] . split) {
-      sprintf(split_prefix, "prt%c/", unit_designator);
+      (void)sprintf(split_prefix, "prt%c/", unit_designator);
     }
     if (rc == 0)
-      sprintf (template, "%s%sprt%c.spool.XXXXXX.prt", prt_path, split_prefix, unit_designator);
+      (void)sprintf (template, "%s%sprt%c.spool.XXXXXX.prt", prt_path, split_prefix, unit_designator);
     else
-      sprintf (template, "%s%sprt%c.spool.%s.%s.XXXXXX.prt", prt_path, split_prefix, unit_designator, qno, name);
+      (void)sprintf (template, "%s%sprt%c.spool.%s.%s.XXXXXX.prt", prt_path, split_prefix, unit_designator, qno, name);
 
     prt_state[prt_unit_num].prtfile = utfile_mkstemps (template, 4);
     if (prt_state[prt_unit_num].prtfile == -1)
@@ -569,7 +569,7 @@ static int prt_read_status_register (uint dev_unit_idx, uint iom_unit_idx, uint 
 # endif
 # if 1
     word36 buffer[tally];
-    memset (buffer, 0, sizeof (buffer));
+    (void)memset (buffer, 0, sizeof (buffer));
     // word 1 char 1   0: normal
     // word 1 char 2   0: device not busy
     // word 1 char 3   0: no device attention bit set
@@ -978,7 +978,7 @@ static int readStatusRegister (uint iom_unit_idx, uint chan)
 // system_library_tools/source/bound_io_tools_.s.archive/analyze_detail_stat_.pl1  anal_fips_disk_().
 
     word36 buffer[tally];
-    memset (buffer, 0, sizeof (buffer));
+    (void)memset (buffer, 0, sizeof (buffer));
     // word 1 char 1   0: normal
     // word 1 char 2   0: device not busy
     // word 1 char 3   0: no device attention bit set

@@ -101,8 +101,8 @@ utfile_mkstemps(char *request_pattern, int suffix_length)
   char *pattern = strdup(request_pattern);
   if (!pattern)
     {
-      fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-               __func__, __FILE__, __LINE__);
+      (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                     __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
 # ifdef SIGUSR2
       (void)raise(SIGUSR2);
@@ -135,8 +135,8 @@ utfile_mkstemps(char *request_pattern, int suffix_length)
 #endif /* ifdef USE_MONOTONIC */
   if (st1ret != 0)
     {
-      fprintf (stderr, "\rFATAL: clock_gettime failure! Aborting at %s[%s:%d]\r\n",
-               __func__, __FILE__, __LINE__);
+      (void)fprintf (stderr, "\rFATAL: clock_gettime failure! Aborting at %s[%s:%d]\r\n",
+                     __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
 # ifdef SIGUSR2
       (void)raise(SIGUSR2);

@@ -334,7 +334,7 @@ union telnet_event_t {
  * param user_data User-supplied pointer
  */
 typedef void (*telnet_event_handler_t)(telnet_t *telnet,
-                telnet_event_t *event, void *user_data);
+              telnet_event_t *event, void *user_data);
 
 /*
  * telopt support table element; use telopt of -1 for end marker
@@ -364,7 +364,8 @@ struct telnet_t;
  * return Telnet state tracker object.
  */
 extern telnet_t* telnet_init(const telnet_telopt_t *telopts,
-                telnet_event_handler_t eh, unsigned char flags, void *user_data);
+                             telnet_event_handler_t eh, unsigned char flags,
+                             void *user_data);
 
 /*
  * Free up any memory allocated by a state tracker.
@@ -390,7 +391,7 @@ extern void telnet_free(telnet_t *telnet);
  * param size   Number of bytes pointed to by buffer.
  */
 extern void telnet_recv(telnet_t *telnet, const char *buffer,
-                size_t size);
+                        size_t size);
 
 /*
  * Send a telnet command.
@@ -412,7 +413,7 @@ extern void telnet_iac(telnet_t *telnet, unsigned char cmd);
  * param opt    One of the TELNET_TELOPT_* values.
  */
 extern void telnet_negotiate(telnet_t *telnet, unsigned char cmd,
-                unsigned char opt);
+                             unsigned char opt);
 
 /*
  * Send non-command data (escapes IAC bytes).
@@ -422,7 +423,7 @@ extern void telnet_negotiate(telnet_t *telnet, unsigned char cmd,
  * param size   Number of bytes to send.
  */
 extern void telnet_send(telnet_t *telnet,
-                const char *buffer, size_t size);
+                        const char *buffer, size_t size);
 
 /*
  * Send non-command text (escapes IAC bytes and translates
@@ -433,7 +434,7 @@ extern void telnet_send(telnet_t *telnet,
  * param size   Number of bytes to send.
  */
 extern void telnet_send_text(telnet_t *telnet,
-                const char *buffer, size_t size);
+                             const char *buffer, size_t size);
 
 /*
  * Begin a sub-negotiation command.
@@ -446,7 +447,7 @@ extern void telnet_send_text(telnet_t *telnet,
  * param telopt One of the TELNET_TELOPT_* values.
  */
 extern void telnet_begin_sb(telnet_t *telnet,
-                unsigned char telopt);
+                            unsigned char telopt);
 
 /*
  * Finish a sub-negotiation command.
@@ -473,7 +474,7 @@ extern void telnet_begin_sb(telnet_t *telnet,
  * return Number of bytes sent.
  */
 extern int telnet_printf(telnet_t *telnet, const char *fmt, ...)
-                TELNET_GNU_PRINTF(2, 3);
+                         TELNET_GNU_PRINTF(2, 3);
 
 /*
  * Send formatted data.
@@ -494,7 +495,7 @@ extern int telnet_vprintf(telnet_t *telnet, const char *fmt, va_list va);
  * return Number of bytes sent.
  */
 extern int telnet_raw_printf(telnet_t *telnet, const char *fmt, ...)
-                TELNET_GNU_PRINTF(2, 3);
+                             TELNET_GNU_PRINTF(2, 3);
 
 /*
  * Send formatted data (no newline escaping).

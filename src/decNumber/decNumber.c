@@ -152,7 +152,6 @@
 
 #include <string.h>                // for strcpy
 #include <stdlib.h>                // for malloc, free, etc.
-#include <stdio.h>                 // for printf [if needed]
 #include <ctype.h>                 // for lower
 #include "decNumber.h"             // base number library
 #include "decNumberLocal.h"        // decNumber local types, etc.
@@ -1043,7 +1042,6 @@ decNumber * decNumberFMA(decNumber *res, const decNumber *lhs,
       acc=allocbufa;                    // use the allocated space
       }
     // multiply with extended range and necessary precision
-    //printf("emin=%ld\n", dcmul.emin);
     decMultiplyOp(acc, lhs, rhs, &dcmul, &status);
     // Only Invalid operation (from sNaN or Inf * 0) is possible in
     // status; if either is seen than ignore fhs (in case it is
@@ -3812,7 +3810,6 @@ static decNumber * decAddOp(decNumber *res, const decNumber *lhs,
       Int need=D2U(maxdigits)+1;
       acc=accbuff;                      // assume use local buffer
       if (need*sizeof(Unit)>sizeof(accbuff)) {
-        // printf("malloc add %ld %ld\n", need, sizeof(accbuff));
         allocacc=(Unit *)malloc(need*sizeof(Unit));
         if (allocacc==NULL) {           // hopeless -- abandon
           *status|=DEC_Insufficient_storage;
@@ -4162,7 +4159,6 @@ static decNumber * decDivideOp(decNumber *res,
     // If it needs to be too long for stack storage, then allocate.
     acclength=D2U(reqdigits+DECDPUN);   // in Units
     if (acclength*sizeof(Unit)>sizeof(accbuff)) {
-      // printf("malloc dvacc %ld units\n", acclength);
       allocacc=(Unit *)malloc(acclength*sizeof(Unit));
       if (allocacc==NULL) {             // hopeless -- abandon
         *status|=DEC_Insufficient_storage;
@@ -4187,7 +4183,6 @@ static decNumber * decDivideOp(decNumber *res,
     // allocate a guard unit above msu1 for REMAINDERNEAR
     if (!(op&DIVIDE)) var1units++;
     if ((var1units+1)*sizeof(Unit)>sizeof(varbuff)) {
-      // printf("malloc dvvar %ld units\n", var1units+1);
       varalloc=(Unit *)malloc((var1units+1)*sizeof(Unit));
       if (varalloc==NULL) {             // hopeless -- abandon
         *status|=DEC_Insufficient_storage;
@@ -6899,11 +6894,9 @@ static void decApplyRound(decNumber *dn, decContext *set, Int residue,
         for (up=up-1; up>=dn->lsu; up--) *up=(Unit)powers[DECDPUN]-1;
         dn->exponent--;                      // and bump exponent
 
-        // iff the number was at the subnormal boundary (exponent=etiny)
+        // if the number was at the subnormal boundary (exponent=etiny)
         // then the exponent is now out of range, so it will in fact get
         // clamped to etiny and the final 9 dropped.
-        // printf(">> emin=%d exp=%d sdig=%d\n", set->emin,
-        //        dn->exponent, set->digits);
         if (dn->exponent+1==set->emin-set->digits+1) { //-V584
           if (count==1 && dn->digits==1) *sup=0;  // here 9 -> 0[.9]
            else {

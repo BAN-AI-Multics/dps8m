@@ -55,12 +55,12 @@ void trk (unsigned long long cycleCnt, uint16_t segno, uint32_t ic, uint64_t opc
         ic != pic ||
         opcode != popcode)
       {
-        fprintf (stderr, "\r\n[%llu]\r\n",
-                 (unsigned long long int)cycleCnt);
-        fprintf (stderr, "expected: %05o:%06o %012llo\r\n", psegno, pic,
-                 (unsigned long long int)popcode);
-        fprintf (stderr, "got:      %05o:%06o %012llo\r\n", segno, ic,
-                 (unsigned long long int)opcode);
+        (void)fprintf (stderr, "\r\n[%llu]\r\n",
+                       (unsigned long long int)cycleCnt);
+        (void)fprintf (stderr, "expected: %05o:%06o %012llo\r\n", psegno, pic,
+                       (unsigned long long int)popcode);
+        (void)fprintf (stderr, "got:      %05o:%06o %012llo\r\n", segno, ic,
+                       (unsigned long long int)opcode);
 #ifdef TESTING
         hdbgPrint ();
 #endif /* ifdef TESTING */

@@ -473,13 +473,13 @@ static int wcd (struct decoded_t *decoded_p)
             word36 echoTable [echoTableLen];
             if (data_len == 0)
               {
-                memset (linep->echnego_break_table, 0,
-                  sizeof (linep->echnego_break_table));
+                (void)memset (linep->echnego_break_table, 0,
+                              sizeof (linep->echnego_break_table));
               }
             else if (data_len == MASK18)
               {
-                memset (linep->echnego_break_table, 1,
-                  sizeof (linep->echnego_break_table));
+                (void)memset (linep->echnego_break_table, 1,
+                              sizeof (linep->echnego_break_table));
               }
             else
               {
@@ -1695,7 +1695,7 @@ static void fnpcmdBootload (uint devUnitIdx)
             else
               {
                 have3270 = true;
-                memset (& fnpData.ibm3270ctlr[ASSUME0], 0, sizeof (struct ibm3270ctlr_s));
+                (void)memset (& fnpData.ibm3270ctlr[ASSUME0], 0, sizeof (struct ibm3270ctlr_s));
                 fnpData.ibm3270ctlr[ASSUME0].configured = true;
                 fnpData.ibm3270ctlr[ASSUME0].fnpno = devUnitIdx;
                 fnpData.ibm3270ctlr[ASSUME0].lineno = lineno;

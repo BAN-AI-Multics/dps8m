@@ -215,8 +215,8 @@ static char rdr_path_prefix[PATH_MAX+1];
 
 void rdr_init (void)
   {
-    memset (rdr_path_prefix, 0, sizeof (rdr_path_prefix));
-    memset (rdr_state, 0, sizeof (rdr_state));
+    (void)memset (rdr_path_prefix, 0, sizeof (rdr_path_prefix));
+    (void)memset (rdr_state, 0, sizeof (rdr_state));
     for (uint i = 0; i < N_RDR_UNITS_MAX; i ++)
       rdr_state [i] . deckfd = -1;
   }
@@ -437,7 +437,7 @@ static int getCardLine (int fd, unsigned char * buffer)
 
 static int getCardData (int fd, char * buffer)
   {
-    memset (buffer, 0, 80);
+    (void)memset (buffer, 0, 80);
     ssize_t rc = read (fd, buffer, 80);
     if (rc < 0)
       return 0;
@@ -447,7 +447,7 @@ static int getCardData (int fd, char * buffer)
 #define rawCardImageBytes (80 * 12 / 8)
 static int getRawCardData (int fd, uint8_t * buffer)
   {
-    memset (buffer, 0, rawCardImageBytes + 2);
+    (void)memset (buffer, 0, rawCardImageBytes + 2);
     ssize_t rc = read (fd, buffer, rawCardImageBytes);
     if (rc < 0)
       return 0;
@@ -510,7 +510,7 @@ empty:;
 #ifdef TESTING
   sim_printf ("eof1Sent: sending ++UID\r\n");
 #endif
-      sprintf ((char *) cardImage, "++UID %d", jobNo);
+      (void)sprintf ((char *) cardImage, "++UID %d", jobNo);
       l = strlen ((char *) cardImage);
       thisCard = cardDeck; //-V1048
       rdr_state [unitIdx].deckState = uid1Sent;
@@ -616,7 +616,7 @@ empty:;
 # ifdef TESTING
   sim_printf ("eof2Sent\r\n");
 # endif
-      sprintf ((char *) cardImage, "++UID %d", jobNo);
+      (void)sprintf ((char *) cardImage, "++UID %d", jobNo);
       l = strlen ((char *) cardImage);
       thisCard = cardDeck; //-V1048
       rdr_state [unitIdx].deckState = deckStart;
@@ -633,7 +633,7 @@ empty:;
 # ifdef TESTING
   sim_printf ("eof2Sent\r\n");
 # endif
-      sprintf ((char *) cardImage, "++UID %d", jobNo);
+      (void)sprintf ((char *) cardImage, "++UID %d", jobNo);
       l = strlen ((char *) cardImage);
       thisCard = cardDeck;
       rdr_state [unitIdx].deckState = uid2Sent;
@@ -644,7 +644,7 @@ empty:;
 # ifdef TESTING
   sim_printf ("uid2Sent\r\n");
 # endif
-      sprintf ((char *) cardImage, "++END");
+      (void)sprintf ((char *) cardImage, "++END");
       l = strlen ((char *) cardImage);
       thisCard = cardDeck;
       rdr_state [unitIdx].deckState = deckStart;
@@ -722,7 +722,7 @@ empty:;
 
       // Remember that Hollerith for blank is 0, this is really
       // filling the buffer with blanks.
-      memset (buffer, 0, sizeof (buffer));
+      (void)memset (buffer, 0, sizeof (buffer));
       for (uint col = 0; col < l; col ++) {
         uint wordno  = col / 3;
         uint fieldno = col % 3;

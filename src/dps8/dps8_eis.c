@@ -3971,7 +3971,7 @@ void tct (void)
     }
 
     word36 xlatTbl [128];
-    memset (xlatTbl, 0, sizeof (xlatTbl));    // 0 it out just in case
+    (void)memset (xlatTbl, 0, sizeof (xlatTbl));    // 0 it out just in case
 
     EISReadN (& e -> ADDR2, xlatSize, xlatTbl);
 #endif
@@ -4166,7 +4166,7 @@ void tctr (void)
     }
 
     word36 xlatTbl [128];
-    memset (xlatTbl, 0, sizeof (xlatTbl));    // 0 it out just in case
+    (void)memset (xlatTbl, 0, sizeof (xlatTbl));    // 0 it out just in case
 
     EISReadN (& e -> ADDR2, xlatSize, xlatTbl);
 #endif
@@ -4517,7 +4517,7 @@ void mlr (void)
           }
         else
           {
-           memset (pg, 0, sizeof (pg));
+           (void)memset (pg, 0, sizeof (pg));
           }
         while (cpu.du.CHTALLY < e -> N2)
           {
@@ -5018,7 +5018,7 @@ static void EISloadInputBufferNumeric (int k)
     EISstruct * e = & cpu.currentEISinstruction;
 
     word9 *p = e->inBuffer; // p points to position in inBuffer where 4-bit chars are stored
-    memset(e->inBuffer, 0, sizeof(e->inBuffer));   // initialize to all 0's
+    (void)memset(e->inBuffer, 0, sizeof(e->inBuffer));   // initialize to all 0's
 
     int pos = (int) e->CN[k-1];
 
@@ -5179,7 +5179,7 @@ static void EISloadInputBufferAlphnumeric (int k)
     EISstruct * e = & cpu.currentEISinstruction;
     // p points to position in inBuffer where 4-bit chars are stored
     word9 * p = e -> inBuffer;
-    memset (e -> inBuffer, 0, sizeof (e -> inBuffer));// initialize to all 0's
+    (void)memset (e -> inBuffer, 0, sizeof (e -> inBuffer));// initialize to all 0's
 
     // minimum of the remaining sending string count, the remaining receiving
     // string count, and 64.
@@ -5329,7 +5329,7 @@ static char* defaultEditInsertionTable = " *+-$,.0";
 static int mopCHT (void)
 {
     EISstruct * e = & cpu.currentEISinstruction;
-    memset(&e->editInsertionTable, 0, sizeof(e->editInsertionTable)); // XXX do we really need this?
+    (void)memset(&e->editInsertionTable, 0, sizeof(e->editInsertionTable)); // XXX do we really need this?
     for(int i = 0 ; i < 8 ; i += 1)
     {
         if (e->mopTally == 0)
@@ -7143,7 +7143,7 @@ void mvt (void)
 
 #if 0
     word36 xlatTbl[128];
-    memset(xlatTbl, 0, sizeof(xlatTbl));    // 0 it out just in case
+    (void)memset(xlatTbl, 0, sizeof(xlatTbl));    // 0 it out just in case
 
     // XXX here is where we probably need to to the prepage thang...
     EISReadN(&e->ADDR3, xlatSize, xlatTbl);
@@ -10284,7 +10284,7 @@ void ad2d (void)
     if (decNumberIsZero(op3))
         op3->exponent = 127;
 
-    //printf("%s\r\n", res);
+    //(void)printf("%s\r\n", res);
 
     // now write to memory in proper format.....
 
@@ -10665,7 +10665,7 @@ void ad3d (void)
     if (decNumberIsZero(op3))
         op3->exponent = 127;
 
-    //printf("%s\r\n", res);
+    //(void)printf("%s\r\n", res);
 
     // now write to memory in proper format.....
 
@@ -10977,7 +10977,7 @@ void sb2d (void)
     if (decNumberIsZero(op3))
         op3->exponent = 127;
 
-    //printf("%s\r\n", res);
+    //(void)printf("%s\r\n", res);
 
     // now write to memory in proper format.....
 
@@ -12093,7 +12093,7 @@ static uint8_t * decBCDFromNumber(uint8_t *bcd, int length, int *scale, const de
 static unsigned char *getBCD(decNumber *a)
 {
     static uint8_t bcd[256];
-    memset(bcd, 0, sizeof(bcd));
+    (void)memset(bcd, 0, sizeof(bcd));
     int scale;
 
     decBCDFromNumber(bcd, a->digits, &scale, a);
@@ -12106,7 +12106,7 @@ static unsigned char *getBCD(decNumber *a)
 static char *getBCDn(decNumber *a, int digits)
 {
     static uint8_t bcd[256];
-    memset(bcd, 0, sizeof(bcd));
+    (void)memset(bcd, 0, sizeof(bcd));
     int scale;
 
     decBCDFromNumber(bcd, digits, &scale, a);
@@ -12403,8 +12403,8 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
       char out[256], out2[256];
       if_sim_debug (DBG_TRACEEXT, & cpu_dev)
         {
-          memset (out, 0, sizeof (out));
-          memset (out2, 0, sizeof (out2));
+          (void)memset (out, 0, sizeof (out));
+          (void)memset (out2, 0, sizeof (out2));
 
           decBCDFromNumber((uint8_t *)out, r->digits, &scale, r);
           for(int i = 0 ; i < r->digits ; i += 1 )
@@ -12445,7 +12445,7 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
 
     uint8_t out[256];
 
-    memset (out, 0, sizeof (out));
+    (void)memset (out, 0, sizeof (out));
 
     //bool ovr = (r->digits-sf) > adjLen;     // is integer portion too large to fit?
     bool ovr = r2->digits > adjLen;          // is integer portion too large to fit?
@@ -12626,7 +12626,7 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
                 decNumber _i;
                 decNumber *i = decNumberToIntegralValue(&_i, ro, set);
                 char outi[256];
-                memset (outi, 0, sizeof (outi));
+                (void)memset (outi, 0, sizeof (outi));
                 decBCDFromNumber((uint8_t *)outi, adjLen, &scale, i);
                 for(int j = 0 ; j < adjLen; j += 1 )
                     outi[j] += '0';
@@ -13450,7 +13450,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "dv3d S1 %d S2 %d N1 %d N2 %d clz1 %d clz2 %
     if (decNumberIsZero(op3))
         op3->exponent = 127;
 
-    //printf("%s\r\n", res);
+    //(void)printf("%s\r\n", res);
 
     // now write to memory in proper format.....
 

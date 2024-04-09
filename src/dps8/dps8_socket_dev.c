@@ -38,7 +38,7 @@
 #define DBG_CTR 1
 
 #ifndef bzero
-# define bzero(b,len) (memset((b), '\0', (len)), (void) 0)
+# define bzero(b,len) ((void)memset((b), '\0', (len)), (void) 0)
 #endif /* ifndef bzero */
 
 static struct {
@@ -277,7 +277,7 @@ DEVICE skc_dev = {
 void sk_init(void)
   {
     // sets unit_state to unit_idle
-    memset(& sk_data, 0, sizeof(sk_data));
+    (void)memset(& sk_data, 0, sizeof(sk_data));
     for (uint i = 0; i < N_FDS; i ++)
       sk_data.fd_unit[i] = -1;
     //for (uint i = 0; i < N_SKC_UNITS_MAX; i ++)
@@ -322,7 +322,7 @@ static void set_error (word36 * error_str, int _errno)
           }
       }
     char huh [256];
-    sprintf (huh, "E%d", _errno);
+    (void)sprintf (huh, "E%d", _errno);
     huh[8] = 0;
     set_error_str (error_str, huh);
   }
@@ -1188,7 +1188,7 @@ static void do_try_read (uint unit_idx, word6 dev_code)
     uint buffer_size_wds = (count + 3) / 4;
     word36 buffer [buffer_size_wds];
     // Make clang analyzer happy
-    memset (buffer, 0, sizeof (word36) * buffer_size_wds);
+    (void)memset (buffer, 0, sizeof (word36) * buffer_size_wds);
     uint8_t netdata [count];
     ssize_t nread = read (sk_data.unit_data[unit_idx][dev_code].read_fd, & netdata, count);
     if (nread == -1)

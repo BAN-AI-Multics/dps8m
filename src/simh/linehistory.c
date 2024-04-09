@@ -379,10 +379,8 @@ getColumns(int ifd, int ofd)
     if (cols > start)
     {
       char seq[32];
-      snprintf(seq, sizeof ( seq ), "\x1b[%dD", cols - start);
-      if (write(ofd, seq, strlen(seq)) == -1)
-      { /* Can't recover... */
-      }
+      (void)snprintf(seq, sizeof ( seq ), "\x1b[%dD", cols - start);
+      if (write(ofd, seq, strlen(seq)) == -1) { /* Can't recover... */ }
     }
 
     return ( cols );
@@ -415,8 +413,9 @@ linenoiseClearScreen(void)
 static void
 linenoiseBeep(void)
 {
-  fprintf(stderr, "\x7");
-  fflush(stderr);
+  (void)fflush(stdout);
+  (void)fprintf(stderr, "\x7");
+  (void)fflush(stderr);
 }
 
 /* Free a list of completion option populated by linenoiseAddCompletion(). */
@@ -667,7 +666,7 @@ refreshShowHints(struct abuf *ab, const struct linenoiseState *l, int plen)
 
       if (color != -1 || bold != 0)
       {
-        snprintf(seq, sizeof ( seq ), "\033[%d;%d;49m", bold, color);
+        (void)snprintf(seq, sizeof ( seq ), "\033[%d;%d;49m", bold, color);
       }
       else
       {
@@ -723,7 +722,7 @@ refreshSingleLine(const struct linenoiseState *l)
 
   abInit(&ab);
   /* Cursor to left edge */
-  snprintf(seq, sizeof ( seq ), "\r");
+  (void)snprintf(seq, sizeof ( seq ), "\r");
   abAppend(&ab, seq, strlen(seq));
   /* Write the prompt and the current buffer content */
   abAppend(&ab, l->prompt, strlen(l->prompt));
@@ -747,10 +746,10 @@ refreshSingleLine(const struct linenoiseState *l)
   refreshShowHints(&ab, l, plen);
 # endif /* ifdef LH_HINTS */
   /* Erase to right */
-  snprintf(seq, sizeof ( seq ), "\x1b[0K");
+  (void)snprintf(seq, sizeof ( seq ), "\x1b[0K");
   abAppend(&ab, seq, strlen(seq));
   /* Move cursor to original position. */
-  snprintf(seq, sizeof ( seq ), "\r\x1b[%dC", (int)( pos + plen ));
+  (void)snprintf(seq, sizeof ( seq ), "\r\x1b[%dC", (int)( pos + plen ));
   abAppend(&ab, seq, strlen(seq));
   if (write(fd, ab.b, ab.len) == -1)
   { /* Can't recover from write error. */
@@ -794,19 +793,19 @@ refreshMultiLine(struct linenoiseState *l)
   abInit(&ab);
   if (old_rows - rpos > 0)
   {
-    snprintf(seq, sizeof ( seq ), "\x1b[%dB", old_rows - rpos);
+    (void)snprintf(seq, sizeof ( seq ), "\x1b[%dB", old_rows - rpos);
     abAppend(&ab, seq, strlen(seq));
   }
 
   /* Now for every row clear it, go up. */
   for (j = 0; j < old_rows - 1; j++)
   {
-    snprintf(seq, sizeof ( seq ), "\r\x1b[0K\x1b[1A");
+    (void)snprintf(seq, sizeof ( seq ), "\r\x1b[0K\x1b[1A");
     abAppend(&ab, seq, strlen(seq));
   }
 
   /* Clean the top line. */
-  snprintf(seq, sizeof ( seq ), "\r\x1b[0K");
+  (void)snprintf(seq, sizeof ( seq ), "\r\x1b[0K");
   abAppend(&ab, seq, strlen(seq));
 
   /* Write the prompt and the current buffer content */
@@ -841,7 +840,7 @@ refreshMultiLine(struct linenoiseState *l)
   if (l->pos && l->pos == l->len && ( l->pos + plen ) % l->cols == 0)
   {
     abAppend(&ab, "\n", 1);
-    snprintf(seq, sizeof ( seq ), "\r");
+    (void)snprintf(seq, sizeof ( seq ), "\r");
     abAppend(&ab, seq, strlen(seq));
     rows++;
     if (rows > (int)l->maxrows)
@@ -856,7 +855,7 @@ refreshMultiLine(struct linenoiseState *l)
   /* Go up till we reach the expected positon. */
   if (rows - rpos2 > 0)
   {
-    snprintf(seq, sizeof ( seq ), "\x1b[%dA", rows - rpos2);
+    (void)snprintf(seq, sizeof ( seq ), "\x1b[%dA", rows - rpos2);
     abAppend(&ab, seq, strlen(seq));
   }
 
@@ -864,11 +863,11 @@ refreshMultiLine(struct linenoiseState *l)
   col = ( plen + (int)l->pos ) % (int)l->cols;
   if (col)
   {
-    snprintf(seq, sizeof ( seq ), "\r\x1b[%dC", col);
+    (void)snprintf(seq, sizeof ( seq ), "\r\x1b[%dC", col);
   }
   else
   {
-    snprintf(seq, sizeof ( seq ), "\r");
+    (void)snprintf(seq, sizeof ( seq ), "\r");
   }
 
   abAppend(&ab, seq, strlen(seq));
@@ -1068,8 +1067,8 @@ linenoiseEditHistoryNext(struct linenoiseState *l, int dir)
     history[history_len - 1 - l->history_index] = strdup(l->buf);
     if (!history[history_len - 1 - l->history_index])
       {
-        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                 __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
 #  ifdef SIGUSR2
         (void)raise(SIGUSR2);
@@ -1120,8 +1119,8 @@ linenoiseSearchInHistory(struct linenoiseState *l, int direction)
     history[history_len - 1 - l->history_index] = strdup(l->buf);
     if (!history[history_len - 1 - l->history_index])
       {
-        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                 __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
 #  ifdef SIGUSR2
         (void)raise(SIGUSR2);
@@ -1581,7 +1580,7 @@ linenoiseRaw(char *buf, size_t buflen, const char *prompt)
 
   count = linenoiseEdit(STDIN_FILENO, STDOUT_FILENO, buf, buflen, prompt);
   disableRawMode(STDIN_FILENO);
-  printf("\n");
+  (void)printf("\n");
   return ( count );
 }
 
@@ -1674,8 +1673,9 @@ linenoise(const char *prompt)
   {
     size_t len;
 
-    printf("%s", prompt);
-    fflush(stdout);
+    (void)fflush(stderr);
+    (void)printf("%s", prompt);
+    (void)fflush(stdout);
     if (fgets(buf, LINENOISE_MAX_LINE, stdin) == NULL)
     {
       return ( NULL );
@@ -1770,7 +1770,7 @@ linenoiseHistoryAdd(const char *line)
       return ( 0 );
     }
 
-    memset(history, 0, ( sizeof ( char * ) * history_max_len ));
+    (void)memset(history, 0, ( sizeof ( char * ) * history_max_len ));
   }
 
   /* Don't add duplicated lines. */
@@ -1845,7 +1845,7 @@ linenoiseHistorySetMaxLen(int len)
       tocopy = len;
     }
 
-    memset(new, 0, sizeof ( char * ) * len);
+    (void)memset(new, 0, sizeof ( char * ) * len);
     memcpy(
       new,
       history + ( history_len - tocopy ),

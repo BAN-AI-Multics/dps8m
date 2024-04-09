@@ -406,7 +406,7 @@ static t_stat opc_reset (UNUSED DEVICE * dptr)
         console_state[i].tailp           = console_state[i].keyboardLineBuffer;
         console_state[i].readp           = console_state[i].keyboardLineBuffer;
         console_state[i].carrierPosition = 1;
-        memset (console_state[i].tabStops, 0, sizeof (console_state[i].tabStops));
+        (void)memset (console_state[i].tabStops, 0, sizeof (console_state[i].tabStops));
         console_state[i].escapeSequence  = false;
       }
     return SCPE_OK;
@@ -448,7 +448,7 @@ void console_init (void)
         csp->attn_flush      = 1;
         csp->carrierPosition = 1;
         csp->escapeSequence  = 1;
-        memset (csp->tabStops, 0, sizeof (csp->tabStops));
+        (void)memset (csp->tabStops, 0, sizeof (csp->tabStops));
       }
   }
 
@@ -486,8 +486,8 @@ static int opc_autoinput_set (UNIT * uptr, UNUSED int32 val,
             unsigned char * old = realloc (csp->auto_input, nl + ol + 1);
             if (!old)
               {
-                fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                        __func__, __FILE__, __LINE__);
+                (void)fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                              __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
 # ifdef SIGUSR2
                 (void)raise(SIGUSR2);
@@ -535,8 +535,8 @@ int add_opc_autoinput (int32 flag, const char * cptr)
         unsigned char * old = realloc (csp->auto_input, nl + ol + 1);
         if (!old)
           {
-            fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                    __func__, __FILE__, __LINE__);
+            (void)fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                          __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
 # ifdef SIGUSR2
             (void)raise(SIGUSR2);
@@ -734,7 +734,7 @@ static void sendConsole (int conUnitIdx, word12 stati)
     // The "+1" is for them empty line case below
     word36 buf[n_words + 1];
     // Make Oracle lint happy
-    memset (buf, 0, sizeof (word36) * (n_words + 1));
+    (void)memset (buf, 0, sizeof (word36) * (n_words + 1));
     word36 * bufp = buf;
 
     // Multics doesn't seem to like empty lines; it the line buffer
@@ -961,10 +961,10 @@ static void consoleProcessIdx (int conUnitIdx)
             char buf[256];
             char cms[3] = "?RW";
             // XXX Assumes console 0
-            sprintf (buf, "^T attn %c %c cnt %d next %d\r\n",
-                     console_state[0].attn_pressed+'0',
-                     cms[console_state[0].io_mode],
-                     ta_cnt, ta_next);
+            (void)sprintf (buf, "^T attn %c %c cnt %d next %d\r\n",
+                           console_state[0].attn_pressed+'0',
+                           cms[console_state[0].io_mode],
+                           ta_cnt, ta_next);
             console_putstr (conUnitIdx, buf);
             continue;
           }
@@ -1024,8 +1024,8 @@ static void consoleProcessIdx (int conUnitIdx)
                         if (stat != SCPE_OK)
                           {
                             char buf[4096];
-                            sprintf (buf, "\r%s returned %d '%s'\r\n",
-                              SIM_NAME, stat, sim_error_text (stat));
+                            (void)sprintf (buf, "\r%s returned %d '%s'\r\n",
+                                           SIM_NAME, stat, sim_error_text (stat));
                             console_putstr (conUnitIdx,  buf);
                           }
                       }
@@ -1849,8 +1849,8 @@ static t_stat opc_set_console_address (UNIT * uptr, UNUSED int32 value,
         console_state[dev_idx].console_access.address = strdup (cptr);
         if (!console_state[dev_idx].console_access.address)
           {
-            fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                     __func__, __FILE__, __LINE__);
+            (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                           __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
 # ifdef SIGUSR2
             (void)raise(SIGUSR2);
@@ -1942,7 +1942,7 @@ static void console_putchar (int conUnitIdx, char ch) {
         csp->tabStops[csp->carrierPosition] = true;
       }
     } else if (ch == '2') { // Clear all tabs
-      memset (csp->tabStops, 0, sizeof (csp->tabStops));
+      (void)memset (csp->tabStops, 0, sizeof (csp->tabStops));
     } else { // Unrecognized
       sim_warn ("Unrecognized escape sequence \\033\\%03o\r\n", ch);
     }

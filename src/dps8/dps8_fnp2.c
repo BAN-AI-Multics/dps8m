@@ -326,12 +326,12 @@ void setTIMW (uint iom_unit_idx, uint chan, word24 mailboxAddress, int mbx)
 void fnpInit(void)
   {
     // 0 sets set service to service_undefined
-    memset(& fnpData, 0, sizeof(fnpData));
+    (void)memset(& fnpData, 0, sizeof(fnpData));
     fnpData.telnet_address  = strdup("0.0.0.0");
     if (!fnpData.telnet_address)
       {
-        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                 __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
 # ifdef SIGUSR2
         (void)raise(SIGUSR2);
@@ -499,7 +499,7 @@ static void fnp_rcd_input_in_mailbox (uint mbx, int fnp_unit_idx, int lineno)
 
     uint n_chars = min(linep->nPos, 100);
 
-//Sim_printf ("fnp_rcd_input_in_mailbox nPos %d\n", linep->nPos);
+//sim_printf ("fnp_rcd_input_in_mailbox nPos %d\n", linep->nPos);
     word36 data = 0;
     l_putbits36_9 (& data, 9, (word9) n_chars); // n_chars
     l_putbits36_9 (& data, 18,  0102);          // op_code input_in_mailbox
@@ -2400,8 +2400,8 @@ t_stat set_fnp_server_address (UNUSED int32 arg, const char * buf)
     fnpData.telnet_address = strdup (buf);
     if (!fnpData.telnet_address)
       {
-        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                 __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
 # ifdef SIGUSR2
         (void)raise(SIGUSR2);
@@ -2475,7 +2475,7 @@ void fnpConnectPrompt (uv_tcp_t * client)
                   fnpuv_start_writestr (client, (unsigned char *) ",");
                 char name [16];
                 first = false;
-                sprintf (name, "%c.h%03d", 'a' + fnp_unit_idx, lineno);
+                (void)sprintf (name, "%c.h%03d", 'a' + fnp_unit_idx, lineno);
                 fnpuv_start_writestr (client, (unsigned char *) name);
               }
           }
@@ -2579,7 +2579,8 @@ void fnp3270ConnectPrompt (uv_tcp_t * client)
     // Don't know ttype yet because Telnet negotiation won't
     // start until evPoll runs.
     unsigned char buf [256];
-    sprintf ((char *) buf, "DPS8/M 3270 connection to %c.%03d.%ld ttype %s\n", fnpno+'a',lineno, (long)p->stationNo, p->ttype);
+    (void)sprintf ((char *) buf, "DPS8/M 3270 connection to %c.%03d.%ld ttype %s\n",
+                   fnpno+'a',lineno, (long)p->stationNo, p->ttype);
     fnpData.ibm3270ctlr[ASSUME0].selDevChar = addr_map[p->stationNo];
     fnp3270Msg (client, buf);
 #endif
@@ -2747,18 +2748,18 @@ void reset_line (struct t_line * linep)
     linep->input_flow_control      = false;
     linep->block_xfer_in_frame_sz  = 0;
     linep->block_xfer_out_frame_sz = 0;
-    memset (linep->delay_table,      0, sizeof (linep->delay_table));
+    (void)memset (linep->delay_table,      0, sizeof (linep->delay_table));
     linep->inputSuspendLen         = 0;
-    memset (linep->inputSuspendStr,  0, sizeof (linep->inputSuspendStr));
+    (void)memset (linep->inputSuspendStr,  0, sizeof (linep->inputSuspendStr));
     linep->inputResumeLen          = 0;
-    memset (linep->inputResumeStr,   0, sizeof (linep->inputResumeStr));
+    (void)memset (linep->inputResumeStr,   0, sizeof (linep->inputResumeStr));
     linep->outputSuspendLen        = 0;
-    memset (linep->outputSuspendStr, 0, sizeof (linep->outputSuspendStr));
+    (void)memset (linep->outputSuspendStr, 0, sizeof (linep->outputSuspendStr));
     linep->outputResumeLen         = 0;
-    memset (linep->outputResumeStr,  0, sizeof (linep->outputResumeStr));
+    (void)memset (linep->outputResumeStr,  0, sizeof (linep->outputResumeStr));
     linep->frame_begin             = 0;
     linep->frame_end               = 0;
-    memset (linep->echnego_break_table, 0, sizeof (linep->echnego_break_table));
+    (void)memset (linep->echnego_break_table, 0, sizeof (linep->echnego_break_table));
     linep->echnego_sync_ctr        = 0;
     linep->echnego_screen_left     = 0;
     linep->echnego_unechoed_cnt    = 0;
@@ -2955,7 +2956,7 @@ associate:;
         sim_printf ("CONNECT %s to %c.h%03d\n", inet_ntoa (p -> sin_addr), fnp_unit_idx +'a', lineno);
       }
 
-    sprintf (buf2, "Attached to line %c.h%03d\r\n", fnp_unit_idx +'a', lineno);
+    (void)sprintf (buf2, "Attached to line %c.h%03d\r\n", fnp_unit_idx +'a', lineno);
     fnpuv_start_writestr (client, (unsigned char *) buf2);
 
     if (! fnpData.fnpUnitData[fnp_unit_idx].MState.accept_calls)

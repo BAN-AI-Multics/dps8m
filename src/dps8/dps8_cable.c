@@ -1286,8 +1286,8 @@ t_stat sys_cable (int32 arg, const char * buf)
     char * copy = strdup (buf);
     if (!copy)
       {
-        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                 __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
 # ifdef SIGUSR2
         (void)raise(SIGUSR2);
@@ -1351,7 +1351,7 @@ static void cable_init (void)
     // sets cablesFromIomToDev[iomUnitIdx].devices[chanNum][dev_code].type
     //  to DEVT_NONE and in_use to false
 
-    memset (cables, 0, sizeof (struct cables_s));
+    (void)memset (cables, 0, sizeof (struct cables_s));
   }
 
 #define all(i,n) \
@@ -1362,7 +1362,7 @@ sys_cable_graph (void)
 {
         // Find used CPUs
         bool cpus_used[N_CPU_UNITS_MAX];
-        memset (cpus_used, 0, sizeof (cpus_used));
+        (void)memset (cpus_used, 0, sizeof (cpus_used));
 
         all (u, N_CPU_UNITS_MAX) all (prt, N_CPU_PORTS)
         {
@@ -1373,7 +1373,7 @@ sys_cable_graph (void)
 
         // Find used SCUs
         bool scus_used[N_SCU_UNITS_MAX];
-        memset (scus_used, 0, sizeof (scus_used));
+        (void)memset (scus_used, 0, sizeof (scus_used));
 
         all (u, N_SCU_UNITS_MAX) all (prt, N_SCU_PORTS)
         {
@@ -1390,7 +1390,7 @@ sys_cable_graph (void)
 
         // Find used IOMs
         bool ioms_used[N_IOM_UNITS_MAX];
-        memset (ioms_used, 0, sizeof (ioms_used));
+        (void)memset (ioms_used, 0, sizeof (ioms_used));
 
         all (u, N_SCU_UNITS_MAX) all (prt, N_SCU_PORTS)
         {
@@ -1487,7 +1487,7 @@ sys_cable_graph (void)
                 struct cpu_to_scu_s *p = &cables->cpu_to_scu[u][prt];
                 if (p->in_use)
                         sim_printf ("    CPU%c -- SCU%c;\n", u + 'A',
-                                p->scu_unit_idx + 'A');
+                                    p->scu_unit_idx + 'A');
         }
 
         // Generate SCI/IOM cables
@@ -1496,7 +1496,7 @@ sys_cable_graph (void)
                 struct scu_to_iom_s *p = &cables->scu_to_iom[u][prt];
                 if (p->in_use)
                         sim_printf ("    SCU%c -- IOM%c;\n", u + 'A',
-                                p->iom_unit_idx + 'A');
+                                    p->iom_unit_idx + 'A');
         }
 
         // Generate IOM to controller cables
@@ -1506,7 +1506,7 @@ sys_cable_graph (void)
                 if (p->in_use)
                         sim_printf ("    IOM%c -- %s%d;\n", u + 'A',
                                     ctlr_type_strs[p->ctlr_type],
-                                        p->ctlr_unit_idx);
+                                    p->ctlr_unit_idx);
         }
 
         // Generate controller to device cables
@@ -1517,8 +1517,8 @@ sys_cable_graph (void)
                     &cables->to_small ## _to_ ## from_small[u];      \
                 if (p->in_use)                                       \
                 sim_printf ("    %s%d -- %s%d;\n",                   \
-                                ctlr_type_strs[p->ctlr_type],        \
-                                p->ctlr_unit_idx, #to_label, u);     \
+                            ctlr_type_strs[p->ctlr_type],            \
+                            p->ctlr_unit_idx, #to_label, u);         \
         }
 
         G_DEV_CTLR (MTP,  mtp,  TAPE, MT,  tape);

@@ -182,8 +182,8 @@ static void evHandler (UNUSED telnet_t *telnet, telnet_event_t *event, void *use
             p->ttype = strdup (event->ttype.name);
             if (!p->ttype)
               {
-                fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                         __func__, __FILE__, __LINE__);
+                (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                               __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
 # ifdef SIGUSR2
                 (void)raise(SIGUSR2);
@@ -213,8 +213,8 @@ void * ltnConnect (uv_tcp_t * client)
     void * p = (void *) telnet_init (my_telopts, evHandler, 0, client);
     if (! p)
       {
-        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                 __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
 # ifdef SIGUSR2
         (void)raise(SIGUSR2);
@@ -237,8 +237,8 @@ void * ltnConnect3270 (uv_tcp_t * client)
     void * p = (void *) telnet_init (my_3270telopts, evHandler, 0, client);
     if (! p)
       {
-        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                 __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
 # ifdef SIGUSR2
         (void)raise(SIGUSR2);

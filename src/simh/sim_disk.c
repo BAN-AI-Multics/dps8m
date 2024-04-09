@@ -250,7 +250,7 @@ err = sim_fseeko (uptr->fileref, da, SEEK_SET);          /* set pos */
 if (!err) {
     i = sim_fread (buf, ctx->xfer_element_size, tbc/ctx->xfer_element_size, uptr->fileref);
     if (i < tbc/ctx->xfer_element_size)                 /* fill */
-        memset (&buf[i*ctx->xfer_element_size], 0, tbc-(i*ctx->xfer_element_size));
+        (void)memset (&buf[i*ctx->xfer_element_size], 0, tbc-(i*ctx->xfer_element_size));
     err = ferror (uptr->fileref);
     if ((!err) && (sectsread))
         *sectsread = (t_seccnt)((i*ctx->xfer_element_size+ctx->sector_size-1)/ctx->sector_size);
@@ -268,7 +268,7 @@ sim_debug (ctx->dbit, ctx->dptr, "sim_disk_rdsect(unit=%lu, lba=0x%X, sects=%lu)
 
 if ((sects == 1) &&                                     /* Single sector reads */
     (lba >= (uptr->capac*ctx->capac_factor)/(ctx->sector_size/((ctx->dptr->flags & DEV_SECTORS) ? 512 : 1)))) {/* beyond the end of the disk */
-    memset (buf, '\0', ctx->sector_size);               /* are bad block management efforts - zero buffer */
+    (void)memset (buf, '\0', ctx->sector_size);               /* are bad block management efforts - zero buffer */
     if (sectsread)
         *sectsread = 1;
     return SCPE_OK;                                     /* return success */
@@ -484,7 +484,7 @@ uint32 f = DK_GET_FMT (uptr);
 
 switch (f) {                                            /* case on format */
     case DKUF_F_STD:                                    /* Simh */
-        fflush (uptr->fileref);
+        (void)fflush (uptr->fileref);
         break;
         }
 }
@@ -1140,7 +1140,7 @@ struct disk_context *ctx = (struct disk_context *)uptr->disk_ctx;
 if (sim_deb && (ctx->dptr->dctrl & reason)) {
     char pos[32];
 
-    sprintf (pos, "lbn: %08X ", (unsigned int)lba);
+    (void)sprintf (pos, "lbn: %08X ", (unsigned int)lba);
     sim_data_trace(ctx->dptr, uptr, (detail ? data : NULL), pos, len, txt, reason);
     }
 }

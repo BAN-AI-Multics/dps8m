@@ -771,7 +771,10 @@ int main(int argc, char **argv) {
 
            case 'N': GLOBAL_LINENUMBERS=1;                                                    break; /* number lines             */
            case 'P': GLOBAL_PAGES=1;                                                          break; /* number pages             */
-           case 'h': showhelp(1);exit(0);                                                     break; /* help                     */
+           case 'h': showhelp(1);
+                     exit(0);
+                     /*NOTREACHED*/ /* unreachable */
+                                                                                              break; /* help                     */
            case 'X': showhelp(2);
                                                                                               break;
            case 'V': ;
@@ -794,8 +797,12 @@ int main(int argc, char **argv) {
 # endif /* ifdef __GNUC__ */
 #endif /* ifdef __VERSION__ */
                      exit(0);
-        break; /* build info               */
-           case 'v': (void)fprintf (stderr, "prt2pdf version %d.0.%d\n",GLOBAL_VERSION,GLOBAL_VERSION_PATCH); exit(0);        break; /* version                */
+                     /*NOTREACHED*/ /* unreachable */
+                                                                                              break; /* build info               */
+           case 'v': (void)fprintf (stderr, "prt2pdf version %d.0.%d\n",GLOBAL_VERSION,GLOBAL_VERSION_PATCH);
+                     exit(0);
+                     /*NOTREACHED*/ /* unreachable */
+                                                                                              break; /* version                  */
            case '?':
              (void)fprintf(stderr," SWITCH IS %c\n",c);
              if (isprint (optopt)){

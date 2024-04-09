@@ -158,8 +158,8 @@ static void accessStartWriteActual (uv_tcp_t * client, char * data,
     uv_write_t * req = (uv_write_t *) malloc (sizeof (uv_write_t));
     if (!req)
       {
-        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                 __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
 #  ifdef SIGUSR2
         (void)raise(SIGUSR2);
@@ -169,7 +169,7 @@ static void accessStartWriteActual (uv_tcp_t * client, char * data,
         abort();
       }
     // This makes sure that bufs*.base and bufsml*.base are NULL
-    memset (req, 0, sizeof (uv_write_t));
+    (void)memset (req, 0, sizeof (uv_write_t));
     uv_buf_t buf = uv_buf_init ((char *) malloc ((unsigned long) datalen),
                                                  (uint) datalen);
 # ifdef USE_REQ_DATA
@@ -370,8 +370,8 @@ static void accessProcessInput (uv_access * access, unsigned char * buf,
                    (unsigned long) (access->inSize + nread));
         if (! new)
           {
-            fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                     __func__, __FILE__, __LINE__);
+            (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                           __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
 # ifdef SIGUSR2
             (void)raise(SIGUSR2);
@@ -389,8 +389,8 @@ static void accessProcessInput (uv_access * access, unsigned char * buf,
         access->inBuffer = malloc ((unsigned long) nread);
         if (! access->inBuffer)
           {
-            fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                    __func__, __FILE__, __LINE__);
+            (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                           __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
 # ifdef SIGUSR2
             (void)raise(SIGUSR2);
@@ -525,8 +525,8 @@ static void * accessTelnetConnect (uv_tcp_t * client)
     void * p = (void *) telnet_init (my_telopts, evHandler, 0, client);
     if (!p)
       {
-        fprintf(stderr, "\rtelnet_init failed at %s[%s:%d]\r\n",
-                __func__, __FILE__, __LINE__);
+        (void)fprintf(stderr, "\rtelnet_init failed at %s[%s:%d]\r\n",
+                      __func__, __FILE__, __LINE__);
         return NULL;
       }
     const telnet_telopt_t * q = my_telopts;
@@ -546,7 +546,7 @@ static void onNewAccess (uv_stream_t * server, int status)
   {
     if (status < 0)
       {
-        fprintf (stderr, "\r[OPC emulation: new connection error %s]\r\n", uv_strerror(status));
+        (void)fprintf (stderr, "\r[OPC emulation: new connection error %s]\r\n", uv_strerror(status));
         // error!
         return;
       }
@@ -556,8 +556,8 @@ static void onNewAccess (uv_stream_t * server, int status)
     uv_tcp_t * client = (uv_tcp_t *) malloc (sizeof (uv_tcp_t));
     if (!client)
       {
-        fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                __func__, __FILE__, __LINE__);
+        (void)fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                      __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
 # ifdef SIGUSR2
         (void)raise(SIGUSR2);
@@ -652,13 +652,16 @@ void uv_open_access (uv_access * access)
                        onNewAccess);
     if (r)
      {
-        fprintf (stderr, "\r[OPC emulation: listen error: %s:%ld: %s]\r\n", access->address, (long) access->port, uv_strerror(r));
+        (void)fprintf (stderr, "\r[OPC emulation: listen error: %s:%ld: %s]\r\n",
+                       access->address, (long) access->port, uv_strerror(r));
       }
     access->open = true;
     if (access->address != NULL)
-      sim_printf ("\r[OPC emulation: TELNET server listening on %s:%ld]\r\n", access->address, (long) access->port);
+      sim_printf ("\r[OPC emulation: TELNET server listening on %s:%ld]\r\n",
+                  access->address, (long) access->port);
     else
-      sim_printf ("\r[OPC emulation: TELNET server listening on 0.0.0.0:%ld]\r\n", (long) access->port);
+      sim_printf ("\r[OPC emulation: TELNET server listening on 0.0.0.0:%ld]\r\n",
+                  (long) access->port);
   }
 
 #ifndef QUIET_UNUSED

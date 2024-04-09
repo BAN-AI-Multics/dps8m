@@ -255,7 +255,7 @@ DEVICE absi_dev = {
 
 void absi_init (void)
   {
-    memset (absi_state, 0, sizeof (absi_state));
+    (void)memset (absi_state, 0, sizeof (absi_state));
     for (int i = 0; i < N_ABSI_UNITS_MAX; i ++)
       absi_state[i].link = NOLINK;
   }
@@ -364,20 +364,20 @@ void absi_process_event (void)
         int sz = udp_receive (absi_state[unit].link, pkt, psz);
         if (sz < 0)
           {
-            fprintf (stderr, "udp_receive failed\n");
+            (void)fprintf (stderr, "udp_receive failed\n");
           }
         else if (sz == 0)
           {
-            //fprintf (stderr, "udp_receive 0\n");
+            //(void)fprintf (stderr, "udp_receive 0\n");
           }
         else
           {
             for (int i = 0; i < sz; i ++)
               {
-                fprintf (stderr, "  %06o  %04x  ", pkt[i], pkt[i]);
+                (void)fprintf (stderr, "  %06o  %04x  ", pkt[i], pkt[i]);
                 for (int b = 0; b < 16; b ++)
-                  fprintf (stderr, "%c", pkt[i] & (1 << (16 - b)) ? '1' : '0');
-                fprintf (stderr, "\n");
+                  (void)fprintf (stderr, "%c", pkt[i] & (1 << (16 - b)) ? '1' : '0');
+                (void)fprintf (stderr, "\n");
               }
             // Send a NOP reply
             //int16_t reply[2] = 0x0040
@@ -385,7 +385,7 @@ void absi_process_event (void)
                                PFLG_FINAL);
             if (rc < 0)
               {
-                fprintf (stderr, "udp_send failed\n");
+                (void)fprintf (stderr, "udp_send failed\n");
               }
           }
       }

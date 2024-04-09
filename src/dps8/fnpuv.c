@@ -228,7 +228,7 @@ static int tun_alloc (char * dev)
       //return tun_alloc_old (dev);
       return fd;
 
-    memset (& ifr, 0,  sizeof (ifr));
+    (void)memset (& ifr, 0,  sizeof (ifr));
 
     /*
      *  Flags: IFF_TUN   - TUN device (no Ethernet headers)
@@ -308,7 +308,7 @@ void fnpuv_unassociated_readcb (uv_tcp_t * client,
                            ssize_t nread,
                            unsigned char * buf)
   {
-    //printf ("unassoc. <%*s>\n", (int) nread, buf->base);
+    //(void)printf ("unassoc. <%*s>\n", (int) nread, buf->base);
     processUserInput (client, buf, nread);
   }
 
@@ -563,8 +563,8 @@ sim_printf ("\r\n");
     uv_write_t * req = (uv_write_t *) malloc (sizeof (uv_write_t));
     if (!req)
       {
-        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                 __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
 #  ifdef SIGUSR2
         (void)raise(SIGUSR2);
@@ -574,7 +574,7 @@ sim_printf ("\r\n");
         abort();
       }
     // This makes sure that bufs*.base and bufsml*.base are NULL
-    memset (req, 0, sizeof (uv_write_t));
+    (void)memset (req, 0, sizeof (uv_write_t));
     uv_buf_t buf = uv_buf_init ((char *) malloc ((unsigned long) datalen), (uint) datalen);
 //sim_printf ("allocated req %p data %p\n", req, buf.base);
 # ifdef USE_REQ_DATA
@@ -601,8 +601,8 @@ void fnpuv_start_write_actual (uv_tcp_t * client, unsigned char * data, ssize_t 
     uv_write_t * req = (uv_write_t *) malloc (sizeof (uv_write_t));
     if (!req)
       {
-        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                 __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
 #  ifdef SIGUSR2
         (void)raise(SIGUSR2);
@@ -612,7 +612,7 @@ void fnpuv_start_write_actual (uv_tcp_t * client, unsigned char * data, ssize_t 
         abort();
       }
     // This makes sure that bufs*.base and bufsml*.base are NULL
-    memset (req, 0, sizeof (uv_write_t));
+    (void)memset (req, 0, sizeof (uv_write_t));
     uv_buf_t buf = uv_buf_init ((char *) malloc ((unsigned long) datalen), (uint) datalen);
 //sim_printf ("allocated req %p data %p\n", req, buf.base);
 # ifdef USE_REQ_DATA
@@ -793,8 +793,8 @@ static void on_new_connection (uv_stream_t * server, int status)
     uv_tcp_t * client = (uv_tcp_t *) malloc (sizeof (uv_tcp_t));
     if (!client)
       {
-        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                 __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
 # ifdef SIGUSR2
         (void)raise(SIGUSR2);
@@ -847,8 +847,8 @@ sim_printf ("\r[FNP emulation: dropping 2nd slave]\r\n");
     uvClientData * p = (uvClientData *) malloc (sizeof (uvClientData));
     if (! p)
       {
-         fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                  __func__, __FILE__, __LINE__);
+         (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                        __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
 # ifdef SIGUSR2
         (void)raise(SIGUSR2);
@@ -1098,7 +1098,7 @@ void fnpuv_dial_out (uint fnpno, uint lineno, word36 d1, word36 d2, word36 d3)
       }
 
     char ipaddr [256];
-    sprintf (ipaddr, "%d.%d.%d.%d", oct1, oct2, oct3, oct4);
+    (void)sprintf (ipaddr, "%d.%d.%d.%d", oct1, oct2, oct3, oct4);
     sim_printf ("calling %s:%d\n", ipaddr,port);
 
     struct sockaddr_in dest;
@@ -1107,8 +1107,8 @@ void fnpuv_dial_out (uint fnpno, uint lineno, word36 d1, word36 d2, word36 d3)
     linep->line_client = (uv_tcp_t *) malloc (sizeof (uv_tcp_t));
     if (!linep->line_client)
       {
-        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                 __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
 # ifdef SIGUSR2
         (void)raise(SIGUSR2);
@@ -1122,8 +1122,8 @@ void fnpuv_dial_out (uint fnpno, uint lineno, word36 d1, word36 d2, word36 d3)
     uvClientData * p = (uvClientData *) malloc (sizeof (uvClientData));
     if (! p)
       {
-        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                 __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
 # ifdef SIGUSR2
         (void)raise(SIGUSR2);
@@ -1203,8 +1203,8 @@ void fnpuv_open_slave (uint fnpno, uint lineno)
     uvClientData * p = (uvClientData *) malloc (sizeof (uvClientData));
     if (! p)
       {
-        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                 __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
 # ifdef SIGUSR2
         (void)raise(SIGUSR2);
@@ -1242,8 +1242,8 @@ void fnpuv_open_slave (uint fnpno, uint lineno)
     linep->line_client = (uv_tcp_t *) malloc (sizeof (uv_tcp_t));
     if (! linep->line_client)
       {
-        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                 __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
 #  ifdef SIGUSR2
         (void)raise(SIGUSR2);
@@ -1257,8 +1257,8 @@ void fnpuv_open_slave (uint fnpno, uint lineno)
     uvClientData * p = (uvClientData *) malloc (sizeof (uvClientData));
     if (! p)
       {
-         fprintf (stderr, "\rFATAL: Out of memory at %s[%s:%d]\r\n",
-                  __func__, __FILE__, __LINE__);
+         (void)fprintf (stderr, "\rFATAL: Out of memory at %s[%s:%d]\r\n",
+                        __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
 #  ifdef SIGUSR2
          (void)raise(SIGUSR2);
@@ -1283,7 +1283,7 @@ sim_printf ("listening on port %d\n", linep->port);
                        on_slave_connect);
     if (r)
      {
-        fprintf (stderr, "Listen error %s\n", uv_strerror(r));
+        (void)fprintf (stderr, "Listen error %s\n", uv_strerror(r));
       }
 #endif
   }
@@ -1310,8 +1310,8 @@ static void processPacketInput (int fnpno, int lineno, unsigned char * buf, ssiz
         unsigned char * new = realloc (linep->inBuffer, (unsigned long) (linep->inSize + nread));
         if (! new)
           {
-            fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                     __func__, __FILE__, __LINE__)
+            (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                           __func__, __FILE__, __LINE__)
 # if defined(USE_BACKTRACE)
 #  ifdef SIGUSR2
             (void)raise(SIGUSR2);
@@ -1329,8 +1329,8 @@ static void processPacketInput (int fnpno, int lineno, unsigned char * buf, ssiz
         linep->inBuffer = malloc ((unsigned long) nread);
         if (! linep->inBuffer)
           {
-            fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                     __func__, __FILE__, __LINE__);
+            (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                           __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
 #  ifdef SIGUSR2
             (void)raise(SIGUSR2);
@@ -1475,8 +1475,8 @@ static void on_new_3270_connection (uv_stream_t * server, int status)
     uv_tcp_t * client = (uv_tcp_t *) malloc (sizeof (uv_tcp_t));
     if (!client)
       {
-        fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                __func__, __FILE__, __LINE__);
+        (void)fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                      __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
 # ifdef SIGUSR2
         (void)raise(SIGUSR2);
@@ -1533,8 +1533,8 @@ static void on_new_3270_connection (uv_stream_t * server, int status)
     uvClientData * p = (uvClientData *) malloc (sizeof (uvClientData));
     if (! p)
       {
-         fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                  __func__, __FILE__, __LINE__);
+         (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                        __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
 # ifdef SIGUSR2
          (void)raise(SIGUSR2);
@@ -1585,18 +1585,18 @@ static void on_new_3270_connection (uv_stream_t * server, int status)
        // linep->input_flow_control      = false;
        // linep->block_xfer_in_frame_sz  = 0;
        // linep->block_xfer_out_frame_sz = 0;
-       // memset (linep->delay_table, 0, sizeof (linep->delay_table));
+       // (void)memset (linep->delay_table, 0, sizeof (linep->delay_table));
        // linep->inputSuspendLen         = 0;
-       // memset (linep->inputSuspendStr, 0, sizeof (linep->inputSuspendStr));
+       // (void)memset (linep->inputSuspendStr, 0, sizeof (linep->inputSuspendStr));
        // linep->inputResumeLen          = 0;
-       // memset (linep->inputResumeStr, 0, sizeof (linep->inputResumeStr));
+       // (void)memset (linep->inputResumeStr, 0, sizeof (linep->inputResumeStr));
        // linep->outputSuspendLen        = 0;
-       // memset (linep->outputSuspendStr, 0, sizeof (linep->outputSuspendStr));
+       // (void)memset (linep->outputSuspendStr, 0, sizeof (linep->outputSuspendStr));
        // linep->outputResumeLen         = 0;
-       // memset (linep->outputResumeStr, 0, sizeof (linep->outputResumeStr));
+       // (void)memset (linep->outputResumeStr, 0, sizeof (linep->outputResumeStr));
        // linep->frame_begin             = 0;
        // linep->frame_end               = 0;
-       // memset (linep->echnego, 0, sizeof (linep->echnego));
+       // (void)memset (linep->echnego, 0, sizeof (linep->echnego));
        // linep->line_break              = false;
   }
 

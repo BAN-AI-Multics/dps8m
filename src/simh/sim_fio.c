@@ -259,7 +259,7 @@ fsc = fopen (file, mode);
 #endif
 #if defined(USE_FCNTL)
 struct flock lock;
-memset (&lock, 0, sizeof(lock));
+(void)memset (&lock, 0, sizeof(lock));
 lock.l_type = F_WRLCK;
 if (writable && !sim_nolock) {
   if (fsc != NULL)

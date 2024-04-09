@@ -204,7 +204,7 @@ DEVICE urp_dev = {
 
 void urp_init (void)
   {
-    memset (urpState, 0, sizeof (urpState));
+    (void)memset (urpState, 0, sizeof (urpState));
   }
 
 static iom_cmd_rc_t urpCmd (uint iomUnitIdx, uint chan) {

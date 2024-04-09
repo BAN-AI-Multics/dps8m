@@ -140,7 +140,7 @@ static void createBuffer (void) {
     sim_printf ("hdbg createBuffer failed\n");
     return;
   }
-  memset (hevents, 0, sizeof (struct hevt) * hdbgSize);
+  (void)memset (hevents, 0, sizeof (struct hevt) * hdbgSize);
 
   hevtPtr = 0;
 }
@@ -305,7 +305,7 @@ void hdbgNote (const char * ctx, const char * fmt, ...) {
   hev (hevtNote, RD, NO_FILTER);
   va_list arglist;
   va_start (arglist, fmt);
-  vsnprintf (hevents [p].note.noteBody, NOTE_SZ - 1, fmt, arglist);
+  (void)vsnprintf (hevents [p].note.noteBody, NOTE_SZ - 1, fmt, arglist);
   va_end (arglist);
 done: ;
 }
@@ -313,80 +313,80 @@ done: ;
 static FILE * hdbgOut = NULL;
 
 static void printM (struct hevt * p) {
-  fprintf (hdbgOut, "DBG(%llu)> CPU %d FINAL: %s %s %08o %012llo\n",
-           (unsigned long long int)p->time,
-           p->cpu_idx,
-           p->ctx,
-           p->rw ? "write" : "read ",
-           p->memref.addr,
-           (unsigned long long int)p->memref.data);
+  (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d FINAL: %s %s %08o %012llo\n",
+                 (unsigned long long int)p->time,
+                 p->cpu_idx,
+                 p->ctx,
+                 p->rw ? "write" : "read ",
+                 p->memref.addr,
+                 (unsigned long long int)p->memref.data);
 }
 
 static void printAPU (struct hevt * p) {
-  fprintf (hdbgOut, "DBG(%llu)> CPU %d APU: %s %s %05o:%06o %08o %012llo\n",
-           (unsigned long long int)p->time,
-           p->cpu_idx,
-           p->ctx,
-           p->rw ? "write" : "read ",
-           p->apu.segno,
-           p->apu.offset,
-           p->apu.final,
-           (unsigned long long int)p->apu.data);
+  (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d APU: %s %s %05o:%06o %08o %012llo\n",
+                 (unsigned long long int)p->time,
+                 p->cpu_idx,
+                 p->ctx,
+                 p->rw ? "write" : "read ",
+                 p->apu.segno,
+                 p->apu.offset,
+                 p->apu.final,
+                 (unsigned long long int)p->apu.data);
 }
 
 static void printTrace (struct hevt * p) {
   char buf[256];
   if (p -> trace.addrMode == ABSOLUTE_mode) {
-    fprintf (hdbgOut, "DBG(%llu)> CPU %d TRACE: %s %06o %o %012llo (%s)\n",
-             (unsigned long long int)p->time,
-             p->cpu_idx,
-             p->ctx,
-             p->trace.ic,
-             p->trace.ring,
-             (unsigned long long int)p->trace.inst,
-             disassemble (buf, p->trace.inst));
+    (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d TRACE: %s %06o %o %012llo (%s)\n",
+                   (unsigned long long int)p->time,
+                   p->cpu_idx,
+                   p->ctx,
+                   p->trace.ic,
+                   p->trace.ring,
+                   (unsigned long long int)p->trace.inst,
+                   disassemble (buf, p->trace.inst));
   } else {
-    fprintf (hdbgOut, "DBG(%llu)> CPU %d TRACE: %s %05o:%06o %o %012llo (%s)\n",
-             (unsigned long long int)p->time,
-             p->cpu_idx,
-             p->ctx,
-             p->trace.segno,
-             p->trace.ic,
-             p->trace.ring,
-             (unsigned long long int)p->trace.inst,
-             disassemble (buf, p->trace.inst));
+    (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d TRACE: %s %05o:%06o %o %012llo (%s)\n",
+                   (unsigned long long int)p->time,
+                   p->cpu_idx,
+                   p->ctx,
+                   p->trace.segno,
+                   p->trace.ic,
+                   p->trace.ring,
+                   (unsigned long long int)p->trace.inst,
+                   disassemble (buf, p->trace.inst));
   }
 }
 
 static void printFault (struct hevt * p) {
-  fprintf (hdbgOut, "DBG(%llu)> CPU %d FAULT: %s Fault %d(0%o), sub %llu(0%llo), '%s'\n",
-           (unsigned long long int)p->time,
-           p->cpu_idx,
-           p->ctx,
-           p->fault.faultNumber,
-           p->fault.faultNumber,
-           (unsigned long long int)p->fault.subFault.bits,
-           (unsigned long long int)p->fault.subFault.bits,
-           p->fault.faultMsg);
+  (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d FAULT: %s Fault %d(0%o), sub %llu(0%llo), '%s'\n",
+                 (unsigned long long int)p->time,
+                 p->cpu_idx,
+                 p->ctx,
+                 p->fault.faultNumber,
+                 p->fault.faultNumber,
+                 (unsigned long long int)p->fault.subFault.bits,
+                 (unsigned long long int)p->fault.subFault.bits,
+                 p->fault.faultMsg);
 }
 
 static void printIntrSet (struct hevt * p) {
-  fprintf (hdbgOut, "DBG(%llu)> CPU %d INTR_SET: %s number %d(0%o), CPU %u SCU %u\n",
-           (unsigned long long int)p->time,
-           p->cpu_idx,
-           p->ctx,
-           p->intrSet.inum,
-           p->intrSet.inum,
-           p->intrSet.cpuUnitIdx,
-           p->intrSet.scuUnitIdx);
+  (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d INTR_SET: %s number %d(0%o), CPU %u SCU %u\n",
+                 (unsigned long long int)p->time,
+                 p->cpu_idx,
+                 p->ctx,
+                 p->intrSet.inum,
+                 p->intrSet.inum,
+                 p->intrSet.cpuUnitIdx,
+                 p->intrSet.scuUnitIdx);
 }
 
 static void printIntr (struct hevt * p) {
-  fprintf (hdbgOut, "DBG(%llu)> CPU %d INTR: %s Interrupt pair address %o\n",
-           (unsigned long long int)p->time,
-           p->cpu_idx,
-           p->ctx,
-           p->intr.intr_pair_addr);
+  (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d INTR: %s Interrupt pair address %o\n",
+                 (unsigned long long int)p->time,
+                 p->cpu_idx,
+                 p->ctx,
+                 p->intr.intr_pair_addr);
 }
 
 // Keep sync'd with hregs_t
@@ -403,151 +403,151 @@ static char * regNames[] = {
 
 static void printReg (struct hevt * p) {
   if (p->reg.type == hreg_IR)
-    fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s %s %s %012llo Z%o N%o C %o O%o T%o \n",
-             (unsigned long long int)p->time,
-             p->cpu_idx,
-             p->ctx,
-             p->rw ? "write" : "read ",
-             regNames[p->reg.type],
-             (unsigned long long int)p->reg.data,
-             TSTF (p->reg.data, I_ZERO),
-             TSTF (p->reg.data, I_NEG),
-             TSTF (p->reg.data, I_CARRY),
-             TSTF (p->reg.data, I_OFLOW),
-             TSTF (p->reg.data, I_TALLY));
+    (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s %s %s %012llo Z%o N%o C %o O%o T%o \n",
+                   (unsigned long long int)p->time,
+                   p->cpu_idx,
+                   p->ctx,
+                   p->rw ? "write" : "read ",
+                   regNames[p->reg.type],
+                   (unsigned long long int)p->reg.data,
+                   TSTF (p->reg.data, I_ZERO),
+                   TSTF (p->reg.data, I_NEG),
+                   TSTF (p->reg.data, I_CARRY),
+                   TSTF (p->reg.data, I_OFLOW),
+                   TSTF (p->reg.data, I_TALLY));
   else if (p->reg.type >= hreg_X0 && p->reg.type <= hreg_X7)
-    fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s %s %s %06llo\n",
-             (unsigned long long int)p->time,
-             p->cpu_idx,
-             p->ctx,
-             p->rw ? "write" : "read ",
-             regNames[p->reg.type],
-             (unsigned long long int)p->reg.data);
+    (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s %s %s %06llo\n",
+                   (unsigned long long int)p->time,
+                   p->cpu_idx,
+                   p->ctx,
+                   p->rw ? "write" : "read ",
+                   regNames[p->reg.type],
+                   (unsigned long long int)p->reg.data);
   else
-    fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s %s  %s %012llo\n",
-             (unsigned long long int)p->time,
-             p->cpu_idx,
-             p->ctx,
-             p->rw ? "write" : "read ",
-             regNames[p->reg.type],
-             (unsigned long long int)p->reg.data);
+    (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s %s  %s %012llo\n",
+                   (unsigned long long int)p->time,
+                   p->cpu_idx,
+                   p->ctx,
+                   p->rw ? "write" : "read ",
+                   regNames[p->reg.type],
+                   (unsigned long long int)p->reg.data);
 }
 
 static void printPAReg (struct hevt * p)
 {
   if (p->reg.type >= hreg_PR0 && p->reg.type <= hreg_PR7)
-    fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s %s %s %05o:%06o BIT %2o RNR %o\n",
-             (unsigned long long int)p->time,
-             p->cpu_idx,
-             p->ctx,
-             p->rw ? "write" : "read ",
-             regNames[p->reg.type],
-             p->par.data.SNR,
-             p->par.data.WORDNO,
-             p->par.data.PR_BITNO,
-             p->par.data.RNR);
+    (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s %s %s %05o:%06o BIT %2o RNR %o\n",
+                   (unsigned long long int)p->time,
+                    p->cpu_idx,
+                    p->ctx,
+                    p->rw ? "write" : "read ",
+                    regNames[p->reg.type],
+                    p->par.data.SNR,
+                    p->par.data.WORDNO,
+                    p->par.data.PR_BITNO,
+                    p->par.data.RNR);
   else
-    fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s write %s %05o:%06o CHAR %o BIT %2o RNR %o\n",
-             (unsigned long long int)p->time,
-             p->cpu_idx,
-             p->ctx,
-             regNames[p->reg.type],
-             p->par.data.SNR,
-             p->par.data.WORDNO,
-             p->par.data.AR_CHAR,
-             p->par.data.AR_BITNO,
-             p->par.data.RNR);
+    (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s write %s %05o:%06o CHAR %o BIT %2o RNR %o\n",
+                   (unsigned long long int)p->time,
+                   p->cpu_idx,
+                   p->ctx,
+                   regNames[p->reg.type],
+                   p->par.data.SNR,
+                   p->par.data.WORDNO,
+                   p->par.data.AR_CHAR,
+                   p->par.data.AR_BITNO,
+                   p->par.data.RNR);
 }
 
 static void printDSBRReg (struct hevt * p) {
-  fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s %s %s %05o:%06o BIT %2o RNR %o\n",
-           (unsigned long long int)p->time,
-           p->cpu_idx,
-           p->ctx,
-           p->rw ? "write" : "read ",
-           regNames[p->reg.type],
-           p->par.data.SNR,
-           p->par.data.WORDNO,
-           p->par.data.PR_BITNO,
-           p->par.data.RNR);
+  (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s %s %s %05o:%06o BIT %2o RNR %o\n",
+                 (unsigned long long int)p->time,
+                 p->cpu_idx,
+                 p->ctx,
+                 p->rw ? "write" : "read ",
+                 regNames[p->reg.type],
+                 p->par.data.SNR,
+                 p->par.data.WORDNO,
+                 p->par.data.PR_BITNO,
+                 p->par.data.RNR);
 }
 
 static void printIEFP (struct hevt * p) {
   switch (p->iefp.type) {
     case hdbgIEFP_abs_bar_read:
-      fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP ABS BAR READ:  |%06o\n",
-               (unsigned long long int)p->time,
-               p->cpu_idx,
-               p->iefp.offset);
+      (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP ABS BAR READ:  |%06o\n",
+                     (unsigned long long int)p->time,
+                     p->cpu_idx,
+                     p->iefp.offset);
       break;
 
     case hdbgIEFP_abs_read:
-      fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP ABS     READ:  :%06o\n",
-               (unsigned long long int)p->time,
-               p->cpu_idx,
-               p->iefp.offset);
+      (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP ABS     READ:  :%06o\n",
+                     (unsigned long long int)p->time,
+                     p->cpu_idx,
+                     p->iefp.offset);
       break;
 
     case hdbgIEFP_bar_read:
-      fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP APP BAR READ:  %05o|%06o\n",
-               (unsigned long long int)p->time,
-               p->cpu_idx,
-               p->iefp.segno,
-               p->iefp.offset);
+      (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP APP BAR READ:  %05o|%06o\n",
+                     (unsigned long long int)p->time,
+                     p->cpu_idx,
+                     p->iefp.segno,
+                     p->iefp.offset);
       break;
 
     case hdbgIEFP_read:
-      fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP APP     READ:  %05o:%06o\n",
-               (unsigned long long int)p->time,
-               p->cpu_idx,
-               p->iefp.segno,
-               p->iefp.offset);
+      (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP APP     READ:  %05o:%06o\n",
+                     (unsigned long long int)p->time,
+                     p->cpu_idx,
+                     p->iefp.segno,
+                     p->iefp.offset);
       break;
 
     case hdbgIEFP_abs_bar_write:
-      fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP ABS BAR WRITE: |%06o\n",
-               (long long unsigned int)p->time,
-               p->cpu_idx,
-               p->iefp.offset);
+      (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP ABS BAR WRITE: |%06o\n",
+                     (long long unsigned int)p->time,
+                     p->cpu_idx,
+                     p->iefp.offset);
       break;
 
     case hdbgIEFP_abs_write:
-      fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP ABS     WRITE: :%06o\n",
-               (long long unsigned int)p->time,
-               p->cpu_idx,
-               p->iefp.offset);
+      (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP ABS     WRITE: :%06o\n",
+                     (long long unsigned int)p->time,
+                     p->cpu_idx,
+                     p->iefp.offset);
       break;
 
     case hdbgIEFP_bar_write:
-      fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP APP BAR WRITE: %05o|%06o\n",
-               (unsigned long long int)p->time,
-               p->cpu_idx,
-               p->iefp.segno,
-               p->iefp.offset);
+      (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP APP BAR WRITE: %05o|%06o\n",
+                     (unsigned long long int)p->time,
+                     p->cpu_idx,
+                     p->iefp.segno,
+                     p->iefp.offset);
       break;
 
     case hdbgIEFP_write:
-      fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP APP     WRITE: %05o:%06o\n",
-               (unsigned long long int)p->time,
-               p->cpu_idx,
-               p->iefp.segno,
-               p->iefp.offset);
+      (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP APP     WRITE: %05o:%06o\n",
+                     (unsigned long long int)p->time,
+                     p->cpu_idx,
+                     p->iefp.segno,
+                     p->iefp.offset);
       break;
 
     default:
-      fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP ??? ??? WRITE: %05o?%06o\n",
-               (long long unsigned int)p->time,
-               p->cpu_idx,
-               p->iefp.segno,
-               p->iefp.offset);
+      (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP ??? ??? WRITE: %05o?%06o\n",
+                     (long long unsigned int)p->time,
+                     p->cpu_idx,
+                     p->iefp.segno,
+                     p->iefp.offset);
       break;
   }
 }
 
 static void printNote (struct hevt * p) {
-  fprintf (hdbgOut, "DBG(%llu)> Note: %s\n",
-               (long long unsigned int)p->time,
-               p->note.noteBody);
+  (void)fprintf (hdbgOut, "DBG(%llu)> Note: %s\n",
+                 (long long unsigned int)p->time,
+                 p->note.noteBody);
 }
 
 void hdbgPrint (void) {
@@ -563,7 +563,7 @@ void hdbgPrint (void) {
   }
   time_t curtime;
   time (& curtime);
-  fprintf (hdbgOut, "%s\n", ctime (& curtime));
+  (void)fprintf (hdbgOut, "%s\n", ctime (& curtime));
 
   for (unsigned long p = 0; p < hdbgSize; p ++) {
     unsigned long q = (hevtPtr + p) % hdbgSize;
@@ -629,7 +629,7 @@ void hdbgPrint (void) {
         break;
 
       default:
-        fprintf (hdbgOut, "hdbgPrint ? %d\n", evtp -> type);
+        (void)fprintf (hdbgOut, "hdbgPrint ? %d\n", evtp -> type);
         break;
     }
   }
@@ -681,7 +681,7 @@ t_stat hdbgBlacklist (UNUSED int32 arg, const char * buf) {
   if (sscanf (buf, "%s", work) != 1)
     return SCPE_ARG;
   if (strcasecmp (work, "init") == 0) {
-    memset (blacklist, 0, sizeof (blacklist));
+    (void)memset (blacklist, 0, sizeof (blacklist));
     return SCPE_OK;
   }
   uint low, high;

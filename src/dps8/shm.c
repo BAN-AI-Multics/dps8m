@@ -51,6 +51,8 @@ extern int sim_nostate;
 extern int sim_iglock;
 extern int sim_nolock;
 
+const char *xstrerror_l(int errnum);
+
 void *
 create_shm(char *key, size_t shm_size)
 {
@@ -61,20 +63,18 @@ create_shm(char *key, size_t shm_size)
   char lck[260];
 #endif /* ifdef USE_BFLOCK */
 
-  sprintf(buf, "dps8m.%s", key);
+  (void)sprintf (buf, "dps8m.%s", key);
+
+
 
 #ifdef USE_BFLOCK
-  sprintf(lck, ".%s", buf);
+  (void)sprintf (lck, ".%s", buf);
 
   int lck_fd = open(lck, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
   if (lck_fd == -1)
     {
-      fprintf(
-        stderr,
-        "%s(): Failed to open \"%s\" (error %d)\r\n",
-        __func__,
-        lck,
-        errno);
+      (void)fprintf(stderr, "%s(): Failed to open \"%s\": %s (Error %d)\r\n",
+                    __func__, lck, xstrerror_l(errno), errno);
       return NULL;
     }
 
@@ -88,12 +88,8 @@ create_shm(char *key, size_t shm_size)
   int fd = open(buf, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
   if (fd == -1)
     {
-      fprintf(
-        stderr,
-        "%s(): Failed to open \"%s\" (error %d)\r\n",
-        __func__,
-        buf,
-        errno);
+      (void)fprintf(stderr, "%s(): Failed to open \"%s\": %s (Error %d)\r\n",
+                    __func__, buf, xstrerror_l(errno), errno);
       return NULL;
     }
 
@@ -114,7 +110,7 @@ create_shm(char *key, size_t shm_size)
 # endif /* ifndef HOST_NAME_MAX */
 
   struct flock bflock;
-  memset(&bflock, 0, sizeof ( bflock ));
+  (void)memset(&bflock, 0, sizeof ( bflock ));
   bflock.l_type = F_WRLCK;
   int brc = 0;
   if (!sim_nolock)
@@ -133,12 +129,8 @@ create_shm(char *key, size_t shm_size)
   FILE *lck_fp;
   if (brc < 0)
     {
-      fprintf(
-        stderr,
-        "%s(): Failed to lock \"%s\" (error %d)\r\n",
-        __func__,
-        lck,
-        errno);
+      (void)fprintf(stderr, "%s(): Failed to lock \"%s\": %s (Error %d)\r\n",
+                    __func__, lck, xstrerror_l(errno), errno);
       if (!sim_nolock)
         {
           if (fcntl(lck_fd, F_GETLK, &bflock) == 0 && bflock.l_pid > 0)
@@ -149,7 +141,7 @@ create_shm(char *key, size_t shm_size)
 
       (void)close(lck_fd);
       lck_fp = fopen(lck, "r");
-      fprintf(stderr, "\r\n*** Is another simulator running");
+      (void)fprintf(stderr, "\r\n*** Is another simulator running");
       if (lck_fp != NULL)
         {
           while (( pch = fgetc(lck_fp)) != EOF || fct < SPIDLEN)
@@ -159,10 +151,10 @@ create_shm(char *key, size_t shm_size)
                   ypch++;
                   if (ypch == 1)
                     {
-                      fprintf(stderr, " as PID ");
+                      (void)fprintf(stderr, " as PID ");
                     }
 
-                  fprintf(stderr, "%c", pch);
+                  (void)fprintf(stderr, "%c", pch);
                 }
 
               fct++;
@@ -171,10 +163,10 @@ create_shm(char *key, size_t shm_size)
 
       if (lkpid != 0 && ypch == 0)
         {
-          fprintf(stderr, " as PID %lu", lkpid);
+          (void)fprintf(stderr, " as PID %lu", lkpid);
         }
 
-      fprintf(stderr, "? ***\r\n\r\n");
+      (void)fprintf(stderr, "? ***\r\n\r\n");
       if (!sim_iglock)
         {
           return NULL;
@@ -183,12 +175,8 @@ create_shm(char *key, size_t shm_size)
 
   if (ftruncate(lck_fd, (off_t)0) == -1)
     {
-      fprintf(
-        stderr,
-        "%s(): Failed to clear \"%s\" (error %d)\r\n",
-        __func__,
-        lck,
-        errno);
+      (void)fprintf(stderr, "%s(): Failed to clear \"%s\": %s (Error %d)\r\n",
+                    __func__, lck, xstrerror_l(errno), errno);
       if (!sim_iglock)
         {
           return NULL;
@@ -202,22 +190,18 @@ create_shm(char *key, size_t shm_size)
 
   (void)snprintf(spid, SPIDLEN, "%ld ", (long)getpid());
 
-  memset(&sthostname, 0, sizeof ( sthostname ));
+  (void)memset(&sthostname, 0, sizeof ( sthostname ));
   int hrc = gethostname(sthostname, HOST_NAME_MAX + 1);
   if (hrc != 0)
     {
-      (void)sprintf(sthostname, "(unknown)");
+      (void)sprintf (sthostname, "(unknown)");
     }
 
-  (void)sprintf(shostname, "on %s\n", sthostname);
+  (void)sprintf (shostname, "on %s\n", sthostname);
   if (write(lck_fd, spid, strlen(spid)) != strlen(spid))
     {
-      fprintf(
-        stderr,
-        "%s(): Failed to save PID to \"%s\" (error %d)\r\n",
-        __func__,
-        lck,
-        errno);
+      (void)fprintf(stderr, "%s(): Failed to save PID to \"%s\": %s (Error %d)\r\n",
+                    __func__, lck, xstrerror_l(errno), errno);
       if (!sim_iglock)
         {
           return NULL;
@@ -229,12 +213,8 @@ create_shm(char *key, size_t shm_size)
 
   if (write(lck_fd, shostname, strlen(shostname)) != strlen(shostname))
     {
-      fprintf(
-        stderr,
-        "%s(): Failed to save host to \"%s\" (error %d)\r\n",
-        __func__,
-        lck,
-        errno);
+      (void)fprintf(stderr, "%s(): Failed to save host to \"%s\": %s (Error %d)\r\n",
+                    __func__, lck, xstrerror_l(errno), errno);
       if (!sim_iglock)
         {
           return NULL;
@@ -254,12 +234,8 @@ create_shm(char *key, size_t shm_size)
 
   if (rc < 0)
     {
-      fprintf(
-        stderr,
-        "%s(): Failed to lock \"%s\" (error %d)\r\n",
-        __func__,
-        buf,
-        errno);
+      (void)fprintf(stderr, "%s(): Failed to lock \"%s\": %s (Error %d)\r\n",
+                    __func__, buf, xstrerror_l(errno), errno);
       if (!sim_iglock)
         {
           return NULL;
@@ -268,7 +244,7 @@ create_shm(char *key, size_t shm_size)
 
 #elif USE_FCNTL /* ifdef USE_FLOCK */
   struct flock lock;
-  memset(&lock, 0, sizeof ( lock ));
+  (void)memset(&lock, 0, sizeof ( lock ));
   lock.l_type = F_WRLCK;
   int rc = 0;
   if (!sim_nolock)
@@ -278,18 +254,13 @@ create_shm(char *key, size_t shm_size)
 
   if (rc < 0)
     {
-      fprintf(
-        stderr,
-        "%s(): Failed to lock \"%s\" (error %d)\r\n",
-        __func__,
-        buf,
-        errno);
+      (void)fprintf(stderr, "%s(): Failed to lock \"%s\": %s (Error %d)\r\n",
+                    __func__, buf, xstrerror_l(errno), errno);
       if (fcntl(fd, F_GETLK, &lock) == FALSE && lock.l_pid > 0)
         {
-          fprintf(
-            stderr,
-            "\r\n*** Is another simulator running as PID %lu? ***\r\n\r\n",
-            (unsigned long)lock.l_pid);
+          (void)fprintf(stderr,
+                        "\r\n*** Is another simulator running as PID %lu? ***\r\n\r\n",
+                        (unsigned long)lock.l_pid);
         }
       if (!sim_iglock)
         {
@@ -300,12 +271,8 @@ create_shm(char *key, size_t shm_size)
 
   if (ftruncate(fd, (off_t)shm_size) == -1)
     {
-      fprintf(
-        stderr,
-        "%s(): Failed to size \"%s\" (error %d)\r\n",
-        __func__,
-        buf,
-        errno);
+      (void)fprintf(stderr, "%s(): Failed to size \"%s\": %s (Error %d)\r\n",
+                    __func__, buf, xstrerror_l(errno), errno);
       return NULL;
     }
 
@@ -317,24 +284,16 @@ create_shm(char *key, size_t shm_size)
   p = mmap(NULL, shm_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
   if (p == MAP_FAILED)
     {
-      fprintf(
-        stderr,
-        "%s(): Failed to memory map \"%s\" (error %d)\r\n",
-        __func__,
-        buf,
-        errno);
+      (void)fprintf(stderr, "%s(): Failed to memory map \"%s\": %s (Error %d)\r\n",
+                    __func__, buf, xstrerror_l(errno), errno);
       return NULL;
     }
 
   if ( !(sim_nostate) )
     if (msync(p, shm_size, MS_SYNC) == -1)
       {
-        fprintf(
-          stderr,
-          "%s(): Failed to synchronize \"%s\" (error %d)\r\n",
-          __func__,
-          buf,
-          errno);
+        (void)fprintf(stderr, "%s(): Failed to synchronize \"%s\": %s (Error %d)\r\n",
+                      __func__, buf, xstrerror_l(errno), errno);
         return NULL;
       }
 
@@ -352,20 +311,16 @@ open_shm(char *key, size_t shm_size)
   char lck[260];
 # endif /* USE_BFLOCK */
 
-  sprintf(buf, "dps8m.%s", key);
+  (void)sprintf (buf, "dps8m.%s", key);
 
 # ifdef USE_BFLOCK
-  sprintf(lck, ".%s", buf);
+  (void)sprintf (lck, ".%s", buf);
 
   int lck_fd = open(lck, O_RDWR, 0);
   if (lck_fd == -1)
     {
-      fprintf(
-        stderr,
-        "%s(): Failed to open \"%s\" (error %d)\r\n",
-        __func__,
-        lck,
-        errno);
+      (void)fprintf(stderr, "%s(): Failed to open \"%s\": %s (Error %d)\r\n",
+                    __func__, lck, xstrerror_l(errno), errno);
       return NULL;
     }
 # endif /* ifdef USE_BFLOCK */
@@ -373,18 +328,14 @@ open_shm(char *key, size_t shm_size)
   int fd = open(buf, O_RDWR, 0);
   if (fd == -1)
     {
-      fprintf(
-        stderr,
-        "%s(); Failed to open \"%s\" (error %d)\r\n",
-        __func__,
-        buf,
-        errno);
+      (void)fprintf(stderr, "%s(); Failed to open \"%s\": %s (Error %d)\r\n",
+                    __func__, buf, xstrerror_l(errno), errno);
       return NULL;
     }
 
 # ifdef USE_BFLOCK
   struct flock bflock;
-  memset(&bflock, 0, sizeof ( bflock ));
+  (void)memset(&bflock, 0, sizeof ( bflock ));
   bflock.l_type = F_WRLCK;
   int brc = 0;
   if (!sim_nolock)
@@ -394,12 +345,8 @@ open_shm(char *key, size_t shm_size)
 
   if (brc < 0)
     {
-      fprintf(
-        stderr,
-        "%s(): Failed to lock \"%s\": %d\r\n",
-        __func__,
-        lck,
-        errno);
+      (void)fprintf(stderr, "%s(): Failed to lock \"%s\": %s (Error %d)\r\n",
+                    __func__, lck, xstrerror_l(errno), errno);
       if (!sim_iglock)
         {
           return NULL;
@@ -416,18 +363,14 @@ open_shm(char *key, size_t shm_size)
 
   if (rc < 0)
     {
-      fprintf(
-        stderr,
-        "%s(): Failed to lock \"%s\" (error %d)\r\n",
-        __func__,
-        buf,
-        errno);
+      (void)fprintf(stderr, "%s(): Failed to lock \"%s\": %s (Error %d)\r\n",
+                    __func__, buf, xstrerror_l(errno), errno);
       if(!sim_iglock) return NULL;
     }
 
 # elif USE_FCNTL /* ifdef USE_FLOCK */
   struct flock lock;
-  memset(&lock, 0, sizeof ( lock ));
+  (void)memset(&lock, 0, sizeof ( lock ));
   lock.l_type = F_WRLCK;
   int rc = 0;
   if (!sim_nolock)
@@ -437,12 +380,8 @@ open_shm(char *key, size_t shm_size)
 
   if (rc < 0)
     {
-      fprintf(
-        stderr,
-        "%s(): Failed to lock \"%s\" (error %d)\r\n",
-        __func__,
-        buf,
-        errno);
+      (void)fprintf(stderr, "%s(): Failed to lock \"%s\": %s (Error %d)\r\n",
+                    __func__, buf, xstrerror_l(errno), errno);
       if (!sim_iglock)
         {
           return NULL;
@@ -477,12 +416,8 @@ open_shm(char *key, size_t shm_size)
       (void)close(lck_fd);
 # endif /* ifdef USE_BFLOCK */
 
-      fprintf(
-        stderr,
-        "%s(): Failed to memory map \"%s\" (error %d)\r\n",
-        __func__,
-        buf,
-        errno);
+      (void)fprintf(stderr, "%s(): Failed to memory map \"%s\": %s (Error %d)\r\n",
+                    __func__, buf, xstrerror_l(errno), errno);
       return NULL;
     }
 

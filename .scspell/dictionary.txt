@@ -2955,7 +2955,9 @@ tchars
 tclient
 tcomp
 tcpip
+tcsa
 tcsaflush
+tcsanow
 tcsetattr
 tcsetpgrp
 tctime
@@ -10061,6 +10063,7 @@ enviroment
 environment
 environmental
 environments
+envrc
 ephemeral
 epub
 equal
@@ -11105,6 +11108,7 @@ libexec
 libraries
 library
 libs
+libsir
 libtelnet
 libuv
 libzstd

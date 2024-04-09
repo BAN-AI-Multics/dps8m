@@ -510,7 +510,7 @@ void createCPUThread (uint cpuNum)
       sim_printf ("createCPUThread pthread_create %d\n", rc);
 
     char nm [17];
-    sprintf (nm, "CPU %c", 'a' + cpuNum);
+    (void)sprintf (nm, "CPU %c", 'a' + cpuNum);
 #ifndef __NetBSD__
 # if ( defined ( __FreeBSD__ ) || defined ( __OpenBSD__ ) )
     pthread_set_name_np (p->cpuThread, nm);
@@ -725,7 +725,7 @@ void createIOMThread (uint iomNum)
       sim_printf ("createIOMThread pthread_create %d\n", rc);
 
     char nm [17];
-    sprintf (nm, "IOM %c", 'a' + iomNum);
+    (void)sprintf (nm, "IOM %c", 'a' + iomNum);
 # if ( defined ( __FreeBSD__ ) || defined ( __OpenBSD__ ) )
     pthread_setname_np (p->iomThread, nm);
 # else
@@ -892,7 +892,7 @@ void createChnThread (uint iomNum, uint chnNum, const char * devTypeStr)
       sim_printf ("createChnThread pthread_create %d\n", rc);
 
     char nm [17];
-    sprintf (nm, "chn %c/%u %s", 'a' + iomNum, chnNum, devTypeStr);
+    (void)sprintf (nm, "chn %c/%u %s", 'a' + iomNum, chnNum, devTypeStr);
 # if ( defined ( __FreeBSD__ ) || defined ( __OpenBSD__ ) )
     pthread_setname_np (p->chnThread, nm);
 # else
@@ -981,7 +981,7 @@ void initThreadz (void)
   {
 #ifdef IO_THREADZ
     // chnThreadz is sparse; make sure 'started' is false
-    memset (chnThreadz, 0, sizeof (chnThreadz));
+    (void)memset (chnThreadz, 0, sizeof (chnThreadz));
 #endif
 
 #ifndef LOCKLESS
@@ -1026,7 +1026,7 @@ void setSignals (void)
 #ifndef __MINGW64__
 # ifndef __MINGW32__
     struct sigaction act;
-    memset (& act, 0, sizeof (act));
+    (void)memset (& act, 0, sizeof (act));
     act.sa_handler = int_handler;
     act.sa_flags = 0;
     sigaction (SIGINT, & act, NULL);

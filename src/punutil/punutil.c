@@ -100,13 +100,13 @@ static bool output_flip   = false;
 static bool output_raw    = false;
 static bool output_debug  = false;
 
-enum parse_state current_state = Idle;
+static enum parse_state current_state = Idle;
 
-char glyph_buffer[MAX_GLYPH_BUFFER_LEN];
+static char glyph_buffer[MAX_GLYPH_BUFFER_LEN];
 
-CARD_CACHE banner_card_cache;
-CARD_CACHE data_card_cache;
-CARD_CACHE trailer_card_cache;
+static CARD_CACHE banner_card_cache;
+static CARD_CACHE data_card_cache;
+static CARD_CACHE trailer_card_cache;
 
 // Card image of the banner card
 static word12 banner_card[] =
@@ -471,13 +471,13 @@ static void convert_mcc_to_ascii(word12 *buffer, char *ascii_string)
         int c = mcc_to_ascii(buffer[i]);
         if (output_debug)
         {
-            fprintf(stderr, "+++ Punch Code %04o = '%c'\n", buffer[i], c);
+            (void)fprintf(stderr, "+++ Punch Code %04o = '%c'\n", buffer[i], c);
         }
         if (c == -1)
         {
             c = ' ';
         }
-        ascii_string[i] = c;
+        ascii_string[i] = (int)c;
     }
     ascii_string[CARD_COL_COUNT] = 0;
 }
@@ -602,55 +602,55 @@ static void print_card(FILE *out_file, card_image_t *card, bool flip_card)
 {
     if (output_cards)
     {
-        fprintf(out_file, " +--------------------------------------------------------------------------------+\n");
+        (void)fprintf(out_file, " +--------------------------------------------------------------------------------+\n");
         for (int row = 0; row < 12; row++)
         {
-            fprintf(out_file, "%c|", row_prefix_chars[row]);
+            (void)fprintf(out_file, "%c|", row_prefix_chars[row]);
             if (flip_card)
             {
                 for (int col = CARD_COL_COUNT - 1; col >= 0; col--)
                 {
-                    fprintf(out_file, card->column[col] & row_bit_masks[row] ? "*" : " ");
+                    (void)fprintf(out_file, card->column[col] & row_bit_masks[row] ? "*" : " ");
                 }
             }
             else
             {
                 for (int col = 0; col < CARD_COL_COUNT; col++)
                 {
-                    fprintf(out_file, card->column[col] & row_bit_masks[row] ? "*" : " ");
+                    (void)fprintf(out_file, card->column[col] & row_bit_masks[row] ? "*" : " ");
                 }
             }
-            fprintf(out_file, "|\n");
+            (void)fprintf(out_file, "|\n");
         }
-        fprintf(out_file, " +--------------------------------------------------------------------------------+\n\n");
+        (void)fprintf(out_file, " +--------------------------------------------------------------------------------+\n\n");
     }
 }
 
 static void log_char_matrix_pattern(uint8 *char_matrix)
 {
-    fprintf(stderr, "\nChar Matrix\n");
+    (void)fprintf(stderr, "\nChar Matrix\n");
     for (uint col_offset = 0; col_offset < CHAR_MATRIX_BYTES; col_offset++)
     {
-        fprintf(stderr, " %03o\n", char_matrix[col_offset]);
+        (void)fprintf(stderr, " %03o\n", char_matrix[col_offset]);
     }
 
-    fprintf(stderr, "\r\n");
+    (void)fprintf(stderr, "\r\n");
     for (uint row = 0; row < 5; row++)
     {
         for (uint col = 0; col < CHAR_MATRIX_BYTES; col++)
         {
             if ((char_matrix[col] >> (4 - row)) & 0x1)
             {
-                fprintf(stderr, "*");
+                (void)fprintf(stderr, "*");
             }
             else
             {
-                fprintf(stderr, " ");
+                (void)fprintf(stderr, " ");
             }
         }
-        fprintf(stderr, "\r\n");
+        (void)fprintf(stderr, "\r\n");
     }
-    fprintf(stderr, "\r\n");
+    (void)fprintf(stderr, "\r\n");
 }
 
 static char search_glyph_patterns(uint8 *matrix)
@@ -663,7 +663,7 @@ static char search_glyph_patterns(uint8 *matrix)
         }
     }
 
-    fprintf(stderr, "*** Warning: Punch found unknown block character pattern\n");
+    (void)fprintf(stderr, "*** Warning: Punch found unknown block character pattern\n");
     log_char_matrix_pattern(matrix);
 
     return ' ';
@@ -673,7 +673,7 @@ static char get_lace_char(const word12 *buffer, uint char_pos)
 {
     if (char_pos >= GLYPHS_PER_CARD)
     {
-        fprintf(stderr, "*** Error: Attempt to read punch block character out of range (%u)\n", char_pos);
+        (void)fprintf(stderr, "*** Error: Attempt to read punch block character out of range (%u)\n", char_pos);
         _Exit(4);
     }
 
@@ -719,13 +719,13 @@ static card_image_t *allocate_card(void)
     card_image_t *card = malloc(sizeof(card_image_t));
     if (card == NULL)
     {
-        fprintf(stderr, "*** Error: Failed to allocate memory for card image!\r\n");
-        fprintf(stderr, "\r\nFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
-                __func__, __FILE__, __LINE__);
+        (void)fprintf(stderr, "*** Error: Failed to allocate memory for card image!\r\n");
+        (void)fprintf(stderr, "\r\nFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
+                      __func__, __FILE__, __LINE__);
         abort();
     }
 
-    memset(card, 0, sizeof(card_image_t));
+    (void)memset(card, 0, sizeof(card_image_t));
 
     return card;
 }
@@ -751,7 +751,7 @@ static card_image_t *read_card(FILE *in_file)
         }
         else
         {
-            fprintf(stderr, "*** Error: fread returned zero but failed to set the error or eof flags!\n");
+            (void)fprintf(stderr, "*** Error: fread returned zero but failed to set the error or eof flags!\n");
             _Exit(2);
         }
     }
@@ -759,7 +759,7 @@ static card_image_t *read_card(FILE *in_file)
     // Make sure we read a full card
     if (bytes_read != BYTES_PER_CARD)
     {
-        fprintf(stderr, "*** Error: failed to read a full card (only read %d of %d bytes)\n", bytes_read, BYTES_PER_CARD);
+        (void)fprintf(stderr, "*** Error: failed to read a full card (only read %d of %d bytes)\n", bytes_read, BYTES_PER_CARD);
         _Exit(3);
     }
 
@@ -790,8 +790,8 @@ static void save_card_in_cache(CARD_CACHE *card_cache, card_image_t *card)
     CARD_CACHE_ENTRY *new_entry = malloc(sizeof(CARD_CACHE_ENTRY));
     if (!new_entry)
       {
-        fprintf(stderr, "\rFATAL: Out of memory, aborting at %s[%s:%d]\r\n",
-                __func__, __FILE__, __LINE__);
+        (void)fprintf(stderr, "\rFATAL: Out of memory, aborting at %s[%s:%d]\r\n",
+                      __func__, __FILE__, __LINE__);
         abort();
       }
 
@@ -815,22 +815,22 @@ static void print_event(enum parse_event event)
     switch (event)
     {
     case NoEvent:
-        fprintf(stderr, "[No Event]");
+        (void)fprintf(stderr, "[No Event]");
         break;
     case BannerCard:
-        fprintf(stderr, "[Banner Card]");
+        (void)fprintf(stderr, "[Banner Card]");
         break;
     case EndOfDeckCard:
-        fprintf(stderr, "[End Of Deck Card]");
+        (void)fprintf(stderr, "[End Of Deck Card]");
         break;
     case Card:
-        fprintf(stderr, "[Card]");
+        (void)fprintf(stderr, "[Card]");
         break;
     case Done:
-        fprintf(stderr, "[Done]");
+        (void)fprintf(stderr, "[Done]");
         break;
     default:
-        fprintf(stderr, "[unknown event %d]", event);
+        (void)fprintf(stderr, "[unknown event %d]", event);
         break;
     }
 }
@@ -840,28 +840,28 @@ static void print_state(enum parse_state state)
     switch (state)
     {
     case Idle:
-        fprintf(stderr, "[Idle]");
+        (void)fprintf(stderr, "[Idle]");
         break;
     case StartingJob:
-        fprintf(stderr, "[Starting Job]");
+        (void)fprintf(stderr, "[Starting Job]");
         break;
     case PunchGlyphLookup:
-        fprintf(stderr, "[Punch Glyph Lookup]");
+        (void)fprintf(stderr, "[Punch Glyph Lookup]");
         break;
     case EndOfHeader:
-        fprintf(stderr, "[End Of Header]");
+        (void)fprintf(stderr, "[End Of Header]");
         break;
     case CacheCard:
-        fprintf(stderr, "[Cache Card]");
+        (void)fprintf(stderr, "[Cache Card]");
         break;
     case EndOfDeck:
-        fprintf(stderr, "[End Of Deck]");
+        (void)fprintf(stderr, "[End Of Deck]");
         break;
     case EndOfJob:
-        fprintf(stderr, "[End Of Job]");
+        (void)fprintf(stderr, "[End Of Job]");
         break;
     default:
-        fprintf(stderr, "[unknown state %d]", state);
+        (void)fprintf(stderr, "[unknown state %d]", state);
         break;
     }
 }
@@ -870,13 +870,13 @@ static void transition_state(enum parse_event event, enum parse_state new_state)
 {
     if (output_debug)
     {
-        fprintf(stderr, ">>> State Transition: ");
+        (void)fprintf(stderr, ">>> State Transition: ");
         print_event(event);
-        fprintf(stderr, " = ");
+        (void)fprintf(stderr, " = ");
         print_state(current_state);
-        fprintf(stderr, " -> ");
+        (void)fprintf(stderr, " -> ");
         print_state(new_state);
-        fprintf(stderr, "\r\n");
+        (void)fprintf(stderr, "\r\n");
     }
 
     current_state = new_state;
@@ -920,7 +920,7 @@ static enum parse_event do_state_end_of_header(enum parse_event event, card_imag
 
     if (output_debug)
     {
-        fprintf(stderr, "\n++++ Glyph Buffer ++++\n'%s'\n", glyph_buffer);
+        (void)fprintf(stderr, "\n++++ Glyph Buffer ++++\n'%s'\n", glyph_buffer);
     }
 
     return NoEvent;
@@ -957,13 +957,13 @@ static void unexpected_event(enum parse_event event)
 {
     if (output_debug)
     {
-        fprintf(stderr, "*** Unexpected event ");
+        (void)fprintf(stderr, "*** Unexpected event ");
         print_event(event);
 
-        fprintf(stderr, " in state ");
+        (void)fprintf(stderr, " in state ");
         print_state(current_state);
 
-        fprintf(stderr, "***\n");
+        (void)fprintf(stderr, "***\n");
     }
 }
 
@@ -975,7 +975,7 @@ static void parse_card(card_image_t *card)
     {
         if (output_debug)
         {
-            fprintf(stderr, "*** Found End Of Deck Card ***\n");
+            (void)fprintf(stderr, "*** Found End Of Deck Card ***\n");
         }
         event = EndOfDeckCard;
     }
@@ -984,7 +984,7 @@ static void parse_card(card_image_t *card)
     {
         if (output_debug)
         {
-            fprintf(stderr, "*** Found Banner Card ***\n");
+            (void)fprintf(stderr, "*** Found Banner Card ***\n");
         }
         event = BannerCard;
     }
@@ -1089,7 +1089,7 @@ static void parse_card(card_image_t *card)
             break;
 
         default:
-            fprintf(stderr, "*** Error: Punch received unknown event!\n");
+            (void)fprintf(stderr, "*** Error: Punch received unknown event!\n");
             break;
         }
     }
@@ -1103,54 +1103,59 @@ static void parse_cards(FILE *in_file)
         parse_card(card);
         if (output_debug)
         {
-            fprintf(stderr, "\n");
+            (void)fprintf(stderr, "\n");
         }
     }
 }
 
 static void init(void)
 {
-    memset(&banner_card_cache, 0, sizeof(banner_card_cache));
-    memset(&data_card_cache, 0, sizeof(data_card_cache));
-    memset(&trailer_card_cache, 0, sizeof(trailer_card_cache));
+    (void)memset(&banner_card_cache, 0, sizeof(banner_card_cache));
+    (void)memset(&data_card_cache, 0, sizeof(data_card_cache));
+    (void)memset(&trailer_card_cache, 0, sizeof(trailer_card_cache));
 }
 
 static void print_help(char *program)
 {
-    printf("\nMultics Punch Utility Program\n");
-    printf("\nInvoking:\n");
-    printf("    %s [options]\n", program);
-    printf("Where options are:\n");
-    printf("  -h, --help      = Output this message\n");
-    printf("  -a, --auto      = Attempt to automatically determine the type of card deck\n");
-    printf("                      (Default; disables any previously enabled output options)\n");
-    printf("  -n, --no-auto   = Disable auto selection of the card format\n");
-    printf("                      (You must specify output control options)\n");
-    printf("  -v, --version   = Add version information to stderr output\n");
-    printf("\nOutput control options:\n");
-    printf("    By default 'auto' mode is active, where a scan attempts to determine the\n");
-    printf("    type of deck.  The scan order is: 'MCC', '7punch', and 'raw' (if neither\n");
-    printf("    of  the  first  two seem  to apply).  Note  that  the options  below are\n");
-    printf("    mutually exclusive.\n");
-    printf("  -7, --7punch    = Interpret the cards as 7punch data and output the data\n");
-    printf("                      (currently not supported!)\n");
-    printf("  -c, --cards     = Output an ASCII art form of the punched cards with an '*'\n");
-    printf("                      representing the punches\n");
-    printf("  -f, --flip      = If --cards is specified, the banner cards will be 'flipped'\n");
-    printf("                      so they can be read normally\n");
-    printf("  -g, --glyphs    = Output the glyphs parsed from the banner cards as ASCII\n");
-    printf("  -m, --mcc       = Interpret the cards as MCC Punch Codes\n");
-    printf("                      (Invalid punch codes will be converted to spaces)\n");
-    printf("  -r, --raw       = Dump the raw card data as 12-bit words in column order\n");
-    printf("\nThis program will  read a  card  spool file produced  by the DPS8M Simulator,\n");
-    printf("parse it, and produce the requested output on standard output. Note that only\n");
-    printf("one output mode may be selected.\n");
-
-    printf("\n");
-    printf("\n This software is made available under the terms of the ICU License,");
-    printf("\n version 1.8.1 or later.  For complete details, see the \"LICENSE.md\"");
-    printf("\n included or https://gitlab.com/dps8m/dps8m/-/blob/master/LICENSE.md");
-    printf("\n");
+    (void)printf("\nMultics Punch Utility Program");
+    (void)printf("\n");
+    (void)printf("\nInvoking:\n");
+    (void)printf("    %s [options]\n", program);
+    (void)printf("\n");
+    (void)printf("Where options are:\n");
+    (void)printf("  -h, --help      = Output this message\n");
+    (void)printf("  -a, --auto      = Attempt to automatically determine the type of card deck\n");
+    (void)printf("                      (Default; disables any previously enabled output options)\n");
+    (void)printf("  -n, --no-auto   = Disable auto selection of the card format\n");
+    (void)printf("                      (You must specify output control options)\n");
+    (void)printf("  -v, --version   = Add version information to stderr output\n");
+    (void)printf("\n");
+    (void)printf("Output control options:\n");
+    (void)printf("    By default 'auto' mode is active, where a scan attempts to determine the\n");
+    (void)printf("    type of deck.  The scan order is: 'MCC', '7punch', and 'raw' (if neither\n");
+    (void)printf("    of  the  first  two seem  to apply).  Note  that  the options  below are\n");
+    (void)printf("    mutually exclusive.\n");
+    (void)printf("\n");
+    (void)printf("  -7, --7punch    = Interpret the cards as 7punch data and output the data\n");
+    (void)printf("                      (currently not supported!)\n");
+    (void)printf("  -c, --cards     = Output an ASCII art form of the punched cards with an '*'\n");
+    (void)printf("                      representing the punches\n");
+    (void)printf("  -f, --flip      = If --cards is specified, the banner cards will be 'flipped'\n");
+    (void)printf("                      so they can be read normally\n");
+    (void)printf("  -g, --glyphs    = Output the glyphs parsed from the banner cards as ASCII\n");
+    (void)printf("  -m, --mcc       = Interpret the cards as MCC Punch Codes\n");
+    (void)printf("                      (Invalid punch codes will be converted to spaces)\n");
+    (void)printf("  -r, --raw       = Dump the raw card data as 12-bit words in column order");
+    (void)printf("\n");
+    (void)printf("\nThis program will read a card spool file produced by the DPS8M Simulator,");
+    (void)printf("\nparse it, and produce the requested output on standard output.");
+    (void)printf("\n");
+    (void)printf("\nNote that only one output mode may be selected per execution.");
+    (void)printf("\n");
+    (void)printf("\nThis software is made available under the terms of the ICU License.");
+    (void)printf("\nFor complete license details, see the LICENSE file included with the");
+    (void)printf("\nsoftware or https://gitlab.com/dps8m/dps8m/-/blob/master/LICENSE.md\n");
+    (void)printf("\n");
 }
 
 #ifdef USE_POPT
@@ -1209,7 +1214,7 @@ static void parse_options(int argc, char *argv[])
             break;
 
         case '7':
-            fprintf(stderr, "*** Sorry: 7punch format is not yet supported!\n");
+            (void)fprintf(stderr, "*** Sorry: 7punch format is not yet supported!\n");
             _Exit(1);
 
         case 'a':
@@ -1265,7 +1270,7 @@ static void parse_options(int argc, char *argv[])
             break;
 
         case 'v':
-            fprintf(stderr, "\nVersion 0.1\n");
+            (void)fprintf(stderr, "\nVersion 0.2\n");
             break;
 
         case 'h':
@@ -1274,7 +1279,7 @@ static void parse_options(int argc, char *argv[])
             exit(0);
 
         default:
-            fprintf(stderr, "*** Internal Error: did not recognize option when parsing options, got %d\n", c);
+            (void)fprintf(stderr, "*** Internal Error: did not recognize option when parsing options, got %d\n", c);
             _Exit(1);
         }
 #ifdef USE_POPT
@@ -1287,7 +1292,7 @@ static void parse_options(int argc, char *argv[])
 
     if (!output_auto && !override_in_effect)
     {
-        fprintf(stderr, "*** Error: auto mode was disabled with no override mode selected!\n");
+        (void)fprintf(stderr, "*** Error: auto mode was disabled with no override mode selected!\n");
         _Exit(1);
     }
 }
@@ -1323,7 +1328,7 @@ static void dump_mcc(FILE *out_file)
     while (current_entry != NULL)
     {
         convert_mcc_to_ascii(current_entry->card->column, ascii_string);
-        fprintf(out_file, "%s\n", ascii_string);
+        (void)fprintf(out_file, "%s\n", ascii_string);
         current_entry = current_entry->next_entry;
     }
 }
@@ -1335,10 +1340,10 @@ static void dump_raw(FILE *out_file)
     {
         if (output_debug)
         {
-            fprintf(stderr, "\nCard:\n");
+            (void)fprintf(stderr, "\nCard:\n");
             for (uint col = 0; col < CARD_COL_COUNT; col++)
             {
-                fprintf(stderr, "  0x%03X\n", current_entry->card->column[col]);
+                (void)fprintf(stderr, "  0x%03X\n", current_entry->card->column[col]);
             }
         }
         for (int current_nibble = 0; current_nibble < NIBBLES_PER_CARD; current_nibble += 2)
@@ -1371,7 +1376,7 @@ int main(int argc, char *argv[])
 {
     (void)setlocale(LC_ALL, "");
 
-    fprintf(stderr, "****\nPunch File Utility\n****\n");
+    (void)fprintf(stderr, "****\nPunch File Utility\n****\n");
 
     parse_options(argc, argv);
 
@@ -1384,36 +1389,36 @@ int main(int argc, char *argv[])
         if (check_for_valid_mcc_cards())
         {
             output_mcc = true;
-            fprintf(stderr, ">> Auto-detected MCC Punch Codes <<\n");
+            (void)fprintf(stderr, ">> Auto-detected MCC Punch Codes <<\n");
         }
         else
         {
             output_raw = true;
-            fprintf(stderr, ">> Auto-detection did not recognize format so output mode set to raw <<\n");
+            (void)fprintf(stderr, ">> Auto-detection did not recognize format so output mode set to raw <<\n");
         }
     }
 
     if (output_cards)
     {
-        fprintf(stderr, "\n*****\nWriting ASCII Art Card Images (banner cards%s flipped)\n*****\n", output_flip ? "" : " not");
+        (void)fprintf(stderr, "\n*****\nWriting ASCII Art Card Images (banner cards%s flipped)\n*****\n", output_flip ? "" : " not");
         dump_cards(stdout);
     }
 
     if (output_glyphs)
     {
-        fprintf(stderr, "\n*****\nWriting Banner Glyphs as ASCII\n*****\n");
-        fprintf(stdout, "%s\n", glyph_buffer);
+        (void)fprintf(stderr, "\n*****\nWriting Banner Glyphs as ASCII\n*****\n");
+        (void)fprintf(stdout, "%s\n", glyph_buffer);
     }
 
     if (output_raw)
     {
-        fprintf(stderr, "\n*****\nWriting raw output\n*****\n");
+        (void)fprintf(stderr, "\n*****\nWriting raw output\n*****\n");
         dump_raw(stdout);
     }
 
     if (output_mcc)
     {
-        fprintf(stderr, "\n*****\nWriting MCC output\n*****\n");
+        (void)fprintf(stderr, "\n*****\nWriting MCC output\n*****\n");
         dump_mcc(stdout);
     }
 

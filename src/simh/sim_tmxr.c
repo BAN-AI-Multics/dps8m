@@ -327,7 +327,7 @@ if (lp->txpb) {
     FREE (lp->txpb);
     lp->txpb       = NULL;
     }
-memset (lp->rbr, 0, lp->rxbsz);                         /* clear break status array */
+(void)memset (lp->rbr, 0, lp->rxbsz);                         /* clear break status array */
 return;
 }
 
@@ -353,17 +353,17 @@ char   lmsg[80]  = "";
 char msgbuf[512] = "";
 
 if ((!lp->notelnet) || (sim_switches & SWMASK ('V'))) {
-    sprintf (cmsg, "\n\r\nConnected to the %s simulator ", sim_name);
+    (void)sprintf (cmsg, "\n\r\nConnected to the %s simulator ", sim_name);
 
     if (mp->dptr) {                                     /* device defined? */
-        sprintf (dmsg, "%s device",                     /* report device name */
+        (void)sprintf (dmsg, "%s device",                     /* report device name */
                        sim_dname (mp->dptr));
 
         if (mp->lines > 1)                              /* more than one line? */
-            sprintf (lmsg, ", line %d", (int)(lp-mp->ldsc));/* report the line number */
+            (void)sprintf (lmsg, ", line %d", (int)(lp-mp->ldsc));/* report the line number */
         }
 
-    sprintf (msgbuf, "%s%s%s\r\n\n", cmsg, dmsg, lmsg);
+    (void)sprintf (msgbuf, "%s%s%s\r\n\n", cmsg, dmsg, lmsg);
     }
 
 if (!mp->buffered) {
@@ -685,9 +685,11 @@ if (tptr == NULL)                                       /* no more mem? */
     return tptr;
 
 if (mp->port)                                           /* copy port */
-    sprintf (growstring(&tptr, 33 + strlen (mp->port)), "%s%s", mp->port, mp->notelnet ? ";notelnet" : "");
+    (void)sprintf (growstring(&tptr, 33 + strlen (mp->port)), "%s%s",
+                   mp->port, mp->notelnet ? ";notelnet" : "");
 if (mp->logfiletmpl[0])                                 /* logfile info */
-    sprintf (growstring(&tptr, 7 + strlen (mp->logfiletmpl)), ",Log=%s", mp->logfiletmpl);
+    (void)sprintf (growstring(&tptr, 7 + strlen (mp->logfiletmpl)), ",Log=%s",
+                   mp->logfiletmpl);
 while ((*tptr == ',') || (*tptr == ' '))
     memmove (tptr, tptr+1, strlen(tptr+1)+1);
 for (i=0; i<mp->lines; ++i) {
@@ -696,7 +698,8 @@ for (i=0; i<mp->lines; ++i) {
 
     lptr = tmxr_line_attach_string(lp);
     if (lptr) {
-        sprintf (growstring(&tptr, 10+strlen(lptr)), "%s%s", *tptr ? "," : "", lptr);
+        (void)sprintf (growstring(&tptr, 10+strlen(lptr)), "%s%s",
+                       *tptr ? "," : "", lptr);
         FREE (lptr);
         }
     }
@@ -735,26 +738,26 @@ if (tptr == NULL)                                       /* no more mem? */
 
 if (lp->destination || lp->port || lp->txlogname) {
     if ((lp->mp->lines > 1) || (lp->port))
-        sprintf (growstring(&tptr, 32), "Line=%d", (int)(lp-lp->mp->ldsc));
+        (void)sprintf (growstring(&tptr, 32), "Line=%d", (int)(lp-lp->mp->ldsc));
     if (lp->modem_control != lp->mp->modem_control)
-        sprintf (growstring(&tptr, 32), ",%s", lp->modem_control ? "Modem" : "NoModem");
+        (void)sprintf (growstring(&tptr, 32), ",%s", lp->modem_control ? "Modem" : "NoModem");
     if (lp->txbfd && (lp->txbsz != lp->mp->buffered))
-        sprintf (growstring(&tptr, 32), ",Buffered=%d", lp->txbsz);
+        (void)sprintf (growstring(&tptr, 32), ",Buffered=%d", lp->txbsz);
     if (!lp->txbfd && (lp->mp->buffered > 0))
-        sprintf (growstring(&tptr, 32), ",UnBuffered");
+        (void)sprintf (growstring(&tptr, 32), ",UnBuffered");
     if (lp->mp->datagram != lp->datagram)
-        sprintf (growstring(&tptr, 8), ",%s", lp->datagram ? "UDP" : "TCP");
+        (void)sprintf (growstring(&tptr, 8), ",%s", lp->datagram ? "UDP" : "TCP");
     if (lp->mp->packet != lp->packet)
-        sprintf (growstring(&tptr, 8), ",Packet");
+        (void)sprintf (growstring(&tptr, 8), ",Packet");
     if (lp->port)
-        sprintf (growstring(&tptr, 32 + strlen (lp->port)), ",%s%s", lp->port, ((lp->mp->notelnet != lp->notelnet) && (!lp->datagram)) ? (lp->notelnet ? ";notelnet" : ";telnet") : "");
+        (void)sprintf (growstring(&tptr, 32 + strlen (lp->port)), ",%s%s", lp->port, ((lp->mp->notelnet != lp->notelnet) && (!lp->datagram)) ? (lp->notelnet ? ";notelnet" : ";telnet") : "");
     if (lp->destination) {
-            sprintf (growstring(&tptr, 25 + strlen (lp->destination)), ",Connect=%s%s", lp->destination, ((lp->mp->notelnet != lp->notelnet) && (!lp->datagram)) ? (lp->notelnet ? ";notelnet" : ";telnet") : "");
+            (void)sprintf (growstring(&tptr, 25 + strlen (lp->destination)), ",Connect=%s%s", lp->destination, ((lp->mp->notelnet != lp->notelnet) && (!lp->datagram)) ? (lp->notelnet ? ";notelnet" : ";telnet") : "");
         }
     if (lp->txlogname)
-        sprintf (growstring(&tptr, 12 + strlen (lp->txlogname)), ",Log=%s", lp->txlogname);
+        (void)sprintf (growstring(&tptr, 12 + strlen (lp->txlogname)), ",Log=%s", lp->txlogname);
     if (lp->loopback)
-        sprintf (growstring(&tptr, 12 ), ",Loopback");
+        (void)sprintf (growstring(&tptr, 12 ), ",Loopback");
     }
 if (*tptr == '\0') {
     FREE (tptr);
@@ -812,7 +815,7 @@ struct timespec ts;
 (void)ts;
 #endif /* ifdef MACOSXPPC */
 (void)lp;
-memset (msg, 0, sizeof (msg));
+(void)memset (msg, 0, sizeof (msg));
 if (mp->last_poll_time == 0) {                          /* first poll initializations */
     UNIT *uptr = mp->uptr;
 
@@ -1021,7 +1024,7 @@ if (mp->master) {
 #endif /* if defined(USE_BACKTRACE) */
                     abort();
                   }
-                memset (lp->telnet_sent_opts, 0, 256);
+                (void)memset (lp->telnet_sent_opts, 0, 256);
                 }
             tmxr_report_connection (mp, lp);
             lp->cnms = sim_os_msec ();                  /* time of connection */
@@ -1147,7 +1150,7 @@ for (i = 0; i < mp->lines; i++) {                       /* check each line in se
 #endif /* if defined(USE_BACKTRACE) */
                                         abort();
                                       }
-                                    memset (lp->telnet_sent_opts, 0, 256);
+                                    (void)memset (lp->telnet_sent_opts, 0, 256);
                                     }
                                 tmxr_report_connection (mp, lp);
                                 lp->cnms = sim_os_msec ();          /* time of connection */
@@ -1191,7 +1194,7 @@ static t_stat tmxr_reset_ln_ex (TMLN *lp, t_bool closeserial)
 char msg[512];
 
 if (lp->txlog)
-    fflush (lp->txlog);                                 /* flush log */
+    (void)fflush (lp->txlog);                           /* flush log */
 
 tmxr_send_buffered_data (lp);                           /* send any buffered data */
 
@@ -1308,7 +1311,7 @@ else {
 #endif /* if defined(USE_BACKTRACE) */
                     abort();
                   }
-                memset (lp->telnet_sent_opts, 0, 256);
+                (void)memset (lp->telnet_sent_opts, 0, 256);
                 }
             tmxr_report_connection (lp->mp, lp);
             lp->cnms = sim_os_msec ();                  /* time of connection */
@@ -2126,7 +2129,7 @@ char speed[24];
 nspeed = (uint32)strtotv (cptr, &cptr, 10);
 if ((*cptr != '\0') && (*cptr != '-') && (*cptr != '*'))
     return -1;
-sprintf (speed, "%d", nspeed);
+(void)sprintf (speed, "%d", nspeed);
 
 spd = speeds;
 while (1) {
@@ -2207,18 +2210,18 @@ mp->ring_ipad = NULL;
 mp->ring_start_time = 0;
 while (*tptr) {
     line = nextline;
-    memset(logfiletmpl, '\0', sizeof(logfiletmpl));
-    memset(listen,      '\0', sizeof(listen));
-    memset(destination, '\0', sizeof(destination));
-    memset(buffered,    '\0', sizeof(buffered));
-    memset(port,        '\0', sizeof(port));
-    memset(option,      '\0', sizeof(option));
-    memset(speed,       '\0', sizeof(speed));
+    (void)memset(logfiletmpl, '\0', sizeof(logfiletmpl));
+    (void)memset(listen,      '\0', sizeof(listen));
+    (void)memset(destination, '\0', sizeof(destination));
+    (void)memset(buffered,    '\0', sizeof(buffered));
+    (void)memset(port,        '\0', sizeof(port));
+    (void)memset(option,      '\0', sizeof(option));
+    (void)memset(speed,       '\0', sizeof(speed));
     nolog = notelnet = listennotelnet = loopback = FALSE;
     datagram = mp->datagram;
     packet = mp->packet;
     if (mp->buffered)
-        sprintf(buffered, "%d", mp->buffered);
+        (void)sprintf(buffered, "%d", mp->buffered);
     if (line != -1)
         notelnet = listennotelnet = mp->notelnet;
     modem_control = mp->modem_control;
@@ -2265,7 +2268,7 @@ while (*tptr) {
                     i = (int32) get_uint (cptr, 10, 1024*1024, &r);
                     if (r || (i == 0))
                         return sim_messagef (SCPE_ARG, "Invalid Buffered Specifier: %s\n", cptr);
-                    sprintf(buffered, "%d", i);
+                    (void)sprintf(buffered, "%d", i);
                     }
                 continue;
                 }
@@ -2361,7 +2364,7 @@ while (*tptr) {
         /* Validate destination */
             char *eptr;
 
-            memset (hostport, '\0', sizeof(hostport));
+            (void)memset (hostport, '\0', sizeof(hostport));
             strncpy (hostport, destination, sizeof(hostport));
             if ((eptr = strchr (hostport, ';')))
                 *(eptr++) = '\0';
@@ -2428,7 +2431,7 @@ while (*tptr) {
                     abort();
                   }
                 if (mp->lines > 1)
-                    sprintf(lp->txlogname, "%s_%d", mp->logfiletmpl, i);
+                    (void)sprintf(lp->txlogname, "%s_%d", mp->logfiletmpl, i);
                 else
                     (void)strcpy (lp->txlogname, mp->logfiletmpl);
                 r = sim_open_logfile (lp->txlogname, TRUE, &lp->txlog, &lp->txlogref);

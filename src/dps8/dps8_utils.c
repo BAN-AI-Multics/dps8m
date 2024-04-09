@@ -45,23 +45,23 @@
 
 char * dump_flags(char * buffer, word18 flags)
 {
-    sprintf(buffer, "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
-            flags & I_HEX   ? "Hex "   : "",  // L68 will never have I_HEX set, so no need to DPS8M-only
-            flags & I_ABS   ? "Abs "   : "",
-            flags & I_MIF   ? "MIF "   : "",
-            flags & I_TRUNC ? "Trunc " : "",
-            flags & I_NBAR  ? "~BAR "  : "",
-            flags & I_PMASK ? "PMask " : "",
-            flags & I_PERR  ? "PErr"   : "",
-            flags & I_TALLY ? "Tally " : "",
-            flags & I_OMASK ? "OMASK " : "",
-            flags & I_EUFL  ? "EUFL "  : "",
-            flags & I_EOFL  ? "EOFL "  : "",
-            flags & I_OFLOW ? "Ovr "   : "",
-            flags & I_CARRY ? "Carry " : "",
-            flags & I_NEG   ? "Neg "   : "",
-            flags & I_ZERO  ? "Zero "  : ""
-            );
+    (void)sprintf(buffer, "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+                  flags & I_HEX   ? "Hex "   : "",  // L68 will never have I_HEX set, so no need to DPS8M-only
+                  flags & I_ABS   ? "Abs "   : "",
+                  flags & I_MIF   ? "MIF "   : "",
+                  flags & I_TRUNC ? "Trunc " : "",
+                  flags & I_NBAR  ? "~BAR "  : "",
+                  flags & I_PMASK ? "PMask " : "",
+                  flags & I_PERR  ? "PErr"   : "",
+                  flags & I_TALLY ? "Tally " : "",
+                  flags & I_OMASK ? "OMASK " : "",
+                  flags & I_EUFL  ? "EUFL "  : "",
+                  flags & I_EOFL  ? "EOFL "  : "",
+                  flags & I_OFLOW ? "Ovr "   : "",
+                  flags & I_CARRY ? "Carry " : "",
+                  flags & I_NEG   ? "Neg "   : "",
+                  flags & I_ZERO  ? "Zero "  : ""
+                 );
     return buffer;
 
 }
@@ -111,11 +111,11 @@ char *disassemble(char * result, word36 instruction)
         int n = (address >> 15) & 07;
         int offset = address & 077777;
 
-        sprintf(buff, " pr%d|%o", n, offset);
+        (void)sprintf (buff, " pr%d|%o", n, offset);
         strcat (result, buff);
         // return dps8_strupr(result);
     } else {
-        sprintf(buff, " %06o", address);
+        (void)sprintf (buff, " %06o", address);
         strcat (result, buff);
     }
     // get mod
@@ -150,7 +150,7 @@ char *get_mod_string(char * msg, word6 tag)
 
     if (tag >= 0100) //-V536
     {
-        sprintf(msg, "getModReg(tag out-of-range %o)", tag);
+        (void)sprintf (msg, "getModReg(tag out-of-range %o)", tag);
     } else {
         for(uint n = 0 ; n < 0100 ; n++) //-V536
             if (extMods[n].mod)
@@ -758,7 +758,7 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
 word36 compl36(word36 op1, word18 *flags, bool * ovf)
 {
     CPT (cpt2L, 23); // compl36
-    //printf("op1 = %"PRIo64" %"PRIo64"\n", op1, (-op1) & DMASK);
+    //(void)printf("op1 = %"PRIo64" %"PRIo64"\n", op1, (-op1) & DMASK);
 
     op1 &= DMASK;
 
@@ -794,7 +794,7 @@ word36 compl36(word36 op1, word18 *flags, bool * ovf)
 word18 compl18(word18 op1, word18 *flags, bool * ovf)
 {
     CPT (cpt2L, 24); // compl18
-    //printf("op1 = %"PRIo64" %"PRIo64"\n", op1, (-op1) & DMASK);
+    //(void)printf("op1 = %"PRIo64" %"PRIo64"\n", op1, (-op1) & DMASK);
 
     op1 &= MASK18;
 
@@ -1353,7 +1353,7 @@ char * Strtok (char * line, char * sep) {
                 return NULL;
 
             default:
-                fprintf(stderr, "(Strtok):unknown state - %d",state);
+                (void)fprintf(stderr, "(Strtok):unknown state - %d",state);
                 state = EOB;
                 return NULL;
         }
@@ -1452,8 +1452,8 @@ int cfg_parse (const char * tag, const char * cptr, config_list_t * clist, confi
         state -> copy            = strdup (cptr);
         if (! state->copy)
           {
-            fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                     __func__, __FILE__, __LINE__);
+            (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                           __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
 # ifdef SIGUSR2
             (void)raise(SIGUSR2);
@@ -1622,8 +1622,8 @@ char * strdupesc (const char * str)
     char * buf = strdup (str);
     if (!buf)
       {
-        fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                __func__, __FILE__, __LINE__);
+        (void)fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                      __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
 # ifdef SIGUSR2
         (void)raise(SIGUSR2);

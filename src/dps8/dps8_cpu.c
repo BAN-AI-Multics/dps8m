@@ -174,14 +174,14 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
                 cpus[cpu_unit_idx].switches.cpu_num);
     sim_msg ("Data switches:                %012llo(8)\n",
                 (unsigned long long)cpus[cpu_unit_idx].switches.data_switches);
-    snprintf (dsbin, 65, PFC_INT64,
-                PBI_64((unsigned long long)cpus[cpu_unit_idx].switches.data_switches));
+    (void)snprintf (dsbin, 65, PFC_INT64,
+                    PBI_64((unsigned long long)cpus[cpu_unit_idx].switches.data_switches));
     sim_msg ("                              %36s(2)\n",
                 dsbin + strlen(dsbin) - 36);
     sim_msg ("Address switches:             %06o(8)\n",
                 cpus[cpu_unit_idx].switches.addr_switches);
-    snprintf (adbin, 33, PFC_INT32,
-                PBI_32(cpus[cpu_unit_idx].switches.addr_switches));
+    (void)snprintf (adbin, 33, PFC_INT32,
+                    PBI_32(cpus[cpu_unit_idx].switches.addr_switches));
     sim_msg ("                              %18s(2)\n",
                 adbin + strlen(adbin) - 18);
     for (int i = 0; i < (cpus[cpu_unit_idx].tweaks.l68_mode ? N_L68_CPU_PORTS : N_DPS8M_CPU_PORTS); i ++)
@@ -988,7 +988,7 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
     cpu.apu.lastCycle = UNKNOWN_CYCLE;
 #endif
 
-    memset (& cpu.PPR, 0, sizeof (struct ppr_s));
+    (void)memset (& cpu.PPR, 0, sizeof (struct ppr_s));
 
     setup_scbank_map ();
 
@@ -1233,11 +1233,11 @@ static bool watch_bits [MEMSIZE];
 
 char * str_SDW0 (char * buf, sdw0_s * SDW)
   {
-    sprintf (buf, "ADDR=%06o R1=%o R2=%o R3=%o F=%o FC=%o BOUND=%o R=%o "
-                     "E=%o W=%o P=%o U=%o G=%o C=%o EB=%o",
-             SDW->ADDR, SDW->R1,    SDW->R2, SDW->R3, SDW->DF,
-             SDW->FC,   SDW->BOUND, SDW->R,  SDW->E,  SDW->W,
-             SDW->P,    SDW->U,     SDW->G,  SDW->C,  SDW->EB);
+    (void)sprintf (buf, "ADDR=%06o R1=%o R2=%o R3=%o F=%o FC=%o BOUND=%o R=%o "
+                        "E=%o W=%o P=%o U=%o G=%o C=%o EB=%o",
+                   SDW->ADDR, SDW->R1,    SDW->R2, SDW->R3, SDW->DF,
+                   SDW->FC,   SDW->BOUND, SDW->R,  SDW->E,  SDW->W,
+                   SDW->P,    SDW->U,     SDW->G,  SDW->C,  SDW->EB);
     return buf;
   }
 
@@ -1561,12 +1561,12 @@ void cpu_init (void)
 #endif
 
 #ifndef SPEED
-    memset (& watch_bits, 0, sizeof (watch_bits));
+    (void)memset (& watch_bits, 0, sizeof (watch_bits));
 #endif
 
     set_cpu_idx (0);
 
-    memset (cpus, 0, sizeof (cpu_state_t) * N_CPU_UNITS_MAX);
+    (void)memset (cpus, 0, sizeof (cpu_state_t) * N_CPU_UNITS_MAX);
     cpus [0].switches.FLT_BASE = 2; // Some of the UnitTests assume this
 
 #ifndef PERF_STRIP
@@ -1604,7 +1604,7 @@ static void cpu_reset (void)
 
 static t_stat sim_cpu_reset (UNUSED DEVICE *dptr)
   {
-    //memset (M, -1, MEMSIZE * sizeof (word36));
+    //(void)memset (M, -1, MEMSIZE * sizeof (word36));
 
     // Fill DPS8M memory with zeros, plus a flag only visible to the emulator
     // marking the memory as uninitialized.
@@ -2466,7 +2466,7 @@ setCPU:;
 
             case FETCH_cycle:
 #ifdef PANEL68
-                memset (cpu.cpt, 0, sizeof (cpu.cpt));
+                (void)memset (cpu.cpt, 0, sizeof (cpu.cpt));
 #endif
                 CPT (cpt1U, 13); // fetch cycle
 
@@ -2723,7 +2723,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                           stall_points[i].offset && stall_points[i].offset == cpu.PPR.IC)
                         {
 # ifdef CTRACE
-                          fprintf (stderr, "%10lu %s stall %d\n", seqno (), cpunstr[current_running_cpu_idx], i);
+                          (void)fprintf (stderr, "%10lu %s stall %d\n", seqno (), cpunstr[current_running_cpu_idx], i);
 # endif
                           //sim_printf ("stall %2d %05o:%06o\n", i, stall_points[i].segno, stall_points[i].offset);
                           sim_usleep(stall_points[i].time);
@@ -3503,7 +3503,7 @@ t_stat set_mem_watch (int32 arg, const char * buf)
             return SCPE_ARG;
           }
         sim_msg ("Clearing all watch points\n");
-        memset (& watch_bits, 0, sizeof (watch_bits));
+        (void)memset (& watch_bits, 0, sizeof (watch_bits));
         return SCPE_OK;
       }
     char * end;
@@ -3911,7 +3911,7 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx) {
 void decode_instruction (word36 inst, DCDstruct * p)
   {
     CPT (cpt1L, 17); // instruction decoder
-    memset (p, 0, sizeof (DCDstruct));
+    (void)memset (p, 0, sizeof (DCDstruct));
 
     p->opcode   = GET_OP (inst);   // get opcode
     p->opcodeX  = GET_OPX(inst);   // opcode extension
@@ -3932,8 +3932,8 @@ void decode_instruction (word36 inst, DCDstruct * p)
         p->tag = 0;
         if (p->info->ndes > 1)
           {
-            memset (& cpu.currentEISinstruction, 0,
-                    sizeof (cpu.currentEISinstruction));
+            (void)memset (& cpu.currentEISinstruction, 0,
+                          sizeof (cpu.currentEISinstruction));
           }
       }
   }
@@ -4572,9 +4572,9 @@ void dps8_sim_debug (uint32 dbits, DEVICE * dptr, unsigned long long cnt, const 
                   {
                     if ((i != j) || (i == 0))
                       {
-                          fprintf (sim_deb, "%lld.%06ld: DBG(%lld) %o: %s %s %.*s\r\n",
-                                  (long long)t.tv_sec, t.tv_nsec/1000, cnt,
-                                  current_running_cpu_idx, dptr->name, debug_type, i-j, &buf[j]);
+                          (void)fprintf (sim_deb, "%lld.%06ld: DBG(%lld) %o: %s %s %.*s\r\n",
+                                         (long long)t.tv_sec, t.tv_nsec/1000, cnt,
+                                         current_running_cpu_idx, dptr->name, debug_type, i-j, &buf[j]);
                       }
                   }
                 j = i + 1;
@@ -4672,7 +4672,7 @@ void setupPROM (uint cpuNo, unsigned char * PROM) {
   // bits 6,7 reserved for future use
 
   char serial[12];
-  sprintf (serial, "%-11u", cpus[cpuNo].switches.serno);
+  (void)sprintf (serial, "%-11u", cpus[cpuNo].switches.serno);
 
 #ifdef VER_H_PROM_SHIP
   char * ship = VER_H_PROM_SHIP;
@@ -4895,7 +4895,7 @@ void setupPROM (uint cpuNo, unsigned char * PROM) {
 #define BURN(offset, length, string) memcpy ((char *) PROM + (offset), string, length)
 #define BURN1(offset, byte) PROM[offset] = (char) (byte)
 
-  memset (PROM, 255, 1024);
+  (void)memset (PROM, 255, 1024);
 
   //   Offset Length  Data
   BURN  ( 00,  11,  "DPS 8/SIM M");                //    0-10  CPU model ("XXXXXXXXXXX")       //-V1086

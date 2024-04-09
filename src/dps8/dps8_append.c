@@ -526,15 +526,15 @@ static void fetch_nsdw (word15 segno)
 static char *str_sdw (char * buf, sdw_s *SDW)
   {
     if (! SDW->FE)
-      sprintf (buf, "*** SDW Uninitialized ***");
+      (void)sprintf (buf, "*** SDW Uninitialized ***");
     else
-      sprintf (buf,
-               "ADDR:%06o R1:%o R2:%o R3:%o BOUND:%o R:%o E:%o W:%o P:%o "
-               "U:%o G:%o C:%o CL:%o DF:%o FC:%o POINTER=%o USE=%d",
-               SDW->ADDR,    SDW->R1, SDW->R2, SDW->R3, SDW->BOUND,
-               SDW->R,       SDW->E,  SDW->W,  SDW->P,  SDW->U,
-               SDW->G,       SDW->C,  SDW->EB, SDW->DF, SDW->FC,
-               SDW->POINTER, SDW->USE);
+      (void)sprintf (buf,
+                     "ADDR:%06o R1:%o R2:%o R3:%o BOUND:%o R:%o E:%o W:%o P:%o "
+                     "U:%o G:%o C:%o CL:%o DF:%o FC:%o POINTER=%o USE=%d",
+                     SDW->ADDR,    SDW->R1, SDW->R2, SDW->R3, SDW->BOUND,
+                     SDW->R,       SDW->E,  SDW->W,  SDW->P,  SDW->U,
+                     SDW->G,       SDW->C,  SDW->EB, SDW->DF, SDW->FC,
+                     SDW->POINTER, SDW->USE);
     return buf;
   }
 
@@ -1086,8 +1086,8 @@ word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data, uint nWor
 # endif
     case UNKNOWN_CYCLE:
     default:
-      fprintf (stderr, "\rFATAL: APU unknown cycle %llu! Aborting at %s[%s:%d]\r\n",
-               (long long unsigned)thisCycle, __func__, __FILE__, __LINE__);
+      (void)fprintf (stderr, "\rFATAL: APU unknown cycle %llu! Aborting at %s[%s:%d]\r\n",
+                     (long long unsigned)thisCycle, __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
 #  ifdef SIGUSR2
       (void)raise(SIGUSR2);

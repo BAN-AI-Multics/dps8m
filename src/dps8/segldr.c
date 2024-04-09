@@ -298,7 +298,7 @@ static t_stat bload (char * p2, char * p3)
         ssize_t sz;
         // 72 bits at a time; 2 dps8m words == 9 bytes
         uint8_t bytes [9];
-        memset (bytes, 0, 9);
+        (void)memset (bytes, 0, 9);
         sz = read (deckfd, bytes, 9);
         if (sz == 0)
           break;

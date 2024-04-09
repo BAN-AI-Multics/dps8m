@@ -180,7 +180,7 @@ static telnet_error_t _error(telnet_t *telnet, unsigned line,
 
         /* format informational text */
         va_start(va, fmt);
-        vsnprintf(buffer, sizeof(buffer), fmt, va);
+        (void)vsnprintf(buffer, sizeof(buffer), fmt, va);
         va_end(va);
 
         /* send error event to the user */
@@ -298,7 +298,7 @@ static __inline__ void _set_rfc1143(telnet_t *telnet, unsigned char telopt,
                                        "realloc() failed: %s", xstrerror_l(errno));
                        return;
                }
-               memset(&qtmp[telnet->q_size], 0, sizeof(telnet_rfc1143_t) * QUANTUM);
+               (void)memset(&qtmp[telnet->q_size], 0, sizeof(telnet_rfc1143_t) * QUANTUM);
                telnet->q       = qtmp;
                telnet->q_size += QUANTUM;
         }

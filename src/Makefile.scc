@@ -56,7 +56,7 @@ endif
 gitclean:                                                                     \
     # gitclean:    # Cleans up source tree using git clean
 	@$(PRINTF) '%s\n' "*** Begin gitclean (git clean -fdx)" || $(TRUE)
-	@$(GIT) clean -fdx || $(TRUE)
+	@$(GIT) clean -fdx -e ".envrc" || $(TRUE)
 	@$(PRINTF) '%s\n' "*** End gitclean" || $(TRUE)
 
 ###############################################################################

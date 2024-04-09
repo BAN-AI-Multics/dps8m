@@ -20,7 +20,7 @@
 #include "dps8_cpu.h"
 
 void ucInvalidate (void) {
-  memset (cpu.uCache.caches, 0, sizeof (cpu.uCache.caches));
+  (void)memset (cpu.uCache.caches, 0, sizeof (cpu.uCache.caches));
 }
 
 void ucCacheSave (uint ucNum, word15 segno, word18 offset, word14 bound, word1 p, word24 address, word3 r1, bool paged) {

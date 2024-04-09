@@ -2034,7 +2034,7 @@ static t_stat dps_debug_segno (int32 arg, const char * buf)
       }
     else
       {
-        memset (sim_deb_segno, 0, sizeof (sim_deb_segno));
+        (void)memset (sim_deb_segno, 0, sizeof (sim_deb_segno));
         sim_deb_segno_on = false;
         sim_msg ("Debug set for all segments\n");
       }
@@ -2339,8 +2339,8 @@ static int add_book_segment (char * name, int segno)
     book_segments[n_book_segments].segname = strdup (name);
     if (!book_segments[n_book_segments].segname)
       {
-        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                 __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
 #  ifdef SIGUSR2
         (void)raise(SIGUSR2);
@@ -2365,8 +2365,8 @@ static int add_book_component (int segnum, char * name, uint txt_start,
     book_components[n_book_components].compname            = strdup (name);
     if (!book_components[n_book_components].compname)
       {
-        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                 __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
 #  ifdef SIGUSR2
         (void)raise(SIGUSR2);
@@ -2414,9 +2414,9 @@ static char * lookup_system_book_address (word18 segno, word18 offset,
         if (book_components[j].txt_start <= offset &&
             book_components[j].txt_start + book_components[j].txt_length > offset)
           {
-            sprintf (buf, "%s:%s+0%0o", book_segments[i].segname,
-              book_components[j].compname,
-              offset - book_components[j].txt_start);
+            (void)sprintf (buf, "%s:%s+0%0o", book_segments[i].segname,
+                           book_components[j].compname,
+                           offset - book_components[j].txt_start);
             if (compname)
               * compname = book_components[j].compname;
             if (compoffset)
@@ -2439,9 +2439,9 @@ static char * lookup_system_book_address (word18 segno, word18 offset,
           * compname = book_components[best].compname;
         if (compoffset)
           * compoffset = offset - book_components[best].txt_start;
-        sprintf (buf, "%s:%s+0%0o", book_segments[i].segname,
-          book_components[best].compname,
-          offset - book_components[best].txt_start);
+        (void)sprintf (buf, "%s:%s+0%0o", book_segments[i].segname,
+                       book_components[best].compname,
+                       offset - book_components[best].txt_start);
         return buf;
       }
 
@@ -2452,8 +2452,8 @@ static char * lookup_system_book_address (word18 segno, word18 offset,
       * compname = book_segments[i].segname;
     if (compoffset)
       * compoffset = offset;
-    sprintf (buf, "%s:+0%0o", book_segments[i].segname,
-             offset);
+    (void)sprintf (buf, "%s:+0%0o", book_segments[i].segname,
+                   offset);
     return buf;
   }
 
@@ -2498,8 +2498,8 @@ char * lookup_address (word18 segno, word18 offset, char * * compname,
             if (compoffset)
               * compoffset = offset;
             static char buf[129];
-            sprintf (buf, "bound_debug_util_:find_condition_info_+0%0o",
-                  offset - 0);
+            (void)sprintf (buf, "bound_debug_util_:find_condition_info_+0%0o",
+                           offset - 0);
             return buf;
           }
         else
@@ -2509,8 +2509,8 @@ char * lookup_address (word18 segno, word18 offset, char * * compname,
             if (compoffset)
               * compoffset = offset - IOPOS;
             static char buf[129];
-            sprintf (buf, "bound_debug_util_:interpret_op_ptr_+0%0o",
-                  offset - IOPOS);
+            (void)sprintf (buf, "bound_debug_util_:interpret_op_ptr_+0%0o",
+                           offset - IOPOS);
             return buf;
           }
 
@@ -2562,7 +2562,7 @@ void list_source (char * compname, word18 offset, uint dflag)
     const int offset_str_len = 10;
     //char offset_str[offset_str_len + 1];
     char offset_str[17];
-    sprintf (offset_str, "    %06o", offset);
+    (void)sprintf (offset_str, "    %06o", offset);
 
     char path[(source_search_path ? strlen (source_search_path) : 1) +
                1 + // "/"
@@ -2650,7 +2650,7 @@ void list_source (char * compname, word18 offset, uint dflag)
                       {
                         int loc[7];
                         char linenos[7][8];
-                        memset (linenos, 0, sizeof (linenos));
+                        (void)memset (linenos, 0, sizeof (linenos));
                         fgets (line, 1024, listing);
                         // sometimes the leading columns are blank...
                         while (strncmp (line,
@@ -3079,14 +3079,14 @@ static t_stat load_system_book (UNUSED int32 arg, UNUSED const char * buf)
           {
             if (book_components[j].book_segment_number == i)
               {
-                fprintf (stderr, "    %-32s %6o %6o %6o %6o %6o %6o\n",
-                  book_components[j].compname,
-                  book_components[j].txt_start,
-                  book_components[j].txt_length,
-                  book_components[j].intstat_start,
-                  book_components[j].intstat_length,
-                  book_components[j].symbol_start,
-                  book_components[j].symbol_length);
+                (void)fprintf (stderr, "    %-32s %6o %6o %6o %6o %6o %6o\n",
+                               book_components[j].compname,
+                               book_components[j].txt_start,
+                               book_components[j].txt_length,
+                               book_components[j].intstat_start,
+                               book_components[j].intstat_length,
+                               book_components[j].symbol_start,
+                               book_components[j].symbol_length);
               }
           }
       }
@@ -3215,7 +3215,7 @@ static sdw0_s *fetchSDW (word15 segno)
     // even word
 
     sdw0_s *SDW = & cpu._s;
-    memset (SDW, 0, sizeof (cpu._s));
+    (void)memset (SDW, 0, sizeof (cpu._s));
 
     SDW->ADDR   = (SDWeven >> 12) & 077777777;
     SDW->R1     = (SDWeven >> 9)  & 7;
@@ -3369,8 +3369,8 @@ static t_stat set_search_path (UNUSED int32 arg, UNUSED const char * buf)
     source_search_path = strdup (buf);
     if (!source_search_path)
       {
-        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                 __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
 #  if defined(USE_BACKTRACE)
 #   ifdef SIGUSR2
         (void)raise(SIGUSR2);
@@ -3401,7 +3401,7 @@ t_stat brkbrk (UNUSED int32 arg, UNUSED const char *  buf)
 
 static t_stat sbreak (int32 arg, const char * buf)
   {
-    //printf (">> <%s>\n", buf);
+    //(void)printf (">> <%s>\n", buf);
     int segno, offset;
     int where;
     int cnt = sscanf (buf, "%o:%o%n", & segno, & offset, & where);
@@ -3410,8 +3410,8 @@ static t_stat sbreak (int32 arg, const char * buf)
         return SCPE_ARG;
       }
     char reformatted[strlen (buf) + 20];
-    sprintf (reformatted, "0%04o%06o%s", segno, offset, buf + where);
-    //printf (">> <%s>\n", reformatted);
+    (void)sprintf (reformatted, "0%04o%06o%s", segno, offset, buf + where);
+    //(void)printf (">> <%s>\n", reformatted);
     t_stat rc = brk_cmd (arg, reformatted);
     return rc;
   }
@@ -4225,7 +4225,8 @@ hash32s(const void *buf, size_t len, uint32_t h)
 
 static void dps8_init (void) {
   int st1ret;
-  fflush(stderr); fflush(stdout);
+  (void)fflush(stderr);
+  (void)fflush(stdout);
 #ifndef PERF_STRIP
   if (!sim_quiet) {
 # if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_VERSION)
@@ -4409,7 +4410,8 @@ static void dps8_init (void) {
     sim_msg ("\n  Commit: %s", VER_H_GIT_HASH);
 # endif
     sim_msg ("\r\n\r\n");
-    fflush(stderr); fflush(stdout);
+    (void)fflush(stderr);
+    (void)fflush(stdout);
   }
 
   // special dps8 initialization stuff that can't be done in reset, etc. ...
@@ -4451,10 +4453,10 @@ static void dps8_init (void) {
   struct timespec ts;
 
   char   rssuffix[24];
-  memset(rssuffix, 0, 24);
+  (void)memset(rssuffix, 0, 24);
 
   char   statenme[32];
-  memset(statenme, 0, 32);
+  (void)memset(statenme, 0, 32);
 
 #ifdef MACOSXPPC
   (void)ts;
@@ -4481,8 +4483,8 @@ static void dps8_init (void) {
 #endif /* ifdef MACOSXPPC */
   if (st1ret != 0)
     {
-      fprintf (stderr, "\rFATAL: clock_gettime failure! Aborting at %s[%s:%d]\r\n",
-               __func__, __FILE__, __LINE__);
+      (void)fprintf (stderr, "\rFATAL: clock_gettime failure! Aborting at %s[%s:%d]\r\n",
+                     __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
 # ifdef SIGUSR2
       (void)raise(SIGUSR2);
@@ -4551,9 +4553,9 @@ static void dps8_init (void) {
   system_state = malloc (sizeof (struct system_state_s));
 #else
   if (sim_randstate)
-    sprintf(statenme, "%s.state", rssuffix);
+    (void)sprintf(statenme, "%s.state", rssuffix);
   else
-    sprintf(statenme, "state");
+    (void)sprintf(statenme, "state");
   if (!sim_nostate)
     system_state = (struct system_state_s *)
       create_shm (statenme, sizeof (struct system_state_s));
@@ -4563,7 +4565,8 @@ static void dps8_init (void) {
 
   if (!system_state) {
     int svErrno = errno;
-    fflush(stderr); fflush(stdout);
+    (void)fflush(stderr);
+    (void)fflush(stdout);
     sim_warn ("\rFATAL: %s: aborting at %s[%s:%d]\r\n",
               xstrerror_l(svErrno),
               __func__, __FILE__, __LINE__);
@@ -4582,18 +4585,20 @@ static void dps8_init (void) {
 #  define VER_H_GIT_HASH "0000000000000000000000000000000000000000"
 # endif
 
-  fflush(stdout); fflush(stderr);
+  (void)fflush(stdout);
+  (void)fflush(stderr);
   if (strlen (system_state->commit_id) == 0) {
     if (!sim_quiet && sim_randstate && sim_randompst)
       sim_printf ("Initialized new system state file \"dps8m.%s\"\r\n",
                   statenme);
   } else {
     if (strcmp (system_state->commit_id, VER_H_GIT_HASH) != 0) {
-      memset(system_state, 0, sizeof(*system_state));
+      (void)memset(system_state, 0, sizeof(*system_state));
       sim_warn ("NOTE: State hash mismatch; system state reset.\r\n");
     }
   }
-  fflush(stderr); fflush(stdout);
+  (void)fflush(stderr);
+  (void)fflush(stdout);
 
   strncpy (system_state->stateHdr, STATE_HDR, sizeof (system_state->stateHdr));
   system_state->stateVer = STATE_VER;
@@ -4602,7 +4607,7 @@ static void dps8_init (void) {
   systabInit ();
 
   // sets connect to 0
-  memset (& sys_opts, 0, sizeof (sys_opts));
+  (void)memset (& sys_opts, 0, sizeof (sys_opts));
   // sys_poll_interval 10 ms (100 Hz)
   sys_opts.sys_poll_interval      = 10;
   // sys_slow_poll_interval 100 polls (1 Hz)
@@ -4828,7 +4833,7 @@ static t_addr parse_addr (UNUSED DEVICE * dptr, const char *cptr,
 #ifdef TESTING
 static void fprint_addr (FILE * stream, UNUSED DEVICE *  dptr, t_addr simh_addr)
 {
-    fprintf(stream, "%06o", simh_addr);
+    (void)fprintf(stream, "%06o", simh_addr);
 }
 #endif // TESTING
 
@@ -4857,7 +4862,7 @@ t_stat fprint_sym (UNUSED FILE * ofile, UNUSED t_addr addr,
         // get base syntax
         char *d = disassemble(buf, word1);
 
-        fprintf(ofile, "%s", d);
+        (void)fprintf(ofile, "%s", d);
 
         // decode instruction
         DCDstruct ci;
@@ -4871,14 +4876,14 @@ t_stat fprint_sym (UNUSED FILE * ofile, UNUSED t_addr addr,
             // XXX Need to complete MW EIS support in disassemble()
 
             for(uint n = 0 ; n < p->info->ndes; n += 1)
-                fprintf(ofile, " %012llo", (unsigned long long int)val[n + 1]);
+                (void)fprintf(ofile, " %012llo", (unsigned long long int)val[n + 1]);
 
             return (t_stat) -p->info->ndes;
         }
 
         return SCPE_OK;
 
-        //fprintf(ofile, "%012"PRIo64"", *val);
+        //(void)fprintf(ofile, "%012"PRIo64"", *val);
         //return SCPE_OK;
     }
 #endif

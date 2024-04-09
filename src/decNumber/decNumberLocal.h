@@ -27,7 +27,7 @@
 #if !defined(DECNUMBERLOC)
 # define DECNUMBERLOC
 # define DECVERSION    "decNumber 3.68"  /* Package Version [16 max.] */
-# define DECVERSEXT    "20210520p3"    /* Local Custom Version String */
+# define DECVERSEXT    "20210520p4"    /* Local Custom Version String */
 # define DECNLAUTHOR   "Mike Cowlishaw"               /* Who to blame */
 
 # include <stdlib.h>          /* for abs                              */
@@ -128,7 +128,6 @@
 # endif
 
   /* Development-use definitions                                      */
-  typedef long int LI;        /* for printf arguments only            */
 # define DECNOINT  0          /* 1 to check no internal use of 'int'  */
                               /*   or stdint types                    */
 # if DECNOINT

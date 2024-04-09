@@ -350,7 +350,7 @@ static void dump_words (word36 * words)
 static void scu2words (word36 *words)
   {
     CPT (cpt2U, 6); // scu2words
-    memset (words, 0, 8 * sizeof (* words));
+    (void)memset (words, 0, 8 * sizeof (* words));
 
     // words[0]
 
@@ -736,7 +736,7 @@ static void du2words (word36 * words)
       }
     else
       {
-        memset (words, 0, 8 * sizeof (* words));
+        (void)memset (words, 0, 8 * sizeof (* words));
       }
 
     // Word 0
@@ -1055,7 +1055,7 @@ static long long theMatrix[1024] // 1024 opcodes (2^10)
 
 void initializeTheMatrix (void)
 {
-    memset (theMatrix, 0, sizeof (theMatrix));
+    (void)memset (theMatrix, 0, sizeof (theMatrix));
 }
 
 void addToTheMatrix (uint32 opcode, bool opcodeX, bool a, word6 tag)
@@ -3760,7 +3760,7 @@ static t_stat doInstruction (void)
           CPTUR (cptUseE);
           CPTUR (cptUseRALR);
           // clear block (changed to memset() per DJ request)
-          //memset (cpu.Yblock8, 0, sizeof (cpu.Yblock8));
+          //(void)memset (cpu.Yblock8, 0, sizeof (cpu.Yblock8));
           L68_ (cpu.ou.cycle |= ou_GOS;)
           L68_ (cpu.ou.eac = 0;)
           SETHI (cpu.Yblock8[0], cpu.rX[0]);
@@ -9134,7 +9134,7 @@ elapsedtime ();
             // a:AL39/ar1 According to ISOLTS ps805, the BITNO data is stored
             // in BITNO format, not CHAR/BITNO.
             PNL (L68_ (DU_CYCLE_DDU_STEA;))
-            memset (cpu.Yblock8, 0, sizeof (cpu.Yblock8));
+            (void)memset (cpu.Yblock8, 0, sizeof (cpu.Yblock8));
             for (uint32 n = 0 ; n < 8 ; n += 1)
             {
                 CPTUR (cptUsePRn + n);

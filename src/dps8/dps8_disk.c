@@ -673,7 +673,7 @@ DEVICE dsk_dev = {
 void disk_init (void)
   {
     // Sets diskTypeIdx to 0: 3381
-    memset (dsk_states, 0, sizeof (dsk_states));
+    (void)memset (dsk_states, 0, sizeof (dsk_states));
 #ifdef LOCKLESS
 # if defined ( __FreeBSD__ )
         pthread_mutexattr_t scu_attr;
@@ -892,9 +892,9 @@ if (chan == 014)
     //uint tallyBytes = tallySectors * sectorSizeBytes;
     uint p72ByteCnt   = (tallyWords * 36) / 8;
     uint8 diskBuffer[p72ByteCnt];
-    memset (diskBuffer, 0, sizeof (diskBuffer));
+    (void)memset (diskBuffer, 0, sizeof (diskBuffer));
 
-    fflush (unitp->fileref);
+    (void)fflush (unitp->fileref);
     rc = (int) fread (diskBuffer, sectorSizeBytes,
                 tallySectors,
                 unitp->fileref);
@@ -984,7 +984,7 @@ static int diskWrite (uint devUnitIdx, uint iomUnitIdx, uint chan)
     uint tallyWords   = tallySectors * sectorSizeWords;
     uint p72ByteCnt   = (tallyWords * 36) / 8;
     uint8 diskBuffer[p72ByteCnt];
-    memset (diskBuffer, 0, sizeof (diskBuffer));
+    (void)memset (diskBuffer, 0, sizeof (diskBuffer));
     uint wordsProcessed = 0;
 
     word36 buffer[tally];
@@ -1000,7 +1000,7 @@ static int diskWrite (uint devUnitIdx, uint iomUnitIdx, uint chan)
     rc = (int) fwrite (diskBuffer, sectorSizeBytes,
                  tallySectors,
                  unitp->fileref);
-    fflush (unitp->fileref);
+    (void)fflush (unitp->fileref);
 
     if (rc != (int) tallySectors)
       {
@@ -1040,7 +1040,7 @@ static int readStatusRegister (uint devUnitIdx, uint iomUnitIdx, uint chan)
     sim_warn ("Need status register data format\n");
 #endif
     word36 buffer[tally];
-    memset (buffer, 0, sizeof (buffer));
+    (void)memset (buffer, 0, sizeof (buffer));
 #ifdef POLTS_DISK_TESTING
 buffer[0] = nCmds;
 #endif
@@ -1146,7 +1146,7 @@ static int read_configuration (uint dev_unit_idx, uint iom_unit_idx, uint chan)
 
 // XXX Temp
     word36 buffer[tally];
-    memset (buffer, 0, sizeof (buffer));
+    (void)memset (buffer, 0, sizeof (buffer));
     putbits36_9 (& buffer[0],  0, 0x12);
     putbits36_9 (& buffer[0],  9, 1);    // h/w revision
     putbits36_9 (& buffer[0], 18, '1');  // fw maj revision

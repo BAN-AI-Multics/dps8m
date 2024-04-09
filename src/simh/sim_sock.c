@@ -126,12 +126,12 @@ static char err_buf[512];
 for (i=0; (sock_errors[i].text) && (sock_errors[i].value != err); i++)
     ;
 if (sock_errors[i].value == err)
-    sprintf (err_buf, "Sockets: %s error %d - %s\r\n", emsg, err, sock_errors[i].text);
+    (void)sprintf (err_buf, "Sockets: %s error %d - %s\r\n", emsg, err, sock_errors[i].text);
 else
 #if defined(_WIN32)
-    sprintf (err_buf, "Sockets: %s error %d\r\n", emsg, err);
+    (void)sprintf (err_buf, "Sockets: %s error %d\r\n", emsg, err);
 #else
-    sprintf (err_buf, "Sockets: %s error %d - %s\r\n", emsg, err, xstrerror_l(err));
+    (void)sprintf (err_buf, "Sockets: %s error %d - %s\r\n", emsg, err, xstrerror_l(err));
 #endif /* if defined(_WIN32) */
 return err_buf;
 }
@@ -209,7 +209,7 @@ if (hints) {
     }
 else {
     hints = &dhints;
-    memset(&dhints, 0, sizeof(dhints));
+    (void)memset(&dhints, 0, sizeof(dhints));
     dhints.ai_family = PF_UNSPEC;
     }
 if (service) {
@@ -360,7 +360,7 @@ if ((serv) && (servlen > 0)) {
     else {
         char buf[16];
 
-        sprintf(buf, "%d", ntohs(sin->sin_port));
+        (void)sprintf(buf, "%d", ntohs(sin->sin_port));
         if (servlen <= strlen(buf))
             return EAI_OVERFLOW;
         strcpy(serv, buf);
@@ -494,9 +494,9 @@ char *endc;
 unsigned long portval;
 
 if ((host != NULL) && (host_len != 0))
-    memset (host, 0, host_len);
+    (void)memset (host, 0, host_len);
 if ((port != NULL) && (port_len != 0))
-    memset (port, 0, port_len);
+    (void)memset (port, 0, port_len);
 if ((cptr == NULL) || (*cptr == 0)) {
     if (((default_host == NULL) || (*default_host == 0)) || ((default_port == NULL) || (*default_port == 0)))
         return -1;
@@ -508,7 +508,7 @@ if ((cptr == NULL) || (*cptr == 0)) {
     strcpy (port, default_port);
     return 0;
     }
-memset (default_pbuf, 0, sizeof(default_pbuf));
+(void)memset (default_pbuf, 0, sizeof(default_pbuf));
 if (default_port)
     strncpy (default_pbuf, default_port, sizeof(default_pbuf)-1);
 gbuf[sizeof(gbuf)-1] = '\0';
@@ -654,7 +654,7 @@ int sim_parse_addr_ex (const char *cptr, char *host, size_t hostlen, const char 
 const char *hostp;
 
 if ((localport != NULL) && (localport_len != 0))
-    memset (localport, 0, localport_len);
+    (void)memset (localport, 0, localport_len);
 hostp = strchr (cptr, ':');
 if ((hostp != NULL) && ((hostp[1] == '[') || (NULL != strchr (hostp+1, ':')))) {
     if ((localport != NULL) && (localport_len != 0)) {
@@ -803,7 +803,7 @@ if (parse_status)
 if (r)
     return newsock;
 
-memset(&hints, 0, sizeof(hints));
+(void)memset(&hints, 0, sizeof(hints));
 hints.ai_flags = AI_PASSIVE;
 hints.ai_family = AF_UNSPEC;
 hints.ai_protocol = IPPROTO_TCP;
@@ -890,7 +890,7 @@ struct addrinfo *result = NULL, *source = NULL;
 if (sim_parse_addr (hostport, host, sizeof(host), default_host, port, sizeof(port), default_port, NULL))
     return INVALID_SOCKET;
 
-memset(&hints, 0, sizeof(hints));
+(void)memset(&hints, 0, sizeof(hints));
 hints.ai_family = AF_UNSPEC;
 hints.ai_protocol = ((opt_flags & SIM_SOCK_OPT_DATAGRAM) ? IPPROTO_UDP : IPPROTO_TCP);
 hints.ai_socktype = ((opt_flags & SIM_SOCK_OPT_DATAGRAM) ? SOCK_DGRAM : SOCK_STREAM);
@@ -905,7 +905,7 @@ if (sourcehostport) {
         return INVALID_SOCKET;
         }
 
-    memset(&hints, 0, sizeof(hints));
+    (void)memset(&hints, 0, sizeof(hints));
     hints.ai_flags = AI_PASSIVE;
     hints.ai_family = result->ai_family;                /* Same family as connect destination */
     hints.ai_protocol = ((opt_flags & SIM_SOCK_OPT_DATAGRAM) ? IPPROTO_UDP : IPPROTO_TCP);
@@ -1004,7 +1004,7 @@ struct sockaddr_storage clientname;
 if (master == 0)                                        /* not attached? */
     return INVALID_SOCKET;
 size = sizeof (clientname);
-memset (&clientname, 0, sizeof(clientname));
+(void)memset (&clientname, 0, sizeof(clientname));
 newsock = accept (master, (struct sockaddr *) &clientname, &size);
 if (newsock == INVALID_SOCKET) {                        /* error? */
     err = WSAGetLastError ();
@@ -1058,7 +1058,7 @@ int peernamesize = (int)sizeof(peername);
 socklen_t peernamesize = (socklen_t)sizeof(peername);
 #endif /* ifdef _WIN32 */
 
-memset (&zero, 0, sizeof(zero));
+(void)memset (&zero, 0, sizeof(zero));
 FD_ZERO (rw_p);
 FD_ZERO (er_p);
 FD_SET (sock, rw_p);
@@ -1098,7 +1098,7 @@ if (!ret)
     ret = p_getnameinfo(addr, size, NULL, 0, portnamebuf, NI_MAXSERV, NI_NUMERICSERV);
 #else
 strcpy(hostnamebuf, inet_ntoa(((struct sockaddr_in *)addr)->s_addr));
-sprintf(portnamebuf, "%d", (int)ntohs(((struct sockaddr_in *)addr)->s_port));
+(void)sprintf(portnamebuf, "%d", (int)ntohs(((struct sockaddr_in *)addr)->s_port));
 #endif
 return ret;
 }
@@ -1124,11 +1124,11 @@ getsockname (sock, (struct sockaddr *)&sockname, &socknamesize);
 getpeername (sock, (struct sockaddr *)&peername, &peernamesize);
 if (socknamebuf != NULL) {
     _sim_getaddrname ((struct sockaddr *)&sockname, (size_t)socknamesize, hostbuf, portbuf);
-    sprintf(*socknamebuf, "[%s]:%s", hostbuf, portbuf);
+    (void)sprintf(*socknamebuf, "[%s]:%s", hostbuf, portbuf);
     }
 if (peernamebuf != NULL) {
     _sim_getaddrname ((struct sockaddr *)&peername, (size_t)peernamesize, hostbuf, portbuf);
-    sprintf(*peernamebuf, "[%s]:%s", hostbuf, portbuf);
+    (void)sprintf(*peernamebuf, "[%s]:%s", hostbuf, portbuf);
     }
 return 0;
 }

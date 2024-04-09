@@ -369,7 +369,7 @@ printuk:
 printmod:
 	@$(PRINTF) '%s\n' "*** Begin printmod (git tracked modified files)"
 	@$(SETV); ($(CD) "../.." && $(GIT) status -s 2> /dev/null |               \
-        $(GREP) '^\ \?M ' || $(TRUE))
+        $(GREP) '^ \?M ' || $(TRUE))
 	@$(PRINTF) '%s\n' "*** End printmod"
 
 ###############################################################################
@@ -671,7 +671,7 @@ kit dist:
                $(GREP) -v '^.*\.license$$' | $(GREP) -v 'src/Makefile.doc' |  \
                 $(GREP) -v '^src/perf_test/' | $(GREP) -v '^.nsis/'        |  \
                  $(GREP) -v '^.hpkg/' | $(GREP) -v '^.editorconfig'        |  \
-                  $(GREP) -v '^src/Makefile.dev')                              \
+                  $(GREP) -v '^src/Makefile.dev' | $(GREP) -v '^.gtags' )     \
                               'src/dps8/ver.h~' )
 	@$(PRINTF) '%s\n'                                                         \
        "COMPRESS: $(KITNAME).$(TARXT) -> $(KITNAME).$(TARXT).$(COMPRESSXT)"
@@ -699,7 +699,7 @@ zipkit zipdist:
                $(GREP) -v '^src/dps8/listings/'                            |  \
                 $(GREP) -v '^src/perf_test/' | $(GREP) -v '^.nsis/'        |  \
                  $(GREP) -v '^.hpkg/' | $(GREP) -v '^.editorconfig'        |  \
-                  $(GREP) -v '.reuse/dep5' )                                  \
+                  $(GREP) -v '.reuse/dep5' | $(GREP) -v '^.gtags' )           \
                              'src/dps8/ver.h~' )
 	@$(SETV); ($(CD) "../.." && $(TAR) xf "$(KITNAME)"."TMP"              &&  \
       $(RMF) "$(KITNAME)"."zip"                                           &&  \
