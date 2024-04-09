@@ -5035,7 +5035,42 @@ if (flag) {
 #  endif
 # endif
 #elif defined (__SUNPRO_C) || defined (__SUNPRO_CC) || defined (__SUNPRO_CC_COMPAT)
-    (void)fprintf (st, "\n  Compiler: Oracle Developer Studio C/C++");
+# define VER_ENC(maj, min, rev) \
+  (((maj) * 1000000) + ((min) * 1000) + (rev))
+# define VER_DEC_MAJ(ver) \
+  ((ver) / 1000000)
+# define VER_DEC_MIN(ver) \
+  (((ver) % 1000000) / 1000)
+# define VER_DEC_REV(ver) \
+  ((ver) % 1000)
+# if defined(__SUNPRO_C) && (__SUNPRO_C > 0x1000)
+#  define COMP_VER VER_ENC(                                        \
+   (((__SUNPRO_C >> 16) & 0xf) * 10) + ((__SUNPRO_C >> 12) & 0xf), \
+   (((__SUNPRO_C >>  8) & 0xf) * 10) + ((__SUNPRO_C >>  4) & 0xf), \
+     (__SUNPRO_C & 0xf) * 10)
+# elif defined(__SUNPRO_C)
+#  define COMP_VER VER_ENC(    \
+     (__SUNPRO_C >>  8) & 0xf, \
+     (__SUNPRO_C >>  4) & 0xf, \
+     (__SUNPRO_C) & 0xf)
+# elif defined(__SUNPRO_CC) && (__SUNPRO_CC > 0x1000)
+#  define COMP_VER VER_ENC(                                          \
+   (((__SUNPRO_CC >> 16) & 0xf) * 10) + ((__SUNPRO_CC >> 12) & 0xf), \
+   (((__SUNPRO_CC >>  8) & 0xf) * 10) + ((__SUNPRO_CC >>  4) & 0xf), \
+     (__SUNPRO_CC & 0xf) * 10)
+# elif defined(__SUNPRO_CC)
+#  define COMP_VER VER_ENC(     \
+     (__SUNPRO_CC >>  8) & 0xf, \
+     (__SUNPRO_CC >>  4) & 0xf, \
+     (__SUNPRO_CC) & 0xf)
+# endif
+# if !defined(COMP_VER)
+#  define COMP_VER 0
+# endif
+    (void)fprintf (st, "\n  Compiler: Oracle Developer Studio C/C++ %d.%d.%d",
+                   VER_DEC_MAJ(COMP_VER),
+                   VER_DEC_MIN(COMP_VER),
+                   VER_DEC_REV(COMP_VER));
 #elif defined (__DMC__)
     (void)fprintf (st, "\n  Compiler: Digital Mars C/C++");
 #elif defined (__PCC__)
@@ -8271,7 +8306,10 @@ t_stat sprint_val (char *buffer, t_value val, uint32 radix,
 {
 #define MAX_WIDTH ((CHAR_BIT * sizeof (t_value) * 4 + 3) / 3)
 t_value owtest, wtest;
-size_t d, digit, ndigits, commas = 0;
+size_t d;
+size_t digit;
+size_t ndigits;
+size_t commas = 0;
 char dbuf[MAX_WIDTH + 1];
 
 for (d = 0; d < MAX_WIDTH; d++)
@@ -8288,30 +8326,7 @@ do {
 switch (format) {
     case PV_LEFT:
         break;
-    case PV_RCOMMA:
-        for (digit=0; digit + 3 < ndigits; digit++)
-            if (dbuf[digit] != ' ')
-                break;
-        ndigits = MAX_WIDTH - digit;
-        commas = (ndigits - 1)/3;
-        for (digit=0; digit<ndigits-3; digit++)
-            dbuf[MAX_WIDTH + (digit - ndigits) - \
-                (ndigits - digit - 1)/3] = dbuf[MAX_WIDTH + (digit - ndigits)];
-        for (digit=1; digit<=commas; digit++)
-            dbuf[MAX_WIDTH - (digit * 4)] = ',';
-        d = d - commas;
-        if (width > MAX_WIDTH) {
-            if (!buffer)                 /* Potentially unsafe wraparound if */
-                return ((t_stat) width); /*  sizeof(t_stat) < sizeof(size_t) */
-            (void)sprintf (buffer, "%*s", -((int)width), dbuf);
-            return SCPE_OK;
-            }
-        else
-            if (width > 0)
-                d = MAX_WIDTH - width;
-        break;
     case PV_RZRO:
-    case PV_RSPC:
         wtest = owtest = radix;
         ndigits = 1;
         while ((wtest < width_mask[width]) && (wtest >= owtest)) {

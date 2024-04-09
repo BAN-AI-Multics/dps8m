@@ -431,8 +431,10 @@ static int getCardLine (int fd, unsigned char * buffer)
         if (n > 79)
           return 0;
       }
+#if !defined(__SUNPRO_C) && !defined(__SUNPRO_CC)
     /*NOTREACHED*/ /* unreachable */
     return 0;
+#endif
   }
 
 static int getCardData (int fd, char * buffer)

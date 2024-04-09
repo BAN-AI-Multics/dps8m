@@ -1553,8 +1553,10 @@ linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen,
       break;
     }
   }
+# if !defined(__SUNPRO_C) && !defined(__SUNPRO_CC)
  /*NOTREACHED*/ /* unreachable */
  return ( -1 );
+# endif
 }
 
 /*
@@ -1641,8 +1643,10 @@ linenoiseNoTTY(void)
       len++;
     }
   }
+# if !defined(__SUNPRO_C) && !defined(__SUNPRO_CC)
  /*NOTREACHED*/ /* unreachable */
  return ( NULL );
+# endif
 }
 
 /*

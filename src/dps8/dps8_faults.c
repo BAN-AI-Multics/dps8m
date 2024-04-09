@@ -713,8 +713,10 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle,
     cpu . cycle = FAULT_cycle;
     sim_debug (DBG_CYCLE, & cpu_dev, "Setting cycle to FAULT_cycle\n");
     longjmp (cpu.jmpMain, JMP_REENTRY);
+#if !defined(__SUNPRO_C) && !defined(__SUNPRO_CC)
     /*NOTREACHED*/ /* unreachable */
     abort(); /* not reached */
+#endif
 }
 
 void do_FFV_fault (uint fault_number, const char * fault_msg)

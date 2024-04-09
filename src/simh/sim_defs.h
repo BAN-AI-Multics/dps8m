@@ -273,8 +273,6 @@ typedef uint32          t_addr;
 /* Print value format codes */
 
 # define PV_RZRO         0                               /* right, zero fill */
-# define PV_RSPC         1                               /* right, space fill */
-# define PV_RCOMMA       2                               /* right, space fill. Comma separate every 3 */
 # define PV_LEFT         3                               /* left justify */
 
 /* Default timing parameters */
