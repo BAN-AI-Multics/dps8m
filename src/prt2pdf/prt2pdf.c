@@ -175,13 +175,20 @@
 
            if(delta < 1000) {
               delta += 1000;
-          }
+           }
 
            new_num_xrefs = GLOBAL_NUM_XREFS + delta;
            new_xrefs = (long *)malloc(new_num_xrefs * sizeof(*new_xrefs));
 
            if(new_xrefs == NULL) {
               (void)fprintf(stderr, "\r\nERROR: Unable to allocate array for object %d.\r\n", id);
+              (void)fprintf(stderr, "\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
+                            __func__, __FILE__, __LINE__);
+              abort();
+           }
+
+           if(GLOBAL_XREFS == NULL) {
+              (void)fprintf(stderr, "\r\nERROR: GLOBAL_XREFS == NULL!\r\n");
               (void)fprintf(stderr, "\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
                             __func__, __FILE__, __LINE__);
               abort();
