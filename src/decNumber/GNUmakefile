@@ -33,11 +33,19 @@ OBJS = decContext.o decNumber.o
 
 ###############################################################################
 
+ifeq "$(findstring nvc,$(CC))" "" # All compilers except NVIDIA HPC SDK C
+  WSTRINGOP_OVERFLOW=-Wno-stringop-overflow
+  WSTRINGOP_OVERREAD=-Wno-stringop-overread
+  WNOUNKNOWNWARNINGS=-Wno-unknown-warning-option
+endif
+
+###############################################################################
+
 ifndef SUNPRO
   ifndef SUNLINT
     ifeq "$(findstring icc,$(CC))" "" # All compilers except Intel ICC
-      CFLAGS += -Wall -Wextra -Wno-uninitialized  -Wno-stringop-overflow      \
-                -Wpedantic -Wno-stringop-overread -Wno-unknown-warning-option
+      CFLAGS += -Wall -Wextra -Wno-uninitialized $(WSTRINGOP_OVERFLOW)        \
+                -Wpedantic $(WSTRINGOP_OVERREAD) $(WNOUNKNOWNWARNINGS)
     else # Intel ICC
       CFLAGS += -Wall -Wextra -Wpedantic -diag-disable=11074,11076,10148,10441
     endif
