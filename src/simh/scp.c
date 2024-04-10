@@ -4968,7 +4968,9 @@ if (flag) {
     strremove(postver, " Clang 15.0.0 (build 760095e)");
     strremove(postver, " Clang 15.0.0 (build 6af5742)");
     strremove(postver, " Clang 15.0.0 (build ca7115e)");
+    strremove(postver, " Clang 15.0.0 (build 232543c)");
     strremove(postver, " Clang 17.0.6 (build 19a779f)");
+    strremove(postver, "CLANG: ");
 #endif
 #if ( defined (__GNUC__) && defined (__VERSION__) ) && !defined (__EDG__)
 # ifndef __clang_version__
