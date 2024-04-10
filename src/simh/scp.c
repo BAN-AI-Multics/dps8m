@@ -3380,7 +3380,14 @@ t_stat reason;
 
 cptr = (CONST char *)get_sim_opt (CMD_OPT_SW|CMD_OPT_DFT, (CONST char *)cptr, &r);
                                                         /* get sw, default */
+#if defined(__NVCOMPILER) || defined(__NVCOMPILER_LLVM__) || defined(__PGI) || defined(__PGLLVM__)
+# pragma diagnostic push
+# pragma diag_suppress = integer_sign_change
+#endif
 sim_stabr.boolop = sim_staba.boolop = -1;               /* no relational op dflt */
+#if defined(__NVCOMPILER) || defined(__NVCOMPILER_LLVM__) || defined(__PGI) || defined(__PGLLVM__)
+# pragma diagnostic pop
+#endif
 if (*cptr == 0)                                         /* must be more */
     return SCPE_2FARG;
 tptr = get_glyph (cptr, gbuf, 0);                       /* get token */
@@ -3483,16 +3490,30 @@ else {
             return SCPE_2FARG;                          /* IF needs actions! */
         }
     if (rptr) {                                         /* Handle register case */
+#if defined(__NVCOMPILER) || defined(__NVCOMPILER_LLVM__) || defined(__PGI) || defined(__PGLLVM__)
+# pragma diagnostic push
+# pragma diag_suppress = integer_sign_change
+#endif
         if (!get_rsearch (gbuf, rptr->radix, &sim_stabr) ||  /* parse condition */
             (sim_stabr.boolop == -1))                   /* relational op reqd */
             return SCPE_MISVAL;
+#if defined(__NVCOMPILER) || defined(__NVCOMPILER_LLVM__) || defined(__PGI) || defined(__PGLLVM__)
+# pragma diagnostic pop
+#endif
         val = get_rval (rptr, idx);                     /* get register value */
         result = test_search (&val, &sim_stabr);        /* test condition */
         }
     else {                                              /* Handle memory case */
+#if defined(__NVCOMPILER) || defined(__NVCOMPILER_LLVM__) || defined(__PGI) || defined(__PGLLVM__)
+# pragma diagnostic push
+# pragma diag_suppress = integer_sign_change
+#endif
         if (!get_asearch (gbuf, sim_dfdev->dradix, &sim_staba) ||  /* parse condition */
             (sim_staba.boolop == -1))                    /* relational op reqd */
             return SCPE_MISVAL;
+#if defined(__NVCOMPILER) || defined(__NVCOMPILER_LLVM__) || defined(__PGI) || defined(__PGLLVM__)
+# pragma diagnostic pop
+#endif
         reason = get_aval (addr, sim_dfdev, sim_dfunit);/* get data */
         if (reason != SCPE_OK)                          /* return if error */
             return reason;
