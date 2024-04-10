@@ -2007,6 +2007,7 @@ nouc
 nout
 novalue
 novdso
+novector
 noverbose
 noverify
 nowait
@@ -6474,6 +6475,7 @@ doesn
 eposit
 figuration
 ices
+llvmorg
 odifiers
 overrunat
 rsion
