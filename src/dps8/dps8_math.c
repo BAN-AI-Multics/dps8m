@@ -61,7 +61,11 @@ long double exp2l (long double e) {
 # define ISEQ_128(a,b) iseq_128 (a, b)
 #else
 # define ISZERO_128(m) ((m) == 0)
-# define ISEQ_128(a,b)  ((a) == (b))
+# define ISEQ_128(a,b) ((a) == (b))
+#endif
+
+#if defined(__NVCOMPILER) || defined(__NVCOMPILER_LLVM__) || defined(__PGI) || defined(__PGLLVM__)
+# pragma global novector
 #endif
 
 /*
@@ -3561,3 +3565,7 @@ void dfcmg (void) {
   SC_I_NEG (sm1 < sm2);
 #endif // ! NEED_128
 }
+
+#if defined(__NVCOMPILER) || defined(__NVCOMPILER_LLVM__) || defined(__PGI) || defined(__PGLLVM__)
+# pragma global vector
+#endif
