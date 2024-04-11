@@ -33,7 +33,8 @@ WORKDIR /
 RUN set -x && \
     rpm --import https://developer.download.nvidia.com/hpc-sdk/rhel/RPM-GPG-KEY-NVIDIA-HPC-SDK || true && \
     curl -fsSL https://developer.download.nvidia.com/hpc-sdk/rhel/nvhpc.repo > /etc/yum.repos.d/nvhpc.repo && \
-    dnf --refresh -y install nvhpc --setopt=install_weak_deps=True && \
+    dnf --refresh -y --setopt=install_weak_deps=True --setopt=keepcache=True install \
+      nvhpc && \
     dnf -y clean all && \
     rm -rf ~/.cache && \
     rm -rf /var/tmp/* && \

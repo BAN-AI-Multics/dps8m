@@ -46,6 +46,10 @@ RUN set -x && \
       advancecomp \
       ansifilter \
       atool \
+      autoconf \
+      autoconf-archive \
+      bash \
+      bc \
       bear \
       boost \
       boost-devel \
@@ -53,6 +57,7 @@ RUN set -x && \
       ca-certificates \
       ccache \
       ccache-swig \
+      ckermit \
       clang \
       clang-analyzer \
       clang-tools-extra \
@@ -64,6 +69,7 @@ RUN set -x && \
       cppi \
       croc \
       curl \
+      diffutils \
       dos2unix \
       doxygen \
       expect \
@@ -86,12 +92,14 @@ RUN set -x && \
       glibc-headers-x86 \
       glibc-static \
       global \
+      gnupg2 \
       golang \
       guile \
       guile-devel \
       libasan \
       libasan.i686 \
       libasan.x86_64 \
+      libfaketime \
       libnsl \
       libnsl2 \
       libnsl2.i686 \
@@ -101,20 +109,26 @@ RUN set -x && \
       libtirpc \
       libtirpc.i686 \
       libtirpc.x86_64 \
+      libtool \
       libubsan \
       libubsan.i686 \
       libubsan.x86_64 \
       libxml2-devel \
       libxslt-devel \
+      libzstd \
+      libzstd-devel \
       lld \
       lua \
       lua-devel \
       lzip \
       make \
+      mksh \
+      moreutils \
       musl-devel \
       musl-gcc \
       musl-libc \
       musl-libc-static \
+      nmap \
       octave \
       openssl \
       pbzip2 \
@@ -123,6 +137,7 @@ RUN set -x && \
       perl-devel \
       pigz \
       procps-ng \
+      psmisc \
       python3 \
       python3-devel \
       python3-setuptools \
@@ -131,16 +146,23 @@ RUN set -x && \
       ruby \
       ruby-devel \
       screen \
+      strace \
       swig \
       symlinks \
       tcl \
       tcl-devel \
+      tcsh \
+      telnet \
       time \
       tmux \
       unzip \
+      util-linux \
       valgrind \
       vim \
       wget \
+      xz \
+      xz-devel \
+      xz-libs \
       yasm \
       zip \
       zpaq \

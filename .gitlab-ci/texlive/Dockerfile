@@ -31,15 +31,27 @@ USER 0
 WORKDIR /
 
 RUN set -x && \
-    dnf -y install \
-      texlive-scheme-full \
-      lout \
-      pandoc && \
-    dnf -y clean all && \
-    rm -rf ~/.cache && \
-    rm -rf /var/tmp/* && \
-    rm -rf /var/log/dnf* && \
-    touch /OK
+  dnf -y --setopt=install_weak_deps=True --setopt=keepcache=True install \
+    adobe-source-code-pro-fonts \
+    adobe-source-sans-pro-fonts \
+    biber \
+    ghostscript \
+    graphviz \
+    jq \
+    lout \
+    pandoc \
+    pdftk-java \
+    php-cli \
+    poppler-utils \
+    python3-pygments \
+    qpdf \
+    texlive-scheme-full \
+&& \
+  dnf -y clean all && \
+  rm -rf ~/.cache && \
+  rm -rf /var/tmp/* && \
+  rm -rf /var/log/dnf* && \
+  touch /OK
 
 USER 10000
 
