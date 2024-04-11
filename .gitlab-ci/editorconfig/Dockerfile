@@ -29,8 +29,7 @@ USER 0
 WORKDIR /
 
 RUN set -x && \
-    dnf -y --setopt=install_weak_deps=True --setopt=keepcache=True install golang \
-    export PATH="${HOME:?}/go/bin:${PATH:?}" && \
+    dnf -y --setopt=install_weak_deps=True --setopt=keepcache=True install golang && \
     sudo -s -u user sh -xc \
       'go install github.com/editorconfig-checker/editorconfig-checker/v2/cmd/editorconfig-checker@latest' && \
     sudo -s -u user sh -xc 'go clean -modcache -testcache -cache 2>/dev/null || true' && \
