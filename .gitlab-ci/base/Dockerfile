@@ -73,6 +73,7 @@ RUN set -x && \
       diffutils \
       dos2unix \
       doxygen \
+      elinks \
       expect \
       fakeroot \
       file \
@@ -81,10 +82,10 @@ RUN set -x && \
       fmt-devel \
       fontconfig.i686 \
       fontconfig.x86_64 \
+      fping \
       g++ \
       gawk \
       gcc \
-      gcc-gm2 \
       gcovr \
       git \
       glibc-devel \
@@ -101,6 +102,7 @@ RUN set -x && \
       guile-devel \
       hugo \
       imake \
+      jq \
       libasan \
       libasan.i686 \
       libasan.x86_64 \
@@ -118,6 +120,8 @@ RUN set -x && \
       libubsan \
       libubsan.i686 \
       libubsan.x86_64 \
+      libuv \
+      libuv-devel \
       libxml2-devel \
       libxslt-devel \
       libzstd \
@@ -136,7 +140,6 @@ RUN set -x && \
       musl-libc \
       musl-libc-static \
       nmap \
-      octave \
       openssl \
       pbzip2 \
       perl \
@@ -146,13 +149,11 @@ RUN set -x && \
       pkgconf \
       procps-ng \
       psmisc \
+      pv \
       python3 \
       python3-devel \
       python3-setuptools \
-      python-setuptools \
       reuse \
-      ruby \
-      ruby-devel \
       screen \
       strace \
       swig \
@@ -169,12 +170,14 @@ RUN set -x && \
       valgrind \
       vim \
       wget \
+      xdelta3 \
       xz \
       xz-devel \
       xz-libs \
       yasm \
       zip \
       zpaq \
+      zsh \
 && \
   curl -fsSL https://rpm.nodesource.com/setup_21.x | bash - && \
   dnf install -y --setopt=install_weak_deps=True --setopt=keepcache=True nodejs && \
@@ -240,8 +243,6 @@ RUN set -x && \
 && \
   dnf -y --setopt=install_weak_deps=True --setopt=keepcache=True install wine && \
   mkdir -p /opt && \
-  (dnf -y --setopt=install_weak_deps=True --setopt=keepcache=True install \
-     --nogpgcheck "${URL:-http://192.168.1.187:8088/~jhj/cache/aocc-compiler.x86_64.rpm}") && \
   mkdir -p /tmp/duma-build && \
   cd /tmp/duma-build && \
   git clone https://github.com/johnsonjh/duma.git && \

@@ -5731,6 +5731,7 @@ pkgconf
 pkgs
 plog
 powerpcle
+printf
 pvsreport
 ranlib
 roscspell
@@ -8523,15 +8524,18 @@ diffutils
 dlfcn
 doxygen
 ecdsa
+elinks
 fakeroot
 flto
 fontconfig
+fping
 gcovr
 gitignore
 golang
 harfbuzz
 htmlreport
 iconv
+imake
 keepcache
 ldconfig
 libasan
@@ -8550,9 +8554,11 @@ nodejs
 nodesource
 nodocs
 nogpgcheck
+nsiswrapper
 opensslcnf
 pbzip
 pigz
+pkgconf
 printf
 procps
 psmisc
@@ -8561,10 +8567,13 @@ rpmconf
 rsae
 seclevel
 setuptools
+srvany
 strace
 tcsh
 tsflags
 ucrt
+uncrustify
+xdelta
 yasm
 yselkowitz
 
@@ -8601,6 +8610,19 @@ conda
 miniconda
 printf
 sbin
+
+FILEID: d1f78a98-f7a8-11ee-a957-80ee73e9b8e7
+elease
+extrainfo
+imulator
+ipwd
+libwinpthread
+useddef
+
+FILEID: 77790b9a-f7d1-11ee-a80f-80ee73e9b8e7
+keepcache
+nogpgcheck
+printf
 
 NATURAL:
 abandon
