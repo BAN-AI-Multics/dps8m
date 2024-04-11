@@ -41,12 +41,14 @@ RUN set -x && \
   (rpmconf --all --unattended use_maintainer --clean || true) && \
   dnf -y --refresh update && \
   dnf -y --setopt=install_weak_deps=True --setopt=keepcache=True install \
+      ack \
       advancecomp \
       ansifilter \
       atool \
       autoconf \
       autoconf-archive \
       bash \
+      bat \
       bc \
       bear \
       boost \
@@ -154,6 +156,7 @@ RUN set -x && \
       python3-devel \
       python3-setuptools \
       reuse \
+      ripgrep \
       screen \
       strace \
       swig \
