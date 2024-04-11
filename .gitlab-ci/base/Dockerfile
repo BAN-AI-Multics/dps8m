@@ -43,10 +43,6 @@ RUN set -x && \
   (rpmconf --all --unattended use_maintainer --clean || true) && \
   dnf -y --refresh update && \
   dnf -y --setopt=install_weak_deps=True --setopt=keepcache=True install \
-      harfbuzz.i686 \
-      harfbuzz.x86_64 \
-&& \
-  dnf -y --setopt=install_weak_deps=True --setopt=keepcache=True install \
       advancecomp \
       ansifilter \
       atool \
