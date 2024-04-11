@@ -97,7 +97,6 @@ RUN set -x && \
       glibc-static \
       global \
       gnupg2 \
-      golang \
       gtk3 \
       gtk3-devel \
       guile \
