@@ -153,6 +153,7 @@ RUN set -x && \
       telnet \
       time \
       tmux \
+      uncrustify \
       unzip \
       util-linux \
       valgrind \
