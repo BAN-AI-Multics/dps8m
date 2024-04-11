@@ -1,10 +1,11 @@
 #!/usr/bin/env sh
-# scspell-id: fb2d1d24-f75d-11ee-8ec4-80ee73e9b8e7
 
+################################################################################
 # Docker build all script
 ################################################################################
 #
 # SPDX-License-Identifier: MIT-0
+# scspell-id: fb2d1d24-f75d-11ee-8ec4-80ee73e9b8e7
 #
 # Copyright (c) 2018-2024 Jeffrey H. Johnson <trnsz@pobox.com>
 #

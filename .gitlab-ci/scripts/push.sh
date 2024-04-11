@@ -1,10 +1,11 @@
 #!/usr/bin/env sh
-# scspell-id: 066c7478-f75e-11ee-a6c9-80ee73e9b8e7
 
+################################################################################
 # Docker push script
 ################################################################################
 #
 # SPDX-License-Identifier: MIT-0
+# scspell-id: 066c7478-f75e-11ee-a6c9-80ee73e9b8e7
 #
 # Copyright (c) 2018-2024 Jeffrey H. Johnson <trnsz@pobox.com>
 #

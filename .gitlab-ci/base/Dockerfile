@@ -1,7 +1,7 @@
-# scspell-id: 5338303a-f75e-11ee-b8c2-80ee73e9b8e7
 ################################################################################
 #
 # SPDX-License-Identifier: MIT-0
+# scspell-id: 5338303a-f75e-11ee-b8c2-80ee73e9b8e7
 #
 # Copyright (c) 2018-2024 Jeffrey H. Johnson <trnsz@pobox.com>
 #
