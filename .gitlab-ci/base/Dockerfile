@@ -58,6 +58,7 @@ RUN set -x && \
       ckermit \
       clang \
       clang-analyzer \
+      clang-devel \
       clang-tools-extra \
       cmake \
       compiler-rt.i686 \
@@ -66,6 +67,8 @@ RUN set -x && \
       cppcheck-htmlreport \
       cppi \
       croc \
+      cscope \
+      ctags \
       curl \
       diffutils \
       dos2unix \
@@ -92,8 +95,12 @@ RUN set -x && \
       global \
       gnupg2 \
       golang \
+      gtk3 \
+      gtk3-devel \
       guile \
       guile-devel \
+      hugo \
+      imake \
       libasan \
       libasan.i686 \
       libasan.x86_64 \
@@ -116,9 +123,11 @@ RUN set -x && \
       libzstd \
       libzstd-devel \
       lld \
+      llvm-devel \
       lua \
       lua-devel \
       lzip \
+      m4 \
       make \
       mksh \
       moreutils \
@@ -134,6 +143,7 @@ RUN set -x && \
       perl-core \
       perl-devel \
       pigz \
+      pkgconf \
       procps-ng \
       psmisc \
       python3 \
@@ -188,9 +198,14 @@ RUN set -x && \
       mingw32-gcc \
       mingw32-gcc-c++ \
       mingw32-headers \
+      mingw32-nsis \
+      mingw32-nsiswrapper \
+      mingw32-srvany \
       mingw32-win-iconv \
       mingw32-winpthreads \
       mingw32-winpthreads-static \
+      mingw32-xz-libs \
+      mingw32-xz-libs-static \
       mingw64-binutils \
       mingw64-boost \
       mingw64-boost-static \
@@ -204,6 +219,8 @@ RUN set -x && \
       mingw64-win-iconv \
       mingw64-winpthreads \
       mingw64-winpthreads-static \
+      mingw64-xz-libs \
+      mingw64-xz-libs-static \
       mingw-binutils-generic \
       mingw-w64-tools \
       ucrt64-binutils \
