@@ -8519,6 +8519,7 @@ cmake
 copr
 coveralls
 deps
+diffutils
 dlfcn
 doxygen
 ecdsa
@@ -8534,12 +8535,17 @@ iconv
 keepcache
 ldconfig
 libasan
+libfaketime
 libnsl
 libtirpc
+libtool
 libubsan
 libxml
 libxslt
+mksh
+moreutils
 musl
+nmap
 nodejs
 nodesource
 nodocs
@@ -8549,11 +8555,14 @@ pbzip
 pigz
 printf
 procps
+psmisc
 quay
 rpmconf
 rsae
 seclevel
 setuptools
+strace
+tcsh
 tsflags
 ucrt
 yasm
@@ -8572,12 +8581,19 @@ printf
 sudo
 
 FILEID: 1efcf84a-f75f-11ee-8a77-80ee73e9b8e7
+keepcache
 nvhpc
 printf
 
 FILEID: 35d7d846-f79b-11ee-9c8d-80ee73e9b8e7
+biber
+keepcache
 lout
+pdftk
+poppler
 printf
+pygments
+qpdf
 
 FILEID: 66d20b70-f79a-11ee-9737-80ee73e9b8e7
 chmod
@@ -9336,6 +9352,7 @@ circuiting
 circuitry
 circular
 circumstances
+ckermit
 cksum
 claim
 claims
@@ -10628,6 +10645,7 @@ gmail
 gmake
 gnomes
 gnubin
+gnupg
 gnuplot
 goal
 goals
