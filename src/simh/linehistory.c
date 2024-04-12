@@ -1553,10 +1553,10 @@ linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen,
       break;
     }
   }
-# if !defined(__SUNPRO_C) && !defined(__SUNPRO_CC)
+# if defined(SUNLINT) || !defined(__SUNPRO_C) && !defined(__SUNPRO_CC)
  /*NOTREACHED*/ /* unreachable */
  return ( -1 );
-# endif
+# endif /* if defined(SUNLINT) || !defined(__SUNPRO_C) && !defined(__SUNPRO_CC) */
 }
 
 /*
@@ -1643,10 +1643,10 @@ linenoiseNoTTY(void)
       len++;
     }
   }
-# if !defined(__SUNPRO_C) && !defined(__SUNPRO_CC)
+# if defined(SUNLINT) || !defined(__SUNPRO_C) && !defined(__SUNPRO_CC)
  /*NOTREACHED*/ /* unreachable */
  return ( NULL );
-# endif
+# endif /* if defined(SUNLINT) || !defined(__SUNPRO_C) && !defined(__SUNPRO_CC) */
 }
 
 /*

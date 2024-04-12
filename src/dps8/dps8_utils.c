@@ -1273,8 +1273,10 @@ int strmask (char * str, char * mask)
               break;
           } // switch (* mp)
       } // while (1)
+#if defined(SUNLINT) || !defined(__SUNPRO_C) && !defined(__SUNPRO_CC)
     /*NOTREACHED*/ /* unreachable */
     return false;
+#endif /* if defined(SUNLINT) || !defined(__SUNPRO_C) && !defined(__SUNPRO_CC) */
   }
 
 #if 0
