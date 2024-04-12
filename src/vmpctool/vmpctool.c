@@ -49,7 +49,7 @@
 
 #define PROGNAME                       "vmpctool"
 #define PROGDESC                       "virtual memory page cache utility"
-#define VMTOUCH_VERSION                "2101.15.2-dps (2023-07-03)"
+#define VMTOUCH_VERSION                "2101.15.3-dps (2024-04-12)"
 
 #define RESIDENCY_CHART_WIDTH          41
 #define CHART_UPDATE_INTERVAL          0.37
@@ -956,7 +956,7 @@ print_page_residency_chart(FILE *out, char *mincore_array,
   (void)fflush(stdout);
 }
 
-#ifdef __linux__
+#if defined(__linux__) && !defined(__PCC__)
 static int
 can_do_mincore(struct stat *st)
 {
@@ -992,7 +992,7 @@ can_do_mincore(struct stat *st)
          || ( st->st_gid == getgid() && ( st->st_mode & S_IWGRP ))
          || ( st->st_mode & S_IWOTH ) || uid == 0;
 }
-#endif /* ifdef __linux__ */
+#endif /* if defined(__linux__) && !defined(__PCC__) */
 
 static void
 vmpc_file(char *path)
@@ -1219,14 +1219,14 @@ retry_open:
                 ( path + ( strlen(path) - ( 33 + RESIDENCY_CHART_WIDTH ))));
             }
 
-#ifdef __linux__
+#if defined(__linux__) && !defined(__PCC__)
           if (!can_do_mincore(&sb) && ( !o_quiet ) && ( o_verbose > 1 ))
             {
               warning(
                 "%s:%d: no mincore permissions; data will be inaccurate!",
                 __func__, __LINE__);
             }
-#endif /* ifdef __linux__ */
+#endif /* if defined(__linux__) && !defined(__PCC__) */
 
           last_chart_print_time = gettimeofday_as_double();
           print_page_residency_chart(stderr, mincore_array, pages_in_range);

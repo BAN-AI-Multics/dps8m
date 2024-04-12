@@ -207,7 +207,7 @@ static int           depth;                 /*  current #if nesting        */
 static int           delcount;              /*  count of deleted lines     */
 static unsigned      blankcount;            /*  count of blank lines       */
 static unsigned      blankmax;              /*  maximum recent blankcount  */
-static bool          constexpr;             /*  constant #if expression    */
+static bool          xconstexp;             /*  constant #if expression    */
 static bool          zerosyms;              /*  to format symdepth output  */
 static bool          firstsym;              /*  ditto                      */
 static int           exitmode;              /*  exit status mode           */
@@ -1694,7 +1694,7 @@ static const struct ops eval_ops[] = {
 /*
  * Function for evaluating the innermost parts of expressions,
  * viz. !expr (expr) number defined(symbol) symbol
- * We reset the constexpr flag in the last two cases.
+ * We reset the xconstexp flag in the last two cases.
  */
 
 static Linetype
@@ -1816,7 +1816,7 @@ eval_unary(const struct ops *ops, long *valp, const char **cpp)
           lt    = *valp ? LT_TRUE : LT_FALSE;
         }
 
-      constexpr = false;
+      xconstexp = false;
     }
   else if (!endsym(*cp))
     {
@@ -1844,7 +1844,7 @@ eval_unary(const struct ops *ops, long *valp, const char **cpp)
           cp = skipargs(cp);
         }
 
-      constexpr = false;
+      xconstexp = false;
     }
   else
     {
@@ -1929,10 +1929,10 @@ ifeval(const char **cpp)
   Linetype ret;
   long val = 0;
 
-  constexpr = killconsts ? false : true;
+  xconstexp = killconsts ? false : true;
   ret       = eval_table(eval_ops, &val, cpp);
 
-  return ( constexpr ? LT_IF : ret == LT_ERROR ? LT_IF : ret );
+  return ( xconstexp ? LT_IF : ret == LT_ERROR ? LT_IF : ret );
 }
 
 /*
