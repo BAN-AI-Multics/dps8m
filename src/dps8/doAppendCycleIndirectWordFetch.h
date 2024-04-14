@@ -76,7 +76,7 @@ word24 doAppendCycleIndirectWordFetch (word36 * data, uint nWords) {
 /* Indirect Word Fetch Cache disabled (due to it not working!) */
 #undef IDWF_CACHE
 //# define IDWF_CACHE 1
-#ifdef IDWF_CACHE
+#if defined(IDWF_CACHE)
 // Is this cycle a candidate for ucache?
 
   // Prepage mode?
@@ -105,13 +105,13 @@ word24 doAppendCycleIndirectWordFetch (word36 * data, uint nWords) {
   goto HI;
 
 skip_ucache:;
-# ifdef UCACHE_STATS
+# if defined(UCACHE_STATS)
   cpu.uCache.skips[this] ++;
 # endif
 
 miss_ucache:;
 
-#endif /* ifdef IDWF_CACHE */
+#endif /* if defined(IDWF_CACHE) */
 
   bool nomatch = true;
   if (cpu.tweaks.enable_wam) {
@@ -382,10 +382,10 @@ I:;
   finalAddress &= 0xffffff;
   PNL (cpu.APUMemAddr = finalAddress;)
 
-#ifdef L68
+#if defined(L68)
   if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
     add_APU_history (APUH_FAP);
-#endif
+#endif /* if defined(L68) */
   DBGAPP ("doAppendCycleIndirectWordFetch(H:FAP): (%05o:%06o) finalAddress=%08o\n", cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
 
   // goto HI;

@@ -36,13 +36,13 @@
  * a dynamic array implementation using macros
  */
 
-#ifndef UTARRAY_H
+#if !defined(UTARRAY_H)
 # define UTARRAY_H
 
 /* Derived from utarray version */
 # define UTARRAY_VERSION 21.9.8
 
-# ifdef __GNUC__
+# if defined(__GNUC__)
 #  define _UNUSED_ __attribute__ ((__unused__))
 # else
 #  define _UNUSED_
@@ -56,7 +56,7 @@
 # include "dps8.h"
 
 # undef FREE
-# ifdef TESTING
+# if defined(TESTING)
 #  define FREE(p) free(p)
 #  undef realloc
 #  define realloc trealloc
@@ -66,7 +66,7 @@
     free((p));        \
     (p) = NULL;       \
   } while(0)
-# endif /* ifdef TESTING */
+# endif /* if defined(TESTING) */
 
 # undef oom
 # define oom() do                                                                \
@@ -74,10 +74,10 @@
     (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",  \
                    __func__, __FILE__, __LINE__);                                \
 #  if defined(USE_BACKTRACE)                                                     \
-#   ifdef SIGUSR2                                                                \
+#   if defined(SIGUSR2)                                                          \
     (void)raise(SIGUSR2);                                                        \
     /*NOTREACHED*/ /* unreachable */                                             \
-#   endif /* ifdef SIGUSR2 */                                                    \
+#   endif /* if defined(SIGUSR2) */                                              \
 #  endif /* if defined(USE_BACKTRACE) */                                         \
     abort();                                                                     \
     /*NOTREACHED*/ /* unreachable */                                             \
@@ -278,10 +278,10 @@ static void utarray_str_cpy(void *dst, const void *src) {
       (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                      __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
-#  ifdef SIGUSR2
+#  if defined(SIGUSR2)
       (void)raise(SIGUSR2);
       /*NOTREACHED*/ /* unreachable */
-#  endif /* ifdef SIGUSR2 */
+#  endif /* if defined(SIGUSR2) */
 # endif /* if defined(USE_BACKTRACE) */
       abort();
     }

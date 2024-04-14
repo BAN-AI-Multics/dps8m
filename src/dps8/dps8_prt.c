@@ -156,10 +156,10 @@ static DEBTAB prt_dt[] =
 
 static MTAB prt_mod[] =
   {
-#ifndef SPEED
+#if !defined(SPEED)
     { UNIT_WATCH, 1, "WATCH",   "WATCH",   0, 0, NULL, NULL },
     { UNIT_WATCH, 0, "NOWATCH", "NOWATCH", 0, 0, NULL, NULL },
-#endif
+#endif /* if !defined(SPEED) */
     {
       MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* Mask               */
       0,                                          /* Match              */
@@ -294,7 +294,7 @@ static const int model_type[N_MODELS] =
     4
   };
 
-#ifdef NO_C_ELLIPSIS
+#if defined(NO_C_ELLIPSIS)
 static const uint8 newlines[128] = {
   '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n',
   '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n',
@@ -564,9 +564,9 @@ static int prt_read_status_register (uint dev_unit_idx, uint iom_unit_idx, uint 
 // XXX need status register data format
 // system_library_tools/source/bound_io_tools_.s.archive/analyze_detail_stat_.pl1  anal_fips_disk_().
 
-# ifdef TESTING
+# if defined(TESTING)
     sim_warn ("Need status register data format; tally %d\n", tally);
-# endif
+# endif /* if defined(TESTING) */
 # if 1
     word36 buffer[tally];
     (void)memset (buffer, 0, sizeof (buffer));
@@ -822,12 +822,12 @@ for (uint i = 0; i < tally; i ++)
                                 return -2;
                               }
                           }
-#ifdef TESTING
+#if defined(TESTING)
                         else
                           {
                             sim_warn ("Printer BCD edited ESC %u. %o ignored\n", n, n);
                           }
-#endif
+#endif /* if defined(TESTING) */
                       }
                     else // not escape
                       {

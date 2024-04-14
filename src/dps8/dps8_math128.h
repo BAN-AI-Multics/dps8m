@@ -18,7 +18,7 @@
  * 128-bit integer support
  */
 
-#ifdef NEED_128
+#if defined(NEED_128)
 
 # define cast_128(x) construct_128 ((uint64_t) (x).h, (x).l)
 # define cast_s128(x) construct_s128 ((int64_t) (x).h, (x).l)

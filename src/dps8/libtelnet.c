@@ -59,13 +59,13 @@
 #include <string.h>
 #include <stdarg.h>
 
-#ifdef __GNUC__
+#if defined(__GNUC__)
 # define NO_RETURN   __attribute__ ((noreturn))
 # define UNUSED      __attribute__ ((unused))
 #else
 # define NO_RETURN
 # define UNUSED
-#endif
+#endif /* if defined(__GNUC__) */
 
 /* Win32 compatibility */
 #if defined(_WIN32)
@@ -86,12 +86,12 @@
     (p) = NULL;     \
   } while(0)
 
-#ifdef TESTING
+#if defined(TESTING)
 # undef realloc
 # undef FREE
 # define FREE(p) free(p)
 # define realloc trealloc
-#endif /* ifdef TESTING */
+#endif /* if defined(TESTING) */
 
 /* helper for Q-method option tracking */
 #define Q_US(q)    ((q).state & 0x0F)

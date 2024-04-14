@@ -16,10 +16,10 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifdef WITH_SOCKET_DEV
+#if defined(WITH_SOCKET_DEV)
 extern UNIT   sk_unit [N_SKC_UNITS_MAX];
 extern DEVICE skc_dev;
 void          sk_init(void);
 void          sk_process_event (void);
 iom_cmd_rc_t  skc_iom_cmd (uint iomUnitIdx, uint chan);
-#endif /* ifdef WITH_SOCKET_DEV */
+#endif /* if defined(WITH_SOCKET_DEV) */

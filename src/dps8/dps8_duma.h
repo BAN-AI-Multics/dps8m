@@ -13,14 +13,14 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifdef DUMA
-# ifndef _POSIX_C_SOURCE
+#if defined(DUMA)
+# if !defined(_POSIX_C_SOURCE)
 #  define _POSIX_C_SOURCE 1
-# endif /* ifndef _POSIX_C_SOURCE */
+# endif /* if !defined(_POSIX_C_SOURCE) */
 # undef USE_DUMA
 # define USE_DUMA 1
 # include <stdlib.h>
 # include <stdio.h>
 # include <string.h>
 # include <duma.h>
-#endif /* ifdef DUMA */
+#endif /* if defined(DUMA) */

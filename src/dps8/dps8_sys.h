@@ -16,7 +16,7 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifndef _DPS8_SYS_H
+#if !defined(_DPS8_SYS_H)
 # define _DPS8_SYS_H
 
 # include <uv.h>
@@ -45,7 +45,7 @@ typedef struct
     uint sys_poll_check_rate; // Check for pooling interval rate in CPU cycles
 } sysinfo_t;
 
-# ifdef DBGEVENT
+# if defined(DBGEVENT)
 #  define max_dbgevents 128u
 #  define dbgevent_tagsize 128
 struct dbgevent_t

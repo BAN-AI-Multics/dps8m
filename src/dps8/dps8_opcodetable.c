@@ -1186,7 +1186,7 @@ char GEBcdToASCII[64] = ///< from pg 271 CPB1004F_GE635pgmRef_Jul69
 /* 070 - 077 */    'Y', 'Z', '_', ',', '%', '=', '"', '!'
 };
 
-#ifndef QUIET_UNUSED
+#if !defined(QUIET_UNUSED)
 char ASCIIToGEBcd[128] =
 {
 /* 000 - 007 */    -1, -1, -1, -1, -1, -1, -1, -1,
@@ -1208,7 +1208,7 @@ char ASCIIToGEBcd[128] =
 };
 #endif
 
-#ifndef QUIET_UNUSED
+#if !defined(QUIET_UNUSED)
 char *op0text[512] = {
         // index by upper 9 bits of those opcodes with bit 27 == 0
          NULL,    "mme",    "drl",    NULL,   "mme2",  "mme3",   NULL,   "mme4",
@@ -1278,7 +1278,7 @@ char *op0text[512] = {
 };
 #endif
 
-#ifndef QUIET_UNUSED
+#if !defined(QUIET_UNUSED)
 char *op1text[512] = {
         // index by upper 9 bits of those opcodes with bit 27 == 1
         NULL,     NULL,     NULL,    NULL,    NULL,    NULL,    NULL,    NULL,
@@ -1348,7 +1348,7 @@ char *op1text[512] = {
 };
 #endif
 
-#ifndef QUIET_UNUSED
+#if !defined(QUIET_UNUSED)
 char *opcodes2text[1024] = {
         // index by all 10 bits of all opcodes
          NULL,    NULL,    "mme",    NULL,   "drl",    NULL,    NULL,    NULL,
@@ -1482,7 +1482,7 @@ char *opcodes2text[1024] = {
 };
 #endif
 
-#ifdef PANEL68
+#if defined(PANEL68)
 word8 insGrp [02000] =
   {
 // nonEIS

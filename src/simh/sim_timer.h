@@ -36,26 +36,26 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifndef SIM_TIMER_H_
+#if !defined(SIM_TIMER_H_)
 # define SIM_TIMER_H_   0
 
 # include <time.h>
 # include <sys/types.h>
 # include <pthread.h>
 
-# define SIM_NTIMERS     8                           /* # timers */
-# define SIM_TMAX        500                         /* max timer makeup */
-# define SIM_INITIAL_IPS 500000                      /* uncalibrated assumption */
+# define SIM_NTIMERS          8   /* # timers */
+# define SIM_TMAX           500   /* max timer makeup */
+# define SIM_INITIAL_IPS 500000   /* uncalibrated assumption */
 
-# ifndef PRIORITY_BELOW_NORMAL
+# if !defined(PRIORITY_BELOW_NORMAL)
 #  define PRIORITY_BELOW_NORMAL  -1
-# endif
-# ifndef PRIORITY_NORMAL
+# endif /* if !defined(PRIORITY_BELOW_NORMAL) */
+# if !defined(PRIORITY_NORMAL)
 #  define PRIORITY_NORMAL         0
-# endif
-# ifndef PRIORITY_ABOVE_NORMAL
+# endif /* if !defined(PRIORITY_NORMAL) */
+# if !defined(PRIORITY_ABOVE_NORMAL)
 #  define PRIORITY_ABOVE_NORMAL   1
-# endif
+# endif /* if !defined(PRIORITY_ABOVE_NORMAL) */
 
 t_bool sim_timer_init (void);
 void sim_timespec_diff (struct timespec *diff, const struct timespec *min, struct timespec *sub);

@@ -16,7 +16,7 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifndef DPS8_HW_CONSTS_H
+#if !defined(DPS8_HW_CONSTS_H)
 # define DPS8_HW_CONSTS_H
 
 # include "dps8_math128.h"
@@ -124,7 +124,7 @@ enum { IOM_CONNECT_CHAN =  2 };
 # define ZEROEXT         0777777777777LLU         // mask to zero extend a 36 => 64-bit int
 # define ZEROEXT18       0777777U                 // mask to zero extend a 18 => 32-bit int
 
-# ifdef NEED_128
+# if defined(NEED_128)
 
 #  define SIGN72          (construct_128 (0200U, 0U))
 // NB. these use the wrong bit number convention
@@ -319,7 +319,7 @@ static inline t_int64 SIGNEXT24_64 (word36 w)
 
 static inline int128 SIGNEXT72_128 (word72 w)
   {
-# ifdef NEED_128
+# if defined(NEED_128)
     if (isnonzero_128 (and_128 (w, SIGN72)))
       {
         uint128 v = or_128 (w, construct_128 (0xFFFFFFFFFFFFFF80, 0));
@@ -342,7 +342,7 @@ static inline int128 SIGNEXT72_128 (word72 w)
 # endif
   }
 
-# ifdef NEED_128
+# if defined(NEED_128)
 static inline int128 SIGNEXT36_128 (word36 w)
   {
     if (w & SIGN36)
@@ -378,7 +378,7 @@ static inline word24 SIGNEXT18_24 (word18 w)
 
 static inline word72 SIGNEXT36_72 (word36 w)
   {
-# ifdef NEED_128
+# if defined(NEED_128)
     if (w & SIGN36)
       {
         //return (w | ((word72) DMASK) << 36) & MASK72;

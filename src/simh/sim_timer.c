@@ -58,21 +58,21 @@
   ( defined(__PPC__) || defined(_ARCH_PPC) )
 # include <mach/clock.h>
 # include <mach/mach.h>
-# ifdef MACOSXPPC
+# if defined(MACOSXPPC)
 #  undef MACOSXPPC
-# endif /* ifdef MACOSXPPC */
+# endif /* if defined(MACOSXPPC) */
 # define MACOSXPPC 1
 #endif /* if defined(__MACH__) && defined(__APPLE__) &&
            ( defined(__PPC__) || defined(_ARCH_PPC) ) */
 
 #define SIM_INTERNAL_CLK (SIM_NTIMERS+(1<<30))
 #define SIM_INTERNAL_UNIT sim_internal_timer_unit
-#ifndef MIN
+#if !defined(MIN)
 # define MIN(a,b)  (((a) < (b)) ? (a) : (b))
-#endif
-#ifndef MAX
+#endif /* if !defined(MIN) */
+#if !defined(MAX)
 # define MAX(a,b)  (((a) > (b)) ? (a) : (b))
-#endif
+#endif /* if !defined(MAX) */
 
 uint32 sim_idle_ms_sleep (unsigned int msec);
 
@@ -138,7 +138,7 @@ t_stat sim_os_set_thread_priority (int below_normal_above)
 int sched_policy, min_prio, max_prio;
 struct sched_param sched_priority;
 
-# ifndef __gnu_hurd__
+# if !defined(__gnu_hurd__)
 if ((below_normal_above < -1) || (below_normal_above > 1))
     return SCPE_ARG;
 
@@ -162,7 +162,7 @@ switch (below_normal_above) {
         break;
     }
 pthread_setschedparam (pthread_self(), sched_policy, &sched_priority);
-# endif /* ifndef __gnu_hurd__ */
+# endif /* if !defined(__gnu_hurd__) */
 return SCPE_OK;
 }
 #endif
@@ -241,10 +241,10 @@ st1ret = gettimeofday (&cur, &foo);
       fprintf (stderr, "\rFATAL: gettimeofday failure! Aborting at %s[%s:%d]\r\n",
                __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
-#  ifdef SIGUSR2
+#  if defined(SIGUSR2)
       (void)raise(SIGUSR2);
       /*NOTREACHED*/ /* unreachable */
-#  endif /* ifdef SIGUSR2 */
+#  endif /* if defined(SIGUSR2) */
 # endif /* if defined(USE_BACKTRACE) */
       abort();
     }
@@ -540,7 +540,7 @@ for (tmr=clocks=0; tmr<=SIM_NTIMERS; ++tmr) {
         fprintf (st, "  Catchup Ticks Sched:       %lu\n",   (unsigned long)rtc_clock_catchup_ticks[tmr]);
     if (rtc_clock_catchup_ticks_tot[tmr]+rtc_clock_catchup_ticks[tmr] != rtc_clock_catchup_ticks[tmr]) //-V584
         fprintf (st, "  Total Catchup Ticks Sched: %lu\n",   (unsigned long)rtc_clock_catchup_ticks_tot[tmr]+(unsigned long)rtc_clock_catchup_ticks[tmr]);
-#ifdef MACOSXPPC
+#if defined(MACOSXPPC)
     clock_serv_t cclock;
     mach_timespec_t mts;
     host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
@@ -550,7 +550,7 @@ for (tmr=clocks=0; tmr<=SIM_NTIMERS; ++tmr) {
     now.tv_nsec = mts.tv_nsec;
 #else
     clock_gettime (CLOCK_REALTIME, &now);
-#endif /* ifdef MACOSXPPC */
+#endif /* if defined(MACOSXPPC) */
     time_t_now = (time_t)now.tv_sec;
     fprintf (st, "  Wall Clock Time Now:       %8.8s.%03d\n", 11+ctime(&time_t_now), (int)(now.tv_nsec/1000000));
     if (rtc_clock_catchup_eligible[tmr]) {
@@ -665,7 +665,7 @@ if (stat == SCPE_OK) {
         struct timespec now;
         double skew;
 
-#ifdef MACOSXPPC
+#if defined(MACOSXPPC)
         clock_serv_t cclock;
         mach_timespec_t mts;
         host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
@@ -675,7 +675,7 @@ if (stat == SCPE_OK) {
         now.tv_nsec = mts.tv_nsec;
 #else
         clock_gettime(CLOCK_REALTIME, &now);
-#endif /* ifdef MACOSXPPC */
+#endif /* if defined(MACOSXPPC) */
         skew = (_timespec_to_double(&now) - (rtc_calib_tick_time[tmr]+rtc_clock_catchup_base_time[tmr]));
 
         if (fabs(skew) > fabs(rtc_clock_skew_max[tmr]))

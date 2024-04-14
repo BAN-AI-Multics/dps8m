@@ -32,7 +32,7 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifndef UTLIST_H
+#if !defined(UTLIST_H)
 # define UTLIST_H
 
 # define UTLIST_VERSION 21.9.8
@@ -77,7 +77,7 @@
     * or, for VS2008 where neither is available, uses casting workarounds.
     */
 
-# ifdef _MSC_VER            /* MS compiler */
+# if defined(_MSC_VER)            /* MS compiler */
 #  if _MSC_VER >= 1600 && defined(__cplusplus)  /* VS2010 or newer in C++ mode */
 #   define LDECLTYPE(x) decltype(x)
 #  else                     /* VS2008 or older (or VS2010 in C mode) */
@@ -94,7 +94,7 @@
   * to dereference its prev/next pointers, and save/restore the real head.
   */
 
-# ifdef NO_DECLTYPE
+# if defined(NO_DECLTYPE)
 #  define _SV(elt,list) _tmp = (char*)(list); {char **_alias = (char**)&(list); *_alias = (elt); }
 #  define _NEXT(elt,list,next) ((char*)((list)->next))
 #  define _NEXTASGN(elt,list,to,next) { char **_alias = (char**)&((list)->next); *_alias=(char*)(to); }
@@ -425,7 +425,7 @@ do {                                                                            
     }                                                                                          \
   }                                                                                            \
 } while (0)
-# ifdef NO_DECLTYPE
+# if defined(NO_DECLTYPE)
 #  undef LL_APPEND
 #  define LL_APPEND LL_APPEND_VS2008
 #  undef LL_DELETE

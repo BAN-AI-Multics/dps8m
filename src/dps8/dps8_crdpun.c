@@ -48,10 +48,10 @@
 
 #define DBG_CTR 1
 
-#ifdef TESTING
+#if defined(TESTING)
 # undef FREE
 # define FREE(p) free(p)
-#endif /* ifdef TESTING */
+#endif /* if defined(TESTING) */
 
 //-- // XXX We use this where we assume there is only one unit
 //-- #define ASSUME0 0
@@ -112,10 +112,10 @@ static DEBTAB pun_dt [] =
 
 static MTAB pun_mod [] =
   {
-#ifndef SPEED
+#if !defined(SPEED)
     { UNIT_WATCH, 1, "WATCH",   "WATCH",   0, 0, NULL, NULL },
     { UNIT_WATCH, 0, "NOWATCH", "NOWATCH", 0, 0, NULL, NULL },
-#endif
+#endif /* if !defined(SPEED) */
     {
       MTAB_XTD | MTAB_VDV | \
       MTAB_NMO | MTAB_VALR,                 /* Mask               */
@@ -832,10 +832,10 @@ static void save_card_in_cache(pun_state_t * state, word12 tally, word36 * card_
         (void)fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                       __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }

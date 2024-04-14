@@ -70,18 +70,18 @@
 #include "../decNumber/decContext.h"
 #include "../decNumber/decNumberLocal.h"
 
-#ifdef _WIN32
+#if defined(_WIN32)
 # include <windows.h>
-#endif /* ifdef _WIN32 */
+#endif /* if defined(_WIN32) */
 
-#ifdef TESTING
+#if defined(TESTING)
 # undef FREE
 # define FREE(p) free(p)
-#endif /* ifdef TESTING */
+#endif /* if defined(TESTING) */
 
-#ifndef DECLITEND
+#if !defined(DECLITEND)
 # error Unknown platform endianness
-#endif /* ifndef DECLITEND */
+#endif /* if !defined(DECLITEND) */
 
 struct disk_context {
     DEVICE              *dptr;              /* Device for unit (access to debug flags) */
@@ -498,7 +498,7 @@ uptr->disk_ctx = NULL;
 return stat;
 }
 
-#ifdef __xlc__
+#if defined(__xlc__)
 # pragma pack(1)
 #else
 # pragma pack(push,1)
@@ -628,7 +628,7 @@ typedef struct _ODS2_StorageControlBlock
     uint8  scb_b_reserved[446];
     uint16 scb_w_checksum;
     } ODS2_SCB;
-#ifdef __xlc__
+#if defined(__xlc__)
 # pragma pack(reset)
 #else
 # pragma pack(pop)
@@ -771,35 +771,35 @@ if (!ctx)
   fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
           __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
   (void)raise(SIGUSR2);
   /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
   abort();
 }
 if ((uptr->filename == NULL) || (uptr->disk_ctx == NULL))
     return _err_return (uptr, SCPE_MEM);
-#ifdef __GNUC__
-# ifndef __clang_version__
+#if defined(__GNUC__)
+# if !defined(__clang_version__)
 #  if __GNUC__ > 7
-#   ifndef __INTEL_COMPILER
+#   if !defined(__INTEL_COMPILER)
 #    pragma GCC diagnostic push
 #    pragma GCC diagnostic ignored "-Wstringop-truncation"
-#   endif /* ifndef __INTEL_COMPILER */
+#   endif /* if !defined(__INTEL_COMPILER) */
 #  endif /* if __GNUC__ > 7 */
-# endif /* ifndef __clang_version__ */
-#endif /* ifdef __GNUC__ */
+# endif /* if !defined(__clang_version__) */
+#endif /* if defined(__GNUC__) */
 strncpy (uptr->filename, cptr, CBUFSIZE);               /* save name */
-#ifdef __GNUC__
-# ifndef __clang_version__
+#if defined(__GNUC__)
+# if !defined(__clang_version__)
 #  if __GNUC__ > 7
-#   ifndef __INTEL_COMPILER
+#   if !defined(__INTEL_COMPILER)
 #    pragma GCC diagnostic pop
-#   endif /* ifndef __INTEL_COMPILER */
+#   endif /* if !defined(__INTEL_COMPILER) */
 #  endif /* if __GNUC__ > 7 */
-# endif /* ifndef __clang_version__ */
-#endif /* ifdef __GNUC__ */
+# endif /* if !defined(__clang_version__) */
+#endif /* if defined(__GNUC__) */
 ctx->sector_size = (uint32)sector_size;                 /* save sector_size */
 ctx->capac_factor = ((dptr->dwidth / dptr->aincr) == 16) ? 2 : 1; /* save capacity units (word: 2, byte: 1) */
 ctx->xfer_element_size = (uint32)xfer_element_size;     /* save xfer_element_size */

@@ -444,7 +444,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
     {
         //decNumberTrim(r);   // clean up any trailing 0's
 
-# ifndef SPEED
+# if !defined(SPEED)
         int scale;
         char out[256], out2[256];
 
@@ -473,7 +473,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
             //*r2 = *r;
             decNumberCopy(r2, r);
 
-# ifndef SPEED
+# if !defined(SPEED)
         if_sim_debug (DBG_TRACEEXT, & cpu_dev)
         {
             decBCDFromNumber((uint8_t *)out2, r2->digits, &scale, r2);
@@ -608,7 +608,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
 
             // display int of number
 
-# ifndef SPEED
+# if !defined(SPEED)
             if_sim_debug (DBG_TRACEEXT, & cpu_dev)
             {
                 decNumber _i;
@@ -815,7 +815,7 @@ mvn_write:;
   return (char *) out;
 }
 
-#ifndef QUIET_UNUSED
+#if !defined(QUIET_UNUSED)
 // If the lhs is less than the rhs in the total order then the number
 // will be set to the value -1. If they are equal, then number is set
 // to 0. If the lhs is greater than the rhs then the number will be
@@ -833,7 +833,7 @@ int decCompare(decNumber *lhs, decNumber *rhs, decContext *set)
 
     return 1;       // lhs > rhs
 }
-#endif
+#endif /* if !defined(QUIET_UNUSED) */
 
 int decCompareMAG(decNumber *lhs, decNumber *rhs, decContext *set)
 {

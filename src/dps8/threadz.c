@@ -44,9 +44,9 @@
   ( defined(__PPC__) || defined(_ARCH_PPC) )
 # include <mach/clock.h>
 # include <mach/mach.h>
-# ifdef MACOSXPPC
+# if defined(MACOSXPPC)
 #  undef MACOSXPPC
-# endif /* ifdef MACOSXPPC */
+# endif /* if defined(MACOSXPPC) */
 # define MACOSXPPC 1
 #endif /* if defined(__MACH__) && defined(__APPLE__) &&
            ( defined(__PPC__) || defined(_ARCH_PPC) ) */
@@ -57,12 +57,12 @@
 
 // scp library serializer
 
-#ifdef IO_ASYNC_PAYLOAD_CHAN_THREAD
+#if defined( IO_ASYNC_PAYLOAD_CHAN_THREAD)
 pthread_cond_t iomCond;
 pthread_mutex_t iom_start_lock;
 #endif
 
-#ifndef QUIET_UNUSED
+#if !defined(QUIET_UNUSED)
 void lock_simh (void)
   {
     pthread_mutex_lock (& simh_lock);
@@ -88,7 +88,7 @@ void unlock_libuv (void)
     pthread_mutex_unlock (& libuv_lock);
   }
 
-#ifdef TESTING
+#if defined(TESTING)
 bool test_libuv_lock (void)
   {
     //sim_debug (DBG_TRACE, & cpu_dev, "test_libuv_lock\n");
@@ -126,7 +126,7 @@ bool test_libuv_lock (void)
 // mem_lock -- memory atomicity lock
 // rmw_lock -- big R/M/W cycle lock
 
-#ifndef LOCKLESS
+#if !defined(LOCKLESS)
 pthread_rwlock_t mem_lock = PTHREAD_RWLOCK_INITIALIZER;
 static __thread bool have_mem_lock = false;
 static __thread bool have_rmw_lock = false;
@@ -301,7 +301,7 @@ void unlock_iom (void)
 
 // Debugging tool
 
-#ifdef TESTING
+#if defined(TESTING)
 static pthread_mutex_t tst_lock = PTHREAD_MUTEX_INITIALIZER;
 
 void lock_tst (void)
@@ -340,9 +340,9 @@ bool test_tst_lock (void)
       sim_printf ("test_tst_lock pthread_mutex_lock tst_lock %d\n", rc);
     return false;
   }
-#endif /* ifdef TESTING */
+#endif /* if defined(TESTING) */
 
-#ifdef __APPLE__
+#if defined(__APPLE__)
 
 /*
  * Request RT scheduling class and ask the Mach kernel to
@@ -383,12 +383,12 @@ rtsched_thread(pthread_t pthread)
       return 1;
     }
 
-# ifdef TESTING
+# if defined(TESTING)
   sim_warn("\rMach realtime thread scheduling policy request was successful.\r\n");
-# endif /* ifdef TESTING */
+# endif /* if defined(TESTING) */
   return 0;
 }
-#endif /* ifdef __APPLE__ */
+#endif /* if defined(__APPLE__) */
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -427,9 +427,9 @@ int pthread_create_with_cpu_policy(
         const pthread_attr_t *restrict attr,
         void *(*start_routine)(void *), void *restrict arg)
 {
-# ifdef TESTING
+# if defined(TESTING)
   sim_msg ("\rAffinity policy group %d requested for thread.\r\n", policy_group);
-# endif /* ifdef TESTING */
+# endif /* if defined(TESTING) */
   thread_affinity_policy_data_t policy_data = { policy_group };
   int rv = pthread_create_suspended_np(thread, attr, start_routine, arg);
   mach_port_t mach_thread = pthread_mach_thread_np(*thread);
@@ -468,8 +468,8 @@ void createCPUThread (uint cpuNum)
     p->run = true;
 
     // initialize DIS sleep
-#ifdef USE_MONOTONIC
-# if defined __APPLE__ || ! defined (CLOCK_MONOTONIC)
+#if defined(USE_MONOTONIC)
+# if defined(__APPLE__) || !defined(CLOCK_MONOTONIC)
     p->sleepClock = CLOCK_REALTIME;
     rc = pthread_cond_init (& p->sleepCond, NULL);
 # else
@@ -511,25 +511,25 @@ void createCPUThread (uint cpuNum)
 
     char nm [17];
     (void)sprintf (nm, "CPU %c", 'a' + cpuNum);
-#ifndef __NetBSD__
-# if ( defined ( __FreeBSD__ ) || defined ( __OpenBSD__ ) )
+#if !defined(__NetBSD__)
+# if ( defined(__FreeBSD__) || defined(__OpenBSD__) )
     pthread_set_name_np (p->cpuThread, nm);
 # else
-#  ifdef __APPLE__
-#   ifndef MACOSXPPC
+#  if defined(__APPLE__)
+#   if !defined(MACOSXPPC)
     pthread_setname_np (nm);
-#   endif /* ifndef MACOSXPPC */
+#   endif /* if !defined(MACOSXPPC) */
 #  else
-#   ifndef _AIX
-#    ifndef __gnu_hurd__
+#   if !defined(_AIX)
+#    if !defined(__gnu_hurd__)
     pthread_setname_np (p->cpuThread, nm);
-#    endif /* ifndef __gnu_hurd__ */
-#   endif /* ifndef _AIX */
-#  endif /* ifdef __APPLE__ */
-# endif /* ifdef FreeBSD || OpenBSD */
-#endif /* ifndef __NetBSD__ */
+#    endif /* if !defined(__gnu_hurd__) */
+#   endif /* if !defined(_AIX) */
+#  endif /* if defined(__APPLE__) */
+# endif /* if defined(__FreeBSD__) || defined(__OpenBSD__) */
+#endif /* if !defined(__NetBSD__) */
 
-#ifdef AFFINITY
+#if defined(AFFINITY)
     if (cpus[cpuNum].set_affinity)
       {
         cpu_set_t cpuset;
@@ -540,15 +540,15 @@ void createCPUThread (uint cpuNum)
           sim_printf ("pthread_setaffinity_np %u on CPU %u returned %d\n",
                       cpus[cpuNum].affinity, cpuNum, s);
       }
-#endif /* ifdef AFFINITY */
+#endif /* if defined(AFFINITY) */
 
-#ifdef __APPLE__
-# ifdef USE_RTSCHED_THREAD
+#if defined(__APPLE__)
+# if defined(USE_RTSCHED_THREAD)
     if (rtsched_thread(p->cpuThread) != 0)
       sim_printf ("\rrtsched_thread failed %s[%s:%d]!\r\n",
                   __func__, __FILE__, __LINE__);
-# endif /* ifdef USE_RTSCHED_THREAD */
-#endif /* ifdef __APPLE__ */
+# endif /* if defined(USE_RTSCHED_THREAD) */
+#endif /* if defined(__APPLE__) */
   }
 
 void stopCPUThread(void)
@@ -560,7 +560,7 @@ void stopCPUThread(void)
 
 // Called by CPU thread to block on run/sleep
 
-#ifdef THREADZ
+#if defined(THREADZ)
 void cpuRunningWait (void)
   {
     int rc;
@@ -589,14 +589,14 @@ unsigned long  sleepCPU (unsigned long usec) {
   struct cpuThreadz_t * p = & cpuThreadz[current_running_cpu_idx];
   struct timespec startTime, absTime;
 
-#ifdef MACOSXPPC
+#if defined(MACOSXPPC)
 # undef USE_MONOTONIC
-#endif /* ifdef MACOSXPPC */
+#endif /* if defined(MACOSXPPC) */
 
-#ifdef USE_MONOTONIC
+#if defined(USE_MONOTONIC)
   clock_gettime (p->sleepClock, & startTime);
 #else
-# ifdef MACOSXPPC
+# if defined(MACOSXPPC)
   clock_serv_t cclock;
   mach_timespec_t mts;
   host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
@@ -606,8 +606,8 @@ unsigned long  sleepCPU (unsigned long usec) {
   startTime.tv_nsec = mts.tv_nsec;
 # else
   clock_gettime (CLOCK_REALTIME, & startTime);
-# endif /* ifdef MACOSXPPC */
-#endif /* ifdef USE_MONOTONIC */
+# endif /* if defined(MACOSXPPC) */
+#endif /* if defined(USE_MONOTONIC) */
   absTime = startTime;
   int64_t nsec = ((int64_t) usec) * 1000L + (int64_t)startTime.tv_nsec;
   absTime.tv_nsec = nsec % 1000000000L;
@@ -625,10 +625,10 @@ unsigned long  sleepCPU (unsigned long usec) {
 
   struct timespec newTime;
   struct timespec delta;
-#ifdef USE_MONOTONIC
+#if defined(USE_MONOTONIC)
   clock_gettime (p->sleepClock, & newTime);
 #else
-# ifdef MACOSXPPC
+# if defined(MACOSXPPC)
   clock_serv_t ncclock;
   mach_timespec_t nmts;
   host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &ncclock);
@@ -638,8 +638,8 @@ unsigned long  sleepCPU (unsigned long usec) {
   newTime.tv_nsec = nmts.tv_nsec;
 # else
   clock_gettime (CLOCK_REALTIME, & newTime);
-# endif /* ifdef MACOSXPPC */
-#endif /* ifdef USE_MONOTONIC */
+# endif /* if defined(MACOSXPPC) */
+#endif /* if defined(USE_MONOTONIC) */
   timespec_diff (& absTime, & newTime, & delta);
 
   if (delta.tv_nsec < 0)
@@ -659,7 +659,7 @@ void wakeCPU (uint cpuNum)
       sim_printf ("wakeCPU pthread_cond_signal %d\n", rc);
   }
 
-#ifdef IO_THREADZ
+#if defined(IO_THREADZ)
 ////////////////////////////////////////////////////////////////////////////////
 //
 // IOM threads
@@ -691,7 +691,7 @@ void createIOMThread (uint iomNum)
   {
     int rc;
     struct iomThreadz_t * p = & iomThreadz[iomNum];
-# ifdef tdbg
+# if defined(tdbg)
     p->inCnt = 0;
     p->outCnt = 0;
 # endif
@@ -707,7 +707,7 @@ void createIOMThread (uint iomNum)
     if (rc)
       sim_printf ("createIOMThread pthread_cond_init intrCond %d\n", rc);
 
-# ifdef __APPLE__
+# if defined(__APPLE__)
     rc = pthread_create_with_cpu_policy(
             & p->iomThread,
             iomNum,
@@ -720,7 +720,7 @@ void createIOMThread (uint iomNum)
             NULL,
             iom_thread_main,
             & p->iomThreadArg);
-# endif /* ifdef __APPLE__ */
+# endif /* if defined(__APPLE__) */
     if (rc)
       sim_printf ("createIOMThread pthread_create %d\n", rc);
 
@@ -749,7 +749,7 @@ void iomInterruptWait (void)
         if (rc)
           sim_printf ("iomInterruptWait pthread_cond_wait %d\n", rc);
       }
-# ifdef tdbg
+# if defined(tdbg)
     p->outCnt++;
     if (p->inCnt != p->outCnt)
       sim_printf ("iom thread %d in %d out %d\n", this_iom_idx,
@@ -807,7 +807,7 @@ void setIOMInterrupt (uint iomNum)
         if (rc)
           sim_printf ("setIOMInterrupt pthread_cond_wait intrLock %d\n", rc);
       }
-# ifdef tdbg
+# if defined(tdbg)
     p->inCnt++;
 # endif
     p->intr = true;
@@ -860,7 +860,7 @@ void createChnThread (uint iomNum, uint chnNum, const char * devTypeStr)
     struct chnThreadz_t * p = & chnThreadz[iomNum][chnNum];
     p->chnThreadArg = (int) (chnNum + iomNum * MAX_CHANNELS);
 
-# ifdef tdbg
+# if defined(tdbg)
     p->inCnt = 0;
     p->outCnt = 0;
 # endif
@@ -874,7 +874,7 @@ void createChnThread (uint iomNum, uint chnNum, const char * devTypeStr)
     if (rc)
       sim_printf ("createChnThread pthread_cond_init connectCond %d\n", rc);
 
-# ifdef __APPLE__
+# if defined(__APPLE__)
     rc = pthread_create_with_cpu_policy(
             & p->chnThread,
             iomNum
@@ -887,7 +887,7 @@ void createChnThread (uint iomNum, uint chnNum, const char * devTypeStr)
             NULL,
             chan_thread_main,
             & p->chnThreadArg);
-# endif /* ifdef __APPLE__ */
+# endif /* if defined(__APPLE__) */
     if (rc)
       sim_printf ("createChnThread pthread_create %d\n", rc);
 
@@ -917,7 +917,7 @@ void chnConnectWait (void)
         if (rc)
           sim_printf ("chnConnectWait pthread_cond_wait %d\n", rc);
       }
-# ifdef tdbg
+# if defined(tdbg)
     p->outCnt++;
     if (p->inCnt != p->outCnt)
       sim_printf ("chn thread %d in %d out %d\n", this_chan_num,
@@ -955,7 +955,7 @@ void setChnConnect (uint iomNum, uint chnNum)
         if (rc)
           sim_printf ("setChnInterrupt pthread_cond_wait connectLock %d\n", rc);
       }
-# ifdef tdbg
+# if defined(tdbg)
     p->inCnt++;
 # endif
     p->connect = true;
@@ -979,20 +979,20 @@ void chnRdyWait (uint iomNum, uint chnNum)
 
 void initThreadz (void)
   {
-#ifdef IO_THREADZ
+#if defined(IO_THREADZ)
     // chnThreadz is sparse; make sure 'started' is false
     (void)memset (chnThreadz, 0, sizeof (chnThreadz));
 #endif
 
-#ifndef LOCKLESS
+#if !defined(LOCKLESS)
     //pthread_rwlock_init (& mem_lock, PTHREAD_PROCESS_PRIVATE);
     have_mem_lock = false;
     have_rmw_lock = false;
 #endif
-#if ( defined ( __FreeBSD__ ) || defined ( __OpenBSD__ ) )
+#if ( defined (__FreeBSD__) || defined (__OpenBSD__) )
     pthread_mutexattr_t scu_attr;
     pthread_mutexattr_init(&scu_attr);
-# ifndef __OpenBSD__
+# if !defined(__OpenBSD__)
     pthread_mutexattr_settype(&scu_attr, PTHREAD_MUTEX_ADAPTIVE_NP);
 # endif
     pthread_mutex_init (& scu_lock, &scu_attr);
@@ -1011,7 +1011,7 @@ void initThreadz (void)
 
     pthread_mutex_init (& libuv_lock, & libuv_attr);
 
-#ifdef IO_ASYNC_PAYLOAD_CHAN_THREAD
+#if defined(IO_ASYNC_PAYLOAD_CHAN_THREAD)
     pthread_cond_init (& iomCond, NULL);
     pthread_mutex_init (& iom_start_lock, NULL);
 #endif
@@ -1023,16 +1023,14 @@ void int_handler (int signal);
 
 void setSignals (void)
   {
-#ifndef __MINGW64__
-# ifndef __MINGW32__
+#if !defined(__MINGW64__) && !defined(__MINGW32__)
     struct sigaction act;
     (void)memset (& act, 0, sizeof (act));
     act.sa_handler = int_handler;
     act.sa_flags = 0;
     sigaction (SIGINT, & act, NULL);
     sigaction (SIGTERM, & act, NULL);
-# endif /* __MINGW32__ */
-#endif /* __MINGW64__ */
+#endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) */
   }
 
 #if 0

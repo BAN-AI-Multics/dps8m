@@ -14,10 +14,10 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifdef WITH_ABSI_DEV
+#if defined(WITH_ABSI_DEV)
 extern       DEVICE absi_dev;
 extern       UNIT absi_unit [N_ABSI_UNITS_MAX];
 void         absi_init (void);
 void         absi_process_event (void);
 iom_cmd_rc_t absi_iom_cmd (uint iomUnitIdx, uint chan);
-#endif /* ifdef WITH_ABSI_DEV */
+#endif /* if defined(WITH_ABSI_DEV) */

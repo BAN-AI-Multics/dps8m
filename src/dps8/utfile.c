@@ -42,15 +42,15 @@
   ( defined(__PPC__) || defined(_ARCH_PPC) )
 # include <mach/clock.h>
 # include <mach/mach.h>
-# ifdef MACOSXPPC
+# if defined(MACOSXPPC)
 #  undef MACOSXPPC
-# endif /* ifdef MACOSXPPC */
+# endif /* if defined(MACOSXPPC) */
 # define MACOSXPPC 1
 #endif /* if defined(__MACH__) && defined(__APPLE__) &&
            ( defined(__PPC__) || defined(_ARCH_PPC) ) */
 
 #undef FREE
-#ifdef TESTING
+#if defined(TESTING)
 # define FREE(p) free(p)
 #else
 # define FREE(p) do  \
@@ -58,7 +58,7 @@
     free((p));       \
     (p) = NULL;      \
   } while(0)
-#endif /* ifdef TESTING */
+#endif /* if defined(TESTING) */
 
 static char valid_file_name_chars[]
   = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -95,32 +95,32 @@ utfile_mkstemps(char *request_pattern, int suffix_length)
   char *mask_pointer;
   struct timespec st1;
 
-#ifdef MACOSXPPC
+#if defined(MACOSXPPC)
   (void)st1;
-#endif /* ifdef MACOSXPPC */
+#endif /* if defined(MACOSXPPC) */
   char *pattern = strdup(request_pattern);
   if (!pattern)
     {
       (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                      __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
       (void)raise(SIGUSR2);
       /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
       abort();
     }
 
   pattern_length = (long) strlen(pattern);
 
-#ifdef MACOSXPPC
+#if defined(MACOSXPPC)
 # undef USE_MONOTONIC
-#endif /* ifdef MACOSXPPC */
-#ifdef USE_MONOTONIC
+#endif /* if defined(MACOSXPPC) */
+#if defined(USE_MONOTONIC)
   st1ret = clock_gettime(CLOCK_MONOTONIC, &st1);
 #else
-# ifdef MACOSXPPC
+# if defined(MACOSXPPC)
   clock_serv_t cclock;
   mach_timespec_t mts;
   host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
@@ -131,17 +131,17 @@ utfile_mkstemps(char *request_pattern, int suffix_length)
   st1ret = 0;
 # else
   st1ret = clock_gettime(CLOCK_REALTIME, &st1);
-# endif /* ifdef MACOSXPPC */
-#endif /* ifdef USE_MONOTONIC */
+# endif /* if defined(MACOSXPPC) */
+#endif /* if defined(USE_MONOTONIC) */
   if (st1ret != 0)
     {
       (void)fprintf (stderr, "\rFATAL: clock_gettime failure! Aborting at %s[%s:%d]\r\n",
                      __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
       (void)raise(SIGUSR2);
       /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
       abort();
     }

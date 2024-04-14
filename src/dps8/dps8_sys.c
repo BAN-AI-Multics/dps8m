@@ -30,23 +30,17 @@
  */
 
 #include <stdio.h>
-#ifndef __MINGW64__
-# ifndef __MINGW32__
-#  ifndef CROSS_MINGW64
-#   ifndef CROSS_MINGW32
-#    include <signal.h>
-#   endif /* ifndef CROSS_MINGW32 */
-#  endif /* ifndef CROSS_MINGW64 */
-# endif /* ifndef __MINGW32__ */
-#endif /* ifndef __MINGW64__ */
+#if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32)
+# include <signal.h>
+#endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) */
 #include <time.h>
 #include <stdint.h>
 #include <unistd.h>
 #include <ctype.h>
 
-#ifdef __APPLE__
+#if defined(__APPLE__)
 # include <pthread.h>
-#endif
+#endif /* if defined(__APPLE__) */
 
 #include "dps8.h"
 #include "dps8_sys.h"
@@ -77,11 +71,11 @@
 
 #if defined(THREADZ) || defined(LOCKLESS)
 # include "threadz.h"
-#endif
+#endif /* if defined(THREADZ) || defined(LOCKLESS) */
 
-#ifdef PANEL68
+#if defined(PANEL68)
 # include "panelScraper.h"
-#endif
+#endif /* if defined(PANEL68) */
 
 #include "segldr.h"
 
@@ -89,9 +83,9 @@
   ( defined(__PPC__) || defined(_ARCH_PPC) )
 # include <mach/clock.h>
 # include <mach/mach.h>
-# ifdef MACOSXPPC
+# if defined(MACOSXPPC)
 #  undef MACOSXPPC
-# endif /* ifdef MACOSXPPC */
+# endif /* if defined(MACOSXPPC) */
 # define MACOSXPPC 1
 #endif /* if defined(__MACH__) && defined(__APPLE__) &&
            ( defined(__PPC__) || defined(_ARCH_PPC) ) */
@@ -100,10 +94,10 @@
 
 #define ASSUME0 0
 
-#ifdef TESTING
+#if defined(TESTING)
 # undef FREE
 # define FREE(p) free(p)
-#endif /* ifdef TESTING */
+#endif /* if defined(TESTING) */
 
 // Strictly speaking, memory belongs in the SCU.
 // We will treat memory as viewed from the CPU and elide the
@@ -127,7 +121,7 @@ static void dps8_exit (void);
 void (*sim_vm_init) (void) = & dps8_init;  // CustomCmds;
 void (*sim_vm_exit) (void) = & dps8_exit;  // CustomCmds;
 
-#ifdef TESTING
+#if defined(TESTING)
 static t_addr parse_addr(DEVICE *dptr, const char *cptr, const char **optr);
 static void fprint_addr(FILE *stream, DEVICE *dptr, t_addr addr);
 #endif // TESTING
@@ -145,7 +139,7 @@ int32 luf_flag = 1;
 
 // Script to string cables and set switches
 
-#ifndef PERF_STRIP
+#if !defined(PERF_STRIP)
 static char * default_base_system_script [] =
   {
     // ;
@@ -247,41 +241,23 @@ static char * default_base_system_script [] =
     "SET RDR NUNITS=3",
     "SET PUN NUNITS=3",
     "SET PRT NUNITS=4",
-# ifdef WITH_ABSI_DEV
-#  ifndef __MINGW64__
-#   ifndef __MINGW32__
-#    ifndef CROSS_MINGW64
-#     ifndef CROSS_MINGW32
+# if defined (WITH_ABSI_DEV)
+#  if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32)
     "SET ABSI NUNITS=1",
-#     endif /* ifndef CROSS_MINGW32 */
-#    endif /* ifndef CROSS_MINGW64 */
-#   endif /* ifndef __MINGW32__ */
-#  endif /* ifndef __MINGW64__ */
-# endif /* ifdef WITH_ABSI_DEV */
+#  endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) */
+# endif /* if defined(WITH_ABSI_DEV) */
 
-# ifdef WITH_MGP_DEV
-#  ifndef __MINGW64__
-#   ifndef __MINGW32__
-#    ifndef CROSS_MINGW64
-#     ifndef CROSS_MINGW32
+# if defined(WITH_MGP_DEV)
+#  if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32)
     "SET MGP NUNITS=2",
-#     endif /* ifndef CROSS_MINGW32 */
-#    endif /* ifndef CROSS_MINGW64 */
-#   endif /* ifndef __MINGW32__ */
-#  endif /* ifndef __MINGW64__ */
-# endif /* ifdef WITH_MGP_DEV */
+#  endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) */
+# endif /* if defined(WITH_MGP_DEV) */
 
-# ifdef WITH_SOCKET_DEV
-#  ifndef __MINGW64__
-#   ifndef __MINGW32__
-#    ifndef CROSS_MINGW64
-#     ifndef CROSS_MINGW32
+# if defined(WITH_SOCKET_DEV)
+#  if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32)
     "SET SKC NUNITS=64",
-#     endif /* ifndef CROSS_MINGW32 */
-#    endif /* ifndef CROSS_MINGW64 */
-#   endif /* ifndef __MINGW32__ */
-#  endif /* ifndef __MINGW64__ */
-# endif /* ifdef WITH_SOCKET_DEV */
+#  endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) */
+# endif /* if defined(WITH_SOCKET_DEV) */
 
 // CPU0
 
@@ -1550,11 +1526,8 @@ static char * default_base_system_script [] =
     "CABLE URP9 1 PUNC",
     "SET PUN2 NAME=punc",
 
-# ifdef WITH_SOCKET_DEV
-#  ifndef __MINGW64__
-#   ifndef __MINGW32__
-#    ifndef CROSS_MINGW32
-#     ifndef CROSS_MINGW64
+# if defined(WITH_SOCKET_DEV)
+#  if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64)
     "CABLE IOMA 040 SKCA",
     "CABLE IOMA 041 SKCB",
     "CABLE IOMA 042 SKCC",
@@ -1563,11 +1536,8 @@ static char * default_base_system_script [] =
     "CABLE IOMA 045 SKCF",
     "CABLE IOMA 046 SKCG",
     "CABLE IOMA 047 SKCH",
-#     endif /* ifndef CROSS_MINGW64 */
-#    endif /* ifndef CROSS_MINGW32 */
-#   endif /* ifndef __MINGW32__ */
-#  endif /* ifndef __MINGW64__ */
-# endif /* ifdef WITH_SOCKET_DEV */
+#  endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) */
+# endif /* if defined(WITH_SOCKET_DEV) */
 
 # if 0
     // ; Attach PRT unit 1 to IOM 0, chan 017, dev_code 2
@@ -1633,33 +1603,21 @@ static char * default_base_system_script [] =
     "SET PRT16 NAME=prtq",
 # endif
 
-# ifdef WITH_ABSI_DEV
-#  ifndef __MINGW64__
-#   ifndef __MINGW32__
-#    ifndef CROSS_MINGW64
-#     ifndef CROSS_MINGW32
+# if defined(WITH_ABSI_DEV)
+#  if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32)
     // ; Attach ABSI unit 0 to IOM 0, chan 032, dev_code 0
     "CABLE IOM0 032 ABSI0",
-#     endif /* CROSS_MINGW32 */
-#    endif /* CROSS_MINGW64 */
-#   endif /* __MINGW32__ */
-#  endif /* __MINGW64__ */
-# endif /* ifdef WITH_ABSI_DEV */
+#  endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) */
+# endif /* if defined(WITH_ABSI_DEV) */
 
-# ifdef WITH_MGP_DEV
-#  ifndef __MINGW64__
-#   ifndef __MINGW32__
-#    ifndef CROSS_MINGW64
-#     ifndef CROSS_MINGW32
+# if defined(WITH_MGP_DEV)
+#  if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32)
     // ; Attach MGPR unit 0 to IOM 0, chan 033, dev_code 0
     "CABLE IOM0 033 MGP0",
     // ; Attach MGPW unit 1 to IOM 0, chan 034, dev_code 0
     "CABLE IOM0 034 MGP1",
-#     endif /* CROSS_MINGW32 */
-#    endif /* CROSS_MINGW64 */
-#   endif /* __MINGW32__ */
-#  endif /* __MINGW64__ */
-# endif /* ifdef WITH_MGP_DEV */
+#  endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) */
+# endif /* if defined(WITH_MGP_DEV) */
 
     // ; Attach IOM unit 0 port A (0) to SCU unit 0, port 0
     "CABLE SCU0 0 IOM0 0", // SCU0 port 0 IOM0 port 0
@@ -1775,7 +1733,7 @@ static char * default_base_system_script [] =
 # if defined(THREADZ) || defined(LOCKLESS)
     "SET CPU NUNITS=6",
 # else
-#  ifdef ROUND_ROBIN
+#  if defined(ROUND_ROBIN)
     "SET CPU NUNITS=6",
 #  else
     "SET CPU NUNITS=1",
@@ -1818,7 +1776,7 @@ static void do_ini_line (char * text)
 
 static t_stat set_default_base_system (UNUSED int32 arg, UNUSED const char * buf)
   {
-# ifdef PERF_STRIP
+# if defined(PERF_STRIP)
     cpu_dev.numunits = 1;
 # else
     int n_lines = sizeof (default_base_system_script) / sizeof (char *);
@@ -1937,13 +1895,13 @@ static t_stat set_sys_poll_check_rate (UNUSED int32 arg, const char * buf)
     sys_opts.sys_poll_check_rate = (uint) n;
     return SCPE_OK;
   }
-#endif /* ifndef PERF_STRIP */
+#endif /* if !defined(PERF_STRIP) */
 
 //
 // Debugging commands
 //
 
-#ifdef TESTING
+#if defined(TESTING)
 
 // Filter settings for our customized sim_debug
 
@@ -1955,7 +1913,7 @@ uint64 sim_deb_stop       = 0;
 uint64 sim_deb_break      = 0;
 // Enable CPU sim_debug iff PPR.PSR == N
 bool sim_deb_segno_on     = false;
-# ifdef NO_C_ELLIPSIS
+# if defined(NO_C_ELLIPSIS)
 bool sim_deb_segno[DEBUG_SEGNO_LIMIT];
 # else
 bool sim_deb_segno[DEBUG_SEGNO_LIMIT] = { [0 ... DEBUG_SEGNO_LIMIT - 1] = false };
@@ -2342,10 +2300,10 @@ static int add_book_segment (char * name, int segno)
         (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                        __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
-#  ifdef SIGUSR2
+#  if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-#  endif /* ifdef SIGUSR2 */
+#  endif /* if defined(SIGUSR2) */
 # endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -2368,10 +2326,10 @@ static int add_book_component (int segnum, char * name, uint txt_start,
         (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                        __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
-#  ifdef SIGUSR2
+#  if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-#  endif /* ifdef SIGUSR2 */
+#  endif /* if defined(SIGUSR2) */
 # endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -2954,7 +2912,7 @@ static t_stat list_source_at (UNUSED int32 arg, UNUSED const char *  buf)
 static t_stat load_system_book (UNUSED int32 arg, UNUSED const char * buf)
   {
 // Quietly ignore if not debug enabled
-# ifndef SPEED
+# if !defined(SPEED)
     // Multics 12.5 assigns segment number to collection 3 starting at 0244.
     uint c3 = 0244;
 
@@ -3363,7 +3321,7 @@ static t_stat virt_address (UNUSED int32 arg, const char * buf)
 static t_stat set_search_path (UNUSED int32 arg, UNUSED const char * buf)
   {
 // Quietly ignore if debugging not enabled
-# ifndef SPEED
+# if !defined(SPEED)
     if (source_search_path)
       FREE (source_search_path);
     source_search_path = strdup (buf);
@@ -3372,10 +3330,10 @@ static t_stat set_search_path (UNUSED int32 arg, UNUSED const char * buf)
         (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                        __func__, __FILE__, __LINE__);
 #  if defined(USE_BACKTRACE)
-#   ifdef SIGUSR2
+#   if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-#   endif /* ifdef SIGUSR2 */
+#   endif /* if defined(SIGUSR2) */
 #  endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -3416,7 +3374,7 @@ static t_stat sbreak (int32 arg, const char * buf)
     return rc;
   }
 
-# ifdef DVFDBG
+# if defined(DVFDBG)
 static t_stat dfx1entry (UNUSED int32 arg, UNUSED const char * buf)
   {
 // divide_fx1, divide_fx3
@@ -3649,7 +3607,7 @@ static t_stat set_dbg_cpu_mask (int32 UNUSED arg, const char * UNUSED buf)
 // Misc. commands
 //
 
-#ifdef PANEL68
+#if defined(PANEL68)
 static t_stat scraper (UNUSED int32 arg, const char * buf)
   {
     if (strcasecmp (buf, "start") == 0)
@@ -3672,7 +3630,7 @@ static t_stat scraper (UNUSED int32 arg, const char * buf)
   }
 #endif
 
-#ifdef YIELD
+#if defined(YIELD)
 static t_stat clear_yield (int32 flag, UNUSED const char * cptr)
   {
     return SCPE_OK;
@@ -3684,15 +3642,15 @@ static t_stat yield (int32 flag, UNUSED const char * cptr)
   }
 #endif
 
-#ifndef PERF_STRIP
+#if !defined(PERF_STRIP)
 static t_stat set_luf (int32 flag, UNUSED const char * cptr)
   {
     luf_flag = flag;
     return SCPE_OK;
   }
-#endif /* ifndef PERF_STRIP */
+#endif /* if !defined(PERF_STRIP) */
 
-#ifdef DBGEVENT
+#if defined(DBGEVENT)
 uint n_dbgevents;
 struct dbgevent_t dbgevents[max_dbgevents];
 struct timespec dbgevent_t0;
@@ -3917,7 +3875,7 @@ t_stat ready_media (int32 arg, const char * buf) {
 // s*mh Command table
 //
 
-#ifdef TESTING
+#if defined(TESTING)
 # include "tracker.h"
 
 static t_stat trkw (UNUSED int32 arg, const char * buf)
@@ -3933,7 +3891,7 @@ static t_stat trkr (UNUSED int32 arg, const char * buf)
   }
 #endif
 
-#ifndef PERF_STRIP
+#if !defined(PERF_STRIP)
 static CTAB dps8_cmds[] =
   {
 
@@ -3975,7 +3933,7 @@ static CTAB dps8_cmds[] =
 // Debugging
 //
 
-# ifdef TESTING
+# if defined(TESTING)
     {"TRKW",               trkw,                  0, "Start tracking to track.dat\n",                            NULL, NULL},
     {"TRKR",               trkr,                  0, "Start comparing with track.dat\n",                         NULL, NULL},
     {"DBGMMECNTDWN",       dps_debug_mme_cntdwn,  0, "Enable debug after n MMEs\n",                              NULL, NULL},
@@ -4003,21 +3961,19 @@ static CTAB dps8_cmds[] =
     {"VIRTUAL",            virt_address,          0, "Compute the virtual address(es) of segno:offset\n",        NULL, NULL},
     {"SPATH",              set_search_path,       0, "Set source code search path\n",                            NULL, NULL},
     {"TEST",               brkbrk,                0, "GDB test hook\n",                                          NULL, NULL},
-#  ifdef DBGEVENT
+#  if defined(DBGEVENT)
     {"DBG0EVENT",          set_dbgevent,          0, "Set t0 debug event\n",                                     NULL, NULL},
     {"DBGEVENT",           set_dbgevent,          1, "Set debug event\n",                                        NULL, NULL},
     {"DBGNOEVENT",         set_dbgevent,          2, "Clear debug event\n",                                      NULL, NULL},
     {"DBGLISTEVENTS",      set_dbgevent,          3, "List debug events\n",                                      NULL, NULL},
     {"DBGCLEAREVENTS",     set_dbgevent,          4, "Clear debug events\n",                                     NULL, NULL},
-#  endif
-
-// copied from scp.c
+#  endif /* if defined(DBGEVENT) */
 #  define SSH_ST 0        /* set */
 #  define SSH_SH 1        /* show */
 #  define SSH_CL 2        /* clear */
     {"SBREAK",       sbreak,           SSH_ST, "Set a breakpoint with segno:offset syntax\n", NULL, NULL},
     {"NOSBREAK",     sbreak,           SSH_CL, "Unset an SBREAK\n",                           NULL, NULL},
-#  ifdef DVFDBG
+#  if defined(DVFDBG)
     // dvf debugging
     {"DFX1ENTRY",    dfx1entry,        0,      "\n",                                          NULL, NULL},
     {"DFX2ENTRY",    dfx2entry,        0,      "\n",                                          NULL, NULL},
@@ -4025,16 +3981,14 @@ static CTAB dps8_cmds[] =
     {"DV2SCALE",     dv2scale,         0,      "\n",                                          NULL, NULL},
     {"MDFX3ENTRY",   mdfx3entry,       0,      "\n",                                          NULL, NULL},
     {"SMFX1ENTRY",   smfx1entry,       0,      "\n",                                          NULL, NULL},
-#  endif
-    // doesn't work
-    //{"DUMPKST",             dumpKST,                  0, "dumpkst: dump the Known Segment Table\n", NULL},
-#  ifndef SPEED
+#  endif /* if defined(DVFDBG) */
+#  if !defined(SPEED)
     {"WATCH",        set_mem_watch,    1,      "Watch memory location\n",                     NULL, NULL},
     {"NOWATCH",      set_mem_watch,    0,      "Unwatch memory location\n",                   NULL, NULL},
-#  endif
+#  endif /* if !defined(SPEED) */
     {"SEARCHMEMORY", search_memory,    0,      "Search memory for value\n",                   NULL, NULL},
     {"DBGCPUMASK",   set_dbg_cpu_mask, 0,      "Set per-CPU debug enable mask\n",             NULL, NULL},
-# endif // TESTING
+# endif /* if defined(TESTING) */
 
     {"SEGLDR",       segment_loader,   0,      "Segment Loader\n",                            NULL, NULL},
 
@@ -4042,7 +3996,7 @@ static CTAB dps8_cmds[] =
 // Statistics
 //
 
-# ifdef MATRIX
+# if defined(MATRIX)
     {"DISPLAYMATRIX", display_the_matrix,  0, "Display instruction usage counts\n", NULL, NULL},
 # endif
 
@@ -4077,17 +4031,13 @@ static CTAB dps8_cmds[] =
 // Misc.
 //
 
-# ifdef PANEL68
+# if defined(PANEL68)
     {"SCRAPER",       scraper,             0, "Control panel scraper\n", NULL, NULL},
-# endif
+# endif /* if defined(PANEL68) */
     { NULL,           NULL,                0, NULL,                      NULL, NULL}
   }; // dps8_cmds
 
-# ifndef __MINGW64__
-#  ifndef __MINGW32__
-#   ifndef CROSS_MINGW64
-#    ifndef CROSS_MINGW32
-#     ifndef PERF_STRIP
+# if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) && !defined(PERF_STRIP)
 static void usr1_signal_handler (UNUSED int sig)
   {
     sim_msg ("USR1 signal caught; pressing the EXF button\n");
@@ -4095,11 +4045,7 @@ static void usr1_signal_handler (UNUSED int sig)
     setG7fault (ASSUME0, FAULT_EXF, fst_zero);
     return;
   }
-#     endif /* ifndef PERF_STRIP */
-#    endif /* ifndef CROSS_MINGW32 */
-#   endif /* ifndef CROSS_MINGW64 */
-#  endif /* ifndef __MINGW32__ */
-# endif /* ifndef __MINGW64__ */
+# endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) && !defined(PERF_STRIP) */
 
 static struct symbol_s symbols [] = {
     { "commit_id",              SYM_STATE_OFFSET,  SYM_STRING,    offsetof (struct system_state_s, commit_id)   },
@@ -4200,7 +4146,7 @@ static void systabInit (void) {
   system_state->symbolTable.symtabVer = SYMTAB_VER;
   memcpy (system_state->symbolTable.symbols, symbols, sizeof (symbols)); //-V1086
 }
-#endif /* ifndef PERF_STRIP */
+#endif /* if !defined(PERF_STRIP) */
 
 static inline uint32_t
 hash32s(const void *buf, size_t len, uint32_t h)
@@ -4227,7 +4173,7 @@ static void dps8_init (void) {
   int st1ret;
   (void)fflush(stderr);
   (void)fflush(stdout);
-#ifndef PERF_STRIP
+#if !defined(PERF_STRIP)
   if (!sim_quiet) {
 # if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_VERSION)
 #  if defined(VER_H_GIT_PATCH_INT) && defined(VER_H_GIT_PATCH)
@@ -4252,159 +4198,156 @@ static void dps8_init (void) {
 # endif
 
 /* TESTING */
-# ifdef TESTING
+# if defined(TESTING)
     sim_msg ("\n Options: ");
-#  ifndef HAVE_DPSOPT
+#  if !defined(HAVE_DPSOPT)
 #   define HAVE_DPSOPT 1
 #  endif
     sim_msg ("TESTING");
-# endif /* ifdef TESTING */
+# endif /* if defined(TESTING) */
 
 /* ISOLTS */
-# ifdef ISOLTS
-#  ifdef HAVE_DPSOPT
+# if defined(ISOLTS)
+#  if defined(HAVE_DPSOPT)
     sim_msg (", ");
 #  else
     sim_msg ("\n Options: ");
 #  endif
-#  ifndef HAVE_DPSOPT
+#  if !defined(HAVE_DPSOPT)
 #   define HAVE_DPSOPT 1
 #  endif
     sim_msg ("ISOLTS");
-# endif /* ifdef ISOLTS */
+# endif /* if defined(ISOLTS) */
 
 /* NEED_128 */
-# ifdef NEED_128
-#  ifdef HAVE_DPSOPT
+# if defined(NEED_128)
+#  if defined(HAVE_DPSOPT)
     sim_msg (", ");
 #  else
     sim_msg ("\n Options: ");
 #  endif
-#  ifndef HAVE_DPSOPT
+#  if !defined(HAVE_DPSOPT)
 #   define HAVE_DPSOPT 1
 #  endif
     sim_msg ("NEED_128");
-# endif /* ifdef NEED_128 */
+# endif /* if defined(NEED_128) */
 
 /* NO_UCACHE */
-# ifdef NO_UCACHE
-#  ifdef HAVE_DPSOPT
+# if defined(NO_UCACHE)
+#  if defined(HAVE_DPSOPT)
     sim_msg (", ");
 #  else
     sim_msg ("\n Options: ");
 #  endif
-#  ifndef HAVE_DPSOPT
+#  if !defined(HAVE_DPSOPT)
 #   define HAVE_DPSOPT 1
 #  endif
     sim_msg ("NO_UCACHE");
-# endif /* ifdef NO_UCACHE */
+# endif /* if defined(NO_UCACHE) */
 
 /* WAM */
-# ifdef WAM
-#  ifdef HAVE_DPSOPT
+# if defined(WAM)
+#  if defined(HAVE_DPSOPT)
     sim_msg (", ");
 #  else
     sim_msg ("\n Options: ");
 #  endif
-#  ifndef HAVE_DPSOPT
+#  if !defined(HAVE_DPSOPT)
 #   define HAVE_DPSOPT 1
 #  endif
     sim_msg ("WAM");
-# endif /* ifdef WAM */
+# endif /* if defined(WAM) */
 
 /* ROUND_ROBIN */
-# ifdef ROUND_ROBIN
-#  ifdef HAVE_DPSOPT
+# if defined(ROUND_ROBIN)
+#  if defined(HAVE_DPSOPT)
     sim_msg (", ");
 #  else
     sim_msg ("\n Options: ");
 #  endif
-#  ifndef HAVE_DPSOPT
+#  if !defined(HAVE_DPSOPT)
 #   define HAVE_DPSOPT 1
 #  endif
     sim_msg ("ROUND_ROBIN");
-# endif /* ifdef ROUND_ROBIN */
+# endif /* if defined(ROUND_ROBIN) */
 
 /* NO_LOCKLESS */
-# ifndef LOCKLESS
-#  ifdef HAVE_DPSOPT
+# if !defined(LOCKLESS)
+#  if defined(HAVE_DPSOPT)
     sim_msg (", ");
 #  else
     sim_msg ("\n Options: ");
 #  endif
-#  ifndef HAVE_DPSOPT
+#  if !defined(HAVE_DPSOPT)
 #   define HAVE_DPSOPT 1
 #  endif
     sim_msg ("NO_LOCKLESS");
-# endif /* ifndef NO_LOCKLESS */
+# endif /* if !defined(LOCKLESS) */
 
 /* ABSI */  /* XXX: Change to NO_ABSI once code is non-experimental */
-# ifdef WITH_ABSI_DEV
-#  ifdef HAVE_DPSOPT
+# if defined(WITH_ABSI_DEV)
+#  if defined(HAVE_DPSOPT)
     sim_msg (", ");
 #  else
     sim_msg ("\n Options: ");
 #  endif
-#  ifndef HAVE_DPSOPT
+#  if !defined(HAVE_DPSOPT)
 #   define HAVE_DPSOPT 1
 #  endif
     sim_msg ("ABSI");
-# endif /* ifdef WITH_ABSI_DEV */
+# endif /* if defined(WITH_ABSI_DEV) */
 
 /* SOCKET */  /* XXX: Change to NO_SOCKET once code is non-experimental */
-# ifdef WITH_SOCKET_DEV
-#  ifdef HAVE_DPSOPT
+# if defined(WITH_SOCKET_DEV)
+#  if defined(HAVE_DPSOPT)
     sim_msg (", ");
 #  else
     sim_msg ("\n Options: ");
 #  endif
-#  ifndef HAVE_DPSOPT
+#  if !defined(HAVE_DPSOPT)
 #   define HAVE_DPSOPT 1
 #  endif
     sim_msg ("SOCKET");
-# endif /* ifdef WITH_SOCKET_DEV */
+# endif /* if defined(WITH_SOCKET_DEV) */
 
 /* CHAOSNET */  /* XXX: Change to NO_CHAOSNET once code is non-experimental */
-# ifdef WITH_MGP_DEV
-#  ifdef HAVE_DPSOPT
+# if defined(WITH_MGP_DEV)
+#  if defined(HAVE_DPSOPT)
     sim_msg (", ");
 #  else
     sim_msg ("\n Options: ");
 #  endif
-#  ifndef HAVE_DPSOPT
+#  if !defined(HAVE_DPSOPT)
 #   define HAVE_DPSOPT 1
 #  endif
     sim_msg ("CHAOSNET");
-#  if USE_SOCKET_DEV_APPROACH
-    sim_msg ("*");
-#  endif /* if USE_SOCKET_DEV_APPROACH */
-# endif /* ifdef WITH_MGP_DEV */
+# endif /* if defined(WITH_MGP_DEV) */
 
 /* DUMA */
-# ifdef USE_DUMA
-#  ifdef HAVE_DPSOPT
+# if defined(USE_DUMA)
+#  if defined(HAVE_DPSOPT)
     sim_msg (", ");
 #  else
     sim_msg ("\n Options: ");
 #  endif
-#  ifndef HAVE_DPSOPT
+#  if !defined(HAVE_DPSOPT)
 #   define HAVE_DPSOPT 1
 #  endif
     sim_msg ("DUMA");
-# endif /* ifdef USE_DUMA */
+# endif /* if defined(USE_DUMA) */
 
 /* BACKTRACE */
-# ifdef USE_BACKTRACE
-#  ifdef HAVE_DPSOPT
+# if defined(USE_BACKTRACE)
+#  if defined(HAVE_DPSOPT)
     sim_msg (", ");
 #  else
     sim_msg ("\n Options: ");
 #  endif
-#  ifndef HAVE_DPSOPT
+#  if !defined(HAVE_DPSOPT)
 #   define HAVE_DPSOPT 1
 #  endif
     sim_msg ("BACKTRACE");
-# endif /* ifdef USE_BACKTRACE */
+# endif /* if defined(USE_BACKTRACE) */
 
 # if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_HASH)
     sim_msg ("\n  Commit: %s", VER_H_GIT_HASH);
@@ -4416,31 +4359,25 @@ static void dps8_init (void) {
 
   // special dps8 initialization stuff that can't be done in reset, etc. ...
 
-# ifdef TESTING
+# if defined(TESTING)
   // These are part of the scp interface
   sim_vm_parse_addr  = parse_addr;
   sim_vm_fprint_addr = fprint_addr;
-# endif /* ifdef TESTING */
+# endif /* if defined(TESTING) */
 
   sim_vm_cmd = dps8_cmds;
 
   // This is needed to make sbreak work
   sim_brk_types = sim_brk_dflt = SWMASK ('E');
 
-# ifndef __MINGW64__
-#  ifndef __MINGW32__
-#   ifndef CROSS_MINGW32
-#    ifndef CROSS_MINGW64
+# if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64)
   // Wire the XF button to signal USR1
   signal (SIGUSR1, usr1_signal_handler);
   // On line 4,739 of the libuv man page, it recommends this.
   signal(SIGPIPE, SIG_IGN);
-#    endif /* ifndef CROSS_MINGW64 */
-#   endif /* ifndef CROSS_MINGW32 */
-#  endif /* ifndef __MINGW32__ */
-# endif /* ifndef __MINGW64__ */
+# endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) */
 
-#endif // ! PERF_STRIP
+#endif
 
 #if defined(__MINGW64__) || defined(__MINGW32__)
 # include "bsd_random.h"
@@ -4458,15 +4395,15 @@ static void dps8_init (void) {
   char   statenme[32];
   (void)memset(statenme, 0, 32);
 
-#ifdef MACOSXPPC
+#if defined(MACOSXPPC)
   (void)ts;
 # undef USE_MONOTONIC
-#endif /* ifdef MACOSXPPC */
+#endif /* if defined(MACOSXPPC) */
 
-#ifdef USE_MONOTONIC
+#if defined(USE_MONOTONIC)
   st1ret = clock_gettime(CLOCK_MONOTONIC, &ts);
 #else
-# ifdef MACOSXPPC
+# if defined(MACOSXPPC)
   clock_serv_t cclock;
   mach_timespec_t mts;
   host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
@@ -4476,20 +4413,20 @@ static void dps8_init (void) {
   ts.tv_nsec = mts.tv_nsec;
 # else
   st1ret = clock_gettime(CLOCK_REALTIME, &ts);
-# endif /* ifdef MACOSXPPC */
-#endif /* ifdef USE_MONOTONIC */
-#ifdef MACOSXPPC
+# endif /* if defined(MACOSXPPC) */
+#endif /* if defined(USE_MONOTONIC) */
+#if defined(MACOSXPPC)
   st1ret = 0;
-#endif /* ifdef MACOSXPPC */
+#endif /* if defined(MACOSXPPC) */
   if (st1ret != 0)
     {
       (void)fprintf (stderr, "\rFATAL: clock_gettime failure! Aborting at %s[%s:%d]\r\n",
                      __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
       (void)raise(SIGUSR2);
       /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
       abort();
     }
@@ -4571,19 +4508,19 @@ static void dps8_init (void) {
               xstrerror_l(svErrno),
               __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     exit (svErrno);
   }
 
-#ifndef PERF_STRIP
+#if !defined(PERF_STRIP)
 
-# ifndef VER_H_GIT_HASH
+# if !defined(VER_H_GIT_HASH)
 #  define VER_H_GIT_HASH "0000000000000000000000000000000000000000"
-# endif
+# endif /* if !defined(VER_H_GIT_HASH) */
 
   (void)fflush(stdout);
   (void)fflush(stderr);
@@ -4616,27 +4553,20 @@ static void dps8_init (void) {
   sys_opts.sys_poll_check_rate    = 1024;
 #endif // ! PERF_STRIP
 
-#ifdef PERF_STRIP
+#if defined(PERF_STRIP)
   cpu_init ();
 #else
   sysCableInit ();
   iom_init ();
   disk_init ();
   mt_init ();
-# ifdef WITH_SOCKET_DEV
-#  ifndef __MINGW64__
-#   ifndef __MINGW32__
-#    ifndef CROSS_MINGW64
-#     ifndef CROSS_MINGW32
+# if defined(WITH_SOCKET_DEV)
+#  if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32)
   sk_init ();
-#     endif /* ifndef CROSS_MINGW32 */
-#    endif /* ifndef CROSS_MINGW64 */
-#   endif /* ifndef __MINGW64__ */
-#  endif /* ifndef __MINGW32__ */
-# endif /* ifdef WITH_SOCKET_DEV */
+#  endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) */
+# endif /* if defined(WITH_SOCKET_DEV) */
   fnpInit ();
   console_init (); // must come after fnpInit due to libuv initialization
- /* mpc_init (); */
   scu_init ();
   cpu_init ();
   rdr_init ();
@@ -4644,34 +4574,22 @@ static void dps8_init (void) {
   prt_init ();
   urp_init ();
 
-# ifdef WITH_ABSI_DEV
-#  ifndef __MINGW64__
-#   ifndef __MINGW32__
-#    ifndef CROSS_MINGW64
-#     ifndef CROSS_MINGW32
+# if defined(WITH_ABSI_DEV)
+#  if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32)
   absi_init ();
-#     endif /* CROSS_MINGW32 */
-#    endif /* CROSS_MINGW64 */
-#   endif /* ifndef __MINGW32__ */
-#  endif /* ifndef __MINGW64__ */
-# endif /* ifdef WITH_ABSI_DEV */
+#  endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) */
+# endif /* if defined(WITH_ABSI_DEV) */
 
-# ifdef WITH_MGP_DEV
-#  ifndef __MINGW64__
-#   ifndef __MINGW32__
-#    ifndef CROSS_MINGW64
-#     ifndef CROSS_MINGW32
+# if defined(WITH_MGP_DEV)
+#  if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32)
   mgp_init ();
-#     endif /* CROSS_MINGW32 */
-#    endif /* CROSS_MINGW64 */
-#   endif /* ifndef __MINGW32__ */
-#  endif /* ifndef __MINGW64__ */
-# endif /* ifdef WITH_MGP_DEV */
+#  endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) */
+# endif /* if defined(WITH_MGP_DEV) */
 
   set_default_base_system (0, NULL);
-# ifdef PANEL68
+# if defined(PANEL68)
   panelScraperInit ();
-# endif /* ifdef PANEL68 */
+# endif /* if defined(PANEL68) */
 #endif
 #if defined(THREADZ) || defined(LOCKLESS)
   initThreadz ();
@@ -4686,7 +4604,7 @@ static void dps8_exit (void) {
   fnpExit ();
 }
 
-#ifdef TESTING
+#if defined(TESTING)
 static struct pr_table
   {
     char  * alias;    // pr alias
@@ -4830,7 +4748,7 @@ static t_addr parse_addr (UNUSED DEVICE * dptr, const char *cptr,
 }
 #endif // TESTING
 
-#ifdef TESTING
+#if defined(TESTING)
 static void fprint_addr (FILE * stream, UNUSED DEVICE *  dptr, t_addr simh_addr)
 {
     (void)fprintf(stream, "%06o", simh_addr);
@@ -4846,7 +4764,7 @@ static void fprint_addr (FILE * stream, UNUSED DEVICE *  dptr, t_addr simh_addr)
 t_stat fprint_sym (UNUSED FILE * ofile, UNUSED t_addr addr,
                    UNUSED t_value *val, UNUSED UNIT *uptr, int32 UNUSED sw)
 {
-#ifdef TESTING
+#if defined(TESTING)
 // XXX Bug: assumes single cpu
 // XXX CAC: This seems rather bogus; deciding the output format based on the
 // address of the UNIT? Would it be better to use sim_unit.u3 (or some such
@@ -5062,24 +4980,17 @@ DEVICE * sim_devices[] =
     & cpu_dev, // dev[0] is special to the scp interface; it is the 'default device'
     & iom_dev,
     & tape_dev,
-#ifdef WITH_SOCKET_DEV
-# ifndef __MINGW64__
-#  ifndef __MINGW32__
-#   ifndef CROSS_MINGW32
-#    ifndef CROSS_MINGW64
+#if defined(WITH_SOCKET_DEV)
+# if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64)
     & skc_dev,
-#    endif /* ifndef CROSS_MINGW64 */
-#   endif /* ifndef CROSS_MINGW32 */
-#  endif /* ifndef __MINGW32__ */
-# endif /* ifndef __MINGW64__ */
-#endif /* ifdef WITH_SOCKET_DEV */
+# endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) */
+#endif /* if defined(WITH_SOCKET_DEV) */
     & mtp_dev,
     & fnp_dev,
     & dsk_dev,
     & ipc_dev,
     & msp_dev,
     & scu_dev,
- /* & mpc_dev, */
     & opc_dev,
     & sys_dev,
     & urp_dev,
@@ -5087,36 +4998,24 @@ DEVICE * sim_devices[] =
     & pun_dev,
     & prt_dev,
 
-#ifdef WITH_ABSI_DEV
-# ifndef __MINGW64__
-#  ifndef __MINGW32__
-#   ifndef CROSS_MINGW32
-#    ifndef CROSS_MINGW64
+#if defined(WITH_ABSI_DEV)
+# if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64)
     & absi_dev,
-#    endif /* ifndef CROSS_MINGW64 */
-#   endif /* ifndef CROSS_MINGW32 */
-#  endif /* ifndef __MINGW32__ */
-# endif /* ifndef __MINGW64__ */
-#endif /* ifdef WITH_ABSI_DEV */
+# endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) */
+#endif /* if defined(WITH_ABSI_DEV) */
 
-#ifdef WITH_MGP_DEV
-# ifndef __MINGW64__
-#  ifndef __MINGW32__
-#   ifndef CROSS_MINGW32
-#    ifndef CROSS_MINGW64
+#if defined(WITH_MGP_DEV)
+# if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64)
     & mgp_dev,
-#    endif /* ifndef CROSS_MINGW64 */
-#   endif /* ifndef CROSS_MINGW32 */
-#  endif /* ifndef __MINGW32__ */
-# endif /* ifndef __MINGW64__ */
-#endif /* ifdef WITH_MGP_DEV */
+# endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) */
+#endif /* if defined(WITH_MGP_DEV) */
 
     NULL
   };
 
-#ifdef PERF_STRIP
+#if defined(PERF_STRIP)
 void dps8_init_strip (void)
   {
     dps8_init ();
   }
-#endif
+#endif /* if defined(PERF_STRIP) */

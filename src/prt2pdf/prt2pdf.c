@@ -75,7 +75,7 @@
 #include <locale.h>
 
 #undef FREE
-#ifdef TESTING
+#if defined(TESTING)
 # define FREE(p) free(p)
 #else
 # define FREE(p) do  \
@@ -83,7 +83,7 @@
     free((p));       \
     (p) = NULL;      \
   } while(0)
-#endif /* ifdef TESTING */
+#endif /* if defined(TESTING) */
 
 /* ============================================================================================================================== */
 #define MAX(x, y)       ((x) > (y) ?  (x) : (y))
@@ -137,9 +137,9 @@
     struct _PageList *next;
 
         int  page_id;
-#ifndef __MINGW64__
+#if !defined(__MINGW64__)
         char pad[sizeof(void(*)(void))-sizeof(int)];
-#endif /* ifndef __MINGW64__ */
+#endif /* if !defined(__MINGW64__) */
 
  } PageList;
 
@@ -785,8 +785,8 @@ int main(int argc, char **argv) {
            case 'X': showhelp(2);
                                                                                               break;
            case 'V': ;
-#ifdef __VERSION__
-# ifdef __GNUC__
+#if defined(__VERSION__)
+# if defined(__GNUC__)
 #  if !defined (__clang_version__) || defined(__INTEL_COMPILER)
                      char xcmp[2];
                      (void)sprintf(xcmp, "%.1s", __VERSION__ );
@@ -801,8 +801,8 @@ int main(int argc, char **argv) {
 #  endif /* if !defined(__clang_version__) || defined(__INTEL_COMPILER)  */
 # else
                      (void)fprintf (stderr, "Compiler: %s\n", __VERSION__ );
-# endif /* ifdef __GNUC__ */
-#endif /* ifdef __VERSION__ */
+# endif /* if defined(__GNUC__) */
+#endif /* if defined(__VERSION__) */
                      exit(0);
                      /*NOTREACHED*/ /* unreachable */
                                                                                               break; /* build info               */
@@ -820,26 +820,18 @@ int main(int argc, char **argv) {
              showhelp(2);
              _Exit(1);
              /*NOTREACHED*/ /* unreachable */
-#ifndef __SUNPRO_C
-# ifndef __SUNPRO_CC
-#  ifndef __SUNPRO_CC_COMPAT
+#if !defined(__SUNPRO_C) && !defined(__SUNPRO_CC) && !defined(__SUNPRO_CC_COMPAT)
              return 1;
-#  endif
-# endif
-#endif
+#endif /* if !defined(__SUNPRO_C) && !defined(__SUNPRO_CC) && !defined(__SUNPRO_CC_COMPAT) */
              /*NOTREACHED*/ /* unreachable */
            default:
              (void)fprintf (stderr, "\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
                             __func__, __FILE__, __LINE__);
              abort();
              /*NOTREACHED*/ /* unreachable */
-#ifndef __SUNPRO_C
-# ifndef __SUNPRO_CC
-#  ifndef __SUNPRO_CC_COMPAT
+#if !defined(__SUNPRO_C) && !defined(__SUNPRO_CC) && !defined(__SUNPRO_CC_COMPAT)
              return 1;
-#  endif
-# endif
-#endif
+#endif /* if !defined(__SUNPRO_C) && !defined(__SUNPRO_CC) && !defined(__SUNPRO_CC_COMPAT) */
              /*NOTREACHED*/ /* unreachable */
            }
 

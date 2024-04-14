@@ -16,7 +16,7 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifndef DPS8_EM_CONSTS_H
+#if !defined(DPS8_EM_CONSTS_H)
 # define DPS8_EM_CONSTS_H
 
 ////////////////

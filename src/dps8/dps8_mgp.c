@@ -60,12 +60,12 @@
     (p) = NULL;     \
   } while(0)
 
-#ifdef TESTING
+#if defined(TESTING)
 # undef FREE
 # define FREE(p) free(p)
-#endif /* ifdef TESTING */
+#endif /* if defined(TESTING) */
 
-#ifdef WITH_MGP_DEV
+#if defined(WITH_MGP_DEV)
 
 # define DBG_CTR  1
 
@@ -229,10 +229,10 @@ mgp_set_device_name(UNIT *uptr, UNUSED int32 value, const char *cptr,
 # define UNIT_WATCH  UNIT_V_UF
 
 static MTAB mgp_mod[] = {
-# ifndef SPEED
+# if !defined(SPEED)
   { UNIT_WATCH, 1, "WATCH",   "WATCH",   0, 0, NULL, NULL },
   { UNIT_WATCH, 0, "NOWATCH", "NOWATCH", 0, 0, NULL, NULL },
-# endif /* ifndef SPEED */
+# endif /* if !defined(SPEED) */
   {
     MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* Mask               */
     0,                                          /* Match              */
@@ -837,7 +837,7 @@ valid_chaos_host_address(u_short addr)
 static void
 copy_packet9_to_cbridge8(word36 *buf, uint words, u_char *dest, int dlen)
 {
-# ifndef __clang_analyzer__
+# if !defined(__clang_analyzer__)
   int j;
   /* Convert from 9-bit to 8-bit */
   for (j = 0; j < words * 4 && j < dlen; j++)
@@ -845,7 +845,7 @@ copy_packet9_to_cbridge8(word36 *buf, uint words, u_char *dest, int dlen)
       // Clang Analyzer warning: 1st function call argument is an uninitialized value
       dest[j] = getbits36_9(buf[MGP_PACKET_HEADER_SIZE + j / 4], ( j % 4 ) * 9);
     }
-# endif /* ifndef __clang_analyzer__ */
+# endif /* if !defined(__clang_analyzer__) */
 }
 
 // and the other way around
@@ -925,10 +925,10 @@ parse_packet_header(word36 *buf, uint words)
       (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                      __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
-#  ifdef SIGUSR2
+#  if defined(SIGUSR2)
       (void)raise(SIGUSR2);
       /*NOTREACHED*/ /* unreachable */
-#  endif /* ifdef SIGUSR2 */
+#  endif /* if defined(SIGUSR2) */
 # endif /* if defined(USE_BACKTRACE) */
       abort();
     }
@@ -1249,10 +1249,10 @@ make_cbridge_pkt(int len, int opcode)
       (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                      __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
-#  ifdef SIGUSR2
+#  if defined(SIGUSR2)
       (void)raise(SIGUSR2);
       /*NOTREACHED*/ /* unreachable */
-#  endif /* ifdef SIGUSR2 */
+#  endif /* if defined(SIGUSR2) */
 # endif /* if defined(USE_BACKTRACE) */
       abort();
     }
@@ -2212,4 +2212,4 @@ poll_from_cbridge(word36 *buf, uint words, uint probe_only)
   return rval;
 }
 
-#endif /* ifdef WITH_MGP_DEV */
+#endif /* if defined(WITH_MGP_DEV) */

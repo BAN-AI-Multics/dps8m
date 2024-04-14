@@ -4,6 +4,7 @@
 /* ------------------------------------------------------------------- */
 /* Packed Decimal conversion module header                             */
 /* ------------------------------------------------------------------- */
+/*                                                                     */
 /* Copyright (c) IBM Corporation, 2000, 2005.  All rights reserved.    */
 /*                                                                     */
 /* This software is made available under the terms of the ICU License. */
@@ -17,6 +18,7 @@
 /*   mfc@uk.ibm.com                                                    */
 /*   Mike Cowlishaw, IBM Fellow                                        */
 /*   IBM UK, PO Box 31, Birmingham Road, Warwick CV34 5JL, UK          */
+/*                                                                     */
 /* ------------------------------------------------------------------- */
 
 #if !defined(DECPACKED)
@@ -27,9 +29,9 @@
 
 # define DECPACKED_DefP 32             /* default precision           */
 
-# ifndef DECNUMDIGITS
+# if !defined(DECNUMDIGITS)
 #  define DECNUMDIGITS DECPACKED_DefP  /* size if not already defined */
-# endif
+# endif /* if !defined(DECNUMDIGITS) */
 # include "decNumber.h"                /* context and number library  */
 
   /* Sign nibble constants                                            */
@@ -40,7 +42,7 @@
 #  define DECPMINUS    0x0D   /* preferred minus nibble               */
 #  define DECPPLUSALT2 0x0E   /* alternate plus  nibble               */
 #  define DECPUNSIGNED 0x0F   /* alternate plus  nibble (unsigned)    */
-# endif
+# endif /* if !defined(DECPPLUSALT) */
 
   /* ---------------------------------------------------------------- */
   /* decPacked public routines                                        */

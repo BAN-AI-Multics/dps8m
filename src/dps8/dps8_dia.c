@@ -44,24 +44,24 @@
 
 #define DBG_CTR 1
 
-#ifdef THREADZ
+#if defined(THREADZ)
 # include "threadz.h"
-#endif
+#endif /* if defined(THREADZ) */
 
-#ifdef TESTING
+#if defined(TESTING)
 # undef FREE
 # define FREE(p) free(p)
-#endif /* ifdef TESTING */
+#endif /* if defined(TESTING) */
 
 static inline void fnp_core_read (word24 addr, word36 *data, UNUSED const char * ctx)
   {
-#ifdef THREADZ
+#if defined(THREADZ)
     lock_mem_rd ();
-#endif
+#endif /* if defined(THREADZ) */
     * data = M [addr] & DMASK;
-#ifdef THREADZ
+#if defined(THREADZ)
     unlock_mem ();
-#endif
+#endif /* if defined(THREADZ) */
   }
 #define N_DIA_UNITS 1 // default
 #define DIA_UNIT_IDX(uptr) ((uptr) - dia_unit)
@@ -376,13 +376,13 @@ void dia_init (void)
 
 static inline void fnp_core_write (word24 addr, word36 data, UNUSED const char * ctx)
   {
-#ifdef THREADZ
+#if defined(THREADZ)
     lock_mem_wr ();
-#endif
+#endif /* if defined(THREADZ) */
     M [addr] = data & DMASK;
-#ifdef THREADZ
+#if defined(THREADZ)
     unlock_mem ();
-#endif
+#endif /* if defined(THREADZ) */
   }
 
 //

@@ -77,7 +77,7 @@
 #include "udplib.h"
 #include "h316_imp.h"
 
-#ifdef WITH_ABSI_DEV
+#if defined(WITH_ABSI_DEV)
 # define MAXLINKS        10      // maximum number of simultaneous connections
 //   This constant determines the longest possible IMP data payload that can be
 // sent. Most IMP messages are trivially small - 68 words or so - but, when one
@@ -520,8 +520,8 @@ int udp_receive (int link, uint16_t * pdata, uint16_t maxbuf)
     return pktlen;
   }
 
-//#define TEST
-# ifdef TEST
+//#define TEST__
+# if defined(TEST__)
 
 #  define CBUFSIZE        256
 #  define SCPE_ARG -1
@@ -694,5 +694,5 @@ int main (int argc, char * argv [])
           }
       }
   }
-# endif
-#endif /* #ifdef WITH_ABSI_DEV */
+# endif /* if defined(TEST__) */
+#endif /* if defined(WITH_ABSI_DEV) */

@@ -16,7 +16,7 @@
 
 // History Debugging
 
-#ifdef TESTING
+#if defined(TESTING)
 
 # include <unistd.h>
 # include <sys/types.h>

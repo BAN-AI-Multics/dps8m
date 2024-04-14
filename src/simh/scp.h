@@ -37,7 +37,7 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifndef SIM_SCP_H_
+#if !defined(SIM_SCP_H_)
 # define SIM_SCP_H_      0
 
 /* run_cmd parameters */

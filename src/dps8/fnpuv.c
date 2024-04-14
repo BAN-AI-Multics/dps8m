@@ -150,7 +150,7 @@
 // will cause an 'accept_new_terminal' command to be send to Multics.
 //
 
-#ifdef TUN
+#if defined(TUN)
 // TUN interface
 
 // If makes more sense to me to have the emulator on an endpoint, but
@@ -173,7 +173,7 @@
 //   sudo ip tuntap add mode tun dps8m
 //   sudo ip link set dps8m up
 //   sudo ip addr add 192.168.8.1/24 dev dps8m
-#endif
+#endif /* if defined(TUN) */
 
 #define ASSUME0 0
 
@@ -182,7 +182,7 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <signal.h>
-#ifdef TUN
+#if defined(TUN)
 # include <string.h>
 # include <fcntl.h>
 # include <errno.h>
@@ -193,7 +193,7 @@
 # include <sys/socket.h>
 # include <linux/if.h>
 # include <linux/if_tun.h>
-#endif
+#endif /* if defined(TUN) */
 
 #include "dps8.h"
 #include "dps8_scu.h"
@@ -206,19 +206,19 @@
 #include "fnpuv.h"
 #include "fnptelnet.h"
 
-#ifdef TESTING
+#if defined(TESTING)
 # undef realloc
 # undef FREE
 # define FREE(p) free(p)
 # define realloc trealloc
-#endif /* ifdef TESTING */
+#endif /* if defined(TESTING) */
 
 #define USE_REQ_DATA
 
 // Making it up...
 #define DEFAULT_BACKLOG 1024
 
-#ifdef TUN
+#if defined(TUN)
 static int tun_alloc (char * dev)
   {
     struct ifreq ifr;
@@ -249,7 +249,7 @@ static int tun_alloc (char * dev)
     strcpy (dev, ifr.ifr_name);
     return fd;
   }
-#endif
+#endif /* if defined(TUN) */
 
 //
 // alloc_buffer: libuv callback handler to allocate buffers for incoming data.
@@ -346,11 +346,11 @@ void close_connection (uv_stream_t* stream)
             else
               {
                 sim_printf ("\r[FNP emulation: DISCONNECT %c.d%03d]\r\n", p->fnpno+'a', p->lineno);
-#ifdef DISC_DELAY
+#if defined(DISC_DELAY)
                 linep -> line_disconnected = DISC_DELAY;
 #else
                 linep -> line_disconnected = true;
-#endif
+#endif /* if defined(DISC_DELAY) */
                 linep -> listen = false;
                 if (linep->inBuffer)
                   FREE (linep->inBuffer);
@@ -466,36 +466,29 @@ static void fuv_write_cb (uv_write_t * req, int status)
         close_connection (req->handle);
       }
 
-#ifdef USE_REQ_DATA
-//sim_printf ("freeing bufs %p\n", req->data);
+#if defined(USE_REQ_DATA)
+    //sim_printf ("freeing bufs %p\n", req->data);
     FREE (req->data);
 #else
     unsigned int nbufs = req->nbufs;
     uv_buf_t * bufs = req->bufs;
-    //if (! bufs)
-# if 0
-    if (nbufs > ARRAY_SIZE(req->bufsml))
-      bufs = req->bufsml;
-# endif
-//sim_printf ("fuv_write_cb req %p req->data %p bufs %p nbufs %u\n", req, req->data, bufs, nbufs);
     for (unsigned int i = 0; i < nbufs; i ++)
       {
         if (bufs && bufs[i].base)
           {
-//sim_printf ("freeing bufs%d %p\n", i, bufs[i].base);
+            //sim_printf ("freeing bufs%d %p\n", i, bufs[i].base);
             FREE (bufs[i].base);
-            //bufp -> base = NULL;
           }
         if (req->bufsml[i].base)
           {
-//sim_printf ("freeing bufsml%d %p@%p\n", i, req->bufsml[i].base, & req->bufsml[i].base);
+            //sim_printf ("freeing bufsml%d %p@%p\n", i, req->bufsml[i].base, & req->bufsml[i].base);
             FREE (req->bufsml[i].base);
           }
       }
-#endif
+#endif /* if defined(USE_REQ_DATA) */
 
     // the buf structure is copied; do not free.
-//sim_printf ("freeing req %p\n", req);
+    //sim_printf ("freeing req %p\n", req);
     FREE (req);
   }
 
@@ -516,31 +509,9 @@ static void fuv_write_3270_cb (uv_write_t * req, int status) {
 
 static void fnpuv_start_write_3270_actual (UNUSED uv_tcp_t * client, unsigned char * data, ssize_t datalen)
   {
-#ifdef TESTING
-sim_printf ("fnpuv_start_write_3270_actual\r\n");
-#endif
-#if 0
-sim_printf ("hex   :");
-for (ssize_t i = 0; i < datalen; i ++) sim_printf (" %02hhx", data[i]);
-sim_printf ("\r\n");
-sim_printf ("octal :");
-for (ssize_t i = 0; i < datalen; i ++) sim_printf (" %03hho", data[i]);
-sim_printf ("\r\n");
-sim_printf ("ascii :");
-for (ssize_t i = 0; i < datalen; i ++)
-     if (isprint (data[i]))
-      sim_printf ("%c", data[i]);
-     else
-      sim_printf ("\\%03hho", data[i]);
-sim_printf ("\r\n");
-sim_printf ("ebcdic:");
-for (ssize_t i = 0; i < datalen; i ++)
-     if (isprint (e2a[data[i]]))
-      sim_printf ("%c", e2a[data[i]]);
-     else
-      sim_printf ("\\%03hho", e2a[data[i]]);
-sim_printf ("\r\n");
-#endif
+#if defined(TESTING)
+      sim_printf ("fnpuv_start_write_3270_actual\r\n");
+#endif /* if defined(TESTING) */
 
     // Find the client from the device selection call
 
@@ -559,17 +530,17 @@ sim_printf ("\r\n");
 
     // Allocate write request
 /* Suppress Clang Analyzer's possible memory leak warning */
-#if !defined ( __clang_analyzer__ )
+#if !defined (__clang_analyzer__)
     uv_write_t * req = (uv_write_t *) malloc (sizeof (uv_write_t));
     if (!req)
       {
         (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                        __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
-#  ifdef SIGUSR2
+#  if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-#  endif /* ifdef SIGUSR2 */
+#  endif /* if defined(SIGUSR2) */
 # endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -577,7 +548,7 @@ sim_printf ("\r\n");
     (void)memset (req, 0, sizeof (uv_write_t));
     uv_buf_t buf = uv_buf_init ((char *) malloc ((unsigned long) datalen), (uint) datalen);
 //sim_printf ("allocated req %p data %p\n", req, buf.base);
-# ifdef USE_REQ_DATA
+# if defined(USE_REQ_DATA)
     req->data = buf.base;
 # endif
 //sim_printf ("fnpuv_start_write_actual req %p buf.base %p\n", req, buf.base);
@@ -604,10 +575,10 @@ void fnpuv_start_write_actual (uv_tcp_t * client, unsigned char * data, ssize_t 
         (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                        __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
-#  ifdef SIGUSR2
+#  if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-#  endif /* ifdef SIGUSR2 */
+#  endif /* if defined(SIGUSR2) */
 # endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -615,7 +586,7 @@ void fnpuv_start_write_actual (uv_tcp_t * client, unsigned char * data, ssize_t 
     (void)memset (req, 0, sizeof (uv_write_t));
     uv_buf_t buf = uv_buf_init ((char *) malloc ((unsigned long) datalen), (uint) datalen);
 //sim_printf ("allocated req %p data %p\n", req, buf.base);
-# ifdef USE_REQ_DATA
+# if defined(USE_REQ_DATA)
     req->data = buf.base;
 # endif
 //sim_printf ("fnpuv_start_write_actual req %p buf.base %p\n", req, buf.base);
@@ -656,30 +627,8 @@ void fnpuv_start_3270_write (uv_tcp_t * client, unsigned char * data, ssize_t da
     uvClientData * p = (uvClientData *) client->data;
     if (! p) //-V547
       return;
-#ifdef TESTING
+#if defined(TESTING)
 sim_printf ("fnpuv_start_3270_write\r\n");
-#endif
-#if 0
-sim_printf ("hex   :");
-for (ssize_t i = 0; i < datalen; i ++) sim_printf (" %02hhx", data[i]);
-sim_printf ("\r\n");
-sim_printf ("octal :");
-for (ssize_t i = 0; i < datalen; i ++) sim_printf (" %03hho", data[i]);
-sim_printf ("\r\n");
-sim_printf ("ascii :");
-for (ssize_t i = 0; i < datalen; i ++)
-     if (isprint (data[i]))
-      sim_printf ("%c", data[i]);
-     else
-      sim_printf ("\\%03hho", data[i]);
-sim_printf ("\r\n");
-sim_printf ("ebcdic:");
-for (ssize_t i = 0; i < datalen; i ++)
-     if (isprint (e2a[data[i]]))
-      sim_printf ("%c", e2a[data[i]]);
-     else
-      sim_printf ("\\%03hho", e2a[data[i]]);
-sim_printf ("\r\n");
 #endif
 
     // Strip BSC protocol:
@@ -688,9 +637,9 @@ sim_printf ("\r\n");
 
     if (datalen == 1 && data [0] == 0x37) // EOT
       {
-#ifdef TESTING
+#if defined(TESTING)
 sim_printf ("fnpuv: detected EOT\r\n");
-#endif
+#endif /* if defined(TESTING) */
         fnpuv_send_eor (client);
         return;
       }
@@ -796,10 +745,10 @@ static void on_new_connection (uv_stream_t * server, int status)
         (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                        __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -821,7 +770,7 @@ static void on_new_connection (uv_stream_t * server, int status)
         if (linep->line_client)
           {
             uv_close ((uv_handle_t *) client, fuv_close_cb);
-# ifdef TESTING
+# if defined(TESTING)
 sim_printf ("\r[FNP emulation: dropping 2nd slave]\r\n");
 # endif
             return;
@@ -850,10 +799,10 @@ sim_printf ("\r[FNP emulation: dropping 2nd slave]\r\n");
          (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                         __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -1036,12 +985,10 @@ void fnpuv_dial_out (uint fnpno, uint lineno, word36 d1, word36 d2, word36 d3)
 
 // Flags
 //   1    Use Telnet
-#ifdef TUN
+#if defined(TUN)
 //   2    Use TUN device (in which case 'port' is the netmask
-#endif
 //   4
 
-#ifdef TUN
     linep->is_tun = false;
     if (flags & 2)
       {
@@ -1071,9 +1018,9 @@ void fnpuv_dial_out (uint fnpno, uint lineno, word36 d1, word36 d2, word36 d3)
           linep->is_tun = true;
           return;
         }
-#endif
+#endif /* if defined(TUN) */
 
-// firewall
+    // firewall
 
     // Default is accept
     bool accept = true;
@@ -1110,10 +1057,10 @@ void fnpuv_dial_out (uint fnpno, uint lineno, word36 d1, word36 d2, word36 d3)
         (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                        __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -1125,10 +1072,10 @@ void fnpuv_dial_out (uint fnpno, uint lineno, word36 d1, word36 d2, word36 d3)
         (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                        __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -1206,10 +1153,10 @@ void fnpuv_open_slave (uint fnpno, uint lineno)
         (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                        __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -1234,61 +1181,9 @@ void fnpuv_open_slave (uint fnpno, uint lineno)
         sim_printf ("\r[FNP emulation: listen error: %s:%ld: %s]\r\n", fnpData.telnet_address, (long) linep->port, uv_strerror(r));
      }
     sim_printf ("\r[FNP emulation: listening on %s:%ld]\r\n", fnpData.telnet_address, (long) linep->port);
-
-// It should be possible to run a peer-to-peer TCP instead of client server,
-// but it's not clear to me how.
-
-#if 0
-    linep->line_client = (uv_tcp_t *) malloc (sizeof (uv_tcp_t));
-    if (! linep->line_client)
-      {
-        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                       __func__, __FILE__, __LINE__);
-# if defined(USE_BACKTRACE)
-#  ifdef SIGUSR2
-        (void)raise(SIGUSR2);
-        /*NOTREACHED*/ /* unreachable */
-#  endif /* ifdef SIGUSR2 */
-# endif /* if defined(USE_BACKTRACE) */
-        abort();
-      }
-    uv_tcp_init (fnpData.loop, linep->line_client);
-
-    uvClientData * p = (uvClientData *) malloc (sizeof (uvClientData));
-    if (! p)
-      {
-         (void)fprintf (stderr, "\rFATAL: Out of memory at %s[%s:%d]\r\n",
-                        __func__, __FILE__, __LINE__);
-# if defined(USE_BACKTRACE)
-#  ifdef SIGUSR2
-         (void)raise(SIGUSR2);
-        /*NOTREACHED*/ /* unreachable */
-#  endif /* ifdef SIGUSR2 */
-# endif /* if defined(USE_BACKTRACE) */
-         abort();
-      }
-    p->assoc   = false;
-    p->ttype   = NULL;
-    p->telnetp = NULL;
-    p->fnpno   = fnpno;
-    p->lineno  = lineno;
-
-    linep->line_client->data = p;
-
-    struct sockaddr_in addr;
-    uv_ip4_addr ("0.0.0.0", linep->port, & addr);
-    uv_tcp_bind (linep->line_client, (const struct sockaddr *) & addr, 0);
-sim_printf ("listening on port %d\n", linep->port);
-    int r = uv_listen ((uv_stream_t *) linep->line_client, DEFAULT_BACKLOG,
-                       on_slave_connect);
-    if (r)
-     {
-        (void)fprintf (stderr, "Listen error %s\n", uv_strerror(r));
-      }
-#endif
   }
 
-#ifdef TUN
+#if defined(TUN)
 static void processPacketInput (int fnpno, int lineno, unsigned char * buf, ssize_t nread)
   {
     //uvClientData * p = (uvClientData *) client->data;
@@ -1313,10 +1208,10 @@ static void processPacketInput (int fnpno, int lineno, unsigned char * buf, ssiz
             (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                            __func__, __FILE__, __LINE__)
 # if defined(USE_BACKTRACE)
-#  ifdef SIGUSR2
+#  if defined(SIGUSR2)
             (void)raise(SIGUSR2);
             /*NOTREACHED*/ /* unreachable */
-#  endif /* ifdef SIGUSR2 */
+#  endif /* if defined(SIGUSR2) */
 # endif /* if defined(USE_BACKTRACE) */
             abort();
           }
@@ -1332,10 +1227,10 @@ static void processPacketInput (int fnpno, int lineno, unsigned char * buf, ssiz
             (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                            __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
-#  ifdef SIGUSR2
+#  if defined(SIGUSR2)
             (void)raise(SIGUSR2);
             /*NOTREACHED*/ /* unreachable */
-#  endif /* ifdef SIGUSR2 */
+#  endif /* if defined(SIGUSR2) */
 # endif /* if defined(USE_BACKTRACE) */
             abort();
           }
@@ -1455,7 +1350,7 @@ void fnpTUNProcessEvent (void)
 
 void fnpuv3270Poll (bool start)
   {
-// Called at 100Hz; to 1 second poll
+    // Called at 100Hz; to 1 second poll
     fnpData.du3270_poll = start ? 100 : 0;
   }
 
@@ -1478,10 +1373,10 @@ static void on_new_3270_connection (uv_stream_t * server, int status)
         (void)fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                       __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -1536,10 +1431,10 @@ static void on_new_3270_connection (uv_stream_t * server, int status)
          (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                         __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
          (void)raise(SIGUSR2);
          /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
          abort();
       }

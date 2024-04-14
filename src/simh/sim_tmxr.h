@@ -41,10 +41,10 @@
  *  Arthur Krewat.
  */
 
-#ifndef SIM_TMXR_H_
+#if !defined(SIM_TMXR_H_)
 # define SIM_TMXR_H_    0
 
-# ifndef SIMH_SERHANDLE_DEFINED
+# if !defined(SIMH_SERHANDLE_DEFINED)
 #  define SIMH_SERHANDLE_DEFINED 0
 typedef struct SERPORT *SERHANDLE;
 # endif

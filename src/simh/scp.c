@@ -57,15 +57,16 @@
 #include "sim_disk.h"
 #include "sim_tape.h"
 #include "sim_sock.h"
+
 #include <signal.h>
 #include <ctype.h>
 #include <time.h>
 #include <math.h>
 #include <stddef.h>
 #if defined(_WIN32)
-# ifndef WIN32_LEAN_AND_MEAN
+# if !defined(WIN32_LEAN_AND_MEAN)
 #  define WIN32_LEAN_AND_MEAN
-# endif
+# endif /* if !defined(WIN32_LEAN_AND_MEAN) */
 # if defined(_MSC_VER)
 #  pragma warning(push, 3)
 # endif
@@ -102,18 +103,18 @@
 
 #include <uv.h>
 
-#ifndef HAVE_UNISTD
+#if !defined(HAVE_UNISTD)
 # undef USE_BACKTRACE
-#endif /* ifndef HAVE_UNISTD */
+#endif /* if !defined(HAVE_UNISTD) */
 
-#ifdef USE_BACKTRACE
+#if defined(USE_BACKTRACE)
 # include <string.h>
 # include <signal.h>
-#endif /* ifdef USE_BACKTRACE */
+#endif /* if defined(USE_BACKTRACE) */
 
-#ifdef __HAIKU__
+#if defined(__HAIKU__)
 # include <OS.h>
-#endif /* ifdef __HAIKU__ */
+#endif /* if defined(__HAIKU__) */
 
 #define DBG_CTR 0
 
@@ -130,14 +131,14 @@
 
 #include "../dps8/dps8_math128.h"
 
-#ifndef MAX
+#if !defined(MAX)
 # define MAX(a,b)  (((a) >= (b)) ? (a) : (b))
-#endif /* ifndef MAX */
+#endif /* if !defined(MAX) */
 
-#ifdef TESTING
+#if defined(TESTING)
 # undef FREE
 # define FREE(p) free(p)
-#endif /* ifdef TESTING */
+#endif /* if defined(TESTING) */
 
 /* search logical and boolean ops */
 
@@ -364,11 +365,11 @@ int32 sim_randompst              = 0;
 int32 sim_randstate              = 0;
 int32 sim_step                   = 0;
 int nodist                       = 0;
-#ifdef PERF_STRIP
+#if defined(PERF_STRIP)
 int32 sim_nostate                = 1;
 #else
 int32 sim_nostate                = 0;
-#endif /* ifndef PERF_STRIP */
+#endif /* if defined(PERF_STRIP) */
 static double sim_time;
 static uint32 sim_rtime;
 static int32 noqueue_time;
@@ -1335,7 +1336,7 @@ return 0;
 
 /* Testing realloc */
 
-#ifdef TESTING
+#if defined(TESTING)
 void *
 trealloc(void *ptr, size_t size)
 {
@@ -1352,10 +1353,10 @@ trealloc(void *ptr, size_t size)
             "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
             __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
-#  ifdef SIGUSR2
+#  if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-#  endif /* ifdef SIGUSR2 */
+#  endif /* if defined(SIGUSR2) */
 # endif /* if defined(USE_BACKTRACE) */
         abort();
         /* NOTREACHED */ /* unreachable */
@@ -1366,14 +1367,14 @@ trealloc(void *ptr, size_t size)
     }
   else return r;
 }
-#endif /* ifdef TESTING */
+#endif /* if defined(TESTING) */
 
-#ifdef TESTING
-# ifdef USE_TREALLOC
+#if defined(TESTING)
+# if defined(USE_TREALLOC)
 #  undef realloc
 #  define realloc trealloc
-# endif /* ifdef USE_TREALLOC */
-#endif /* ifdef TESTING */
+# endif /* if defined(USE_TREALLOC) */
+#endif /* if defined(TESTING) */
 
 #define XSTR_EMAXLEN 32767
 
@@ -1476,35 +1477,35 @@ void allowCores(void)
 {
   int ret;
   struct rlimit limit;
-# ifdef RLIMIT_CORE
+# if defined(RLIMIT_CORE)
   ret = getrlimit(RLIMIT_CORE, &limit);
   (void)ret;
-#  ifdef TESTING
+#  if defined(TESTING)
   if (ret != 0)
     {
       sim_warn ("Failed to query core dump configuration.");
       return;
     }
-#  endif /* ifdef TESTING */
+#  endif /* if defined(TESTING) */
   limit.rlim_cur = limit.rlim_max;
   ret = setrlimit(RLIMIT_CORE, &limit);
-#  ifdef TESTING
+#  if defined(TESTING)
   if (ret != 0)
     {
       sim_warn ("Failed to enable unlimited core dumps.");
       return;
     }
-#  endif /* ifdef TESTING */
+#  endif /* if defined(TESTING) */
 # else
-#  ifdef TESTING
+#  if defined(TESTING)
   sim_warn ("Unable to query core dump configuration.");
-#  endif /* ifdef TESTING */
-# endif /* ifdef RLIMIT_CORE */
+#  endif /* if defined(TESTING) */
+# endif /* if defined(RLIMIT_CORE) */
   return;
 }
 #endif /* if !defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) */
 
-#ifdef USE_DUMA
+#if defined(USE_DUMA)
 void CleanDUMA(void)
 {
   (void)fflush(stdout);
@@ -1513,133 +1514,133 @@ void CleanDUMA(void)
 }
 # undef USE_DUMA
 # define USE_DUMA 1
-#endif /* ifdef USE_DUMA */
+#endif /* if defined(USE_DUMA) */
 
-#ifndef SIG_SETMASK
+#if !defined(SIG_SETMASK)
 # undef USE_BACKTRACE
-#endif /* ifndef SIG_SETMASK */
+#endif /* if !defined(SIG_SETMASK) */
 
-#ifdef PERF_STRIP
+#if defined(PERF_STRIP)
 # undef USE_BACKTRACE
-#endif /* ifdef PERF_STRIP */
+#endif /* if defined(PERF_STRIP) */
 
-#ifdef USE_BACKTRACE
+#if defined(USE_BACKTRACE)
 # include <backtrace.h>
 # include <backtrace-supported.h>
 # define BACKTRACE_SKIP 1
 # define BACKTRACE_MAIN "main"
 # undef USE_BACKTRACE
 # define USE_BACKTRACE 1
-#endif /* ifdef USE_BACKTRACE */
+#endif /* if defined(USE_BACKTRACE) */
 
-#ifdef BACKTRACE_SUPPORTED
-# ifdef BACKTRACE_SUPPORTS_THREADS
-#  if !( BACKTRACE_SUPPORTED )
+#if defined(BACKTRACE_SUPPORTED)
+# if defined(BACKTRACE_SUPPORTS_THREADS)
+#  if !(BACKTRACE_SUPPORTED)
 #   undef USE_BACKTRACE
-#  endif /* if !( BACKTRACE_SUPPORTED ) */
-# else  /* ifdef BACKTRACE_SUPPORTS_THREADS */
+#  endif /* if !(BACKTRACE_SUPPORTED) */
+# else  /* if defined(BACKTRACE_SUPPORTS_THREADS) */
 #  undef USE_BACKTRACE
-# endif /* ifdef BACKTRACE_SUPPORTS_THREADS */
-#else  /* ifdef BACKTRACE_SUPPORTED */
+# endif /* if defined(BACKTRACE_SUPPORTS_THREADS) */
+#else  /* if defined(BACKTRACE_SUPPORTED) */
 # undef USE_BACKTRACE
-#endif /* ifdef BACKTRACE_SUPPORTED */
+#endif /* if defined(BACKTRACE_SUPPORTED) */
 
-#ifdef USE_BACKTRACE
-# ifdef BACKTRACE_SUPPORTED
+#if defined(USE_BACKTRACE)
+# if defined(BACKTRACE_SUPPORTED)
 #  include "backtrace_func.c"
-# endif /* ifdef BACKTRACE_SUPPORTED */
-#endif /* ifdef USE_BACKTRACE */
+# endif /* if defined(BACKTRACE_SUPPORTED) */
+#endif /* if defined(USE_BACKTRACE) */
 
 /* Main command loop */
 
-#ifndef PERF_STRIP
+#if !defined(PERF_STRIP)
 int main (int argc, char *argv[])
 {
 char *cptr, *cptr2;
 char nbuf[PATH_MAX + 7];
 char cbuf[4*CBUFSIZE];
 char **targv = NULL;
-# ifdef USE_BACKTRACE
-#  ifdef BACKTRACE_SUPPORTED
-#   ifdef _INC_BACKTRACE_FUNC
+# if defined(USE_BACKTRACE)
+#  if defined(BACKTRACE_SUPPORTED)
+#   if defined(_INC_BACKTRACE_FUNC)
 bt_pid = (long)getpid();
 (void)bt_pid;
-#   endif /* ifdef _INC_BACKTRACE_FUNC */
-#  endif /* ifdef BACKTRACE_SUPPORTED */
-# endif /* ifdef USE_BACKTRACE */
+#   endif /* if defined(_INC_BACKTRACE_FUNC) */
+#  endif /* if defined(BACKTRACE_SUPPORTED) */
+# endif /* if defined(USE_BACKTRACE) */
 int32 i, sw;
 t_bool lookswitch;
 t_stat stat;
 
-# ifdef __MINGW32__
+# if defined(__MINGW32__)
 #  undef IS_WINDOWS
 #  define IS_WINDOWS 1
-#  ifndef NEED_CONSOLE_SETUP
+#  if !defined(NEED_CONSOLE_SETUP)
 #   define NEED_CONSOLE_SETUP
-#  endif
-# endif /* ifdef __MINGW32__ */
+#  endif /* if !defined(NEED_CONSOLE_SETUP) */
+# endif /* if defined(__MINGW32__)*/
 
-# ifdef CROSS_MINGW32
+# if defined(CROSS_MINGW32)
 #  undef IS_WINDOWS
 #  define IS_WINDOWS 1
-#  ifndef NEED_CONSOLE_SETUP
+#  if !defined(NEED_CONSOLE_SETUP)
 #   define NEED_CONSOLE_SETUP
-#  endif
-# endif /* ifdef CROSS_MINGW32 */
+#  endif /* if !defined(NEED_CONSOLE_SETUP) */
+# endif /* if defined(CROSS_MINGW32) */
 
-# ifdef __MINGW64__
+# if defined(__MINGW64__)
 #  undef IS_WINDOWS
 #  define IS_WINDOWS 1
-#  ifndef NEED_CONSOLE_SETUP
+#  if !defined(NEED_CONSOLE_SETUP)
 #   define NEED_CONSOLE_SETUP
-#  endif
-# endif /* ifdef __MINGW64__ */
+#  endif /* if !defined(NEED_CONSOLE_SETUP) */
+# endif /* if defined(__MINGW64__) */
 
-# ifdef CROSS_MINGW64
+# if defined(CROSS_MINGW64)
 #  undef IS_WINDOWS
 #  define IS_WINDOWS 1
-#  ifndef NEED_CONSOLE_SETUP
+#  if !defined(NEED_CONSOLE_SETUP)
 #   define NEED_CONSOLE_SETUP
-#  endif
-# endif /* ifdef CROSS_MINGW64 */
+#  endif /* if !defined(NEED_CONSOLE_SETUP */
+# endif /* if defined(CROSS_MINGW64) */
 
-# ifdef __CYGWIN__
-#  ifdef IS_WINDOWS
+# if defined(__CYGWIN__)
+#  if defined(IS_WINDOWS)
 #   undef IS_WINDOWS
-#  endif /* ifdef IS_WINDOWS */
-# endif /* ifdef __CYGWIN__ */
+#  endif /* if defined(IS_WINDOWS) */
+# endif /* if defined(__CYGWIN__) */
 
-# ifdef USE_DUMA
-#  ifdef DUMA_EXPLICIT_INIT
+# if defined(USE_DUMA)
+#  if defined(DUMA_EXPLICIT_INIT)
 duma_init();
 (void)fflush(stderr);
-#  endif /* ifdef DUMA_EXPLICIT_INIT */
-#  ifdef DUMA_MIN_ALIGNMENT
+#  endif /* if defined(DUMA_EXPLICIT_INIT) */
+#  if defined(DUMA_MIN_ALIGNMENT)
 #   if DUMA_MIN_ALIGNMENT > 0
 DUMA_SET_ALIGNMENT(DUMA_MIN_ALIGNMENT);
 #   endif /* if DUMA_MIN_ALIGNMENT > 0 */
-#  endif /* ifdef DUMA_MIN_ALIGNMENT) */
+#  endif /* if defined(DUMA_MIN_ALIGNMENT) */
 DUMA_SET_FILL(0x2E);
 (void)fflush(stderr);
 (void)atexit(CleanDUMA);
-# endif /* ifdef USE_DUMA */
+# endif /* if defined(USE_DUMA) */
 
-# ifdef USE_BACKTRACE
-#  ifdef BACKTRACE_SUPPORTED
+# if defined(USE_BACKTRACE)
+#  if defined(BACKTRACE_SUPPORTED)
 #   include "backtrace_main.c"
-#  endif /* ifdef BACKTRACE_SUPPORTED */
-# endif /* ifdef USE_BACKTRACE */
+#  endif /* if defined(BACKTRACE_SUPPORTED) */
+# endif /* if defined(USE_BACKTRACE) */
 
 (void)setlocale(LC_ALL, "");
 
 # if defined(NEED_CONSOLE_SETUP) && defined(_WIN32)
 #  include <windows.h>
-#  ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
+#  if !defined(ENABLE_VIRTUAL_TERMINAL_PROCESSING)
 #   define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
-#  endif
+#  endif /* if !defined(ENABLE_VIRTUAL_TERMINAL_PROCESSING) */
 # endif /* if defined(NEED_CONSOLE_SETUP) && defined(_WIN32) */
 
-# ifdef NEED_CONSOLE_SETUP
+# if defined(NEED_CONSOLE_SETUP)
 HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
 if (handle != INVALID_HANDLE_VALUE)
   {
@@ -1651,18 +1652,18 @@ if (handle != INVALID_HANDLE_VALUE)
       }
   }
 puts ("\e[0m");
-# endif /* NEED_CONSOLE_SETUP */
+# endif /* if defined(NEED_CONSOLE_SETUP) */
 
-# ifdef __HAIKU__
+# if defined(__HAIKU__)
 (void)disable_debugger(1);
-# endif /* ifdef __HAIKU__ */
+# endif /* if defined(__HAIKU__) */
 
 /* sanity checks */
 
-# ifdef __clang_analyzer__
+# if defined(__clang_analyzer__)
 (void)fprintf (stderr, "Error: Attempting to execute a Clang Analyzer build!\n");
 return 1;
-# endif
+# endif /* if defined(__clang_analyzer__) */
 
 if (argc == 0) {
     (void)fprintf (stderr, "Error: main() called directly!\n");
@@ -1690,9 +1691,9 @@ if (testEndian != 0) {
                  "Error: Unable to determine system byte order; aborting.\n");
   return 1;
 }
-# ifdef NEED_128
+# if defined(NEED_128)
 test_math128();
-# endif
+# endif /* if defined(NEED_128) */
 
 /* Make sure that argv has at least 10 elements and that it ends in a NULL pointer */
 targv = (char **)calloc (1+MAX(10, argc), sizeof(*targv));
@@ -1701,10 +1702,10 @@ if (!targv)
     (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                    __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
-#  ifdef SIGUSR2
+#  if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-#  endif /* ifdef SIGUSR2 */
+#  endif /* if defined(SIGUSR2) */
 # endif /* if defined(USE_BACKTRACE) */
     abort();
   }
@@ -1727,7 +1728,7 @@ for (i = 1; i < argc; i++) {                            /* loop thru args */
 /* requested only version? */
     int onlyvers  = strcmp(argv[i], "--version");
     if (onlyvers == 0) {
-# ifdef VER_H_GIT_VERSION
+# if defined(VER_H_GIT_VERSION)
 #  if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT)
 #   if VER_H_GIT_PATCH_INT < 1
         (void)fprintf (stdout, "%s simulator %s\n",
@@ -1742,7 +1743,7 @@ for (i = 1; i < argc; i++) {                            /* loop thru args */
 #  endif /* if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT) */
 # else
         (void)fprintf (stdout, "%s simulator\n", sim_name);
-# endif /* ifdef VER_H_GIT_VERSION */
+# endif /* if defined(VER_H_GIT_VERSION) */
         FREE (targv);
         return 0;
     }
@@ -1752,7 +1753,7 @@ for (i = 1; i < argc; i++) {                            /* loop thru args */
     int shorthelp = strcmp(argv[i], "-h");
     if (shorthelp != 0) shorthelp = strcmp(argv[i], "-H");
     if (longhelp == 0 || shorthelp == 0) {
-# ifdef VER_H_GIT_VERSION
+# if defined(VER_H_GIT_VERSION)
 #  if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT)
 #   if VER_H_GIT_PATCH_INT < 1
         (void)fprintf (stdout, "%s simulator %s", sim_name, VER_H_GIT_VERSION);
@@ -1764,7 +1765,7 @@ for (i = 1; i < argc; i++) {                            /* loop thru args */
 #  endif /* if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT) */
 # else
         (void)fprintf (stdout, "%s simulator", sim_name);
-# endif /* ifdef VER_H_GIT_VERSION */
+# endif /* if defined(VER_H_GIT_VERSION) */
         (void)fprintf (stdout, "\n");
         (void)fprintf (stdout, "\n USAGE: %s { [ SWITCHES ] ... } { < SCRIPT > }", argv[0]);
         (void)fprintf (stdout, "\n");
@@ -1783,9 +1784,9 @@ for (i = 1; i < argc; i++) {                            /* loop thru args */
         (void)fprintf (stdout, "\n  -v, -V            Prints commands read from script file before execution");
         (void)fprintf (stdout, "\n  --version         Prints only the simulator identification text and exit");
         (void)fprintf (stdout, "\n");
-# ifdef USE_DUMA
+# if defined(USE_DUMA)
         nodist++;
-# endif /* ifdef USE_DUMA */
+# endif /* if defined(USE_DUMA) */
 if (!nodist) {
         (void)fprintf (stdout, "\n This software is made available under the terms of the ICU License.");
         (void)fprintf (stdout, "\n For complete license details, see the LICENSE file included with the");
@@ -1852,10 +1853,10 @@ for (i = 0; cmd_table[i].name; i++) {
         (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                        __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
-#  ifdef SIGUSR2
+#  if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-#  endif /* ifdef SIGUSR2 */
+#  endif /* if defined(SIGUSR2) */
 # endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -2031,10 +2032,10 @@ if (!sim_prompt)
     (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                    __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
@@ -2092,10 +2093,10 @@ for (cmdp = sim_vm_cmd; cmdp && (cmdp->name != NULL); cmdp++) {
                 (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                                __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
                 (void)raise(SIGUSR2);
                 /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
                 abort();
               }
@@ -2116,10 +2117,10 @@ for (cmdp = cmd_table; cmdp && (cmdp->name != NULL); cmdp++) {
                 (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                                __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
                 (void)raise(SIGUSR2);
                 /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
                 abort();
               }
@@ -2193,10 +2194,10 @@ else {
         (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                        __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -2984,10 +2985,10 @@ if (!tmpbuf)
      (void)fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                    __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
      (void)raise(SIGUSR2);
      /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
      abort();
   }
@@ -3206,67 +3207,67 @@ for (; *ip && (op < oend); ) {
                         ap = rbuf;
                         }
                     else if (!strcmp ("UID", gbuf)) {
-#ifdef HAVE_UNISTD
+#if defined(HAVE_UNISTD)
                         (void)sprintf (rbuf, "%ld", (long)getuid());
 #else
                         (void)sprintf (rbuf, "0");
-#endif /* ifdef HAVE_UNISTD */
+#endif /* if defined(HAVE_UNISTD) */
                         ap = rbuf;
                         }
                     else if (!strcmp ("GID", gbuf)) {
-#ifdef HAVE_UNISTD
+#if defined(HAVE_UNISTD)
                         (void)sprintf (rbuf, "%ld", (long)getgid());
 #else
                         (void)sprintf (rbuf, "0");
-#endif /* ifdef HAVE_UNISTD */
+#endif /* if defined(HAVE_UNISTD) */
                         ap = rbuf;
                         }
                     else if (!strcmp ("EUID", gbuf)) {
-#ifdef HAVE_UNISTD
+#if defined(HAVE_UNISTD)
                         (void)sprintf (rbuf, "%ld", (long)geteuid());
 #else
                         (void)sprintf (rbuf, "0");
-#endif /* ifdef HAVE_UNISTD */
+#endif /* if defined(HAVE_UNISTD) */
                         ap = rbuf;
                         }
                     else if (!strcmp ("EGID", gbuf)) {
-#ifdef HAVE_UNISTD
+#if defined(HAVE_UNISTD)
                         (void)sprintf (rbuf, "%ld", (long)getegid());
 #else
                         (void)sprintf (rbuf, "0");
-#endif /* ifdef HAVE_UNISTD */
+#endif /* if defined(HAVE_UNISTD) */
                         ap = rbuf;
                         }
                     else if (!strcmp ("PID", gbuf)) {
-#ifdef HAVE_UNISTD
+#if defined(HAVE_UNISTD)
                         (void)sprintf (rbuf, "%ld", (long)getpid());
 #else
                         (void)sprintf (rbuf, "0");
-#endif /* ifdef HAVE_UNISTD */
+#endif /* if defined(HAVE_UNISTD) */
                         ap = rbuf;
                         }
                     else if (!strcmp ("PPID", gbuf)) {
-#ifdef HAVE_UNISTD
+#if defined(HAVE_UNISTD)
                         (void)sprintf (rbuf, "%ld", (long)getppid());
 #else
                         (void)sprintf (rbuf, "0");
-#endif /* ifdef HAVE_UNISTD */
+#endif /* if defined(HAVE_UNISTD) */
                         ap = rbuf;
                         }
                     else if (!strcmp ("PGID", gbuf)) {
-#ifdef HAVE_UNISTD
+#if defined(HAVE_UNISTD)
                         (void)sprintf (rbuf, "%ld", (long)getpgid(getpid()));
 #else
                         (void)sprintf (rbuf, "0");
-#endif /* ifdef HAVE_UNISTD */
+#endif /* if defined(HAVE_UNISTD) */
                         ap = rbuf;
                         }
                     else if (!strcmp ("SID", gbuf)) {
-#ifdef HAVE_UNISTD
+#if defined(HAVE_UNISTD)
                         (void)sprintf (rbuf, "%ld", (long)getsid(getpid()));
 #else
                         (void)sprintf (rbuf, "0");
-#endif /* ifdef HAVE_UNISTD */
+#endif /* if defined(HAVE_UNISTD) */
                         ap = rbuf;
                         }
                     else if (!strcmp ("ENDIAN", gbuf)) {
@@ -3767,10 +3768,10 @@ else {
         (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                        __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -4411,9 +4412,9 @@ void fprint_capac (FILE *st, DEVICE *dptr, UNIT *uptr)
 extern void print_default_base_system_script (void);
 t_stat show_default_base_system_script (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 {
-#ifndef PERF_STRIP
+#if !defined(PERF_STRIP)
   print_default_base_system_script();
-#endif /* ifndef PERF_STRIP */
+#endif /* if !defined(PERF_STRIP) */
   return 0;
 }
 
@@ -4517,7 +4518,7 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
     (void)fprintf (st, "\r\n\r Build Information:\n");
 #if defined(BUILDINFO_scp) && defined(SYSDEFS_USED)
     (void)fprintf (st, "\r\n      Compilation info: %s\n", BUILDINFO_scp );
-# ifndef __OPEN64__
+# if !defined(__OPEN64__)
     (void)fprintf (st, "\r\n  Relevant definitions: %s\n", SYSDEFS_USED );
 # endif
 #elif defined(BUILDINFO_scp)
@@ -4528,73 +4529,69 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
 #if defined (UV_VERSION_MAJOR) && \
     defined (UV_VERSION_MINOR) && \
     defined (UV_VERSION_PATCH)
-# ifdef UV_VERSION_MAJOR
-#  ifndef UV_VERSION_MINOR
-#   ifndef UV_VERSION_PATCH
-#    ifndef UV_VERSION_SUFFIX
+# if defined(UV_VERSION_MAJOR)
+#  if !defined(UV_VERSION_MINOR) && \
+      !defined(UV_VERSION_PATCH) && \
+      !defined(UV_VERSION_SUFFIX)
     (void)fprintf (st, "\r\n    Event loop library: Built with libuv v%d", UV_VERSION_MAJOR);
-#    endif /* ifndef UV_VERSION_SUFFIX */
-#   endif /* ifndef UV_VERSION_PATCH */
-#  endif /* ifndef UV_VERSION_MINOR */
-#  ifdef UV_VERSION_MINOR
-#   ifndef UV_VERSION_PATCH
-#    ifndef UV_VERSION_SUFFIX
+#  endif /* if !defined(UV_VERSION_MINOR) && !defined(UV_VERSION_PATCH) && defined(UV_VERSION_SUFFIX) */
+#  if defined(UV_VERSION_MINOR)
+#   if !defined(UV_VERSION_PATCH) && !defined(UV_VERSION_SUFFIX)
     (void)fprintf (st, "\r\n    Event loop library: Built with libuv %d.%d", UV_VERSION_MAJOR,
                    UV_VERSION_MINOR);
-#    endif /* ifndef UV_VERSION_SUFFIX */
-#   endif /* ifndef UV_VERSION_PATCH */
-#   ifdef UV_VERSION_PATCH
-#    ifndef UV_VERSION_SUFFIX
+#   endif /* if !defined(UV_VERSION_PATCH) && !defined(UV_VERSION_SUFFIX) */
+#   if defined(UV_VERSION_PATCH)
+#    if !defined(UV_VERSION_SUFFIX)
     (void)fprintf (st, "\r\n    Event loop library: Built with libuv %d.%d.%d", UV_VERSION_MAJOR,
                    UV_VERSION_MINOR, UV_VERSION_PATCH);
-#    endif /* ifndef UV_VERSION_SUFFIX */
-#    ifdef UV_VERSION_SUFFIX
+#    endif /* if !defined(UV_VERSION_SUFFIX) */
+#    if defined(UV_VERSION_SUFFIX)
     (void)fprintf (st, "\r\n    Event loop library: Built with libuv %d.%d.%d", UV_VERSION_MAJOR,
                    UV_VERSION_MINOR, UV_VERSION_PATCH);
-#     ifdef UV_VERSION_IS_RELEASE
+#     if defined(UV_VERSION_IS_RELEASE)
 #      if UV_VERSION_IS_RELEASE == 1
 #       define UV_RELEASE_TYPE " (release)"
 #      endif /* if UV_VERSION_IS_RELEASE == 1 */
 #      if UV_VERSION_IS_RELEASE == 0
 #       define UV_RELEASE_TYPE "-dev"
 #      endif /* if UV_VERSION_IS_RELEASE == 0 */
-#      ifndef UV_RELEASE_TYPE
+#      if !defined(UV_RELEASE_TYPE)
 #       define UV_RELEASE_TYPE ""
-#      endif /* ifndef UV_RELEASE_TYPE */
-#      ifdef UV_RELEASE_TYPE
+#      endif /* if !defined(UV_RELEASE_TYPE) */
+#      if defined(UV_RELEASE_TYPE)
     (void)fprintf (st, "%s", UV_RELEASE_TYPE);
-#      endif /* ifdef UV_RELEASE_TYPE */
-#     endif /* ifdef UV_VERSION_IS_RELEASE */
-#    endif /* ifdef UV_VERSION_SUFFIX */
-#   endif /* ifdef UV_VERSION_PATCH */
-#  endif /* ifdef UV_VERSION_MINOR */
+#      endif /* if defined(UV_RELEASE_TYPE) */
+#     endif /* if defined(UV_VERSION_IS_RELEASE) */
+#    endif /* if defined(UV_VERSION_SUFFIX) */
+#   endif /* if defined(UV_VERSION_PATCH) */
+#  endif /* if defined(UV_VERSION_MINOR) */
     unsigned int CurrentUvVersion = uv_version();
     if (CurrentUvVersion > 0)
         if (uv_version_string() != NULL)
             (void)fprintf (st, "; %s in use", uv_version_string());
-# endif /* ifdef UV_VERSION_MAJOR */
+# endif /* if defined(UV_VERSION_MAJOR) */
 #else
     (void)fprintf (st, "\r\n    Event loop library: Using libuv (or compatible) library, unknown version");
 #endif /* if defined(UV_VERSION_MAJOR) &&  \
         *    defined(UV_VERSION_MINOR) &&  \
         *    defined(UV_VERSION_PATCH)     \
         */
-#ifdef DECNUMBERLOC
-# ifdef DECVERSION
-#  ifdef DECVERSEXT
+#if defined(DECNUMBERLOC)
+# if defined(DECVERSION)
+#  if defined(DECVERSEXT)
     (void)fprintf (st, "\r\n          Math library: %s-%s", DECVERSION, DECVERSEXT);
 #  else
-#   ifdef DECNLAUTHOR
+#   if defined(DECNLAUTHOR)
     (void)fprintf (st, "\r\n          Math library: %s (%s and contributors)", DECVERSION, DECNLAUTHOR);
 #   else
     (void)fprintf (st, "\r\n          Math library: %s", DECVERSION);
-#   endif /* ifdef DECNLAUTHOR */
-#  endif /* ifdef DECVERSEXT */
+#   endif /* if defined(DECNLAUTHOR) */
+#  endif /* if defined(DECVERSEXT) */
 # else
     (void)fprintf (st, "\r\n          Math library: decNumber, unknown version");
-# endif /* ifdef DECVERSION */
-#endif /* ifdef DECNUMBERLOC */
-#ifdef LOCKLESS
+# endif /* if defined(DECVERSION) */
+#endif /* if defined(DECNUMBERLOC) */
+#if defined(LOCKLESS)
     (void)fprintf (st, "\r\n     Atomic operations: ");
 # if defined(AIX_ATOMICS)
     (void)fprintf (st, "IBM AIX-style");
@@ -4609,7 +4606,7 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
 # elif defined(NT_ATOMICS)
     (void)fprintf (st, "Windows NT interlocked operations");
 # endif
-#endif /* ifdef LOCKLESS */
+#endif /* if defined(LOCKLESS) */
     (void)fprintf (st, "\r\n          File locking: ");
 #if defined(USE_FCNTL) && defined(USE_FLOCK)
     (void)fprintf (st, "POSIX-style fcntl() and BSD-style flock() locking");
@@ -4654,9 +4651,9 @@ if (flag) {
     defined(TESTING)            ||  \
     defined(ISOLTS)             ||  \
     defined(USE_DUMA)
-# ifndef NO_SUPPORT_VERSION
+# if !defined(NO_SUPPORT_VERSION)
 #  define NO_SUPPORT_VERSION 1
-# endif
+# endif /* if !defined(NO_SUPPORT_VERSION) */
 #endif
 #if defined(NO_SUPPORT_VERSION)
         dirty++;
@@ -4742,160 +4739,160 @@ if (flag) {
 #endif
 
 /* TESTING */
-#ifdef TESTING
+#if defined(TESTING)
     (void)fprintf (st, "\n   Options: ");
-# ifndef HAVE_DPSOPT
+# if !defined(HAVE_DPSOPT)
 #  define HAVE_DPSOPT 1
 # endif
     (void)fprintf (st, "TESTING");
-#endif /* ifdef TESTING */
+#endif /* if defined(TESTING) */
 
 /* ISOLTS */
-#ifdef ISOLTS
-# ifdef HAVE_DPSOPT
+#if defined(ISOLTS)
+# if defined(HAVE_DPSOPT)
     (void)fprintf (st, ", ");
 # else
     (void)fprintf (st, "\n   Options: ");
 # endif
-# ifndef HAVE_DPSOPT
+# if !defined(HAVE_DPSOPT)
 #  define HAVE_DPSOPT 1
 # endif
     (void)fprintf (st, "ISOLTS");
-#endif /* ifdef ISOLTS */
+#endif /* if defined(ISOLTS) */
 
 /* NO_UCACHE */
-#ifdef NO_UCACHE
-# ifdef HAVE_DPSOPT
+#if defined(NO_UCACHE)
+# if defined(HAVE_DPSOPT)
     (void)fprintf (st, ", ");
 # else
     (void)fprintf (st, "\n   Options: ");
 # endif
-# ifndef HAVE_DPSOPT
+# if !defined(HAVE_DPSOPT)
 #  define HAVE_DPSOPT 1
 # endif
     (void)fprintf (st, "NO_UCACHE");
-#endif /* ifdef NO_UCACHE */
+#endif /* if defined(NO_UCACHE) */
 
 /* NEED_128 */
-#ifdef NEED_128
-# ifdef HAVE_DPSOPT
+#if defined(NEED_128)
+# if defined(HAVE_DPSOPT)
     (void)fprintf (st, ", ");
 # else
     (void)fprintf (st, "\n   Options: ");
 # endif
-# ifndef HAVE_DPSOPT
+# if !defined(HAVE_DPSOPT)
 #  define HAVE_DPSOPT 1
 # endif
     (void)fprintf (st, "NEED_128");
-#endif /* ifdef NEED_128 */
+#endif /* if defined(NEED_128) */
 
 /* WAM */
-#ifdef WAM
-# ifdef HAVE_DPSOPT
+#if defined(WAM)
+# if defined(HAVE_DPSOPT)
     (void)fprintf (st, ", ");
 # else
     (void)fprintf (st, "\n   Options: ");
 # endif
-# ifndef HAVE_DPSOPT
+# if !defined(HAVE_DPSOPT)
 #  define HAVE_DPSOPT 1
 # endif
     (void)fprintf (st, "WAM");
-#endif /* ifdef WAM */
+#endif /* if defined(WAM) */
 
 /* ROUND_ROBIN */
-#ifdef ROUND_ROBIN
-# ifdef HAVE_DPSOPT
+#if defined (ROUND_ROBIN)
+# if defined(HAVE_DPSOPT)
     (void)fprintf (st, ", ");
 # else
     (void)fprintf (st, "\n   Options: ");
 # endif
-# ifndef HAVE_DPSOPT
+# if !defined(HAVE_DPSOPT)
 #  define HAVE_DPSOPT 1
 # endif
     (void)fprintf (st, "ROUND_ROBIN");
-#endif /* ifdef ROUND_ROBIN */
+#endif /* if defined(ROUND_ROBIN) */
 
 /* NO_LOCKLESS */
-#ifndef LOCKLESS
-# ifdef HAVE_DPSOPT
+#if !defined(LOCKLESS)
+# if defined(HAVE_DPSOPT)
     (void)fprintf (st, ", ");
 # else
     (void)fprintf (st, "\n   Options: ");
 # endif
-# ifndef HAVE_DPSOPT
+# if !defined(HAVE_DPSOPT)
 #  define HAVE_DPSOPT 1
 # endif
     (void)fprintf (st, "NO_LOCKLESS");
-#endif /* ifndef LOCKLESS */
+#endif /* if !defined(LOCKLESS) */
 
 /* ABSI */  /* XXX: Change to NO_ABSI once code is non-experimental */
-#ifdef WITH_ABSI_DEV
-# ifdef HAVE_DPSOPT
+#if defined(WITH_ABSI_DEV)
+# if defined(HAVE_DPSOPT)
     (void)fprintf (st, ", ");
 # else
     (void)fprintf (st, "\n   Options: ");
 # endif
-# ifndef HAVE_DPSOPT
+# if !defined(HAVE_DPSOPT)
 #  define HAVE_DPSOPT 1
 # endif
     (void)fprintf (st, "ABSI");
-#endif /* ifdef WITH_ABSI_DEV */
+#endif /* if defined(WITH_ABSI_DEV) */
 
 /* SOCKET */  /* XXX: Change to NO_SOCKET once code is non-experimental */
-#ifdef WITH_SOCKET_DEV
-# ifdef HAVE_DPSOPT
+#if defined(WITH_SOCKET_DEV)
+# if defined(HAVE_DPSOPT)
     (void)fprintf (st, ", ");
 # else
     (void)fprintf (st, "\n   Options: ");
 # endif
-# ifndef HAVE_DPSOPT
+# if !defined(HAVE_DPSOPT)
 #  define HAVE_DPSOPT 1
 # endif
     (void)fprintf (st, "SOCKET");
-#endif /* ifdef WITH_SOCKET_DEV */
+#endif /* if defined(WITH_SOCKET_DEV) */
 
 /* CHAOSNET */  /* XXX: Change to NO_CHAOSNET once code is non-experimental */
-#ifdef WITH_MGP_DEV
-# ifdef HAVE_DPSOPT
+#if defined(WITH_MGP_DEV)
+# if defined(HAVE_DPSOPT)
     (void)fprintf (st, ", ");
 # else
     (void)fprintf (st, "\n   Options: ");
 # endif
-# ifndef HAVE_DPSOPT
+# if !defined(HAVE_DPSOPT)
 #  define HAVE_DPSOPT 1
 # endif
     (void)fprintf (st, "CHAOSNET");
 # if USE_SOCKET_DEV_APPROACH
-    (void)fprintf (st, "*");
+    (void)fprintf (st, "-S");
 # endif /* if USE_SOCKET_DEV_APPROACH */
-#endif /* ifdef WITH_MGP_DEV */
+#endif /* if defined(WITH_MGP_DEV) */
 
 /* DUMA */
-#ifdef USE_DUMA
-# ifdef HAVE_DPSOPT
+#if defined(USE_DUMA)
+# if defined(HAVE_DPSOPT)
     (void)fprintf (st, ", ");
 # else
     (void)fprintf (st, "\n   Options: ");
 # endif
-# ifndef HAVE_DPSOPT
+# if !defined(HAVE_DPSOPT)
 #  define HAVE_DPSOPT 1
 # endif
     (void)fprintf (st, "DUMA");
-#endif /* ifdef USE_DUMA */
+#endif /* if defined(USE_DUMA) */
 /* DUMA */
 
 /* BACKTRACE */
-#ifdef USE_BACKTRACE
-# ifdef HAVE_DPSOPT
+#if defined(USE_BACKTRACE)
+# if defined(HAVE_DPSOPT)
     (void)fprintf (st, ", ");
 # else
     (void)fprintf (st, "\n   Options: ");
 # endif
-# ifndef HAVE_DPSOPT
+# if !defined(HAVE_DPSOPT)
 #  define HAVE_DPSOPT 1
 # endif
     (void)fprintf (st, "BACKTRACE");
-#endif /* ifdef USE_BACKTRACE */
+#endif /* if defined(USE_BACKTRACE) */
 
 #if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_DATE)
 # if defined(NO_SUPPORT_VERSION)
@@ -4907,7 +4904,7 @@ if (flag) {
 #if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_DATE) && defined(VER_H_PREP_DATE)
     (void)fprintf (st, " - Kit Prepared: %s", VER_H_PREP_DATE);
 #endif
-#ifdef VER_CURRENT_TIME
+#if defined(VER_CURRENT_TIME)
     (void)fprintf (st, "\n  Compiled: %s", VER_CURRENT_TIME);
 #endif
     if (dirty) //-V547
@@ -4926,10 +4923,10 @@ if (flag) {
         (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                        __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
-#  ifdef SIGUSR2
+#  if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-#  endif /* ifdef SIGUSR2 */
+#  endif /* if defined(SIGUSR2) */
 # endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -4939,10 +4936,10 @@ if (flag) {
         (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                        __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
-#  ifdef SIGUSR2
+#  if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-#  endif /* ifdef SIGUSR2 */
+#  endif /* if defined(SIGUSR2) */
 # endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -4994,7 +4991,7 @@ if (flag) {
     strremove(postver, "CLANG: ");
 #endif
 #if ( defined (__GNUC__) && defined (__VERSION__) ) && !defined (__EDG__)
-# ifndef __clang_version__
+# if !defined(__clang_version__)
     if (isdigit((unsigned char)gnumver[0])) {
         (void)fprintf (st, "\n  Compiler: GCC %s", postver);
     } else {
@@ -5022,22 +5019,22 @@ if (flag) {
 # endif
 #elif defined (__PGI) && !defined(__NVCOMPILER)
     (void)fprintf (st, "\n  Compiler: Portland Group, Inc. (PGI) C Compiler ");
-# ifdef __PGIC__
+# if defined(__PGIC__)
     (void)fprintf (st, "%d", __PGIC__);
-#  ifdef __PGIC_MINOR__
+#  if defined(__PGIC_MINOR__)
     (void)fprintf (st, ".%d", __PGIC_MINOR__);
-#   ifdef __PGIC_PATCHLEVEL__
+#   if defined(__PGIC_PATCHLEVEL__)
     (void)fprintf (st, ".%d", __PGIC_PATCHLEVEL__);
 #   endif
 #  endif
 # endif
 #elif defined(__NVCOMPILER)
     (void)fprintf (st, "\n  Compiler: NVIDIA HPC SDK C Compiler ");
-# ifdef __NVCOMPILER_MAJOR__
+# if defined(__NVCOMPILER_MAJOR__)
     (void)fprintf (st, "%d", __NVCOMPILER_MAJOR__);
-#  ifdef __NVCOMPILER_MINOR__
+#  if defined(__NVCOMPILER_MINOR__)
     (void)fprintf (st, ".%d", __NVCOMPILER_MINOR__);
-#   ifdef __NVCOMPILER_PATCHLEVEL__
+#   if defined(__NVCOMPILER_PATCHLEVEL__)
     (void)fprintf (st, ".%d", __NVCOMPILER_PATCHLEVEL__);
 #   endif
 #  endif
@@ -5246,11 +5243,11 @@ if (flag) {
     if (1) {
         char osversion[2*PATH_MAX+1] = "";
         FILE *f;
-# ifndef _AIX
+# if !defined(_AIX)
         if ((f = popen ("uname -mrs 2> /dev/null", "r"))) {
 # else
         if ((f = popen ("sh -c 'echo \"$(command -p env uname -v 2> /dev/null).$(command -p env uname -r 2> /dev/null) $(command -p env uname -p 2> /dev/null)\"' 2> /dev/null", "r"))) {
-# endif /* ifndef _AIX */
+# endif /* if !defined(_AIX) */
             (void)memset (osversion, 0, sizeof(osversion));
             do {
               if (NULL == fgets (osversion, sizeof(osversion)-1, f)) {
@@ -5267,26 +5264,26 @@ if (flag) {
             strremove(osversion, " (emulated by qemu)");
             strremove(osversion, " (emulated by QEMU)");
         }
-# ifndef _AIX
+# if !defined(_AIX)
             (void)fprintf (st, "\n   Host OS: %s", osversion);
 # else
             strremove(osversion, "AIX ");
-#  ifndef __PASE__
+#  if !defined(__PASE__)
             (void)fprintf (st, "\n   Host OS: IBM AIX %s", osversion);
 #  else
             (void)fprintf (st, "\n   Host OS: IBM OS/400 (PASE) %s", osversion);
-#  endif /* ifndef __PASE__ */
-# endif /* ifndef _AIX */
+#  endif /* if !defined(__PASE__) */
+# endif /* if !defined(_AIX) */
     } else {
-# ifndef _AIX
+# if !defined(_AIX)
         (void)fprintf (st, "\n   Host OS: Unknown");
 # else
-#  ifndef __PASE__
+#  if !defined(__PASE__)
         (void)fprintf (st, "\n   Host OS: IBM AIX");
 #  else
         (void)fprintf (st, "\n   Host OS: IBM OS/400 (PASE)");
-#  endif /* ifndef __PASE__ */
-# endif /* ifndef _AIX */
+#  endif /* if !defined(__PASE__) */
+# endif /* if !defined(_AIX) */
     }
 #endif
 #if defined(__APPLE__)
@@ -6176,8 +6173,8 @@ if ((r = sim_check_console (30)) != SCPE_OK) {          /* check console, error?
     sim_ttcmd ();
     return r;
     }
-#ifndef IS_WINDOWS
-# ifdef SIGINT
+#if !defined(IS_WINDOWS)
+# if defined(SIGINT)
 if (signal (SIGINT, int_handler) == SIG_ERR) {          /* set WRU */
     sim_is_running = 0;                                 /* flag idle */
     sim_ttcmd ();
@@ -6185,8 +6182,8 @@ if (signal (SIGINT, int_handler) == SIG_ERR) {          /* set WRU */
     }
 # endif
 #endif
-#ifndef IS_WINDOWS
-# ifdef SIGHUP
+#if !defined(IS_WINDOWS)
+# if defined(SIGHUP)
 if (signal (SIGHUP, int_handler) == SIG_ERR) {          /* set WRU */
     sim_is_running = 0;                                 /* flag idle */
     sim_ttcmd ();
@@ -6194,8 +6191,8 @@ if (signal (SIGHUP, int_handler) == SIG_ERR) {          /* set WRU */
     }
 # endif
 #endif
-#ifndef IS_WINDOWS
-# ifdef SIGTERM
+#if !defined(IS_WINDOWS)
+# if defined(SIGTERM)
 if (signal (SIGTERM, int_handler) == SIG_ERR) {         /* set WRU */
     sim_is_running = 0;                                 /* flag idle */
     sim_ttcmd ();
@@ -6259,7 +6256,7 @@ sim_stop_timer_services ();                             /* disable wall clock ti
 sim_ttcmd ();                                           /* restore console */
 sim_brk_clrall (BRK_TYP_DYN_STEPOVER);                  /* cancel any step/over subroutine breakpoints */
 signal (SIGINT, SIG_DFL);                               /* cancel WRU */
-#ifdef SIGHUP
+#if defined(SIGHUP)
 signal (SIGHUP, SIG_DFL);                               /* cancel WRU */
 #endif
 signal (SIGTERM, SIG_DFL);                              /* cancel WRU */
@@ -6295,19 +6292,19 @@ run_cmd_message (const char *unechoed_cmdline, t_stat r)
 {
 if (unechoed_cmdline && (r >= SCPE_BASE) && (r != SCPE_STEP) && (r != SCPE_STOP) && (r != SCPE_EXPECT))
     sim_printf("%s> %s\n", do_position(), unechoed_cmdline);
-#ifdef WIN_STDIO
+#if defined(WIN_STDIO)
 (void)fflush(stderr);
 (void)fflush(stdout);
-#endif /* ifdef WIN_STDIO */
+#endif /* if defined(WIN_STDIO) */
 fprint_stopped (stdout, r);                         /* print msg */
 if (sim_log && (sim_log != stdout))                 /* log if enabled */
     fprint_stopped (sim_log, r);
 if (sim_deb && (sim_deb != stdout) && (sim_deb != sim_log))/* debug if enabled */
     fprint_stopped (sim_deb, r);
-#ifdef WIN_STDIO
+#if defined(WIN_STDIO)
 (void)fflush(stderr);
 (void)fflush(stdout);
-#endif /* ifdef WIN_STDIO */
+#endif /* if defined(WIN_STDIO) */
 }
 
 /* Common setup for RUN or BOOT */
@@ -6388,10 +6385,10 @@ return;
 
 void fprint_stopped (FILE *st, t_stat v)
 {
-#ifdef WIN_STDIO
+#if defined(WIN_STDIO)
 (void)fflush(stderr);
 (void)fflush(stdout);
-#endif /* ifdef WIN_STDIO */
+#endif /* if defined(WIN_STDIO) */
 fprint_stopped_gen (st, v, sim_PC, sim_dflt_dev);
 return;
 }
@@ -7099,7 +7096,7 @@ char *read_line_p (const char *prompt, char *cptr, int32 size, FILE *stream)
 char *tptr;
 
 if (prompt) {                                           /* interactive? */
-#ifdef HAVE_LINEHISTORY
+#if defined(HAVE_LINEHISTORY)
         char *tmpc = linenoise (prompt);                /* get cmd line */
         if (tmpc == NULL)                               /* bad result? */
             cptr = NULL;
@@ -7115,7 +7112,7 @@ if (prompt) {                                           /* interactive? */
         (void)fflush (stdout);                          /* flush output */
         cptr = fgets (cptr, size, stream);              /* get cmd line */
         }
-#endif /* ifdef HAVE_LINEHISTORY */
+#endif /* if defined(HAVE_LINEHISTORY) */
 else cptr = fgets (cptr, size, stream);                 /* get cmd line */
 
 if (cptr == NULL) {
@@ -7682,10 +7679,10 @@ if (!sim_internal_devices)
     (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                    __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
@@ -7878,10 +7875,10 @@ if (!sim_stabr.mask)
     (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                    __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
@@ -7892,10 +7889,10 @@ if (!sim_stabr.comp)
     (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                    __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
@@ -7907,10 +7904,10 @@ if (!sim_staba.mask)
     (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                    __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
@@ -7921,10 +7918,10 @@ if (!sim_staba.comp)
     (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                    __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
@@ -8181,10 +8178,10 @@ if (!val)
     (void)fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                   __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
@@ -8467,10 +8464,10 @@ t_stat reason;
 
 if (stop_cpu)                                           /* stop CPU? */
   {
-#ifdef WIN_STDIO
+#if defined(WIN_STDIO)
     (void)fflush(stdout);
     (void)fflush(stderr);
-#endif /* ifdef WIN_STDIO */
+#endif /* if defined(WIN_STDIO) */
     return SCPE_STOP;
   }
 UPDATE_SIM_TIME;                                        /* update sim time */
@@ -8510,10 +8507,10 @@ else
 
 if ((reason == SCPE_OK) && stop_cpu)
   {
-#ifdef WIN_STDIO
+#if defined(WIN_STDIO)
     (void)fflush(stdout);
     (void)fflush(stderr);
-#endif /* ifdef WIN_STDIO */
+#endif /* if defined(WIN_STDIO) */
     reason = SCPE_STOP;
   }
 sim_processing_event = FALSE;
@@ -8874,10 +8871,10 @@ if (!bp)
     (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                    __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
@@ -8950,7 +8947,7 @@ if (!bp)                                                /* not there? ok */
 if (sw == 0)
     sw = SIM_BRK_ALLTYP;
 
-#ifndef __clang_analyzer__
+#if !defined(__clang_analyzer__)
 while (bp) {
     if (bp->typ == (bp->typ & sw)) {
         FREE (bp->act);                                 /* deallocate action */
@@ -8969,7 +8966,7 @@ while (bp) {
         bp = bp->next;
         }
     }
-#endif /* ifndef __clang_analyzer__ */
+#endif /* if !defined(__clang_analyzer__) */
 if (sim_brk_tab[sim_brk_ins] == NULL) {                 /* erased entry */
     sim_brk_ent = sim_brk_ent - 1;                      /* decrement count */
     for (i = sim_brk_ins; i < sim_brk_ent; i++)         /* shuffle remaining entries */
@@ -9190,10 +9187,10 @@ if (action) {
         (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                        __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -9384,14 +9381,14 @@ FREE (ep->match);                                       /* deallocate match stri
 FREE (ep->match_pattern);                               /* deallocate the display format match string */
 FREE (ep->act);                                         /* deallocate action */
 exp->size -= 1;                                         /* decrement count */
-#ifndef __clang_analyzer__
+#if !defined(__clang_analyzer__)
 for (i=ep-exp->rules; i<exp->size; i++)                 /* shuffle up remaining rules */
     exp->rules[i] = exp->rules[i+1];
 if (exp->size == 0) {                                   /* No rules left? */
     FREE (exp->rules);
     exp->rules = NULL;
     }
-#endif /* ifndef __clang_analyzer__ */
+#endif /* if !defined(__clang_analyzer__) */
 return SCPE_OK;
 }
 
@@ -9469,10 +9466,10 @@ if (!exp->rules)
     (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                    __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
@@ -9507,10 +9504,10 @@ if (!ep->match_pattern)
     (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                    __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
@@ -9734,10 +9731,10 @@ if (snd->insoff+size > snd->bufsize) {
         (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                        __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -9901,15 +9898,15 @@ struct timespec time_now;
   ( defined(__PPC__) || defined(_ARCH_PPC) )
 # include <mach/clock.h>
 # include <mach/mach.h>
-# ifdef MACOSXPPC
+# if defined(MACOSXPPC)
 #  undef MACOSXPPC
-# endif /* ifdef MACOSXPPC */
+# endif /* if defined(MACOSXPPC) */
 # define MACOSXPPC 1
 #endif /* if defined(__MACH__) && defined(__APPLE__) &&
            ( defined(__PPC__) || defined(_ARCH_PPC) ) */
 
 if (sim_deb_switches & (SWMASK ('T') | SWMASK ('R') | SWMASK ('A'))) {
-#ifdef MACOSXPPC
+#if defined(MACOSXPPC)
     clock_serv_t cclock;
     mach_timespec_t mts;
     host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
@@ -9919,7 +9916,7 @@ if (sim_deb_switches & (SWMASK ('T') | SWMASK ('R') | SWMASK ('A'))) {
     time_now.tv_nsec = mts.tv_nsec;
 #else
     clock_gettime(CLOCK_REALTIME, &time_now);
-#endif /* ifdef MACOSXPPC */
+#endif /* if defined(MACOSXPPC) */
     if (sim_deb_switches & SWMASK ('R'))
         sim_timespec_diff (&time_now, &time_now, &sim_deb_basetime);
     if (sim_deb_switches & SWMASK ('T')) {
@@ -10389,9 +10386,9 @@ if (!len)
 
 newt = (char *)realloc (topic->text, topic->len + len +1);
 if (!newt) {
-#ifndef SUNLINT
+#if !defined(SUNLINT)
     FAIL (SCPE_MEM, No memory, NULL);
-#endif /* ifndef SUNLINT */
+#endif /* if !defined(SUNLINT) */
     }
 topic->text = newt;
 memcpy (newt + topic->len, text, len);
@@ -10507,18 +10504,18 @@ for (hblock = astrings; (htext = *hblock) != NULL; hblock++) {
                                     n += (n * 10) + (*htext++ - '0');
                                 if (( *htext != 'H' && *htext != 's') ||
                                     n == 0 || n >= VSMAX) {
-#ifndef SUNLINT
+#if !defined(SUNLINT)
                                     FAIL (SCPE_ARG, Invalid escape, htext);
-#endif /* ifndef SUNLINT */
+#endif /* if !defined(SUNLINT) */
                                     }
                                 while (n > vsnum)   /* Get arg pointer if not cached */
                                     vstrings[vsnum++] = va_arg (ap, char *);
                                 start = vstrings[n-1]; /* Insert selected string */
                                 if (*htext == 'H') {   /* Append as more input */
                                     if (asnum >= VSMAX) {
-#ifndef SUNLINT
+#if !defined(SUNLINT)
                                         FAIL (SCPE_ARG, Too many blocks, htext);
-#endif /* ifndef SUNLINT */
+#endif /* if !defined(SUNLINT) */
                                         }
                                     astrings[asnum++] = (char *)start;
                                     break;
@@ -10541,9 +10538,9 @@ for (hblock = astrings; (htext = *hblock) != NULL; hblock++) {
                                 appendText (topic, start, ep-start);
                                 break;
                                 }
-#ifndef SUNLINT
+#if !defined(SUNLINT)
                             FAIL (SCPE_ARG, Invalid escape, htext);
-#endif /* ifndef SUNLINT */
+#endif /* if !defined(SUNLINT) */
                         } /* switch (escape) */
                     start = ++htext;
                     continue;                   /* Current line */
@@ -10567,9 +10564,9 @@ for (hblock = astrings; (htext = *hblock) != NULL; hblock++) {
             while (sim_isdigit (*htext))
                 n += (n * 10) + (*htext++ - '0');
             if ((htext == start) || !n) {
-#ifndef SUNLINT
+#if !defined(SUNLINT)
                 FAIL (SCPE_ARG, Invalid topic heading, htext);
-#endif /* ifndef SUNLINT */
+#endif /* if !defined(SUNLINT) */
                 }
             if (n <= topic->level) {            /* Find level for new topic */
                 while (n <= topic->level)
@@ -10577,25 +10574,25 @@ for (hblock = astrings; (htext = *hblock) != NULL; hblock++) {
                 }
             else {
                 if (n > topic->level + 1) {     /* Skipping down more than 1 */
-#ifndef SUNLINT
+#if !defined(SUNLINT)
                     FAIL (SCPE_ARG, Level not contiguous, htext); /* E.g. 1 3, not reasonable */
-#endif /* ifndef SUNLINT */
+#endif /* if !defined(SUNLINT) */
                     }
                 }
             while (*htext && (*htext != '\n') && sim_isspace (*htext))
                 htext++;
             if (!*htext || (*htext == '\n')) {  /* Name missing */
-#ifndef SUNLINT
+#if !defined(SUNLINT)
                 FAIL (SCPE_ARG, Missing topic name, htext);
-#endif /* ifndef SUNLINT */
+#endif /* if !defined(SUNLINT) */
                 }
             start = htext;
             while (*htext && (*htext != '\n'))
                 htext++;
             if (start == htext) {               /* Name NULL */
-#ifndef SUNLINT
+#if !defined(SUNLINT)
                 FAIL (SCPE_ARG, Null topic name, htext);
-#endif /* ifndef SUNLINT */
+#endif /* if !defined(SUNLINT) */
                 }
             excluded = FALSE;
             if (*start == '?') {                /* Conditional topic? */
@@ -10604,9 +10601,9 @@ for (hblock = astrings; (htext = *hblock) != NULL; hblock++) {
                 while (sim_isdigit (*start))    /* Get param # */
                     n += (n * 10) + (*start++ - '0');
                 if (!*start || *start == '\n'|| n == 0 || n >= VSMAX) {
-#ifndef SUNLINT
+#if !defined(SUNLINT)
                     FAIL (SCPE_ARG, Invalid parameter number, start);
-#endif /* ifndef SUNLINT */
+#endif /* if !defined(SUNLINT) */
                     }
                 while (n > vsnum)               /* Get arg pointer if not cached */
                     vstrings[vsnum++] = va_arg (ap, char *);
@@ -10620,16 +10617,16 @@ for (hblock = astrings; (htext = *hblock) != NULL; hblock++) {
                 }
             newt = (TOPIC *) calloc (sizeof (TOPIC), 1);
             if (!newt) {
-#ifndef SUNLINT
+#if !defined(SUNLINT)
                 FAIL (SCPE_MEM, No memory, NULL);
-#endif /* ifndef SUNLINT */
+#endif /* if !defined(SUNLINT) */
                 }
             newt->title = (char *) malloc ((htext - start)+1);
             if (!newt->title) {
                 FREE (newt);
-#ifndef SUNLINT
+#if !defined(SUNLINT)
                 FAIL (SCPE_MEM, No memory, NULL);
-#endif /* ifndef SUNLINT */
+#endif /* if !defined(SUNLINT) */
                 }
             memcpy (newt->title, start, htext - start);
             newt->title[htext - start] = '\0';
@@ -10644,9 +10641,9 @@ for (hblock = astrings; (htext = *hblock) != NULL; hblock++) {
             if (NULL == children) {
                 FREE (newt->title);
                 FREE (newt);
-#ifndef SUNLINT
+#if !defined(SUNLINT)
                 FAIL (SCPE_MEM, No memory, NULL);
-#endif /* ifndef SUNLINT */
+#endif /* if !defined(SUNLINT) */
                 }
             topic->children = children;
             topic->children[topic->kids++] = newt;
@@ -10662,9 +10659,9 @@ for (hblock = astrings; (htext = *hblock) != NULL; hblock++) {
                 FREE (newt->title);
                 topic->children[topic->kids -1] = NULL;
                 FREE (newt);
-#ifndef SUNLINT
+#if !defined(SUNLINT)
                 FAIL (SCPE_MEM, No memory, NULL);
-#endif /* ifndef SUNLINT */
+#endif /* if !defined(SUNLINT) */
                 }
             (void)sprintf (newt->label, "%s%s", topic->label, nbuf);
             topic = newt;
@@ -10675,9 +10672,9 @@ for (hblock = astrings; (htext = *hblock) != NULL; hblock++) {
                 htext++;
             continue;
             }
-#ifndef SUNLINT
+#if !defined(SUNLINT)
         FAIL (SCPE_ARG, Unknown line type, htext);     /* Unknown line */
-#endif /* ifndef SUNLINT */
+#endif /* if !defined(SUNLINT) */
         } /* htext not at end */
     (void)memset (vstrings, 0, VSMAX * sizeof (char *));
     vsnum = 0;
@@ -10698,9 +10695,9 @@ char *newp, *newt;
 if (topic->level == 0) {
     prefix = (char *) calloc (2,1);
     if (!prefix) {
-#ifndef SUNLINT
+#if !defined(SUNLINT)
         FAIL (SCPE_MEM, No memory, NULL);
-#endif /* ifndef SUNLINT */
+#endif /* if !defined(SUNLINT) */
         }
     prefix[0] = '\n';
     }
@@ -10711,9 +10708,9 @@ newp = (char *) malloc (strlen (prefix) + 1 + strlen (topic->title) + 1 +
                         strlen (pstring) +1);
 if (!newp) {
     FREE (prefix);
-#ifndef SUNLINT
+#if !defined(SUNLINT)
     FAIL (SCPE_MEM, No memory, NULL);
-#endif /* ifndef SUNLINT */
+#endif /* if !defined(SUNLINT) */
     }
 strcpy (newp, prefix);
 if (topic->children) {
@@ -10743,7 +10740,7 @@ static void displayMagicTopic (FILE *st, DEVICE *dptr, TOPIC *topic)
 {
 char tbuf[CBUFSIZE];
 size_t i, skiplines;
-#ifdef _WIN32
+#if defined(_WIN32)
 FILE *tmp;
 char *tmpnam;
 
@@ -10758,7 +10755,7 @@ do {
     } while (1);
 #else
 FILE *tmp = tmpfile();
-#endif
+#endif /* if defined(_WIN32) */
 
 if (!tmp) {
     (void)fprintf (st, "Unable to create temporary file: %s (Error %d)\n",
@@ -10799,10 +10796,10 @@ while (fgets (tbuf, sizeof (tbuf), tmp)) {
     fputs (tbuf, st);
     }
 fclose (tmp);
-#ifdef _WIN32
+#if defined(_WIN32)
 remove (tmpnam);
 FREE (tmpnam);
-#endif
+#endif /* if defined(_WIN32) */
 return;
 }
 /* Flatten and display help for those who say they prefer it. */
@@ -10928,10 +10925,10 @@ if (!top.title)
     (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                    __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
@@ -10947,10 +10944,10 @@ if (!top.label)
     (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                    __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }

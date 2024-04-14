@@ -55,7 +55,7 @@
  *      parse_sym               parse symbolic input
  */
 
-#ifndef SIM_DEFS_H_
+#if !defined(SIM_DEFS_H_)
 # define SIM_DEFS_H_    0
 
 # include <stddef.h>
@@ -72,38 +72,46 @@
 # include <math.h>
 # include <setjmp.h>
 
-# ifdef _WIN32
+# if defined(_WIN32)
 #  include <winsock2.h>
 #  undef PACKED                       /* avoid macro name collision */
 #  undef ERROR                        /* avoid macro name collision */
 #  undef MEM_MAPPED                   /* avoid macro name collision */
 #  include <process.h>
-# endif
+# endif /* if defined(_WIN32) */
 
 # include <sys/param.h>               /* MAXPATHLEN */
 
-/* avoid macro names collisions */
-# ifdef MAX
-#  undef MAX
-# endif
-# ifdef MIN
-#  undef MIN
-# endif
-# ifdef PMASK
-#  undef PMASK
-# endif
-# ifdef RS
-#  undef RS
-# endif
-# ifdef PAGESIZE
-#  undef PAGESIZE
-# endif
+/* avoid internal macro name collisions */
 
-# ifndef TRUE
-#  define TRUE            1
+# if defined(MAX)
+#  undef MAX
+# endif /* if defined(MAX) */
+
+# if defined(MIN)
+#  undef MIN
+# endif /* if defined(MIN) */
+
+# if defined(PMASK)
+#  undef PMASK
+# endif /* if defined(PMASK) */
+
+# if defined(RS)
+#  undef RS
+# endif /* if defined(RS) */
+
+# if defined(PAGESIZE)
+#  undef PAGESIZE
+# endif /* if defined(PAGESIZE) */
+
+# if !defined(TRUE)
+#  define TRUE 1
+# endif /* if !defined(TRUE) */
+
+# if !defined(FALSE)
 #  undef FALSE
-#  define FALSE           0
-# endif
+#  define FALSE 0
+# endif /* if !defined(FALSE) */
 
 /*
  * SCP API shim.
@@ -115,9 +123,9 @@
  * when compiling for SIMH 3.x.
  */
 
-# ifndef CONST
+# if !defined(CONST)
 #  define CONST const
-# endif
+# endif /* if !defined(CONST) */
 
 /* Length specific integer declarations */
 
@@ -143,9 +151,9 @@ typedef unsigned __int64        t_uint64;
 #  define t_uint64                unsigned long long
 # endif                                                  /* end 64b */
 # include <stdint.h>
-# ifndef INT64_C
+# if !defined(INT64_C)
 #  define INT64_C(x)      x ## LL
-# endif
+# endif /* if !defined(INT64_C) */
 
 typedef t_int64         t_svalue;                       /* signed value */
 typedef t_uint64        t_value;                        /* value */
@@ -791,7 +799,7 @@ struct FILEREF {
 # include "sim_fio.h"
 
 # undef FREE
-# ifdef TESTING
+# if defined(TESTING)
 #  define FREE(p) free(p)
 # else
 #  define FREE(p) do  \
@@ -799,21 +807,21 @@ struct FILEREF {
     free((p));        \
     (p) = NULL;       \
   } while(0)
-# endif /* ifdef TESTING */
+# endif /* if defined(TESTING) */
 
 /* Consistent PATH_MAX */
 
-# ifndef MAXPATHLEN
+# if !defined(MAXPATHLEN)
 #  if defined(PATH_MAX) && PATH_MAX > 1024
 #   define MAXPATHLEN PATH_MAX
 #  else
 #   define MAXPATHLEN 1024
 #  endif /* if defined(PATH_MAX) && PATH_MAX > 1024 */
-# endif /* ifndef MAXPATHLEN */
+# endif /* if !defined(MAXPATHLEN) */
 
-# ifndef PATH_MAX
+# if !defined(PATH_MAX)
 #  define PATH_MAX MAXPATHLEN
-# endif /* ifndef PATH_MAX */
+# endif /* if !defined(PATH_MAX) */
 
 /* Macro to ALWAYS execute the specified expression and fail if it evaluates to false. */
 

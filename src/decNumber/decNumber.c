@@ -4,6 +4,7 @@
 /* ------------------------------------------------------------------- */
 /* Decimal Number arithmetic module                                    */
 /* ------------------------------------------------------------------- */
+/*                                                                     */
 /* Copyright (c) IBM Corporation, 2000, 2009.  All rights reserved.    */
 /*                                                                     */
 /* This software is made available under the terms of the ICU License. */
@@ -17,7 +18,9 @@
 /*   mfc@uk.ibm.com                                                    */
 /*   Mike Cowlishaw, IBM Fellow                                        */
 /*   IBM UK, PO Box 31, Birmingham Road, Warwick CV34 5JL, UK          */
+/*                                                                     */
 /* ------------------------------------------------------------------- */
+/*                                                                     */
 /* This module comprises the routines for arbitrary-precision General  */
 /* Decimal Arithmetic as defined in the specification which may be     */
 /* found on the General Decimal Arithmetic pages.  It implements both  */
@@ -26,24 +29,7 @@
 /*                                                                     */
 /* Usage notes:                                                        */
 /*                                                                     */
-/* 1. This code is ANSI C89 except:                                    */
-/*                                                                     */
-/*    a) C99 line comments (double forward slash) are used.  (Most C   */
-/*       compilers accept these.  If yours does not, the "uncrustify"  */
-/*       program can be used to convert them to ANSI C comments.)      */
-/*                                                                     */
-/*    b) Types from C99 stdint.h are used.  If you do not have this    */
-/*       header file, see the User's Guide section of the decNumber    */
-/*       documentation; this lists the necessary definitions.          */
-/*                                                                     */
-/*    c) If DECDPUN>4 or DECUSE64=1, the C99 64-bit int64_t and        */
-/*       uint64_t types may be used.  To avoid these, set DECUSE64=0   */
-/*       and DECDPUN<=4 (see documentation).                           */
-/*                                                                     */
-/*    The code also conforms to C99 restrictions; in particular,       */
-/*    strict aliasing rules are observed.                              */
-/*                                                                     */
-/* 2. The decNumber format which this library uses is optimized for    */
+/* 1. The decNumber format which this library uses is optimized for    */
 /*    efficient processing of relatively short numbers; in particular  */
 /*    it allows the use of fixed sized structures and minimizes copy   */
 /*    and move operations.  It does, however, support arbitrary        */
@@ -55,16 +41,16 @@
 /*    DEC_MAX_MATH (999999), and their operand(s) must be within       */
 /*    these bounds.                                                    */
 /*                                                                     */
-/* 3. Logical functions are further restricted; their operands must    */
+/* 2. Logical functions are further restricted; their operands must    */
 /*    be finite, positive, have an exponent of zero, and all digits    */
 /*    must be either 0 or 1.  The result will only contain digits      */
 /*    which are 0 or 1 (and will have exponent=0 and a sign of 0).     */
 /*                                                                     */
-/* 4. Operands to operator functions are never modified unless they    */
+/* 3. Operands to operator functions are never modified unless they    */
 /*    are also specified to be the result number (which is always      */
 /*    permitted).  Other than that case, operands must not overlap.    */
 /*                                                                     */
-/* 5. Error handling: the type of the error is ORed into the status    */
+/* 4. Error handling: the type of the error is ORed into the status    */
 /*    flags in the current context (decContext structure).  The SIGFPE */
 /*    signal is then raised if the corresponding trap-enabler flag in  */
 /*    the decContext is set (is 1).                                    */
@@ -76,14 +62,16 @@
 /*    a valid number (which may be a special value, such as an         */
 /*    Infinity or NaN).                                                */
 /*                                                                     */
-/* 6. The decNumber format is not an exchangeable concrete             */
+/* 5. The decNumber format is not an exchangeable concrete             */
 /*    representation as it comprises fields which may be machine-      */
 /*    dependent (packed or unpacked, or special length, for example).  */
 /*    Canonical conversions to and from strings are provided; other    */
 /*    conversions are available in separate modules.                   */
 /*                                                                     */
-/* 7. Subset arithmetic is available only if DECSUBSET is set to 1.    */
+/* 6. Subset arithmetic is available only if DECSUBSET is set to 1.    */
+/*                                                                     */
 /* ------------------------------------------------------------------- */
+/*                                                                     */
 /* Implementation notes for maintenance of this module:                */
 /*                                                                     */
 /* 1. Storage leak protection:  Routines which use malloc are not      */
@@ -148,6 +136,7 @@
 /*      +ve -- positive                                                */
 /*      -ve -- negative                                                */
 /*      **  -- raise to the power                                      */
+/*                                                                     */
 /* ------------------------------------------------------------------- */
 
 #include <string.h>                // for strcpy
@@ -157,7 +146,7 @@
 #include "decNumberLocal.h"        // decNumber local types, etc.
 
 #undef FREE
-#ifdef TESTING
+#if defined(TESTING)
 # define FREE(p) free(p)
 #else
 # define FREE(p) do  \
@@ -165,7 +154,7 @@
     free((p));       \
     (p) = NULL;      \
   } while(0)
-#endif
+#endif /* if defined(TESTING) */
 
 /* Constants */
 // Public lookup table used by the D2U macro
@@ -4330,9 +4319,9 @@ static decNumber * decDivideOp(decNumber *res,
 
       // if the residue is zero, the operation is done (unless divide
       // or divideInteger and still not enough digits yet)
-#ifdef __clang_analyzer__
+#if defined(__clang_analyzer__)
       *var1=0;
-#endif /* ifdef __clang_analyzer__ */
+#endif /* if defined(__clang_analyzer__) */
       if (*var1==0 && var1units==1) {        // residue is 0
         if (op&(REMAINDER|REMNEAR)) break;
         if ((op&DIVIDE) && (exponent<=maxexponent)) break;
@@ -5430,13 +5419,13 @@ decNumber * decLnOp(decNumber *res, const decNumber *rhs,
     decCopyFit(b, rhs, &aset, &residue, &ignore); // copy & shorten
     b->exponent=0;                      // make integer
     t=decGetInt(b);                     // [cannot fail]
-#ifdef __clang_analyzer__
+#if defined(__clang_analyzer__)
     if (t<0) t=10;
-#endif /* ifdef __clang_analyzer__ */
+#endif /* if defined(__clang_analyzer__) */
     if (t<10) t=X10(t);                 // adjust single-digit b
-#ifndef __clang_analyzer__
+#if !defined(__clang_analyzer__)
     t=LNnn[t-10];                       // look up ln(b)
-#endif /* ifndef __clang_analyzer__ */
+#endif /* if !defined(__clang_analyzer__) */
     decNumberFromInt32(b, t>>2);        // b=ln(b) coefficient
     b->exponent=-(t&3)-3;               // set exponent
     b->bits=DECNEG;                     // ln(0.10)->ln(0.99) always -ve
@@ -7399,9 +7388,9 @@ static decNumber * decNaNs(decNumber *res, const decNumber *lhs,
     // copy safe number of units, then decapitate
     res->bits=lhs->bits;                // need sign etc.
     uresp1=res->lsu+D2U(set->digits);
-#ifndef __clang_analyzer__
+#if !defined(__clang_analyzer__)
     for (ur=res->lsu, ul=lhs->lsu; ur<uresp1; ur++, ul++) *ur=*ul;
-#endif /* ifndef __clang_analyzer__ */
+#endif /* if !defined(__clang_analyzer__) */
     res->digits=D2U(set->digits)*DECDPUN;
     // maybe still too long
     if (res->digits>set->digits) decDecap(res, res->digits-set->digits);

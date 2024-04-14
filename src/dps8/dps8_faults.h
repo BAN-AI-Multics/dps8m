@@ -16,7 +16,7 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifndef QUIET_UNUSED
+#if !defined(QUIET_UNUSED)
 struct _fault_register {
     // even word
     bool    ILL_OP;     // IPR fault. An illegal operation code has been detected.
@@ -65,9 +65,7 @@ struct _fault_register {
     bool    PAR_SDWAM;  // A parity error has been detected in the SDWAM.
     bool    PAR_PTWAM;  // A parity error has been detected in the PTWAM.
 };
-#endif
 
-#ifndef QUIET_UNUSED
 struct dps8faults
 {
     int         fault_number;
@@ -78,7 +76,7 @@ struct dps8faults
     int         fault_group;
 };
 typedef struct dps8faults dps8faults;
-#endif
+#endif /* if !defined(QUIET_UNUSED) */
 
 extern char * faultNames [N_FAULTS];
 void check_events (void);
@@ -89,7 +87,7 @@ void cu_safe_restore (void);
 
 void doG7Fault(bool allowTR) NO_RETURN;
 
-#ifdef NEED_128
+#if defined(NEED_128)
 # define fst_zero (_fault_subtype) {.bits=0}
 # define fst_acv9 (_fault_subtype) {.fault_acv_subtype=ACV9}
 # define fst_acv15 (_fault_subtype) {.fault_acv_subtype=ACV15}
@@ -117,7 +115,7 @@ extern const _fault_subtype fst_str_ptr;
 extern const _fault_subtype fst_cmd_lprpn;
 extern const _fault_subtype fst_cmd_ctl;
 extern const _fault_subtype fst_onc_nem;
-#endif
+#endif /* if defined(NEED_128) */
 
 void doFault (_fault faultNumber, _fault_subtype faultSubtype,
               const char * faultMsg) NO_RETURN;

@@ -4,6 +4,7 @@
 /* ------------------------------------------------------------------- */
 /* Decimal 128-bit format module header                                */
 /* ------------------------------------------------------------------- */
+/*                                                                     */
 /* Copyright (c) IBM Corporation, 2000, 2005.  All rights reserved.    */
 /*                                                                     */
 /* This software is made available under the terms of the ICU License. */
@@ -17,6 +18,7 @@
 /*   mfc@uk.ibm.com                                                    */
 /*   Mike Cowlishaw, IBM Fellow                                        */
 /*   IBM UK, PO Box 31, Birmingham Road, Warwick CV34 5JL, UK          */
+/*                                                                     */
 /* ------------------------------------------------------------------- */
 
 #if !defined(DECIMAL128)
@@ -44,12 +46,12 @@
 #  endif
 # endif
 
-# ifndef DECNUMDIGITS
+# if !defined(DECNUMDIGITS)
 #  define DECNUMDIGITS DECIMAL128_Pmax /* size if not already defined */
-# endif
-# ifndef DECNUMBER
+# endif /* if !defined(DECNUMDIGITS) */
+# if !defined(DECNUMBER)
 #  include "decNumber.h"                /* context and number library */
-# endif
+# endif /* if !defined(DECNUMBER) */
 
   /* Decimal 128-bit type, accessible by bytes                        */
   typedef struct {

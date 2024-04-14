@@ -64,42 +64,42 @@
 # define _GNU_SOURCE
 #endif
 
-#if defined( __linux__ ) || defined( __SVR4__ )
+#if defined(__linux__) || defined(__SVR4__)
 # define _FILE_OFFSET_BITS 64
 # define _POSIX_SOURCE     1
-# ifdef _XOPEN_SOURCE
+# if defined(_XOPEN_SOURCE)
 #  undef _XOPEN_SOURCE
 #  define _XOPEN_SOURCE    600
-# endif /* ifdef _XOPEN_SOURCE */
+# endif /* if defined(_XOPEN_SOURCE) */
 # define _DEFAULT_SOURCE   1
 # define _BSD_SOURCE       1
-#endif /* if defined( __linux__ ) || defined( __SVR4__ ) */
+#endif /* if defined(__linux__) || defined(__SVR4__) */
 
-#if defined ( __linux__ ) && defined ( __GNU_LIBRARY__ )
+#if defined (__linux__) && defined (__GNU_LIBRARY__)
 # define voff64_t __off64_t
-#endif /* if defined ( __linux__ ) && defined ( __GNU_LIBRARY__ ) */
+#endif /* if defined (__linux__) && defined (__GNU_LIBRARY__) */
 
-#if defined ( __SVR4__ )
+#if defined (__SVR4__)
 # define __EXTENSIONS__ 1
 # define voff64_t off_t
-#endif /* if defined ( __SVR4__ ) */
+#endif /* if defined (__SVR4__) */
 
-#ifndef voff64_t
+#if !defined(voff64_t)
 # define voff64_t long long int
-#endif /* ifndef voff64_t */
+#endif /* if !defined(voff64_t) */
 
-#if !defined( __MINGW32__ ) && !defined( __MINGW64__ ) && !defined( CROSS_MINGW32 ) && !defined( CROSS_MINGW64 )
+#if !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64)
 # define HAVE_FNMATCH 1
 # define HAVE_MMAN    1
-#endif /* !Windows */
+#endif /* if !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) */
 
 #include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
-#ifdef HAVE_FNMATCH
+#if defined(HAVE_FNMATCH)
 # include <fnmatch.h>
-#endif /* ifdef HAVE_FNMATCH */
+#endif /* if defined(HAVE_FNMATCH) */
 #include <inttypes.h>
 #include <libgen.h>
 #include <limits.h>
@@ -116,9 +116,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef HAVE_MMAN
+#if defined(HAVE_MMAN)
 # include <sys/mman.h>
-#endif /* ifdef HAVE_MMAN */
+#endif /* if defined(HAVE_MMAN) */
 #include <sys/resource.h>
 #include <sys/select.h>
 #include <sys/stat.h>
@@ -128,67 +128,67 @@
 #include <time.h>
 #include <unistd.h>
 
-#ifndef RLIMIT_NOFILE
-# ifdef __RLIMIT_OFILE
+#if !defined(RLIMIT_NOFILE)
+# if defined(__RLIMIT_OFILE)
 #  define RLIMIT_NOFILE __RLIMIT_OFILE
-# else /* ifdef __RLIMIT_OFILE */
+# else
 #  define RLIMIT_NOFILE 7
-# endif /* ifdef __RLIMIT_OFILE */
-#endif /* ifndef RLIMIT_NOFILE */
+# endif /* if defined(__RLIMIT_OFILE) */
+#endif /* if !defined(RLIMIT_NOFILE) */
 
-#if defined( __linux__ )
+#if defined(__linux__)
 # if defined(__GLIBC__)
 #  include <linux/limits.h>
 # endif /* if defined(__GLIBC__) */
 # include <sys/ioctl.h>
 # include <sys/mount.h>
 # include <sys/utsname.h>
-#endif /* if defined( __linux__ ) */
+#endif /* if defined(__linux__) */
 
-#ifndef MAXPATHLEN
+#if !defined(MAXPATHLEN)
 # if defined(PATH_MAX) && PATH_MAX > 1024
 #  define MAXPATHLEN PATH_MAX
 # else
 #  define MAXPATHLEN 1024
 # endif /* if defined(PATH_MAX) && PATH_MAX > 1024 */
-#endif /* ifndef MAXPATHLEN */
+#endif /* if !defined(MAXPATHLEN) */
 
-#ifndef PATH_MAX
+#if !defined(PATH_MAX)
 # define PATH_MAX MAXPATHLEN
-#endif /* ifndef PATH_MAX */
+#endif /* if !defined(PATH_MAX) */
 
-#ifdef __linux__
+#if defined(__linux__)
 # if ( PATH_MAX < (4 * KiB) )
 #  undef PATH_MAX
 #  define PATH_MAX 4 * KiB
 # endif /* if ( PATH_MAX < (4 * KiB) ) */
-#endif /* ifdef __linux__ */
+#endif /* if defined(__linux__) */
 
-#ifndef MAX_FILENAME_LENGTH
-# ifdef NAME_MAX
+#if !defined(MAX_FILENAME_LENGTH)
+# if defined(NAME_MAX)
 #  define MAX_FILENAME_LENGTH NAME_MAX
-# else /* ifdef NAME_MAX */
-#  ifdef __linux__
+# else
+#  if defined(__linux__)
 #   define MAX_FILENAME_LENGTH 4 * KiB
-#  else /* ifdef __linux__ */
+#  else
 #   define MAX_FILENAME_LENGTH 1 * KiB
-#  endif /* ifdef __linux__ */
-# endif /* ifdef NAME_MAX */
-#endif /* ifndef MAX_FILENAME_LENGTH */
+#  endif /* if defined(__linux__) */
+# endif /* if defined(NAME_MAX) */
+#endif /* if !defined(MAX_FILENAME_LENGTH) */
 
 #if defined(__MACH__) && defined(__APPLE__) && \
   ( defined(__PPC__) || defined(_ARCH_PPC) )
 # include <mach/clock.h>
 # include <mach/mach.h>
-# ifdef MACOSXPPC
+# if defined(MACOSXPPC)
 #  undef MACOSXPPC
-# endif /* ifdef MACOSXPPC */
+# endif /* if defined(MACOSXPPC) */
 # define MACOSXPPC 1
 #endif /* if defined(__MACH__) && defined(__APPLE__) &&
            ( defined(__PPC__) || defined(_ARCH_PPC) ) */
 
 #undef FREE
-#ifdef TESTING
+#if defined(TESTING)
 # define FREE(p) free(p)
 #else
 # define FREE(p) do  \
@@ -196,7 +196,7 @@
     free((p));       \
     (p) = NULL;      \
   } while(0)
-#endif /* ifdef TESTING */
+#endif /* if defined(TESTING) */
 
 #define XSTR_EMAXLEN 32767
 
@@ -208,10 +208,10 @@ static const char
   static /* __thread */ char buf[XSTR_EMAXLEN];
 
 #if defined(__APPLE__) || defined(_AIX) || \
-      defined(__MINGW32__) || defined(__MINGW64__) || \
-        defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
+    defined(__MINGW32__) || defined(__MINGW64__) || \
+    defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
 # if defined(__MINGW32__) || defined(__MINGW64__) || \
-        defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
+     defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
   if (strerror_s(buf, sizeof(buf), errnum) == 0) ret = buf; /*LINTOK: xstrerror_l*/
 # else
   if (strerror_r(errnum, buf, sizeof(buf)) == 0) ret = buf; /*LINTOK: xstrerror_l*/
@@ -320,9 +320,9 @@ usage(char *prog)
   (void)fprintf(stderr, "\r    -L             \t lock files pages using mlockall(2)\n");
   (void)fprintf(stderr, "\r    -d             \t daemonize %s process\n", PROGNAME);
   (void)fprintf(stderr, "\r    -m <MAXSIZE>   \t process files only up to <MAXSIZE>\n");
-#ifndef __HAIKU__
+#if !defined(__HAIKU__)
   (void)fprintf(stderr, "\r    -p <RANGE>     \t process only specified <RANGE>\n");
-#endif /* ifndef __HAIKU__ */
+#endif /* if !defined(__HAIKU__) */
   (void)fprintf(stderr, "\r    -f             \t include symbolic link targets\n");
   (void)fprintf(stderr, "\r    -F             \t single filesystem mode\n");
   (void)fprintf(stderr, "\r    -h             \t include hard link targets\n");
@@ -379,7 +379,7 @@ reopen_all(void)
       fatal(
         "%s:%d: freopen failed\r\n       -> %s (error %d)",
         __func__, __LINE__, xstrerror_l(errno), errno);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       _Exit(1);
     }
 }
@@ -405,7 +405,7 @@ wait_for_child(void)
           fatal(
             "%s:%d: select failed\r\n       -> %s (error %d)",
             __func__, __LINE__, xstrerror_l(errno), errno);
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
           _Exit(1);
         }
 
@@ -414,7 +414,7 @@ wait_for_child(void)
           fatal(
             "%s:%d: daemon failure\r\n       -> daemon exited unexpectedly",
             __func__, __LINE__);
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
           _Exit(1);
         }
 
@@ -429,7 +429,7 @@ wait_for_child(void)
       fatal(
         "%s:%d: read failure\r\n       -> %s (error %d)",
         __func__, __LINE__, xstrerror_l(errno), errno);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       _Exit(1);
     }
 
@@ -445,7 +445,7 @@ go_daemon(void)
       fatal(
         "%s:%d: fork failure\r\n       -> %s (error %d)",
         __func__, __LINE__, xstrerror_l(errno), errno);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       _Exit(1);
     }
 
@@ -463,7 +463,7 @@ go_daemon(void)
       fatal(
         "%s:%d: setsid failure\r\n       -> %s (error %d)",
         __func__, __LINE__, xstrerror_l(errno), errno);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       _Exit(1);
     }
 
@@ -537,7 +537,7 @@ parse_size(char *inp)
   if (len < 1)
     {
       fatal("%s:%d: %s", __func__, __LINE__, errstr);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       _Exit(1);
     }
 
@@ -565,7 +565,7 @@ parse_size(char *inp)
 
         default:
           fatal("%s:%d: unknown multiplier %c", __func__, __LINE__, mult_char);
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
           _Exit(1);
         }
       inp[len - 1] = '\0';
@@ -576,7 +576,7 @@ parse_size(char *inp)
   if ((long)val < 0L || val == HUGE_VAL || *tp != '\0')
     {
       fatal("%s:%d: %s", __func__, __LINE__, errstr);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       _Exit(1);
     }
 
@@ -585,7 +585,7 @@ parse_size(char *inp)
   if ((long long)val > INT64_MAX) //-V547
     {
       fatal("%s:%d: %s", __func__, __LINE__, errstr);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       _Exit(1);
     }
 
@@ -598,14 +598,14 @@ bytes2pages(int64_t bytes)
   if (pagesize == 0)
     {
       fatal("%s:%d: pagesize cannot be 0", __func__, __LINE__);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       _Exit(1);
     }
 
   return ( bytes + pagesize - 1 ) / pagesize;
 }
 
-#ifndef __HAIKU__
+#if !defined(__HAIKU__)
 static void
 parse_range(char *inp)
 {
@@ -631,7 +631,7 @@ parse_range(char *inp)
       else
         {
           fatal("%s:%d: token cannot be NULL", __func__, __LINE__);
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
           _Exit(1);
         }
 
@@ -645,7 +645,7 @@ parse_range(char *inp)
       if (token != NULL)
         {
           fatal("%s:%d: malformed range; multiple hyphens", __func__, __LINE__);
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
           _Exit(1);
         }
     }
@@ -654,7 +654,7 @@ parse_range(char *inp)
   if (pagesize == 0)
     {
       fatal("%s:%d: pagesize cannot be 0", __func__, __LINE__);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       _Exit(1);
     }
 
@@ -666,14 +666,14 @@ parse_range(char *inp)
       if (upper_range <= offset)
         {
           fatal("%s:%d: range limits out of order", __func__, __LINE__);
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
           _Exit(1);
         }
 
       max_len = upper_range - offset;
     }
 }
-#endif /* ifndef __HAIKU__ */
+#endif /* if !defined(__HAIKU__) */
 
 static void
 parse_ignore_item(char *inp)
@@ -688,7 +688,7 @@ parse_ignore_item(char *inp)
       fatal(
         "%s:%d: %d-character pattern exceeds %d-character limit",
         __func__, __LINE__, strlen(inp), MAX_FILENAME_LENGTH);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       return;
     }
 
@@ -697,7 +697,7 @@ parse_ignore_item(char *inp)
       fatal(
         "%s:%d: %d patterns specified; exceeds %d pattern limit",
         __func__, __LINE__, number_of_ignores, MAX_NUMBER_OF_IGNORES - 1);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       return;
     }
 
@@ -705,7 +705,7 @@ parse_ignore_item(char *inp)
   if (!ignore_list[number_of_ignores])
     {
       fatal("%s:%d: ignore_list: out of memory", __func__, __LINE__);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       return;
     }
   number_of_ignores++;
@@ -722,7 +722,7 @@ parse_filename_filter_item(char *inp)
   if (strlen(inp) > MAX_FILENAME_LENGTH)
     {
       fatal("%s:%d: oversized pattern provided to -I", __func__, __LINE__);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       return;
     }
 
@@ -731,7 +731,7 @@ parse_filename_filter_item(char *inp)
       fatal(
         "%s:%d: too many patterns specified with -I; limit is %d",
         __func__, __LINE__, MAX_NUMBER_OF_FILENAME_FILTERS);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       return;
     }
 
@@ -739,7 +739,7 @@ parse_filename_filter_item(char *inp)
   if (!filename_filter_list[number_of_filename_filters])
     {
       fatal("%s:%d: filename_filter_list: out of memory", __func__, __LINE__);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       return;
     }
   number_of_filename_filters++;
@@ -767,7 +767,7 @@ increment_nofile_rlimit(void)
       fatal(
         "%s:%d: increment_nofile_rlimit: getrlimit failed\r\n       -> %s (error %d)",
         __func__, __LINE__, xstrerror_l(errno), errno);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       _Exit(1);
     }
 
@@ -783,21 +783,21 @@ increment_nofile_rlimit(void)
               fatal(
                 "%s:%d: system file limit reached\r\n       -> %s (error %d)",
                 __func__, __LINE__, xstrerror_l(errno), errno);
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
               exit(errno);
             }
 
           fatal(
             "%s:%d: user file limit reached\r\n       -> %s (error %d)",
             __func__, __LINE__, xstrerror_l(errno), errno);
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
           exit(errno);
         }
 
       fatal(
         "%s:%d: increment_nofile_rlimit: setrlimit failed\r\n       -> %s (error %d)",
         __func__, __LINE__, xstrerror_l(errno), errno);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       exit(errno);
     }
 }
@@ -816,13 +816,13 @@ gettimeofday_as_double(void)
           fatal(
             "%s:%d: gettimeofday failure\r\n       -> %s (error %d)",
             __func__, __LINE__, xstrerror_l(errno), errno);
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
           exit(errno);
         }
       else
         {
           fatal("%s:%d: gettimeofday failure", __func__, __LINE__);
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
           _Exit(1);
         }
     }
@@ -1010,9 +1010,9 @@ vmpc_file(char *path)
 retry_open:
   open_flags = O_RDONLY;
 
-#if defined( O_NOATIME )
+#if defined(O_NOATIME)
   open_flags |= O_NOATIME;
-#endif /* if defined( O_NOATIME ) */
+#endif /* if defined(O_NOATIME) */
 
   fd = open(path, open_flags, 0);
 
@@ -1023,7 +1023,7 @@ retry_open:
       fd = open(path, open_flags, 0);
     }
 
-#endif /* if defined( O_NOATIME ) */
+#endif /* if defined(O_NOATIME) */
 
   if (fd == -1)
     {
@@ -1051,7 +1051,7 @@ retry_open:
 
   if (S_ISBLK(sb.st_mode))
     {
-#if defined( __linux__ )
+#if defined(__linux__)
       if (ioctl(fd, BLKGETSIZE64, &len_of_file))
         {
           warning(
@@ -1059,14 +1059,13 @@ retry_open:
             __func__, __LINE__, path, xstrerror_l(errno), errno);
           goto bail;
         }
-
-#else  /* if defined( __linux__ ) */
+#else
       fatal(
         "%s:%d: discovery of block device size not supported",
         __func__, __LINE__);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       _Exit(1);
-#endif /* if defined( __linux__ ) */
+#endif /* if defined(__linux__) */
     }
   else
     {
@@ -1117,7 +1116,7 @@ retry_open:
   if (!aligned_p(mem))
     {
       fatal("%s:%d: mmap: %s: not page aligned", __func__, __LINE__, path);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       _Exit(1);
     }
 
@@ -1132,8 +1131,8 @@ retry_open:
           (void)fprintf(stderr, "Evicting %s\n", path);
         }
 
-#if defined( __linux__ )
-# ifdef POSIX_FADV_DONTNEED
+#if defined(__linux__)
+# if defined(POSIX_FADV_DONTNEED)
       if (posix_fadvise(
             fd,
             (voff64_t)offset,
@@ -1144,10 +1143,10 @@ retry_open:
             "%s:%d: unable to posix_fadvise file %s\r\n      -> %s (error %d)",
             __func__, __LINE__, path, xstrerror_l(errno), errno);
         }
-# endif /* ifdef POSIX_FADV_DONTNEED */
+# endif /* if defined(POSIX_FADV_DONTNEED) */
 
-#elif defined( __OpenBSD__ ) || defined( __FreeBSD__ ) || \
-          defined( __sun__ ) || defined( __APPLE__ )
+#elif defined(__OpenBSD__) || defined(__FreeBSD__) || \
+          defined(__sun__) || defined(__APPLE__)
       if (msync(mem, len_of_range, MS_INVALIDATE))
         {
           warning(
@@ -1155,11 +1154,11 @@ retry_open:
             __func__, __LINE__, path, xstrerror_l(errno), errno);
         }
 
-#else  /* if defined( __linux__ ) */
+#else
       fatal("%s:%d: cache eviction not supported", __func__, __LINE__);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       _Exit(1);
-#endif /* if defined( __linux__ ) */
+#endif /* if defined(__linux__) */
     }
   else
     {
@@ -1170,16 +1169,16 @@ retry_open:
           fatal(
             "%s:%d: failed to malloc mincore\r\n       -> %s (error %d)",
             __func__, __LINE__, xstrerror_l(errno), errno);
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
           exit(errno);
         }
-#if !defined( __OpenBSD__ ) && !defined( __HAIKU__ ) && !defined( __serenity__ )
+#if !defined(__OpenBSD__) && !defined(__HAIKU__) && !defined(__serenity__)
       if (mincore(mem, len_of_range, (void *)mincore_array))
         {
           fatal(
             "%s:%d: mincore failed for %s\r\n       -> %s (error %d)",
             __func__, __LINE__, path, xstrerror_l(errno), errno);
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
           _Exit(1);
         }
 #else
@@ -1187,7 +1186,7 @@ retry_open:
         warning(
           "%s:%d: mincore is unavailable; data will be inaccurate!",
           __func__, __LINE__);
-#endif /* if !defined( __OpenBSD__) && !defined( __HAIKU__ ) && !defined( __serenity__ ) */
+#endif /* if !defined(__OpenBSD__) && !defined(__HAIKU__) && !defined(__serenity__) */
 
       for (i = 0; i < pages_in_range; i++)
         {
@@ -1268,7 +1267,7 @@ retry_open:
           fatal(
             "%s:%d: mlock failed for %s\r\n       -> %s (error %d)",
             __func__, __LINE__, path, xstrerror_l(errno), errno);
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
           exit(errno);
         }
     }
@@ -1313,7 +1312,7 @@ add_object(struct stat *st)
   if (newp == NULL)
     {
       fatal("%s:%d: malloc: out of memory", __func__, __LINE__);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       _Exit(1);
     }
 
@@ -1321,12 +1320,12 @@ add_object(struct stat *st)
   if (tsearch(newp, &seen_inodes, compare_func) == NULL)
     {
       fatal("%s:%d: tsearch: out of memory", __func__, __LINE__);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       _Exit(1);
     }
 }
 
-#ifdef HAVE_FNMATCH
+#if defined(HAVE_FNMATCH)
 static int
 is_ignored(const char *path)
 {
@@ -1342,7 +1341,7 @@ is_ignored(const char *path)
   if (!path_copy)
     {
       fatal("%s:%d: path_copy: out of memory", __func__, __LINE__);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       abort();
     }
   match     = 0;
@@ -1377,7 +1376,7 @@ is_filename_filtered(const char *path)
   if (!path_copy)
     {
       fatal("%s:%d: path_copy: out of memory", __func__, __LINE__);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       abort();
     }
   match = 0;
@@ -1396,7 +1395,7 @@ is_filename_filtered(const char *path)
   FREE(path_copy);
   return match;
 }
-#endif /* ifdef HAVE_FNMATCH */
+#endif /* if defined(HAVE_FNMATCH) */
 
 static inline int
 find_object(struct stat *st)
@@ -1433,12 +1432,12 @@ vmpc_rdir(char *path)
       path[tp_path_len - 1] = '\0';
     }
 
-#ifdef HAVE_FNMATCH
+#if defined(HAVE_FNMATCH)
   if (is_ignored(path))
     {
       return;
     }
-#endif /* ifdef HAVE_FNMATCH */
+#endif /* if defined(HAVE_FNMATCH) */
 
   res = o_followsymlinks ? stat(path, &sb) : lstat(path, &sb);
 
@@ -1501,7 +1500,7 @@ vmpc_rdir(char *path)
               fatal(
                 "%s:%d: maximum directory depth reached: %s",
                 __func__, __LINE__, path);
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
               _Exit(1);
             }
 
@@ -1563,9 +1562,9 @@ bail:
         }
       else if (S_ISREG(sb.st_mode) || S_ISBLK(sb.st_mode))
         {
-#ifdef HAVE_FNMATCH
+#if defined(HAVE_FNMATCH)
           if (is_filename_filtered(path))
-#endif /* ifdef HAVE_FNMATCH */
+#endif /* if defined(HAVE_FNMATCH) */
             {
               total_files++;
               vmpc_file(path);
@@ -1780,7 +1779,7 @@ main(int argc, char **argv)
       fatal(
         "%s:%d: pipe failure\r\n       -> %s (error %d)",
         __func__, __LINE__, xstrerror_l(errno), errno);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       exit(errno);
     }
 
@@ -1788,7 +1787,7 @@ main(int argc, char **argv)
   if (pagesize < 1)
     {
       fatal("%s:%d: unable to determine pagesize", __func__, __LINE__);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       _Exit(1);
     }
 
@@ -1819,7 +1818,7 @@ main(int argc, char **argv)
         case 'V':
           progversion();
           exit(0);
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
           break;
 
         case 'l':
@@ -1848,11 +1847,11 @@ main(int argc, char **argv)
           o_ignorehardlinkeduplictes = 1;
           break;
 
-#ifndef __HAIKU__
+#if !defined(__HAIKU__)
         case 'p':
           parse_range(optarg);
           break;
-#endif /* ifndef __HAIKU__ */
+#endif /* if !defined(__HAIKU__) */
 
         case 'i':
           parse_ignore_item(optarg);
@@ -1869,7 +1868,7 @@ main(int argc, char **argv)
           if (val != (int64_t)o_max_file_size)
             {
               fatal("%s:%d: value for -m exceeds limit", __func__, __LINE__);
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
               _Exit(1);
             }
 
@@ -1905,7 +1904,7 @@ main(int argc, char **argv)
           fatal(
             "%s:%d: invalid option combination: -t and -e",
             __func__, __LINE__);
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
           _Exit(1);
         }
     }
@@ -1917,7 +1916,7 @@ main(int argc, char **argv)
           fatal(
             "%s:%d: invalid option combination: -e and -l",
             __func__, __LINE__);
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
           _Exit(1);
         }
     }
@@ -1927,7 +1926,7 @@ main(int argc, char **argv)
       fatal(
         "%s:%d: invalid option combination: -l and -L",
         __func__, __LINE__);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       _Exit(1);
     }
 
@@ -1938,7 +1937,7 @@ main(int argc, char **argv)
           fatal(
             "%s:%d: invalid optionncombination: missing -l or -L",
             __func__, __LINE__);
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
           _Exit(1);
         }
 
@@ -1954,7 +1953,7 @@ main(int argc, char **argv)
       fatal(
         "%s:%d: invalid option combination: missing -d",
         __func__, __LINE__);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       _Exit(1);
     }
 
@@ -1963,7 +1962,7 @@ main(int argc, char **argv)
       fatal(
         "%s:%d: invalid option combination: -q and -v",
         __func__, __LINE__);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       _Exit(1);
     }
 
@@ -1972,7 +1971,7 @@ main(int argc, char **argv)
       fatal(
         "%s:%d: invalid option combination: missing -l or -L",
         __func__, __LINE__);
-      /* NOTREACHED */
+      /*NOTREACHED*/ /* unreachable */
       _Exit(1);
     }
 
@@ -2001,13 +2000,13 @@ main(int argc, char **argv)
             __func__, __LINE__,
             xstrerror_l(errno),
             errno);
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
           exit(errno);
         }
       else
         {
           fatal("%s:%d: gettimeofday failure", __func__, __LINE__);
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
           _Exit(1);
         }
     }
@@ -2033,13 +2032,13 @@ main(int argc, char **argv)
             __func__, __LINE__,
             xstrerror_l(errno),
             errno);
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
           exit(errno);
         }
       else
         {
           fatal("%s:%d: gettimeofday failure", __func__, __LINE__);
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
           _Exit(1);
         }
     }
@@ -2056,7 +2055,7 @@ main(int argc, char **argv)
     {
       if (o_lockall)
         {
-#if !defined( __CYGWIN__ ) && !defined( __HAIKU__ ) && !defined( __serenity__ )
+#if !defined(__CYGWIN__) && !defined(__HAIKU__) && !defined(__serenity__)
           if (mlockall(MCL_CURRENT))
             {
               fatal(
@@ -2064,16 +2063,16 @@ main(int argc, char **argv)
                 __func__, __LINE__,
                 xstrerror_l(errno),
                 errno);
-              /* NOTREACHED */
+              /*NOTREACHED*/ /* unreachable */
               exit(errno);
             }
 #else
           fatal(
             "%s:%d: unable to mlockall on this platform\r\n       -> Unavailable (error -1)",
             __func__, __LINE__);
-          /* NOTREACHED */
+          /*NOTREACHED*/ /* unreachable */
           _Exit(1);
-#endif /* if !defined( __CYGWIN__ ) && !defined( __HAIKU__ ) && !defined( __serenity__ ) */
+#endif /* if !defined(__CYGWIN__) && !defined(__HAIKU__) && !defined(__serenity__) */
         }
 
       if (o_pidfile)

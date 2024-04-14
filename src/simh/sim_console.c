@@ -86,17 +86,17 @@
 
 #include "../dps8/dps8.h"
 
-#ifdef __HAIKU__
+#if defined(__HAIKU__)
 # define nice(n) ({})
-#endif /* ifdef __HAIKU__ */
+#endif /* if defined(__HAIKU__) */
 
-#ifdef TESTING
+#if defined(TESTING)
 # include "../dps8/dps8_cpu.h"
 # undef realloc
 # undef FREE
 # define FREE(p) free(p)
 # define realloc trealloc
-#endif /* ifdef TESTING */
+#endif /* if defined(TESTING) */
 
 /* Forward Declarations of Platform specific routines */
 
@@ -1107,10 +1107,10 @@ if (!sim_rem_con_tmxr.ldsc)
     fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
              __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
@@ -1121,10 +1121,10 @@ if (!sim_rem_buf)
     fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
              __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
@@ -1135,10 +1135,10 @@ if (!sim_rem_buf_size)
     fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
              __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
@@ -1149,10 +1149,10 @@ if (!sim_rem_buf_ptr)
     fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
              __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
@@ -1163,10 +1163,10 @@ if (!sim_rem_single_mode)
     fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
              __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
@@ -1177,10 +1177,10 @@ if (!sim_rem_read_timeouts)
     fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
              __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
@@ -1191,10 +1191,10 @@ if (!sim_rem_command_buf)
     fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
              __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
@@ -1356,9 +1356,9 @@ time_t now;
   ( defined(__PPC__) || defined(_ARCH_PPC) )
 # include <mach/clock.h>
 # include <mach/mach.h>
-# ifdef MACOSXPPC
+# if defined(MACOSXPPC)
 #  undef MACOSXPPC
-# endif /* ifdef MACOSXPPC */
+# endif /* if defined(MACOSXPPC) */
 # define MACOSXPPC 1
 #endif /* if defined(__MACH__) && defined(__APPLE__) &&
            ( defined(__PPC__) || defined(_ARCH_PPC) ) */
@@ -1375,7 +1375,7 @@ if (r != SCPE_OK)
     return r;
 
 if (sim_deb_switches & SWMASK ('R')) {
-#ifdef MACOSXPPC
+#if defined(MACOSXPPC)
     clock_serv_t cclock;
     mach_timespec_t mts;
     host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
@@ -1385,7 +1385,7 @@ if (sim_deb_switches & SWMASK ('R')) {
     sim_deb_basetime.tv_nsec = mts.tv_nsec;
 #else
     clock_gettime(CLOCK_REALTIME, &sim_deb_basetime);
-#endif /* ifdef MACOSXPPC */
+#endif /* if defined(MACOSXPPC) */
     if (!(sim_deb_switches & (SWMASK ('A') | SWMASK ('T'))))
         sim_deb_switches |= SWMASK ('T');
     }
@@ -2379,10 +2379,10 @@ else {
         fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                  __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -2394,10 +2394,10 @@ else {
         fprintf (stderr, "\rFATAL: Out out memory! Aborting at %s[%s:%d]\r\n",
                  __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -2432,10 +2432,10 @@ else {
         fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                  __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }

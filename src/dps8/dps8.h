@@ -17,7 +17,7 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifndef DPS8_H
+#if !defined(DPS8_H)
 # define DPS8_H
 
 # include <stdio.h>
@@ -34,63 +34,63 @@
 
 typedef int64_t __int64_t;
 
-# ifdef NEED_128
+# if defined(NEED_128)
 typedef struct { uint64_t h; uint64_t l; } x__uint128_t;
 typedef struct { int64_t h;  uint64_t l; } x__int128_t;
 #  define construct_128(h, l) ((uint128) { (h), (l) })
 #  define construct_s128(h, l) ((int128) { (h), (l) })
-# endif /* ifdef NEED_128 */
+# endif /* if defined(NEED_128) */
 
 // Quiet compiler unused warnings
 # define QUIET_UNUSED
 
 // Enable speed over debugging if not TESTING
-# ifndef TESTING
+# if !defined(TESTING)
 #  define SPEED
-# endif /* ifndef TESTING */
+# endif /* if !defined(TESTING) */
 
 // Experimental dial_out line disconnect delay
 // FNP polled ~100Hz; 2 secs. is 200 polls
 # define DISC_DELAY 200
 
 // Micro-cache
-# ifndef NO_UCACHE
+# if !defined(NO_UCACHE)
 #  undef OLDAPP
 # else
 #  define OLDAPP
-# endif /* ifndef NO_UCACHE */
-# ifndef OLDAPP
-#  ifndef UCACHE_STATS
+# endif /* if !defined(NO_UCACHE) */
+# if !defined(OLDAPP)
+#  if !defined(UCACHE_STATS)
 #   define UCACHE_STATS
-#  endif /* ifndef UCACHE_STATS */
+#  endif /* if !defined(UCACHE_STATS) */
 # else
 #  undef UCACHE_STATS
-# endif /* ifndef OLDAPP */
+# endif /* if !defined(OLDAPP) */
 
 // Shift/rotate instruction barrel shifter
-# ifndef BARREL_SHIFTER
-#  define BARREL_SHIFTER 1
-# endif
+# if !defined(BARREL_SHIFTER)
+#  define BARREL_SHIFTER 0
+# endif /* if !defined(BARREL_SHIFTER) */
 
 //
 // Dependencies
 //
 
-# ifdef PANEL68
+# if defined(PANEL68)
 #  define PNL(x) x
 # else
 #  define PNL(x)
-# endif
+# endif /* if defined(PANEL68) */
 
 # define L68_(x) if (cpu.tweaks.l68_mode) { x }
 # define DPS8M_(x) if (! cpu.tweaks.l68_mode) { x }
 
 // Debugging tool
-# ifdef TESTING
+# if defined(TESTING)
 #  define IF1 if (cpu.tweaks.isolts_mode)
 # else
 #  define IF1 if (0)
-# endif
+# endif /* if defined(TESTING) */
 
 // DPS8-M supports Hex Mode Floating Point
 # define HEX_MODE
@@ -110,58 +110,57 @@ typedef struct { int64_t h;  uint64_t l; } x__int128_t;
 #  define vol volatile
 # else
 #  define vol
-# endif
+# endif /* if defined(THREADZ) || defined(LOCKLESS) */
 
-# ifndef NEED_128
-#  ifdef PRIu64
+# if !defined(NEED_128)
+#  if defined(PRIu64)
 #   undef PRIu64
-#  endif
-#  ifndef PRIu64
+#  endif /* if defined(PRIu64) */
+#  if !defined(PRIu64)
 #   define PRIu64 "llu"
-#  endif
-#  ifdef PRId64
+#  endif /* if !defined(PRIu64) */
+#  if defined(PRId64)
 #   undef PRId64
-#  endif
-#  ifndef PRId64
+#  endif /* if defined(PRId64) */
+#  if !defined(PRId64)
 #   define PRId64 "lld"
-#  endif
-#  ifdef PRIo64
+#  endif /* if !defined(PRId64) */
+#  if defined(PRIo64)
 #   undef PRIo64
-#  endif
-#  ifndef PRIo64
-#   ifdef __HAIKU__
+#  endif /* if defined(PRIo64) */
+#  if !defined(PRIo64)
+#   if defined(__HAIKU__)
 #    define PRIo64 "lo"
 #    undef llo
 #    define llo "lo"
 #   else
 #    define PRIo64 "llo"
-#   endif
-#  endif
-# endif
+#   endif /* if defined(__HAIKU__) */
+#  endif /* if !defined(PRIo64) */
+# endif /* if !defined(NEED_128) */
 
 # include "sim_defs.h"                                   /* simulator defns */
 # include "sim_tape.h"
 
-// patch supplied by Dave Jordan (jordandave@gmail.com) 29 Nov 2012
-# ifdef __MINGW32__
+# if defined(__MINGW32__)
 #  include <stdint.h>
 typedef t_uint64    u_int64_t;
-# endif
-# ifdef __HAIKU__
+# endif /* if defined(__MINGW32__) */
+# if defined(__HAIKU__)
 #  include <stdint.h>
 typedef long int64;
 typedef unsigned long uint64;
-# endif
-# ifndef __HAIKU__
+# endif /* if defined(__HAIKU__) */
+# if !defined(__HAIKU__)
 typedef t_uint64    uint64;
-# endif
-# ifndef _AIX
-#  ifndef __HAIKU__
+# endif /* if !defined(__HAIKU__) */
+# if !defined(_AIX)
+#  if !defined(__HAIKU__)
 typedef t_int64     int64;
-#  endif
+#  endif /* if !defined(__HAIKU__) */
 # else
 typedef long        int64;
-# endif
+# endif /* if !defined(_AIX) */
 
 /* Data types */
 
@@ -203,7 +202,7 @@ typedef uint64       word37;
 typedef uint64       word38;
 typedef int64        word38s;
 typedef int64        word36s;
-# ifndef NEED_128
+# if !defined(NEED_128)
 typedef __uint128_t  word72;
 typedef __int128_t   word72s;
 typedef __uint128_t  word73;
@@ -217,7 +216,7 @@ typedef x__uint128_t word73;
 typedef x__uint128_t word74;
 typedef x__uint128_t uint128;
 typedef x__int128_t  int128;
-# endif
+# endif /* if !defined(NEED_128) */
 
 typedef word36       float36;   // single precision float
 typedef word72       float72;   // double precision float
@@ -250,18 +249,18 @@ typedef enum
     APU_DATA_READ,
     APU_DATA_STORE,
     ABSA_CYCLE,
-# ifdef LOCKLESS
+# if defined(LOCKLESS)
     OPERAND_RMW,
     APU_DATA_RMW,
-# endif
+# endif /* if defined(LOCKLESS) */
   } processor_cycle_type;
 
-# ifndef LOCKLESS
+# if !defined(LOCKLESS)
 #  define OPERAND_RMW   OPERAND_READ
 #  define APU_DATA_RMW  APU_DATA_READ
-# endif
+# endif /* if !defined(LOCKLESS) */
 
-# ifndef EIS_PTR4
+# if !defined(EIS_PTR4)
 // some breakpoint stuff ...
 typedef enum
   {
@@ -277,27 +276,27 @@ typedef enum
 // get 9-bit byte @ pos
 # define GETBYTE(src, pos) (word9)(((word36)src >> (word36)((3 - pos) * 9)) & 0777)
 
-# ifdef NEED_128
+# if defined(NEED_128)
 #  define YPAIRTO72(ypair) construct_128 ((ypair[0] >> 28) & MASK8,    \
                                          ((ypair[0] & MASK28) << 36) | \
                                           (ypair[1] & MASK36));
 # else
 #  define YPAIRTO72(ypair)    (((((word72)(ypair[0] & DMASK)) << 36) | \
                                           (ypair[1] & DMASK)) & MASK72)
-# endif
+# endif /* if defined(NEED_128) */
 
 # define GET_TALLY(src) (((src) >> 6) & MASK12)   // 12-bits
 # define GET_DELTA(src)  ((src) & MASK6)          // 6-bits
 
-# ifndef max
+# if !defined(max)
 #  define max(a,b)   max2((a),(b))
-# endif
+# endif /* if !defined(max) */
 # define max2(a,b)   ((a) > (b) ? (a) : (b))
 # define max3(a,b,c) max((a), max((b),(c)))
 
-# ifndef min
+# if !defined(min)
 #  define min(a,b)   min2((a),(b))
-# endif
+# endif /* if !defined(min) */
 # define min2(a,b)   ((a) < (b) ? (a) : (b))
 # define min3(a,b,c) min((a), min((b),(c)))
 
@@ -565,7 +564,7 @@ typedef enum
 # define ARRAY_SIZE(a) ( sizeof(a) / sizeof((a)[0]) )
 
 # undef FREE
-# ifdef TESTING
+# if defined(TESTING)
 #  define FREE(p) free(p)
 # else
 #  define FREE(p) do  \
@@ -573,7 +572,7 @@ typedef enum
     free((p));        \
     (p) = NULL;       \
   } while(0)
-# endif /* ifdef TESTING */
+# endif /* if defined(TESTING) */
 
 # if defined (__MINGW64__) || \
     defined (__MINGW32__)  || \
@@ -589,15 +588,15 @@ typedef enum
 # define MAX_DEV_NAME_LEN 64
 
 // TESTING realloc wrapper function
-# ifdef TESTING
+# if defined(TESTING)
 void * trealloc(void *ptr, size_t size);
-# endif /* ifdef TESTING */
+# endif /* if defined(TESTING) */
 
 // Basic STDIO for MinGW
-# ifndef __CYGWIN__
-#  if defined( __MINGW32__ ) || defined( __MINGW64__ ) || defined( CROSS_MINGW32 ) || defined( CROSS_MINGW64 )
+# if !defined(__CYGWIN__)
+#  if defined(__MINGW32__) || defined(__MINGW64__) || defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
 #   define WIN_STDIO    1
-#  endif /* if defined( __MINGW32__ ) || defined( __MINGW64__ ) || defined( CROSS_MINGW32 ) || defined( CROSS_MINGW64 ) */
-# endif /* ifndef __CYGWIN__ */
+#  endif /* if defined(__MINGW32__) || defined(__MINGW64__) || defined(CROSS_MINGW32) || defined(CROSS_MINGW64) */
+# endif /* if !defined(__CYGWIN__) */
 
-#endif // ifdef DPS8_H
+#endif // if defined(DPS8_H)

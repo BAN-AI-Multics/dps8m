@@ -64,7 +64,7 @@ static const char copyright[] =
   "@(#) $     URL: https://gitlab.com/dps8m/dps8m/-/tree/master/src/unifdef $\n";
 
 #undef FREE
-#ifdef TESTING
+#if defined(TESTING)
 # define FREE(p) free(p)
 #else
 # define FREE(p) do  \
@@ -72,7 +72,7 @@ static const char copyright[] =
     free((p));       \
     (p) = NULL;      \
   } while(0)
-#endif /* ifdef TESTING */
+#endif /* if defined(TESTING) */
 
 /* types of input lines: */
 
@@ -441,7 +441,8 @@ main(int argc, char *argv[])
   if (showversion || showbuild)
     {
       version();
-      exit(0); /* unreachable */
+      /*NOTREACHED*/ /* unreachable */
+      exit(0);
     }
 
   if (compblank && lnblank)
@@ -516,14 +517,11 @@ main(int argc, char *argv[])
                        __func__, __FILE__, __LINE__);
         abort();  /* bug */
         /*NOTREACHED*/ /* unreachable */
-#ifndef __SUNPRO_C
-# ifndef __SUNPRO_CC
-#  ifndef __SUNPRO_CC_COMPAT
+#if !defined(__SUNPRO_C) && !defined(__SUNPRO_CC) && !defined(__SUNPRO_CC_COMPAT)
+        /*NOTREACHED */ /* unreachable */
         /* cppcheck-suppress unreachableCode */
-        exit(3);  /* unreachable */
-#  endif
-# endif
-#endif
+        exit(3);
+#endif /* if !defined(__SUNPRO_C) && !defined(__SUNPRO_CC) && !defined(__SUNPRO_CC_COMPAT) */
       /*NOTREACHED*/ /* unreachable */
     }
 }
@@ -673,8 +671,8 @@ version(void)
     ( defined(__VERSION__) && defined(__clang_version__) )
   if (showbuild)
     {
-# ifdef __VERSION__
-#  ifdef __GNUC__
+# if defined(__VERSION__)
+#  if defined(__GNUC__)
 #   if !defined (__clang_version__) || defined(__INTEL_COMPILER)
       char xcmp[2];
       (void)sprintf(xcmp, "%.1s", __VERSION__ );
@@ -691,8 +689,8 @@ version(void)
 #   endif /* if !defined (__clang_version__) || defined(__INTEL_COMPILER) */
 #  else
       (void)fprintf(stderr, "Compiler: %s\n", __VERSION__ );
-#  endif /* ifdef __GNUC__ */
-# endif /* ifdef __VERSION__ */
+#  endif /* if defined(__GNUC__) */
+# endif /* if defined(__VERSION__) */
     }
 #endif
 

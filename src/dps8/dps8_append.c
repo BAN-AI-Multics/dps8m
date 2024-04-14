@@ -48,12 +48,12 @@
  * The appending unit ...
  */
 
-#ifdef TESTING
+#if defined(TESTING)
 # define DBG_CTR cpu.cycleCnt
 # define DBGAPP(...) sim_debug (DBG_APPENDING, & cpu_dev, __VA_ARGS__)
 #else
 # define DBGAPP(...)
-#endif
+#endif /* if defined(TESTING) */
 
 #if 0
 void set_apu_status (apuStatusBits status)
@@ -111,9 +111,9 @@ void set_apu_status (apuStatusBits status)
   }
 #endif
 
-#ifdef TESTING
+#if defined(TESTING)
 static char *str_sdw (char * buf, sdw_s *SDW);
-#endif
+#endif /* if defined(TESTING) */
 
 //
 //
@@ -135,7 +135,7 @@ static char *str_sdw (char * buf, sdw_s *SDW);
 // Useful if PTWAM reports an error message, but it slows the emulator
 // down 50%
 
-#ifdef do_selftestPTWAM
+#if defined(do_selftestPTWAM)
 static void selftest_ptwaw (void)
   {
     int usages[N_NAX_WAM_ENTRIES];
@@ -159,7 +159,7 @@ static void selftest_ptwaw (void)
           sim_printf ("No PTWAM had a USE of %d\n", i);
       }
   }
-#endif
+#endif /* if defined(do_selftestPTWAM) */
 
 /*
  * implement ldbr instruction
@@ -194,9 +194,9 @@ void do_ldbr (word36 * Ypair)
                 L68_ (cpu.PTWAM[i].USE = (word4) i;)
                 DPS8M_ (cpu.PTWAM[i].USE = 0;)
               }
-#ifdef do_selftestPTWAM
+#if defined(do_selftestPTWAM)
             selftest_ptwaw ();
-#endif
+#endif /* if defined(do_selftestPTWAM) */
           }
       }
     else
@@ -287,14 +287,14 @@ static void modify_dsptw (word15 segno)
 
     word24 x1 = (2u * segno) / 1024u; // floor
 
-#ifdef THREADZ
+#if defined(THREADZ)
     bool lck = get_rmw_lock ();
     if (! lck)
       lock_rmw ();
-#endif
+#endif /* if defined(THREADZ) */
 
     word36 PTWx1;
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
     core_read_lock ((cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
     PTWx1 = SETBIT (PTWx1, 9);
     core_write_unlock ((cpu.DSBR.ADDR + x1) & PAMASK, PTWx1, __func__);
@@ -302,12 +302,12 @@ static void modify_dsptw (word15 segno)
     core_read ((cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
     PTWx1 = SETBIT (PTWx1, 9);
     core_write ((cpu.DSBR.ADDR + x1) & PAMASK, PTWx1, __func__);
-#endif
+#endif /* if defined(LOCKLESS) */
 
-#ifdef THREADZ
+#if defined(THREADZ)
     if (! lck)
       unlock_rmw ();
-#endif
+#endif /* if defined(THREADZ) */
 
     cpu.PTW0.U = 1;
     L68_ (if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
@@ -365,9 +365,9 @@ static sdw_s * fetch_sdw_from_sdwam (word15 segno) {
 
         char buf[256];
         (void)buf;
-#ifdef TESTING
+#if defined(TESTING)
         DBGAPP ("%s(2):SDWAM[%d]=%s\n", __func__, _n, str_sdw (buf, cpu.SDW));
-#endif
+#endif /* if defined(TESTING) */
         return cpu.SDW;
       }
     }
@@ -395,16 +395,16 @@ static sdw_s * fetch_sdw_from_sdwam (word15 segno) {
 
         char buf[256];
         (void)buf;
-#ifdef TESTING
+#if defined(TESTING)
         DBGAPP ("%s(2):SDWAM[%d]=%s\n", __func__, toffset + setno, str_sdw (buf, cpu.SDW));
-#endif
+#endif /* if defined(TESTING) */
         return cpu.SDW;
       }
     }
   }
-#ifdef TESTING
+#if defined(TESTING)
   DBGAPP ("%s(3):SDW for segment %05o not found in SDWAM\n", __func__, segno);
-#endif
+#endif /* if defined(TESTING) */
   cpu.cu.SDWAMM = 0;
   return NULL;    // segment not referenced in SDWAM
 }
@@ -515,14 +515,14 @@ static void fetch_nsdw (word15 segno)
       if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
         add_l68_APU_history (0 /* No fetch no paged bit */);
     )
-#ifndef SPEED
+#if !defined(SPEED)
     char buf[256];
     (void)buf;
     DBGAPP ("%s (2):SDW0=%s\n", __func__, str_SDW0 (buf, & cpu.SDW0));
-#endif
+#endif /* if !defined(SPEED) */
   }
 
-#ifdef TESTING
+#if defined(TESTING)
 static char *str_sdw (char * buf, sdw_s *SDW)
   {
     if (! SDW->FE)
@@ -542,7 +542,6 @@ static char *str_sdw (char * buf, sdw_s *SDW)
  * dump SDWAM...
  */
 
-# ifdef TESTING
 t_stat dump_sdwam (void)
   {
     char buf[256];
@@ -556,8 +555,7 @@ t_stat dump_sdwam (void)
       }
     return SCPE_OK;
   }
-# endif
-#endif
+#endif /* if defined(TESTING) */
 
 static uint to_be_discarded_am (word6 LRU)
   {
@@ -626,18 +624,18 @@ static void load_sdwam (word15 segno, bool nomatch)
 
           char buf[256];
           (void) buf;
-#ifdef TESTING
+#if defined(TESTING)
           DBGAPP ("%s(2):SDWAM[%d]=%s\n", __func__, _n, str_sdw (buf, p));
-#endif
+#endif /* if defined(TESTING) */
           return;
         }
       }
       // if we reach this, USE is scrambled
-#ifdef TESTING
+#if defined(TESTING)
       DBGAPP ("%s(3) no USE=0 found for segment=%d\n", __func__, segno);
       sim_printf ("%s(%05o): no USE=0 found!\n", __func__, segno);
       dump_sdwam ();
-#endif
+#endif /* if defined(TESTING) */
     }
 
     if (! cpu.tweaks.l68_mode) { // DPS8M
@@ -669,9 +667,9 @@ static void load_sdwam (word15 segno, bool nomatch)
 
       char buf[256];
       (void) buf;
-#ifdef TESTING
+#if defined(TESTING)
       DBGAPP ("%s(2):SDWAM[%d]=%s\n", __func__, toffset + setno, str_sdw (buf, cpu.SDW));
-#endif
+#endif /* if defined(TESTING) */
     } // DPS8M
   }
 
@@ -709,9 +707,9 @@ static ptw_s * fetch_ptw_from_ptwam (word15 segno, word18 CA)
                     cpu.PTWAM[_h].USE -= 1; //PTW->USE -= 1;
                 }
               cpu.PTW->USE = N_L68_WAM_ENTRIES - 1;
-#ifdef do_selftestPTWAM
+#if defined(do_selftestPTWAM)
               selftest_ptwaw ();
-#endif
+#endif /* if defined(do_selftestPTWAM) */
               DBGAPP ("%s: ADDR 0%o U %o M %o F %o FC %o\n",
                       __func__, cpu.PTW->ADDR, cpu.PTW->U, cpu.PTW->M,
                       cpu.PTW->DF, cpu.PTW->FC);
@@ -774,16 +772,16 @@ static void fetch_ptw (sdw_s *sdw, word18 offset)
     PNL (cpu.lastPTWOffset = offset;)
     PNL (cpu.lastPTWIsDS = false;)
 
-#ifdef THREADZ
+#if defined(THREADZ)
     bool lck = get_rmw_lock ();
     if (! lck)
       lock_rmw ();
-#endif
-#ifdef LOCKLESS
+#endif /* if defined(THREADZ) */
+#if defined(LOCKLESS)
     core_read_lock ((sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
 #else
     core_read ((sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
-#endif
+#endif /* if defined(LOCKLESS) */
 
     cpu.PTW0.ADDR = GETHI  (PTWx2);
     cpu.PTW0.U    = TSTBIT (PTWx2, 9);
@@ -792,23 +790,23 @@ static void fetch_ptw (sdw_s *sdw, word18 offset)
     cpu.PTW0.FC   = PTWx2 & 3;
 
     // ISOLTS-861 02
-#ifndef LOCKLESS
+#if !defined(LOCKLESS)
     if (! cpu.PTW0.U)
-#endif
+#endif /* if !defined(LOCKLESS) */
       {
         PTWx2 = SETBIT (PTWx2, 9);
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
         core_write_unlock ((sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
 #else
         core_write ((sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
-#endif
+#endif /* if defined(LOCKLESS) */
         cpu.PTW0.U = 1;
       }
 
-#ifdef THREADZ
+#if defined(THREADZ)
     if (! lck)
       unlock_rmw ();
-#endif
+#endif /* if defined(THREADZ) */
 
     L68_ (if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
       add_l68_APU_history (APUH_FPTW);)
@@ -865,9 +863,9 @@ static void loadPTWAM (word15 segno, word18 offset, UNUSED bool nomatch)
                       cpu.PTW->ADDR, cpu.PTW->U, cpu.PTW->M, cpu.PTW->DF,
                       cpu.PTW->FC, cpu.PTW->POINTER, cpu.PTW->PAGENO,
                       cpu.PTW->USE);
-#ifdef do_selftestPTWAM
+#if defined(do_selftestPTWAM)
               selftest_ptwaw ();
-#endif
+#endif /* if defined(do_selftestPTWAM) */
               return;
             }
         }
@@ -930,12 +928,12 @@ static void modify_ptw (sdw_s *sdw, word18 offset)
 
     set_apu_status (apuStatus_MPTW);
 
-#ifdef THREADZ
+#if defined(THREADZ)
     bool lck = get_rmw_lock ();
     if (! lck)
       lock_rmw ();
-#endif
-#ifdef LOCKLESS
+#endif /* if defined(THREADZ) */
+#if defined(LOCKLESS)
     core_read_lock ((sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
     PTWx2 = SETBIT (PTWx2, 6);
     core_write_unlock ((sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
@@ -943,11 +941,11 @@ static void modify_ptw (sdw_s *sdw, word18 offset)
     core_read ((sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
     PTWx2 = SETBIT (PTWx2, 6);
     core_write ((sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
-#endif
-#ifdef THREADZ
+#endif /* if defined(LOCKLESS) */
+#if defined(THREADZ)
     if (! lck)
       unlock_rmw ();
-#endif
+#endif /* if defined(THREADZ) */
     cpu.PTW->M = 1;
     L68_ (if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
       add_l68_APU_history (APUH_MPTW);)
@@ -995,7 +993,7 @@ static void do_ptw2 (sdw_s *sdw, word18 offset)
  * Is the instruction a SToRage OPeration ?
  */
 
-#ifndef QUIET_UNUSED
+#if !defined(QUIET_UNUSED)
 static char *str_access_type (MemoryAccessType accessType)
   {
     switch (accessType)
@@ -1006,9 +1004,7 @@ static char *str_access_type (MemoryAccessType accessType)
         default:                return "???";
       }
   }
-#endif
 
-#ifndef QUIET_UNUSED
 static char *str_acv (_fault_subtype acv)
   {
     switch (acv)
@@ -1038,7 +1034,7 @@ static char *str_acv (_fault_subtype acv)
       }
   return "unhandled acv in str_acv";
   }
-#endif
+#endif /* if !defined(QUIET_UNUSED) */
 
 #if defined (TESTING) || defined (OLDAPP)
 static char *str_pct (processor_cycle_type t)
@@ -1049,17 +1045,17 @@ static char *str_pct (processor_cycle_type t)
         case OPERAND_STORE:       return "OPERAND_STORE";
         case OPERAND_READ:        return "OPERAND_READ";
         case INDIRECT_WORD_FETCH: return "INDIRECT_WORD_FETCH";
-# ifdef LOCKLESS
+# if defined(LOCKLESS)
         case OPERAND_RMW:         return "OPERAND_RMW";
         case APU_DATA_RMW:        return "APU_DATA_RMW";
-# endif
+# endif /* if defined(LOCKLESS) */
         default:
             return "Unhandled processor_cycle_type";
       }
   }
 #endif
 
-#ifndef OLDAPP
+#if !defined(OLDAPP)
 word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data, uint nWords) {
   switch (thisCycle) {
     case OPERAND_STORE:
@@ -1078,28 +1074,28 @@ word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data, uint nWor
       return doAppendCycleAPUDataStore (data, nWords);
     case ABSA_CYCLE:
       return doAppendCycleABSA (data, nWords);
-# ifdef LOCKLESS
+# if defined(LOCKLESS)
     case OPERAND_RMW:
       return doAppendCycleOperandRMW (data, nWords);
     case APU_DATA_RMW:
       return doAppendCycleAPUDataRMW (data, nWords);
-# endif
+# endif /* if defined(LOCKLESS) */
     case UNKNOWN_CYCLE:
     default:
       (void)fprintf (stderr, "\rFATAL: APU unknown cycle %llu! Aborting at %s[%s:%d]\r\n",
                      (long long unsigned)thisCycle, __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
-#  ifdef SIGUSR2
+#  if defined(SIGUSR2)
       (void)raise(SIGUSR2);
       /*NOTREACHED*/ /* unreachable */
-#  endif /* ifdef SIGUSR2 */
+#  endif /* if defined(SIGUSR2) */
 # endif /* if defined(USE_BACKTRACE) */
       abort();
   }
 }
-#endif // !OLDAPP
+#endif /* if !defined(OLDAPP) */
 
-#ifndef OLDAPP
+#if !defined(OLDAPP)
 # include "doAppendCycleOperandStore.h"
 # include "doAppendCycleOperandRead.h"
 # include "doAppendCycleIndirectWordFetch.h"
@@ -1108,13 +1104,13 @@ word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data, uint nWor
 # include "doAppendCycleAPUDataRead.h"
 # include "doAppendCycleAPUDataStore.h"
 # include "doAppendCycleABSA.h"
-# ifdef LOCKLESS
+# if defined(LOCKLESS)
 #  include "doAppendCycleOperandRMW.h"
 #  include "doAppendCycleAPUDataRMW.h"
-# endif // LOCKLESS
-#endif // !OLDAPP
+# endif /* if defined(LOCKLESS) */
+#endif /* if !defined(OLDAPP) */
 
-#ifdef OLDAPP
+#if defined(OLDAPP)
 /*
  * recoding APU functions to more closely match Fig 5,6 & 8 ...
  * Returns final address suitable for core_read/write
@@ -1417,11 +1413,11 @@ A:;
     // check read bracket for read access
     //
 
-# ifdef LOCKLESS
+# if defined(LOCKLESS)
     if (!StrOp || thisCycle == OPERAND_RMW || thisCycle == APU_DATA_RMW) // -V560
 # else
     if (!StrOp)
-# endif
+# endif /* if defined(LOCKLESS) */
       {
         DBGAPP ("do_append_cycle(B):!STR-OP\n");
 
@@ -1464,11 +1460,11 @@ A:;
     //
     // check write bracket for write access
     //
-# ifdef LOCKLESS
+# if defined(LOCKLESS)
     if (StrOp || thisCycle == OPERAND_RMW || thisCycle == APU_DATA_RMW)
 # else
     if (StrOp)
-# endif
+# endif /* if defined(LOCKLESS) */
       {
         DBGAPP ("do_append_cycle(B):STR-OP\n");
 
@@ -1850,13 +1846,13 @@ I:;
 // Set PTW.M
 
     DBGAPP ("do_append_cycle(I): FAP\n");
-# ifdef LOCKLESS
+# if defined(LOCKLESS)
     if ((StrOp ||
         thisCycle == OPERAND_RMW ||
         thisCycle == APU_DATA_RMW) && cpu.PTW->M == 0)  // is this the right way to do this?
 # else
     if (StrOp && cpu.PTW->M == 0)  // is this the right way to do this?
-# endif
+# endif /* if defined(LOCKLESS) */
       {
        modify_ptw (cpu.SDW, cpu.TPR.CA);
       }
@@ -1903,7 +1899,7 @@ HI:
       }
     else
       {
-# ifdef LOCKLESS
+# if defined(LOCKLESS)
         if ((thisCycle == OPERAND_RMW || thisCycle == APU_DATA_RMW) && nWords == 1)
           {
             core_read_lock (finalAddress, data, str_pct (thisCycle));
@@ -1917,7 +1913,7 @@ HI:
 # else
         if (thisCycle != ABSA_CYCLE)
           core_readN (finalAddress, data, nWords, str_pct (thisCycle));
-# endif
+# endif /* if defined(LOCKLESS) */
       }
 
     // Was this an indirect word fetch?
@@ -2064,9 +2060,9 @@ L:; // Transfer or instruction fetch
           cpu.PR[n].SNR = cpu.PPR.PSR;
         cpu.PR[n].WORDNO = (cpu.PPR.IC + 1) & MASK18;
         SET_PR_BITNO (n, 0);
-# ifdef TESTING
+# if defined(TESTING)
         HDBGRegPRW (n, "app tspn");
-# endif
+# endif /* if defined(TESTING) */
       }
 
     // lastCycle == RTCD_OPERAND_FETCH
@@ -2092,7 +2088,7 @@ L:; // Transfer or instruction fetch
         cpu.PR[5].RNR =
         cpu.PR[6].RNR =
         cpu.PR[7].RNR = cpu.TPR.TRR;
-# ifdef TESTING
+# if defined(TESTING)
         HDBGRegPRW (0, "app rtcd");
         HDBGRegPRW (1, "app rtcd");
         HDBGRegPRW (2, "app rtcd");
@@ -2101,7 +2097,7 @@ L:; // Transfer or instruction fetch
         HDBGRegPRW (5, "app rtcd");
         HDBGRegPRW (6, "app rtcd");
         HDBGRegPRW (7, "app rtcd");
-# endif
+# endif /* if defined(TESTING) */
       }
     goto KL;
 
@@ -2157,9 +2153,9 @@ N: // CALL6
     cpu.PR[7].WORDNO = 0;
     // 000000 -> C(PR7.BITNO)
     SET_PR_BITNO (7, 0);
-# ifdef TESTING
+# if defined(TESTING)
     HDBGRegPRW (7, "app call6");
-# endif
+# endif /* if defined(TESTING) */
     // C(TPR.TRR) -> C(PPR.PRR)
     cpu.PPR.PRR   = cpu.TPR.TRR;
     // C(TPR.TSR) -> C(PPR.PSR)
@@ -2217,12 +2213,12 @@ Exit:;
 
     return finalAddress;    // or 0 or -1???
   }
-#endif // OLDAPP
+#endif /* if defined(OLDAPP) */
 
 // Translate a segno:offset to a absolute address.
 // Return 0 if successful.
 
-#ifdef TESTING
+#if defined(TESTING)
 int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
                       char * * msg)
   {
@@ -2369,4 +2365,4 @@ int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
       * msg = "";
     return 0;
   }
-#endif
+#endif /* if defined(TESTING) */

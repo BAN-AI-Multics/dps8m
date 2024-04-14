@@ -54,45 +54,45 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#if defined( __SVR4 )
+#if defined(__SVR4)
 # include <stropts.h>
-#endif /* if defined( __SVR4 ) */
+#endif /* if defined(__SVR4) */
 
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <termios.h>
 
-#if defined( __FreeBSD__ ) || defined( __DragonflyBSD__ ) || defined( __DragonFly__ )
+#if defined(__FreeBSD__) || defined(__DragonflyBSD__) || defined(__DragonFly__)
 # include <libutil.h>
-#endif /* if defined( __FreeBSD__ ) defined( __DragonflyBSD__ ) || defined( __DragonFly__ ) */
+#endif /* if defined(__FreeBSD__) defined(__DragonflyBSD__) || defined(__DragonFly__) */
 
-#if defined( __OpenBSD__ ) || defined( __APPLE__ ) || defined( __NetBSD__ )
+#if defined(__OpenBSD__) || defined(__APPLE__) || defined(__NetBSD__)
 # include <util.h>
 # include <errno.h>
-# ifndef EIDRM
+# if !defined(EIDRM)
 #  define EIDRM EINVAL
-# endif /* ifndef EIDRN */
-#endif /* if defined( __OpenBSD__ ) || defined( __APPLE__ ) || defined( __NetBSD__ ) */
+# endif /* if !defined(EIDRN) */
+#endif /* if defined(__OpenBSD__) || defined(__APPLE__) || defined(__NetBSD__) */
 
-#if defined( __linux__ ) || defined( __CYGWIN__ )
+#if defined(__linux__) || defined(__CYGWIN__)
 # include <pty.h>
 # include <sys/time.h>
 # include <utmp.h>
-#endif /* if defined( __linux__ ) || defined( __CYGWIN__ ) */
+#endif /* if defined(__linux__) || defined(__CYGWIN__) */
 
-#ifdef _AIX
+#if defined(_AIX)
 # include <sys/pty.h>
 # include <sys/stropts.h>
 # include <utmp.h>
-#endif /* ifdef _AIX */
+#endif /* if defined(_AIX) */
 
 #include <sys/select.h>
 
-#if !defined( __SVR4 ) && !defined( _AIX ) && \
-    !defined( __serenity__ )
+#if !defined(__SVR4) && !defined(_AIX) && \
+    !defined(__serenity__)
 # include <err.h>
-#endif /* if !defined( __SVR4 ) && !defined( _AIX ) && \
-             !defined( __serenity__ ) */
+#endif /* if !defined(__SVR4) && !defined(_AIX) && \
+             !defined(__serenity__) */
 
 #include <dirent.h>
 #include <errno.h>
@@ -141,9 +141,9 @@ static int ifd, ofd, lfd = 0, pfd = 0;
 static FILE *pf; //-V707
 static int status;
 
-#ifndef BUFSIZ
+#if !defined(BUFSIZ)
 # define BUFSIZ 8192
-#endif
+#endif /* if !defined(BUFSIZ) */
 
 static char buf[BUFSIZ + 1];
 static fd_set rfd;
@@ -182,13 +182,13 @@ main(int argc, char *argv[])
   int ksig = SIGTERM;
   pid_t ppid; /* Shell's PID */
 
-#ifndef MAXPATHLEN
+#if !defined(MAXPATHLEN)
 # if defined(PATH_MAX) && PATH_MAX > 1024
 #  define MAXPATHLEN PATH_MAX
 # else
 #  define MAXPATHLEN 1024
 # endif /* if defined(PATH_MAX) && PATH_MAX > 1024 */
-#endif /* ifndef MAXPATHLEN */
+#endif /* if !defined(MAXPATHLEN) */
 
   char infifo[MAXPATHLEN];
   char outfifo[MAXPATHLEN];
@@ -205,35 +205,35 @@ main(int argc, char *argv[])
 
   int fl_state = 2;
 
-#if defined( __linux__ ) && defined( __GNU_LIBRARY__ ) && \
-   !defined( _SEM_SEMUN_UNDEFINED )
+#if defined(__linux__) && defined(__GNU_LIBRARY__) && \
+   !defined(_SEM_SEMUN_UNDEFINED)
 #else
   union semun
   {
     int val;
     struct semid_ds *buf;
-# ifdef __SVR4
+# if defined(__SVR4)
     ushort_t *array;
-# endif /* ifdef __SVR4 */
-# ifdef __linux__
+# endif /* if defined(__SVR4) */
+# if defined(__linux__)
     unsigned short *array;
     struct seminfo *__buf; /* buffer for IPC_INFO */
-# endif /* ifdef __linux__ */
+# endif /* if defined(__linux__) */
   };
-#endif /* if defined( __linux__ ) && defined( __GNU_LIBRARY__ ) &&
-            !defined( _SEM_SEMUN_UNDEFINED ) */
+#endif /* if defined(__linux__) && defined(__GNU_LIBRARY__) &&
+            !defined(_SEM_SEMUN_UNDEFINED) */
   union semun semu;
 
-#if defined( __SVR4 ) || defined( _AIX ) || defined( __HAIKU__ )
+#if defined(__SVR4) || defined(_AIX) || defined(__HAIKU__)
   char *slave_name;
   int pgrp;
-#endif /* if defined( __SVR4 ) || defined( _AIX ) || defined( __HAIKU__ ) */
+#endif /* if defined(__SVR4) || defined(_AIX) || defined(__HAIKU__) */
 
-#ifndef __linux__
+#if !defined(__linux__)
   while (( ch = getopt(argc, argv, "Scvhfrb:kwslp:i:o:t:L:")) != -1)
 #else
   while (( ch = getopt(argc, argv, "+Scvhfrb:kwslp:i:o:t:L:")) != -1)
-#endif /* ifndef __linux__ */
+#endif /* if !defined(__linux__) */
     {
       switch (ch)
         {
@@ -477,9 +477,9 @@ main(int argc, char *argv[])
         {
           FD_SET(ifd, &rfd);
           n = select(ifd + 1, &rfd, 0, 0, &tv);
-#ifdef __linux__
+#if defined(__linux__)
           tv.tv_sec = timeout;
-#endif /* ifdef __linux__ */
+#endif /* if defined(__linux__) */
           if (n < 0 && errno != EINTR)
             {
               perrx(255, "Fatal select()");
@@ -727,29 +727,25 @@ main(int argc, char *argv[])
         sem);
     }
 
-#if !defined( __SVR4 ) && !defined( _AIX ) && !defined( __HAIKU__ )
+#if !defined(__SVR4) && !defined(_AIX) && !defined(__HAIKU__)
   if (openpty(&master, &slave, NULL, &tt, &win) == -1)
     {
       (void)perrxslog(255, "PTY routine failed. Fatal openpty()");
     }
-
 #else
-# ifdef _AIX
+# if defined(_AIX)
   if (( master = open("/dev/ptc", O_RDWR | O_NOCTTY)) == -1)
     {
       (void)perrxslog(255,
               "PTY routine failed. Fatal open(\"/dev/ptc\"), ...");
     }
-
 # else
   if (( master = open("/dev/ptmx", O_RDWR)) == -1)
     {
       (void)perrxslog(255,
               "PTY routine failed. Fatal open(\"/dev/ptmx\"), ...");
     }
-
-# endif /* ifdef _AIX */
-
+# endif /* if defined(_AIX) */
   if (unlockpt(master) == -1)
     {
       (void)perrxslog(255, "PTY routine failed. Fatal unlockpt()");
@@ -759,15 +755,13 @@ main(int argc, char *argv[])
     {
       (void)perrxslog(255, "PTY routine failed. Fatal ptsname(master)");
     }
-
-# ifdef __SVR4
+# if defined(__SVR4)
   if (grantpt(master) == -1)
     {
       (void)perrxslog(255, "Can't grant access to slave part of PTY: %m");
     }
-
-# endif /* ifdef __SVR4 */
-#endif /* !defined(__SVR4) && !defined(_AIX) */
+# endif /* if defined(__SVR4) */
+#endif /* if !defined(__SVR4) && !defined(_AIX) && !defined(__HAIKU__) */
 
   for (i = 1; i < 32; i++)
     {
@@ -785,11 +779,11 @@ main(int argc, char *argv[])
     {
       (void)close(master);
 
-#if !defined( __SVR4 ) && !defined( _AIX ) && !defined( __HAIKU__ )
+#if !defined(__SVR4) && !defined(_AIX) && !defined(__HAIKU__)
       (void)login_tty(slave);
-# ifndef __CYGWIN__
+# if !defined(__CYGWIN__)
       cfmakeraw(&tt);
-# endif /* ifndef __CYGWIN__ */
+# endif /* if !defined(__CYGWIN__) */
 #else
       if (( pgrp = setsid()) == -1)
         {
@@ -802,13 +796,11 @@ main(int argc, char *argv[])
                   "Fatal open slave part of PTY %s", slave_name);
         }
 
-# ifndef _AIX
-#  ifndef __HAIKU__
+# if !defined(_AIX) && !defined(__HAIKU__)
       ioctl(slave, I_PUSH, "ptem");
       ioctl(slave, I_PUSH, "ldterm");
       ioctl(slave, I_PUSH, "ttcompat");
-#  endif /* ifndef __HAIKU__ */
-# endif /* ifndef _AIX */
+# endif /* if !defined(_AIX) && !defined(__HAIKU__) */
 
       /* Duplicate open file descriptor */
       dup2(slave, 0);
@@ -821,14 +813,14 @@ main(int argc, char *argv[])
           (void)perrxslog(255, "Fatal tcsetpgrp()");
         }
 
-#endif /* if !defined( __SVR4 ) && !defined( _AIX ) */
+#endif /* if !defined(__SVR4) && !defined(_AIX) && !defined(__HAIKU__) */
 
-#if defined( __SVR4 ) || defined( _AIX )
+#if defined(__SVR4) || defined(_AIX)
       tt.c_lflag = ISIG | ICANON | ECHOE | ECHOK | ECHOCTL | ECHOKE | IEXTEN;
       tt.c_oflag = TABDLY | OPOST;
       tt.c_iflag = BRKINT | IGNPAR | ISTRIP | ICRNL | IXON | IMAXBEL;
       tt.c_cflag = CBAUD | CS8 | CREAD;
-#endif /* if defined( __SVR4 ) || defined( _AIX ) */
+#endif /* if defined(__SVR4) || defined(_AIX) */
       tt.c_lflag &= ~ECHO;
 #if defined(__ANDROID__)
 # define TCSA_TYPE TCSANOW
@@ -1093,14 +1085,14 @@ perrxslog(int ex_code, const char *err_text, ...)
   va_list va;
 
   va_start(va, err_text);
-#if !defined( _AIX )
+#if !defined(_AIX)
   (void)vsyslog(LOG_NOTICE, err_text, va);
 #else
   char err_buf[BUFSIZ];
 
   (void)vsprintf(err_buf, err_text, va);
   (void)syslog(LOG_NOTICE, err_buf, "");
-#endif /* if !defined( _AIX ) */
+#endif /* if !defined(_AIX) */
 
   va_end(va);
 
@@ -1239,9 +1231,9 @@ watch4str(int ifd, int ofd, int argc, char *argv[], int Sflg, int vflg,
     {
       FD_SET(ifd, &rfd);
       n = select(ifd + 1, &rfd, 0, 0, &tv);
-#ifdef __linux__
+#if defined(__linux__)
       tv.tv_sec = timeout;
-#endif /* ifdef __linux__ */
+#endif /* if defined(__linux__) */
       if (n < 0 && errno != EINTR)
         {
           perrx(255, "Fatal select()");

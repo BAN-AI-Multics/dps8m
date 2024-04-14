@@ -117,20 +117,20 @@
   ( defined(__PPC__) || defined(_ARCH_PPC) )
 # include <mach/clock.h>
 # include <mach/mach.h>
-# ifdef MACOSXPPC
+# if defined(MACOSXPPC)
 #  undef MACOSXPPC
-# endif /* ifdef MACOSXPPC */
+# endif /* if defined(MACOSXPPC) */
 # define MACOSXPPC 1
 #endif /* if defined(__MACH__) && defined(__APPLE__) &&
            ( defined(__PPC__) || defined(_ARCH_PPC) ) */
 
-#ifdef TESTING
+#if defined(TESTING)
 # include "../dps8/dps8_cpu.h"
 # undef realloc
 # undef FREE
 # define FREE(p) free(p)
 # define realloc trealloc
-#endif /* ifdef TESTING */
+#endif /* if defned(TESTING) */
 
 /* Telnet protocol constants - negatives are for init'ing signed char data */
 
@@ -265,10 +265,10 @@ if ((!lp->mp->buffered) && (!lp->txbfd)) {
         fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                  __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -279,10 +279,10 @@ if ((!lp->mp->buffered) && (!lp->txbfd)) {
         fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                  __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -292,10 +292,10 @@ if ((!lp->mp->buffered) && (!lp->txbfd)) {
         fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                  __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -308,10 +308,10 @@ if (lp->loopback) {
         fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                  __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -650,10 +650,10 @@ if (!*string)
     fprintf(stderr, "\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
             __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
@@ -663,10 +663,10 @@ if (!*string)
     fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
             __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
@@ -811,9 +811,9 @@ char msg[512];
 uint32 poll_time = sim_os_msec ();
 struct timespec ts;
 
-#ifdef MACOSXPPC
+#if defined(MACOSXPPC)
 (void)ts;
-#endif /* ifdef MACOSXPPC */
+#endif /* if defined(MACOSXPPC) */
 (void)lp;
 (void)memset (msg, 0, sizeof (msg));
 if (mp->last_poll_time == 0) {                          /* first poll initializations */
@@ -842,16 +842,16 @@ if (mp->last_poll_time == 0) {                          /* first poll initializa
 if ((poll_time - mp->last_poll_time) < mp->poll_interval*1000)
     return -1;                                          /* too soon to try */
 
-#ifdef MACOSXPPC
-# ifdef USE_MONOTONIC
+#if defined(MACOSXPPC)
+# if defined(USE_MONOTONIC)
 #  undef USE_MONOTONIC
-# endif /* ifdef USE_MONOTONIC */
-#endif /* ifdef MACOSXPPC */
+# endif /* if defined(USE_MONOTONIC) */
+#endif /* if defined(MACOSXPPC) */
 
-#ifdef USE_MONOTONIC
+#if defined(USE_MONOTONIC)
   st1ret = clock_gettime(CLOCK_MONOTONIC, &ts);
 #else
-# ifdef MACOSXPPC
+# if defined(MACOSXPPC)
   clock_serv_t cclock;
   mach_timespec_t mts;
   host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
@@ -861,17 +861,17 @@ if ((poll_time - mp->last_poll_time) < mp->poll_interval*1000)
   ts.tv_nsec = mts.tv_nsec;
 # else
   st1ret = clock_gettime(CLOCK_REALTIME, &ts);
-# endif /* ifdef MACOSXPPC */
-#endif /*ifdef USE_MONOTONIC */
+# endif /* if defined(MACOSXPPC) */
+#endif /*if defined(USE_MONOTONIC) */
   if (st1ret != 0)
     {
       fprintf (stderr, "\rFATAL: clock_gettime failure! Aborting at %s[%s:%d]\r\n",
                __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
       (void)raise(SIGUSR2);
       /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
       abort();
     }
@@ -1017,10 +1017,10 @@ if (mp->master) {
                     fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                              __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
                     (void)raise(SIGUSR2);
                     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2 */)
 #endif /* if defined(USE_BACKTRACE) */
                     abort();
                   }
@@ -1079,10 +1079,10 @@ for (i = 0; i < mp->lines; i++) {                       /* check each line in se
                                 fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                                         __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
                                 (void)raise(SIGUSR2);
                                 /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
                                 abort();
                               }
@@ -1143,10 +1143,10 @@ for (i = 0; i < mp->lines; i++) {                       /* check each line in se
                                         fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                                                  __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
                                         (void)raise(SIGUSR2);
                                         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
                                         abort();
                                       }
@@ -1304,10 +1304,10 @@ else {
                     fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                              __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
                     (void)raise(SIGUSR2);
                     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
                     abort();
                   }
@@ -1402,10 +1402,10 @@ if (lp->loopback) {
         fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                  __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -1542,10 +1542,10 @@ while (TMXR_VALID & (c = tmxr_getc_ln (lp))) {
             fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                      __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
             (void)raise(SIGUSR2);
             /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
             abort();
           }
@@ -1925,10 +1925,10 @@ if (lp->txpbsize < size + pktlen_size + fc_size) {
         fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                  __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -2393,26 +2393,26 @@ while (*tptr) {
         if (modem_control != mp->modem_control)
             return SCPE_ARG;
         if (logfiletmpl[0]) {
-#ifdef __GNUC__
-# ifndef __clang_version__
-#  ifndef __INTEL_COMPILER
+#if defined(__GNUC__)
+# if !defined(__clang_version__)
+#  if !defined(__INTEL_COMPILER)
 #   if __GNUC__ > 7
 #    pragma GCC diagnostic push
 #    pragma GCC diagnostic ignored "-Wstringop-truncation"
 #   endif /* if __GNUC__ > 7 */
-#  endif /* ifndef __INTEL_COMPILER */
-# endif /* ifndef __clang_version__ */
-#endif /* ifdef __GNUC__ */
+#  endif /* if !defined(__INTEL_COMPILER) */
+# endif /* if !defined(__clang_version__) */
+#endif /* if defined(__GNUC__) */
             strncpy(mp->logfiletmpl, logfiletmpl, sizeof(mp->logfiletmpl)-1);
-#ifdef __GNUC__
-# ifndef __clang_version__
-#  ifndef __INTEL_COMPILER
+#if defined(__GNUC__)
+# if !defined(__clang_version__)
+#  if !defined(__INTEL_COMPILER)
 #   if __GNUC__ > 7
 #    pragma GCC diagnostic pop
 #   endif /* if __GNUC__ > 7 */
-#  endif /* ifndef __INTEL_COMPILER */
-# endif /* ifndef __clang_version__ */
-#endif /* ifdef __GNUC__ */
+#  endif /* if !defined(__INTEL_COMPILER) */
+# endif /* if !defined(__clang_version__) */
+#endif /* if defined(__GNUC__) */
             for (i = 0; i < mp->lines; i++) {
                 lp = mp->ldsc + i;
                 sim_close_logfile (&lp->txlogref);
@@ -2423,10 +2423,10 @@ while (*tptr) {
                     fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                              __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
                     (void)raise(SIGUSR2);
                     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
                     abort();
                   }
@@ -2464,10 +2464,10 @@ while (*tptr) {
                 fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                          __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
                 (void)raise(SIGUSR2);
                 /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
                 abort();
               }
@@ -2477,10 +2477,10 @@ while (*tptr) {
                 fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                          __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
                 (void)raise(SIGUSR2);
                 /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
                 abort();
               }
@@ -2490,10 +2490,10 @@ while (*tptr) {
                 fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                          __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
                 (void)raise(SIGUSR2);
                 /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
                 abort();
               }
@@ -2529,10 +2529,10 @@ while (*tptr) {
                 fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                          __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
                 (void)raise(SIGUSR2);
                 /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
                 abort();
               }
@@ -2577,10 +2577,10 @@ while (*tptr) {
                             fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                                     __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
                             (void)raise(SIGUSR2);
                             /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
                             abort();
                           }
@@ -2601,10 +2601,10 @@ while (*tptr) {
                         fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                                 __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
                         (void)raise(SIGUSR2);
                         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
                         abort();
                       }
@@ -2618,10 +2618,10 @@ while (*tptr) {
                             fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                                     __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
                             (void)raise(SIGUSR2);
                             /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
                             abort();
                           }
@@ -2651,10 +2651,10 @@ while (*tptr) {
                 fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                          __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
                 (void)raise(SIGUSR2);
                 /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
                 abort();
               }
@@ -2683,10 +2683,10 @@ while (*tptr) {
             fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                      __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
             (void)raise(SIGUSR2);
             /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
             abort();
           }
@@ -2696,10 +2696,10 @@ while (*tptr) {
             fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                      __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
             (void)raise(SIGUSR2);
             /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
             abort();
           }
@@ -2709,10 +2709,10 @@ while (*tptr) {
             fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                      __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
             (void)raise(SIGUSR2);
             /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
             abort();
           }
@@ -2741,10 +2741,10 @@ while (*tptr) {
                 fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                          __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
                 (void)raise(SIGUSR2);
                 /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
                 abort();
               }
@@ -2765,10 +2765,10 @@ while (*tptr) {
                             fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                                      __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
                             (void)raise(SIGUSR2);
                             /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
                             abort();
                           }
@@ -2786,10 +2786,10 @@ while (*tptr) {
                         fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                                  __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
                         (void)raise(SIGUSR2);
                         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
                         abort();
                       }
@@ -2802,10 +2802,10 @@ while (*tptr) {
                             fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                                      __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
                             (void)raise(SIGUSR2);
                             /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
                             abort();
                           }
@@ -2921,10 +2921,10 @@ if (!found) {
         fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                  __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -3499,10 +3499,10 @@ while (1) {                                         /* format passed string, arg
             fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                     __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
             (void)raise(SIGUSR2);
             /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
             abort();
           }

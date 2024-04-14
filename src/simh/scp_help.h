@@ -34,7 +34,7 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifndef SCP_HELP_H_
+#if !defined(SCP_HELP_H_)
 # define SCP_HELP_H_  0
 
 /* The structured help uses help text that defines a hierarchy of information

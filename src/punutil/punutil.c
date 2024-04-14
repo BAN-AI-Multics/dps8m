@@ -29,16 +29,14 @@
 # include <xlocale.h>
 #endif
 #include <locale.h>
-#ifdef _AIX
-# ifndef USE_POPT
-#  define USE_POPT
-# endif /* ifndef USE_POPT */
-#endif /* ifdef _AIX */
-#ifdef USE_POPT
+#if defined(_AIX) && !defined(USE_POPT)
+# define USE_POPT
+#endif /* if defined(_AIX) && !defined(USE_POPT) */
+#if defined(USE_POPT)
 # include <popt.h>
 #else
 # include <getopt.h>
-#endif /* ifdef USE_POPT */
+#endif /* if defined(USE_POPT) */
 
 #define CARD_COL_COUNT 80
 #define NIBBLES_PER_COL 3
@@ -1158,12 +1156,12 @@ static void print_help(char *program)
     (void)printf("\n");
 }
 
-#ifdef USE_POPT
+#if defined(USE_POPT)
 static struct poptOption long_options[] = {
 #else
 static struct option long_options[] = {
-#endif /* ifdef USE_POPT */
-#ifdef USE_POPT
+#endif /* if defined(USE_POPT) */
+#if defined(USE_POPT)
     { "7punch",  '7', POPT_ARG_NONE, NULL, '7', "7punch",  "7PUNCH"  },
     { "auto",    'a', POPT_ARG_NONE, NULL, 'a', "auto",    "AUTO"    },
     { "cards",   'c', POPT_ARG_NONE, NULL, 'c', "cards",   "CARDS"   },
@@ -1188,7 +1186,7 @@ static struct option long_options[] = {
     { "raw",     no_argument, 0, 'r' },
     { "version", no_argument, 0, 'v' },
     { 0,         0,           0,  0  }
-#endif /* ifdef USE_POPT */
+#endif /* if defined(USE_POPT) */
 };
 
 static void parse_options(int argc, char *argv[])
@@ -1198,14 +1196,14 @@ static void parse_options(int argc, char *argv[])
 
     while (!done)
     {
-#ifdef USE_POPT
+#if defined(USE_POPT)
        poptContext opt_con;
       opt_con = poptGetContext(NULL, argc, (const char **)argv, long_options, 0);
       while ((c = poptGetNextOpt(opt_con)) >= 0) {
 #else
         int option_index = 0;
         c = getopt_long(argc, argv, "7acdfghmnrvV", long_options, &option_index);
-#endif /* ifdef USE_POPT */
+#endif /* if defined(USE_POPT) */
 
         switch (c)
         {
@@ -1282,9 +1280,9 @@ static void parse_options(int argc, char *argv[])
             (void)fprintf(stderr, "*** Internal Error: did not recognize option when parsing options, got %d\n", c);
             _Exit(1);
         }
-#ifdef USE_POPT
+#if defined(USE_POPT)
      }
-#endif /* ifdef USE_POPT */
+#endif /* if defined(USE_POPT) */
     }
 
     // Verify selected options

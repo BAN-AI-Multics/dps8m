@@ -603,26 +603,26 @@ static inline void putbits36_9 (word36 * x, uint p, word9 val)
     word36 smask = mask << (unsigned) shift;  // shift 1s to proper position; result 0*1{n}0*
     // caller may provide val that is too big, e.g., a word with all bits
     // set to one, so we mask val
-#ifndef __OPEN64__
-# ifdef __GNUC__
-#  ifndef __clang_version__
+#if !defined(__OPEN64__)
+# if defined(__GNUC__)
+#  if !defined(__clang_version__)
 #   if __GNUC__ > 3
 #    pragma GCC diagnostic push
 #    pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #   endif /* if __GNUC__ > 3 */
-#  endif /* ifndef __clang_version__ */
-# endif /* ifdef __GNUC__ */
-#endif /* ifndef __OPEN64__ */
+#  endif /* if !defined(__clang_version__) */
+# endif /* if defined(__GNUC__) */
+#endif /* if !defined(__OPEN64__) */
     * x = (* x & ~ smask) | (((word36) val & mask) << shift);
-#ifndef __OPEN64__
-# ifdef __GNUC__
-#  ifndef __clang_version__
+#if !defined(__OPEN64__)
+# if defined(__GNUC__)
+#  if !defined(__clang_version__)
 #   if __GNUC__ > 3
 #    pragma GCC diagnostic pop
 #   endif /* if __GNUC__ > 3 */
-#  endif /* ifndef __clang_version__ */
-# endif /* ifdef __GNUC__ */
-#endif /* ifndef __OPEN64__ */
+#  endif /* if !defined(__clang_version__) */
+# endif /* if defined(__GNUC__) */
+#endif /* if !defined(__OPEN64__) */
 }
 
 static inline void putbits36_10 (word36 * x, uint p, word10 val)
@@ -798,7 +798,7 @@ static inline void putbits72 (word72 * x, uint p, uint n, word72 val)
         sim_printf ("putbits72: bad args (pos=%d,n=%d)\n", p, n);
         return;
       }
-#ifdef NEED_128
+#if defined(NEED_128)
 // n low bits on
     uint64_t lowmask = 0;
     uint64_t highmask = 0;

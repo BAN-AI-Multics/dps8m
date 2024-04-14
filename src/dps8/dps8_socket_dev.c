@@ -37,9 +37,9 @@
 
 #define DBG_CTR 1
 
-#ifndef bzero
+#if !defined(bzero)
 # define bzero(b,len) ((void)memset((b), '\0', (len)), (void) 0)
-#endif /* ifndef bzero */
+#endif /* if !defined(bzero) */
 
 static struct {
     const char *name;
@@ -50,7 +50,7 @@ static struct {
 };
 #define N_ERRNOS (sizeof (errnos) / sizeof (errnos[0]))
 
-#ifdef WITH_SOCKET_DEV
+#if defined(WITH_SOCKET_DEV)
 # define SKC_UNIT_IDX(uptr) ((uptr) - sk_unit)
 
 struct skc_state_s
@@ -156,7 +156,7 @@ static MTAB sk_mod [] =
   };
 
 UNIT sk_unit [N_SKC_UNITS_MAX] = {
-# ifdef NO_C_ELLIPSIS
+# if defined(NO_C_ELLIPSIS)
   { UDATA ( NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA ( NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA ( NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
@@ -589,7 +589,7 @@ sim_printf ("listen() setsockopt returned %d\n", rc);
         goto done;
       }
 
-# ifdef FIONBIO
+# if defined(FIONBIO)
     rc = ioctl (socket_fd, FIONBIO, (char *) & on);
 sim_printf ("listen() ioctl returned %d\n", rc);
     if (rc < 0)
@@ -1241,4 +1241,4 @@ void sk_process_event (void)
           }
       }
   }
-#endif /* ifdef WITH_SOCKET_DEV */
+#endif /* if defined(WITH_SOCKET_DEV) */

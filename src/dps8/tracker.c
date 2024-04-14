@@ -26,9 +26,9 @@
 #include "tracker.h"
 
 int brkbrk (int32_t arg, const char *  buf);
-#ifdef TESTING
+#if defined(TESTING)
 void hdbgPrint (void);
-#endif /* ifdef TESTING */
+#endif /* if defined(TESTING) */
 
 static int fd;
 static bool writing;
@@ -61,9 +61,9 @@ void trk (unsigned long long cycleCnt, uint16_t segno, uint32_t ic, uint64_t opc
                        (unsigned long long int)popcode);
         (void)fprintf (stderr, "got:      %05o:%06o %012llo\r\n", segno, ic,
                        (unsigned long long int)opcode);
-#ifdef TESTING
+#if defined(TESTING)
         hdbgPrint ();
-#endif /* ifdef TESTING */
+#endif /* if defined(TESTING) */
         brkbrk (0, "");
         exit (1);
       }

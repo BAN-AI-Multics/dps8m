@@ -86,10 +86,10 @@ static int evcnt = 0;
 // Is this cycle a candidate for ucache?
 
 //#define TEST_UCACHE
-#ifdef TEST_UCACHE
+#if defined(TEST_UCACHE)
   bool cacheHit;
   cacheHit = false; // Assume skip...
-#endif
+#endif /* if defined(TEST_UCACHE) */
 
 #if 1
   // Is OPCODE call6?
@@ -97,9 +97,9 @@ static int evcnt = 0;
   // See E1; The TRR needs to be checked and set to R2; this will vary across different
   // CALL6 calls.
   if (i->info->flags & CALL6_INS) {
-# ifdef UCACHE_STATS
+# if defined(UCACHE_STATS)
     cpu.uCache.call6Skips ++;
-# endif
+# endif /* if defined(UCACHE_STATS) */
     goto skip;
   }
 #endif
@@ -116,34 +116,34 @@ static int evcnt = 0;
   if (i->info->flags & TRANSFER_INS) {
     // check ring alarm to catch outbound transfers
     if (cpu.rRALR && (cpu.PPR.PRR >= cpu.rRALR)) {
-#ifdef UCACHE_STATS
+#if defined(UCACHE_STATS)
       cpu.uCache.ralrSkips ++;
-#endif
+#endif /* if defined(UCACHE_STATS) */
       goto skip;
     }
   }
 
 // Yes; check the ucache
 
-#ifdef TEST_UCACHE
+#if defined(TEST_UCACHE)
   word24 cachedAddress;
   word3 cachedR1;
   word14 cachedBound;
   word1 cachedP;
   bool cachedPaged;
   cacheHit = ucCacheCheck (this, cpu.TPR.TSR, cpu.TPR.CA, & cachedBound, & cachedP, & cachedAddress, & cachedR1, & cachedPaged);
-# ifdef HDBG
+# if defined(HDBG)
   hdbgNote ("doAppendCycleOperandRead.h", "test cache check %s %d %u %05o:%06o %05o %o %08o %o %o", cacheHit ? "hit" : "miss", evcnt, this, cpu.TPR.TSR, cpu.TPR.CA, cachedBound, cachedP, cachedAddress, cachedR1, cachedPaged);
-# endif
+# endif /* if defined(HDBG) */
   goto miss;
 #else
   if (! ucCacheCheck (this, cpu.TPR.TSR, cpu.TPR.CA, & bound, & p, & pageAddress, & RSDWH_R1, & paged)) {
-# ifdef HDBG
+# if defined(HDBG)
     hdbgNote ("doAppendCycleOperandRead.h", "miss %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
-# endif
+# endif /* if defined(HDBG) */
     goto miss;
   }
-#endif
+#endif /* if defined(TEST_UCACHE) */
 
   if (paged) {
     finalAddress = pageAddress + (cpu.TPR.CA & OS18MASK);
@@ -154,9 +154,9 @@ static int evcnt = 0;
 
 // ucache hit; housekeeping...
   //sim_printf ("hit  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
-#ifdef HDBG
+#if defined(HDBG)
   hdbgNote ("doAppendCycleOperandRead.h", "hit  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
-#endif
+#endif /* if defined(HDBG) */
 
   cpu.apu.lastCycle = OPERAND_READ;
   goto HI;
@@ -164,13 +164,13 @@ static int evcnt = 0;
 #if 1
 skip:;
   //sim_printf ("miss %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
-# ifdef HDBG
+# if defined(HDBG)
   hdbgNote ("doAppendCycleOperandRead.h", "skip %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
-# endif
-# ifdef UCACHE_STATS
+# endif /* if defined(HDBG) */
+# if defined(UCACHE_STATS)
   cpu.uCache.skips[this] ++;
-# endif
-#endif
+# endif /* if defined(UCACHE_STATS) */
+#endif /* if defined(TEST_UCACHE) */
 
 miss:;
 
@@ -582,9 +582,9 @@ H:;
     ....
 #endif
   set_apu_status (apuStatus_FANP);
-#ifdef HDBG
+#if defined(HDBG)
   hdbgNote ("doAppendCycleOperandRead", "FANP");
-#endif
+#endif /* if defined(HDBG) */
   DBGAPP ("doAppendCycleOperandRead(H): SDW->ADDR=%08o CA=%06o \n", cpu.SDW->ADDR, cpu.TPR.CA);
 
   pageAddress = (cpu.SDW->ADDR & 077777760);
@@ -604,9 +604,9 @@ I:;
 
   paged = true;
 
-#ifdef HDBG
+#if defined(HDBG)
   hdbgNote ("doAppendCycleOperandRead", "FAP");
-#endif
+#endif /* if defined(HDBG) */
   // final address paged
   set_apu_status (apuStatus_FAP);
   PNL (L68_ (cpu.apu.state |= apu_FAP;))
@@ -620,10 +620,10 @@ I:;
   finalAddress &= 0xffffff;
   PNL (cpu.APUMemAddr = finalAddress;)
 
-#ifdef L68
+#if defined(L68)
   if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
     add_APU_history (APUH_FAP);
-#endif
+#endif /* if defined(L68) */
   DBGAPP ("doAppendCycleOperandRead(H:FAP): (%05o:%06o) finalAddress=%08o\n", cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
 
   //goto HI;
@@ -631,7 +631,7 @@ I:;
 HI:
   DBGAPP ("doAppendCycleOperandRead(HI)\n");
 
-#ifdef TEST_UCACHE
+#if defined(TEST_UCACHE)
   if (cacheHit) {
     bool err = false;
     if (cachedAddress != pageAddress) {
@@ -651,30 +651,30 @@ HI:
       err = true;
     }
     if (err) {
-# ifdef HDBG
+# if defined(HDBG)
       HDBGPrint ();
-# endif
+# endif /* if defined(HDBG) */
       sim_printf ("oprnd read err  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
       exit (1);
     }
     //sim_printf ("hit  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
-# ifdef HDBG
+# if defined(HDBG)
     hdbgNote ("doAppendCycleOperandRead.h", "test hit %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
-# endif
+# endif /* if defined(HDBG) */
   } else {
     //sim_printf ("miss %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
-# ifdef HDBG
+# if defined(HDBG)
     hdbgNote ("doAppendCycleOperandRead.h", "test miss %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
-# endif
+# endif /* if defined(HDBG) */
   }
 #endif
 
   ucCacheSave (this, cpu.TPR.TSR, cpu.TPR.CA, bound, p, pageAddress, RSDWH_R1, paged);
-#ifdef TEST_UCACHE
-# ifdef HDBG
+#if defined(TEST_UCACHE)
+# if defined(HDBG)
   hdbgNote ("doAppendCycleOperandRead.h", "cache %d %u %05o:%06o %05o %o %08o %o %o", evcnt, this, cpu.TPR.TSR, cpu.TPR.CA, bound, p, pageAddress, RSDWH_R1, paged);
-# endif
-#endif
+# endif /* if defined(HDBG) */
+#endif /* if defined(TEST_UCACHE) */
 evcnt ++;
 
   // isolts 870
@@ -722,9 +722,9 @@ L:; // Transfer or instruction fetch
       cpu.PR[n].SNR = cpu.PPR.PSR;
     cpu.PR[n].WORDNO = (cpu.PPR.IC + 1) & MASK18;
     SET_PR_BITNO (n, 0);
-#ifdef TESTING
+#if defined(TESTING)
     HDBGRegPRW (n, "app tspn");
-#endif
+#endif /* if defined(TESTING) */
   }
 
 // KL:
@@ -772,9 +772,9 @@ N: // CALL6
   cpu.PR[7].WORDNO = 0;
   // 000000 -> C(PR7.BITNO)
   SET_PR_BITNO (7, 0);
-#ifdef TESTING
+#if defined(TESTING)
   HDBGRegPRW (7, "app call6");
-#endif
+#endif /* if defined(TESTING) */
   // C(TPR.TRR) -> C(PPR.PRR)
   cpu.PPR.PRR = cpu.TPR.TRR;
   // C(TPR.TSR) -> C(PPR.PSR)

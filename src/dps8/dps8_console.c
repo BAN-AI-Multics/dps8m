@@ -30,11 +30,9 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <signal.h>
-#ifndef __MINGW64__
-# ifndef __MINGW32__
-#  include <termios.h>
-# endif /* ifndef __MINGW32__ */
-#endif /* ifndef __MINGW64__ */
+#if !defined(__MINGW64__) && !defined(__MINGW32__)
+# include <termios.h>
+#endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) */
 #include <ctype.h>
 
 #include "dps8.h"
@@ -48,29 +46,29 @@
 #include "dps8_mt.h"  // attachTape
 #include "dps8_disk.h"  // attachDisk
 #include "dps8_utils.h"
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
 # include "threadz.h"
-#endif /* ifdef LOCKLESS */
+#endif /* if defined(LOCKLESS) */
 
 #include "libtelnet.h"
-#ifdef CONSOLE_FIX
+#if defined(CONSOLE_FIX)
 # include "threadz.h"
-#endif /* ifdef CONSOLE_FIX */
+#endif /* if defined(CONSOLE_FIX) */
 
-#ifdef SIM_NAME
+#if defined(SIM_NAME)
 # undef SIM_NAME
-#endif /* SIM_NAME */
+#endif /* if defined(SIM_NAME) */
 #define SIM_NAME "DPS8M"
 
 #define DBG_CTR 1
 #define ASSUME0 0
 
-#ifdef TESTING
+#if defined(TESTING)
 # undef realloc
 # undef FREE
 # define FREE(p) free(p)
 # define realloc trealloc
-#endif /* ifdef TESTING */
+#endif /* if defined(TESTING) */
 
 // config switch -- The bootload console has a 30-second timer mechanism. When
 // reading from the console, if no character is typed within 30 seconds, the
@@ -210,7 +208,7 @@ static DEBTAB opc_dt[] =
 
 // sim_activate counts in instructions, is dependent on the execution
 // model
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
 // The sim_activate calls are done by the controller thread, which
 // has a 1000Hz cycle rate.
 // 1K ~= 1 sec
@@ -225,7 +223,7 @@ static DEBTAB opc_dt[] =
 static t_stat opc_svc (UNIT * unitp);
 
 UNIT opc_unit[N_OPC_UNITS_MAX] = {
-#ifdef NO_C_ELLIPSIS
+#if defined(NO_C_ELLIPSIS)
   { UDATA (& opc_svc, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA (& opc_svc, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA (& opc_svc, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
@@ -352,7 +350,7 @@ static char * bcd_code_page =
 // Typeahead buffer
 //
 
-#ifndef TA_BUFFER_SIZE
+#if !defined(TA_BUFFER_SIZE)
 # define TA_BUFFER_SIZE 65536
 #endif
 
@@ -489,10 +487,10 @@ static int opc_autoinput_set (UNIT * uptr, UNUSED int32 val,
                 (void)fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                               __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
                 (void)raise(SIGUSR2);
                 /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
                 abort();
               }
@@ -538,10 +536,10 @@ int add_opc_autoinput (int32 flag, const char * cptr)
             (void)fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                           __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
             (void)raise(SIGUSR2);
             /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
             abort();
           }
@@ -570,7 +568,7 @@ static int opc_autoinput_show (UNUSED FILE * st, UNIT * uptr,
 static t_stat console_attn (UNUSED UNIT * uptr);
 
 static UNIT attn_unit[N_OPC_UNITS_MAX] = {
-#ifdef NO_C_ELLIPSIS
+#if defined(NO_C_ELLIPSIS)
   { UDATA (& console_attn, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA (& console_attn, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA (& console_attn, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
@@ -603,8 +601,7 @@ void console_attn_idx (int conUnitIdx)
     console_attn (attn_unit + conUnitIdx);
   }
 
-#ifndef __MINGW64__
-# ifndef __MINGW32__
+#if !defined(__MINGW64__) && !defined(__MINGW32__)
 static struct termios ttyTermios;
 static bool ttyTermiosOk = false;
 
@@ -622,13 +619,13 @@ static void newlineOff (void)
     struct termios runtty;
     runtty = ttyTermios;
     runtty.c_oflag &= (unsigned int) ~OPOST; /* no output edit */
-#  if defined(__ANDROID__)
-#   define TCSA_TYPE TCSANOW
+# if defined(__ANDROID__)
+#  define TCSA_TYPE TCSANOW
     (void)fflush(stdout);
     (void)fflush(stderr);
-#  else
-#   define TCSA_TYPE TCSAFLUSH
-#  endif
+# else
+#  define TCSA_TYPE TCSAFLUSH
+# endif
     tcsetattr (0, TCSA_TYPE, & runtty);
   }
 
@@ -638,14 +635,13 @@ static void newlineOn (void)
       return;
     if (! ttyTermiosOk)
       return;
-#  if defined(__ANDROID__)
+# if defined(__ANDROID__)
     (void)fflush(stdout);
     (void)fflush(stderr);
-#  endif
+# endif
     tcsetattr (0, TCSA_TYPE, & ttyTermios);
   }
-# endif /* ifndef __MINGW32__ */
-#endif /* ifndef __MINGW64__ */
+#endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) */
 
 static void handleRCP (uint con_unit_idx, char * text)
   {
@@ -1289,7 +1285,7 @@ void consoleProcess (void)
 iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
   iom_cmd_rc_t rc = IOM_CMD_PROCEED;
 
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
   lock_libuv ();
 #endif
 
@@ -1533,7 +1529,7 @@ if (csp->bcd) {
         char * textp = text;
         word36 * bufp = buf;
         * textp = 0;
-#ifndef __MINGW64__
+#if !defined(__MINGW64__)
         newlineOff ();
 #endif
         // 0 == no escape character seen
@@ -1632,7 +1628,7 @@ if (csp->bcd) {
           }
         }
         handleRCP (con_unit_idx, text);
-#ifndef __MINGW64__
+#if !defined(__MINGW64__)
         newlineOn ();
 #endif
         p->stati = 04000;
@@ -1641,7 +1637,7 @@ if (csp->bcd) {
   } // switch io_mode
 
 done:
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
   unlock_libuv ();
 #endif
   return rc;
@@ -1852,10 +1848,10 @@ static t_stat opc_set_console_address (UNIT * uptr, UNUSED int32 value,
             (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                            __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
             (void)raise(SIGUSR2);
             /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
             abort();
           }
@@ -1983,14 +1979,14 @@ void startRemoteConsole (void)
         console_state[conUnitIdx].console_access.connectPrompt = consoleConnectPrompt;
         console_state[conUnitIdx].console_access.connected     = NULL;
         console_state[conUnitIdx].console_access.useTelnet     = true;
-#ifdef CONSOLE_FIX
-# ifdef LOCKLESS
+#if defined(CONSOLE_FIX)
+# if defined(LOCKLESS)
         lock_libuv ();
 # endif
 #endif
         uv_open_access (& console_state[conUnitIdx].console_access);
-#ifdef CONSOLE_FIX
-# ifdef LOCKLESS
+#if defined(CONSOLE_FIX)
+# if defined(LOCKLESS)
         unlock_libuv ();
 # endif
 #endif

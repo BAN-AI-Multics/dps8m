@@ -20,12 +20,12 @@ long double EAQToIEEElongdouble(void);
 #if defined(__MINGW32__) || defined(__MINGW64__)
 double EAQToIEEEdouble(void);
 #endif
-#ifndef QUIET_UNUSED
+#if !defined(QUIET_UNUSED)
 float72 IEEElongdoubleToFloat72(long double f);
 void IEEElongdoubleToEAQ(long double f0);
 double float36ToIEEEdouble(float36 f36);
 float36 IEEEdoubleTofloat36(double f);
-#endif
+#endif /* if !defined(QUIET_UNUSED) */
 void ufa (bool sub, bool normalize);
 void ufs (void);
 void fno (word8 * E, word36 * A, word36 * Q);

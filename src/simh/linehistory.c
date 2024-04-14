@@ -45,25 +45,25 @@
  * -------------------------------------------------------------------------
  */
 
-#ifndef _POSIX_C_SOURCE
+#if !defined(_POSIX_C_SOURCE)
 # define _POSIX_C_SOURCE 200809L
-#endif /* ifndef _POSIX_C_SOURCE */
+#endif /* if !defined(_POSIX_C_SOURCE) */
 
 #if !defined ( __MINGW32__ ) && !defined ( CROSS_MINGW32 ) && !defined ( CROSS_MINGW64 ) && !defined ( __MINGW64__ ) && !defined ( _MSC_VER ) && !defined ( _MSC_BUILD )
 
 # if defined( __sun ) && defined( __SVR4 )
-#  ifndef __EXTENSIONS__
+#  if !defined(__EXTENSIONS__)
 #   define __EXTENSIONS__ 1
-#  endif /* ifndef __EXTENSIONS__ */
+#  endif /* if !defined(__EXTENSIONS__) */
 # endif /* if defined( __sun ) && defined( __SVR4 ) */
 # include <termios.h>
 # if defined( __sun ) && defined( __SVR4 )
 #  include <sys/termiox.h>
 # endif /* if defined( __sun ) && defined( __SVR4 ) */
 # include "linehistory.h"
-# ifndef __NetBSD__
+# if !defined(__NetBSD__)
 #  include "../dps8/dps8.h"
-# endif /* ifndef __NetBSD__ */
+# endif /* if !defined(__NetBSD__) */
 # include <ctype.h>
 # include <errno.h>
 # include <stdio.h>
@@ -82,12 +82,12 @@
     (p) = NULL;      \
   } while(0)
 
-# ifdef TESTING
+# if defined(TESTING)
 #  undef realloc
 #  undef FREE
 #  define FREE(p) free(p)
 #  define realloc trealloc
-# endif /* ifdef TESTING */
+# endif /* if defined(TESTING) */
 
 # define LINENOISE_DEFAULT_HISTORY_MAX_LEN  100
 # define LINENOISE_MAX_LINE                4096
@@ -96,20 +96,20 @@ static char *unsupported_term[] = {
   "dumb", "cons25", "emacs", NULL
 };
 
-# ifdef LH_COMPLETION
+# if defined(LH_COMPLETION)
 static linenoiseCompletionCallback *completionCallback = NULL;
-# endif /* ifdef LH_COMPLETION */
+# endif /* if defined(LH_COMPLETION) */
 
-# ifdef LH_HINTS
+# if defined(LH_HINTS)
 static linenoiseHintsCallback *hintsCallback           = NULL;
 static linenoiseFreeHintsCallback *freeHintsCallback   = NULL;
-# endif /* ifdef LH_HINTS */
+# endif /* if defined(LH_HINTS) */
 
 static struct termios orig_termios; /* In order to restore at exit.*/
 
-# ifdef LH_MASKMODE
+# if defined(LH_MASKMODE)
 static int maskmode          = 0;   /* Show "**" instead of input for passwords */
-# endif /* ifdef LH_MASKMODE */
+# endif /* if defined(LH_MASKMODE) */
 
 static int rawmode           = 0;
 static int mlmode            = 0;   /* Multi line mode. Default is single line. */
@@ -167,7 +167,7 @@ static void linenoiseAtExit(void);
 static void refreshLine(struct linenoiseState *l);
 size_t pstrlen(const char *s);
 
-# ifdef LH_MASKMODE
+# if defined(LH_MASKMODE)
 
 /*
  * Enable "mask mode". When it is enabled, instead of the input that
@@ -188,7 +188,7 @@ linenoiseMaskModeDisable(void)
 {
   maskmode = 0;
 }
-# endif /* ifdef LH_MASKMODE */
+# endif /* if defined(LH_MASKMODE) */
 
 /* Set if to use or not the multi line mode. */
 void
@@ -403,7 +403,7 @@ linenoiseClearScreen(void)
   }
 }
 
-# ifdef LH_COMPLETION
+# if defined(LH_COMPLETION)
 
 /*
  * Beep, used for completion when there is nothing to complete or when all
@@ -525,9 +525,9 @@ linenoiseSetCompletionCallback(linenoiseCompletionCallback *fn)
   completionCallback = fn;
 }
 
-# endif /* ifdef LH_COMPLETION */
+# endif /* if defined(LH_COMPLETION) */
 
-# ifdef LH_HINTS
+# if defined(LH_HINTS)
 
 /*
  * Register a hits function to be called to show hits to the user at the
@@ -551,9 +551,9 @@ linenoiseSetFreeHintsCallback(linenoiseFreeHintsCallback *fn)
   freeHintsCallback = fn;
 }
 
-# endif /* ifdef LH_HINTS */
+# endif /* if defined(LH_HINTS) */
 
-# ifdef LH_COMPLETION
+# if defined(LH_COMPLETION)
 
 /*
  * This function is used by the callback function registered by the user
@@ -585,7 +585,7 @@ linenoiseAddCompletion(linenoiseCompletions *lc, const char *str)
   lc->cvec[lc->len++] = copy;
 }
 
-# endif /* ifdef LH_COMPLETION */
+# endif /* if defined(LH_COMPLETION) */
 
 /*
  * We define a very simple "append buffer" structure, that is an heap
@@ -633,7 +633,7 @@ abFree(const struct abuf *ab)
   free(ab->b); /* X-LINTED: FREE */
 }
 
-# ifdef LH_HINTS
+# if defined(LH_HINTS)
 
 /*
  * Helper of refreshSingleLine() and refreshMultiLine() to show hints
@@ -689,7 +689,7 @@ refreshShowHints(struct abuf *ab, const struct linenoiseState *l, int plen)
   }
 }
 
-# endif /* ifdef LH_HINTS */
+# endif /* if defined(LH_HINTS) */
 
 /*
  * Single line low level line refresh.
@@ -726,7 +726,7 @@ refreshSingleLine(const struct linenoiseState *l)
   abAppend(&ab, seq, strlen(seq));
   /* Write the prompt and the current buffer content */
   abAppend(&ab, l->prompt, strlen(l->prompt));
-# ifdef LH_MASKMODE
+# if defined(LH_MASKMODE)
   if (maskmode == 1)
   {
     while (len--)
@@ -736,15 +736,15 @@ refreshSingleLine(const struct linenoiseState *l)
   }
   else
   {
-# endif /* ifdef LH_MASKMODE */
+# endif /* if defined(LH_MASKMODE) */
   abAppend(&ab, buf, len);
-# ifdef LH_MASKMODE
+# if defined(LH_MASKMODE)
 }
-# endif /* ifdef LH_MASKMODE */
-# ifdef LH_HINTS
+# endif /* if defined(LH_MASKMODE) */
+# if defined(LH_HINTS)
   /* Show hits if any. */
   refreshShowHints(&ab, l, plen);
-# endif /* ifdef LH_HINTS */
+# endif /* if defined(LH_HINTS) */
   /* Erase to right */
   (void)snprintf(seq, sizeof ( seq ), "\x1b[0K");
   abAppend(&ab, seq, strlen(seq));
@@ -810,7 +810,7 @@ refreshMultiLine(struct linenoiseState *l)
 
   /* Write the prompt and the current buffer content */
   abAppend(&ab, l->prompt, strlen(l->prompt));
-# ifdef LH_MASKMODE
+# if defined(LH_MASKMODE)
   if (maskmode == 1)
   {
     unsigned int i;
@@ -821,16 +821,16 @@ refreshMultiLine(struct linenoiseState *l)
   }
   else
   {
-# endif /* ifdef LH_MASKMODE */
+# endif /* if defined(LH_MASKMODE) */
   abAppend(&ab, l->buf, l->len);
-# ifdef LH_MASKMODE
+# if defined(LH_MASKMODE)
 }
-# endif /* ifdef LH_MASKMODE */
+# endif /* if defined(LH_MASKMODE) */
 
-# ifdef LH_HINTS
+# if defined(LH_HINTS)
   /* Show hits if any. */
   refreshShowHints(&ab, l, plen);
-# endif /* ifdef LH_HINTS */
+# endif /* if defined(LH_HINTS) */
 
   /*
    * If we are at the very end of the screen with our prompt, we need to
@@ -1070,10 +1070,10 @@ linenoiseEditHistoryNext(struct linenoiseState *l, int dir)
         (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                        __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
-#  ifdef SIGUSR2
+#  if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-#  endif /* ifdef SIGUSR2 */
+#  endif /* if defined(SIGUSR2) */
 # endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -1122,10 +1122,10 @@ linenoiseSearchInHistory(struct linenoiseState *l, int direction)
         (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                        __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
-#  ifdef SIGUSR2
+#  if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-#  endif /* ifdef SIGUSR2 */
+#  endif /* if defined(SIGUSR2) */
 # endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -1330,7 +1330,7 @@ linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen,
       return ( l.len );
     }
 
-# ifdef LH_COMPLETION
+# if defined(LH_COMPLETION)
 
     /*
      * Only autocomplete when the callback is set. It returns < 0 when
@@ -1356,7 +1356,7 @@ linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen,
       c = (char)cint;
     }
 
-# endif /* ifdef LH_COMPLETION */
+# endif /* if defined(LH_COMPLETION) */
 
     switch (c)
     {
@@ -1371,7 +1371,7 @@ linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen,
         linenoiseEditMoveEnd(&l);
       }
 
-# ifdef LH_HINTS
+# if defined(LH_HINTS)
       if (hintsCallback)
       {
 
@@ -1386,7 +1386,7 @@ linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen,
         hintsCallback              = hc;
       }
 
-# endif /* ifdef LH_HINTS */
+# endif /* if defined(LH_HINTS) */
       return ((int)l.len );
 
     case CTRL_C: /* Ctrl-C */

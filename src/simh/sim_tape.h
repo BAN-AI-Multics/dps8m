@@ -36,7 +36,7 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifndef SIM_TAPE_H_
+#if !defined(SIM_TAPE_H_)
 # define SIM_TAPE_H_    0
 
 /* SIMH/E11 tape format */

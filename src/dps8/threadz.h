@@ -87,9 +87,9 @@ static inline int cthread_cond_timedwait (pthread_cond_t * restrict cond,
   }
 #endif
 
-#ifndef LOCKLESS
+#if !defined(LOCKLESS)
 extern pthread_rwlock_t mem_lock;
-#endif
+#endif /* if !defined(LOCKLESS) */
 
 // local lock
 void lock_ptr (pthread_mutex_t * lock);
@@ -101,13 +101,13 @@ void unlock_libuv (void);
 bool test_libuv_lock (void);
 
 // resource lock
-#ifndef QUIET_UNUSED
+#if !defined(QUIET_UNUSED)
 void lock_simh (void);
 void unlock_simh (void);
-#endif
+#endif /* if !defined(QUIET_UNUSED) */
 
 // atomic memory lock
-#ifndef LOCKLESS
+#if !defined(LOCKLESS)
 bool get_rmw_lock (void);
 void lock_rmw (void);
 void lock_mem_rd (void);
@@ -115,7 +115,7 @@ void lock_mem_wr (void);
 void unlock_rmw (void);
 void unlock_mem (void);
 void unlock_mem_force (void);
-#endif
+#endif /* if !defined(LOCKLESS) */
 
 // scu lock
 void lock_scu (void);
@@ -126,15 +126,15 @@ void lock_iom (void);
 void unlock_iom (void);
 
 // testing lock
-#ifdef TESTING
+#if defined(TESTING)
 void lock_tst (void);
 void unlock_tst (void);
 bool test_tst_lock (void);
-#endif
+#endif /* if defined(TESTING) */
 
-#ifdef __APPLE__
+#if defined (__APPLE__)
 int rtsched_thread(pthread_t pthread);
-#endif /* ifdef __APPLE__ */
+#endif /* if defined(__APPLE__) */
 
 // CPU threads
 struct cpuThreadz_t
@@ -148,12 +148,12 @@ struct cpuThreadz_t
     pthread_mutex_t runLock;
 
     // DIS sleep
-#ifdef USE_MONOTONIC
-# if !defined __APPLE__ && defined (CLOCK_MONOTONIC)
+#if defined (USE_MONOTONIC)
+# if !defined(__APPLE__) && defined (CLOCK_MONOTONIC)
     clockid_t sleepClock;
     pthread_condattr_t sleepCondAttr;
-# endif
-#endif
+# endif /* if !defined(__APPLE__) && defined (CLOCK_MONOTONIC) */
+#endif /* if defined (USE_MONOTONIC) */
     pthread_cond_t sleepCond;
 
   };
@@ -161,13 +161,13 @@ extern struct cpuThreadz_t cpuThreadz [N_CPU_UNITS_MAX];
 
 void createCPUThread (uint cpuNum);
 void stopCPUThread(void);
-#ifdef THREADZ
+#if defined(THREADZ)
 void cpuRunningWait (void);
-#endif
+#endif /* if defined(THREADZ) */
 unsigned long sleepCPU (unsigned long usec);
 void wakeCPU (uint cpuNum);
 
-#ifdef IO_THREADZ
+#if defined(IO_THREADZ)
 // IOM threads
 
 struct iomThreadz_t
@@ -182,11 +182,11 @@ struct iomThreadz_t
     pthread_cond_t intrCond;
     pthread_mutex_t intrLock;
 
-# ifdef tdbg
+# if defined(tdbg)
     // debugging
     int inCnt;
     int outCnt;
-# endif
+# endif /* if defined(tdbg) */
   };
 extern struct iomThreadz_t iomThreadz [N_IOM_UNITS_MAX];
 
@@ -214,11 +214,11 @@ struct chnThreadz_t
     pthread_cond_t connectCond;
     pthread_mutex_t connectLock;
 
-# ifdef tdbg
+# if defined(tdbg)
     // debugging
     int inCnt;
     int outCnt;
-# endif
+# endif /* if defined(tdbg) */
   };
 extern struct chnThreadz_t chnThreadz [N_IOM_UNITS_MAX] [MAX_CHANNELS];
 
@@ -227,13 +227,12 @@ void chnConnectWait (void);
 void chnConnectDone (void);
 void setChnConnect (uint iomNum, uint chnNum);
 void chnRdyWait (uint iomNum, uint chnNum);
-
-#endif
+#endif /* if defined(IO_THREADZ) */
 
 void initThreadz (void);
 void setSignals (void);
 
-#ifdef IO_ASYNC_PAYLOAD_CHAN_THREAD
+#if defined(IO_ASYNC_PAYLOAD_CHAN_THREAD)
 extern pthread_cond_t iomCond;
 extern pthread_mutex_t iom_start_lock;
-#endif
+#endif /* if defined(IO_ASYNC_PAYLOAD_CHAN_THREAD) */

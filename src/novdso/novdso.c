@@ -226,7 +226,7 @@ main(int argc, char *argv[])
   return (exitStatus);
 }
 
-#else  /* ifdef __linux__ */
+#else  /* if defined(__linux__) */
 int
 main(void)
 {

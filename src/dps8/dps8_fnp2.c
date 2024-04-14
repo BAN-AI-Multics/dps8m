@@ -101,18 +101,16 @@
 #include "sim_defs.h"
 #include "sim_tmxr.h"
 
-#ifndef CROSS_MINGW64
-# ifndef CROSS_MINGW32
-#  include <regex.h>
-# endif /* ifndef CROSS_MINGW32 */
-#endif /* ifndef CROSS_MINGW64 */
+#if !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32)
+# include <regex.h>
+#endif /* if !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) */
 
-#ifdef TESTING
+#if defined(TESTING)
 # undef realloc
 # undef FREE
 # define FREE(p) free(p)
 # define realloc trealloc
-#endif /* ifdef TESTING */
+#endif /* if defined(TESTING) */
 
 #define DBG_CTR 1
 
@@ -141,7 +139,7 @@ static int findMbx (uint fnpUnitIdx);
 #define N_FNP_UNITS 1 // default
 
 UNIT fnp_unit [N_FNP_UNITS_MAX] = {
-#ifdef NO_C_ELLIPSIS
+#if defined(NO_C_ELLIPSIS)
   { UDATA (NULL, UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA (NULL, UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA (NULL, UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
@@ -162,7 +160,7 @@ UNIT fnp_unit [N_FNP_UNITS_MAX] = {
   [0 ... N_FNP_UNITS_MAX - 1] = {
     UDATA (NULL, UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL
   }
-#endif
+#endif /* if defined(NO_C_ELLIPSIS) */
 };
 
 static DEBTAB fnpDT [] =
@@ -333,10 +331,10 @@ void fnpInit(void)
         (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                        __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -790,10 +788,10 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
         sim_warn ("processInputCharacter bad client\r\n");
         return false;
       }
-#ifdef TUN
+#if defined(TUN)
     // TUN doesn't have a client
     if (! linep->is_tun)
-#endif
+#endif /* if defined(TUN) */
       {
 // telnet sends keyboard returns as CR/NUL. Drop the null when we see it;
         uvClientData * p = linep->line_client->data;
@@ -883,18 +881,18 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
 // The multiplexer input processor will also count characters processed by it
 // since it last echoed a character.
 
-#ifdef ECHNEGO_DEBUG
+#if defined(ECHNEGO_DEBUG)
             sim_printf ("\nkar <%c>\n", isprint (kar) ? kar : '*');
-#endif
+#endif /* if defined(ECHNEGO_DEBUG) */
             // Are we echoing?
             if (linep->echnego_on)
               {
                 if (linep->echnego_break_table[kar])
                   {
                     // Break.
-#ifdef ECHNEGO_DEBUG
+#if defined(ECHNEGO_DEBUG)
                     sim_printf ("break\n");
-#endif
+#endif /* if defined(ECHNEGO_DEBUG) */
                     // MTB418 pg 14:
                     // "Whenever the multiplexer delivers to the Ring Zero MCS
                     // interrupt side a character that takes ring zero out of
@@ -934,17 +932,17 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
                     // interrupt side since the last character echoed by the
                     // multiplexer."
                     linep->echnego_unechoed_cnt ++;
-#ifdef ECHNEGO_DEBUG
+#if defined(ECHNEGO_DEBUG)
                     sim_printf ("echnego break nPos %d unechoed cnt %d\r\n",
                       linep->nPos, linep->echnego_unechoed_cnt);
-#endif
+#endif /* if defined(ECHNEGO_DEBUG) */
                     linep->accept_input = 1;
                     return true;
                   } // if break char
 
-#ifdef ECHNEGO_DEBUG
+#if defined(ECHNEGO_DEBUG)
                 sim_printf ("echoing '%c'\r\n", kar);
-#endif
+#endif /* if defined(ECHNEGO_DEBUG) */
                 // Not break; so echo
                 unsigned char str [2] = { kar, 0 };
                 fnpuv_start_writestr (linep->line_client, str);
@@ -960,16 +958,16 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
 
                 if (linep->echnego_screen_left)
                   linep->echnego_screen_left --;
-#ifdef ECHNEGO_DEBUG
+#if defined(ECHNEGO_DEBUG)
                sim_printf ("echnego_screen_left %u\n", linep->echnego_screen_left);
-#endif
+#endif /* if defined(ECHNEGO_DEBUG) */
 
                 if (linep->echnego_screen_left == 0)
                   {
                     // End of line.
-#ifdef ECHNEGO_DEBUG
+#if defined(ECHNEGO_DEBUG)
                     sim_printf ("end of line\n");
-#endif
+#endif /* if defined(ECHNEGO_DEBUG) */
                     // MTB418 pg 14:
                     // "Whenever the multiplexer delivers to the Ring Zero MCS
                     // interrupt side a character that takes ring zero out of
@@ -995,7 +993,6 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
 
                     linep->input_break = false;
 
-#if 0
                     // MTB418 pg 15:
                     // "This determination is made by the ''input processor''
                     // of the multiplexer based upon a value called the
@@ -1004,12 +1001,11 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
                     // count of all characters received by the ring zero
                     // interrupt side since the last character echoed by the
                     // multiplexer."
-                    linep->echnego_unechoed_cnt ++;
-#endif
-#ifdef ECHNEGO_DEBUG
+                    //linep->echnego_unechoed_cnt ++;
+#if defined(ECHNEGO_DEBUG)
                     sim_printf ("echnego end of line nPos %d unechoed cnt %d\r\n",
                       linep->nPos, linep->echnego_unechoed_cnt);
-#endif
+#endif /* if defined(ECHNEGO_DEBUG) */
                     linep->accept_input = 1;
                     return true;
                   }
@@ -1029,10 +1025,10 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
 
             linep->input_break  = true;
             linep->accept_input = 1;
-#ifdef ECHNEGO_DEBUG
+#if defined(ECHNEGO_DEBUG)
             sim_printf ("break nPos %d unechoed cnt %d\r\n",
               linep->nPos, linep->echnego_unechoed_cnt);
-#endif
+#endif /* if defined(ECHNEGO_DEBUG) */
             return true;
           } // break all
 
@@ -1169,11 +1165,11 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
         // To make IMFT work...
         if (linep->service == service_slave || linep->service == service_autocall)
           {
-#ifdef TUN
+#if defined(TUN)
             if (linep->is_tun)
               linep->input_break = endOfBuffer;
             else
-#endif
+#endif /* if defined(TUN) */
               linep->input_break = true;
           }
 
@@ -1199,11 +1195,11 @@ void fnpRecvEOR (uv_tcp_t * client)
 static void fnpProcessBuffer (struct t_line * linep)
   {
     // The connection could have closed when we were not looking
-#ifdef TUN
+#if defined(TUN)
     if ((! linep->is_tun) && ! linep->line_client)
 #else
     if (! linep->line_client)
-#endif
+#endif /* if defined(TUN) */
       {
         if (linep->inBuffer)
           FREE (linep->inBuffer);
@@ -1530,7 +1526,7 @@ void fnpProcessEvent (void)
           {
             struct t_line * linep = & fnpData.fnpUnitData[fnp_unit_idx].MState.line[lineno];
 
-#ifdef DISC_DELAY
+#if defined(DISC_DELAY)
             // Disconnect pending?
             if (linep -> line_disconnected > 1)
               {
@@ -1546,7 +1542,7 @@ void fnpProcessEvent (void)
                     -- linep -> line_disconnected;
                   }
               }
-#endif
+#endif /* if defined(DISC_DELAY) */
 
             // Are we waiting for the previous command to complete?
             if (linep->waitForMbxDone)
@@ -1611,7 +1607,7 @@ void fnpProcessEvent (void)
 
             // Need to send an 'line_disconnected' command to CS?
 
-#ifdef DISC_DELAY
+#if defined(DISC_DELAY)
             else if (linep -> line_disconnected == 1)
               {
                 fnp_rcd_line_disconnected ((uint)mbx, (int) fnp_unit_idx, lineno);
@@ -1627,7 +1623,7 @@ void fnpProcessEvent (void)
                 linep -> listen            = false;
                 need_intr                  = true;
               }
-#endif
+#endif /* if defined(DISC_DELAY) */
 
             // Need to send an 'wru_timeout' command to CS?
 
@@ -1746,9 +1742,9 @@ void fnpProcessEvent (void)
           }
       } // for fnp_unit_idx
 
-#ifdef TUN
+#if defined(TUN)
     fnpTUNProcessEvent ();
-#endif
+#endif /* if defined(TUN) */
     fnp_process_3270_event ();
   }
 
@@ -2403,10 +2399,10 @@ t_stat set_fnp_server_address (UNUSED int32 arg, const char * buf)
         (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                        __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }

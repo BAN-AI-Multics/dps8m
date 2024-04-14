@@ -39,12 +39,12 @@
     (p) = NULL;     \
   } while(0)
 
-#ifdef TESTING
+#if defined(TESTING)
 # undef FREE
 # define FREE(p) free(p)
-#endif /* ifdef TESTING */
+#endif /* if defined(TESTING) */
 
-#ifdef WITH_ABSI_DEV
+#if defined(WITH_ABSI_DEV)
 # define DBG_CTR 1
 
 static struct absi_state
@@ -127,10 +127,10 @@ static t_stat absi_set_device_name (UNIT * uptr, UNUSED int32 value,
 
 static MTAB absi_mod[] =
   {
-# ifndef SPEED
+# if !defined(SPEED)
     { UNIT_WATCH, 1, "WATCH",   "WATCH",   0, 0, NULL, NULL },
     { UNIT_WATCH, 0, "NOWATCH", "NOWATCH", 0, 0, NULL, NULL },
-# endif
+# endif /* if !defined(SPEED) */
     {
       MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR,  /* Mask               */
       0,                                           /* Match              */
@@ -390,4 +390,4 @@ void absi_process_event (void)
           }
       }
   }
-#endif /* ifdef WITH_ABSI_DEV */
+#endif /* if defined(WITH_ABSI_DEV) */

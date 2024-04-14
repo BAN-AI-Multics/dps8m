@@ -53,21 +53,21 @@
 # include "threadz.h"
 #endif
 
-#ifdef TESTING
+#if defined(TESTING)
 static inline void fnp_core_read_n (word24 addr, word36 *data, uint n, UNUSED const char * ctx)
   {
-# ifdef THREADZ
+# if defined(THREADZ)
     lock_mem_rd ();
-# endif /* ifdef THREADZ */
+# endif /* if defined(THREADZ) */
     for (uint i = 0; i < n; i ++)
       data [i] = M [addr + i] & DMASK;
-# ifdef THREADZ
+# if defined(THREADZ)
     unlock_mem ();
-# endif /* ifdef THREADZ */
+# endif /* if defined(THREADZ) */
   }
-#endif /* ifdef TESTING */
+#endif /* if defined(TESTING) */
 
-#ifdef THREADZ
+#if defined(THREADZ)
 static inline void l_putbits36_1 (vol word36 * x, uint p, word1 val)
 {
     const int n = 1;
@@ -86,7 +86,7 @@ static inline void l_putbits36_1 (vol word36 * x, uint p, word1 val)
 }
 #else
 # define l_putbits36_1 putbits36_1
-#endif /* ifdef THREADZ */
+#endif /* if defined(THREADZ) */
 
 //
 // As mailbox messages are processed, decoded data is stashed here
@@ -109,7 +109,7 @@ struct decoded_t
 // Debugging...
 //
 
-#ifdef TESTING
+#if defined(TESTING)
 static void dmpmbx (uint mailboxAddress)
   {
     struct mailbox mbx;
@@ -174,7 +174,7 @@ static int wcd (struct decoded_t *decoded_p)
             sim_debug (DBG_TRACE, & fnp_dev, "[%u]    disconnect_this_line\n", decoded_p->slot_no);
             if (linep->line_client && linep->service == service_login)
               fnpuv_start_writestr (linep->line_client, (unsigned char *) "Multics has disconnected you\r\n");
-#ifdef DISC_DELAY
+#if defined(DISC_DELAY)
             linep -> line_disconnected = DISC_DELAY;
 #else
             linep -> line_disconnected = true;
@@ -444,7 +444,7 @@ static int wcd (struct decoded_t *decoded_p)
             sim_debug (DBG_TRACE, & fnp_dev,
                        "[%u]    set_echnego_break_table\n", decoded_p->slot_no);
 
-#ifdef ECHNEGO_DEBUG
+#if defined(ECHNEGO_DEBUG)
             sim_printf ("set_echnego_break_table\r\n");
 #endif
             // Get the table pointer and length
@@ -540,7 +540,7 @@ static int wcd (struct decoded_t *decoded_p)
               getbits36_18 (command_data[0], 0);
             linep->echnego_screen_left = getbits36_18 (command_data[0], 18);
 
-#ifdef ECHNEGO_DEBUG
+#if defined(ECHNEGO_DEBUG)
             sim_printf ("start_negotiated_echo ctr %d screenleft %d "
               "unechoed cnt %d\n", linep->echnego_sync_ctr,
               linep->echnego_screen_left,linep->echnego_unechoed_cnt);
@@ -553,7 +553,7 @@ static int wcd (struct decoded_t *decoded_p)
             linep->echnego_on =
               linep->echnego_sync_ctr == linep->echnego_unechoed_cnt;
 
-#ifdef ECHNEGO_DEBUG
+#if defined(ECHNEGO_DEBUG)
             sim_printf ("echnego is %s\n", linep->echnego_on ? "on" : "off");
 #endif
 
@@ -564,7 +564,7 @@ static int wcd (struct decoded_t *decoded_p)
           {
             sim_debug (DBG_TRACE, & fnp_dev,
                "[%u]    stop_negotiated_echo\n", decoded_p->slot_no);
-#ifdef ECHNEGO_DEBUG
+#if defined(ECHNEGO_DEBUG)
             sim_printf ("stop_negotiated_echo\r\n");
 #endif
             linep->echnego_on = false;
@@ -577,7 +577,7 @@ static int wcd (struct decoded_t *decoded_p)
           {
             sim_debug (DBG_TRACE, & fnp_dev,
                "[%u]    init_echo_negotiation\n", decoded_p->slot_no);
-#ifdef ECHNEGO_DEBUG
+#if defined(ECHNEGO_DEBUG)
             sim_printf ("init_echo_negotiation\r\n");
 #endif
 
@@ -1068,7 +1068,7 @@ word36 pad; //-V779
     return 0;
   }
 
-#ifdef TUN
+#if defined(TUN)
 static void tun_write (struct t_line * linep, uint16_t * data, uint tally)
   {
 # if 0
@@ -1123,7 +1123,7 @@ static void fnp_wtx_output (struct decoded_t *decoded_p, uint tally, uint dataAd
     uint wordOff     = 0;
     word36 word      = 0;
     uint lastWordOff = (uint) -1;
-#ifdef TUN
+#if defined(TUN)
     uint16_t data9 [tally];
 #endif
     unsigned char data [tally];
@@ -1142,7 +1142,7 @@ static void fnp_wtx_output (struct decoded_t *decoded_p, uint tally, uint dataAd
            }
          byte = getbits36_9 (word, byteOff * 9);
          data [i] = byte & 0377;
-#ifdef TUN
+#if defined(TUN)
          data9 [i] = (uint16_t) byte;
 #endif
 
@@ -1162,7 +1162,7 @@ sim_printf ("']\n");
 }
 }
 #endif
-#ifdef TUN
+#if defined(TUN)
     if (linep->is_tun && tally > 0)
       {
         tun_write (linep, data9, tally);
@@ -2011,10 +2011,10 @@ for (uint i = 0370*2; i <=0400*2; i ++)
 
 #if 1
         // Number of LSLAs
-# ifdef VERBOSE_BOOT
+# if defined(VERBOSE_BOOT)
         word18 crnls = getl6core (iomUnitIdx, chan, l66addr + image_off, 0655);
         sim_printf ("Number of LSLAs (crnls) %d\n", crnls);
-# endif
+# endif /* if defined(VERBOSE_BOOT) */
 
         // Address of IOM table
         word18 criom = getl6core (iomUnitIdx, chan, l66addr + image_off, 0653);
@@ -2025,9 +2025,9 @@ for (uint i = 0370*2; i <=0400*2; i ++)
         //  first slot at first_lsla_ch 9
 
         bool hdr = false;
-# ifdef VERBOSE_BOOT
+# if defined(VERBOSE_BOOT)
         uint nfound = 0;
-# endif /* ifdef VERBOSE_BOOT */
+# endif /* if defined(VERBOSE_BOOT) */
         for (uint lsla = 0; lsla < 6; lsla ++)
           {
             uint slot = lsla + 9;
@@ -2037,9 +2037,9 @@ for (uint i = 0370*2; i <=0400*2; i ++)
             uint device_type_code = (flags >> 4) & 037;
             if (device_type_code == 4)
               {
-# ifdef VERBOSE_BOOT
+# if defined (VERBOSE_BOOT)
                 nfound ++;
-# endif /* ifdef VERBOSE_BOOT */
+# endif /* if defined(VERBOSE_BOOT) */
                 // get addr word
                 word18 tblp = getl6core (iomUnitIdx, chan, l66addr + image_off, criom + os + 1);
                 for (uint slot = 0; slot < 52; slot ++)
@@ -2054,7 +2054,7 @@ for (uint i = 0370*2; i <=0400*2; i ++)
                     word3 slot_id = getl6core (iomUnitIdx, chan, l66addr + image_off, tblp + 2 * slot) & MASK3;
                     if (slot_id != 7)
                       {
-# ifdef VERBOSE_BOOT
+# if defined(VERBOSE_BOOT)
                         char * slot_ids [8] =
                           {
                             "10 cps",
@@ -2067,31 +2067,31 @@ for (uint i = 0370*2; i <=0400*2; i ++)
                             "unused"
                           };
                         char * id = slot_ids[slot_id];
-# endif /* ifdef VERBOSE_BOOT */
+# endif /* if defined(VERBOSE_BOOT) */
                         if (! hdr)
                           {
                             hdr = true;
-# ifdef VERBOSE_BOOT
+# if defined(VERBOSE_BOOT)
                             sim_printf ("LSLA table: card number, slot, slot_id, slot_id string\n");
-# endif /* ifdef VERBOSE_BOOT */
+# endif /* if defined(VERBOSE_BOOT) */
                           }
-# ifdef VERBOSE_BOOT
+# if defined(VERBOSE_BOOT)
                         sim_printf ("%d %2d %d %s\n", lsla, slot, slot_id, id);
-# endif /* ifdef VERBOSE_BOOT */
+# endif /* if defined(VERBOSE_BOOT) */
                       }
                   } // for slot
               } // if dev type 4 (LSLA)
           } // iom table entry
-# ifdef VERBOSE_BOOT
+# if defined(VERBOSE_BOOT)
         if (nfound != crnls)
           sim_printf ("LSLAs configured %d found %d\n", crnls, nfound);
-# endif /* ifdef VERBOSE_BOOT */
+# endif /* if defined(VERBOSE_BOOT) */
 
         // Number of HSLAs
-# ifdef VERBOSE_BOOT
+# if defined(VERBOSE_BOOT)
         word18 crnhs = getl6core (iomUnitIdx, chan, l66addr + image_off, 0654);
         sim_printf ("Number of HSLAs (crnhs) %d\n", crnhs);
-# endif /* ifdef VERBOSE_BOOT */
+# endif /* if defined(VERBOSE_BOOT) */
 
         // Walk the HSLAs in the IOM table
         //  2 words/slot (flags, taddr)
@@ -2099,9 +2099,9 @@ for (uint i = 0370*2; i <=0400*2; i ++)
         //  first slot at first_hsla_ch 6
 
         hdr = false;
-# ifdef VERBOSE_BOOT
+# if defined(VERBOSE_BOOT)
         nfound = 0;
-# endif /* ifdef VERBOSE_BOOT */
+# endif /* if defined(VERBOSE_BOOT) */
         for (uint hsla = 0; hsla < 3; hsla ++)
           {
             uint slot = hsla + 6;
@@ -2111,9 +2111,9 @@ for (uint i = 0370*2; i <=0400*2; i ++)
             uint device_type_code = (flags >> 4) & 037;
             if (device_type_code == 3)
               {
-# ifdef VERBOSE_BOOT
+# if defined(VERBOSE_BOOT)
                 nfound ++;
-# endif /* ifdef VERBOSE_BOOT */
+# endif /* if defined(VERBOSE_BOOT) */
                 // get addr word
                 word18 tblp = getl6core (iomUnitIdx, chan, l66addr + image_off, criom + os + 1);
                 for (uint slot = 0; slot < 32; slot ++)
@@ -2130,7 +2130,7 @@ for (uint i = 0370*2; i <=0400*2; i ++)
                     //
                     //   ptr bit(18)
 
-# ifdef VERBOSE_BOOT
+# if defined(VERBOSE_BOOT)
                     char * line_types[23] =
                       {
                         "none      ",
@@ -2159,7 +2159,7 @@ for (uint i = 0370*2; i <=0400*2; i ++)
                       };
 # endif
 
-# ifdef VERBOSE_BOOT
+# if defined(VERBOSE_BOOT)
                     char * modem_types[8] =
                       {
                         "invalid      ",
@@ -2204,7 +2204,7 @@ for (uint i = 0370*2; i <=0400*2; i ++)
                         "50000  "
                       };
 # endif
-# ifdef VERBOSE_BOOT
+# if defined(VERBOSE_BOOT)
                     char * async_speeds[16] =
                       {
                         "invalid",
@@ -2246,7 +2246,7 @@ for (uint i = 0370*2; i <=0400*2; i ++)
                       };
 # endif
                     word18 subch_data = getl6core (iomUnitIdx, chan, l66addr + image_off, tblp + 2 * slot);
-# ifdef VERBOSE_BOOT
+# if defined(VERBOSE_BOOT)
                     word1 async = (subch_data >> 15) & 1;
                     word1 option1 = (subch_data >> 14) & 1;
 # endif
@@ -2256,7 +2256,7 @@ for (uint i = 0370*2; i <=0400*2; i ++)
                     word4 modem_type = (subch_data >> 9)  & MASK4;
                     if (modem_type > 7)
                       modem_type = 0;
-# ifdef VERBOSE_BOOT
+# if defined(VERBOSE_BOOT)
                     word4 dev_speed = subch_data  & MASK4;
                     //if (dev_speed > 10)
                       //dev_speed = 0;
@@ -2267,13 +2267,13 @@ for (uint i = 0370*2; i <=0400*2; i ++)
                     if (! hdr)
                       {
                         hdr = true;
-# ifdef VERBOSE_BOOT
+# if defined(VERBOSE_BOOT)
                         sim_printf ("HSLA table: card number, slot, "
                                     "sync/async, line type, modem_type, "
                                     "speed\n");
 # endif
                       }
-# ifdef VERBOSE_BOOT
+# if defined(VERBOSE_BOOT)
                     sim_printf ("%d %2d %s %s %s %s\n",
                                  hsla, slot, async ? "async" :"sync ",
                                  line_types[line_type],
@@ -2294,10 +2294,10 @@ for (uint i = 0370*2; i <=0400*2; i ++)
                   } // for slot
               } // if dev type 4 (LSLA)
           } // iom table entry
-# ifdef VERBOSE_BOOT
+# if defined(VERBOSE_BOOT)
         if (nfound != crnls)
           sim_printf ("LSLAs configured %d found %d\n", crnls, nfound);
-# endif /* ifdef VERBOSE_BOOT */
+# endif /* if defined(VERBOSE_BOOT) */
 #endif
 
 #if defined(THREADZ) || defined(LOCKLESS)
@@ -2399,7 +2399,7 @@ for (uint i = 0370*2; i <=0400*2; i ++)
 
     if (ok)
       {
-#ifdef TESTING
+#if defined(TESTING)
         if_sim_debug (DBG_TRACE, & fnp_dev) dmpmbx (fudp->mailboxAddress);
 #endif
         //iom_chan_data [iomUnitIdx] [chan] . in_use = false;
@@ -2413,7 +2413,7 @@ for (uint i = 0370*2; i <=0400*2; i ++)
       }
     else
       {
-#ifdef TESTING
+#if defined(TESTING)
         if_sim_debug (DBG_TRACE, & fnp_dev) dmpmbx (fudp->mailboxAddress);
 #endif
         // 3 error bit (1) unaligned, /* set to "1"b if error on connect */

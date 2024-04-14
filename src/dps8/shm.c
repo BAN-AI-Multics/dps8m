@@ -18,9 +18,9 @@
 /* Shared memory functions */
 
 #if ( defined( USE_FLOCK ) && defined( USE_FCNTL ))
-# ifndef USE_BFLOCK
+# if !defined(USE_BFLOCK)
 #  define USE_BFLOCK
-# endif /* ifndef USE_BFLOCK */
+# endif /* if !defined(USE_BFLOCK) */
 #endif /* if ( defined(USE_FLOCK) && defined(USE_FCNTL) ) */
 
 #include <errno.h>
@@ -37,13 +37,13 @@
 
 #include "shm.h"
 
-#ifndef TRUE
+#if !defined(TRUE)
 # define TRUE 1
-#endif /* ifndef TRUE */
+#endif /* if !defined(TRUE) */
 
-#ifndef FALSE
+#if !defined(FALSE)
 # define FALSE 0
-#endif /* ifndef FALSE */
+#endif /* if !defined(FALSE) */
 
 extern int sim_randstate;
 extern int sim_randompst;
@@ -59,15 +59,15 @@ create_shm(char *key, size_t shm_size)
   void *p;
   char buf[256];
 
-#ifdef USE_BFLOCK
+#if defined(USE_BFLOCK)
   char lck[260];
-#endif /* ifdef USE_BFLOCK */
+#endif /* if defined(USE_BFLOCK) */
 
   (void)sprintf (buf, "dps8m.%s", key);
 
 
 
-#ifdef USE_BFLOCK
+#if defined(USE_BFLOCK)
   (void)sprintf (lck, ".%s", buf);
 
   int lck_fd = open(lck, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
@@ -83,7 +83,7 @@ create_shm(char *key, size_t shm_size)
       unlink(lck);
     }
 
-#endif /* ifdef USE_BFLOCK */
+#endif /* if defined(USE_BFLOCK) */
 
   int fd = open(buf, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
   if (fd == -1)
@@ -98,16 +98,16 @@ create_shm(char *key, size_t shm_size)
       unlink(buf);
     }
 
-#ifdef USE_BFLOCK
+#if defined(USE_BFLOCK)
 # define SPIDLEN 128
 
-# ifndef HOST_NAME_MAX
-#  ifdef _POSIX_HOST_NAME_MAX
+# if !defined(HOST_NAME_MAX)
+#  if defined(_POSIX_HOST_NAME_MAX)
 #   define HOST_NAME_MAX _POSIX_HOST_NAME_MAX
 #  else
 #   define HOST_NAME_MAX 255
-#  endif /* ifdef _POSIX_HOST_NAME_MAX */
-# endif /* ifndef HOST_NAME_MAX */
+#  endif /* if defined(_POSIX_HOST_NAME_MAX) */
+# endif /* if !defined(HOST_NAME_MAX) */
 
   struct flock bflock;
   (void)memset(&bflock, 0, sizeof ( bflock ));
@@ -223,9 +223,9 @@ create_shm(char *key, size_t shm_size)
 
   if ( !(sim_nostate) )
     (void)fsync(lck_fd);
-#endif /* ifdef USE_BFLOCK */
+#endif /* if defined(USE_BFLOCK) */
 
-#ifdef USE_FLOCK
+#if defined(USE_FLOCK)
   int rc = 0;
   if (!sim_nolock)
     {
@@ -242,7 +242,7 @@ create_shm(char *key, size_t shm_size)
         }
     }
 
-#elif USE_FCNTL /* ifdef USE_FLOCK */
+#elif USE_FCNTL /* if defined(USE_FLOCK) */
   struct flock lock;
   (void)memset(&lock, 0, sizeof ( lock ));
   lock.l_type = F_WRLCK;
@@ -300,20 +300,20 @@ create_shm(char *key, size_t shm_size)
   return p;
 }
 
-#ifdef API
+#if defined(API)
 void *
 open_shm(char *key, size_t shm_size)
 {
   void *p;
   char buf[256];
 
-# ifdef USE_BFLOCK
+# if defined(USE_BFLOCK)
   char lck[260];
-# endif /* USE_BFLOCK */
+# endif /* if defined(USE_BFLOCK) */
 
   (void)sprintf (buf, "dps8m.%s", key);
 
-# ifdef USE_BFLOCK
+# if defined(USE_BFLOCK)
   (void)sprintf (lck, ".%s", buf);
 
   int lck_fd = open(lck, O_RDWR, 0);
@@ -323,7 +323,7 @@ open_shm(char *key, size_t shm_size)
                     __func__, lck, xstrerror_l(errno), errno);
       return NULL;
     }
-# endif /* ifdef USE_BFLOCK */
+# endif /* if defined(USE_BFLOCK) */
 
   int fd = open(buf, O_RDWR, 0);
   if (fd == -1)
@@ -333,7 +333,7 @@ open_shm(char *key, size_t shm_size)
       return NULL;
     }
 
-# ifdef USE_BFLOCK
+# if defined(USE_BFLOCK)
   struct flock bflock;
   (void)memset(&bflock, 0, sizeof ( bflock ));
   bflock.l_type = F_WRLCK;
@@ -352,9 +352,9 @@ open_shm(char *key, size_t shm_size)
           return NULL;
         }
     }
-# endif /* ifdef USE_BFLOCK */
+# endif /* if defined(USE_BFLOCK) */
 
-# ifdef USE_FLOCK
+# if defined(USE_FLOCK)
   int rc = 0;
   if (!sim_nolock)
     {
@@ -368,7 +368,7 @@ open_shm(char *key, size_t shm_size)
       if(!sim_iglock) return NULL;
     }
 
-# elif USE_FCNTL /* ifdef USE_FLOCK */
+# elif defined(USE_FCNTL)
   struct flock lock;
   (void)memset(&lock, 0, sizeof ( lock ));
   lock.l_type = F_WRLCK;
@@ -387,12 +387,12 @@ open_shm(char *key, size_t shm_size)
           return NULL;
         }
     }
-# endif          /* elif USE_FCNTL */
+# endif
 
   p = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
   if (p == MAP_FAILED)
     {
-# ifdef USE_FCNTL
+# if defined(USE_FCNTL)
       lock.l_type = F_UNLCK;
       if (!sim_nolock)
         {
@@ -402,9 +402,9 @@ open_shm(char *key, size_t shm_size)
       if ( !(sim_nostate) )
         (void)fsync(fd);
       (void)close(fd);
-# endif /* ifdef USE_FCNTL */
+# endif /* if defined(USE_FCNTL) */
 
-# ifdef USE_BFLOCK
+# if defined(USE_BFLOCK)
       bflock.l_type = F_UNLCK;
       if (!sim_nolock)
         {
@@ -414,7 +414,7 @@ open_shm(char *key, size_t shm_size)
       if ( !(sim_nostate) )
         (void)fsync(lck_fd);
       (void)close(lck_fd);
-# endif /* ifdef USE_BFLOCK */
+# endif /* if defined(USE_BFLOCK) */
 
       (void)fprintf(stderr, "%s(): Failed to memory map \"%s\": %s (Error %d)\r\n",
                     __func__, buf, xstrerror_l(errno), errno);
@@ -426,4 +426,4 @@ open_shm(char *key, size_t shm_size)
 
   return p;
 }
-#endif /* ifdef API */
+#endif /* if defined(API) */

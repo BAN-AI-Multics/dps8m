@@ -42,12 +42,12 @@
  * -------------------------------------------------------------------------
  */
 
-#ifdef USE_BACKTRACE
-# ifndef _INC_BACKTRACE_FUNC
+#if defined(USE_BACKTRACE)
+# if !defined(_INC_BACKTRACE_FUNC)
 #  define _INC_BACKTRACE_FUNC
-#  ifndef BACKTRACE_SKIP
+#  if !defined(BACKTRACE_SKIP)
 #   define BACKTRACE_SKIP 1
-#  endif /* ifndef BACKTRACE_SKIP */
+#  endif /* if !defined(BACKTRACE_SKIP) */
 
 #  include <signal.h>
 
@@ -125,7 +125,7 @@ backtrace_handler(int number)
     "\r\n\r\n****** FATAL ERROR *********************************\r\n");
   if (bt_pid > 1)
     {
-#  ifdef SIGUSR2
+#  if defined(SIGUSR2)
       if (number == SIGUSR2)
         {
           (void)fprintf(stderr,
@@ -134,13 +134,13 @@ backtrace_handler(int number)
         }
       else
         {
-#  endif /* ifdef SIGUSR2 */
+#  endif /* if defined(SIGUSR2) */
           (void)fprintf(stderr,
                 "\r\n   PID %ld caught fatal signal %d ... :(\r\n\r\n",
                 (long)bt_pid, number);
-#  ifdef SIGUSR2
+#  if defined(SIGUSR2)
         }
-#  endif /* ifdef SIGUSR2 */
+#  endif /* if defined(SIGUSR2) */
     }
   else
     {
@@ -164,7 +164,7 @@ backtrace_handler(int number)
             hidden_function_count);
         }
     }
-#  ifdef SIGUSR2
+#  if defined(SIGUSR2)
   if (number != SIGUSR2)
     {
       (void)fprintf(stderr,
@@ -172,13 +172,13 @@ backtrace_handler(int number)
       (void)fprintf(stderr,
         " URL: https://gitlab.com/dps8m/dps8m/-/wikis/Bug-Reporting\r\n");
     }
-#  endif /* ifdef SIGUSR2 */
+#  endif /* if defined(SIGUSR2) */
   (void)fprintf(stderr,
     "\r\n****************************************************\r\n\r\n");
-#  ifdef USE_DUMA
+#  if defined(USE_DUMA)
   DUMA_CHECKALL();
-#  endif /* ifdef USE_DUMA */
+#  endif /* if defined(USE_DUMA) */
   abort();
 }
-# endif /* ifndef _INC_BACKTRACE_FUNC */
-#endif /* ifdef USE_BACKTRACE */
+# endif /* if !defined(_INC_BACKTRACE_FUNC) */
+#endif /* if defined(USE_BACKTRACE) */

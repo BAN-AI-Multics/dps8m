@@ -43,10 +43,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef __CYGWIN__
+#if defined(__CYGWIN__)
 # include <dlfcn.h>
 # include <libloaderapi.h>
-#endif /* ifdef __CYGWIN__ */
+#endif /* if defined(__CYGWIN__) */
 
 #if defined(AF_INET6) && defined(_WIN32)
 # include <ws2tcpip.h>
@@ -56,20 +56,20 @@
 # include <sys/select.h>
 #endif /* if !defined(_WIN32) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) && !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(__CYGWIN__) */
 
-#ifndef WSAAPI
+#if !defined(WSAAPI)
 # define WSAAPI
-#endif /* ifndef WSAAPI */
+#endif /* if !defined(WSAAPI) */
 
 #if defined(SHUT_RDWR) && !defined(SD_BOTH)
 # define SD_BOTH SHUT_RDWR
 #endif /* if defined(SHUT_RDWR) && !defined(SD_BOTH) */
 
-#ifndef NI_MAXHOST
+#if !defined(NI_MAXHOST)
 # define NI_MAXHOST 1025
-#endif /* ifndef NI_MAXHOST */
+#endif /* if !defined(NI_MAXHOST) */
 
 #undef FREE
-#ifdef TESTING
+#if defined(TESTING)
 # define FREE(p) free(p)
 #else
 # define FREE(p) do  \
@@ -77,7 +77,7 @@
     free((p));       \
     (p) = NULL;      \
   } while(0)
-#endif /* ifdef TESTING */
+#endif /* if defined(TESTING) */
 
 /*
  * OS dependent routines
@@ -327,9 +327,9 @@ if (cname) {
 return 0;
 }
 
-# ifndef EAI_OVERFLOW
+# if !defined(EAI_OVERFLOW)
 #  define EAI_OVERFLOW WSAENAMETOOLONG
-# endif
+# endif /* if !defined(EAI_OVERFLOW) */
 
 static int     WSAAPI s_getnameinfo (const struct sockaddr *sa, socklen_t salen,
                                      char *host, size_t hostlen,
@@ -391,11 +391,11 @@ return 0;
 #  define IPV6_V6ONLY          27    /* Treat wildcard bind as AF_INET6-only. */
 # endif
 /* Dynamic DLL load variables */
-# ifdef _WIN32
+# if defined(_WIN32)
 static HINSTANCE hLib = 0;                      /* handle to DLL */
 # else
 static void *hLib = NULL;                       /* handle to Library */
-# endif
+# endif /* if defined(_WIN32) */
 static int lib_loaded = 0;                      /* 0=not loaded, 1=loaded, 2=library load failed, 3=Func load failed */
 static const char* lib_name = "Ws2_32.dll";
 
@@ -403,11 +403,11 @@ static const char* lib_name = "Ws2_32.dll";
 typedef int (*_func)();
 
 static void load_function(const char* function, _func* func_ptr) {
-# ifdef _WIN32
+# if defined(_WIN32)
     *func_ptr = (_func)GetProcAddress(hLib, function);
 # else
     *func_ptr = (_func)dlsym(hLib, function);
-# endif
+# endif /* if defined(_WIN32) */
     if (*func_ptr == 0) {
     sim_printf ("Sockets: Failed to find function '%s' in %s\r\n", function, lib_name);
     lib_loaded = 3;
@@ -614,7 +614,7 @@ if (validate_addr) {
 return 0;
 }
 
-#ifdef UNUSED
+#if defined(UNUSED)
 /* sim_parse_addr_ex    localport:host:port
 
    Presumption is that the input, if it doesn't contain a ':' character is a port specifier.
@@ -667,7 +667,7 @@ if ((hostp != NULL) && ((hostp[1] == '[') || (NULL != strchr (hostp+1, ':')))) {
     }
 return sim_parse_addr (cptr, host, hostlen, default_host, port, port_len, default_port, NULL);
 }
-#endif
+#endif /* if defined(UNUSED) */
 
 void sim_init_sock (void)
 {
@@ -814,7 +814,7 @@ if (p_getaddrinfo(host[0] ? host : NULL, port[0] ? port : NULL, &hints, &result)
     return newsock;
     }
 preferred = result;
-#ifdef IPV6_V6ONLY
+#if defined(IPV6_V6ONLY)
 /*
     When we can create a dual stack socket, be sure to find the IPv6 addrinfo
     to bind to.
@@ -825,12 +825,12 @@ for (; preferred != NULL; preferred = preferred->ai_next) {
     }
 if (preferred == NULL)
     preferred = result;
-#endif
+#endif /* if defined(IPV6_V6ONLY) */
 retry:
 if (preferred != NULL)
     newsock = sim_create_sock (preferred->ai_family, 0);    /* create socket */
 if (newsock == INVALID_SOCKET) {                            /* socket error? */
-#ifndef IPV6_V6ONLY
+#if !defined(IPV6_V6ONLY)
     if (preferred->ai_next) {
         preferred = preferred->ai_next;
         goto retry;
@@ -842,16 +842,16 @@ if (newsock == INVALID_SOCKET) {                            /* socket error? */
         preferred = result;
         goto retry;
         }
-#endif
+#endif /* if !defined(IPV6_V6ONLY) */
     p_freeaddrinfo(result);
     return newsock;
     }
-#ifdef IPV6_V6ONLY
+#if defined(IPV6_V6ONLY)
 if (preferred->ai_family == AF_INET6) {
     int off = 0;
     sta = setsockopt (newsock, IPPROTO_IPV6, IPV6_V6ONLY, (char *)&off, sizeof(off));
     }
-#endif
+#endif /* if defined(IPV6_V6ONLY) */
 if (opt_flags & SIM_SOCK_OPT_REUSEADDR) {
     int on = 1;
 
@@ -993,11 +993,11 @@ SOCKET sim_accept_conn_ex (SOCKET master, char **connectaddr, int opt_flags)
 {
 int sta = 0, err;
 int keepalive = 1;
-#ifdef _WIN32
+#if defined(_WIN32)
 int size;
 #else
 socklen_t size;
-#endif /* ifdef _WIN32 */
+#endif /* if defined(_WIN32) */
 SOCKET newsock;
 struct sockaddr_storage clientname;
 
@@ -1014,7 +1014,7 @@ if (newsock == INVALID_SOCKET) {                        /* error? */
     }
 if (connectaddr != NULL) {
     *connectaddr = (char *)calloc(1, NI_MAXHOST+1);
-#ifdef AF_INET6
+#if defined(AF_INET6)
     p_getnameinfo((struct sockaddr *)&clientname, size, *connectaddr, NI_MAXHOST, NULL, 0, NI_NUMERICHOST);
     if (*connectaddr)
       if (0 == memcmp("::ffff:", *connectaddr, 7))      /* is this a IPv4-mapped IPv6 address? */
@@ -1022,7 +1022,7 @@ if (connectaddr != NULL) {
                   strlen(*connectaddr) - 7 + 1);        /* length to include terminating \0 */
 #else
     strcpy(*connectaddr, inet_ntoa(((struct sockaddr_in *)&connectaddr)->s_addr));
-#endif
+#endif /* if defined(AF_INET6) */
     }
 
 if (!(opt_flags & SIM_SOCK_OPT_BLOCKING)) {
@@ -1052,11 +1052,11 @@ fd_set *rw_p = &rw_set;
 fd_set *er_p = &er_set;
 struct timeval zero;
 struct sockaddr_storage peername;
-#ifdef _WIN32
+#if defined(_WIN32)
 int peernamesize = (int)sizeof(peername);
 #else
 socklen_t peernamesize = (socklen_t)sizeof(peername);
-#endif /* ifdef _WIN32 */
+#endif /* if defined(_WIN32) */
 
 (void)memset (&zero, 0, sizeof(zero));
 FD_ZERO (rw_p);
@@ -1082,12 +1082,12 @@ static int _sim_getaddrname (struct sockaddr *addr, size_t addrsize, char *hostn
 {
 int ret = 0;
 
-#ifdef AF_INET6
-# ifdef _WIN32
+#if defined(AF_INET6)
+# if defined(_WIN32)
 int size = (int)addrsize;
 # else
 socklen_t size = (socklen_t)addrsize;
-# endif /* ifdef _WIN32 */
+# endif /* if defined(_WIN32) */
 *hostnamebuf = '\0';
 *portnamebuf = '\0';
 ret = p_getnameinfo(addr, size, hostnamebuf, NI_MAXHOST, NULL, 0, NI_NUMERICHOST);
@@ -1099,20 +1099,20 @@ if (!ret)
 #else
 strcpy(hostnamebuf, inet_ntoa(((struct sockaddr_in *)addr)->s_addr));
 (void)sprintf(portnamebuf, "%d", (int)ntohs(((struct sockaddr_in *)addr)->s_port));
-#endif
+#endif /* if defined(AF_INET6) */
 return ret;
 }
 
 int sim_getnames_sock (SOCKET sock, char **socknamebuf, char **peernamebuf)
 {
 struct sockaddr_storage sockname, peername;
-#ifdef _WIN32
+#if defined(_WIN32)
 int socknamesize = (int)sizeof(sockname);
 int peernamesize = (int)sizeof(peername);
 #else
 socklen_t socknamesize = (socklen_t)sizeof(sockname);
 socklen_t peernamesize = (socklen_t)sizeof(peername);
-#endif /* ifdef _WIN32 */
+#endif /* if defined(_WIN32) */
 char hostbuf[NI_MAXHOST+1];
 char portbuf[NI_MAXSERV+1];
 

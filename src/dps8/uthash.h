@@ -32,7 +32,7 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifndef UTHASH_H
+#if !defined(UTHASH_H)
 # define UTHASH_H
 
 # include <string.h>   /* memcmp,strlen */
@@ -47,7 +47,7 @@
   *  or, for VS2008 where neither is available, uses casting workarounds.
   */
 
-# ifdef _MSC_VER
+# if defined(_MSC_VER)
 #  if _MSC_VER >= 1600 && defined(__cplusplus)
 #   define DECLTYPE(x) (decltype(x))
 #  else
@@ -58,7 +58,7 @@
 #  define DECLTYPE(x) (__typeof(x))
 # endif
 
-# ifdef NO_DECLTYPE
+# if defined(NO_DECLTYPE)
 #  define DECLTYPE_ASSIGN(dst,src)                                               \
 do {                                                                             \
   char **_da_dst = (char**)(&(dst));                                             \
@@ -76,7 +76,7 @@ do {                                                                            
   * uint32_t which isn't defined on win32
   */
 
-# ifdef _MSC_VER
+# if defined(_MSC_VER)
 typedef unsigned int uint32_t;
 typedef unsigned char uint8_t;
 # else
@@ -86,7 +86,7 @@ typedef unsigned char uint8_t;
 # define UTHASH_VERSION 21.9.8
 
 # undef FREE
-# ifdef TESTING
+# if defined(TESTING)
 #  define FREE(p) free(p)
 # else
 #  define FREE(p) do  \
@@ -94,22 +94,22 @@ typedef unsigned char uint8_t;
     free((p));        \
     (p) = NULL;       \
   } while(0)
-# endif /* ifdef TESTING */
+# endif /* if defined(TESTING) */
 
-# ifndef uthash_fatal
+# if !defined(uthash_fatal)
 #  define uthash_fatal(msg) abort()         /* fatal error (out of memory,etc) */
 # endif
-# ifndef uthash_malloc
+# if !defined(uthash_malloc)
 #  define uthash_malloc(sz) malloc(sz)      /* malloc fcn                      */
 # endif
-# ifndef uthash_free
+# if !defined(uthash_free)
 #  define uthash_free(ptr,sz) FREE(ptr)     /* free fcn                        */
 # endif
 
-# ifndef uthash_noexpand_fyi
+# if !defined(uthash_noexpand_fyi)
 #  define uthash_noexpand_fyi(tbl)          /* can be defined to log noexpand  */
 # endif
-# ifndef uthash_expand_fyi
+# if !defined(uthash_expand_fyi)
 #  define uthash_expand_fyi(tbl)            /* can be defined to log expands   */
 # endif
 
@@ -134,7 +134,7 @@ do {                                                                            
   }                                                                              \
 } while (0)
 
-# ifdef HASH_BLOOM
+# if defined(HASH_BLOOM)
 #  define HASH_BLOOM_BITLEN (1ULL << HASH_BLOOM)
 #  define HASH_BLOOM_BYTELEN (HASH_BLOOM_BITLEN/8) + ((HASH_BLOOM_BITLEN%8) ? 1:0)
 #  define HASH_BLOOM_MAKE(tbl)                                                   \
@@ -313,7 +313,7 @@ do {                                                                            
   * away if HASH_DEBUG isn't defined.
   */
 
-# ifdef HASH_DEBUG
+# if defined(HASH_DEBUG)
 #  define HASH_OOPS(...)                                                         \
     do { (void)fprintf(stderr,__VA_ARGS__); abort(); } while (0)
 #  define HASH_FSCK(hh,head)                                                     \
@@ -380,7 +380,7 @@ do {                                                                            
   * get the prototype for write(2).
   */
 
-# ifdef HASH_EMIT_KEYS
+# if defined(HASH_EMIT_KEYS)
 #  define HASH_EMIT_KEY(hh,head,keyptr,fieldlen)                                 \
 do {                                                                             \
     unsigned _klen = fieldlen;                                                   \
@@ -396,7 +396,7 @@ do {                                                                            
   * e.g. DHASH_FUNCTION=HASH_SAX
   */
 
-# ifdef HASH_FUNCTION
+# if defined(HASH_FUNCTION)
 #  define HASH_FCN HASH_FUNCTION
 # else
 #  define HASH_FCN HASH_JEN
@@ -569,7 +569,7 @@ do {                                                                            
     bkt = hashv & (num_bkts-1);                                                  \
 } while(0)
 
-# ifdef HASH_USING_NO_STRICT_ALIASING
+# if defined(HASH_USING_NO_STRICT_ALIASING)
 
  /*
   * The MurmurHash exploits some CPU's
@@ -948,7 +948,7 @@ do {                                                                            
             (sizeof(UT_hash_table))                                 +            \
             (HASH_BLOOM_BYTELEN)))
 
-# ifdef NO_DECLTYPE
+# if defined(NO_DECLTYPE)
 #  define HASH_ITER(hh,head,el,tmp)                                              \
 for((el)=(head), (*(char**)(&(tmp)))=(char*)((head)?(head)->hh.next:NULL);       \
   el; (el)=(tmp),(*(char**)(&(tmp)))=(char*)((tmp)?(tmp)->hh.next:NULL))
@@ -1022,7 +1022,7 @@ typedef struct UT_hash_table {
    unsigned ineff_expands, noexpand;
 
    uint32_t signature; /* used only to find hash tables in external analysis */
-# ifdef HASH_BLOOM
+# if defined(HASH_BLOOM)
    uint32_t bloom_sig; /* used only to test bloom exists in external analysis */
    uint8_t *bloom_bv;
    char bloom_nbits;

@@ -74,10 +74,10 @@
 #include <ctype.h>
 #include <signal.h>
 
-#ifdef TESTING
+#if defined(TESTING)
 # undef FREE
 # define FREE(p) free(p)
-#endif /* ifdef TESTING */
+#endif /* if defined(TESTING) */
 
 struct sim_tape_fmt {
     const char          *name;                          /* name */
@@ -206,10 +206,10 @@ if (!ctx)
   fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
           __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
   (void)raise(SIGUSR2);
   /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
   abort();
 }
@@ -570,10 +570,10 @@ switch (f) {                                            /* the read method depen
     default:
         return MTSE_FMT;
         }
-#ifdef TESTING
+#if defined(TESTING)
 sim_debug (MTSE_DBG_STR, ctx->dptr, "rd_lnt: st: %lld, lnt: %lld, pos: %" T_ADDR_FMT "u\n",
            (long long)r, (long long)*bc, uptr->pos);
-#endif /* TESTING */
+#endif /* if defined(TESTING) */
 return r;
 }
 
@@ -1895,10 +1895,10 @@ if (!countmap)
     fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
              __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
@@ -1908,10 +1908,10 @@ if (!recbuf)
     fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
              __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }

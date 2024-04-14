@@ -17,13 +17,13 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifndef __STDC_WANT_IEC_60559_BFP_EXT__
+#if !defined(__STDC_WANT_IEC_60559_BFP_EXT__)
 # define __STDC_WANT_IEC_60559_BFP_EXT__ 1
-#endif /* ifndef __STDC_WANT_IEC_60559_BFP_EXT__ */
+#endif /* if !defined(__STDC_WANT_IEC_60559_BFP_EXT__) */
 
 #include <sys/types.h>
 
-#ifdef __APPLE__
+#if defined(__APPLE__)
 # undef SCHED_NEVER_YIELD
 # define SCHED_NEVER_YIELD 1
 # include <mach/thread_policy.h>
@@ -32,7 +32,7 @@
 # include <sys/sysctl.h>
 # include <mach/thread_policy.h>
 # include <mach/thread_act.h>
-#endif /* ifdef __APPLE__ */
+#endif /* if defined(__APPLE__) */
 
 #include "../simh/sim_timer.h"
 #include "hdbg.h"
@@ -477,9 +477,9 @@ typedef struct MOP_struct_s
 // address of an EIS operand
 typedef struct EISaddr_s
   {
-#ifndef EIS_PTR
+#if !defined(EIS_PTR)
     word18  address;    // 18-bit virtual address
-#endif
+#endif /* if !defined(EIS_PTR) */
 
     word36  data;
     word1    bit;
@@ -491,21 +491,21 @@ typedef struct EISaddr_s
 
     // eisDataType _type;   // type of data - alphanumeric/numeric
 
-#ifndef EIS_PTR3
+#if !defined(EIS_PTR3)
     int     TA;    // type of Alphanumeric chars in src
-#endif
+#endif /* if !defined(EIS_PTR3) */
     int     TN;    // type of Numeric chars in src
     int     cPos;
     int     bPos;
 
-#ifndef EIS_PTR4
+#if !defined(EIS_PTR4)
     // for when using AR/PR register addressing
     word15  SNR;                // The segment number of the segment containing the
                                 //  data item described by the pointer register.
     word3   RNR;                // The effective ring number value calculated during
                                 //  execution of the instruction that last loaded.
     MemoryAccessType    mat;    // Memory access type for operation.
-#endif
+#endif /* if !defined(EIS_PTR4) */
 
     // Cache
 
@@ -574,7 +574,7 @@ typedef struct EISstruct_s
 #define TN2 TN [1]
 #define TN3 TN [2]
 
-#ifdef EIS_PTR3
+#if defined(EIS_PTR3)
 # define TA1 cpu.du.TAk[0]
 # define TA2 cpu.du.TAk[1]
 # define TA3 cpu.du.TAk[2]
@@ -584,7 +584,7 @@ typedef struct EISstruct_s
 # define TA1 TA [0]
 # define TA2 TA [1]
 # define TA3 TA [2]
-#endif
+#endif /* if defined(EIS_PTR3) */
 
    uint     S [3];          // Sign and decimal type of number
 #define S1  S [0]
@@ -617,11 +617,11 @@ typedef struct EISstruct_s
     int     exponent;       // For decimal floating-point (evil)
     int     sign;           // For signed decimal (1, -1)
 
-#ifdef EIS_PTR2
+#if defined(EIS_PTR2)
 # define KMOP 1
 #else
     EISaddr *mopAddress;    // mopAddress, pointer to addr [0], [1], or [2]
-#endif
+#endif /* if defined(EIS_PTR2) */
 
     int     mopTally;       // number of micro-ops
     int     mopPos;         // current mop char posn
@@ -778,11 +778,11 @@ typedef struct
     word1 STR_OP;
     // End L68 only
 
-#ifdef PANEL68
+#if defined(PANEL68)
     word9 RS;
     word4 opsz;
     word10 reguse;
-#endif
+#endif /* if defined(PANEL68) */
   } ou_unit_data_t;
 
 // APU history operation parameter
@@ -848,9 +848,9 @@ enum {
 typedef struct
   {
     processor_cycle_type lastCycle;
-#ifdef PANEL68
+#if defined(PANEL68)
     word34 state;
-#endif
+#endif /* if defined(PANEL68) */
   } apu_unit_data_t;
 
 typedef struct
@@ -1247,18 +1247,17 @@ enum du_cycle2_e
                   }
 #define DU_CYCLE_nDUD clrmask (& cpu.du.cycle2, du2_DUD)
 
-#ifdef PANEL68
+#if defined(PANEL68)
 // Control points
-
 # define CPT(R,C) cpu.cpt[R][C]=1
 # define CPTUR(C) cpu.cpt[cpt5L][C]=1
 #else
 # define CPT(R,C)
 # define CPTUR(C)
-#endif
+#endif /* if defined(PANEL68) */
 
 #if 0
-# ifdef PANEL68
+# if defined(PANEL68)
 // 6180 panel DU control flags with guessed meanings based on DU history
 // register bits.
 //
@@ -1345,7 +1344,7 @@ enum du_cycle2_e
     du2_U35     = 00000000000002ll,   // ?
     du2_U36     = 00000000000001ll    // ?
   };
-# endif
+# endif /* if defined(PANEL68) */
 #endif
 
 typedef struct du_unit_data_t
@@ -1483,15 +1482,15 @@ typedef struct du_unit_data_t
     // Image of LPL/SPL for ISOLTS compliance
     word36 image [8];
 
-#ifdef PANEL68
+#if defined(PANEL68)
     word37 cycle1;
     word37 cycle2;
     word1 POL; // Prepare operand length
     word1 POP; // Prepare operand pointer
-#endif
+#endif /* if defined(PANEL68) */
   } du_unit_data_t;
 
-#ifdef PANEL68
+#if defined(PANEL68)
 // prepare_state bits
 enum
   {
@@ -1504,7 +1503,7 @@ enum
     ps_RAW = 0002,
     ps_SAW = 0001
   };
-#endif
+#endif /* if defined(PANEL68) */
 
 // History registers
 
@@ -1544,9 +1543,9 @@ typedef struct
     unsigned long long lockImmediate;
     unsigned long long lockWait;
     unsigned long long lockWaitMax;
-#ifndef SCHED_NEVER_YIELD
+#if !defined(SCHED_NEVER_YIELD)
     unsigned long long lockYield;
-#endif /* ifndef SCHED_NEVER_YIELD */
+#endif /* if !defined(SCHED_NEVER_YIELD) */
 
     // From the control unit history register:
     _fault_subtype subFault; // saved by doFault
@@ -1641,10 +1640,10 @@ typedef struct
 
     word18 last_write;
 
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
     word24 locked_addr;
     word24 char_word_address;
-#endif
+#endif /* if defined(LOCKLESS) */
 
     word24 rmw_address;
 
@@ -1686,9 +1685,9 @@ typedef struct
      uint FFV_faults;
      uint FFV_fault_number;
 
-#ifdef AFFINITY
+#if defined(AFFINITY)
     uint affinity;
-#endif
+#endif /* if defined(AFFINITY) */
 
     events_t events;
 
@@ -1766,15 +1765,15 @@ typedef struct
     // L68 FFV faults
     bool is_FFV;
 
-#ifdef ROUND_ROBIN
+#if defined(ROUND_ROBIN)
     bool isRunning;
-#endif
+#endif /* if defined(ROUND_ROBIN) */
 
-#ifdef AFFINITY
+#if defined(AFFINITY)
     bool set_affinity;
-#endif
+#endif /* if defined(AFFINITY) */
 
-#ifdef SPEED
+#if defined(SPEED)
 # define SC_MAP_ADDR(addr,real_addr)                           \
    if (cpu.tweaks.useMap)                                      \
       {                                                        \
@@ -1807,9 +1806,9 @@ typedef struct
         nem_check (addr, __func__);                            \
         real_addr = addr;                                      \
       }
-#endif
+#endif /* if defined(SPEED) */
 
-#ifdef PANEL68
+#if defined(PANEL68)
     // Intermediate data collection for APU SCROLL
     word18 lastPTWOffset;
 // The L68 APU SCROLL 4U has an entry "ACSD"; I am interpreting it as
@@ -1877,7 +1876,7 @@ typedef struct
     bool INS_FETCH;
     // Control Points data acquisition
     word1 cpt [28] [36];
-#endif
+#endif /* if defined(PANEL68) */
 #define cpt1U   0  // Instruction processing tracking
 #define cpt1L   1  // Instruction processing tracking
 #define cpt2U   2  // Instruction execution tracking
@@ -1919,17 +1918,17 @@ typedef struct
 #define cptUseIR   16
   } cpu_state_t;
 
-#ifdef M_SHARED
+#if defined(M_SHARED)
 extern cpu_state_t * cpus;
 #else
 extern cpu_state_t cpus [N_CPU_UNITS_MAX];
-#endif
+#endif /* if defined(M_SHARED) */
 
 #if defined(THREADZ) || defined(LOCKLESS)
 extern __thread cpu_state_t * restrict cpup;
 #else
 extern cpu_state_t * restrict cpup;
-#endif
+#endif /* if defined(THREADZ) || defined(LOCKLESS) */
 #define cpu (* cpup)
 
 #define N_STALL_POINTS 16
@@ -1947,18 +1946,18 @@ uint set_cpu_idx (uint cpuNum);
 extern __thread uint current_running_cpu_idx;
 extern bool bce_dis_called;
 #else
-# ifdef ROUND_ROBIN
+# if defined(ROUND_ROBIN)
 extern uint current_running_cpu_idx;
 # else
 #  define current_running_cpu_idx 0
-# endif
-#endif
+# endif /* if defined(ROUND_ROBIN) */
+#endif /* if defined(THREADZ) || defined(LOCKLESS) */
 
 // Support code to access ARn.BITNO, ARn.CHAR, PRn.BITNO
 
 #define GET_PR_BITNO(n) (cpu.PAR[n].PR_BITNO)
 #define GET_AR_BITNO(n) (cpu.PAR[n].AR_BITNO)
-#define GET_AR_CHAR(n) (cpu.PAR[n].AR_CHAR)
+#define GET_AR_CHAR(n)  (cpu.PAR[n].AR_CHAR)
 static inline void SET_PR_BITNO (uint n, word6 b)
   {
      cpu.PAR[n].PR_BITNO = b;
@@ -1980,7 +1979,7 @@ void readOperandRead (word18 addr);
 void readOperandRMW (word18 addr);
 t_stat write_operand (word18 addr, processor_cycle_type acctyp);
 
-#ifdef PANEL68
+#if defined(PANEL68)
 static inline void trackport (word24 a, word36 d)
   {
     // Simplifying assumption: 4 * 4MW SCUs
@@ -1990,7 +1989,7 @@ static inline void trackport (word24 a, word36 d)
     cpu.portData [port] = d;
     cpu.portBusy = false;
   }
-#endif
+#endif /* if defined(PANEL68) */
 
 #if defined(SPEED) && defined(INLINE_CORE)
 # error INLINE_CORE has known issues.
@@ -2005,9 +2004,9 @@ static inline int core_read (word24 addr, word36 *data, \
     PNL (cpu.portBusy = true;)
     SC_MAP_ADDR (addr, addr);
     * data = M[addr] & DMASK;
-# ifdef TR_WORK_MEM
+# if defined(TR_WORK_MEM)
     cpu.rTRticks ++;
-# endif
+# endif /* if defined(TR_WORK_MEM) */
     PNL (trackport (addr, * data);)
     return 0;
   }
@@ -2031,9 +2030,9 @@ static inline int core_write (word24 addr, word36 data, \
           }
      }
     M[addr] = data & DMASK;
-# ifdef TR_WORK_MEM
+# if defined(TR_WORK_MEM)
     cpu.rTRticks ++;
-# endif
+# endif /* if defined(TR_WORK_MEM) */
     PNL (trackport (addr, data);)
     return 0;
   }
@@ -2058,9 +2057,9 @@ static inline int core_write_zone (word24 addr, word36 data, \
       }
     M[addr] = (M[addr] & ~cpu.zone) | (data & cpu.zone);
     cpu.useZone = false; // Safety
-# ifdef TR_WORK_MEM
+# if defined(TR_WORK_MEM)
     cpu.rTRticks ++;
-# endif
+# endif /* if defined(TR_WORK_MEM) */
     PNL (trackport (addr, data);)
     return 0;
   }
@@ -2072,9 +2071,9 @@ static inline int core_read2 (word24 addr, word36 *even, word36 *odd,
     SC_MAP_ADDR (addr, addr);
     *even = M[addr++] & DMASK;
     *odd = M[addr] & DMASK;
-# ifdef TR_WORK_MEM
+# if defined(TR_WORK_MEM)
     cpu.rTRticks ++;
-# endif
+# endif /* if defined(TR_WORK_MEM) */
     PNL (trackport (addr - 1, * even);)
     return 0;
   }
@@ -2100,9 +2099,9 @@ static inline int core_write2 (word24 addr, word36 even, word36 odd,
     M[addr++] = even;
     M[addr] = odd;
     PNL (trackport (addr - 1, even);)
-# ifdef TR_WORK_MEM
+# if defined(TR_WORK_MEM)
     cpu.rTRticks ++;
-# endif
+# endif /* if defined(TR_WORK_MEM) */
     return 0;
   }
 #else
@@ -2111,9 +2110,9 @@ int core_write (word24 addr, word36 data, const char * ctx);
 int core_write_zone (word24 addr, word36 data, const char * ctx);
 int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx);
 int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx);
-#endif // defined(SPEED) && defined(INLINE_CORE)
+#endif /* if defined(SPEED) && defined(INLINE_CORE) */
 
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
 
 /*
  * Atomic operations to use defined as follows:
@@ -2182,7 +2181,7 @@ int core_unlock_all(void);
 # define MEM_LOCKED_BIT    61
 # define MEM_LOCKED        (1LLU<<MEM_LOCKED_BIT)
 
-# ifndef SCHED_NEVER_YIELD
+# if !defined(SCHED_NEVER_YIELD)
 #  undef SCHED_YIELD
 #  define SCHED_YIELD                                                    \
   do                                                                     \
@@ -2201,7 +2200,7 @@ int core_unlock_all(void);
     {                                                                    \
     }                                                                    \
   while(0)
-# endif /* ifndef SCHED_NEVER_YIELD */
+# endif /* if !defined(SCHED_NEVER_YIELD) */
 
 # if defined (BSD_ATOMICS)
 #  include <machine/atomic.h>
@@ -2293,7 +2292,7 @@ int core_unlock_all(void);
 # endif // GNU_ATOMICS
 
 # if defined(SYNC_ATOMICS)
-#  ifdef MEMORY_ACCESS_NOT_STRONGLY_ORDERED
+#  if defined(MEMORY_ACCESS_NOT_STRONGLY_ORDERED)
 #   define MEM_BARRIER()   do { __sync_synchronize(); } while (0)
 #  else
 #   define MEM_BARRIER()   do {} while (0)
@@ -2370,9 +2369,9 @@ bool get_bar_mode (void);
 addr_modes_e get_addr_mode (void);
 void set_addr_mode (addr_modes_e mode);
 void decode_instruction (word36 inst, DCDstruct * p);
-#ifndef SPEED
+#if !defined(SPEED)
 t_stat set_mem_watch (int32 arg, const char * buf);
-#endif
+#endif /* if !defined(SPEED) */
 char *str_SDW0 (char * buf, sdw_s *SDW);
 int lookup_cpu_mem_map (word24 addr);
 void cpu_init (void);

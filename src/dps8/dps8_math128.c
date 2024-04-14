@@ -25,12 +25,12 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifndef DPS8_MATH128
+#if !defined(DPS8_MATH128)
 # define DPS8_MATH128
 # include "dps8.h"
 # include "dps8_math128.h"
 
-# ifdef NEED_128
+# if defined(NEED_128)
 
 bool iszero_128 (uint128 w)
   {
@@ -164,7 +164,7 @@ int128 negate_s128 (int128 a)
 
 uint128 lshift_128 (uint128 a, unsigned int n)
 #  if ( defined(__clang__) || defined(__clang_version__) ) && defined(__llvm__)
-#   ifdef NEED_128
+#   if defined(NEED_128)
 __attribute__ ((optnone))
 #   endif /* NEED_128 */
 #  endif /* if ( defined(__clang__) || defined(__clang_version__) ) && defined(__llvm__) */
@@ -878,16 +878,10 @@ int test_math128 (void)
     tgt    (MASK64, MASK64, MASK64, MASK64,     false);
     tgt    (0,      0,      MASK64, MASK64,     false);
     tgt    (MASK64, MASK64, 0,      0,          true);
-#  ifndef __PGI
-#   ifndef __PGLLVM__
-#    ifndef __NVCOMPILER
-#     ifndef __NVCOMPILER_LLVM__
+#  if !defined(__PGI) && !defined(__PGLLVM__) && !defined(__NVCOMPILER) && !defined(__NVCOMPILER_LLVM__)
     tls    (0,      0,      0,      0,          0);
     tls    (MASK64, MASK64, 0,      MASK64,     MASK64);
-#     endif /* ifndef __PGI */
-#    endif /* ifndef __PGLLVM__ */
-#   endif /* ifndef __NVCOMPILER */
-#  endif /* ifndef __NVCOMPILER_LLVM__ */
+#  endif /* if !defined(__PGI) && !defined(__PGLLVM__) && !defined(__NVCOMPILER) && !defined(__NVCOMPILER_LLVM__) */
     tls    (0,      1,      127,    SIGN64,     0);
     tls    (0,      MASK64, 64,     MASK64,     0);
     tls    (0,      MASK64, 1,      1,          MASK64-1);
@@ -944,7 +938,7 @@ int test_math128 (void)
     return 0;
   }
 # else
-#  ifdef NEED_128
+#  if defined(NEED_128)
 #   include "dps8_math128.h"
 
 void __udivmodti3(UTItype div, UTItype dvd,UTItype *result,UTItype *remain);
@@ -969,11 +963,11 @@ void __udivmodti3(UTItype div, UTItype dvd,UTItype *result,UTItype *remain)
         *remain = div;
 
         if ( z1 == (UTItype)0)
-#   ifndef CPPCHECK
+#   if !defined (CPPCHECK)
           1/0;
 #   else
           abort();
-#   endif /* ifndef CPPCHECK */
+#   endif /* if !defined(CPPCHECK) */
 
         while ( z1 < *remain )
           {

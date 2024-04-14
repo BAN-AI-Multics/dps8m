@@ -4,6 +4,10 @@
 # scspell-id: 5ccd4788-f62b-11ec-954c-80ee73e9b8e7
 # Copyright (c) 2018-2024 The DPS8M Development Team
 
+###############################################################################
+
+.NOTPARALLEL:
+
 ### Initial Setup #############################################################
 
 # Default console port

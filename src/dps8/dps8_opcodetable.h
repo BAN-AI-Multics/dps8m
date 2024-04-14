@@ -17,15 +17,12 @@
  */
 
 extern char GEBcdToASCII[64];   ///< GEBCD => ASCII map
-#ifndef QUIET_UNUSED
+#if !defined(QUIET_UNUSED)
 extern char ASCIIToGEBcd[128];  ///< ASCII => GEBCD map
-#endif
-
-#ifndef QUIET_UNUSED
 extern char *op0text[512];
 extern char *op1text[512];
 extern char *opcodes2text[1024];
-#endif
+#endif /* if !defined(QUIET_UNUSED) */
 
 struct adrMods {
     const char *mod;    ///< mnemonic
@@ -36,7 +33,7 @@ typedef struct adrMods adrMods;
 
 extern struct adrMods extMods[0100]; ///< extended address modifiers
 extern struct opcode_s opcodes10[02000];
-#ifdef PANEL68
+#if defined(PANEL68)
 extern word8 insGrp [02000];
 // CPT 3U 0-35, 3L 0-17
 enum { GRP_UNKN  = 0,
@@ -94,4 +91,4 @@ enum { GRP_UNKN  = 0,
        GRP_EDM   = 52,  // EIS - Decimal Multiplication
        GRP_EDD   = 53,  // EIS - Decimal Division
 };
-#endif
+#endif /* if defined(PANEL68) */
