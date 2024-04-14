@@ -1020,7 +1020,7 @@ if (mp->master) {
 # if defined(SIGUSR2)
                     (void)raise(SIGUSR2);
                     /*NOTREACHED*/ /* unreachable */
-# endif /* if defined(SIGUSR2 */)
+# endif /* if defined(SIGUSR2 */
 #endif /* if defined(USE_BACKTRACE) */
                     abort();
                   }
