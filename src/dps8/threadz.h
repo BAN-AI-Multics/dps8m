@@ -20,10 +20,10 @@
 
 // Wrapper around pthreads
 
-#ifdef __APPLE__
+#if defined(__APPLE__)
 # include <mach/mach.h>
 # include <mach/mach_time.h>
-#endif /* ifdef __APPLE__ */
+#endif /* if defined(__APPLE__) */
 
 #include <pthread.h>
 

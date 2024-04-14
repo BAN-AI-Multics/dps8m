@@ -40,7 +40,7 @@ enum { N_CPU_UNITS_MAX = 8 };
 //
 ////////////////
 
-// URP (Unit record processor_
+// URP (Unit record processor)
 enum { N_URP_UNITS_MAX = 16 };
 
 // ABSI

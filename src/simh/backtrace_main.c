@@ -42,7 +42,7 @@
  * -------------------------------------------------------------------------
  */
 
-#if defined(USE_BACKTRACE_
+#if defined(USE_BACKTRACE)
 # if defined(_INC_BACKTRACE_FUNC)
 #  if !defined(_INC_BACKTRACE_MAIN)
 #   define _INC_BACKTRACE_MAIN

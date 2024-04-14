@@ -357,7 +357,7 @@ enum opc_mod
     NO_DL           = (1U << 1),   // No DL modification allowed
 # define NO_DUDL    (NO_DU | NO_DL)
 
-    NO_CI           = (1U << 2),   // No character indirect modification (can these next 3 be combined?_
+    NO_CI           = (1U << 2),   // No character indirect modification (can these next 3 be combined?
     NO_SC           = (1U << 3),   // No sequence character modification
     NO_SCR          = (1U << 4),   // No sequence character reverse modification
 # define NO_CSS     (NO_CI | NO_SC | NO_SCR)
