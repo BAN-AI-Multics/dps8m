@@ -310,6 +310,7 @@ lmscspell:                                                                    \
 	@( ( set -o pipefail > /dev/null 2>&1 ) && set -o pipefail ;              \
      $(GREP) -riaL 'scspell-id: '                                           | \
      $(GREP) -Ev '(\.ascii$$)'                                              | \
+     $(GREP) -Ev '(docs/wiki/)'                                             | \
      $(GREP) -Ev '(src/libsir/)'                                            | \
      $(GREP) -Ev '(libuv-local/)'                                           | \
      $(GREP) -Ev '(\.envrc$$)'                                              | \
