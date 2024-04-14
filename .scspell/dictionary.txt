@@ -5758,6 +5758,7 @@ brtl
 iwmmxt
 librt
 lutil
+notparallel
 
 FILETYPE: NSIS; .nsi
 abortwarning
@@ -5834,6 +5835,7 @@ linestate
 splatting
 unevaluable
 unnest
+xconstexp
 xxxxxx
 
 FILEID: 8ce0c4f6-f631-11ec-a3f0-80ee73e9b8e7
@@ -6115,6 +6117,7 @@ endif
 ibmaix
 ifndef
 listchars
+notparallel
 oslevel
 
 FILEID: 27fa3230-f62b-11ec-8cab-80ee73e9b8e7
@@ -6165,6 +6168,7 @@ listchars
 lpthread
 ltosyn
 multiprocessing
+notparallel
 osap
 printf
 simulation
@@ -6550,6 +6554,7 @@ yyyymmdd
 
 FILEID: 4182f303-f62e-11ec-9475-80ee73e9b8e7
 doesn
+looprtc
 
 FILEID: 2fdee814-f62f-11ec-8f3d-80ee73e9b8e7
 abcdef
@@ -8586,8 +8591,12 @@ printf
 viva
 
 FILEID: 0eae6960-f75f-11ee-be2e-80ee73e9b8e7
+golang
+keepcache
+modcache
 printf
 sudo
+testcache
 
 FILEID: 1efcf84a-f75f-11ee-8a77-80ee73e9b8e7
 keepcache
@@ -12765,6 +12774,7 @@ rights
 ring
 ringing
 rings
+ripgrep
 ripout
 riscv
 rises
