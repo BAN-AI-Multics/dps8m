@@ -30,11 +30,11 @@
 #include "dps8_utils.h"
 
 #include "threadz.h"
-#if ( defined ( __FreeBSD__ ) || defined (  __OpenBSD__) )
+#if defined(__FreeBSD__) || defined (__OpenBSD__)
 # include <pthread_np.h>
 #endif /* FreeBSD || OpenBSD */
 
-#if defined ( __HAIKU__ )
+#if defined(__HAIKU__)
 # include <OS.h>
 # undef pthread_setname_np
 # define pthread_setname_np(x,y) rename_thread(find_thread(NULL),y)

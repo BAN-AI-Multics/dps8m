@@ -604,14 +604,14 @@ static inline void putbits36_9 (word36 * x, uint p, word9 val)
     // caller may provide val that is too big, e.g., a word with all bits
     // set to one, so we mask val
 #if !defined(__OPEN64__)
-# if defined(__GNUC__)
+# if defined(__GNUC__) && !defined(__PCC__)
 #  if !defined(__clang_version__)
 #   if __GNUC__ > 3
 #    pragma GCC diagnostic push
 #    pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #   endif /* if __GNUC__ > 3 */
 #  endif /* if !defined(__clang_version__) */
-# endif /* if defined(__GNUC__) */
+# endif /* if defined(__GNUC__) && !defined(__PCC__) */
 #endif /* if !defined(__OPEN64__) */
     * x = (* x & ~ smask) | (((word36) val & mask) << shift);
 #if !defined(__OPEN64__)

@@ -2033,10 +2033,10 @@ decNumber * decNumberPower(decNumber *res, const decNumber *lhs,
             }
           // [inv now points to big-enough buffer or allocated storage]
           decNumberCopy(inv, dac);      // copy the 1/lhs
-#if defined(__GNUC__) && \
+#if defined(__GNUC__) && !defined(__PCC__) && \
  ( !defined(__clang__) || !defined(__llvm__) )
           if (dnOne.digits > 1) __builtin_unreachable ();
-#endif /* if defined(__GNUC__) &&
+#endif /* if defined(__GNUC__) && !defined(__PCC__) &&
           ( !defined(__clang__) || !defined(__llvm__) ) */
           decNumberCopy(dac, &dnOne);   // restore acc=1
           lhs=inv;                      // .. and go forward with new lhs
