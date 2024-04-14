@@ -130,7 +130,7 @@
 # undef FREE
 # define FREE(p) free(p)
 # define realloc trealloc
-#endif /* if defned(TESTING) */
+#endif /* if defined(TESTING) */
 
 /* Telnet protocol constants - negatives are for init'ing signed char data */
 
