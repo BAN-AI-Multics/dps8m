@@ -3199,11 +3199,11 @@ for (; *ip && (op < oend); ) {
                         ap = rbuf;
                         }
                     else if (!strcmp ("HOSTID", gbuf)) {
-#if defined( HAVE_UNISTD ) && !defined ( __HAIKU__ ) && !defined ( __ANDROID__ ) && !defined ( __serenity__  )
+#if defined(HAVE_UNISTD) && !defined(__HAIKU__) && !defined(__ANDROID__) && !defined(__serenity__)
                         (void)sprintf (rbuf, "%ld", (long)gethostid());
 #else
                         (void)sprintf (rbuf, "00000000");
-#endif /* if defined( HAVE_UNISTD ) && !defined ( __HAIKU__ ) && !defined ( __ANDROID__ ) && !defined ( __serenity__ ) */
+#endif /* if defined(HAVE_UNISTD) && !defined(__HAIKU__) && !defined(__ANDROID__) && !defined(__serenity__) */
                         ap = rbuf;
                         }
                     else if (!strcmp ("UID", gbuf)) {
@@ -3320,7 +3320,7 @@ for (; *ip && (op < oend); ) {
                       || (!strcmp("PROCESSORS", gbuf) ) ) {
 #if defined(LINUX_OS) && !defined(__ANDROID__)
                         (void)sprintf(rbuf, "%ld", (long)get_nprocs());
-#elif defined ( __HAIKU__ )
+#elif defined(__HAIKU__)
                         system_info hinfo;
                         get_system_info(&hinfo);
                         (void)sprintf (rbuf, "%llu",
@@ -4526,9 +4526,9 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
 #else
     (void)fprintf (st, "\r\n      Compilation info: Not available\n" );
 #endif
-#if defined (UV_VERSION_MAJOR) && \
-    defined (UV_VERSION_MINOR) && \
-    defined (UV_VERSION_PATCH)
+#if defined(UV_VERSION_MAJOR) && \
+    defined(UV_VERSION_MINOR) && \
+    defined(UV_VERSION_PATCH)
 # if defined(UV_VERSION_MAJOR)
 #  if !defined(UV_VERSION_MINOR) && \
       !defined(UV_VERSION_PATCH) && \
@@ -4800,7 +4800,7 @@ if (flag) {
 #endif /* if defined(WAM) */
 
 /* ROUND_ROBIN */
-#if defined (ROUND_ROBIN)
+#if defined(ROUND_ROBIN)
 # if defined(HAVE_DPSOPT)
     (void)fprintf (st, ", ");
 # else
@@ -4912,7 +4912,7 @@ if (flag) {
         (void)fprintf (st, "\r\n\r\n ****** THIS%sBUILD IS NOT SUPPORTED BY THE DPS8M DEVELOPMENT TEAM ******", whydirty);
       }
     (void)fprintf (st, "\r\n\r\n Build Information:");
-#if defined (BUILD_PROM_OSV_TEXT) && defined (BUILD_PROM_OSA_TEXT)
+#if defined(BUILD_PROM_OSV_TEXT) && defined(BUILD_PROM_OSA_TEXT)
     char build_os_version_raw[255];
     char build_os_arch_raw[255];
     (void)sprintf(build_os_version_raw, "%.254s", BUILD_PROM_OSV_TEXT);
@@ -4961,7 +4961,7 @@ if (flag) {
     FREE(build_os_version);
     FREE(build_os_arch);
 #endif
-#if defined (__VERSION__)
+#if defined(__VERSION__)
     char gnumver[2];
     char postver[1024];
     (void)sprintf(gnumver, "%.1s", __VERSION__);
@@ -4990,7 +4990,7 @@ if (flag) {
     strremove(postver, " Clang 17.0.6 (build 19a779f)");
     strremove(postver, "CLANG: ");
 #endif
-#if ( defined (__GNUC__) && defined (__VERSION__) ) && !defined (__EDG__)
+#if ( defined(__GNUC__) && defined(__VERSION__) ) && !defined(__EDG__)
 # if !defined(__clang_version__)
     if (isdigit((unsigned char)gnumver[0])) {
         (void)fprintf (st, "\n  Compiler: GCC %s", postver);
@@ -4998,9 +4998,9 @@ if (flag) {
         (void)fprintf (st, "\n  Compiler: %s", postver);
     }
 # endif
-# if defined (__clang_analyzer__ )
+# if defined(__clang_analyzer__ )
     (void)fprintf (st, "\n  Compiler: Clang C/C++ Static Analyzer");
-# elif defined (__clang_version__) && defined (__VERSION__)
+# elif defined(__clang_version__) && defined(__VERSION__)
     char clangllvmver[1024];
     (void)sprintf(clangllvmver, "%.1023s", __clang_version__);
     strremove(clangllvmver, "git://github.com/OpenIndiana/oi-userland.git ");
@@ -5014,10 +5014,10 @@ if (flag) {
     } else {
         (void)fprintf (st, "\n  Compiler: %s", postver);
     }
-# elif defined (__clang_version__)
+# elif defined(__clang_version__)
     (void)fprintf (st, "\n  Compiler: %s", postver);
 # endif
-#elif defined (__PGI) && !defined(__NVCOMPILER)
+#elif defined(__PGI) && !defined(__NVCOMPILER)
     (void)fprintf (st, "\n  Compiler: Portland Group, Inc. (PGI) C Compiler ");
 # if defined(__PGIC__)
     (void)fprintf (st, "%d", __PGIC__);
@@ -5039,20 +5039,20 @@ if (flag) {
 #   endif
 #  endif
 # endif
-#elif defined (_MSC_FULL_VER) && defined (_MSC_BUILD)
+#elif defined(_MSC_FULL_VER) && defined(_MSC_BUILD)
     (void)fprintf (st, "\n  Compiler: Microsoft C %d.%02d.%05d.%02d",
                    _MSC_FULL_VER/10000000,
                    (_MSC_FULL_VER/100000)%100,
                    _MSC_FULL_VER%100000,
                    _MSC_BUILD);
-#elif ( defined (__xlc__) && !defined(__clang_version__) )
-# if defined (_AIX) && defined (__PASE__)
+#elif ( defined(__xlc__) && !defined(__clang_version__) )
+# if defined(_AIX) && defined(__PASE__)
     (void)fprintf (st, "\n  Compiler: IBM XL C/C++ V%s (PASE for IBM i)", __xlc__);
 # endif
-# if defined (_AIX) && !defined (__PASE__)
+# if defined(_AIX) && !defined(__PASE__)
     (void)fprintf (st, "\n  Compiler: IBM XL C/C++ for AIX V%s", __xlc__);
 # endif
-# if defined (__linux__) && ( !defined(_AIX) || !defined(__PASE__) )
+# if defined(__linux__) && ( !defined(_AIX) || !defined(__PASE__) )
     (void)fprintf (st, "\n  Compiler: IBM XL C/C++ for Linux V%s", __xlc__);
 # endif
 # if ( !defined(_AIX) && !defined(__clang_version__) && !defined(__PASE__) && !defined(__linux__) && defined(__xlc__) )
@@ -5062,7 +5062,7 @@ if (flag) {
     (void)fprintf (st, "\n  Compiler: IBM XL C/C++ V%s", __xlc__);
 #  endif
 # endif
-#elif defined (__SUNPRO_C) || defined (__SUNPRO_CC) || defined (__SUNPRO_CC_COMPAT)
+#elif defined(__SUNPRO_C) || defined(__SUNPRO_CC) || defined(__SUNPRO_CC_COMPAT)
 # define VER_ENC(maj, min, rev) \
   (((maj) * 1000000) + ((min) * 1000) + (rev))
 # define VER_DEC_MAJ(ver) \
@@ -5099,39 +5099,39 @@ if (flag) {
                    VER_DEC_MAJ(COMP_VER),
                    VER_DEC_MIN(COMP_VER),
                    VER_DEC_REV(COMP_VER));
-#elif defined (__DMC__)
+#elif defined(__DMC__)
     (void)fprintf (st, "\n  Compiler: Digital Mars C/C++");
-#elif defined (__PCC__)
+#elif defined(__PCC__)
     (void)fprintf (st, "\n  Compiler: Portable C Compiler");
-#elif defined (KENC) || defined (KENCC) || defined (__KENC__) || defined (__KENCC__)
+#elif defined(KENC) || defined(KENCC) || defined(__KENC__) || defined(__KENCC__)
     (void)fprintf (st, "\n  Compiler: Plan 9 Compiler Suite");
-#elif defined (__ACK__)
+#elif defined(__ACK__)
     (void)fprintf (st, "\n  Compiler: Amsterdam Compiler Kit");
-#elif defined (__COMO__)
+#elif defined(__COMO__)
     (void)fprintf (st, "\n  Compiler: Comeau C++");
-#elif defined (__COMPCERT__)
+#elif defined(__COMPCERT__)
     (void)fprintf (st, "\n  Compiler: CompCert C");
-#elif defined (__COVERITY__)
+#elif defined(__COVERITY__)
     (void)fprintf (st, "\n  Compiler: Coverity C/C++ Static Analyzer");
-#elif defined (__LCC__)
+#elif defined(__LCC__)
     (void)fprintf (st, "\n  Compiler: Local C Compiler (lcc)");
-#elif defined (sgi) || defined (__sgi) || defined (_sgi) || defined (_SGI_COMPILER_VERSION)
+#elif defined(sgi) || defined(__sgi) || defined(_sgi) || defined(_SGI_COMPILER_VERSION)
     (void)fprintf (st, "\n  Compiler: SGI MIPSpro");
-#elif defined (__OPEN64__)
+#elif defined(__OPEN64__)
     (void)fprintf (st, "\n  Compiler: Open64 %s", __OPEN64__);
-#elif defined (__PGI) || defined (__PGIC__)
+#elif defined(__PGI) || defined(__PGIC__)
     (void)fprintf (st, "\n  Compiler: Portland Group/PGI C/C++");
-#elif defined (__VBCC__)
+#elif defined(__VBCC__)
     (void)fprintf (st, "\n  Compiler: Volker Barthelmann C Compiler (vbcc)");
-#elif defined (__WATCOMC__)
+#elif defined(__WATCOMC__)
     (void)fprintf (st, "\n  Compiler: Watcom C/C++ %d.%d",
                    __WATCOMC__ / 100,
                    __WATCOMC__ % 100);
-#elif defined (__xlC__)
+#elif defined(__xlC__)
     (void)fprintf (st, "\n  Compiler: IBM XL C/C++");
-#elif defined (__INTEL_COMPILER) || defined (__ICC)
-# if defined (__INTEL_COMPILER_UPDATE)
-#  if defined (__INTEL_COMPILER_BUILD_DATE)
+#elif defined(__INTEL_COMPILER) || defined(__ICC)
+# if defined(__INTEL_COMPILER_UPDATE)
+#  if defined(__INTEL_COMPILER_BUILD_DATE)
     (void)fprintf (st, "\n  Compiler: Intel C++ Compiler %d.%d (%d)",
                    __INTEL_COMPILER, __INTEL_COMPILER_UPDATE,
                    __INTEL_COMPILER_BUILD_DATE);
@@ -5143,7 +5143,7 @@ if (flag) {
     (void)fprintf (st, "\n  Compiler: Intel C++ Compiler %d",
                    __INTEL_COMPILER);
 # endif
-#elif defined (SIM_COMPILER)
+#elif defined(SIM_COMPILER)
 # define S_xstr(a) S_str(a)
 # define S_str(a) #a
     (void)fprintf (st, "\n  Compiler: %s", S_xstr(SIM_COMPILER));
@@ -5817,7 +5817,7 @@ else {
     else {                                              /* normal */
         uptr->fileref = sim_fopen (cptr, "rb+");        /* open r/w */
         if (uptr->fileref == NULL) {                    /* open fail? */
-#if defined (EWOULDBLOCK)
+#if defined(EWOULDBLOCK)
             if ((errno == EWOULDBLOCK) || (errno == EAGAIN))
 #else
             if ((errno == EAGAIN))

@@ -30,7 +30,7 @@
 #include "dps8_utils.h"
 
 #include "threadz.h"
-#if defined(__FreeBSD__) || defined (__OpenBSD__)
+#if defined(__FreeBSD__) || defined(__OpenBSD__)
 # include <pthread_np.h>
 #endif /* FreeBSD || OpenBSD */
 
@@ -57,7 +57,7 @@
 
 // scp library serializer
 
-#if defined( IO_ASYNC_PAYLOAD_CHAN_THREAD)
+#if defined(IO_ASYNC_PAYLOAD_CHAN_THREAD)
 pthread_cond_t iomCond;
 pthread_mutex_t iom_start_lock;
 #endif
@@ -726,11 +726,11 @@ void createIOMThread (uint iomNum)
 
     char nm [17];
     (void)sprintf (nm, "IOM %c", 'a' + iomNum);
-# if ( defined ( __FreeBSD__ ) || defined ( __OpenBSD__ ) )
+# if defined(__FreeBSD__) || defined(__OpenBSD__)
     pthread_setname_np (p->iomThread, nm);
 # else
     pthread_set_name_np (p->iomThread, nm);
-# endif /* FreeBSD || OpenBSD */
+# endif /* if defined(__FreeBSD__) || defined(__OpenBSD__) */
   }
 
 // Called by IOM thread to block until CIOC call
@@ -893,11 +893,11 @@ void createChnThread (uint iomNum, uint chnNum, const char * devTypeStr)
 
     char nm [17];
     (void)sprintf (nm, "chn %c/%u %s", 'a' + iomNum, chnNum, devTypeStr);
-# if ( defined ( __FreeBSD__ ) || defined ( __OpenBSD__ ) )
+# if defined(__FreeBSD__) || defined(__OpenBSD__)
     pthread_setname_np (p->chnThread, nm);
 # else
     pthread_set_name_np (p->chnThread, nm);
-# endif /* FreeBSD || OpenBSD */
+# endif /* if defined(__FreeBSD__) || defined(__OpenBSD__) */
   }
 
 // Called by channel thread to block until I/O command presented
@@ -989,7 +989,7 @@ void initThreadz (void)
     have_mem_lock = false;
     have_rmw_lock = false;
 #endif
-#if ( defined (__FreeBSD__) || defined (__OpenBSD__) )
+#if defined(__FreeBSD__) || defined(__OpenBSD__)
     pthread_mutexattr_t scu_attr;
     pthread_mutexattr_init(&scu_attr);
 # if !defined(__OpenBSD__)

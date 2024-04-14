@@ -1449,7 +1449,7 @@ static void get_serial_number (void)
   }
 #endif /* if !defined(PERF_STRIP) */
 
-#if defined (MACOSXPPC)
+#if defined(MACOSXPPC)
 # undef STATS
 #endif /* if defined(MACOSXPPC) */
 
@@ -1507,9 +1507,9 @@ static void ev_poll_cb (UNUSED uv_timer_t * handle)
       }
     fnpProcessEvent ();
 # if defined(WITH_SOCKET_DEV)
-#  if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined (CROSS_MINGW32) && !defined(CROSS_MINGW64)
+#  if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64)
     sk_process_event ();
-#  endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined (CROSS_MINGW32) && !defined(CROSS_MINGW64) */
+#  endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) */
 # endif /* if defined(WITH_SOCKET_DEV) */
     consoleProcess ();
 # if defined(IO_ASYNC_PAYLOAD_CHAN)
@@ -4780,7 +4780,7 @@ void setupPROM (uint cpuNo, unsigned char * PROM) {
 #  define VER_H_PROM_TSV_TEXT "Microsoft Windows   "
 # elif defined(__CYGWIN__)
 #  define VER_H_PROM_TSV_TEXT "Windows/Cygwin      "
-# elif (defined(__sunos) || defined( __sun ) || defined(__sun__)) && (defined(SYSV) || defined( __SVR4 ) || defined(__SVR4__) || defined(__svr4__))
+# elif (defined(__sunos) || defined(__sun) || defined(__sun__)) && (defined(SYSV) || defined(__SVR4) || defined(__SVR4__) || defined(__svr4__))
 #  if defined(__illumos__)
 #   define VER_H_PROM_TSV_TEXT "illumos             "
 #  else

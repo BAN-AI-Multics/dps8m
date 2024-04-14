@@ -49,17 +49,17 @@
 # define _POSIX_C_SOURCE 200809L
 #endif /* if !defined(_POSIX_C_SOURCE) */
 
-#if !defined ( __MINGW32__ ) && !defined ( CROSS_MINGW32 ) && !defined ( CROSS_MINGW64 ) && !defined ( __MINGW64__ ) && !defined ( _MSC_VER ) && !defined ( _MSC_BUILD )
+#if !defined(__MINGW32__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) && !defined(__MINGW64__) && !defined(_MSC_VER) && !defined(_MSC_BUILD)
 
-# if defined( __sun ) && defined( __SVR4 )
+# if defined(__sun) && defined(__SVR4)
 #  if !defined(__EXTENSIONS__)
 #   define __EXTENSIONS__ 1
 #  endif /* if !defined(__EXTENSIONS__) */
-# endif /* if defined( __sun ) && defined( __SVR4 ) */
+# endif /* if defined(__sun) && defined(__SVR4) */
 # include <termios.h>
-# if defined( __sun ) && defined( __SVR4 )
+# if defined(__sun) && defined(__SVR4)
 #  include <sys/termiox.h>
-# endif /* if defined( __sun ) && defined( __SVR4 ) */
+# endif /* if defined(__sun) && defined(__SVR4) */
 # include "linehistory.h"
 # if !defined(__NetBSD__)
 #  include "../dps8/dps8.h"
@@ -916,7 +916,7 @@ linenoiseEditInsert(struct linenoiseState *l, char c)
       l->pos++;
       l->len++;
       l->buf[l->len] = '\0';
-# if defined( LH_MASKMODE ) && defined( LH_HINTS )
+# if defined(LH_MASKMODE) && defined(LH_HINTS)
       if (( !mlmode && l->plen + l->len < l->cols && !hintsCallback ))
       {
         /* Avoid a full update of the line in the trivial case. */
@@ -928,11 +928,11 @@ linenoiseEditInsert(struct linenoiseState *l, char c)
       }
       else
       {
-# endif /* if defined( LH_MASKMODE ) && defined( LH_HINTS ) */
+# endif /* if defined(LH_MASKMODE) && defined(LH_HINTS) */
       refreshLine(l);
-# if defined( LH_MASKMODE ) && defined( LH_HINTS )
+# if defined(LH_MASKMODE) && defined(LH_HINTS)
       }
-# endif /* if defined( LH_MASKMODE ) && defined( LH_HINTS ) */
+# endif /* if defined(LH_MASKMODE) && defined(LH_HINTS) */
     }
     else
     {
@@ -1887,4 +1887,4 @@ pstrlen(const char *s)
   return ( len );
 }
 
-#endif /* if !defined ( __MINGW32__ ) && !defined ( CROSS_MINGW32 ) && !defined ( CROSS_MINGW64 ) && !defined ( __MINGW64__ ) && !defined ( _MSC_VER ) && !defined ( _MSC_BUILD ) */
+#endif /* if !defined(__MINGW32__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) && !defined(__MINGW64__) && !defined(_MSC_VER) && !defined(_MSC_BUILD) */

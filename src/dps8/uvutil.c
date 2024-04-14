@@ -46,10 +46,10 @@ static void alloc_buffer (UNUSED uv_handle_t * handle, size_t suggested_size,
                           uv_buf_t * buf)
   {
 /* Suppress Clang Analyzer's possible memory leak warning */
-#if !defined ( __clang_analyzer__ )
+#if !defined(__clang_analyzer__)
     * buf = uv_buf_init ((char *) malloc (suggested_size),
                          (uint) suggested_size);
-#endif /* if !defined ( __clang_analyzer__ ) */
+#endif /* if !defined(__clang_analyzer__) */
   }
 
 static void accessWriteCallback (uv_write_t * req, int status)
@@ -149,7 +149,7 @@ static void accessStartWriteActual (uv_tcp_t * client, char * data,
     if (! client || uv_is_closing ((uv_handle_t *) client))
       return;
 /* Suppress Clang Analyzer's possible memory leak warning */
-#if !defined ( __clang_analyzer__ )
+#if !defined(__clang_analyzer__)
     uv_write_t * req = (uv_write_t *) malloc (sizeof (uv_write_t));
     if (!req)
       {
@@ -180,7 +180,7 @@ static void accessStartWriteActual (uv_tcp_t * client, char * data,
 // If the socket has been closed, write will return BADF; just ignore it.
     if (ret < 0 && ret != -EBADF)
       sim_printf ("uv_write returns %d\n", ret);
-#endif /* if !defined ( __clang_analyzer__ ) */
+#endif /* if !defined(__clang_analyzer__) */
   }
 
 void accessStartWrite (uv_tcp_t * client, char * data, ssize_t datalen)

@@ -75,14 +75,14 @@
 # define _BSD_SOURCE       1
 #endif /* if defined(__linux__) || defined(__SVR4__) */
 
-#if defined (__linux__) && defined (__GNU_LIBRARY__)
+#if defined(__linux__) && defined(__GNU_LIBRARY__)
 # define voff64_t __off64_t
-#endif /* if defined (__linux__) && defined (__GNU_LIBRARY__) */
+#endif /* if defined(__linux__) && defined(__GNU_LIBRARY__) */
 
-#if defined (__SVR4__)
+#if defined(__SVR4__)
 # define __EXTENSIONS__ 1
 # define voff64_t off_t
-#endif /* if defined (__SVR4__) */
+#endif /* if defined(__SVR4__) */
 
 #if !defined(voff64_t)
 # define voff64_t long long int
@@ -1016,7 +1016,7 @@ retry_open:
 
   fd = open(path, open_flags, 0);
 
-#if defined( O_NOATIME )
+#if defined(O_NOATIME)
   if (fd == -1 && errno == EPERM)
     {
       open_flags &= ~O_NOATIME; //-V753

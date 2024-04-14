@@ -17,11 +17,11 @@
 
 /* Shared memory functions */
 
-#if ( defined( USE_FLOCK ) && defined( USE_FCNTL ))
+#if defined(USE_FLOCK) && defined(USE_FCNTL)
 # if !defined(USE_BFLOCK)
 #  define USE_BFLOCK
 # endif /* if !defined(USE_BFLOCK) */
-#endif /* if ( defined(USE_FLOCK) && defined(USE_FCNTL) ) */
+#endif /* if defined(USE_FLOCK) && defined(USE_FCNTL) */
 
 #include <errno.h>
 #include <fcntl.h> /* For O_* constants, locks */
@@ -183,10 +183,10 @@ create_shm(char *key, size_t shm_size)
         }
     }
 
-# if !defined ( __APPLE__ ) && !defined ( __HAIKU__ ) && !defined ( __serenity__ )
+# if !defined(__APPLE__) && !defined(__HAIKU__) && !defined(__serenity__)
   if ( !(sim_nostate) )
     (void)fdatasync(lck_fd);
-# endif /* if !defined ( __APPLE__ ) && !defined ( __HAIKU__ ) && !defined ( __serenity__) */
+# endif /* if !defined(__APPLE__) && !defined(__HAIKU__) && !defined(__serenity__) */
 
   (void)snprintf(spid, SPIDLEN, "%ld ", (long)getpid());
 
@@ -276,10 +276,10 @@ create_shm(char *key, size_t shm_size)
       return NULL;
     }
 
-#if !defined ( __APPLE__ ) && !defined ( __HAIKU__ ) && !defined ( __serenity__ )
+#if !defined(__APPLE__) && !defined(__HAIKU__) && !defined(__serenity__)
   if ( !(sim_nostate) )
     (void)fdatasync(fd);
-#endif /* if !defined ( __APPLE__ ) && !defined ( __HAIKU__ ) && !defined ( __serenity__ ) */
+#endif /* if !defined(__APPLE__) && !defined(__HAIKU__) && !defined(__serenity__) */
 
   p = mmap(NULL, shm_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
   if (p == MAP_FAILED)
