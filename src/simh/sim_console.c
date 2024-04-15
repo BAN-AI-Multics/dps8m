@@ -403,16 +403,20 @@ if (sim_rem_active_number >= 0) {
     if (sim_rem_master_mode && (sim_rem_active_number == 0))
         fprintf (st, "Running from Master Mode Remote Console Connection\n");
     else
-        fprintf (st, "Running from Remote Console Connection %lu\n", (unsigned long)sim_rem_active_number);
+        fprintf (st, "Running from Remote Console Connection %lu\n",
+                 (unsigned long)sim_rem_active_number);
     }
 if (sim_rem_con_tmxr.lines > 1)
-    fprintf (st, "Remote Console Input Connections from %lu sources are supported concurrently\n", (unsigned long)sim_rem_con_tmxr.lines);
+    fprintf (st, "Remote Console Input Connections from %lu sources are supported concurrently\n",
+             (unsigned long)sim_rem_con_tmxr.lines);
 if (sim_rem_read_timeout)
-    fprintf (st, "Remote Console Input automatically continues after %lu seconds\n", (unsigned long)sim_rem_read_timeout);
+    fprintf (st, "Remote Console Input automatically continues after %lu seconds\n",
+             (unsigned long)sim_rem_read_timeout);
 if (!sim_rem_con_tmxr.master)
     fprintf (st, "Remote Console Command input is disabled\n");
 else
-    fprintf (st, "Remote Console Command Input listening on TCP port: %s\n", sim_rem_con_unit[0].filename);
+    fprintf (st, "Remote Console Command Input listening on TCP port: %s\n",
+             sim_rem_con_unit[0].filename);
 for (i=connections=0; i<sim_rem_con_tmxr.lines; i++) {
     lp = &sim_rem_con_tmxr.ldsc[i];
     if (!lp->conn)
@@ -423,9 +427,11 @@ for (i=connections=0; i<sim_rem_con_tmxr.lines; i++) {
     tmxr_fconns (st, lp, i);
     if (sim_rem_read_timeouts[i] != sim_rem_read_timeout) {
         if (sim_rem_read_timeouts[i])
-            fprintf (st, "Remote Console Input on connection %lu automatically continues after %lu seconds\n", (unsigned long)i, (unsigned long)sim_rem_read_timeouts[i]);
+            fprintf (st, "Remote Console Input on connection %lu automatically continues after %lu seconds\n",
+                     (unsigned long)i, (unsigned long)sim_rem_read_timeouts[i]);
         else
-            fprintf (st, "Remote Console Input on connection %lu does not continue automatically\n", (unsigned long)i);
+            fprintf (st, "Remote Console Input on connection %lu does not continue automatically\n",
+                     (unsigned long)i);
         }
     }
 return SCPE_OK;
@@ -696,7 +702,7 @@ for (i=(was_active_command ? sim_rem_cmd_active_line : 0);
             continue;
         c = c & ~TMXR_VALID;
         if (sim_rem_single_mode[i]) {
-            if (c == sim_int_char) {                    /* ^E (the interrupt character) must start continue mode console interaction */
+            if (c == sim_int_char) { /* ^E (the interrupt character) must start continue mode console interaction */
                 sim_rem_single_mode[i] = FALSE;         /* enter multi command mode */
                 sim_is_running = 0;
                 sim_stop_timer_services ();
@@ -707,14 +713,16 @@ for (i=(was_active_command ? sim_rem_cmd_active_line : 0);
                     TMLN *lpj = &sim_rem_con_tmxr.ldsc[j];
                     if ((i == j) || (!lpj->conn))
                         continue;
-                    tmxr_linemsgf (lpj, "\nRemote Console %lu(%s) Entering Commands\n", (unsigned long)i, lp->ipad);
+                    tmxr_linemsgf (lpj, "\nRemote Console %lu(%s) Entering Commands\n",
+                                   (unsigned long)i, lp->ipad);
                     tmxr_send_buffered_data (lpj);      /* flush any buffered data */
                     }
                 lp = &sim_rem_con_tmxr.ldsc[i];
                 if (!master_session)
                     tmxr_linemsg (lp, "\r\nSimulator paused.\r\n");
                 if (!master_session && sim_rem_read_timeouts[i]) {
-                    tmxr_linemsgf (lp, "Simulation will resume automatically if input is not received in %lu seconds\n", (unsigned long)sim_rem_read_timeouts[i]);
+                    tmxr_linemsgf (lp, "Simulation will resume automatically if input is not received in %lu seconds\n",
+                                   (unsigned long)sim_rem_read_timeouts[i]);
                     tmxr_linemsgf (lp, "\r\n");
                     tmxr_send_buffered_data (lp);       /* flush any buffered data */
                     }
@@ -815,7 +823,9 @@ for (i=(was_active_command ? sim_rem_cmd_active_line : 0);
                         sim_rem_buf[i] = (char *)realloc (sim_rem_buf[i], sim_rem_buf_size[i]);
                         }
                     sim_rem_buf[i][sim_rem_buf_ptr[i]++] = '\0';
-                    sim_debug (DBG_RCV, &sim_remote_console, "Got Command (%lu bytes still in buffer): %s\n", (unsigned long)tmxr_input_pending_ln (lp), sim_rem_buf[i]);
+                    sim_debug (DBG_RCV, &sim_remote_console,
+                               "Got Command (%lu bytes still in buffer): %s\n",
+                               (unsigned long)tmxr_input_pending_ln (lp), sim_rem_buf[i]);
                     got_command = TRUE;
                     break;
                 case '\004': /* EOF (^D) */
@@ -908,7 +918,10 @@ for (i=(was_active_command ? sim_rem_cmd_active_line : 0);
                 stat = SCPE_UNK;
             }
         else {
-            if ((cmdp = find_ctab (sim_rem_single_mode[i] ? allowed_single_remote_cmds : (master_session ? allowed_master_remote_cmds : allowed_remote_cmds), gbuf))) {/* lookup command */
+            if ((cmdp = find_ctab (
+                            sim_rem_single_mode[i] ? allowed_single_remote_cmds : \
+                              (master_session ? allowed_master_remote_cmds : \
+                               allowed_remote_cmds), gbuf))) { /* lookup command */
                 if (cmdp->action == &x_continue_cmd)
                     stat = SCPE_OK;
                 else {
@@ -1390,15 +1403,19 @@ if (sim_deb_switches & SWMASK ('R')) {
         sim_deb_switches |= SWMASK ('T');
     }
 if (!sim_quiet) {
-    sim_printf ("Debug output to \"%s\"\n", sim_logfile_name (sim_deb, sim_deb_ref));
+    sim_printf ("Debug output to \"%s\"\n",
+                sim_logfile_name (sim_deb, sim_deb_ref));
     if (sim_deb_switches & SWMASK ('P'))
         sim_printf ("   Debug messages contain current PC value\n");
     if (sim_deb_switches & SWMASK ('T'))
-        sim_printf ("   Debug messages display time of day as hh:mm:ss.msec%s\n", sim_deb_switches & SWMASK ('R') ? " relative to the start of debugging" : "");
+        sim_printf ("   Debug messages display time of day as hh:mm:ss.msec%s\n",
+                    sim_deb_switches & SWMASK ('R') ? " relative to the start of debugging" : "");
     if (sim_deb_switches & SWMASK ('A'))
-        sim_printf ("   Debug messages display time of day as seconds.msec%s\n", sim_deb_switches & SWMASK ('R') ? " relative to the start of debugging" : "");
+        sim_printf ("   Debug messages display time of day as seconds.msec%s\n",
+                    sim_deb_switches & SWMASK ('R') ? " relative to the start of debugging" : "");
     time(&now);
-    fprintf (sim_deb, "Debug output to \"%s\" at %s", sim_logfile_name (sim_deb, sim_deb_ref), ctime(&now));
+    fprintf (sim_deb, "Debug output to \"%s\" at %s",
+             sim_logfile_name (sim_deb, sim_deb_ref), ctime(&now));
     show_version (sim_deb, NULL, NULL, 0, NULL);
     }
 if (sim_deb_switches & SWMASK ('N'))
@@ -1461,13 +1478,15 @@ if (cptr && (*cptr != 0))
     return SCPE_2MARG;
 if (sim_deb) {
     fprintf (st, "Debug output enabled to \"%s\"\n",
-                 sim_logfile_name (sim_deb, sim_deb_ref));
+             sim_logfile_name (sim_deb, sim_deb_ref));
     if (sim_deb_switches & SWMASK ('P'))
         fprintf (st, "   Debug messages contain current PC value\n");
     if (sim_deb_switches & SWMASK ('T'))
-        fprintf (st, "   Debug messages display time of day as hh:mm:ss.msec%s\n", sim_deb_switches & SWMASK ('R') ? " relative to the start of debugging" : "");
+        fprintf (st, "   Debug messages display time of day as hh:mm:ss.msec%s\n",
+                 sim_deb_switches & SWMASK ('R') ? " relative to the start of debugging" : "");
     if (sim_deb_switches & SWMASK ('A'))
-        fprintf (st, "   Debug messages display time of day as seconds.msec%s\n", sim_deb_switches & SWMASK ('R') ? " relative to the start of debugging" : "");
+        fprintf (st, "   Debug messages display time of day as seconds.msec%s\n",
+                 sim_deb_switches & SWMASK ('R') ? " relative to the start of debugging" : "");
     for (i = 0; (dptr = sim_devices[i]) != NULL; i++) {
         if (!(dptr->flags & DEV_DIS) &&
             (dptr->flags & DEV_DEBUG) &&

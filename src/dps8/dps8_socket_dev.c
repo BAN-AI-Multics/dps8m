@@ -454,7 +454,11 @@ sim_printf ("gethostbyname returned %p\n", (void *) hostent);
     if (hostent)
       {
 sim_printf ("addr_len %d\n", hostent->h_length);
-sim_printf ("%hhu.%hhu.%hhu.%hhu\n", hostent->h_addr_list[0][0],hostent->h_addr_list[0][1], hostent->h_addr_list[0][2],hostent->h_addr_list[0][3]);
+sim_printf ("%hhu.%hhu.%hhu.%hhu\n",
+            hostent->h_addr_list[0][0],
+            hostent->h_addr_list[0][1],
+            hostent->h_addr_list[0][2],
+            hostent->h_addr_list[0][3]);
 
         uint32_t addr = * ((uint32_t *) & hostent->h_addr_list[0][0]);
 sim_printf ("addr %08x\n", addr);
@@ -574,7 +578,8 @@ sim_printf ("listen() backlog    %d\n", backlog   );
     if (sk_data.fd_unit[socket_fd] != (int) unit_idx || sk_data.fd_dev_code[socket_fd] != dev_code)
       {
 sim_printf ("listen() socket doesn't belong to us\n");
-sim_printf ("socket_fd %u fd_unit %d fd_dev_code %u unit_idx %u dev_code %u\n", socket_fd, sk_data.fd_unit[socket_fd], sk_data.fd_dev_code[socket_fd], unit_idx, dev_code);
+sim_printf ("socket_fd %u fd_unit %d fd_dev_code %u unit_idx %u dev_code %u\n",
+            socket_fd, sk_data.fd_unit[socket_fd], sk_data.fd_dev_code[socket_fd], unit_idx, dev_code);
         _errno = EBADF;
         goto done;
       }

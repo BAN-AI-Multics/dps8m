@@ -2406,7 +2406,9 @@ uint scu_get_highest_intr (uint scu_unit_idx)
             if (scu [scu_unit_idx].cells [inum] &&
                 (mask & (1u << (31 - inum))) != 0)
               {
-                sim_debug (DBG_TRACE, & scu_dev, "scu_get_highest_intr inum %d pima %u mask 0%011o port %u cells 0%011o\n", inum, pima, mask, port, scu [scu_unit_idx].cells [inum]);
+                sim_debug (DBG_TRACE, & scu_dev,
+                           "scu_get_highest_intr inum %d pima %u mask 0%011o port %u cells 0%011o\n",
+                           inum, pima, mask, port, scu [scu_unit_idx].cells [inum]);
                 scu [scu_unit_idx].cells [inum] = false;
                 dump_intr_regs ("scu_get_highest_intr", scu_unit_idx);
                 deliver_interrupts (scu_unit_idx);

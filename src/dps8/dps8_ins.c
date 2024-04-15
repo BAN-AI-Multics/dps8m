@@ -335,15 +335,18 @@ static void read_tra_op (void)
 
 static void dump_words (word36 * words)
   {
-    sim_debug (DBG_FAULT, & cpu_dev, "CU: P %d IR %#o PSR %0#o IC %0#o TSR %0#o\n",
+    sim_debug (DBG_FAULT, & cpu_dev,
+               "CU: P %d IR %#o PSR %0#o IC %0#o TSR %0#o\n",
                getbits36_1  (words[0], 18), getbits36_18 (words[4], 18),
                getbits36_15 (words[0], 3), getbits36_18 (words[4], 0),  getbits36_15 (words[2], 3));
-    sim_debug (DBG_FAULT, & cpu_dev, "CU: xsf %d rf %d rpt %d rd %d rl %d pot %d xde %d xdo %d itp %d rfi %d its %d fif %d hold %0#o\n",
+    sim_debug (DBG_FAULT, & cpu_dev,
+               "CU: xsf %d rf %d rpt %d rd %d rl %d pot %d xde %d xdo %d itp %d rfi %d its %d fif %d hold %0#o\n",
                getbits36_1  (words[0], 19),
                getbits36_1  (words[5], 18), getbits36_1  (words[5], 19), getbits36_1  (words[5], 20), getbits36_1  (words[5], 21),
                getbits36_1  (words[5], 22), getbits36_1  (words[5], 24), getbits36_1  (words[5], 25), getbits36_1  (words[5], 26),
                getbits36_1  (words[5], 27), getbits36_1  (words[5], 28), getbits36_1  (words[5], 29), getbits36_6  (words[5], 30));
-    sim_debug (DBG_FAULT, & cpu_dev, "CU: iwb %012"PRIo64" irodd %012"PRIo64"\n",
+    sim_debug (DBG_FAULT, & cpu_dev,
+               "CU: iwb %012"PRIo64" irodd %012"PRIo64"\n",
                words[6], words[7]);
   }
 
@@ -433,7 +436,8 @@ static void scu2words (word36 *words)
 
     putbits36_18 (& words[4],  0, cpu.PPR.IC);
 
-// According the AL39, the Hex Mode bit should be 0, but ISOLTS pas2 exec checks it; this code does not set it to zero and indicated by AL39.
+// According the AL39, the Hex Mode bit should be 0, but ISOLTS pas2 exec checks it;
+//  this code does not set it to zero and indicated by AL39.
 
     putbits36_18 (& words[4], 18, cpu.cu.IR);
 
@@ -509,49 +513,71 @@ static void scu2words (word36 *words)
         }
         rewrite_table[] =
           {
-            { { 0000001400021, 0000000000011, 0000001000100, 0000000000000, 0000016400000, 0110015000500, 0110015011000, 0110015011000 },
-              { 0000001400011, 0000000000011, 0000001000100, 0000000000000, 0000016400000, 0110015000100, 0110015011000, 0110015011000 },
-              "pa865 test-03a inhibit", //                                                           rfi
+            { { 0000001400021, 0000000000011, 0000001000100, 0000000000000,
+                0000016400000, 0110015000500, 0110015011000, 0110015011000 },
+              { 0000001400011, 0000000000011, 0000001000100, 0000000000000,
+                0000016400000, 0110015000100, 0110015011000, 0110015011000 },
+              "pa865 test-03a inhibit", //                                                          rfi
             },
-            { { 0000000401001, 0000000000041, 0000001000100, 0000000000000, 0101175000220, 0000006000000, 0100006235100, 0100006235100 },
-              { 0000000601001, 0000000000041, 0000001000100, 0000000000000, 0101175000220, 0000006000000, 0100006235100, 0100006235100 },
+            { { 0000000401001, 0000000000041, 0000001000100, 0000000000000,
+                0101175000220, 0000006000000, 0100006235100, 0100006235100 },
+              { 0000000601001, 0000000000041, 0000001000100, 0000000000000,
+                0101175000220, 0000006000000, 0100006235100, 0100006235100 },
               "pa870 test-01a dir. fault",
             },
-            { { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000003000000, 0200003716100, 0000005755000 },
-              { 0000000651001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000003000000, 0200003716100, 0000005755000 },
+            { { 0000000451001, 0000000000041, 0000001000100, 0000000000000,
+                0000000200200, 0000003000000, 0200003716100, 0000005755000 },
+              { 0000000651001, 0000000000041, 0000001000100, 0000000000000,
+                0000000200200, 0000003000000, 0200003716100, 0000005755000 },
               "pa885 test-05a xec inst",
             },
-            { { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000002000000, 0200002717100, 0110002001000 },
-              { 0000000651001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000002000000, 0200002717100, 0110002001000 },
+            { { 0000000451001, 0000000000041, 0000001000100, 0000000000000,
+                0000000200200, 0000002000000, 0200002717100, 0110002001000 },
+              { 0000000651001, 0000000000041, 0000001000100, 0000000000000,
+                0000000200200, 0000002000000, 0200002717100, 0110002001000 },
               "pa885 test-05b xed inst",
             },
-            { { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000004004000, 0200004235100, 0000005755000 },
-              { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000004002000, 0200004235100, 0000005755000 },
+            { { 0000000451001, 0000000000041, 0000001000100, 0000000000000,
+                0000000200200, 0000004004000, 0200004235100, 0000005755000 },
+              { 0000000451001, 0000000000041, 0000001000100, 0000000000000,
+                0000000200200, 0000004002000, 0200004235100, 0000005755000 },
               "pa885 test-05c xed inst", //                                                         xde/xdo
             },
-            { { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000001200200, 0000004006000, 0200004235100, 0000005755000 },
-              { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000001200200, 0000004002000, 0200004235100, 0000005755000 },
+            { { 0000000451001, 0000000000041, 0000001000100, 0000000000000,
+                0000001200200, 0000004006000, 0200004235100, 0000005755000 },
+              { 0000000451001, 0000000000041, 0000001000100, 0000000000000,
+                0000001200200, 0000004002000, 0200004235100, 0000005755000 },
               "pa885 test-05d xed inst", //                                                         xde/xdo
             },
-            { { 0000000454201, 0000000000041, 0000000000100, 0000000000000, 0001777200200, 0002000000500, 0005600560201, 0005600560201 },
-              { 0000000450201, 0000000000041, 0000000000100, 0000000000000, 0001777200200, 0002000000000, 0005600560201, 0005600560201 },
+            { { 0000000454201, 0000000000041, 0000000000100, 0000000000000,
+                0001777200200, 0002000000500, 0005600560201, 0005600560201 },
+              { 0000000450201, 0000000000041, 0000000000100, 0000000000000,
+                0001777200200, 0002000000000, 0005600560201, 0005600560201 },
               "pa885 test-06a rpd inst", //                                                         rfi/fif
             },
-            { { 0000000451001, 0000000000041, 0000001000101, 0000000000000, 0002000200200, 0000003500001, 0200003235111, 0002005755012 },
-              { 0000000651001, 0000000000041, 0000001000101, 0000000000000, 0002000202200, 0000003500000, 0200003235111, 0002005755012 },
-              "pa885 test-06b rpd inst", //                                          tro               ct-hold
+            { { 0000000451001, 0000000000041, 0000001000101, 0000000000000,
+                0002000200200, 0000003500001, 0200003235111, 0002005755012 },
+              { 0000000651001, 0000000000041, 0000001000101, 0000000000000,
+                0002000202200, 0000003500000, 0200003235111, 0002005755012 },
+              "pa885 test-06b rpd inst", //                                       tro               ct-hold
             },
-            { { 0000000450201, 0000000000041, 0000000000101, 0000000000000, 0001776200200, 0002015500001, 0002015235031, 0002017755032 },
-              { 0000000450201, 0000000000041, 0000000000101, 0000000000000, 0001776202200, 0002015500000, 0002015235031, 0002017755032 },
-              "pa885 test-06c rpd inst", //                                          tro               ct-hold
+            { { 0000000450201, 0000000000041, 0000000000101, 0000000000000,
+                0001776200200, 0002015500001, 0002015235031, 0002017755032 },
+              { 0000000450201, 0000000000041, 0000000000101, 0000000000000,
+                0001776202200, 0002015500000, 0002015235031, 0002017755032 },
+              "pa885 test-06c rpd inst", //                                       tro               ct-hold
             },
-            { { 0000000450201, 0000000000041, 0000000000101, 0000000000000, 0001776000200, 0002000100012, 0001775235011, 0001775755012 },
-              { 0000000450201, 0000000000041, 0000000000101, 0000000000000, 0001776000200, 0002000100000, 0001775235011, 0001775755012 },
-              "pa885 test-06d rpd inst", //                                                            ct-hold
+            { { 0000000450201, 0000000000041, 0000000000101, 0000000000000,
+                0001776000200, 0002000100012, 0001775235011, 0001775755012 },
+              { 0000000450201, 0000000000041, 0000000000101, 0000000000000,
+                0001776000200, 0002000100000, 0001775235011, 0001775755012 },
+              "pa885 test-06d rpd inst", //                                                         ct-hold
             },
-            { { 0000000404202, 0000000000041, 0000000000100, 0000000000000, 0002000202200, 0002000000500, 0001773755000, 0001773755000 },
-              { 0000000400202, 0000000000041, 0000000000100, 0000000000000, 0002000202200, 0002000000100, 0001773755000, 0001773755000 },
-              "pa885 test-10a scu snap (acv fault)", //                                              rfi
+            { { 0000000404202, 0000000000041, 0000000000100, 0000000000000,
+                0002000202200, 0002000000500, 0001773755000, 0001773755000 },
+              { 0000000400202, 0000000000041, 0000000000100, 0000000000000,
+                0002000202200, 0002000000100, 0001773755000, 0001773755000 },
+              "pa885 test-10a scu snap (acv fault)", //                                             rfi
             }
           };
         int i;
@@ -1491,27 +1517,32 @@ t_stat executeInstruction (void) {
   // If executing the target of XEC/XED, check the instruction is allowed
   if (unlikely (cpu.isXED)) {
     if (flags & NO_XED)
-      doFault (FAULT_IPR, fst_ill_proc, "Instruction not allowed in XEC/XED");
+      doFault (FAULT_IPR, fst_ill_proc,
+               "Instruction not allowed in XEC/XED");
     // The even instruction from C(Y-pair) must not alter
     // C(Y-pair)36,71, and must not be another xed instruction.
     if (opcode == 0717 && !opcodeX && cpu.cu.xde && cpu.cu.xdo /* even instruction being executed */)
-      doFault (FAULT_IPR, fst_ill_proc, "XED of XED on even word");
+      doFault (FAULT_IPR, fst_ill_proc,
+               "XED of XED on even word");
     // ISOLTS 791 03k, 792 03k
     if (opcode == 0560 && !opcodeX) {
       // To Execute Double (XED) the RPD instruction, the RPD must be the second
       // instruction at an odd-numbered address.
       if (cpu.cu.xde && cpu.cu.xdo /* even instr being executed */)
-        doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC}, "XED of RPD on even word");
+        doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC},
+                 "XED of RPD on even word");
       // To execute an instruction pair having an rpd instruction as the odd
       // instruction, the xed instruction must be located at an odd address.
       if (!cpu.cu.xde && cpu.cu.xdo /* odd instr being executed */ && !(cpu.PPR.IC & 1))
-        doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC}, "XED of RPD on odd word, even IC");
+        doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC},
+                 "XED of RPD on odd word, even IC");
     }
   } else if (unlikely (cpu.isExec)) {
     // To execute a rpd instruction, the xec instruction must be in an odd location.
     // ISOLTS 768 01w
     if (opcode == 0560 && !opcodeX && cpu.cu.xde && !(cpu.PPR.IC & 1))
-      doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC}, "XEC of RPx on even word");
+      doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC},
+               "XEC of RPx on even word");
   }
 
   // ISOLTS wants both the not allowed in RPx and RPx illegal modifier
@@ -1548,7 +1579,8 @@ t_stat executeInstruction (void) {
       // ISOLTS 792 03e
       // this is really strange. possibly a bug in DPS8M HW (L68 handles it the same as all other instructions)
       if (RPx_fault && !opcodeX && opcode==0413) // rscr
-        doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=RPx_fault}, "DPS8M rscr early raise");
+        doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=RPx_fault},
+                 "DPS8M rscr early raise");
     )
 
     // Instruction not allowed in RPx?
@@ -1574,7 +1606,8 @@ t_stat executeInstruction (void) {
 
   // PVS-Studio says: Expression 'RPx_fault != 0' is always false.
   if (unlikely (RPx_fault != 0)) //-V547
-    doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=RPx_fault}, "RPx test fail");
+    doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=RPx_fault},
+             "RPx test fail");
 
   ///                     check for illegal addressing mode(s) ...
   ///
@@ -1609,7 +1642,8 @@ t_stat executeInstruction (void) {
   L68_ (
     // L68 raises it immediately
     if (mod_fault)
-      doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=mod_fault}, "Illegal modifier");
+      doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+               "Illegal modifier");
    )
 
   // check for priv ins - Attempted execution in normal or BAR modes causes a
@@ -1619,7 +1653,8 @@ t_stat executeInstruction (void) {
       // DPS8M illegal instructions lptp,lptr,lsdp,lsdr
       // ISOLTS 890 05abc
       if (((opcode == 0232 || opcode == 0173) && opcodeX ) || (opcode == 0257))
-        doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "Attempted execution of multics privileged instruction.");
+        doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault},
+                 "Attempted execution of multics privileged instruction.");
     )
 
     if (!is_priv_mode ()) {
@@ -1640,12 +1675,15 @@ t_stat executeInstruction (void) {
       if (prv) {
         if (!get_bar_mode ()) {
           // ISOLTS-890 05ab
-          doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_SLV|mod_fault}, "Attempted execution of multics privileged instruction.");
+          doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_SLV|mod_fault},
+                   "Attempted execution of multics privileged instruction.");
         } else {
-          doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "Attempted execution of multics privileged instruction.");
+          doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault},
+                   "Attempted execution of multics privileged instruction.");
         }
       }
-      doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_SLV|mod_fault}, "Attempted execution of privileged instruction.");
+      doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_SLV|mod_fault},
+               "Attempted execution of privileged instruction.");
     }
   }
 
@@ -1655,16 +1693,19 @@ t_stat executeInstruction (void) {
       // ISOLTS 890 06a
       // ISOLTS says that L68 handles this in the same way
       if (opcode == 0230 && !opcodeX)
-        doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_SLV|mod_fault}, "Attempted BAR execution of nonprivileged instruction.");
+        doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_SLV|mod_fault},
+                 "Attempted BAR execution of nonprivileged instruction.");
       else
-        doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "Attempted BAR execution of nonprivileged instruction.");
+        doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault},
+                 "Attempted BAR execution of nonprivileged instruction.");
     }
   }
 
   DPS8M_ (
     // DPS8M raises it delayed
     if (unlikely (mod_fault != 0))
-      doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=mod_fault}, "Illegal modifier");
+      doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+               "Illegal modifier");
   )
 
 ///
@@ -1791,8 +1832,12 @@ restart_1:
 //  instruction.
 //
 
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "RPT/RPD first %d rpt %d rd %d e/o %d X0 %06o a %d b %d\n", cpu.cu.repeat_first, cpu.cu.rpt, cpu.cu.rd, cpu.PPR.IC & 1, cpu.rX[0], !! (cpu.rX[0] & 01000), !! (cpu.rX[0] & 0400));
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "RPT/RPD CA %06o\n", cpu.TPR.CA);
+    sim_debug (DBG_TRACEEXT, & cpu_dev,
+               "RPT/RPD first %d rpt %d rd %d e/o %d X0 %06o a %d b %d\n",
+               cpu.cu.repeat_first, cpu.cu.rpt, cpu.cu.rd, cpu.PPR.IC & 1, cpu.rX[0],
+               !! (cpu.rX[0] & 01000), !! (cpu.rX[0] & 0400));
+    sim_debug (DBG_TRACEEXT, & cpu_dev,
+               "RPT/RPD CA %06o\n", cpu.TPR.CA);
 
 // Handle first time of a RPT or RPD
 
@@ -1903,7 +1948,9 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
       word15 offset = GET_OFFSET(IWB_IRODD);
       CPTUR (cptUsePRn + n);
 
-      sim_debug (DBG_APPENDING, &cpu_dev, "doPtrReg: PR[%o] SNR=%05o RNR=%o WORDNO=%06o " "BITNO=%02o\n", n, cpu.PAR[n].SNR, cpu.PAR[n].RNR, cpu.PAR[n].WORDNO, GET_PR_BITNO (n));
+      sim_debug (DBG_APPENDING, &cpu_dev,
+                 "doPtrReg: PR[%o] SNR=%05o RNR=%o WORDNO=%06o " "BITNO=%02o\n",
+                 n, cpu.PAR[n].SNR, cpu.PAR[n].RNR, cpu.PAR[n].WORDNO, GET_PR_BITNO (n));
 
 // Fix tst880: 'call6 pr1|0'. The instruction does a DF1; the fault handler
 // updates PRR in the CU save data. On restart, TRR is not updated.
@@ -1918,7 +1965,9 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
       else
         cpu.TPR.TRR = max3 (cpu.PAR[n].RNR, cpu.TPR.TRR, cpu.PPR.PRR);
 
-      sim_debug (DBG_APPENDING, &cpu_dev, "doPtrReg: n=%o offset=%05o TPR.CA=%06o " "TPR.TBR=%o TPR.TSR=%05o TPR.TRR=%o\n", n, offset, cpu.TPR.CA, cpu.TPR.TBR, cpu.TPR.TSR, cpu.TPR.TRR);
+      sim_debug (DBG_APPENDING, &cpu_dev,
+                 "doPtrReg: n=%o offset=%05o TPR.CA=%06o " "TPR.TBR=%o TPR.TSR=%05o TPR.TRR=%o\n",
+                 n, offset, cpu.TPR.CA, cpu.TPR.TBR, cpu.TPR.TSR, cpu.TPR.TRR);
       //}
 
 // Putting the a29 clear here makes sense, but breaks the emulator for unclear
@@ -2063,7 +2112,9 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
       bool rptA = !! (cpu.rX[0] & 01000);
       bool rptB = !! (cpu.rX[0] & 00400);
 
-      sim_debug (DBG_TRACEEXT, & cpu_dev, "RPT/RPD delta first %d rf %d rpt %d rd %d " "e/o %d X0 %06o a %d b %d\n", cpu.cu.repeat_first, rf, cpu.cu.rpt, cpu.cu.rd, icOdd, cpu.rX[0], rptA, rptB);
+      sim_debug (DBG_TRACEEXT, & cpu_dev,
+                 "RPT/RPD delta first %d rf %d rpt %d rd %d " "e/o %d X0 %06o a %d b %d\n",
+                 cpu.cu.repeat_first, rf, cpu.cu.rpt, cpu.cu.rd, icOdd, cpu.rX[0], rptA, rptB);
 
       if (cpu.cu.rpt) { // rpt
         CPT (cpt2L, 8); // RPT delta
@@ -2248,19 +2299,28 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
 
   if_sim_debug (DBG_REGDUMP, & cpu_dev) {
     char buf [256];
-    sim_debug (DBG_REGDUMPAQI, &cpu_dev, "A=%012"PRIo64" Q=%012"PRIo64" IR:%s\n", cpu.rA, cpu.rQ, dump_flags (buf, cpu.cu.IR));
+    sim_debug (DBG_REGDUMPAQI, &cpu_dev, "A=%012"PRIo64" Q=%012"PRIo64" IR:%s\n",
+               cpu.rA, cpu.rQ, dump_flags (buf, cpu.cu.IR));
 #if !defined(__MINGW64__) || !defined(__MINGW32__)
-    sim_debug (DBG_REGDUMPFLT, &cpu_dev, "E=%03o A=%012"PRIo64" Q=%012"PRIo64" %.10Lg\n", cpu.rE, cpu.rA, cpu.rQ, EAQToIEEElongdouble ());
+    sim_debug (DBG_REGDUMPFLT, &cpu_dev, "E=%03o A=%012"PRIo64" Q=%012"PRIo64" %.10Lg\n",
+               cpu.rE, cpu.rA, cpu.rQ, EAQToIEEElongdouble ());
 #else
-    sim_debug (DBG_REGDUMPFLT, &cpu_dev, "E=%03o A=%012"PRIo64" Q=%012"PRIo64" %.10g\n", cpu.rE, cpu.rA, cpu.rQ, EAQToIEEEdouble ());
+    sim_debug (DBG_REGDUMPFLT, &cpu_dev, "E=%03o A=%012"PRIo64" Q=%012"PRIo64" %.10g\n",
+               cpu.rE, cpu.rA, cpu.rQ, EAQToIEEEdouble ());
 #endif
-    sim_debug (DBG_REGDUMPIDX, &cpu_dev, "X[0]=%06o X[1]=%06o X[2]=%06o X[3]=%06o\n", cpu.rX[0], cpu.rX[1], cpu.rX[2], cpu.rX[3]);
-    sim_debug (DBG_REGDUMPIDX, &cpu_dev, "X[4]=%06o X[5]=%06o X[6]=%06o X[7]=%06o\n", cpu.rX[4], cpu.rX[5], cpu.rX[6], cpu.rX[7]);
+    sim_debug (DBG_REGDUMPIDX, &cpu_dev, "X[0]=%06o X[1]=%06o X[2]=%06o X[3]=%06o\n",
+               cpu.rX[0], cpu.rX[1], cpu.rX[2], cpu.rX[3]);
+    sim_debug (DBG_REGDUMPIDX, &cpu_dev, "X[4]=%06o X[5]=%06o X[6]=%06o X[7]=%06o\n",
+               cpu.rX[4], cpu.rX[5], cpu.rX[6], cpu.rX[7]);
     for (int n = 0 ; n < 8 ; n++) {
-      sim_debug (DBG_REGDUMPPR, &cpu_dev, "PR%d/%s: SNR=%05o RNR=%o WORDNO=%06o BITNO:%02o ARCHAR:%o ARBITNO:%02o\n", n, PRalias[n], cpu.PR[n].SNR, cpu.PR[n].RNR, cpu.PR[n].WORDNO, GET_PR_BITNO (n), GET_AR_CHAR (n), GET_AR_BITNO (n));
+      sim_debug (DBG_REGDUMPPR, &cpu_dev, "PR%d/%s: SNR=%05o RNR=%o WORDNO=%06o BITNO:%02o ARCHAR:%o ARBITNO:%02o\n",
+                 n, PRalias[n], cpu.PR[n].SNR, cpu.PR[n].RNR, cpu.PR[n].WORDNO,
+                 GET_PR_BITNO (n), GET_AR_CHAR (n), GET_AR_BITNO (n));
     }
-    sim_debug (DBG_REGDUMPPPR, &cpu_dev, "PRR:%o PSR:%05o P:%o IC:%06o\n", cpu.PPR.PRR, cpu.PPR.PSR, cpu.PPR.P, cpu.PPR.IC);
-    sim_debug (DBG_REGDUMPDSBR, &cpu_dev, "ADDR:%08o BND:%05o U:%o STACK:%04o\n", cpu.DSBR.ADDR, cpu.DSBR.BND, cpu.DSBR.U, cpu.DSBR.STACK);
+    sim_debug (DBG_REGDUMPPPR, &cpu_dev, "PRR:%o PSR:%05o P:%o IC:%06o\n",
+               cpu.PPR.PRR, cpu.PPR.PSR, cpu.PPR.P, cpu.PPR.IC);
+    sim_debug (DBG_REGDUMPDSBR, &cpu_dev, "ADDR:%08o BND:%05o U:%o STACK:%04o\n",
+               cpu.DSBR.ADDR, cpu.DSBR.BND, cpu.DSBR.U, cpu.DSBR.STACK);
   }
 
 ///
@@ -9702,7 +9762,8 @@ void doRCU (void)
   {
 #ifdef LOOPTRC
 elapsedtime ();
- sim_printf (" rcu to %05o:%06o  PSR:IC %05o:%06o\r\n",  (cpu.Yblock8[0]>>18)&MASK15, (cpu.Yblock8[4]>>18)&MASK18, cpu.PPR.PSR, cpu.PPR.IC);
+ sim_printf (" rcu to %05o:%06o  PSR:IC %05o:%06o\r\n",
+             (cpu.Yblock8[0]>>18)&MASK15, (cpu.Yblock8[4]>>18)&MASK18, cpu.PPR.PSR, cpu.PPR.IC);
 #endif
 
     if_sim_debug (DBG_FAULT, & cpu_dev)
@@ -9762,31 +9823,32 @@ elapsedtime ();
 // fault     fault  mnemonic   name             priority group  handler
 // number   address
 //   0         0      sdf      Shutdown               27 7
-//   1         2      str      Store                  10 4                                  get_BAR_address, instruction execution
-//   2         4      mme      Master mode entry 1    11 5      JMP_SYNC_FAULT_RETURN       instruction execution
-//   3         6      f1       Fault tag 1            17 5      (JMP_REFETCH/JMP_RESTART)   do_caf
-//   4        10      tro      Timer runout           26 7      JMP_REFETCH                 FETCH_cycle
-//   5        12      cmd      Command                 9 4      JMP_REFETCH/JMP_RESTART     instruction execution
-//   6        14      drl      Derail                 15 5      JMP_REFETCH/JMP_RESTART     instruction execution
-//   7        16      luf      Lockup                  5 4      JMP_REFETCH                 do_caf, FETCH_cycle
-//   8        20      con      Connect                25 7      JMP_REFETCH                 FETCH_cycle
+//   1         2      str      Store                  10 4                                 get_BAR_address, instruction execution
+//   2         4      mme      Master mode entry 1    11 5      JMP_SYNC_FAULT_RETURN      instruction execution
+//   3         6      f1       Fault tag 1            17 5      (JMP_REFETCH/JMP_RESTART)  do_caf
+//   4        10      tro      Timer runout           26 7      JMP_REFETCH                FETCH_cycle
+//   5        12      cmd      Command                 9 4      JMP_REFETCH/JMP_RESTART    instruction execution
+//   6        14      drl      Derail                 15 5      JMP_REFETCH/JMP_RESTART    instruction execution
+//   7        16      luf      Lockup                  5 4      JMP_REFETCH                do_caf, FETCH_cycle
+//   8        20      con      Connect                25 7      JMP_REFETCH                FETCH_cycle
 //   9        22      par      Parity                  8 4
-//  10        24      ipr      Illegal procedure      16 5                                  doITSITP, do_caf, instruction execution
-//  11        26      onc      Operation not complete  4 2                                  nem_check, instruction execution
+//  10        24      ipr      Illegal procedure      16 5                                 doITSITP, do_caf, instruction execution
+//  11        26      onc      Operation not complete  4 2                                 nem_check, instruction execution
 //  12        30      suf      Startup                 1 1
-//  13        32      ofl      Overflow                7 3      JMP_REFETCH/JMP_RESTART     instruction execution
-//  14        34      div      Divide check            6 3                                  instruction execution
-//  15        36      exf      Execute                 2 1      JMP_REFETCH/JMP_RESTART     FETCH_cycle
-//  16        40      df0      Directed fault 0       20 6      JMP_REFETCH/JMP_RESTART     getSDW, do_append_cycle
-//  17        42      df1      Directed fault 1       21 6      JMP_REFETCH/JMP_RESTART     getSDW, do_append_cycle
-//  18        44      df2      Directed fault 2       22 6      (JMP_REFETCH/JMP_RESTART)   getSDW, do_append_cycle
-//  19        46      df3      Directed fault 3       23 6      JMP_REFETCH/JMP_RESTART     getSDW, do_append_cycle
-//  20        50      acv      Access violation       24 6      JMP_REFETCH/JMP_RESTART     fetchDSPTW, modifyDSPTW, fetchNSDW, do_append_cycle, EXEC_cycle (ring alarm)
-//  21        52      mme2     Master mode entry 2    12 5      JMP_SYNC_FAULT_RETURN       instruction execution
-//  22        54      mme3     Master mode entry 3    13 5      (JMP_SYNC_FAULT_RETURN)     instruction execution
-//  23        56      mme4     Master mode entry 4    14 5      (JMP_SYNC_FAULT_RETURN)     instruction execution
-//  24        60      f2       Fault tag 2            18 5      JMP_REFETCH/JMP_RESTART     do_caf
-//  25        62      f3       Fault tag 3            19 5      JMP_REFETCH/JMP_RESTART     do_caf
+//  13        32      ofl      Overflow                7 3      JMP_REFETCH/JMP_RESTART    instruction execution
+//  14        34      div      Divide check            6 3                                 instruction execution
+//  15        36      exf      Execute                 2 1      JMP_REFETCH/JMP_RESTART    FETCH_cycle
+//  16        40      df0      Directed fault 0       20 6      JMP_REFETCH/JMP_RESTART    getSDW, do_append_cycle
+//  17        42      df1      Directed fault 1       21 6      JMP_REFETCH/JMP_RESTART    getSDW, do_append_cycle
+//  18        44      df2      Directed fault 2       22 6      (JMP_REFETCH/JMP_RESTART)  getSDW, do_append_cycle
+//  19        46      df3      Directed fault 3       23 6      JMP_REFETCH/JMP_RESTART    getSDW, do_append_cycle
+//  20        50      acv      Access violation       24 6      JMP_REFETCH/JMP_RESTART    fetchDSPTW, modifyDSPTW, fetchNSDW,
+//                                                                                          do_append_cycle, EXEC_cycle (ring alarm)
+//  21        52      mme2     Master mode entry 2    12 5      JMP_SYNC_FAULT_RETURN      instruction execution
+//  22        54      mme3     Master mode entry 3    13 5      (JMP_SYNC_FAULT_RETURN)    instruction execution
+//  23        56      mme4     Master mode entry 4    14 5      (JMP_SYNC_FAULT_RETURN)    instruction execution
+//  24        60      f2       Fault tag 2            18 5      JMP_REFETCH/JMP_RESTART    do_caf
+//  25        62      f3       Fault tag 3            19 5      JMP_REFETCH/JMP_RESTART    do_caf
 //  26        64               Unassigned
 //  27        66               Unassigned
 //  28        70               Unassigned

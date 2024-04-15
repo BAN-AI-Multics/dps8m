@@ -298,7 +298,8 @@ int udp_create (const char * premote, int * pln)
      //udp_tmxr.last_poll_time = 1;          // h316'a use of TMXR doesn't poll periodically for connects
      //tmxr_poll_conn (&udp_tmxr);           // force connection initialization now
      //udp_tmxr.last_poll_time = 1;          // h316'a use of TMXR doesn't poll periodically for connects
-     //sim_debug(IMP_DBG_UDP, dptr, "link %d - listening on port %s and sending to %s\n", link, udp_links[link].lport, udp_links[link].rhostport);
+     //sim_debug(IMP_DBG_UDP, dptr, "link %d - listening on port %s and sending to %s\n",
+     //          link, udp_links[link].lport, udp_links[link].rhostport);
 (void)printf ("link %d - listening on port %s and sending to %s:%s\n",
               link, udp_links [link] . lport,
               udp_links [link] . rhost, udp_links [link] . rport);
@@ -449,20 +450,24 @@ int udp_receive (int link, uint16_t * pdata, uint16_t maxbuf)
         // First do some header checks for a valid UDP packet ...
         if (((size_t) pktlen) < UDP_HEADER_LEN)
           {
-            //sim_debug(IMP_DBG_UDP, dptr, "link %d - received packet w/o header (length=%d)\n", link, pktlen);
+            //sim_debug(IMP_DBG_UDP, dptr, "link %d - received packet w/o header (length=%d)\n",
+            //          link, pktlen);
             continue;
           }
         magic = ntohl (pkt . magic);
         if (magic != MAGIC)
           {
-            //sim_debug(IMP_DBG_UDP, dptr, "link %d - received packet w/bad magic number (magic=%08x)\n", link, magic);
+            //sim_debug(IMP_DBG_UDP, dptr, "link %d - received packet w/bad magic number (magic=%08x)\n",
+            //          link, magic);
             continue;
           }
         implen = ntohs (pkt . count);
         explen = (int32_t) UDP_HEADER_LEN + implen * (int32_t) sizeof (uint16_t);
         if (explen != pktlen)
           {
-            //sim_debug(IMP_DBG_UDP, dptr, "link %d - received packet length wrong (expected=%d received=%d)\n", link, explen, pktlen);
+            //sim_debug(IMP_DBG_UDP, dptr,
+            //          "link %d - received packet length wrong (expected=%d received=%d)\n",
+            //          link, explen, pktlen);
             continue;
           }
 
@@ -491,12 +496,16 @@ int udp_receive (int link, uint16_t * pdata, uint16_t maxbuf)
           }
         else if (pktseq < udp_links [link] . rxsequence)
           {
-            //sim_debug(IMP_DBG_UDP, dptr, "link %d - received packet out of sequence 1 (expected=%d received=%d\n", link, udp_links[link].rxsequence, pktseq);
+            //sim_debug(IMP_DBG_UDP, dptr,
+            //          "link %d - received packet out of sequence 1 (expected=%d received=%d\n",
+            //          link, udp_links[link].rxsequence, pktseq);
             continue;  // discard this packet!
           }
         else if (pktseq != udp_links [link] . rxsequence)
           {
-            //sim_debug(IMP_DBG_UDP, dptr, "link %d - received packet out of sequence 2 (expected=%d received=%d\n", link, udp_links[link].rxsequence, pktseq);
+            //sim_debug(IMP_DBG_UDP, dptr,
+            //          "link %d - received packet out of sequence 2 (expected=%d received=%d\n",
+            //          link, udp_links[link].rxsequence, pktseq);
           }
         udp_links [link] . rxsequence = pktseq + 1;
 
@@ -554,7 +563,9 @@ int udp_receive (int link, uint16_t * pdata, uint16_t maxbuf)
                         doesn't match the parsed host)
 */
 
-int sim_parse_addr (const char *cptr, char *host, size_t host_len, const char *default_host, char *port, size_t port_len, const char *default_port, const char *validate_addr)
+int sim_parse_addr \
+        (const char *cptr, char *host, size_t host_len, const char *default_host,
+         char *port, size_t port_len, const char *default_port, const char *validate_addr)
 {
 char gbuf[CBUFSIZE];
 char *hostp, *portp;

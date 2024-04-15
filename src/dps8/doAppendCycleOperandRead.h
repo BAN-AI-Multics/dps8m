@@ -133,7 +133,9 @@ static int evcnt = 0;
   bool cachedPaged;
   cacheHit = ucCacheCheck (this, cpu.TPR.TSR, cpu.TPR.CA, & cachedBound, & cachedP, & cachedAddress, & cachedR1, & cachedPaged);
 # if defined(HDBG)
-  hdbgNote ("doAppendCycleOperandRead.h", "test cache check %s %d %u %05o:%06o %05o %o %08o %o %o", cacheHit ? "hit" : "miss", evcnt, this, cpu.TPR.TSR, cpu.TPR.CA, cachedBound, cachedP, cachedAddress, cachedR1, cachedPaged);
+  hdbgNote ("doAppendCycleOperandRead.h", "test cache check %s %d %u %05o:%06o %05o %o %08o %o %o",
+            cacheHit ? "hit" : "miss", evcnt, this, cpu.TPR.TSR, cpu.TPR.CA, cachedBound,
+            cachedP, cachedAddress, cachedR1, cachedPaged);
 # endif /* if defined(HDBG) */
   goto miss;
 #else
@@ -380,7 +382,9 @@ E:;
   //
 
   DBGAPP ("doAppendCycleOperandRead(E): CALL6\n");
-  DBGAPP ("doAppendCycleOperandRead(E): E %o G %o PSR %05o TSR %05o CA %06o " "EB %06o R %o%o%o TRR %o PRR %o\n", cpu.SDW->E, cpu.SDW->G, cpu.PPR.PSR, cpu.TPR.TSR, cpu.TPR.CA, cpu.SDW->EB, cpu.SDW->R1, cpu.SDW->R2, cpu.SDW->R3, cpu.TPR.TRR, cpu.PPR.PRR);
+  DBGAPP ("doAppendCycleOperandRead(E): E %o G %o PSR %05o TSR %05o CA %06o " "EB %06o R %o%o%o TRR %o PRR %o\n",
+          cpu.SDW->E,  cpu.SDW->G,  cpu.PPR.PSR, cpu.TPR.TSR, cpu.TPR.CA, cpu.SDW->EB,
+          cpu.SDW->R1, cpu.SDW->R2, cpu.SDW->R3, cpu.TPR.TRR, cpu.PPR.PRR);
 
   //SDW.E set ON?
   if (! cpu.SDW->E) {
@@ -521,7 +525,8 @@ G:;
     cpu.acvFaults |= ACV15;
     PNL (L68_ (cpu.apu.state |= apu_FLT;))
     FMSG (acvFaultsMsg = "acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND";)
-    DBGAPP ("acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND\n" "   CA %06o CA>>4 & 037777 %06o SDW->BOUND %06o", cpu.TPR.CA, ((cpu.TPR.CA >> 4) & 037777), cpu.SDW->BOUND);
+    DBGAPP ("acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND\n" "   CA %06o CA>>4 & 037777 %06o SDW->BOUND %06o",
+            cpu.TPR.CA, ((cpu.TPR.CA >> 4) & 037777), cpu.SDW->BOUND);
   }
   bound = cpu.SDW->BOUND;
   p = cpu.SDW->P;
@@ -530,7 +535,8 @@ G:;
     DBGAPP ("doAppendCycleOperandRead(G) acvFaults\n");
     PNL (L68_ (cpu.apu.state |= apu_FLT;))
     // Initiate an access violation fault
-    doFault (FAULT_ACV, (_fault_subtype) {.fault_acv_subtype=cpu.acvFaults}, "ACV fault");
+    doFault (FAULT_ACV, (_fault_subtype) {.fault_acv_subtype=cpu.acvFaults},
+            "ACV fault");
   }
 
   // is segment C(TPR.TSR) paged?
@@ -546,7 +552,8 @@ G:;
     fetch_ptw (cpu.SDW, cpu.TPR.CA);
     if (! cpu.PTW0.DF) {
       // initiate a directed fault
-      doFault (FAULT_DF0 + cpu.PTW0.FC, (_fault_subtype) {.bits=0}, "PTW0.F == 0");
+      doFault (FAULT_DF0 + cpu.PTW0.FC, (_fault_subtype) {.bits=0},
+              "PTW0.F == 0");
     }
     loadPTWAM (cpu.SDW->POINTER, cpu.TPR.CA, nomatch); // load PTW0 to PTWAM
   }
@@ -585,14 +592,16 @@ H:;
 #if defined(HDBG)
   hdbgNote ("doAppendCycleOperandRead", "FANP");
 #endif /* if defined(HDBG) */
-  DBGAPP ("doAppendCycleOperandRead(H): SDW->ADDR=%08o CA=%06o \n", cpu.SDW->ADDR, cpu.TPR.CA);
+  DBGAPP ("doAppendCycleOperandRead(H): SDW->ADDR=%08o CA=%06o \n",
+          cpu.SDW->ADDR, cpu.TPR.CA);
 
   pageAddress = (cpu.SDW->ADDR & 077777760);
   finalAddress = (cpu.SDW->ADDR & 077777760) + cpu.TPR.CA;
   finalAddress &= 0xffffff;
   PNL (cpu.APUMemAddr = finalAddress;)
 
-  DBGAPP ("doAppendCycleOperandRead(H:FANP): (%05o:%06o) finalAddress=%08o\n", cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
+  DBGAPP ("doAppendCycleOperandRead(H:FANP): (%05o:%06o) finalAddress=%08o\n",
+          cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
 
   goto HI;
 
@@ -624,7 +633,8 @@ I:;
   if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
     add_APU_history (APUH_FAP);
 #endif /* if defined(L68) */
-  DBGAPP ("doAppendCycleOperandRead(H:FAP): (%05o:%06o) finalAddress=%08o\n", cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
+  DBGAPP ("doAppendCycleOperandRead(H:FAP): (%05o:%06o) finalAddress=%08o\n",
+          cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
 
   //goto HI;
 
@@ -635,36 +645,43 @@ HI:
   if (cacheHit) {
     bool err = false;
     if (cachedAddress != pageAddress) {
-     sim_printf ("cachedAddress %08o != pageAddress %08o\r\n", cachedAddress, pageAddress);
+     sim_printf ("cachedAddress %08o != pageAddress %08o\r\n",
+             cachedAddress, pageAddress);
      err = true;
     }
     if (cachedR1 != RSDWH_R1) {
-      sim_printf ("cachedR1 %01o != RSDWH_R1 %01o\r\n", cachedR1, RSDWH_R1);
+      sim_printf ("cachedR1 %01o != RSDWH_R1 %01o\r\n",
+              cachedR1, RSDWH_R1);
       err = true;
     }
     if (cachedBound != bound) {
-      sim_printf ("cachedBound %01o != bound %01o\r\n", cachedBound, bound);
+      sim_printf ("cachedBound %01o != bound %01o\r\n",
+              cachedBound, bound);
       err = true;
     }
     if (cachedPaged != paged) {
-      sim_printf ("cachedPaged %01o != paged %01o\r\n", cachedPaged, paged);
+      sim_printf ("cachedPaged %01o != paged %01o\r\n",
+              cachedPaged, paged);
       err = true;
     }
     if (err) {
 # if defined(HDBG)
       HDBGPrint ();
 # endif /* if defined(HDBG) */
-      sim_printf ("oprnd read err  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
+      sim_printf ("oprnd read err  %d %05o:%06o\r\n",
+              evcnt, cpu.TPR.TSR, cpu.TPR.CA);
       exit (1);
     }
     //sim_printf ("hit  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
 # if defined(HDBG)
-    hdbgNote ("doAppendCycleOperandRead.h", "test hit %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
+    hdbgNote ("doAppendCycleOperandRead.h", "test hit %d %05o:%06o\r\n",
+            evcnt, cpu.TPR.TSR, cpu.TPR.CA);
 # endif /* if defined(HDBG) */
   } else {
     //sim_printf ("miss %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
 # if defined(HDBG)
-    hdbgNote ("doAppendCycleOperandRead.h", "test miss %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
+    hdbgNote ("doAppendCycleOperandRead.h", "test miss %d %05o:%06o\r\n",
+            evcnt, cpu.TPR.TSR, cpu.TPR.CA);
 # endif /* if defined(HDBG) */
   }
 #endif
@@ -672,7 +689,8 @@ HI:
   ucCacheSave (this, cpu.TPR.TSR, cpu.TPR.CA, bound, p, pageAddress, RSDWH_R1, paged);
 #if defined(TEST_UCACHE)
 # if defined(HDBG)
-  hdbgNote ("doAppendCycleOperandRead.h", "cache %d %u %05o:%06o %05o %o %08o %o %o", evcnt, this, cpu.TPR.TSR, cpu.TPR.CA, bound, p, pageAddress, RSDWH_R1, paged);
+  hdbgNote ("doAppendCycleOperandRead.h", "cache %d %u %05o:%06o %05o %o %08o %o %o",
+          evcnt, this, cpu.TPR.TSR, cpu.TPR.CA, bound, p, pageAddress, RSDWH_R1, paged);
 # endif /* if defined(HDBG) */
 #endif /* if defined(TEST_UCACHE) */
 evcnt ++;

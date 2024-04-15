@@ -187,7 +187,8 @@ word24 doAppendCycleAPUDataRead (word36 * data, uint nWords) {
     cpu.acvFaults |= ACV15;
     PNL (L68_ (cpu.apu.state |= apu_FLT;))
     FMSG (acvFaultsMsg = "acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND";)
-    DBGAPP ("acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND\n" "   CA %06o CA>>4 & 037777 %06o SDW->BOUND %06o", cpu.TPR.CA, ((cpu.TPR.CA >> 4) & 037777), cpu.SDW->BOUND);
+    DBGAPP ("acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND\n" "   CA %06o CA>>4 & 037777 %06o SDW->BOUND %06o",
+            cpu.TPR.CA, ((cpu.TPR.CA >> 4) & 037777), cpu.SDW->BOUND);
   }
 
   if (cpu.acvFaults) {
@@ -218,7 +219,8 @@ word24 doAppendCycleAPUDataRead (word36 * data, uint nWords) {
   // ISOLTS-878 02: mvn,cmpn,mvne,ad3d; obviously also
   // ad2/3d,sb2/3d,mp2/3d,dv2/3d
   // DH03 p.8-13: probably also mve,btd,dtb
-  if (i->opcodeX && ((i->opcode & 0770)== 0200|| (i->opcode & 0770) == 0220 || (i->opcode & 0770)== 020|| (i->opcode & 0770) == 0300)) {
+  if (i->opcodeX && ((i->opcode & 0770)== 0200 || (i->opcode & 0770) == 0220 || \
+                     (i->opcode & 0770)== 020  || (i->opcode & 0770) == 0300)) {
     do_ptw2 (cpu.SDW, cpu.TPR.CA);
   }
   goto I;

@@ -707,14 +707,17 @@ typedef enum _fault _fault;
 
     // FAULT_ONC
 
-    //da_err,     // Operation not complete. Processor/system controller interface sequence error 1 has been detected. (Yeah, right)
-    //da_err2,    // Operation not completed. Processor/system controller interface sequence error 2 has been detected.
+    //da_err,     // Operation not complete. Processor/system controller interface
+    //                                       sequence error 1 has been detected. (Yeah, right)
+    //da_err2,    // Operation not completed. Processor/system controller interface
+    //                                        sequence error 2 has been detected.
 
     // Misc
 
     //cpar_dir,   // A parity error has been detected in the cache memory directory. (Not likely)
     //cpar_str,   // PAR fault. A data parity error has been detected in the cache memory.
-    //cpar_ia,    // PAR fault. An illegal action has been received from a system controller during a store operation with cache memory enabled.
+    //cpar_ia,    // PAR fault. An illegal action has been received from a system controller
+    //                          during a store operation with cache memory enabled.
     //cpar_blk,   // PAR fault. A cache memory parity error has occurred during a cache memory data block load.
 
     // odd word

@@ -2590,13 +2590,13 @@ void list_source (char * compname, word18 offset, uint dflag)
                     foundTable = true;
                     // Found the table
                     // Table lines look like
-                    //     "     13 000705       275 000713  ...
+                    //     "     13 000705    275 000713 ...
                     // But some times
-                    //     "     10 000156   21   84 000164
-                    //     "      8 000214        65 000222    4   84 000225
+                    //     "     10 000156 21  84 000164
+                    //     "      8 000214     65 000222   4  84 000225
                     //
-                    //     "    349 001442       351 001445       353 001454    1    9 001456    1   11 001461    1   12 001463    1   13 001470
-                    //     " 1   18 001477       357 001522       361 001525       363 001544       364 001546       365 001547       366 001553
+                    //     "    349 001442    351 001445     353 001454 1   9 001456 1  11 001461 1  12 001463 1  13 001470
+                    //     " 1   18 001477    357 001522     361 001525   363 001544   364 001546   365 001547   366 001553
 
                     //  I think the numbers refer to include files...
                     //   But of course the format is slightly off...
@@ -4045,7 +4045,8 @@ static void usr1_signal_handler (UNUSED int sig)
     setG7fault (ASSUME0, FAULT_EXF, fst_zero);
     return;
   }
-# endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) && !defined(PERF_STRIP) */
+# endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && \
+              !defined(CROSS_MINGW32) && !defined(PERF_STRIP) */
 
 static struct symbol_s symbols [] = {
     { "commit_id",              SYM_STATE_OFFSET,  SYM_STRING,    offsetof (struct system_state_s, commit_id)   },

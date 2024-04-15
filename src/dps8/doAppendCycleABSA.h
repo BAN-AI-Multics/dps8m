@@ -208,7 +208,8 @@ word24 doAppendCycleABSA (word36 * data, uint nWords) {
   // ISOLTS-878 02: mvn,cmpn,mvne,ad3d; obviously also
   // ad2/3d,sb2/3d,mp2/3d,dv2/3d
   // DH03 p.8-13: probably also mve,btd,dtb
-  if (i->opcodeX && ((i->opcode & 0770)== 0200|| (i->opcode & 0770) == 0220 || (i->opcode & 0770)== 020|| (i->opcode & 0770) == 0300)) {
+  if (i->opcodeX && ((i->opcode & 0770)== 0200|| (i->opcode & 0770) == 0220 || \
+                     (i->opcode & 0770)== 020 || (i->opcode & 0770) == 0300)) {
     do_ptw2 (cpu.SDW, cpu.TPR.CA);
   }
   goto I;

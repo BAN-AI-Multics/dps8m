@@ -198,7 +198,8 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
                     'A' + i, cpus[cpu_unit_idx].switches.store_size [i]);
       }
     sim_msg ("Processor mode:               %s [%o]\n",
-                cpus[cpu_unit_idx].switches.procMode == procModeMultics ? "Multics" : cpus[cpu_unit_idx].switches.procMode == procModeGCOS ? "GCOS" : "???",
+                cpus[cpu_unit_idx].switches.procMode == \
+                    procModeMultics ? "Multics" : cpus[cpu_unit_idx].switches.procMode == procModeGCOS ? "GCOS" : "???",
                 cpus[cpu_unit_idx].switches.procMode);
     sim_msg ("8K Cache:                     %s\n",
                 cpus[cpu_unit_idx].switches.enable_cache ? "Enabled" : "Disabled");
@@ -243,7 +244,8 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
 #endif
     sim_msg ("ISOLTS mode:                  %01o(8)\n", cpus[cpu_unit_idx].tweaks.isolts_mode);
     sim_msg ("NODIS mode:                   %01o(8)\n", cpus[cpu_unit_idx].tweaks.nodis);
-    sim_msg ("6180 mode:                    %01o(8) [%s]\n", cpus[cpu_unit_idx].tweaks.l68_mode, cpus[cpu_unit_idx].tweaks.l68_mode ? "6180" : "DPS8/M");
+    sim_msg ("6180 mode:                    %01o(8) [%s]\n",
+             cpus[cpu_unit_idx].tweaks.l68_mode, cpus[cpu_unit_idx].tweaks.l68_mode ? "6180" : "DPS8/M");
     return SCPE_OK;
   }
 
@@ -4719,9 +4721,12 @@ void setupPROM (uint cpuNo, unsigned char * PROM) {
 #  define VER_H_PROM_TSA_TEXT "AArch32/ARM32/32-bit"
 # elif defined(__ia64__) || defined(_M_IA64) || defined(__itanium__)
 #  define VER_H_PROM_TSA_TEXT "Intel Itanium (IA64)"
-# elif defined(__ppc64__) || defined(__PPC64__) || defined(__ppc64le__) || defined(__PPC64LE__) || defined(__powerpc64__) || defined(__POWERPC64__) || defined(_M_PPC64) || defined(__PPC64) || defined(_ARCH_PPC64)
+# elif defined(__ppc64__) || defined(__PPC64__) || defined(__ppc64le__) || defined(__PPC64LE__) || \
+       defined(__powerpc64__) || defined(__POWERPC64__) || defined(_M_PPC64) || defined(__PPC64) || defined(_ARCH_PPC64)
 #  define VER_H_PROM_TSA_TEXT "Power ISA (64-bit)  "
-# elif defined(__ppc__) || defined(__PPC__) || defined(__powerpc__) || defined(__POWERPC__) || defined(_M_PPC) || defined(__PPC) || defined(__ppc32__) || defined(__PPC32__) || defined(__powerpc32__) || defined(__POWERPC32__) || defined(_M_PPC32) || defined(__PPC32)
+# elif defined(__ppc__) || defined(__PPC__) || defined(__powerpc__) || defined(__POWERPC__) || defined(_M_PPC) || \
+       defined(__PPC) || defined(__ppc32__) || defined(__PPC32__) || defined(__powerpc32__) || defined(__POWERPC32__) || \
+       defined(_M_PPC32) || defined(__PPC32)
 #  define VER_H_PROM_TSA_TEXT "PowerPC ISA (32-bit)"
 # elif defined(__s390x__)
 #  define VER_H_PROM_TSA_TEXT "IBM z/Architecture  "
@@ -4743,7 +4748,8 @@ void setupPROM (uint cpuNo, unsigned char * PROM) {
 #  define VER_H_PROM_TSA_TEXT "MIPS64              "
 # elif defined(mips) || defined(__mips__) || defined(MIPS) || defined(_MIPS_) || defined(__mips)
 #  define VER_H_PROM_TSA_TEXT "MIPS                "
-# elif defined(__OpenRISC__) || defined(__OPENRISC__) || defined(__openrisc__) || defined(__OR1K__) || defined(__JOR1K__) || defined(__OPENRISC1K__) || defined(__OPENRISC1200__)
+# elif defined(__OpenRISC__) || defined(__OPENRISC__) || defined(__openrisc__) || defined(__OR1K__) || \
+       defined(__JOR1K__) || defined(__OPENRISC1K__) || defined(__OPENRISC1200__)
 #  define VER_H_PROM_TSA_TEXT "OpenRISC            "
 # elif defined(__sparc64) || defined(__SPARC64) || defined(__SPARC64__) || defined(__sparc64__)
 #  define VER_H_PROM_TSA_TEXT "SPARC64             "
@@ -4776,11 +4782,14 @@ void setupPROM (uint cpuNo, unsigned char * PROM) {
 #if defined(BUILD_PROM_TSV_TEXT)
 # define BURN_PROM_TSV_TEXT BUILD_PROM_TSV_TEXT
 #else
-# if (defined(__WIN__) || defined(_WIN32) || defined(IS_WINDOWS) || defined(_MSC_VER) || defined(__MINGW32__) || defined(__MINGW64__) || defined(CROSS_MINGW32) || defined(CROSS_MINGW64)) && !defined(__CYGWIN__)
+# if (defined(__WIN__) || defined(_WIN32) || defined(IS_WINDOWS) || defined(_MSC_VER) || \
+      defined(__MINGW32__) || defined(__MINGW64__) || defined(CROSS_MINGW32) || \
+      defined(CROSS_MINGW64)) && !defined(__CYGWIN__)
 #  define VER_H_PROM_TSV_TEXT "Microsoft Windows   "
 # elif defined(__CYGWIN__)
 #  define VER_H_PROM_TSV_TEXT "Windows/Cygwin      "
-# elif (defined(__sunos) || defined(__sun) || defined(__sun__)) && (defined(SYSV) || defined(__SVR4) || defined(__SVR4__) || defined(__svr4__))
+# elif (defined(__sunos) || defined(__sun) || defined(__sun__)) && (defined(SYSV) || defined(__SVR4) || \
+        defined(__SVR4__) || defined(__svr4__))
 #  if defined(__illumos__)
 #   define VER_H_PROM_TSV_TEXT "illumos             "
 #  else

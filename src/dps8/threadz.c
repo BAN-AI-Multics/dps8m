@@ -620,7 +620,9 @@ unsigned long  sleepCPU (unsigned long usec) {
   }
 
   if (rc) {
-    sim_printf ("sleepCPU pthread_cond_timedwait rc %ld  usec %ld TR %lu CPU %lu\n", (long) rc, (long) usec, (unsigned long) cpu.rTR, (unsigned long) current_running_cpu_idx);
+    sim_printf ("sleepCPU pthread_cond_timedwait rc %ld  usec %ld TR %lu CPU %lu\n",
+                (long) rc, (long) usec, (unsigned long) cpu.rTR,
+                (unsigned long) current_running_cpu_idx);
   }
 
   struct timespec newTime;

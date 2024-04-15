@@ -23,7 +23,9 @@ void ucInvalidate (void) {
   (void)memset (cpu.uCache.caches, 0, sizeof (cpu.uCache.caches));
 }
 
-void ucCacheSave (uint ucNum, word15 segno, word18 offset, word14 bound, word1 p, word24 address, word3 r1, bool paged) {
+void ucCacheSave \
+         (uint ucNum, word15 segno, word18 offset, word14 bound,
+          word1 p, word24 address, word3 r1, bool paged) {
   if (segno >= UC_CACHE_SZ) {
     return;
   }
@@ -38,11 +40,14 @@ void ucCacheSave (uint ucNum, word15 segno, word18 offset, word14 bound, word1 p
   ep->p       = p;
   ep->paged   = paged;
 #if defined(HDBG)
-  hdbgNote ("ucache", "save %u %05o:%06o %05o %o %08o %o %o", ucNum, segno, offset, bound, p, address, r1, paged);
+  hdbgNote ("ucache", "save %u %05o:%06o %05o %o %08o %o %o",
+            ucNum, segno, offset, bound, p, address, r1, paged);
 #endif
 }
 
-bool ucCacheCheck (uint ucNum, word15 segno, word18 offset, word14 * bound, word1 * p, word24 * address, word3 * r1, bool * paged) {
+bool ucCacheCheck \
+         (uint ucNum, word15 segno, word18 offset, word14 * bound,
+          word1 * p, word24 * address, word3 * r1, bool * paged) {
   if (segno >= UC_CACHE_SZ) {
 #if defined(UCACHE_STATS)
     cpu.uCache.segnoSkips ++;
@@ -83,7 +88,8 @@ bool ucCacheCheck (uint ucNum, word15 segno, word18 offset, word14 * bound, word
     goto miss;
   }
 #if defined(HDBG)
-  hdbgNote ("ucache", "hit %u %05o:%06o %05o %o %08o %o %o", ucNum, segno, offset, ep->bound, ep->p, ep->address, ep->r1, ep->paged);
+  hdbgNote ("ucache", "hit %u %05o:%06o %05o %o %08o %o %o",
+            ucNum, segno, offset, ep->bound, ep->p, ep->address, ep->r1, ep->paged);
 #endif
   * bound = ep->bound;
 #if 0
@@ -131,45 +137,69 @@ void ucacheStats (int cpuNo) {
   (void)fflush(stdout);
   (void)fflush(stderr);
 # if defined(WIN_STDIO)
-  sim_msg ("\r|  Instruction Fetch:             |\r\n|    Hits        %15llu  |\r\n|    Misses      %15llu  |\r\n|    Skipped     %15llu  |\r\n|    Effectiveness   %10.2f%%  |\r\n", stats (UC_INSTRUCTION_FETCH));
+  sim_msg ("\r|  Instruction Fetch:             |\r\n|    Hits        %15llu  |"
+           "\r\n|    Misses      %15llu  |\r\n|    Skipped     %15llu  |"
+           "\r\n|    Effectiveness   %10.2f%%  |\r\n",
+           stats (UC_INSTRUCTION_FETCH));
   (void)fflush(stdout);
   (void)fflush(stderr);
   sim_msg ("\r+---------------------------------+\r\n");
-  sim_msg ("\r|  Operand Read:                  |\r\n|    Hits        %15llu  |\r\n|    Misses      %15llu  |\r\n|    Skipped     %15llu  |\r\n|    Effectiveness   %10.2f%%  |\r\n", stats (UC_OPERAND_READ));
+  sim_msg ("\r|  Operand Read:                  |\r\n|    Hits        %15llu  |"
+           "\r\n|    Misses      %15llu  |\r\n|    Skipped     %15llu  |"
+           "\r\n|    Effectiveness   %10.2f%%  |\r\n",
+           stats (UC_OPERAND_READ));
   (void)fflush(stdout);
   (void)fflush(stderr);
 #  if defined(IDWF_CACHE)
   sim_msg ("\r+---------------------------------+\r\n");
-  sim_msg ("\r|  Indirect Word Fetch:           |\r\n|    Hits        %15llu  |\r\n|    Misses      %15llu  |\r\n|    Skipped     %15llu  |\r\n|    Effectiveness   %10.2f%%  |\r\n", stats (UC_INDIRECT_WORD_FETCH));
+  sim_msg ("\r|  Indirect Word Fetch:           |\r\n|    Hits        %15llu  |"
+           "\r\n|    Misses      %15llu  |\r\n|    Skipped     %15llu  |"
+           "\r\n|    Effectiveness   %10.2f%%  |\r\n",
+           stats (UC_INDIRECT_WORD_FETCH));
   (void)fflush(stdout);
   (void)fflush(stderr);
 #  endif
   sim_msg ("\r+---------------------------------+\r\n");
   sim_msg ("\r|  Cache Bypasses:                |\r\n");
-  sim_msg ("\r|    RALR        %15llu  |\r\n", (long long unsigned)cpus[cpuNo].uCache.ralrSkips);
-  sim_msg ("\r|    CALL6       %15llu  |\r\n", (long long unsigned)cpus[cpuNo].uCache.call6Skips);
-  sim_msg ("\r|    Segno       %15llu  |\r\n", (long long unsigned)cpus[cpuNo].uCache.segnoSkips);
+  sim_msg ("\r|    RALR        %15llu  |\r\n",
+           (long long unsigned)cpus[cpuNo].uCache.ralrSkips);
+  sim_msg ("\r|    CALL6       %15llu  |\r\n",
+           (long long unsigned)cpus[cpuNo].uCache.call6Skips);
+  sim_msg ("\r|    Segno       %15llu  |\r\n",
+           (long long unsigned)cpus[cpuNo].uCache.segnoSkips);
   (void)fflush(stdout);
   (void)fflush(stderr);
 # else
-  sim_msg ("\r|  Instruction Fetch:             |\r\n|    Hits        %'15llu  |\r\n|    Misses      %'15llu  |\r\n|    Skipped     %'15llu  |\r\n|    Effectiveness   %'10.2f%%  |\r\n", stats (UC_INSTRUCTION_FETCH));
+  sim_msg ("\r|  Instruction Fetch:             |\r\n|    Hits        %'15llu  |"
+           "\r\n|    Misses      %'15llu  |\r\n|    Skipped     %'15llu  |"
+           "\r\n|    Effectiveness   %'10.2f%%  |\r\n",
+           stats (UC_INSTRUCTION_FETCH));
   (void)fflush(stdout);
   (void)fflush(stderr);
   sim_msg ("\r+---------------------------------+\r\n");
-  sim_msg ("\r|  Operand Read:                  |\r\n|    Hits        %'15llu  |\r\n|    Misses      %'15llu  |\r\n|    Skipped     %'15llu  |\r\n|    Effectiveness   %'10.2f%%  |\r\n", stats (UC_OPERAND_READ));
+  sim_msg ("\r|  Operand Read:                  |\r\n|    Hits        %'15llu  |"
+           "\r\n|    Misses      %'15llu  |\r\n|    Skipped     %'15llu  |"
+           "\r\n|    Effectiveness   %'10.2f%%  |\r\n",
+           stats (UC_OPERAND_READ));
   (void)fflush(stdout);
   (void)fflush(stderr);
 #  if defined(IDWF_CACHE)
   sim_msg ("\r+---------------------------------+\r\n");
-  sim_msg ("\r|  Indirect Word Fetch:           |\r\n|    Hits        %'15llu  |\r\n|    Misses      %'15llu  |\r\n|    Skipped     %'15llu  |\r\n|    Effectiveness   %'10.2f%%  |\r\n", stats (UC_INDIRECT_WORD_FETCH));
+  sim_msg ("\r|  Indirect Word Fetch:           |\r\n|    Hits        %'15llu  |"
+           "\r\n|    Misses      %'15llu  |\r\n|    Skipped     %'15llu  |"
+           "\r\n|    Effectiveness   %'10.2f%%  |\r\n",
+           stats (UC_INDIRECT_WORD_FETCH));
   (void)fflush(stdout);
   (void)fflush(stderr);
 #  endif
   sim_msg ("\r+---------------------------------+\r\n");
   sim_msg ("\r|  Cache Bypasses:                |\r\n");
-  sim_msg ("\r|    RALR        %'15llu  |\r\n", (long long unsigned)cpus[cpuNo].uCache.ralrSkips);
-  sim_msg ("\r|    CALL6       %'15llu  |\r\n", (long long unsigned)cpus[cpuNo].uCache.call6Skips);
-  sim_msg ("\r|    Segno       %'15llu  |\r\n", (long long unsigned)cpus[cpuNo].uCache.segnoSkips);
+  sim_msg ("\r|    RALR        %'15llu  |\r\n",
+           (long long unsigned)cpus[cpuNo].uCache.ralrSkips);
+  sim_msg ("\r|    CALL6       %'15llu  |\r\n",
+           (long long unsigned)cpus[cpuNo].uCache.call6Skips);
+  sim_msg ("\r|    Segno       %'15llu  |\r\n",
+           (long long unsigned)cpus[cpuNo].uCache.segnoSkips);
   (void)fflush(stdout);
   (void)fflush(stderr);
 # endif

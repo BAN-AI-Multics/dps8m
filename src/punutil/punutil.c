@@ -1398,7 +1398,8 @@ int main(int argc, char *argv[])
 
     if (output_cards)
     {
-        (void)fprintf(stderr, "\n*****\nWriting ASCII Art Card Images (banner cards%s flipped)\n*****\n", output_flip ? "" : " not");
+        (void)fprintf(stderr, "\n*****\nWriting ASCII Art Card Images (banner cards%s flipped)\n*****\n",
+                      output_flip ? "" : " not");
         dump_cards(stdout);
     }
 

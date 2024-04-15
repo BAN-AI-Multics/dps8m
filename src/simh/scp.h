@@ -204,7 +204,12 @@ void sim_debug_bits_hdr (uint32 dbits, DEVICE* dptr, const char *header,
 void sim_debug_bits (uint32 dbits, DEVICE* dptr, BITFIELD* bitdefs,
     uint32 before, uint32 after, int terminate);
 void _sim_debug (uint32 dbits, DEVICE* dptr, const char *fmt, ...) GCC_FMT_ATTR(3, 4);
-# define sim_debug(dbits, dptr, ...) do { if ((sim_deb != NULL) && ((dptr != NULL) && ((dptr)->dctrl & dbits))) _sim_debug (dbits, dptr, __VA_ARGS__);} while (0)
+# define sim_debug(dbits, dptr, ...)                                           \
+    do {                                                                       \
+         if ((sim_deb != NULL) && ((dptr != NULL) && ((dptr)->dctrl & dbits))) \
+         _sim_debug (dbits, dptr, __VA_ARGS__);                                \
+       }                                                                       \
+    while (0)
 void fprint_stopped_gen (FILE *st, t_stat v, REG *pc, DEVICE *dptr);
 # define SCP_HELP_FLAT   (1u << 31)       /* Force flat help when prompting is not possible */
 # define SCP_HELP_ONECMD (1u << 30)       /* Display one topic, do not prompt */

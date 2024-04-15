@@ -2116,15 +2116,18 @@ static t_stat fnpShowFW (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
     if (fnpUnitIdx >= (long) N_FNP_UNITS_MAX)
       {
         sim_debug (DBG_ERR, & fnp_dev,
-                   "fnpShowConfig: Invalid unit number %ld\n", (long) fnpUnitIdx);
-        sim_printf ("error: Invalid unit number %ld\n", (long) fnpUnitIdx);
+                   "fnpShowConfig: Invalid unit number %ld\n",
+                   (long) fnpUnitIdx);
+        sim_printf ("error: Invalid unit number %ld\n",
+                    (long) fnpUnitIdx);
         return SCPE_ARG;
       }
 #if 0
     sim_printf ("FNP unit number %ld\n", fnpUnitIdx);
     struct fnpUnitData_s * fudp = fnpData.fnpUnitData + fnpUnitIdx;
 
-    sim_printf ("FNP Mailbox Address:         %04o(8)\n", fudp -> mailboxAddress);
+    sim_printf ("FNP Mailbox Address:         %04o(8)\n",
+                fudp -> mailboxAddress);
 #endif
     return SCPE_OK;
   }
@@ -2136,48 +2139,81 @@ static t_stat fnpShowStatus (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
     if (fnpUnitIdx >= (long) fnp_dev.numunits)
       {
         sim_debug (DBG_ERR, & fnp_dev,
-                   "fnpShowStatus: Invalid unit number %ld\n", (long) fnpUnitIdx);
-        sim_printf ("error: Invalid unit number %ld\n", (long) fnpUnitIdx);
+                   "fnpShowStatus: Invalid unit number %ld\n",
+                   (long) fnpUnitIdx);
+        sim_printf ("error: Invalid unit number %ld\n",
+                    (long) fnpUnitIdx);
         return SCPE_ARG;
       }
 
     sim_printf ("FNP unit number %ld:\n", (long) fnpUnitIdx);
     struct fnpUnitData_s * fudp = fnpData.fnpUnitData + fnpUnitIdx;
 
-    sim_printf ("\tmailboxAddress:              %04o\n", fudp->mailboxAddress);
-    sim_printf ("\tfnpIsRunning:                %o\n", fudp->fnpIsRunning);
-    sim_printf ("\tfnpMBXinUse:                 %o %o %o %o\n", fudp->fnpMBXinUse[0], fudp->fnpMBXinUse[1], fudp->fnpMBXinUse[2], fudp->fnpMBXinUse[3]);
-    sim_printf ("\tlineWaiting:                 %o %o %o %o\n", fudp->lineWaiting[0], fudp->lineWaiting[1], fudp->lineWaiting[2], fudp->lineWaiting[3]);
-    sim_printf ("\tfnpMBXlineno:                %o %o %o %o\n", fudp->fnpMBXlineno[0], fudp->fnpMBXlineno[1], fudp->fnpMBXlineno[2], fudp->fnpMBXlineno[3]);
-    sim_printf ("\taccept_calls:                %o\n", fudp->MState.accept_calls);
+    sim_printf ("\tmailboxAddress:              %04o\n",
+                fudp->mailboxAddress);
+    sim_printf ("\tfnpIsRunning:                %o\n",
+                fudp->fnpIsRunning);
+    sim_printf ("\tfnpMBXinUse:                 %o %o %o %o\n",
+                fudp->fnpMBXinUse[0], fudp->fnpMBXinUse[1],
+                fudp->fnpMBXinUse[2], fudp->fnpMBXinUse[3]);
+    sim_printf ("\tlineWaiting:                 %o %o %o %o\n",
+                fudp->lineWaiting[0], fudp->lineWaiting[1],
+                fudp->lineWaiting[2], fudp->lineWaiting[3]);
+    sim_printf ("\tfnpMBXlineno:                %o %o %o %o\n",
+                fudp->fnpMBXlineno[0], fudp->fnpMBXlineno[1],
+                fudp->fnpMBXlineno[2], fudp->fnpMBXlineno[3]);
+    sim_printf ("\taccept_calls:                %o\n",
+                fudp->MState.accept_calls);
     for (int l = 0; l < MAX_LINES; l ++)
       {
         sim_printf ("  line %d:\n", l);
-        sim_printf ("\tservice:                     %d\n", fudp->MState.line[l].service);
-        sim_printf ("\tline_client:                 %p\n", (void *) fudp->MState.line[l].line_client);
-        sim_printf ("\twas_CR:                      %d\n", fudp->MState.line[l].was_CR);
-        sim_printf ("\tlisten:                      %d\n", fudp->MState.line[l].listen);
-        sim_printf ("\tinputBufferSize:             %d\n", fudp->MState.line[l].inputBufferSize);
-        sim_printf ("\tline_break:                  %d\n", fudp->MState.line[l].line_break);
-        sim_printf ("\tsend_output:                 %d\n", fudp->MState.line[l].send_output);
-        sim_printf ("\taccept_new_terminal:         %d\n", fudp->MState.line[l].accept_new_terminal);
+        sim_printf ("\tservice:                     %d\n",
+                    fudp->MState.line[l].service);
+        sim_printf ("\tline_client:                 %p\n",
+                    (void *) fudp->MState.line[l].line_client);
+        sim_printf ("\twas_CR:                      %d\n",
+                    fudp->MState.line[l].was_CR);
+        sim_printf ("\tlisten:                      %d\n",
+                    fudp->MState.line[l].listen);
+        sim_printf ("\tinputBufferSize:             %d\n",
+                    fudp->MState.line[l].inputBufferSize);
+        sim_printf ("\tline_break:                  %d\n",
+                    fudp->MState.line[l].line_break);
+        sim_printf ("\tsend_output:                 %d\n",
+                    fudp->MState.line[l].send_output);
+        sim_printf ("\taccept_new_terminal:         %d\n",
+                    fudp->MState.line[l].accept_new_terminal);
 #if DISC_DELAY
-        sim_printf ("\tline_disconnected:           %d\n", fudp->MState.line[l].line_disconnected);
+        sim_printf ("\tline_disconnected:           %d\n",
+                    fudp->MState.line[l].line_disconnected);
 #else
-        sim_printf ("\tline_disconnected:           %c\n", fudp->MState.line[l].line_disconnected ? 'T' : 'F');
+        sim_printf ("\tline_disconnected:           %c\n",
+                    fudp->MState.line[l].line_disconnected ? 'T' : 'F');
 #endif
-        sim_printf ("\tacu_dial_failure:            %d\n", fudp->MState.line[l].acu_dial_failure);
-        sim_printf ("\taccept_input:                %d\n", fudp->MState.line[l].accept_input);
-        sim_printf ("\twaitForMbxDone:              %d\n", fudp->MState.line[l].waitForMbxDone);
-        sim_printf ("\tinput_reply_pending:         %d\n", fudp->MState.line[l].input_reply_pending);
-        sim_printf ("\tinput_break:                 %d\n", fudp->MState.line[l].input_break);
-        sim_printf ("\tnPos:                        %d\n", fudp->MState.line[l].nPos);
-        sim_printf ("\tinBuffer:                    %p\n", (void *) fudp->MState.line[l].inBuffer);
-        sim_printf ("\tinSize:                      %d\n", fudp->MState.line[l].inSize);
-        sim_printf ("\tinUsed:                      %d\n", fudp->MState.line[l].inUsed);
-        //sim_printf ("\tdoConnect:                   %p\n", fudp->MState.line[l].doConnect);
-        //sim_printf ("\tserver:                      %p\n", fudp->MState.line[l].server);
-        sim_printf ("\tport:                        %d\n", fudp->MState.line[l].port);
+        sim_printf ("\tacu_dial_failure:            %d\n",
+                    fudp->MState.line[l].acu_dial_failure);
+        sim_printf ("\taccept_input:                %d\n",
+                    fudp->MState.line[l].accept_input);
+        sim_printf ("\twaitForMbxDone:              %d\n",
+                    fudp->MState.line[l].waitForMbxDone);
+        sim_printf ("\tinput_reply_pending:         %d\n",
+                    fudp->MState.line[l].input_reply_pending);
+        sim_printf ("\tinput_break:                 %d\n",
+                    fudp->MState.line[l].input_break);
+        sim_printf ("\tnPos:                        %d\n",
+                    fudp->MState.line[l].nPos);
+        sim_printf ("\tinBuffer:                    %p\n",
+                    (void *) fudp->MState.line[l].inBuffer);
+        sim_printf ("\tinSize:                      %d\n",
+                    fudp->MState.line[l].inSize);
+        sim_printf ("\tinUsed:                      %d\n",
+                    fudp->MState.line[l].inUsed);
+        //sim_printf ("\tdoConnect:                   %p\n",
+        //            fudp->MState.line[l].doConnect);
+        //sim_printf ("\tserver:                      %p\n",
+        //            fudp->MState.line[l].server);
+        sim_printf ("\tport:                        %d\n",
+                    fudp->MState.line[l].port);
 
       }
     return SCPE_OK;
@@ -2716,7 +2752,9 @@ void process3270Input (uv_tcp_t * client, unsigned char * buf, ssize_t nread)
         stn_p->stn_in_used = 0;
       }
 
-sim_debug (DBG_TRACE, & fnp_dev, "process3270Input stashed %lu bytes in stn %u; stn_in_size now %u\n", (unsigned long)nread, stn_no, stn_p->stn_in_size);
+sim_debug (DBG_TRACE, & fnp_dev,
+           "process3270Input stashed %lu bytes in stn %u; stn_in_size now %u\n",
+           (unsigned long)nread, stn_no, stn_p->stn_in_size);
 done:;
     // Prevent further reading until this buffer is consumed
     // Rely on 3270 keyboard logic protocol to prevent buffer collision

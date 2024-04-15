@@ -2,23 +2,57 @@
 # SPDX-License-Identifier: MIT-0
 # SPDX-FileCopyrightText: 2023-2024 The DPS8M Development Team
 # scspell-id: 268d2436-f2ea-11ed-9806-80ee73e9b8e7
+
 root = true
 
 [*.{c,h,sh}]
+charset = utf-8
+end_of_line = lf
 indent_style = space
 insert_final_newline = true
+max_line_length = 132
+trim_trailing_whitespace = true
+
+[*.sh]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+insert_final_newline = true
+max_line_length = 256
+trim_trailing_whitespace = true
+
+[docs/shell/refgen.sh]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+insert_final_newline = true
+max_line_length = 1440
 trim_trailing_whitespace = true
 
 [{GNUmakefile,Makefile,ci.makefile,Makefile.dev,Makefile.doc,Makefile.env,Makefile.loc,Makefile.mk,Makefile.pre,Makefile.scc,Makefile.var}]
+charset = utf-8
+end_of_line = lf
 insert_final_newline = true
+max_line_length = 132
 trim_trailing_whitespace = true
 
 [*.{txt,ini,md,.editorconfig}]
+charset = utf-8
+end_of_line = lf
 indent_style = space
 trim_trailing_whitespace = true
 
 [{COMMIT_EDITMSG,MERGE_MSG}]
+charset = utf-8
+end_of_line = lf
 indent_style = space
 max_line_length = 132
 trim_trailing_whitespace = true
 
+[src/ci-kit/tidy.sh]
+charset = utf-8
+end_of_line = unset
+indent_style = space
+insert_final_newline = true
+max_line_length = 256
+trim_trailing_whitespace = true

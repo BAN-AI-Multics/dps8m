@@ -1562,10 +1562,12 @@ while (*skipped < count) {                              /* loopo */
 return MTSE_OK;
 }
 
-t_stat sim_tape_spfilebyrecf_a (UNIT *uptr, uint32 count, uint32 *skipped, uint32 *recsskipped, t_bool check_leot, TAPE_PCALLBACK callback)
+t_stat sim_tape_spfilebyrecf_a \
+           (UNIT *uptr, uint32 count, uint32 *skipped, uint32 *recsskipped, t_bool check_leot, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-    r = sim_tape_spfilebyrecf (uptr, count, skipped, recsskipped, check_leot);
+    r = sim_tape_spfilebyrecf \
+        (uptr, count, skipped, recsskipped, check_leot);
 return r;
 }
 
@@ -1729,7 +1731,8 @@ return r;
 
 /* Position Tape */
 
-t_stat sim_tape_position (UNIT *uptr, uint32 flags, uint32 recs, uint32 *recsskipped, uint32 files, uint32 *filesskipped, uint32 *objectsskipped)
+t_stat sim_tape_position \
+           (UNIT *uptr, uint32 flags, uint32 recs, uint32 *recsskipped, uint32 files, uint32 *filesskipped, uint32 *objectsskipped)
 {
 struct tape_context *ctx = (struct tape_context *)uptr->tape_ctx;
 t_stat r = MTSE_OK;
@@ -1782,7 +1785,9 @@ else {
 return r;
 }
 
-t_stat sim_tape_position_a (UNIT *uptr, uint32 flags, uint32 recs, uint32 *recsskipped, uint32 files, uint32 *filesskipped, uint32 *objectsskipped, TAPE_PCALLBACK callback)
+t_stat sim_tape_position_a \
+           (UNIT *uptr, uint32 flags, uint32 recs, uint32 *recsskipped, uint32 files,
+            uint32 *filesskipped, uint32 *objectsskipped, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
     r = sim_tape_position (uptr, flags, recs, recsskipped, files, filesskipped, objectsskipped);
@@ -1949,9 +1954,11 @@ sim_debug (MTSE_DBG_STR, dptr, "tpc_map: objc: %u, different record sizes: %u\n"
 for (i=0; i<65535; i++) {
     if (countmap[i]) {
         if (i == 0)
-            sim_debug (MTSE_DBG_STR, dptr, "tpc_map: summary - %u tape marks\n", countmap[i]);
+            sim_debug (MTSE_DBG_STR, dptr, "tpc_map: summary - %u tape marks\n",
+                       countmap[i]);
         else
-            sim_debug (MTSE_DBG_STR, dptr, "tpc_map: summary - %u %d byte record%s\n", countmap[i], (int)i, (countmap[i] > 1) ? "s" : "");
+            sim_debug (MTSE_DBG_STR, dptr, "tpc_map: summary - %u %d byte record%s\n",
+                       countmap[i], (int)i, (countmap[i] > 1) ? "s" : "");
         }
     }
 if (((last_bc != 0xffff) &&
@@ -1961,19 +1968,24 @@ if (((last_bc != 0xffff) &&
     ((objc == countmap[0]) &&
      (countmap[0] != 2))) {     /* Unreasonable format? */
     if (last_bc != 0xffff)
-        sim_debug (MTSE_DBG_STR, dptr, "tpc_map: ERROR unexpected EOT byte count: %lld\n",
+        sim_debug (MTSE_DBG_STR, dptr,
+                   "tpc_map: ERROR unexpected EOT byte count: %lld\n",
                    (long long)last_bc);
     if (tpos > tape_size)
-        sim_debug (MTSE_DBG_STR, dptr, "tpc_map: ERROR next record position %" T_ADDR_FMT "u beyond EOT: %" T_ADDR_FMT "u\n", tpos, tape_size);
+        sim_debug (MTSE_DBG_STR, dptr,
+                   "tpc_map: ERROR next record position %" T_ADDR_FMT "u beyond EOT: %" T_ADDR_FMT "u\n",
+                   tpos, tape_size);
     if (objc == countmap[0])
-        sim_debug (MTSE_DBG_STR, dptr, "tpc_map: ERROR tape cnly contains tape marks\n");
+        sim_debug (MTSE_DBG_STR, dptr,
+                   "tpc_map: ERROR tape cnly contains tape marks\n");
     FREE (countmap);
     FREE (recbuf);
     return 0;
     }
 
 if ((last_bc != 0xffff) && (tpos > tape_size)) {
-    sim_debug (MTSE_DBG_STR, dptr, "tpc_map: WARNING unexpected EOT byte count: %lld, double tape mark before %" T_ADDR_FMT "u provides logical EOT\n",
+    sim_debug (MTSE_DBG_STR, dptr,
+               "tpc_map: WARNING unexpected EOT byte count: %lld, double tape mark before %" T_ADDR_FMT "u provides logical EOT\n",
                (long long)last_bc, leot);
     objc = had_double_tape_mark;
     tpos = leot;

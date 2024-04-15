@@ -750,9 +750,14 @@ if (lp->destination || lp->port || lp->txlogname) {
     if (lp->mp->packet != lp->packet)
         (void)sprintf (growstring(&tptr, 8), ",Packet");
     if (lp->port)
-        (void)sprintf (growstring(&tptr, 32 + strlen (lp->port)), ",%s%s", lp->port, ((lp->mp->notelnet != lp->notelnet) && (!lp->datagram)) ? (lp->notelnet ? ";notelnet" : ";telnet") : "");
+        (void)sprintf (growstring(&tptr, 32 + strlen (lp->port)), ",%s%s",
+                       lp->port, ((lp->mp->notelnet != lp->notelnet) && \
+                           (!lp->datagram)) ? (lp->notelnet ? ";notelnet" : ";telnet") : "");
     if (lp->destination) {
-            (void)sprintf (growstring(&tptr, 25 + strlen (lp->destination)), ",Connect=%s%s", lp->destination, ((lp->mp->notelnet != lp->notelnet) && (!lp->datagram)) ? (lp->notelnet ? ";notelnet" : ";telnet") : "");
+            (void)sprintf (growstring(&tptr, 25 + strlen (lp->destination)),
+                           ",Connect=%s%s", lp->destination,
+                           ((lp->mp->notelnet != lp->notelnet) && \
+                               (!lp->datagram)) ? (lp->notelnet ? ";notelnet" : ";telnet") : "");
         }
     if (lp->txlogname)
         (void)sprintf (growstring(&tptr, 12 + strlen (lp->txlogname)), ",Log=%s", lp->txlogname);
@@ -1091,12 +1096,15 @@ for (i = 0; i < mp->lines; i++) {                       /* check each line in se
                             lp->cnms = sim_os_msec ();
                             sim_getnames_sock (lp->sock, &sockname, &peername);
                             if (lp->destination)
-                              snprintf (msg, sizeof(msg)-1, "tmxr_poll_conn() - Outgoing Line Connection to %s (%s->%s) established", lp->destination, sockname, peername);
+                              snprintf (msg, sizeof(msg)-1,
+                                        "tmxr_poll_conn() - Outgoing Line Connection to %s (%s->%s) established",
+                                        lp->destination, sockname, peername);
                             FREE (sockname);
                             FREE (peername);
                             return i;
                         case -1:                                /* failed connection */
-                            snprintf (msg, sizeof(msg)-1, "tmxr_poll_conn() - Outgoing Line Connection to %s failed", lp->destination);
+                            snprintf (msg, sizeof(msg)-1, "tmxr_poll_conn() - Outgoing Line Connection to %s failed",
+                                      lp->destination);
                             tmxr_reset_ln (lp);                 /* retry */
                             break;
                         }
@@ -1104,11 +1112,13 @@ for (i = 0; i < mp->lines; i++) {                       /* check each line in se
                 break;
             case 1:
                 if (lp->master) {                                   /* Check for a pending Telnet/tcp connection */
-                    while (INVALID_SOCKET != (newsock = sim_accept_conn_ex (lp->master, &address, (lp->packet ? SIM_SOCK_OPT_NODELAY : 0)))) {/* got a live one? */
+                    while (INVALID_SOCKET != (newsock = sim_accept_conn_ex (lp->master, &address,
+                                              (lp->packet ? SIM_SOCK_OPT_NODELAY : 0)))) {/* got a live one? */
                         char *sockname, *peername;
 
                         sim_getnames_sock (newsock, &sockname, &peername);
-                        snprintf (msg, sizeof(msg)-1, "tmxr_poll_conn() - Incoming Line Connection from %s (%s->%s)", address, peername, sockname);
+                        snprintf (msg, sizeof(msg)-1, "tmxr_poll_conn() - Incoming Line Connection from %s (%s->%s)",
+                                  address, peername, sockname);
                         FREE (sockname);
                         FREE (peername);
                         ++mp->sessions;                             /* count the new session */
@@ -1118,13 +1128,15 @@ for (i = 0; i < mp->lines; i++) {                       /* check each line in se
 
                             if (sim_parse_addr (lp->destination, host, sizeof(host), NULL, NULL, 0, NULL, address)) {
                                 tmxr_msg (newsock, "Rejecting connection from unexpected source\r\n");
-                                snprintf (msg, sizeof(msg)-1, "tmxr_poll_conn() - Rejecting line connection from: %s, Expected: %s", address, host);
+                                snprintf (msg, sizeof(msg)-1, "tmxr_poll_conn() - Rejecting line connection from: %s, Expected: %s",
+                                          address, host);
                                 sim_close_sock (newsock);
                                 FREE (address);
                                 continue;                           /* Try for another connection */
                                 }
                             if (lp->connecting) {
-                                snprintf (msg, sizeof(msg)-1, "tmxr_poll_conn() - aborting outgoing line connection attempt to: %s", lp->destination);
+                                snprintf (msg, sizeof(msg)-1, "tmxr_poll_conn() - aborting outgoing line connection attempt to: %s",
+                                          lp->destination);
                                 sim_close_sock (lp->connecting);    /* abort our as yet unconnnected socket */
                                 lp->connecting = 0;
                                 }
@@ -1177,9 +1189,11 @@ for (i = 0; i < mp->lines; i++) {                       /* check each line in se
     if (lp->destination && (!lp->sock) && (!lp->connecting) &&
         (!lp->modem_control || (lp->modembits & TMXR_MDM_DTR))) {
         snprintf (msg, sizeof(msg)-1, "tmxr_poll_conn() - establishing outgoing connection to: %s", lp->destination);
-        lp->connecting = sim_connect_sock_ex (lp->datagram ? lp->port : NULL, lp->destination, "localhost", NULL, (lp->datagram ? SIM_SOCK_OPT_DATAGRAM : 0)  |
-                                                                                                                  (lp->mp->packet ? SIM_SOCK_OPT_NODELAY : 0) |
-                                                                                                                  SIM_SOCK_OPT_BLOCKING);
+                  lp->connecting = sim_connect_sock_ex (lp->datagram ? lp->port : NULL,
+                                                        lp->destination, "localhost", NULL,
+                                                        (lp->datagram   ? SIM_SOCK_OPT_DATAGRAM : 0) |
+                                                        (lp->mp->packet ? SIM_SOCK_OPT_NODELAY  : 0) |
+                                                        SIM_SOCK_OPT_BLOCKING);
         }
 
     }
@@ -1219,9 +1233,11 @@ if ((lp->destination)
         }
     if ((!lp->modem_control) || (lp->modembits & TMXR_MDM_DTR)) {
         snprintf (msg, sizeof(msg)-1, "tmxr_reset_ln_ex() - connecting to %s", lp->destination);
-        lp->connecting = sim_connect_sock_ex (lp->datagram ? lp->port : NULL, lp->destination, "localhost", NULL, (lp->datagram ? SIM_SOCK_OPT_DATAGRAM : 0) |
-                                                                                                                  (lp->packet ? SIM_SOCK_OPT_NODELAY : 0)    |
-                                                                                                                  SIM_SOCK_OPT_BLOCKING);
+        lp->connecting = sim_connect_sock_ex (lp->datagram ? lp->port : NULL,
+                                              lp->destination, "localhost", NULL,
+                                              (lp->datagram ? SIM_SOCK_OPT_DATAGRAM : 0) |
+                                              (lp->packet   ? SIM_SOCK_OPT_NODELAY  : 0) |
+                                              SIM_SOCK_OPT_BLOCKING);
         }
     }
 tmxr_init_line (lp);                                /* initialize line state */
@@ -1361,10 +1377,12 @@ if (lp->mp && lp->modem_control) {                  /* This API ONLY works on mo
                  TMXR_MDM_DTR)) {
                 char msg[512];
 
-                snprintf (msg, sizeof(msg)-1, "tmxr_set_get_modem_bits() - establishing outgoing connection to: %s", lp->destination);
-                lp->connecting = sim_connect_sock_ex (lp->datagram ? lp->port : NULL, lp->destination, "localhost", NULL, (lp->datagram ? SIM_SOCK_OPT_DATAGRAM : 0) |
-                                                                                                                          (lp->packet ? SIM_SOCK_OPT_NODELAY : 0)    |
-                                                                                                                          SIM_SOCK_OPT_BLOCKING);
+                snprintf (msg, sizeof(msg)-1, "tmxr_set_get_modem_bits() - establishing outgoing connection to: %s",
+                          lp->destination);
+                lp->connecting = sim_connect_sock_ex (lp->datagram ? lp->port : NULL, lp->destination, "localhost", NULL,
+                                                      (lp->datagram ? SIM_SOCK_OPT_DATAGRAM : 0) |
+                                                      (lp->packet   ? SIM_SOCK_OPT_NODELAY  : 0) |
+                                                      SIM_SOCK_OPT_BLOCKING);
                 }
             }
         }
@@ -2590,9 +2608,10 @@ while (*tptr) {
                         return sim_messagef (SCPE_ARG, "Missing listen port for Datagram socket\n");
                     }
                 lp->packet = packet;
-                sock = sim_connect_sock_ex (datagram ? listen : NULL, hostport, "localhost", NULL, (datagram ? SIM_SOCK_OPT_DATAGRAM : 0) |
-                                                                                                   (packet ? SIM_SOCK_OPT_NODELAY : 0)    |
-                                                                                                   SIM_SOCK_OPT_BLOCKING);
+                sock = sim_connect_sock_ex (datagram ? listen : NULL, hostport, "localhost", NULL,
+                                            (datagram ? SIM_SOCK_OPT_DATAGRAM : 0) |
+                                            (packet ? SIM_SOCK_OPT_NODELAY : 0)    |
+                                            SIM_SOCK_OPT_BLOCKING);
                 if (sock != INVALID_SOCKET) {
                     _mux_detach_line (lp, FALSE, TRUE);
                     lp->destination = (char *)malloc(1+strlen(hostport));
@@ -2636,7 +2655,9 @@ while (*tptr) {
                     return SCPE_OK;
                     }
                 else
-                    return sim_messagef (SCPE_ARG, "Can't open %s socket on %s%s%s\n", datagram ? "Datagram" : "Stream", datagram ? listen : "", datagram ? "<->" : "", hostport);
+                    return sim_messagef (SCPE_ARG, "Can't open %s socket on %s%s%s\n",
+                                         datagram ? "Datagram" : "Stream", datagram ? listen : "",
+                                         datagram ? "<->" : "", hostport);
                 }
         }
     else {                                                  /* line specific attach */
@@ -2777,7 +2798,8 @@ while (*tptr) {
                     else
                         return sim_messagef (SCPE_ARG, "Missing listen port for Datagram socket\n");
                     }
-                sock = sim_connect_sock_ex (datagram ? listen : NULL, hostport, "localhost", NULL, (datagram ? SIM_SOCK_OPT_DATAGRAM : 0) | (packet ? SIM_SOCK_OPT_NODELAY : 0));
+                sock = sim_connect_sock_ex (datagram ? listen : NULL, hostport, "localhost", NULL,
+                                            (datagram ? SIM_SOCK_OPT_DATAGRAM : 0) | (packet ? SIM_SOCK_OPT_NODELAY : 0));
                 if (sock != INVALID_SOCKET) {
                     _mux_detach_line (lp, FALSE, TRUE);
                     lp->destination = (char *)malloc(1+strlen(hostport));
@@ -2817,7 +2839,9 @@ while (*tptr) {
                     tmxr_init_line (lp);                    /* init the line state */
                     }
                 else
-                    return sim_messagef (SCPE_ARG, "Can't open %s socket on %s%s%s\n", datagram ? "Datagram" : "Stream", datagram ? listen : "", datagram ? "<->" : "", hostport);
+                    return sim_messagef (SCPE_ARG, "Can't open %s socket on %s%s%s\n",
+                                         datagram ? "Datagram" : "Stream", datagram ? listen : "",
+                                         datagram ? "<->" : "", hostport);
                 }
             }
         if (loopback) {
@@ -3085,7 +3109,8 @@ else {
             }
         fprintf(st, "\n");
         if (mp->ring_start_time) {
-            fprintf (st, "    incoming Connection from: %s ringing for %lu milliseconds\n", mp->ring_ipad, (unsigned long)sim_os_msec () - (unsigned long)mp->ring_start_time);
+            fprintf (st, "    incoming Connection from: %s ringing for %lu milliseconds\n",
+                     mp->ring_ipad, (unsigned long)sim_os_msec () - (unsigned long)mp->ring_start_time);
             }
         for (j = 0; j < mp->lines; j++) {
             lp = mp->ldsc + j;

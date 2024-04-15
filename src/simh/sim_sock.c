@@ -52,9 +52,11 @@
 # include <ws2tcpip.h>
 #endif /* if defined(AF_INET6) && defined(_WIN32) */
 
-#if !defined(_WIN32) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) && !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(__CYGWIN__)
+#if !defined(_WIN32) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) && \
+    !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(__CYGWIN__)
 # include <sys/select.h>
-#endif /* if !defined(_WIN32) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) && !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(__CYGWIN__) */
+#endif /* if !defined(_WIN32) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) &&
+             !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(__CYGWIN__) */
 
 #if !defined(WSAAPI)
 # define WSAAPI
@@ -156,7 +158,9 @@ typedef int     (WSAAPI *getaddrinfo_func) (const char *hostname,
                                  struct addrinfo **res);
 static getaddrinfo_func p_getaddrinfo;
 
-typedef int (WSAAPI *getnameinfo_func) (const struct sockaddr *sa, socklen_t salen, char *host, size_t hostlen, char *serv, size_t servlen, int flags);
+typedef int (WSAAPI *getnameinfo_func) \
+            (const struct sockaddr *sa, socklen_t salen, char *host,
+             size_t hostlen, char *serv, size_t servlen, int flags);
 static getnameinfo_func p_getnameinfo;
 
 #if defined(_WIN32) || defined(__CYGWIN__)
@@ -485,7 +489,9 @@ int load_ws2(void) {
                         doesn't match the parsed host)
 */
 
-int sim_parse_addr (const char *cptr, char *host, size_t host_len, const char *default_host, char *port, size_t port_len, const char *default_port, const char *validate_addr)
+int sim_parse_addr \
+        (const char *cptr, char *host, size_t host_len, const char *default_host,
+         char *port, size_t port_len, const char *default_port, const char *validate_addr)
 {
 char gbuf[CBUFSIZE], default_pbuf[CBUFSIZE];
 const char *hostp;
@@ -649,7 +655,9 @@ return 0;
                         a service name doesn't exist, or a validation name
                         doesn't match the parsed host)
 */
-int sim_parse_addr_ex (const char *cptr, char *host, size_t hostlen, const char *default_host, char *port, size_t port_len, char *localport, size_t localport_len, const char *default_port)
+int sim_parse_addr_ex \
+        (const char *cptr, char *host, size_t hostlen, const char *default_host,
+         char *port, size_t port_len, char *localport, size_t localport_len, const char *default_port)
 {
 const char *hostp;
 
@@ -879,7 +887,9 @@ if (sta == SOCKET_ERROR)                                /* listen error? */
 return newsock;                                         /* got it! */
 }
 
-SOCKET sim_connect_sock_ex (const char *sourcehostport, const char *hostport, const char *default_host, const char *default_port, int opt_flags)
+SOCKET sim_connect_sock_ex \
+           (const char *sourcehostport, const char *hostport, const char *default_host,
+            const char *default_port, int opt_flags)
 {
 SOCKET newsock = INVALID_SOCKET;
 int sta;

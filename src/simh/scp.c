@@ -81,7 +81,8 @@
 #include <sys/types.h>
 #if !defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64)
 # include <sys/resource.h>
-#endif /* if !defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) */
+#endif /* if !defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__) &&
+             !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) */
 #include <setjmp.h>
 #include <limits.h>
 #if defined(__APPLE__)
@@ -1503,7 +1504,8 @@ void allowCores(void)
 # endif /* if defined(RLIMIT_CORE) */
   return;
 }
-#endif /* if !defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) */
+#endif /* if !defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__) &&
+             !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) */
 
 #if defined(USE_DUMA)
 void CleanDUMA(void)
@@ -1673,7 +1675,8 @@ if (argc == 0) {
 /* Enable unlimited core dumps */
 # if !defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64)
 allowCores();
-# endif /* !defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) */
+# endif /* !defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__) &&
+           !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) */
 
 int testEndian = decContextTestEndian();
 if (testEndian != 0) {
@@ -2185,7 +2188,8 @@ if (dptr->registers)
         }
 if (!found) {
     if (!silent)
-        (void)fprintf (st, "No register HELP available for the %s device\n", dptr->name);
+        (void)fprintf (st, "No register HELP available for the %s device\n",
+                       dptr->name);
     }
 else {
     namebuf = (char *)calloc (max_namelen + 1, sizeof (*namebuf));
@@ -2201,25 +2205,44 @@ else {
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
-    (void)fprintf (st, "\nThe %s device implements these registers:\n\n", dptr->name);
+    (void)fprintf (st, "\nThe %s device implements these registers:\n\n",
+                   dptr->name);
     for (rptr = dptr->registers; rptr->name != NULL; rptr++) {
         if (rptr->flags & REG_HIDDEN)
             continue;
         if (rptr->depth <= 1)
-            (void)sprintf (namebuf, "%*s", -((int)max_namelen), rptr->name);
+            (void)sprintf (namebuf, "%*s",
+                           -((int)max_namelen),
+                           rptr->name);
         else {
-            (void)sprintf (rangebuf, "[%d:%d]", 0, rptr->depth-1);
-            (void)sprintf (namebuf, "%s%*s", rptr->name, (int)(strlen(rptr->name))-((int)max_namelen), rangebuf);
+            (void)sprintf (rangebuf, "[%d:%d]",
+                           0,
+                           rptr->depth-1);
+            (void)sprintf (namebuf, "%s%*s",
+                           rptr->name,
+                           (int)(strlen(rptr->name))-((int)max_namelen),
+                           rangebuf);
             }
         if (all_unique) {
-            (void)fprintf (st, "  %s %4d  %s\n", namebuf, rptr->width, rptr->desc ? rptr->desc : "");
+            (void)fprintf (st, "  %s %4d  %s\n",
+                           namebuf,
+                           rptr->width,
+                           rptr->desc ? rptr->desc : "");
             continue;
             }
         trptr = find_reg_glob (rptr->name, &tptr, &tdptr);
         if ((trptr == NULL) || (tdptr != dptr))
-            (void)fprintf (st, "  %s %s %4d  %s\n", dptr->name, namebuf, rptr->width, rptr->desc ? rptr->desc : "");
+            (void)fprintf (st, "  %s %s %4d  %s\n",
+                           dptr->name,
+                           namebuf,
+                           rptr->width,
+                           rptr->desc ? rptr->desc : "");
         else
-            (void)fprintf (st, "  %*s %s %4d  %s\n", (int)strlen(dptr->name), "", namebuf, rptr->width, rptr->desc ? rptr->desc : "");
+            (void)fprintf (st, "  %*s %s %4d  %s\n",
+                           (int)strlen(dptr->name), "",
+                           namebuf,
+                           rptr->width,
+                           rptr->desc ? rptr->desc : "");
         }
     FREE (namebuf);
     }
@@ -2578,22 +2601,26 @@ if (*cptr) {
                     break;
                     /*NOTREACHED*/ /* unreachable */ /* XXX(jhj): NOTREACHED below */
                     if (dptr->help)
-                        sim_printf ("H{ELP} %-17s Display help for device %s\n", dptr->name, dptr->name);
+                        sim_printf ("H{ELP} %-17s Display help for device %s\n",
+                                    dptr->name, dptr->name);
                     if (dptr->attach_help ||
                         (DEV_TYPE(dptr) == DEV_MUX) ||
                         (DEV_TYPE(dptr) == DEV_DISK) ||
                         (DEV_TYPE(dptr) == DEV_TAPE)) {
-                        sim_printf ("H{ELP} %s ATTACH\t Display help for device %s ATTACH command\n", dptr->name, dptr->name);
+                        sim_printf ("H{ELP} %s ATTACH\t Display help for device %s ATTACH command\n",
+                                    dptr->name, dptr->name);
                         }
                     if (dptr->registers) {
                         if (dptr->registers->name != NULL)
-                            sim_printf ("H{ELP} %s REGISTERS\t Display help for device %s register variables\n", dptr->name, dptr->name);
+                            sim_printf ("H{ELP} %s REGISTERS\t Display help for device %s register variables\n",
+                                        dptr->name, dptr->name);
                         }
                     if (dptr->modifiers) {
                         MTAB *mptr;
                         for (mptr = dptr->modifiers; mptr->pstring != NULL; mptr++) {
                             if (mptr->help) {
-                                sim_printf ("H{ELP} %s SET\t\t Display help for device %s SET commands\n", dptr->name, dptr->name);
+                                sim_printf ("H{ELP} %s SET\t\t Display help for device %s SET commands\n",
+                                            dptr->name, dptr->name);
                                 break;
                                 }
                             }
@@ -5162,9 +5189,14 @@ if (flag) {
     arch = " arm";
 #elif defined(__ia64__) || defined(_M_IA64) || defined(__itanium__)
     arch = " ia64";
-#elif defined(__ppc64__) || defined(__PPC64__) || defined(__ppc64le__) || defined(__PPC64LE__) || defined(__powerpc64__) || defined(__POWERPC64__) || defined(_M_PPC64) || defined(__PPC64) || defined(_ARCH_PPC64)
+#elif defined(__ppc64__) || defined(__PPC64__) || defined(__ppc64le__) || \
+      defined(__PPC64LE__) || defined(__powerpc64__) || defined(__POWERPC64__) || \
+      defined(_M_PPC64) || defined(__PPC64) || defined(_ARCH_PPC64)
     arch = " powerpc64";
-#elif defined(__ppc__) || defined(__PPC__) || defined(__powerpc__) || defined(__POWERPC__) || defined(_M_PPC) || defined(__PPC) || defined(__ppc32__) || defined(__PPC32__) || defined(__powerpc32__) || defined(__POWERPC32__) || defined(_M_PPC32) || defined(__PPC32)
+#elif defined(__ppc__) || defined(__PPC__) || defined(__powerpc__) || \
+      defined(__POWERPC__) || defined(_M_PPC) || defined(__PPC) || \
+      defined(__ppc32__) || defined(__PPC32__) || defined(__powerpc32__) || \
+      defined(__POWERPC32__) || defined(_M_PPC32) || defined(__PPC32)
     arch = " powerpc";
 #elif defined(__s390x__)
     arch = " s390x";
@@ -5186,7 +5218,8 @@ if (flag) {
     arch = " mips64";
 #elif defined(mips) || defined(__mips__) || defined(MIPS) || defined(_MIPS_) || defined(__mips)
     arch = " mips";
-#elif defined(__OpenRISC__) || defined(__OPENRISC__) || defined(__openrisc__) || defined(__OR1K__) || defined(__JOR1K__) || defined(__OPENRISC1K__) || defined(__OPENRISC1200__)
+#elif defined(__OpenRISC__) || defined(__OPENRISC__) || defined(__openrisc__) || \
+      defined(__OR1K__) || defined(__JOR1K__) || defined(__OPENRISC1K__) || defined(__OPENRISC1200__)
     arch = " openrisc";
 #elif defined(__sparc64) || defined(__SPARC64) || defined(__SPARC64__) || defined(__sparc64__)
     arch = " sparc64";
@@ -5244,9 +5277,14 @@ if (flag) {
         char osversion[2*PATH_MAX+1] = "";
         FILE *f;
 # if !defined(_AIX)
-        if ((f = popen ("uname -mrs 2> /dev/null", "r"))) {
+        if ((f = popen \
+             ("uname -mrs 2> /dev/null", "r"))) {
 # else
-        if ((f = popen ("sh -c 'echo \"$(command -p env uname -v 2> /dev/null).$(command -p env uname -r 2> /dev/null) $(command -p env uname -p 2> /dev/null)\"' 2> /dev/null", "r"))) {
+        if ((f = popen \
+             ("sh -c 'echo \"$(command -p env uname -v \
+               2> /dev/null).$(command -p env uname -r \
+               2> /dev/null) $(command -p env uname -p \
+               2> /dev/null)\"' 2> /dev/null", "r"))) {
 # endif /* if !defined(_AIX) */
             (void)memset (osversion, 0, sizeof(osversion));
             do {
@@ -8474,7 +8512,9 @@ UPDATE_SIM_TIME;                                        /* update sim time */
 
 if (sim_clock_queue == QUEUE_LIST_END) {                /* queue empty? */
     sim_interval = noqueue_time = NOQUEUE_WAIT;         /* flag queue empty */
-    sim_debug (SIM_DBG_EVENT, sim_dflt_dev, "Queue Empty New Interval = %d\n", sim_interval);
+    sim_debug (SIM_DBG_EVENT, sim_dflt_dev,
+               "Queue Empty New Interval = %d\n",
+               sim_interval);
     return SCPE_OK;
     }
 sim_processing_event = TRUE;
@@ -8488,7 +8528,8 @@ do {
         sim_interval = sim_clock_queue->time;
     else
         sim_interval = noqueue_time = NOQUEUE_WAIT;
-    sim_debug (SIM_DBG_EVENT, sim_dflt_dev, "Processing Event for %s\n", sim_uname (uptr));
+    sim_debug (SIM_DBG_EVENT, sim_dflt_dev,
+               "Processing Event for %s\n", sim_uname (uptr));
     if (uptr->action != NULL)
         reason = uptr->action (uptr);
     else
@@ -8500,10 +8541,14 @@ do {
 
 if (sim_clock_queue == QUEUE_LIST_END) {                /* queue empty? */
     sim_interval = noqueue_time = NOQUEUE_WAIT;         /* flag queue empty */
-    sim_debug (SIM_DBG_EVENT, sim_dflt_dev, "Processing Queue Complete New Interval = %d\n", sim_interval);
+    sim_debug (SIM_DBG_EVENT, sim_dflt_dev,
+               "Processing Queue Complete New Interval = %d\n",
+               sim_interval);
     }
 else
-    sim_debug (SIM_DBG_EVENT, sim_dflt_dev, "Processing Queue Complete New Interval = %d(%s)\n", sim_interval, sim_uname(sim_clock_queue));
+    sim_debug (SIM_DBG_EVENT, sim_dflt_dev,
+               "Processing Queue Complete New Interval = %d(%s)\n",
+               sim_interval, sim_uname(sim_clock_queue));
 
 if ((reason == SCPE_OK) && stop_cpu)
   {
@@ -9566,15 +9611,21 @@ CONST EXPTAB *ep = (CONST EXPTAB *)sim_exp_fnd (exp, match, 0);
 if (exp->buf_size) {
     char *bstr = sim_encode_quoted_string (exp->buf, exp->buf_ins);
 
-    (void)fprintf (st, "Match Buffer Size: %lld\n", (long long)exp->buf_size);
-    (void)fprintf (st, "Buffer Insert Offset: %lld\n", (long long)exp->buf_ins);
-    (void)fprintf (st, "Buffer Contents: %s\n", bstr);
+    (void)fprintf (st, "Match Buffer Size: %lld\n",
+                   (long long)exp->buf_size);
+    (void)fprintf (st, "Buffer Insert Offset: %lld\n",
+                   (long long)exp->buf_ins);
+    (void)fprintf (st, "Buffer Contents: %s\n",
+                   bstr);
     FREE (bstr);
     }
 if (exp->after)
-    (void)fprintf (st, "Halt After: %lld instructions\n", (long long)exp->after);
+    (void)fprintf (st, "Halt After: %lld instructions\n",
+                   (long long)exp->after);
 if (exp->dptr && exp->dbit)
-    (void)fprintf (st, "Debugging via: SET %s DEBUG%s%s\n", sim_dname(exp->dptr), exp->dptr->debflags ? "=" : "", exp->dptr->debflags ? get_dbg_verb (exp->dbit, exp->dptr) : "");
+    (void)fprintf (st, "Debugging via: SET %s DEBUG%s%s\n",
+                   sim_dname(exp->dptr), exp->dptr->debflags ? "=" : "",
+                   exp->dptr->debflags ? get_dbg_verb (exp->dbit, exp->dptr) : "");
 (void)fprintf (st, "Match Rules:\n");
 if (!*match)
     return sim_exp_showall (st, exp);
@@ -9773,17 +9824,23 @@ else
     (void)fprintf (st, "No Pending Input Data\n");
 if ((snd->next_time - sim_gtime()) > 0) {
     if ((snd->next_time - sim_gtime()) > (sim_timer_inst_per_sec()/1000000.0))
-        (void)fprintf (st, "Minimum of %d instructions (%d microseconds) before sending first character\n", (int)(snd->next_time - sim_gtime()),
+        (void)fprintf (st, "Minimum of %d instructions (%d microseconds) before sending first character\n",
+                       (int)(snd->next_time - sim_gtime()),
         (int)((snd->next_time - sim_gtime())/(sim_timer_inst_per_sec()/1000000.0)));
     else
-        (void)fprintf (st, "Minimum of %d instructions before sending first character\n", (int)(snd->next_time - sim_gtime()));
+        (void)fprintf (st, "Minimum of %d instructions before sending first character\n",
+                       (int)(snd->next_time - sim_gtime()));
     }
 if (snd->delay > (sim_timer_inst_per_sec()/1000000.0))
-    (void)fprintf (st, "Minimum of %d instructions (%d microseconds) between characters\n", (int)snd->delay, (int)(snd->delay/(sim_timer_inst_per_sec()/1000000.0)));
+    (void)fprintf (st, "Minimum of %d instructions (%d microseconds) between characters\n",
+                   (int)snd->delay, (int)(snd->delay/(sim_timer_inst_per_sec()/1000000.0)));
 else
-    (void)fprintf (st, "Minimum of %d instructions between characters\n", (int)snd->delay);
+    (void)fprintf (st, "Minimum of %d instructions between characters\n",
+                   (int)snd->delay);
 if (snd->dptr && snd->dbit)
-    (void)fprintf (st, "Debugging via: SET %s DEBUG%s%s\n", sim_dname(snd->dptr), snd->dptr->debflags ? "=" : "", snd->dptr->debflags ? get_dbg_verb (snd->dbit, snd->dptr) : "");
+    (void)fprintf (st, "Debugging via: SET %s DEBUG%s%s\n",
+                   sim_dname(snd->dptr), snd->dptr->debflags ? "=" : "",
+                   snd->dptr->debflags ? get_dbg_verb (snd->dbit, snd->dptr) : "");
 return SCPE_OK;
 }
 

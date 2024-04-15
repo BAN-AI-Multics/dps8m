@@ -172,7 +172,9 @@ char *get_mod_string(char * msg, word6 tag)
 word36 Add36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf)
   {
     CPT (cpt2L, 17); // Add36b
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Add36b op1 %012"PRIo64" op2 %012"PRIo64" carryin %o flagsToSet %06o flags %06o\n", op1, op2, carryin, flagsToSet, * flags);
+    sim_debug (DBG_TRACEEXT, & cpu_dev,
+               "Add36b op1 %012"PRIo64" op2 %012"PRIo64" carryin %o flagsToSet %06o flags %06o\n",
+               op1, op2, carryin, flagsToSet, * flags);
 
 // See: https://en.wikipedia.org/wiki/Two%27s_complement#Addition
 
@@ -609,11 +611,21 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
   {
     CPT (cpt2L, 22); // Sub72b
 #if defined(NEED_128)
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b op1 %012"PRIo64"%012"PRIo64" op2 %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\n",
- (word36) ((rshift_128 (op1, 36).l) & MASK36), (word36) (op1.l & MASK36), (word36) (rshift_128 (op2, 36).l & MASK36), (word36) (op2.l & MASK36), carryin, flagsToSet, * flags);
+    sim_debug (DBG_TRACEEXT, & cpu_dev,
+               "Sub72b op1 %012"PRIo64"%012"PRIo64" op2 %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\n",
+               (word36) ((rshift_128 (op1, 36).l) & MASK36),
+               (word36) (op1.l & MASK36),
+               (word36) (rshift_128 (op2, 36).l & MASK36),
+               (word36) (op2.l & MASK36),
+               carryin, flagsToSet, * flags);
 #else
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b op1 %012"PRIo64"%012"PRIo64" op2 %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\n",
- (word36) ((op1 >> 36) & MASK36), (word36) (op1 & MASK36), (word36) ((op2 >> 36) & MASK36), (word36) (op2 & MASK36), carryin, flagsToSet, * flags);
+    sim_debug (DBG_TRACEEXT, & cpu_dev,
+               "Sub72b op1 %012"PRIo64"%012"PRIo64" op2 %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\n",
+               (word36) ((op1 >> 36) & MASK36),
+               (word36) (op1 & MASK36),
+               (word36) ((op2 >> 36) & MASK36),
+               (word36) (op2 & MASK36),
+               carryin, flagsToSet, * flags);
 #endif
 
 // See: https://en.wikipedia.org/wiki/Two%27s_complement
@@ -653,11 +665,21 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
 
     // Do the math
 #if defined(NEED_128)
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b op1e %012"PRIo64"%012"PRIo64" op2e %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\n",
- (word36) ((rshift_128 (op1e, 36).l) & MASK36), (word36) (op1e.l & MASK36), (word36) (rshift_128 (op2e, 36).l & MASK36), (word36) (op2e.l & MASK36), carryin, flagsToSet, * flags);
+    sim_debug (DBG_TRACEEXT, & cpu_dev,
+               "Sub72b op1e %012"PRIo64"%012"PRIo64" op2e %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\n",
+               (word36) ((rshift_128 (op1e, 36).l) & MASK36),
+               (word36) (op1e.l & MASK36),
+               (word36) (rshift_128 (op2e, 36).l & MASK36),
+               (word36) (op2e.l & MASK36),
+               carryin, flagsToSet, * flags);
 #else
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b op1e %012"PRIo64"%012"PRIo64" op2e %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\n",
- (word36) ((op1e >> 36) & MASK36), (word36) (op1e & MASK36), (word36) ((op2e >> 36) & MASK36), (word36) (op2e & MASK36), carryin, flagsToSet, * flags);
+    sim_debug (DBG_TRACEEXT, & cpu_dev,
+               "Sub72b op1e %012"PRIo64"%012"PRIo64" op2e %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\n",
+               (word36) ((op1e >> 36) & MASK36),
+               (word36) (op1e & MASK36),
+               (word36) ((op2e >> 36) & MASK36),
+               (word36) (op2e & MASK36),
+               carryin, flagsToSet, * flags);
 #endif
 #if defined(NEED_128)
     word74 res = subtract_128 (subtract_128 (op1e, op2e), ci);
@@ -667,9 +689,11 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
     word74 res = (word72) (((word72s) op1e) - ((word72s) op2e) - ((word72s) ci));
 #endif
 #if defined(NEED_128)
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n", (word36) (rshift_128 (res, 36).l & MASK36), (word36) (res.l & MASK36), * flags, * ovf);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n",
+               (word36) (rshift_128 (res, 36).l & MASK36), (word36) (res.l & MASK36), * flags, * ovf);
 #else
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n", (word36) ((res >> 36) & MASK36), (word36) (res & MASK36), * flags, * ovf);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n",
+               (word36) ((res >> 36) & MASK36), (word36) (res & MASK36), * flags, * ovf);
 #endif
 
     // Extract the overflow bits
@@ -747,9 +771,11 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
       }
 
 #if defined(NEED_128)
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n", (word36) (rshift_128 (res, 36).l & MASK36), (word36) (res.l & MASK36), * flags, * ovf);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n",
+               (word36) (rshift_128 (res, 36).l & MASK36), (word36) (res.l & MASK36), * flags, * ovf);
 #else
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n", (word36) ((res >> 36) & MASK36), (word36) (res & MASK36), * flags, * ovf);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n",
+               (word36) ((res >> 36) & MASK36), (word36) (res & MASK36), * flags, * ovf);
 #endif
     return res;
   }

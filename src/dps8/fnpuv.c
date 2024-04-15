@@ -521,7 +521,8 @@ static void fnpuv_start_write_3270_actual (UNUSED uv_tcp_t * client, unsigned ch
         break;
     if (stn_no >= ADDR_MAP_ENTRIES)
       {
-        sim_printf ("fnpuv_start_write_3270_actual couldn't find selDevChar %02x\r\n", (unsigned int) fnpData.ibm3270ctlr[ASSUME0].selDevChar);
+        sim_printf ("fnpuv_start_write_3270_actual couldn't find selDevChar %02x\r\n",
+                    (unsigned int) fnpData.ibm3270ctlr[ASSUME0].selDevChar);
         return;
       }
     uv_tcp_t * stn_client = fnpData.ibm3270ctlr[ASSUME0].stations[stn_no].client;
@@ -1521,11 +1522,13 @@ int fnpuv3270Init (int telnet3270_port)
                    on_new_3270_connection);
     if (r)
      {
-        sim_printf ("\r[FNP emulation: listen error: %s:%ld: %s]\r\n", fnpData.telnet_address, (long) telnet3270_port, uv_strerror(r));
+        sim_printf ("\r[FNP emulation: listen error: %s:%ld: %s]\r\n",
+                    fnpData.telnet_address, (long) telnet3270_port, uv_strerror(r));
         return 1;
      }
     fnpData.du3270_server_inited = true;
-    sim_printf ("\r[FNP emulation: TN3270 server listening on %s:%ld]\r\n", fnpData.telnet_address, (long) telnet3270_port);
+    sim_printf ("\r[FNP emulation: TN3270 server listening on %s:%ld]\r\n",
+                fnpData.telnet_address, (long) telnet3270_port);
     fnpuv3270Poll (false);
     return 0;
   }

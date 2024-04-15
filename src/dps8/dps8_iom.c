@@ -2201,8 +2201,14 @@ static void write_LPW (uint iom_unit_idx, uint chan)
 
 #if defined(TESTING)
 void dumpDCW (word36 DCW, word1 LPW_23_REL) {
-  static char * charCtrls[4] = {"terminate", "undefined", "proceed", "marker"};
-  static char * chanCmds[16] = {"record", "undefined", "nondata", "undefined", "undefined", "undefined", "multirecord", "undefined", "character", "undefined", "undefined", "undefined", "undefined", "undefined", "undefined", "undefined"};
+  static char * charCtrls[4] =
+    { "terminate", "undefined", "proceed", "marker" };
+  static char * chanCmds[16] =
+    { "record",    "undefined", "nondata",     "undefined",
+      "undefined", "undefined", "multirecord", "undefined",
+      "character", "undefined", "undefined",   "undefined",
+      "undefined", "undefined", "undefined",   "undefined"
+    };
   word3 DCW_18_20_CP =      getbits36_3 (DCW, 18);
 
   if (DCW_18_20_CP == 07) { // IDCW
@@ -3083,7 +3089,8 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan) {
   if ((!d->in_use) || (!d->iom_cmd)) {
     p -> stati = 06000; // t, power off/missing
 #if defined(POLTS_TESTING)
-if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// terminate 10. ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
+if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf \
+                        ("// terminate 10. ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
 #endif
     goto terminate;
   }
@@ -3113,7 +3120,8 @@ if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// termin
   if (rc < 0) {
     p -> dev_code = getbits36_6 (p -> DCW, 6);
 #if defined(POLTS_TESTING)
-if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// terminate 9. ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
+if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) \
+                        sim_printf ("// terminate 9. ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
 #endif
     goto terminate;
   }
@@ -3124,14 +3132,16 @@ if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// termin
 
   if (rc == IOM_CMD_DISCONNECT) {
 #if defined(POLTS_TESTING)
-if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// terminate 8. ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
+if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf \
+                        ("// terminate 8. ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
 #endif
     goto terminate;
   }
 
   if (p->masked) {
 #if defined(POLTS_TESTING)
-if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// terminate 7. ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
+if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf \
+                        ("// terminate 7. ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
 #endif
     goto terminate;
   }
@@ -3156,7 +3166,8 @@ if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// termin
     if (uff) {
       // We get a uff if the LPW tally hit 0
 #if defined(POLTS_TESTING)
-if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// terminate 6. ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
+if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) \
+                        sim_printf ("// terminate 6. ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
 #endif
       goto terminate;
     }
@@ -3206,7 +3217,8 @@ if (iomUnitIdx == 1 && chan == 020)
     if (rc2 < 0) {
       p -> dev_code = getbits36_6 (p -> DCW, 6);
 #if defined(POLTS_TESTING)
-if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// terminate 5. ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
+if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) \
+                        sim_printf ("// terminate 5. ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
 #endif
       goto terminate;
     }
@@ -3214,7 +3226,8 @@ if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// termin
     if (rc2 == IOM_CMD_DISCONNECT) {
       terminate = true;
 #if defined(POLTS_TESTING)
-if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// terminate 4. ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
+if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf \
+                        ("// terminate 4. ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
 #endif
     }
 
@@ -3224,15 +3237,18 @@ if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// termin
     // If IDCW and terminate and nondata
     if (IS_IDCW (p) && p->IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE && p->IDCW_CHAN_CMD == CHAN_CMD_NONDATA) {
 #if defined(POLTS_TESTING)
-if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// terminate 1. ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
+if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) \
+                        sim_printf ("// terminate 1. ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
 #endif
       goto terminate;
     }
     // If IOTD and last IDCW was terminate
     if (IS_IOTD (p) && idcw_terminate && rc2 != IOM_CMD_RESIDUE) {
 #if defined(POLTS_TESTING)
-//if (iomUnitIdx == 1 && chan == 020)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl == 0 in chan %d (%o) IOTP\n", chan, chan);
-if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// terminate 2. ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
+//if (iomUnitIdx == 1 && chan == 020)      if_sim_debug (DBG_TRACE, & iom_dev)
+//                                           sim_printf ("// ctrl == 0 in chan %d (%o) IOTP\n", chan, chan);
+if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) \
+                        sim_printf ("// terminate 2. ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
 #endif
       goto terminate;
     }

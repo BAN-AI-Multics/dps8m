@@ -627,8 +627,8 @@ struct EXPTAB {
     char                *match_pattern;                  /* match pattern for format */
     int32               cnt;                             /* proceed count */
     int32               switches;                        /* flags */
-# define EXP_TYP_PERSIST         (SWMASK ('P'))          /* rule persists after match, default is once a rule matches, it is removed */
-# define EXP_TYP_CLEARALL        (SWMASK ('C'))          /* clear all rules after matching this rule, default is to once a rule matches, it is removed */
+# define EXP_TYP_PERSIST         (SWMASK ('P'))          /* rule persists after match/default once rule matches, remove it */
+# define EXP_TYP_CLEARALL        (SWMASK ('C'))          /* clear rules after matching rule/default once rule matches, remove it */
 # define EXP_TYP_REGEX           (SWMASK ('R'))          /* rule pattern is a regular expression */
 # define EXP_TYP_REGEX_I         (SWMASK ('I'))          /* regular expression pattern matching should be case independent */
 # define EXP_TYP_TIME            (SWMASK ('T'))          /* halt delay is in microseconds instead of instructions */
@@ -829,8 +829,10 @@ struct FILEREF {
 /* with an expression which causes side effects (i.e. must be executed for */
 /* the program to work correctly) */
 
-# define ASSURE(_Expression) while (!(_Expression)) {fprintf(stderr, "%s failed at %s line %d\n", #_Expression, __FILE__, __LINE__);  \
-                                                    sim_printf("%s failed at %s line %d\n", #_Expression, __FILE__, __LINE__);       \
-                                                    abort();}
-
+# define ASSURE(_Expression) while (!(_Expression))                                         \
+         {                                                                                  \
+           fprintf(stderr, "%s failed at %s line %d\n", #_Expression, __FILE__, __LINE__);  \
+           sim_printf("%s failed at %s line %d\n", #_Expression, __FILE__, __LINE__);       \
+           abort();\
+         }
 #endif

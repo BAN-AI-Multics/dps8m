@@ -240,7 +240,8 @@ uint32 err, tbc;
 size_t i;
 struct disk_context *ctx = (struct disk_context *)uptr->disk_ctx;
 
-sim_debug (ctx->dbit, ctx->dptr, "_sim_disk_rdsect(unit=%lu, lba=0x%X, sects=%lu)\n", (unsigned long)(uptr-ctx->dptr->units), lba, (unsigned long)sects);
+sim_debug (ctx->dbit, ctx->dptr, "_sim_disk_rdsect(unit=%lu, lba=0x%X, sects=%lu)\n",
+           (unsigned long)(uptr-ctx->dptr->units), lba, (unsigned long)sects);
 
 da = ((t_offset)lba) * ctx->sector_size;
 tbc = sects * ctx->sector_size;
@@ -264,11 +265,12 @@ t_stat r;
 struct disk_context *ctx = (struct disk_context *)uptr->disk_ctx;
 t_seccnt sread = 0;
 
-sim_debug (ctx->dbit, ctx->dptr, "sim_disk_rdsect(unit=%lu, lba=0x%X, sects=%lu)\n", (unsigned long)(uptr-ctx->dptr->units), lba, (unsigned long)sects);
+sim_debug (ctx->dbit, ctx->dptr, "sim_disk_rdsect(unit=%lu, lba=0x%X, sects=%lu)\n",
+           (unsigned long)(uptr-ctx->dptr->units), lba, (unsigned long)sects);
 
-if ((sects == 1) &&                                     /* Single sector reads */
-    (lba >= (uptr->capac*ctx->capac_factor)/(ctx->sector_size/((ctx->dptr->flags & DEV_SECTORS) ? 512 : 1)))) {/* beyond the end of the disk */
-    (void)memset (buf, '\0', ctx->sector_size);               /* are bad block management efforts - zero buffer */
+if ((sects == 1) &&                                    /* Single sector reads beyond the end of the disk */
+    (lba >= (uptr->capac*ctx->capac_factor)/(ctx->sector_size/((ctx->dptr->flags & DEV_SECTORS) ? 512 : 1)))) {
+    (void)memset (buf, '\0', ctx->sector_size);        /* are bad block management efforts - zero buffer */
     if (sectsread)
         *sectsread = 1;
     return SCPE_OK;                                     /* return success */
@@ -340,7 +342,8 @@ uint32 err, tbc;
 size_t i;
 struct disk_context *ctx = (struct disk_context *)uptr->disk_ctx;
 
-sim_debug (ctx->dbit, ctx->dptr, "_sim_disk_wrsect(unit=%lu, lba=0x%X, sects=%lu)\n", (unsigned long)(uptr-ctx->dptr->units), lba, (unsigned long)sects);
+sim_debug (ctx->dbit, ctx->dptr, "_sim_disk_wrsect(unit=%lu, lba=0x%X, sects=%lu)\n",
+           (unsigned long)(uptr-ctx->dptr->units), lba, (unsigned long)sects);
 
 da = ((t_offset)lba) * ctx->sector_size;
 tbc = sects * ctx->sector_size;
@@ -363,7 +366,8 @@ uint32 f = DK_GET_FMT (uptr);
 t_stat r;
 uint8 *tbuf = NULL;
 
-sim_debug (ctx->dbit, ctx->dptr, "sim_disk_wrsect(unit=%lu, lba=0x%X, sects=%lu)\n", (unsigned long)(uptr-ctx->dptr->units), lba, (unsigned long)sects);
+sim_debug (ctx->dbit, ctx->dptr, "sim_disk_wrsect(unit=%lu, lba=0x%X, sects=%lu)\n",
+           (unsigned long)(uptr-ctx->dptr->units), lba, (unsigned long)sects);
 
 if (uptr->dynflags & UNIT_DISK_CHK) {
     DEVICE *dptr = find_dev_from_unit (uptr);
@@ -385,7 +389,10 @@ if (uptr->dynflags & UNIT_DISK_CHK) {
             uint32 save_dctrl = dptr->dctrl;
             FILE *save_sim_deb = sim_deb;
 
-            sim_printf ("\n%s%lu: Write Address Verification Error on lbn %lu(0x%X) of %lu(0x%X).\n", sim_dname (dptr), (unsigned long)(uptr-dptr->units), (unsigned long)((unsigned long)lba+(unsigned long)sect), (int)((int)lba+(int)sect), (unsigned long)total_sectors, (int)total_sectors);
+            sim_printf ("\n%s%lu: Write Address Verification Error on lbn %lu(0x%X) of %lu(0x%X).\n",
+                        sim_dname (dptr), (unsigned long)(uptr-dptr->units),
+                        (unsigned long)((unsigned long)lba+(unsigned long)sect),
+                        (int)((int)lba+(int)sect), (unsigned long)total_sectors, (int)total_sectors);
             dptr->dctrl = 0xFFFFFFFF;
             sim_deb = save_sim_deb ? save_sim_deb : stdout;
             sim_disk_data_trace (uptr, buf+sect*ctx->sector_size, lba+sect, ctx->sector_size,    "Found", TRUE, 1);
@@ -721,10 +728,14 @@ if ((Scb.scb_w_cluster != Home.hm2_w_cluster) ||
     (Scb.scb_b_struclev != Home.hm2_b_struclev))
     goto Return_Cleanup;
 if (!sim_quiet) {
-    sim_printf ("%s%lu: '%s' Contains ODS%lu File system:\n", sim_dname (dptr), (unsigned long)(uptr-dptr->units), uptr->filename, (unsigned long)Home.hm2_b_struclev);
-    sim_printf ("%s%lu: Volume Name: %12.12s ", sim_dname (dptr), (unsigned long)(uptr-dptr->units), Home.hm2_t_volname);
-    sim_printf ("Format: %12.12s ", Home.hm2_t_format);
-    sim_printf ("SectorsInVolume: %lu\n", (unsigned long)Scb.scb_l_volsize);
+    sim_printf ("%s%lu: '%s' Contains ODS%lu File system:\n",
+                sim_dname (dptr), (unsigned long)(uptr-dptr->units), uptr->filename, (unsigned long)Home.hm2_b_struclev);
+    sim_printf ("%s%lu: Volume Name: %12.12s ",
+                sim_dname (dptr), (unsigned long)(uptr-dptr->units), Home.hm2_t_volname);
+    sim_printf ("Format: %12.12s ",
+                Home.hm2_t_format);
+    sim_printf ("SectorsInVolume: %lu\n",
+                (unsigned long)Scb.scb_l_volsize);
     }
 ret_val = ((t_offset)Scb.scb_l_volsize) * 512;
 
@@ -805,7 +816,8 @@ ctx->capac_factor = ((dptr->dwidth / dptr->aincr) == 16) ? 2 : 1; /* save capaci
 ctx->xfer_element_size = (uint32)xfer_element_size;     /* save xfer_element_size */
 ctx->dptr = dptr;                                       /* save DEVICE pointer */
 ctx->dbit = dbit;                                       /* save debug bit */
-sim_debug (ctx->dbit, ctx->dptr, "sim_disk_attach(unit=%lu,filename='%s')\n", (unsigned long)(uptr-ctx->dptr->units), uptr->filename);
+sim_debug (ctx->dbit, ctx->dptr, "sim_disk_attach(unit=%lu,filename='%s')\n",
+           (unsigned long)(uptr-ctx->dptr->units), uptr->filename);
 ctx->auto_format = auto_format;                         /* save that we auto selected format */
 ctx->storage_sector_size = (uint32)sector_size;         /* Default */
 if ((sim_switches & SWMASK ('R')) ||                    /* read only? */
@@ -818,7 +830,8 @@ if ((sim_switches & SWMASK ('R')) ||                    /* read only? */
         return _err_return (uptr, SCPE_OPENERR);        /* yes, error */
     uptr->flags = uptr->flags | UNIT_RO;                /* set rd only */
     if (!sim_quiet) {
-        sim_printf ("%s%lu: unit is read only (%s)\n", sim_dname (dptr), (unsigned long)(uptr-dptr->units), cptr);
+        sim_printf ("%s%lu: unit is read only (%s)\n", sim_dname (dptr),
+                    (unsigned long)(uptr-dptr->units), cptr);
         }
     }
 else {                                                  /* normal */
@@ -832,19 +845,22 @@ else {                                                  /* normal */
                 return _err_return (uptr, SCPE_OPENERR);/* yes, error */
             uptr->flags = uptr->flags | UNIT_RO;        /* set rd only */
             if (!sim_quiet)
-                sim_printf ("%s%lu: unit is read only (%s)\n", sim_dname (dptr), (unsigned long)(uptr-dptr->units), cptr);
+                sim_printf ("%s%lu: unit is read only (%s)\n", sim_dname (dptr),
+                            (unsigned long)(uptr-dptr->units), cptr);
             }
         else {                                          /* doesn't exist */
             if (sim_switches & SWMASK ('E'))            /* must exist? */
-                return _err_return (uptr, SCPE_OPENERR); /* yes, error */
+                return _err_return (uptr, SCPE_OPENERR);/* yes, error */
             if (create_function) //-V547 /* cppcheck-suppress internalAstError */
-                uptr->fileref = create_function (cptr, ((t_offset)uptr->capac)*ctx->capac_factor*((dptr->flags & DEV_SECTORS) ? 512 : 1));/* create new file */
+                uptr->fileref = create_function (cptr,  /* create new file */
+                                                 ((t_offset)uptr->capac)*ctx->capac_factor*((dptr->flags & DEV_SECTORS) ? 512 : 1));
             else
                 uptr->fileref = open_function (cptr, "wb+");/* open new file */
             if (uptr->fileref == NULL)                  /* open fail? */
                 return _err_return (uptr, SCPE_OPENERR);/* yes, error */
             if (!sim_quiet)
-                sim_printf ("%s%lu: creating new file (%s)\n", sim_dname (dptr), (unsigned long)(uptr-dptr->units), cptr);
+                sim_printf ("%s%lu: creating new file (%s)\n", sim_dname (dptr),
+                            (unsigned long)(uptr-dptr->units), cptr);
             created = TRUE;
             }
         }                                               /* end if null */
@@ -862,7 +878,9 @@ if ((created) && (!copied)) { //-V560
     if (secbuf == NULL)
         r = SCPE_MEM;
     if (r == SCPE_OK)
-        r = sim_disk_wrsect (uptr, (t_lba)(((((t_offset)uptr->capac)*ctx->capac_factor*((dptr->flags & DEV_SECTORS) ? 512 : 1)) - ctx->sector_size)/ctx->sector_size), secbuf, NULL, 1); /* Write Last Sector */
+        r = sim_disk_wrsect (uptr,
+                             (t_lba)(((((t_offset)uptr->capac)*ctx->capac_factor*((dptr->flags & DEV_SECTORS) ? 512 : 1)) - \
+                              ctx->sector_size)/ctx->sector_size), secbuf, NULL, 1); /* Write Last Sector */
     if (r == SCPE_OK)
         r = sim_disk_wrsect (uptr, (t_lba)(0), secbuf, NULL, 1); /* Write First Sector */
     FREE (secbuf);
@@ -901,10 +919,15 @@ if ((created) && (!copied)) { //-V560
                 return SCPE_OPENERR;
                 }
             if (!sim_quiet)
-                sim_printf ("%s%lu: Initialized To Sector Address %luMB.  %lu%% complete.\r", sim_dname (dptr), (unsigned long)(uptr-dptr->units), (unsigned long)((((float)lba)*sector_size)/1000000), (unsigned long)((((float)lba)*100)/total_sectors));
+                sim_printf ("%s%lu: Initialized To Sector Address %luMB.  %lu%% complete.\r",
+                            sim_dname (dptr), (unsigned long)(uptr-dptr->units),
+                            (unsigned long)((((float)lba)*sector_size)/1000000),
+                            (unsigned long)((((float)lba)*100)/total_sectors));
             }
         if (!sim_quiet)
-            sim_printf ("%s%lu: Initialized To Sector Address %luMB.  100%% complete.\n", sim_dname (dptr), (unsigned long)(uptr-dptr->units), (unsigned long)((((float)lba)*sector_size)/1000000));
+            sim_printf ("%s%lu: Initialized To Sector Address %luMB.  100%% complete.\n",
+                        sim_dname (dptr), (unsigned long)(uptr-dptr->units),
+                        (unsigned long)((((float)lba)*sector_size)/1000000));
         FREE (init_buf);
         }
     }
@@ -942,20 +965,31 @@ if (sim_switches & SWMASK ('K')) {
                     uint32 save_dctrl = dptr->dctrl;
                     FILE *save_sim_deb = sim_deb;
 
-                    sim_printf ("\n%s%lu: Verification Error on lbn %lu(0x%X) of %lu(0x%X).\n", sim_dname (dptr), (unsigned long)(uptr-dptr->units), (unsigned long)((unsigned long)lba+(unsigned long)sect), (int)((int)lba+(int)sect), (unsigned long)total_sectors, (int)total_sectors);
+                    sim_printf ("\n%s%lu: Verification Error on lbn %lu(0x%X) of %lu(0x%X).\n", sim_dname (dptr),
+                                (unsigned long)(uptr-dptr->units),
+                                (unsigned long)((unsigned long)lba+(unsigned long)sect),
+                                (int)((int)lba+(int)sect),
+                                (unsigned long)total_sectors,
+                                (int)total_sectors);
                     dptr->dctrl = 0xFFFFFFFF;
                     sim_deb = stdout;
-                    sim_disk_data_trace (uptr, verify_buf+sect*sector_size, lba+sect, sector_size,    "Found", TRUE, 1);
+                    sim_disk_data_trace (uptr, verify_buf+sect*sector_size, lba+sect, sector_size,
+                                         "Found", TRUE, 1);
                     dptr->dctrl = save_dctrl;
                     sim_deb = save_sim_deb;
                     }
                 }
             }
         if (!sim_quiet)
-            sim_printf ("%s%lu: Verified containing Sector Address %luMB.  %lu%% complete.\r", sim_dname (dptr), (unsigned long)(uptr-dptr->units), (unsigned long)((((float)lba)*sector_size)/1000000), (unsigned long)((((float)lba)*100)/total_sectors));
+            sim_printf ("%s%lu: Verified containing Sector Address %luMB.  %lu%% complete.\r",
+                        sim_dname (dptr), (unsigned long)(uptr-dptr->units),
+                        (unsigned long)((((float)lba)*sector_size)/1000000),
+                        (unsigned long)((((float)lba)*100)/total_sectors));
         }
     if (!sim_quiet)
-        sim_printf ("%s%lu: Verified containing Sector Address %luMB.  100%% complete.\n", sim_dname (dptr), (unsigned long)(uptr-dptr->units), (unsigned long)((((float)lba)*sector_size)/1000000));
+        sim_printf ("%s%lu: Verified containing Sector Address %luMB.  100%% complete.\n",
+                    sim_dname (dptr), (unsigned long)(uptr-dptr->units),
+                    (unsigned long)((((float)lba)*sector_size)/1000000));
     FREE (verify_buf);
     uptr->dynflags |= UNIT_DISK_CHK;
     }
@@ -970,17 +1004,20 @@ if (capac && (capac != (t_offset)-1)) {
             (filesystem_capac > (((t_offset)uptr->capac)*ctx->capac_factor*((dptr->flags & DEV_SECTORS) ? 512 : 1)))) {
             if (!sim_quiet) {
                 uptr->capac = (t_addr)(filesystem_capac/(ctx->capac_factor*((dptr->flags & DEV_SECTORS) ? 512 : 1)));
-                sim_printf ("%s%lu: The file system on the disk %s is larger than simulated device (%s > ", sim_dname (dptr), (unsigned long)(uptr-dptr->units), cptr, sprint_capac (dptr, uptr));
+                sim_printf ("%s%lu: The file system on the disk %s is larger than simulated device (%s > ",
+                            sim_dname (dptr), (unsigned long)(uptr-dptr->units), cptr, sprint_capac (dptr, uptr));
                 uptr->capac = saved_capac;
                 sim_printf ("%s)\n", sprint_capac (dptr, uptr));
                 }
             sim_disk_detach (uptr);
             return SCPE_OPENERR;
             }
-        if ((capac < (((t_offset)uptr->capac)*ctx->capac_factor*((dptr->flags & DEV_SECTORS) ? 512 : 1))) && (DKUF_F_STD != DK_GET_FMT (uptr))) {
+        if ((capac < (((t_offset)uptr->capac)*ctx->capac_factor*((dptr->flags & DEV_SECTORS) ? 512 : 1))) && \
+            (DKUF_F_STD != DK_GET_FMT (uptr))) {
             if (!sim_quiet) {
                 uptr->capac = (t_addr)(capac/(ctx->capac_factor*((dptr->flags & DEV_SECTORS) ? 512 : 1)));
-                sim_printf ("%s%lu: non expandable disk %s is smaller than simulated device (%s < ", sim_dname (dptr), (unsigned long)(uptr-dptr->units), cptr, sprint_capac (dptr, uptr));
+                sim_printf ("%s%lu: non expandable disk %s is smaller than simulated device (%s < ",
+                            sim_dname (dptr), (unsigned long)(uptr-dptr->units), cptr, sprint_capac (dptr, uptr));
                 uptr->capac = saved_capac;
                 sim_printf ("%s)\n", sprint_capac (dptr, uptr));
                 }
@@ -1015,7 +1052,8 @@ if ((uptr == NULL) || !(uptr->flags & UNIT_ATT))
 ctx = (struct disk_context *)uptr->disk_ctx;
 fileref = uptr->fileref;
 
-//sim_debug (ctx->dbit, ctx->dptr, "sim_disk_detach(unit=%lu,filename='%s')\n", (unsigned long)(uptr-ctx->dptr->units), uptr->filename);
+//sim_debug (ctx->dbit, ctx->dptr, "sim_disk_detach(unit=%lu,filename='%s')\n",
+//           (unsigned long)(uptr-ctx->dptr->units), uptr->filename);
 
 switch (DK_GET_FMT (uptr)) {                            /* case on format */
     case DKUF_F_STD:                                    /* Simh */

@@ -113,12 +113,13 @@ static void addSDW (word24 addr, long segnum, long length)
     // word36 * sdwp = (word36 *) M + ADDR_DSP + y1;
     word24 sdw0 = ADDR_DSP + y1 + 0;
     word24 sdw1 = ADDR_DSP + y1 + 1;
-    //sim_printf ("segnum %lo length %lu bound %u sdw0 %o sdw1 %o ADDR %06o\n", (unsigned long) segnum, length, bound, sdw0, sdw1, pgTblAddr);
+    //sim_printf ("segnum %lo length %lu bound %u sdw0 %o sdw1 %o ADDR %06o\n",
+    //            (unsigned long) segnum, length, bound, sdw0, sdw1, pgTblAddr);
     putbits36_24 ((word36 *) & M[sdw0],  0, pgTblAddr); // ADDR
 // I can't get segldr_boot to cross to ring 4
-//    putbits36_3  (& M[sdw0], 24, 4);                // R1
-//    putbits36_3  (& M[sdw0], 27, 4);                // R2
-//    putbits36_3  (& M[sdw0], 30, 4);                // R3
+//  putbits36_3  (& M[sdw0], 24, 4);                // R1
+//  putbits36_3  (& M[sdw0], 27, 4);                // R2
+//  putbits36_3  (& M[sdw0], 30, 4);                // R3
     putbits36_3  ((word36 *) & M[sdw0], 24, 0);     // R1
     putbits36_3  ((word36 *) & M[sdw0], 27, 0);     // R2
     putbits36_3  ((word36 *) & M[sdw0], 30, 0);     // R3
@@ -231,7 +232,8 @@ static t_stat stack (char * p2, char * p3)
     // Add SDW
     addSDW (nextSegAddr, segnum, length);
 
-    sim_printf ("Placed stack (%lo) at %o length %lo allocated %lo\n", (unsigned long) segnum, nextSegAddr, (unsigned long) len, length);
+    sim_printf ("Placed stack (%lo) at %o length %lo allocated %lo\n",
+                (unsigned long) segnum, nextSegAddr, (unsigned long) len, length);
     // Mark the pages as used
     nextSegAddr += length;
 
@@ -329,7 +331,8 @@ static t_stat bload (char * p2, char * p3)
         addSDW (0, 0, lengthp);
       }
 
-    sim_printf ("Loaded %s (%lo) at %o length %o allocated %o\n", p3, segnum < 0 ? 0 : (unsigned long) segnum, startAddr, length, lengthp);
+    sim_printf ("Loaded %s (%lo) at %o length %o allocated %o\n",
+                p3, segnum < 0 ? 0 : (unsigned long) segnum, startAddr, length, lengthp);
     close (deckfd);
     return SCPE_OK;
   }

@@ -183,7 +183,12 @@ get_git_ptch()
                 # shellcheck disable=SC2250
                 OIFS="$IFS"
                 # shellcheck disable=SC2086
-                PATDIF=$(printf '%s\n' ${GITPAT:-XXXXXX} | sed -e "s/$(printf '%s\n' ${GITVER:-XXXXXX} | sed -e 's/*//')//" 2> /dev/null | sed -e 's/\(^.*-[0-9]+-g.*\)/\1/' 2> /dev/null | sed -e "s/${GITVER:-XXXXXX}//" 2> /dev/null | cut -d '-' -f 2 2> /dev/null ) ||
+                PATDIF=$(printf '%s\n' ${GITPAT:-XXXXXX} | \
+                         sed -e "s/$(printf '%s\n' ${GITVER:-XXXXXX} | \
+                         sed -e 's/*//')//" 2> /dev/null | \
+                         sed -e 's/\(^.*-[0-9]+-g.*\)/\1/' 2> /dev/null | \
+                         sed -e "s/${GITVER:-XXXXXX}//" 2> /dev/null | \
+                         cut -d '-' -f 2 2> /dev/null ) ||
                             { # /* PATDIF */
                                 IFS="${OIFS:?}" || true > /dev/null 2>&1
                                 printf >&2 '%s\n' \

@@ -32,15 +32,18 @@ struct _fault_register {
     bool    CON_B;      // CON fault. A $CONNECT signal has been received through port B.
     bool    CON_C;      // CON fault. A $CONNECT signal has been received through port C.
     bool    CON_D;      // CON fault. A $CONNECT signal has been received through port D.
-    bool    DA_ERR;     // ONC fault. Operation not complete. Processor/system controller interface sequence error 1 has been detected. (Yeah, right)
-    bool    DA_ERR2;    // ONC fault. Operation not completed. Processor/system controller interface sequence error 2 has been detected.
+    bool    DA_ERR;     // ONC fault. Operation not complete. Processor/system controller interface
+                        //                                     sequence error 1 has been detected. (Yeah, right)
+    bool    DA_ERR2;    // ONC fault. Operation not completed. Processor/system controller interface
+                        //                                     sequence error 2 has been detected.
     int     IA_A;       // Coded illegal action, port A. (See Table 3-2)
     int     IA_B;       // Coded illegal action, port B. (See Table 3-2)
     int     IA_C;       // Coded illegal action, port C. (See Table 3-2)
     int     IA_D;       // Coded illegal action, port D. (See Table 3-2)
     bool    CPAR_DIV;   // A parity error has been detected in the cache memory directory. (Not likely)
     bool    CPAR_STR;   // PAR fault. A data parity error has been detected in the cache memory.
-    bool    CPAR_IA;    // PAR fault. An illegal action has been received from a system controller during a store operation with cache memory enabled.
+    bool    CPAR_IA;    // PAR fault. An illegal action has been received from a system controller
+                        //             during a store operation with cache memory enabled.
     bool    CPAR_BLK;   // PAR fault. A cache memory parity error has occurred during a cache memory data block load.
 
     // odd word

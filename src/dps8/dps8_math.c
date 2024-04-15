@@ -204,18 +204,21 @@ float72 IEEElongdoubleToFloat72(long double f0)
             //result = bitfieldInsert72(result, 1, n, 1);
             putbits72 (& result, 71-n, 1, 1);
             mant -= bitval;
-            //sim_printf ("Inserting a bit @ %d %012"PRIo64" %012"PRIo64"\n", n , (word36)((result >> 36) & DMASK), (word36)(result & DMASK));
+            //sim_printf ("Inserting a bit @ %d %012"PRIo64" %012"PRIo64"\n",
+            //            n, (word36)((result >> 36) & DMASK), (word36)(result & DMASK));
         }
         bitval /= 2.0;
     }
     //sim_printf ("n=%d mant=%f\n", n, mant);
-    //sim_printf ("result=%012"PRIo64" %012"PRIo64"\n", (word36)((result >> 36) & DMASK), (word36)(result & DMASK));
+    //sim_printf ("result=%012"PRIo64" %012"PRIo64"\n",
+    //            (word36)((result >> 36) & DMASK), (word36)(result & DMASK));
 
     // if f is < 0 then take 2-comp of result ...
     if (sign)
     {
         result = -result & (((word72)1 << 64) - 1);
-        //sim_printf ("-result=%012"PRIo64" %012"PRIo64"\n", (word36)((result >> 36) & DMASK), (word36)(result & DMASK));
+        //sim_printf ("-result=%012"PRIo64" %012"PRIo64"\n",
+        //            (word36)((result >> 36) & DMASK), (word36)(result & DMASK));
     }
     // insert exponent ...
     int e = (int)exp;
@@ -321,7 +324,8 @@ void IEEElongdoubleToEAQ(long double f0)
             //result = bitfieldInsert72(result, 1, n, 1);
             putbits72 (& result 71-n, 1, 1);
             mant -= bitval;
-            //sim_printf ("Inserting a bit @ %d %012"PRIo64" %012"PRIo64"\n", n , (word36)((result >> 36) & DMASK), (word36)(result & DMASK));
+            //sim_printf ("Inserting a bit @ %d %012"PRIo64" %012"PRIo64"\n",
+            //            n, (word36)((result >> 36) & DMASK), (word36)(result & DMASK));
         }
         bitval /= 2.0;
     }
@@ -2306,7 +2310,8 @@ void dufm (bool normalize) {
   int    e1 = SIGNEXT8_int (cpu . rE & MASK8);
 
 #if !defined(NEED_128)
-  sim_debug (DBG_TRACEEXT, & cpu_dev, "dufm e1 %d %03o m1 %012"PRIo64" %012"PRIo64"\n", e1, e1, (word36) (m1 >> 36) & MASK36, (word36) m1 & MASK36);
+  sim_debug (DBG_TRACEEXT, & cpu_dev, "dufm e1 %d %03o m1 %012"PRIo64" %012"PRIo64"\n",
+             e1, e1, (word36) (m1 >> 36) & MASK36, (word36) m1 & MASK36);
 #endif
    // 64-bit mantissa (incl sign)
 #if defined(NEED_128)
@@ -2321,7 +2326,8 @@ void dufm (bool normalize) {
   int    e2 = SIGNEXT8_int (getbits36_8 (cpu.Ypair[0], 0));
 
 #if !defined(NEED_128)
-  sim_debug (DBG_TRACEEXT, & cpu_dev, "dufm e2 %d %03o m2 %012"PRIo64" %012"PRIo64"\n", e2, e2, (word36) (m2 >> 36) & MASK36, (word36) m2 & MASK36);
+  sim_debug (DBG_TRACEEXT, & cpu_dev, "dufm e2 %d %03o m2 %012"PRIo64" %012"PRIo64"\n",
+             e2, e2, (word36) (m2 >> 36) & MASK36, (word36) m2 & MASK36);
 #endif
 
   if (ISZERO_128 (m1) || ISZERO_128 (m2)) {
@@ -2507,7 +2513,8 @@ static void dfdvX (bool bInvert) {
 #else
       m2 += 0400;
 #endif
-      // ISOLTS-745 10e asserts that an overflowing addition of 400 to 377777777777 7777777774xx does not shift the quotient (nor divisor)
+      // ISOLTS-745 10e asserts that an overflowing addition of 400
+      //   to 377777777777 7777777774xx does not shift the quotient (nor divisor)
       // I surmise that the divisor is taken as unsigned 64 bits in this case
       roundovf = 1;
     }
@@ -2841,7 +2848,9 @@ void dvf (void)
 
     SC_I_ZERO (cpu.CY == 0);
     SC_I_NEG (cpu.rA & SIGN36);
-// /* if (current_running_cpu_idx) */ sim_printf ("dvf 1 divide check fault A %012llo B %012llo Y %012llo Z %d N %d\r\n", cpu.rA, cpu.rQ, cpu.CY, TST_I_ZERO, TST_I_NEG);
+// /* if (current_running_cpu_idx) */
+//        sim_printf ("dvf 1 divide check fault A %012llo B %012llo Y %012llo Z %d N %d\r\n",
+//                    cpu.rA, cpu.rQ, cpu.CY, TST_I_ZERO, TST_I_NEG);
     doFault(FAULT_DIV, fst_zero, "DVF: divide check fault");
   }
 
@@ -2883,7 +2892,9 @@ void dvf (void)
   if (quot & ~((uint128) MASK35)) {
     SC_I_ZERO (cpu.rA == 0);
     SC_I_NEG (cpu.rA & SIGN36);
-// /* if (current_running_cpu_idx) */ sim_printf ("dvf 2 divide check fault A %012llo B %012llo Y %012llo Z %d N %d\r\n", cpu.rA, cpu.rQ, cpu.CY, TST_I_ZERO, TST_I_NEG);
+// /* if (current_running_cpu_idx) */
+//       sim_printf ("dvf 2 divide check fault A %012llo B %012llo Y %012llo Z %d N %d\r\n",
+//                   cpu.rA, cpu.rQ, cpu.CY, TST_I_ZERO, TST_I_NEG);
     doFault(FAULT_DIV, fst_zero, "DVF: divide check fault");
   }
   cpu.rA = quot & MASK36;
@@ -3126,7 +3137,9 @@ void dvf (void)
 //sim_debug (DBG_CAC, & cpu_dev, "Remainder %"PRId64"\n", cpu . rQ);
     SC_I_ZERO (cpu . rA == 0 && cpu . rQ == 0);
     SC_I_NEG (cpu . rA & SIGN36);
-// /* if (current_running_cpu_idx) */ sim_printf ("dvf 3 A %012llo B %012llo Y %012llo Z %d N %d\r\n", cpu.rA, cpu.rQ, cpu.CY, TST_I_ZERO, TST_I_NEG);
+// /* if (current_running_cpu_idx) */
+//      sim_printf ("dvf 3 A %012llo B %012llo Y %012llo Z %d N %d\r\n",
+//                  cpu.rA, cpu.rQ, cpu.CY, TST_I_ZERO, TST_I_NEG);
 }
 
 /*!

@@ -497,49 +497,74 @@ for (tmr=clocks=0; tmr<=SIM_NTIMERS; ++tmr) {
 
     if (sim_clock_unit[tmr]) {
         ++clocks;
-        fprintf (st, "%s clock device is %s%s%s\n", sim_name,
-                                                    (tmr == SIM_NTIMERS) ? "Internal Calibrated Timer(" : "",
-                                                    sim_uname(sim_clock_unit[tmr]),
-                                                    (tmr == SIM_NTIMERS) ? ")" : "");
+        fprintf (st, "%s clock device is %s%s%s\n",
+                 sim_name,
+                 (tmr == SIM_NTIMERS) ? "Internal Calibrated Timer(" : "",
+                 sim_uname(sim_clock_unit[tmr]),
+                 (tmr == SIM_NTIMERS) ? ")" : "");
         }
 
-    fprintf (st, "%s%sTimer %d:\n", "", rtc_hz[tmr] ? "Calibrated " : "Uncalibrated ", tmr);
+    fprintf (st, "%s%sTimer %d:\n", "",
+             rtc_hz[tmr] ? "Calibrated " : "Uncalibrated ",
+             tmr);
     if (rtc_hz[tmr]) {
-        fprintf (st, "  Running at:                %lu Hz\n", (unsigned long)rtc_hz[tmr]);
-        fprintf (st, "  Tick Size:                 %s\n", sim_fmt_secs (rtc_clock_tick_size[tmr]));
-        fprintf (st, "  Ticks in current second:   %lu\n",   (unsigned long)rtc_ticks[tmr]);
+        fprintf (st, "  Running at:                %lu Hz\n",
+                 (unsigned long)rtc_hz[tmr]);
+        fprintf (st, "  Tick Size:                 %s\n",
+                 sim_fmt_secs (rtc_clock_tick_size[tmr]));
+        fprintf (st, "  Ticks in current second:   %lu\n",
+                 (unsigned long)rtc_ticks[tmr]);
         }
-    fprintf (st, "  Seconds Running:           %lu (%s)\n",   (unsigned long)rtc_elapsed[tmr], sim_fmt_secs ((double)rtc_elapsed[tmr]));
+    fprintf (st, "  Seconds Running:           %lu (%s)\n",
+             (unsigned long)rtc_elapsed[tmr],
+             sim_fmt_secs ((double)rtc_elapsed[tmr]));
     if (tmr == calb_tmr) {
-        fprintf (st, "  Calibration Opportunities: %lu\n",   (unsigned long)rtc_calibrations[tmr]);
+        fprintf (st, "  Calibration Opportunities: %lu\n",
+                 (unsigned long)rtc_calibrations[tmr]);
         if (sim_idle_calib_pct)
-            fprintf (st, "  Calib Skip Idle Thresh %%:  %lu\n",   (unsigned long)sim_idle_calib_pct);
+            fprintf (st, "  Calib Skip Idle Thresh %%:  %lu\n",
+                     (unsigned long)sim_idle_calib_pct);
         if (rtc_clock_calib_skip_idle[tmr])
-            fprintf (st, "  Calibs Skip While Idle:    %lu\n",   (unsigned long)rtc_clock_calib_skip_idle[tmr]);
+            fprintf (st, "  Calibs Skip While Idle:    %lu\n",
+                     (unsigned long)rtc_clock_calib_skip_idle[tmr]);
         if (rtc_clock_calib_backwards[tmr])
-            fprintf (st, "  Calibs Skip Backwards:     %lu\n",   (unsigned long)rtc_clock_calib_backwards[tmr]);
+            fprintf (st, "  Calibs Skip Backwards:     %lu\n",
+                     (unsigned long)rtc_clock_calib_backwards[tmr]);
         if (rtc_clock_calib_gap2big[tmr])
-            fprintf (st, "  Calibs Skip Gap Too Big:   %lu\n",   (unsigned long)rtc_clock_calib_gap2big[tmr]);
+            fprintf (st, "  Calibs Skip Gap Too Big:   %lu\n",
+                     (unsigned long)rtc_clock_calib_gap2big[tmr]);
         }
     if (rtc_gtime[tmr])
-        fprintf (st, "  Instruction Time:          %.0f\n", rtc_gtime[tmr]);
-    fprintf (st, "  Current Insts Per Tick:    %lu\n",   (unsigned long)rtc_currd[tmr]);
-    fprintf (st, "  Initializations:           %lu\n",   (unsigned long)rtc_calib_initializations[tmr]);
-    fprintf (st, "  Total Ticks:               %lu\n", (unsigned long)rtc_clock_ticks_tot[tmr]+(unsigned long)rtc_clock_ticks[tmr]);
+        fprintf (st, "  Instruction Time:          %.0f\n",
+                 rtc_gtime[tmr]);
+    fprintf (st, "  Current Insts Per Tick:    %lu\n",
+             (unsigned long)rtc_currd[tmr]);
+    fprintf (st, "  Initializations:           %lu\n",
+             (unsigned long)rtc_calib_initializations[tmr]);
+    fprintf (st, "  Total Ticks:               %lu\n",
+             (unsigned long)rtc_clock_ticks_tot[tmr]+(unsigned long)rtc_clock_ticks[tmr]);
     if (rtc_clock_skew_max[tmr] != 0.0)
-        fprintf (st, "  Peak Clock Skew:           %s%s\n", sim_fmt_secs (fabs(rtc_clock_skew_max[tmr])), (rtc_clock_skew_max[tmr] < 0) ? " fast" : " slow");
+        fprintf (st, "  Peak Clock Skew:           %s%s\n",
+                 sim_fmt_secs (fabs(rtc_clock_skew_max[tmr])),
+                 (rtc_clock_skew_max[tmr] < 0) ? " fast" : " slow");
     if (rtc_calib_ticks_acked[tmr])
-        fprintf (st, "  Ticks Acked:               %lu\n",   (unsigned long)rtc_calib_ticks_acked[tmr]);
+        fprintf (st, "  Ticks Acked:               %lu\n",
+                 (unsigned long)rtc_calib_ticks_acked[tmr]);
     if (rtc_calib_ticks_acked_tot[tmr]+rtc_calib_ticks_acked[tmr] != rtc_calib_ticks_acked[tmr]) //-V584
-        fprintf (st, "  Total Ticks Acked:         %lu\n",   (unsigned long)rtc_calib_ticks_acked_tot[tmr]+(unsigned long)rtc_calib_ticks_acked[tmr]);
+        fprintf (st, "  Total Ticks Acked:         %lu\n",
+                 (unsigned long)rtc_calib_ticks_acked_tot[tmr]+(unsigned long)rtc_calib_ticks_acked[tmr]);
     if (rtc_calib_tick_time[tmr])
-        fprintf (st, "  Tick Time:                 %s\n",   sim_fmt_secs (rtc_calib_tick_time[tmr]));
+        fprintf (st, "  Tick Time:                 %s\n",
+                 sim_fmt_secs (rtc_calib_tick_time[tmr]));
     if (rtc_calib_tick_time_tot[tmr]+rtc_calib_tick_time[tmr] != rtc_calib_tick_time[tmr])
-        fprintf (st, "  Total Tick Time:           %s\n",   sim_fmt_secs (rtc_calib_tick_time_tot[tmr]+rtc_calib_tick_time[tmr]));
+        fprintf (st, "  Total Tick Time:           %s\n",
+                 sim_fmt_secs (rtc_calib_tick_time_tot[tmr]+rtc_calib_tick_time[tmr]));
     if (rtc_clock_catchup_ticks[tmr])
-        fprintf (st, "  Catchup Ticks Sched:       %lu\n",   (unsigned long)rtc_clock_catchup_ticks[tmr]);
+        fprintf (st, "  Catchup Ticks Sched:       %lu\n",
+                 (unsigned long)rtc_clock_catchup_ticks[tmr]);
     if (rtc_clock_catchup_ticks_tot[tmr]+rtc_clock_catchup_ticks[tmr] != rtc_clock_catchup_ticks[tmr]) //-V584
-        fprintf (st, "  Total Catchup Ticks Sched: %lu\n",   (unsigned long)rtc_clock_catchup_ticks_tot[tmr]+(unsigned long)rtc_clock_catchup_ticks[tmr]);
+        fprintf (st, "  Total Catchup Ticks Sched: %lu\n",
+                 (unsigned long)rtc_clock_catchup_ticks_tot[tmr]+(unsigned long)rtc_clock_catchup_ticks[tmr]);
 #if defined(MACOSXPPC)
     clock_serv_t cclock;
     mach_timespec_t mts;
@@ -627,8 +652,10 @@ return SCPE_OK;
 }
 
 MTAB sim_timer_mod[] = {
-  { MTAB_VDV,          MTAB_VDV, "CATCHUP",  "CATCHUP",   &sim_timer_set_catchup,  &sim_timer_show_catchup,   NULL, "Enables/Displays Clock Tick catchup mode" },
-  { MTAB_VDV,                 0, NULL,       "NOCATCHUP", &sim_timer_clr_catchup,  NULL,                      NULL, "Disables Clock Tick catchup mode" },
+  { MTAB_VDV, MTAB_VDV, "CATCHUP", "CATCHUP", \
+      &sim_timer_set_catchup, &sim_timer_show_catchup, NULL, "Enables/Displays Clock Tick catchup mode" },
+  { MTAB_VDV, 0, NULL, "NOCATCHUP", \
+      &sim_timer_clr_catchup, NULL, NULL, "Disables Clock Tick catchup mode" },
   { 0 },
 };
 
@@ -789,7 +816,9 @@ if (tmr == SIM_NTIMERS) {                   /* None found? */
     if ((tmr != newtmr) && (!sim_is_active (&SIM_INTERNAL_UNIT))) {
         /* Start the internal timer */
         sim_calb_tmr = SIM_NTIMERS;
-        sim_debug (DBG_CAL, &sim_timer_dev, "_rtcn_configure_calibrated_clock() - Starting Internal Calibrated Timer at %dHz\n", sim_int_clk_tps);
+        sim_debug (DBG_CAL, &sim_timer_dev,
+                   "_rtcn_configure_calibrated_clock() - Starting Internal Calibrated Timer at %dHz\n",
+                   sim_int_clk_tps);
         SIM_INTERNAL_UNIT.action = &sim_timer_clock_tick_svc;
         SIM_INTERNAL_UNIT.flags = UNIT_DIS | UNIT_IDLE;
         sim_activate_abs (&SIM_INTERNAL_UNIT, 0);
@@ -801,7 +830,9 @@ if ((tmr == newtmr) &&
     (sim_calb_tmr == newtmr))               /* already set? */
     return;
 if (sim_calb_tmr == SIM_NTIMERS) {      /* was old the internal timer? */
-    sim_debug (DBG_CAL, &sim_timer_dev, "_rtcn_configure_calibrated_clock() - Stopping Internal Calibrated Timer, New Timer = %d (%dHz)\n", tmr, rtc_hz[tmr]);
+    sim_debug (DBG_CAL, &sim_timer_dev,
+               "_rtcn_configure_calibrated_clock() - Stopping Internal Calibrated Timer, New Timer = %d (%dHz)\n",
+               tmr, rtc_hz[tmr]);
     rtc_initd[SIM_NTIMERS] = 0;
     rtc_hz[SIM_NTIMERS] = 0;
     sim_cancel (&SIM_INTERNAL_UNIT);
@@ -813,7 +844,9 @@ if (sim_calb_tmr == SIM_NTIMERS) {      /* was old the internal timer? */
         }
     }
 else {
-    sim_debug (DBG_CAL, &sim_timer_dev, "_rtcn_configure_calibrated_clock() - Changing Calibrated Timer from %d (%dHz) to %d (%dHz)\n", sim_calb_tmr, rtc_hz[sim_calb_tmr], tmr, rtc_hz[tmr]);
+    sim_debug (DBG_CAL, &sim_timer_dev,
+               "_rtcn_configure_calibrated_clock() - Changing Calibrated Timer from %d (%dHz) to %d (%dHz)\n",
+               sim_calb_tmr, rtc_hz[sim_calb_tmr], tmr, rtc_hz[tmr]);
     sim_calb_tmr = tmr;
     }
 sim_calb_tmr = tmr;

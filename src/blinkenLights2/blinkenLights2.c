@@ -59,7 +59,8 @@ static struct {
   uint64_t IWB, rA, rQ;
   } previous;
 
-static uint32_t lookup (struct system_state_s * p, uint32_t stype, char * name, uint32_t * symbolType, uint32_t * valueType, uint32_t * value) {
+static uint32_t lookup (struct system_state_s * p, uint32_t stype, char * name,
+                        uint32_t * symbolType, uint32_t * valueType, uint32_t * value) {
   struct symbol_s * s;
   for (int i = 0; s = p->symbolTable.symbols + i, s->symbolType != SYM_EMPTY; i ++) {
     if (strcmp (name, s->name) == 0 &&  (stype ==SYM_UNDEF || stype == s->symbolType)) {
@@ -538,32 +539,55 @@ int main (int argc, char * argv []) {
   rX0_p = cpun + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].rX[]", & symbolType, & valueType, & value);
   sizeof_rX = (size_t) lookup (system_state, SYM_STRUCT_SZ, "sizeof(*rX)", & symbolType, & valueType, & value);
   for (int nreg = 0; nreg < 8; nreg ++) {
-    rX_p[nreg] = (uint32_t *) (rX0_p + nreg * sizeof_rX + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].rX", & symbolType, & valueType, & value));
+    rX_p[nreg] = (uint32_t *) \
+                 (rX0_p + nreg * sizeof_rX + lookup (system_state, SYM_STRUCT_OFFSET,
+                                                     "cpus[].rX", & symbolType, & valueType, & value));
   }
   rTR_p = (uint32_t *) (cpun + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].rTR", & symbolType, & valueType, & value));
   rRALR_p = (uint8_t *) (cpun + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].rRALR", & symbolType, & valueType, & value));
   PAR_p = (uint8_t *) (cpun + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].PAR[]", & symbolType, & valueType, & value));
   sizeof_PAR = (size_t) lookup (system_state, SYM_STRUCT_SZ, "sizeof(*PAR)", & symbolType, & valueType, & value);
   for (int nreg = 0; nreg < 8; nreg ++) {
-    SNR_p[nreg] = (uint16_t *) (PAR_p + nreg * sizeof_PAR + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].PAR[].SNR", & symbolType, & valueType, & value));
-    RNR_p[nreg] = (uint8_t *) (PAR_p + nreg * sizeof_PAR + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].PAR[].RNR", & symbolType, & valueType, & value));
-    PR_BITNO_p[nreg] = (uint8_t *) (PAR_p + nreg * sizeof_PAR + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].PAR[].PR_BITNO", & symbolType, & valueType, & value));
-    WORDNO_p[nreg] = (uint32_t *) (PAR_p + nreg * sizeof_PAR + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].PAR[].WORDNO", & symbolType, & valueType, & value));
+    SNR_p[nreg] = (uint16_t *) \
+                  (PAR_p + nreg * sizeof_PAR + lookup (system_state, SYM_STRUCT_OFFSET,
+                                                       "cpus[].PAR[].SNR", & symbolType, & valueType, & value));
+    RNR_p[nreg] = (uint8_t *) \
+                  (PAR_p + nreg * sizeof_PAR + lookup (system_state, SYM_STRUCT_OFFSET,
+                                                       "cpus[].PAR[].RNR", & symbolType, & valueType, & value));
+    PR_BITNO_p[nreg] = (uint8_t *) \
+                       (PAR_p + nreg * sizeof_PAR + lookup (system_state, SYM_STRUCT_OFFSET,
+                                                            "cpus[].PAR[].PR_BITNO", & symbolType, & valueType, & value));
+    WORDNO_p[nreg] = (uint32_t *) \
+                     (PAR_p + nreg * sizeof_PAR + lookup (system_state, SYM_STRUCT_OFFSET,
+                                                          "cpus[].PAR[].WORDNO", & symbolType, & valueType, & value));
   }
-  //BAR_p = cpun + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].BAR", & symbolType, & valueType, & value);
-  //BASE_p = (uint8_t *) (BAR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].BAR.BASE", & symbolType, & valueType, & value));
-  //BOUND_p = (uint8_t *) (BAR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].BAR.BOUND", & symbolType, & valueType, & value));
-  TPR_p = cpun + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].TPR", & symbolType, & valueType, & value);
-  TRR_p = (uint8_t *) (TPR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].TPR.TRR", & symbolType, & valueType, & value));
-  TSR_p = (uint16_t *) (TPR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].TPR.TSR", & symbolType, & valueType, & value));
-  TBR_p = (uint8_t *) (TPR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].TPR.TBR", & symbolType, & valueType, & value));
-  CA_p = (uint32_t *) (TPR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].TPR.CA", & symbolType, & valueType, & value));
+  //BAR_p = cpun + lookup \
+  //        (system_state, SYM_STRUCT_OFFSET, "cpus[].BAR", & symbolType, & valueType, & value);
+  //BASE_p = (uint8_t *) \
+  //         (BAR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].BAR.BASE", & symbolType, & valueType, & value));
+  //BOUND_p = (uint8_t *) \
+  //          (BAR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].BAR.BOUND", & symbolType, & valueType, & value));
+  TPR_p = cpun + lookup \
+          (system_state, SYM_STRUCT_OFFSET, "cpus[].TPR", & symbolType, & valueType, & value);
+  TRR_p = (uint8_t *) \
+          (TPR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].TPR.TRR", & symbolType, & valueType, & value));
+  TSR_p = (uint16_t *) \
+          (TPR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].TPR.TSR", & symbolType, & valueType, & value));
+  TBR_p = (uint8_t *) \
+          (TPR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].TPR.TBR", & symbolType, & valueType, & value));
+  CA_p = (uint32_t *) \
+         (TPR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].TPR.CA", & symbolType, & valueType, & value));
   DSBR_p = cpun + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].DSBR", & symbolType, & valueType, & value);
-  ADDR_p = (uint32_t *) (DSBR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].DSBR.ADDR", & symbolType, & valueType, & value));
-  BND_p = (uint16_t *) (DSBR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].DSBR.BND", & symbolType, & valueType, & value));
-  U_p = (uint8_t *) (DSBR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].DSBR.U", & symbolType, & valueType, & value));
-  STACK_p = (uint16_t *) (DSBR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].DSBR.STACK", & symbolType, & valueType, & value));
-  faultNumber_p = (uint32_t *) cpun + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].faultNumber", & symbolType, & valueType, & value);
+  ADDR_p = (uint32_t *) \
+           (DSBR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].DSBR.ADDR", & symbolType, & valueType, & value));
+  BND_p = (uint16_t *) \
+          (DSBR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].DSBR.BND", & symbolType, & valueType, & value));
+  U_p = (uint8_t *) \
+        (DSBR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].DSBR.U", & symbolType, & valueType, & value));
+  STACK_p = (uint16_t *) \
+            (DSBR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].DSBR.STACK", & symbolType, & valueType, & value));
+  faultNumber_p = (uint32_t *) cpun + lookup \
+                  (system_state, SYM_STRUCT_OFFSET, "cpus[].faultNumber", & symbolType, & valueType, & value);
 
   gdk_rgba_parse (& lightOn, "white");
   gdk_rgba_parse (& lightOff, "black");

@@ -735,11 +735,13 @@ typedef struct {
     uint report_faults;   // If set, faults are reported and ignored
     uint tro_enable;      // If set, Timer runout faults are generated.
     uint drl_fatal;       // If set, DRL instructions halt the CPU
-    bool useMap;          // If set, consult memory configuration switches to translate memory addresses to SCU memory banks
+    bool useMap;          // If set, consult memory configuration switches to translate memory
+                          //          addresses to SCU memory banks
     uint dis_enable;      // If non-zero, DIS instruction works
     uint halt_on_unimp;   // If non-zero, halt CPU on unimplemented instruction instead of faulting
     bool isolts_mode;     // If true, CPU is configured to run ISOLTS.
-    uint enable_wam;      // If zero, the simulated cache is ignored and always returns "miss"; turning it on incurs a large performance hit.
+    uint enable_wam;      // If zero, the simulated cache is ignored and always returns "miss";
+                          //           turning it on incurs a large performance hit.
     bool enable_emcall;   // If set, the instruction set is extended with simulator debugging instructions
     bool nodis;           // If true, start CPU in FETCH cycle; else start in DIS instruction
     bool l68_mode;        // False: DPS8/M; True: 6180

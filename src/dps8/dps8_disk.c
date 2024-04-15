@@ -124,9 +124,11 @@
 //           vfd       36/885*255          FIPS 3380
 //           vfd       36/1770*255         FIPS 3381
 
-//dcl  last_sect_num (9) fixed bin (24) static options (constant) init /* table of # last sector number for each device */
+/* table of # last sector number for each device */
+//dcl  last_sect_num (9) fixed bin (24) static options (constant) init
 //     (0, 618639, 616359, 309319, 239722, 71999, 1075199, 225674, 451349);
-//dcl  last_physical_sect_num (9) fixed bin (24) static options (constant) init /* table of # of last sector on device (includes T&D cylinders) */
+/* table of # of last sector on device (includes T&D cylinders) */
+//dcl  last_physical_sect_num (9) fixed bin (24) static options (constant) init
 //     (0, 639919, 619399, 312359, 242249, 72359, 1077759, 225674, 451859);
 
 //          last     t&d last

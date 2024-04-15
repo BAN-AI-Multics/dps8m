@@ -112,7 +112,8 @@ decNumber * decBCD9ToNumber(const word9 *bcd, Int length, const Int scale, decNu
     // skip leading zero bytes [final byte is always non-zero, due to sign]
     //for (first=bcd; *first==0;) first++;
 
-    //Also, a bug in decBCD9ToNumber; in the input is all zeros, the skip leading zeros code wanders off the end of the input buffer....
+    //Also, a bug in decBCD9ToNumber; in the input is all zeros, the skip
+    //  leading zeros code wanders off the end of the input buffer....
     for (first=bcd; *first==0 && first <= last;)
         first++;
 
@@ -326,11 +327,13 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
                     adjLen -= 2;    // a sign and an 1 9-bit exponent
                 else
                     adjLen -= 3;    // a sign and 2 4-bit digits making up the exponent
-                break;              // until we have an example of what to do here, let's just ignore it and hope it goes away
+                break;              // until we have an example of what to do here,
+                                    //   let's just ignore it and hope it goes away
             case CSLS:
             case CSTS:              // take sign into account. One less char to play with
                 adjLen -= 1;
-                break;              // until we have an example of what to do here, let's just ignore it and hope it goes away (again)
+                break;              // until we have an example of what to do here,
+                                    //   let's just ignore it and hope it goes away (again)
             case CSNS:              // no sign to worry about. Use everything
                 decBCDFromNumber((uint8_t *)out1, r->digits, &scale, r);
                 for(int i = 0 ; i < r->digits ; i += 1)
@@ -368,11 +371,13 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
                     adjLen -= 2;    // a sign and an 1 9-bit exponent
                 else
                     adjLen -= 3;    // a sign and 2 4-bit digits making up the exponent
-                break;              // until we have an example of what to do here, let's just ignore it and hope it goes away
+                break;              // until we have an example of what to do here,
+                                    //   let's just ignore it and hope it goes away
             case CSLS:
             case CSTS:              // take sign into account. One less char to play with
                 adjLen -= 1;
-                break;              // until we have an example of what to do here, let's just ignore it and hope it goes away (again)
+                break;              // until we have an example of what to do here,
+                                    //   let's just ignore it and hope it goes away (again)
             case CSNS:              // no sign to worry about. Use everything
                 decBCDFromNumber((uint8_t *)out1, r->digits, &scale, r);
                 for(int i = 0 ; i < r->digits ; i += 1)
@@ -396,12 +401,15 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
         sf = 0;
 
     // XXX what happens if we try to write a negative number to an unsigned field?????
-    // Detection of a character outside the range [0,11]8 in a digit position or a character outside the range [12,17]8 in a sign position causes an illegal procedure fault.
+    // Detection of a character outside the range [0,11]8 in a digit position or a
+    //   character outside the range [12,17]8 in a sign position causes an illegal procedure fault.
 
     // adjust output length according to type ....
-    //This implies that an unsigned fixed-point receiving field has a minimum length of 1 character; a signed fixed-point field, 2 characters; and a floating-point field, 3 characters.
+    //This implies that an unsigned fixed-point receiving field has a minimum length
+    //  of 1 character; a signed fixed-point field, 2 characters; and a floating-point field, 3 characters.
 
-    int adjLen = n;             // adjLen is the adjusted allowed length of the result taking into account signs and/or exponent
+    int adjLen = n;             // adjLen is the adjusted allowed length of the result
+                                //   taking into account signs and/or exponent
     switch (s)
     {
         case CSFL:              // we have a leading sign and a trailing exponent.
@@ -464,10 +472,12 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
         {
             decNumberFromInt32(&_sf, sf);
             sim_debug (DBG_TRACEEXT, & cpu_dev,
-                       "formatDecimal(s != CSFL a): %s r->digits=%d r->exponent=%d\n", getBCD (bcd, r), r->digits, r->exponent);
+                       "formatDecimal(s != CSFL a): %s r->digits=%d r->exponent=%d\n",
+                       getBCD (bcd, r), r->digits, r->exponent);
             r2 = decNumberRescale(&_r2, r, &_sf, set);
             sim_debug (DBG_TRACEEXT, & cpu_dev,
-                       "formatDecimal(s != CSFL b): %s r2->digits=%d r2->exponent=%d\n", getBCD (bcd, r2), r2->digits, r2->exponent);
+                       "formatDecimal(s != CSFL b): %s r2->digits=%d r2->exponent=%d\n",
+                       getBCD (bcd, r2), r2->digits, r2->exponent);
         }
         else
             //*r2 = *r;
@@ -481,7 +491,8 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
                 out2[i] += '0';
 
             sim_debug (DBG_TRACEEXT, & cpu_dev,
-                       "formatDecimal: adjLen=%d E=%d SF=%d S=%s TN=%s digits(r2)=%s E2=%d\n", adjLen, r->exponent, sf, CS[s], CTN[tn],out2, r2->exponent);
+                       "formatDecimal: adjLen=%d E=%d SF=%d S=%s TN=%s digits(r2)=%s E2=%d\n",
+                       adjLen, r->exponent, sf, CS[s], CTN[tn],out2, r2->exponent);
         }
 # endif
     }
