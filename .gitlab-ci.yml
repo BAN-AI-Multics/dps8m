@@ -2390,7 +2390,7 @@ Option Verification Test:
     - Docker-x64
     - amd64
     - Linux
-  parallel: 5
+  parallel: 2
   script:
     - export GLCICD_JOB="OptTestFedoraX64_${CI_NODE_INDEX:?}" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
     - *scriptDnfSetup
