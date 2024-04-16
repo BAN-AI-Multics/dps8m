@@ -6635,6 +6635,7 @@ compressxt
 cppcpp
 crdpun
 crdrdr
+crlf
 dbuild
 dcross
 decn
@@ -8312,6 +8313,7 @@ tryagain
 unparse
 
 FILEID: 268d2436-f2ea-11ed-9806-80ee73e9b8e7
+charset
 editmsg
 
 FILEID: 5d4185d0-fefd-11ed-b27a-80ee73e9b8e7
