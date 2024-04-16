@@ -96,7 +96,7 @@
 # include <sys/sysctl.h>
 #endif /* if defined(_APPLE_) */
 
-#if ( defined(__linux__) || defined(__linux) ||  defined(_linux)    || defined(linux) )
+#if ( defined(__linux__) || defined(__linux) || defined(_linux) || defined(linux) ) //-V1040
 # include <sys/sysinfo.h>
 # define LINUX_OS
 #endif
@@ -1818,10 +1818,8 @@ else
             }
         if (*cbuf)                                  /* concat args */
             strcat (cbuf, " ");
-        (void)sprintf(&cbuf[strlen(cbuf)], "%s%s%s",
-                      strchr(argv[i], ' ') ? "\"" : "",
-                      argv[i],
-                      strchr(argv[i], ' ') ? "\"" : "");  //-V755
+        (void)sprintf(&cbuf[strlen(cbuf)], "%s%s%s", //-V755
+                      strchr(argv[i], ' ') ? "\"" : "", argv[i], strchr(argv[i], ' ') ? "\"" : ""); //-V755
         lookswitch = FALSE;                         /* no more switches */
         }
     }                                               /* end for */
@@ -3924,7 +3922,7 @@ CTAB *gcmdp;
 C1TAB *ctbr = NULL, *glbr;
 
 GET_SWITCHES (cptr);                                    /* get switches */
-if ((NULL == cptr) || (*cptr == 0))                     /* must be more */
+if ((NULL == cptr) || (*cptr == 0)) //-V560             /* must be more */
     return SCPE_2FARG;
 cptr = get_glyph (svptr = cptr, gbuf, 0);               /* get glob/dev/unit */
 
@@ -5785,11 +5783,11 @@ UNIT *uptr;
 t_stat r;
 
 GET_SWITCHES (cptr);                                    /* get switches */
-if ((NULL == cptr) || (*cptr == 0))                     /* must be more */
+if ((NULL == cptr) || (*cptr == 0)) //-V560             /* must be more */
     return SCPE_2FARG;
 cptr = get_glyph (cptr, gbuf, 0);                       /* get next glyph */
 GET_SWITCHES (cptr);                                    /* get switches */
-if ((NULL == cptr) || (*cptr == 0))                     /* now eol? */
+if ((NULL == cptr) || (*cptr == 0)) //-V560             /* now eol? */
     return SCPE_2FARG;
 dptr = find_unit (gbuf, &uptr);                         /* locate unit */
 if (dptr == NULL)                                       /* found dev? */
@@ -5932,7 +5930,7 @@ DEVICE *dptr;
 UNIT *uptr;
 
 GET_SWITCHES (cptr);                                    /* get switches */
-if ((NULL == cptr) || (*cptr == 0))                     /* must be more */
+if ((NULL == cptr) || (*cptr == 0)) //-V560             /* must be more */
     return SCPE_2FARG;
 cptr = get_glyph (cptr, gbuf, 0);                       /* get next glyph */
 if (*cptr != 0)                                         /* now eol? */
