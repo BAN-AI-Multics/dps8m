@@ -165,7 +165,7 @@ printdefs:                                                                    \
 	@( ( $(FIND) . -name '*.[ch]' -exec $(SH) -c "export n2=\"{}\";           \
      $(PRINTF) '%s ' \"\$${n2:?}\";                                           \
       "$$($(GIT) rev-parse --show-toplevel)/./src/unifdef/unifdef" "-Stn"     \
-       \"\$${n2:?}\"" \; | grep -v 'libsir'                                |  \
+       \"\$${n2:?}\"" \; | grep -v '/libsir/'                              |  \
         while read -r n; do $(PRINTF) '%s  %s \n'                             \
          $$($(PRINTF) '%s ' "$${n:?}" | $(WC) -w) "$${n:?}"; done          |  \
           $(SORT) -urn | $(EXPAND) | $(CUT) -d ' ' -f 2-                   |  \
