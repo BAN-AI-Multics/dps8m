@@ -4461,7 +4461,7 @@ static void strip_spaces(char* str) {
   int i, x;
   for (i=x=0; str[i]; ++i)
     {
-      if (!isspace(str[i]) || (i > 0 && !isspace(str[i-1]))) //-V781
+      if (!isspace(str[i]) || (i > 0 && !isspace(str[(int)(i-1)]))) //-V781
         {
           str[x++] = str[i];
         }
