@@ -437,16 +437,20 @@ slte.inc: system_book_12_3.ascii
 
 .PHONY: libsir
 ifeq ($(TESTING),1)
-  SIR_TESTING="SIR_DEBUG=1"
+  M_SIR_TESTING="SIR_DEBUG=1"
+endif
+ifneq ($(V),1)
+  M_SIR_QFLAG=-s
 endif
 libsir:
+	-@$(PRINTF) '%s' "LIBSIR: "
 	@($(SETV); $(CD) "../libsir" &&                                           \
       $(ENV) CC="$(CC)"                                                       \
              CFLAGS='$(CFLAGS)'                                               \
              LDFLAGS='$(LDFLAGS)'                                             \
-      $(MAKE) -C "." "static"                                                 \
+      $(MAKE) $(M_SIR_QFLAG) -C "." "static"                                  \
         SIR_NO_PLUGINS=1 SIR_NO_SHARED=1                                      \
-        SIR_USE_EOL_CRLF=1 FORTIFY_FLAGS= $(SIR_TESTING))
+        SIR_USE_EOL_CRLF=1 FORTIFY_FLAGS= $(M_SIR_TESTING))
 
 ###############################################################################
 
