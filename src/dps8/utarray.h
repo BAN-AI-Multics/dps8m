@@ -58,8 +58,6 @@
 # undef FREE
 # if defined(TESTING)
 #  define FREE(p) free(p)
-#  undef realloc
-#  define realloc trealloc
 # else
 #  define FREE(p) do  \
   {                   \

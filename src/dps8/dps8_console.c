@@ -64,10 +64,8 @@
 #define ASSUME0 0
 
 #if defined(TESTING)
-# undef realloc
 # undef FREE
 # define FREE(p) free(p)
-# define realloc trealloc
 #endif /* if defined(TESTING) */
 
 // config switch -- The bootload console has a 30-second timer mechanism. When

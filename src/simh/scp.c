@@ -1334,48 +1334,6 @@ return 0;
 }
 #endif /* if defined(_WIN32) */
 
-/* Testing realloc */
-
-#if defined(TESTING)
-void *
-trealloc(void *ptr, size_t size)
-{
-  void *r = realloc(ptr, size);
-
-  if (r != ptr) return r;
-  else if (r)
-    {
-      void *rm = malloc(size);
-      if (!rm)
-        {
-          (void)fprintf(
-            stderr,
-            "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
-            __func__, __FILE__, __LINE__);
-# if defined(USE_BACKTRACE)
-#  if defined(SIGUSR2)
-        (void)raise(SIGUSR2);
-        /*NOTREACHED*/ /* unreachable */
-#  endif /* if defined(SIGUSR2) */
-# endif /* if defined(USE_BACKTRACE) */
-        abort();
-        /* NOTREACHED */ /* unreachable */
-        }
-      memcpy(rm, r, size);
-      FREE(r);
-      return rm;
-    }
-  else return r;
-}
-#endif /* if defined(TESTING) */
-
-#if defined(TESTING)
-# if defined(USE_TREALLOC)
-#  undef realloc
-#  define realloc trealloc
-# endif /* if defined(USE_TREALLOC) */
-#endif /* if defined(TESTING) */
-
 #define XSTR_EMAXLEN 32767
 
 const char

@@ -587,11 +587,6 @@ typedef enum
 
 # define MAX_DEV_NAME_LEN 64
 
-// TESTING realloc wrapper function
-# if defined(TESTING)
-void * trealloc(void *ptr, size_t size);
-# endif /* if defined(TESTING) */
-
 // Basic STDIO for MinGW
 # if !defined(__CYGWIN__)
 #  if defined(__MINGW32__) || defined(__MINGW64__) || defined(CROSS_MINGW32) || defined(CROSS_MINGW64)

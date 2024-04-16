@@ -84,10 +84,8 @@
   } while(0)
 
 # if defined(TESTING)
-#  undef realloc
 #  undef FREE
 #  define FREE(p) free(p)
-#  define realloc trealloc
 # endif /* if defined(TESTING) */
 
 # define LINENOISE_DEFAULT_HISTORY_MAX_LEN  100

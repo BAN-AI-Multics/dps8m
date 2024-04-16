@@ -126,10 +126,8 @@
 
 #if defined(TESTING)
 # include "../dps8/dps8_cpu.h"
-# undef realloc
 # undef FREE
 # define FREE(p) free(p)
-# define realloc trealloc
 #endif /* if defined(TESTING) */
 
 /* Telnet protocol constants - negatives are for init'ing signed char data */

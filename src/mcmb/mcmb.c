@@ -181,57 +181,6 @@ static int cmb_print(struct cmb_config *_config, uint64_t _seq,
 static const char *libcmb_version(int _type);
 
 /*
- * TESTING realloc
- */
-
-#if defined(TESTING)
-void *trealloc(void *ptr, size_t size);
-
-void *
-trealloc(void *ptr, size_t size)
-{
-  void *r = realloc(ptr, size);
-
-  if (r != ptr)
-    {
-      return r;
-    }
-  else if (r)
-    {
-      void *rm = malloc(size);
-      if (!rm)
-        {
-          (void)fprintf(
-            stderr,
-            "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
-            __func__, __FILE__, __LINE__);
-          abort();
-          /*NOTREACHED*/ /* unreachable */
-        }
-
-      if (!memcpy(rm, r, size))
-        {
-          (void)fprintf(
-            stderr,
-            "\rFATAL: Impossible memcpy result! Aborting at %s[%s:%d]\r\n",
-            __func__, __FILE__, __LINE__);
-          abort();
-          /*NOTREACHED*/ /* unreachable */
-        }
-      FREE(r);
-      return rm;
-    }
-  else
-    {
-      return r;
-    }
-}
-
-# undef realloc
-# define realloc trealloc
-#endif /* if defined(TESTING) */
-
-/*
  * Inline functions
  */
 

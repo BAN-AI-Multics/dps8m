@@ -106,10 +106,8 @@
 #endif /* if !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) */
 
 #if defined(TESTING)
-# undef realloc
 # undef FREE
 # define FREE(p) free(p)
-# define realloc trealloc
 #endif /* if defined(TESTING) */
 
 #define DBG_CTR 1

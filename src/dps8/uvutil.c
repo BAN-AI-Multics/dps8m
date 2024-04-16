@@ -26,10 +26,8 @@
 #include "uvutil.h"
 
 #if defined(TESTING)
-# undef realloc
 # undef FREE
 # define FREE(p) free(p)
-# define realloc trealloc
 #endif /* if defined(TESTING) */
 
 #define USE_REQ_DATA

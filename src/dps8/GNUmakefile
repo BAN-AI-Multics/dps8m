@@ -443,7 +443,6 @@ ifneq ($(V),1)
   M_SIR_QFLAG=-s
 endif
 libsir:
-	-@$(PRINTF) '%s' "LIBSIR: "
 	@($(SETV); $(CD) "../libsir" &&                                           \
       $(ENV) CC="$(CC)"                                                       \
              CFLAGS='$(CFLAGS)'                                               \
