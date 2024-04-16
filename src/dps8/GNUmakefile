@@ -339,7 +339,7 @@ DECN_OBJS = ../decNumber/decContext.o  ../decNumber/decNumber.o
 
 .PHONY: all
 all:  sysdefs.h ver.h                                                         \
-      libsir unifdef prt2pdf punutil mcmb vmpctool empty xovdso novdso        \
+      libsir unifdef prt2pdf punutil mcmb empty xovdso novdso                 \
       locallibs_then_dps8                                                     \
       $(TAGS)
 	-@$(TRUE)
@@ -486,12 +486,6 @@ mcmb:
 
 ###############################################################################
 
-.PHONY: vmpctool
-vmpctool:
-	-@$(SETV); $(MAKE) -C "../vmpctool" "all"
-
-###############################################################################
-
 .PHONY: empty
 empty:
 	-@$(SETV); $(MAKE) -C "../empty" "all"
@@ -564,7 +558,6 @@ distclean: clean
 	@$(RMF) ../punutil/*.gc??                2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../simh/*.gc??                   2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../unifdef/*.gc??                2> /dev/null  ||  $(TRUE)
-	@$(RMF) ../vmpctool/*.gc??               2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../empty/*.gc??                  2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../novdso/*.gc??                 2> /dev/null  ||  $(TRUE)
 	@$(RMF) *.prof*                          2> /dev/null  ||  $(TRUE)
@@ -574,7 +567,6 @@ distclean: clean
 	@$(RMF) ../prt2pdf/*.prof*               2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../simh/*.prof*                  2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../unifdef/*.prof*               2> /dev/null  ||  $(TRUE)
-	@$(RMF) ../vmpctool/*.prof*              2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../empty/*.prof*                 2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../punutil/*.prof*               2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../novdso/*.prof*                2> /dev/null  ||  $(TRUE)
@@ -628,7 +620,6 @@ clean:
 	@$(SETV); $(MAKE) -C "../prt2pdf"        -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../punutil"        -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../mcmb"           -f "GNUmakefile"  "clean"
-	@$(SETV); $(MAKE) -C "../vmpctool"       -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../empty"          -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../unifdef"        -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../novdso"         -f "GNUmakefile"  "clean"

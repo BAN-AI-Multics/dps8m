@@ -47,11 +47,8 @@ all help:
 	@printf '%s\n' "  "
 	@printf '%s\n' "  s1 ..................... Build simulator"
 	@printf '%s\n' "  s2 ..................... Build CI-Kit working directory"
-	@printf '%s\n' "  s2p .................... Warm caches for s3"
 	@printf '%s\n' "  s3 ..................... Run MR12.8_install.ini"
-	@printf '%s\n' "  s3p .................... Warm caches for s4"
 	@printf '%s\n' "  s4 ..................... Setup Yoyodyne system"
-	@printf '%s\n' "  s4p .................... Warm caches for s5"
 	@printf '%s\n' "  s5 ..................... Run ci_t1.expect"
 	@printf '%s\n' "  s6 ..................... Run isolts.expect"
 	@printf '%s\n' "  s7 ..................... Run performance test"
@@ -100,20 +97,12 @@ s2: ../dps8/dps8
 	@printf '\n%s\n' "### End Stage 2 #######################################"
 	@sleep 2 > /dev/null 2>&1 || true
 
-### Stage 2p - Warm caches for s3 #############################################
+### Stage 2p - Warm caches for s3 (obsoleted) #################################
 
 .PHONY: s2p
 .NOTPARALLEL: s2p
 s2p:
-	-@test -x ../vmpctool/vmpctool && printf '\n%s\n'                         \
-        "### Priming caches ####################################"             \
-            || true
-	-@test -x ../vmpctool/vmpctool || printf '%s\n' "" || true
-	-@test -x ../vmpctool/vmpctool && ../vmpctool/vmpctool -hft               \
-        ./tapes/*.tap || true
-	-@test -x ../vmpctool/vmpctool && printf '\n%s\n'                         \
-        "### Cache primed ######################################"             \
-            || true
+	-@true
 
 ### Stage 3 - Run MR12.8_install.ini ##########################################
 
@@ -132,20 +121,12 @@ s3: ../dps8/dps8
         || true
 	@sleep 2 > /dev/null 2>&1 || true
 
-### Stage 3p - Warm caches for s4 #############################################
+### Stage 3p - Warm caches for s4 (obsoleted) #################################
 
 .PHONY: s3p
 .NOTPARALLEL: s3p
 s3p:
-	-@test -x ../vmpctool/vmpctool && printf '\n%s\n'                         \
-        "### Priming caches ####################################"             \
-            || true
-	-@test -x ../vmpctool/vmpctool || printf '%s\n' "" || true
-	-@test -x ../vmpctool/vmpctool && ../vmpctool/vmpctool -hft               \
-      ./tapes/*.tap ./run/disks/yoyodyne.dsk || true
-	-@test -x ../vmpctool/vmpctool && printf '\n%s\n'                         \
-        "### Cache primed ######################################"             \
-            || true
+	-@true
 
 ### Stage 4 - Setup Yoyodyne ##################################################
 
@@ -157,20 +138,12 @@ s4: ./run/disks/yoyodyne.dsk ../dps8/dps8
 	@printf '\n%s\n' "### End Stage 4 #######################################"
 	@sleep 2 > /dev/null 2>&1 || true
 
-### Stage 4p - Warm caches for s5 #############################################
+### Stage 4p - Warm caches for s5 (obsoleted) #################################
 
 .PHONY: s4p
 .NOTPARALLEL: s4p
 s4p:
-	-@test -x ../vmpctool/vmpctool && printf '\n%s\n'                         \
-        "### Priming caches ####################################"             \
-            || true
-	-@test -x ../vmpctool/vmpctool || printf '%s\n' "" || true
-	-@test -x ../vmpctool/vmpctool && ../vmpctool/vmpctool -hft               \
-        ./run/tapes/* ./run/disks/yoyodyne.dsk || true
-	-@test -x ../vmpctool/vmpctool && printf '\n%s\n'                         \
-        "### Cache primed ######################################"             \
-            || true
+	-@true
 
 ### Stage 5 - Run ci_t1.expect ################################################
 
