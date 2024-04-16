@@ -6142,6 +6142,7 @@ colorcolumn
 daix
 dbsd
 dgnu
+dhdbg
 disolts
 dneed
 dperf
@@ -6291,6 +6292,7 @@ listchars
 newinstall
 norebuild
 notparallel
+obsoleted
 printf
 superclean
 warm
