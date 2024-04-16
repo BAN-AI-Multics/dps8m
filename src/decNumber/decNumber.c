@@ -146,15 +146,11 @@
 #include "decNumberLocal.h"        // decNumber local types, etc.
 
 #undef FREE
-#if defined(TESTING)
-# define FREE(p) free(p)
-#else
-# define FREE(p) do  \
-  {                  \
-    free((p));       \
-    (p) = NULL;      \
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
   } while(0)
-#endif /* if defined(TESTING) */
 
 /* Constants */
 // Public lookup table used by the D2U macro

@@ -67,10 +67,12 @@
 # error Unknown platform endianness
 #endif /* if !defined(DECLITEND) */
 
-#if defined(TESTING)
-# undef FREE
-# define FREE(p) free(p)
-#endif /* if defined(TESTING) */
+#undef FREE
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
 
 t_bool sim_end;                     /* TRUE = little endian, FALSE = big endian */
 t_bool sim_taddr_64;                /* t_addr is > 32b and Large File Support available */

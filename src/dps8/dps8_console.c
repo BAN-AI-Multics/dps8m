@@ -63,10 +63,12 @@
 #define DBG_CTR 1
 #define ASSUME0 0
 
-#if defined(TESTING)
-# undef FREE
-# define FREE(p) free(p)
-#endif /* if defined(TESTING) */
+#undef FREE
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
 
 // config switch -- The bootload console has a 30-second timer mechanism. When
 // reading from the console, if no character is typed within 30 seconds, the

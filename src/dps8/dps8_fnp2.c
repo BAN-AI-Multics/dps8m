@@ -105,10 +105,12 @@
 # include <regex.h>
 #endif /* if !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) */
 
-#if defined(TESTING)
-# undef FREE
-# define FREE(p) free(p)
-#endif /* if defined(TESTING) */
+#undef FREE
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
 
 #define DBG_CTR 1
 

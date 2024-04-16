@@ -135,10 +135,12 @@
 # define MAX(a,b)  (((a) >= (b)) ? (a) : (b))
 #endif /* if !defined(MAX) */
 
-#if defined(TESTING)
-# undef FREE
-# define FREE(p) free(p)
-#endif /* if defined(TESTING) */
+#undef FREE
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
 
 /* search logical and boolean ops */
 

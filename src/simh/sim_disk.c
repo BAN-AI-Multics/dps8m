@@ -74,14 +74,16 @@
 # include <windows.h>
 #endif /* if defined(_WIN32) */
 
-#if defined(TESTING)
-# undef FREE
-# define FREE(p) free(p)
-#endif /* if defined(TESTING) */
-
 #if !defined(DECLITEND)
 # error Unknown platform endianness
 #endif /* if !defined(DECLITEND) */
+
+#undef FREE
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
 
 struct disk_context {
     DEVICE              *dptr;              /* Device for unit (access to debug flags) */

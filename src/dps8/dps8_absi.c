@@ -39,11 +39,6 @@
     (p) = NULL;     \
   } while(0)
 
-#if defined(TESTING)
-# undef FREE
-# define FREE(p) free(p)
-#endif /* if defined(TESTING) */
-
 #if defined(WITH_ABSI_DEV)
 # define DBG_CTR 1
 

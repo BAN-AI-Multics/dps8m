@@ -83,11 +83,6 @@
     (p) = NULL;      \
   } while(0)
 
-# if defined(TESTING)
-#  undef FREE
-#  define FREE(p) free(p)
-# endif /* if defined(TESTING) */
-
 # define LINENOISE_DEFAULT_HISTORY_MAX_LEN  100
 # define LINENOISE_MAX_LINE                4096
 

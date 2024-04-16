@@ -74,10 +74,11 @@
 #include <ctype.h>
 #include <signal.h>
 
-#if defined(TESTING)
-# undef FREE
-# define FREE(p) free(p)
-#endif /* if defined(TESTING) */
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
 
 struct sim_tape_fmt {
     const char          *name;                          /* name */

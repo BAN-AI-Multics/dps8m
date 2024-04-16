@@ -32,7 +32,11 @@
 # include "dps8_faults.h"
 
 # undef FREE
-# define FREE(p) free(p)
+# define FREE(p) do  \
+  {                  \
+    free((p));       \
+    (p) = NULL;      \
+  } while(0)
 
 enum hevtType {
   hevtEmpty = 0,

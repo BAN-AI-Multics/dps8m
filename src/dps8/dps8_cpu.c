@@ -83,10 +83,11 @@ __thread uint current_running_cpu_idx;
 
 #define ASSUME0 0
 
-#if defined(TESTING)
-# undef FREE
-# define FREE(p) free(p)
-#endif /* if defined(TESTING) */
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
 
 // CPU data structures
 

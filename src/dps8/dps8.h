@@ -564,15 +564,11 @@ typedef enum
 # define ARRAY_SIZE(a) ( sizeof(a) / sizeof((a)[0]) )
 
 # undef FREE
-# if defined(TESTING)
-#  define FREE(p) free(p)
-# else
-#  define FREE(p) do  \
-  {                   \
-    free((p));        \
-    (p) = NULL;       \
+# define FREE(p) do  \
+  {                  \
+    free((p));       \
+    (p) = NULL;      \
   } while(0)
-# endif /* if defined(TESTING) */
 
 # if defined (__MINGW64__) || \
     defined (__MINGW32__)  || \

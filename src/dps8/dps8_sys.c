@@ -94,10 +94,12 @@
 
 #define ASSUME0 0
 
-#if defined(TESTING)
-# undef FREE
-# define FREE(p) free(p)
-#endif /* if defined(TESTING) */
+#undef FREE
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
 
 // Strictly speaking, memory belongs in the SCU.
 // We will treat memory as viewed from the CPU and elide the

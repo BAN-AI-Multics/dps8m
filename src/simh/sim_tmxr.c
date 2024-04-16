@@ -126,9 +126,13 @@
 
 #if defined(TESTING)
 # include "../dps8/dps8_cpu.h"
-# undef FREE
-# define FREE(p) free(p)
 #endif /* if defined(TESTING) */
+
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
 
 /* Telnet protocol constants - negatives are for init'ing signed char data */
 

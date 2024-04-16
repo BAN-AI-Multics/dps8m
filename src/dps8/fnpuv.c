@@ -206,10 +206,12 @@
 #include "fnpuv.h"
 #include "fnptelnet.h"
 
-#if defined(TESTING)
-# undef FREE
-# define FREE(p) free(p)
-#endif /* if defined(TESTING) */
+#undef FREE
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
 
 #define USE_REQ_DATA
 

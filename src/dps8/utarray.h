@@ -56,15 +56,11 @@
 # include "dps8.h"
 
 # undef FREE
-# if defined(TESTING)
-#  define FREE(p) free(p)
-# else
-#  define FREE(p) do  \
-  {                   \
-    free((p));        \
-    (p) = NULL;       \
+# define FREE(p) do  \
+  {                  \
+    free((p));       \
+    (p) = NULL;      \
   } while(0)
-# endif /* if defined(TESTING) */
 
 # undef oom
 # define oom() do                                                                \
