@@ -2244,15 +2244,15 @@ skipargs(const char *cp)
     }
 
   while ( level != 0 && *cp != '\0' );
-    if (level == 0)
-      {
-        return ( cp );
-      }
-    else
-      {
-        /* Rewind and re-detect the syntax error later. */
-        return ( ocp );
-      }
+  if (level == 0)
+    {
+      return ( cp );
+    }
+  else
+    {
+      /* Rewind and re-detect the syntax error later. */
+      return ( ocp );
+    }
 }
 
 /*
@@ -2282,10 +2282,10 @@ getsym(const char **cpp)
   cp = skipcomment(cp);
   cp = skipsym(sym = cp);
 
-    if (cp == sym)
-      {
-        return ( NULL );
-      }
+  if (cp == sym)
+    {
+      return ( NULL );
+    }
 
   *cpp = cp;
 
