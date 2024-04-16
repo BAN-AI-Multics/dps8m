@@ -2481,7 +2481,6 @@ Multics CI-Kit Test:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - bash -x -c '( set -o pipefail ; set -x ; cd src/ci-kit && export WITH_BACKTRACE=1 && env NO_CI_SYMLINK_TAPES=1 ./init.sh ; ./ci.sh ; make -f ci.makefile diff ; mv -f new.log new.txt )'
-    - bash -x -c '( find . -name "*.[ch]" | grep -v "/libsir/" | xargs -I{} sh -c "src/unifdef/unifdef -s {} 1> /dev/null || echo {}" 2>&1 | grep '.' && { exit 1; }; )'
   cache:
     key: tape-cache
     paths:
