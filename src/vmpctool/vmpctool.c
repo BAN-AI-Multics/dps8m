@@ -2163,6 +2163,8 @@ main(int argc, char **argv)
   }
 
   _Exit(0);
+#if defined(SUNLINT) || !defined(__SUNPRO_C) && !defined(__SUNPRO_CC)
   /*NOTREACHED*/ /* unreachable */
   return 0;
+#endif /* if defined(SUNLINT) || !defined(__SUNPRO_C) && !defined(__SUNPRO_CC) */
 }
