@@ -6700,6 +6700,7 @@ printuk
 procdef
 procsrt
 psabi
+qflag
 qshowmacros
 realclean
 reallyclean
