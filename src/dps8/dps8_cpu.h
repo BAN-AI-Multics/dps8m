@@ -1039,154 +1039,154 @@ typedef struct
 enum du_cycle1_e
   {
     //  0 -FPOL Prepare operand length
-    du1_nFPOL        = 0400000000000ll,
+    du1_nFPOL        = 0400000000000ull,
     //  1 -FPOP Prepare operand pointer
-    du1_nFPOP        = 0200000000000ll,
+    du1_nFPOP        = 0200000000000ull,
     //  2 -NEED-DESC Need descriptor
-    du1_nNEED_DESC   = 0100000000000ll,
+    du1_nNEED_DESC   = 0100000000000ull,
     //  3 -SEL-ADR Select address register
-    du1_nSEL_DIR     = 0040000000000ll,
+    du1_nSEL_DIR     = 0040000000000ull,
     //  4 -DLEN=DIRECT Length equals direct
-    du1_nDLEN_DIRECT = 0020000000000ll,
+    du1_nDLEN_DIRECT = 0020000000000ull,
     //  5 -DFRST Descriptor processed for first time
-    du1_nDFRST       = 0010000000000ll,
+    du1_nDFRST       = 0010000000000ull,
     //  6 -FEXR Extended register modification
-    du1_nFEXR        = 0004000000000ll,
+    du1_nFEXR        = 0004000000000ull,
     //  7 -DLAST-FRST Last cycle of DFRST
-    du1_nLAST_DFRST  = 0002000000000ll,
+    du1_nLAST_DFRST  = 0002000000000ull,
     //  8 -DDU-LDEA Decimal unit load  (lpl?)
-    du1_nDDU_LDEA    = 0001000000000ll,
+    du1_nDDU_LDEA    = 0001000000000ull,
     //  9 -DDU-STAE Decimal unit store (spl?)
-    du1_nDDU_STEA    = 0000400000000ll,
+    du1_nDDU_STEA    = 0000400000000ull,
     // 10 -DREDO Redo operation without pointer and length update
-    du1_nDREDO       = 0000200000000ll,
+    du1_nDREDO       = 0000200000000ull,
     // 11 -DLVL<WD-SZ Load with count less than word size
-    du1_nDLVL_WD_SZ  = 0000100000000ll,
+    du1_nDLVL_WD_SZ  = 0000100000000ull,
     // 12 -EXH Exhaust
-    du1_nEXH         = 0000040000000ll,
+    du1_nEXH         = 0000040000000ull,
     // 13 DEND-SEQ End of sequence
-    du1_DEND_SEQ     = 0000020000000ll,
+    du1_DEND_SEQ     = 0000020000000ull,
     // 14 -DEND End of instruction
-    du1_nEND         = 0000010000000ll,
+    du1_nEND         = 0000010000000ull,
     // 15 -DU=RD+WRT Decimal unit write-back
-    du1_nDU_RD_WRT   = 0000004000000ll,
+    du1_nDU_RD_WRT   = 0000004000000ull,
     // 16 -PTRA00 PR address bit 0
-    du1_nPTRA00      = 0000002000000ll,
+    du1_nPTRA00      = 0000002000000ull,
     // 17 -PTRA01 PR address bit 1
-    du1_nPTRA01      = 0000001000000ll,
+    du1_nPTRA01      = 0000001000000ull,
     // 18 FA/Il Descriptor l active
-    du1_FA_I1        = 0000000400000ll,
+    du1_FA_I1        = 0000000400000ull,
     // 19 FA/I2 Descriptor 2 active
-    du1_FA_I2        = 0000000200000ll,
+    du1_FA_I2        = 0000000200000ull,
     // 20 FA/I3 Descriptor 3 active
-    du1_FA_I3        = 0000000100000ll,
+    du1_FA_I3        = 0000000100000ull,
     // 21 -WRD Word operation
-    du1_nWRD         = 0000000040000ll,
+    du1_nWRD         = 0000000040000ull,
     // 22 -NINE 9-bit character operation
-    du1_nNINE        = 0000000020000ll,
+    du1_nNINE        = 0000000020000ull,
     // 23 -SIX 6-bit character operation
-    du1_nSIX         = 0000000010000ll,
+    du1_nSIX         = 0000000010000ull,
     // 24 -FOUR 4-bit character operation
-    du1_nFOUR        = 0000000004000ll,
+    du1_nFOUR        = 0000000004000ull,
     // 25 -BIT Bit operation
-    du1_nBIT         = 0000000002000ll,
+    du1_nBIT         = 0000000002000ull,
     // 26 Unused
-    //               = 0000000001000ll,
+    //               = 0000000001000ull,
     // 27 Unused
-    //               = 0000000000400ll,
+    //               = 0000000000400ull,
     // 28 Unused
-    //               = 0000000000200ll,
+    //               = 0000000000200ull,
     // 29 Unused
-    //               = 0000000000100ll,
+    //               = 0000000000100ull,
     // 30 FSAMPL Sample for mid-instruction interrupt
-    du1_FSAMPL       = 0000000000040ll,
+    du1_FSAMPL       = 0000000000040ull,
     // 31 -DFRST-CT Specified first count of a sequence
-    du1_nDFRST_CT    = 0000000000020ll,
+    du1_nDFRST_CT    = 0000000000020ull,
     // 32 -ADJ-LENGTH Adjust length
-    du1_nADJ_LENTGH  = 0000000000010ll,
+    du1_nADJ_LENTGH  = 0000000000010ull,
     // 33 -INTRPTD Mid-instruction interrupt
-    du1_nINTRPTD     = 0000000000004ll,
+    du1_nINTRPTD     = 0000000000004ull,
     // 34 -INHIB Inhibit STC1 (force "STC0")
-    du1_nINHIB       = 0000000000002ll,
+    du1_nINHIB       = 0000000000002ull,
     // 35 Unused
-    //               = 0000000000001ll,
+    //               = 0000000000001ull,
   };
 
 // L68 only
 enum du_cycle2_e
   {
     // 36 DUD Decimal unit idle
-    du2_DUD          = 0400000000000ll,
+    du2_DUD          = 0400000000000ull,
     // 37 -GDLDA Descriptor load gate A
-    du2_nGDLDA       = 0200000000000ll,
+    du2_nGDLDA       = 0200000000000ull,
     // 38 -GDLDB Descriptor load gate B
-    du2_nGDLDB       = 0100000000000ll,
+    du2_nGDLDB       = 0100000000000ull,
     // 39 -GDLDC Descriptor load gate C
-    du2_nGDLDC       = 0040000000000ll,
+    du2_nGDLDC       = 0040000000000ull,
     // 40 NLD1 Prepare alignment count for first numeric operand load
-    du2_NLD1         = 0020000000000ll,
+    du2_NLD1         = 0020000000000ull,
     // 41 GLDP1 Numeric operand one load gate
-    du2_GLDP1        = 0010000000000ll,
+    du2_GLDP1        = 0010000000000ull,
     // 42 NLD2 Prepare alignment count for second numeric operand load
-    du2_NLD2         = 0004000000000ll,
+    du2_NLD2         = 0004000000000ull,
     // 43 GLDP2 Numeric operand two load gate
-    du2_GLDP2        = 0002000000000ll,
+    du2_GLDP2        = 0002000000000ull,
     // 44 ANLD1 Alphanumeric operand one load gate
-    du2_ANLD1        = 0001000000000ll,
+    du2_ANLD1        = 0001000000000ull,
     // 45 ANLD2 Alphanumeric operand two load gate
-    du2_ANLD2        = 0000400000000ll,
+    du2_ANLD2        = 0000400000000ull,
     // 46 LDWRT1 Load rewrite register one gate (XXX Guess indirect desc. MFkID)
-    du2_LDWRT1       = 0000200000000ll,
+    du2_LDWRT1       = 0000200000000ull,
     // 47 LDWRT2 Load rewrite register two gate (XXX Guess indirect desc. MFkID)
-    du2_LDWRT2       = 0000100000000ll,
+    du2_LDWRT2       = 0000100000000ull,
     // 50 -DATA-AVLDU Decimal unit data available
-    du2_nDATA_AVLDU  = 0000040000000ll,
+    du2_nDATA_AVLDU  = 0000040000000ull,
     // 49 WRT1 Rewrite register one loaded
-    du2_WRT1         = 0000020000000ll,
+    du2_WRT1         = 0000020000000ull,
     // 50 GSTR Numeric store gate
-    du2_GSTR         = 0000010000000ll,
+    du2_GSTR         = 0000010000000ull,
     // 51 ANSTR Alphanumeric store gate
-    du2_ANSTR        = 0000004000000ll,
+    du2_ANSTR        = 0000004000000ull,
     // 52 FSTR-OP-AV Operand available to be stored
-    du2_FSTR_OP_AV   = 0000002000000ll,
+    du2_FSTR_OP_AV   = 0000002000000ull,
     // 53 -FEND-SEQ End sequence flag
-    du2_nFEND_SEQ    = 0000001000000ll,
+    du2_nFEND_SEQ    = 0000001000000ull,
     // 54 -FLEN<128 Length less than 128
-    du2_nFLEN_128    = 0000000400000ll,
+    du2_nFLEN_128    = 0000000400000ull,
     // 55 FGCH Character operation gate
-    du2_FGCH         = 0000000200000ll,
+    du2_FGCH         = 0000000200000ull,
     // 56 FANPK Alphanumeric packing cycle gate
-    du2_FANPK        = 0000000100000ll,
+    du2_FANPK        = 0000000100000ull,
     // 57 FEXMOP Execute MOP gate
-    du2_FEXOP        = 0000000040000ll,
+    du2_FEXOP        = 0000000040000ull,
     // 58 FBLNK Blanking gate
-    du2_FBLNK        = 0000000020000ll,
+    du2_FBLNK        = 0000000020000ull,
     // 59 Unused
-    //               = 0000000010000ll,
+    //               = 0000000010000ull,
     // 60 DGBD Binary to decimal execution gate
-    du2_DGBD         = 0000000004000ll,
+    du2_DGBD         = 0000000004000ull,
     // 61 DGDB Decimal to binary execution gate
-    du2_DGDB         = 0000000002000ll,
+    du2_DGDB         = 0000000002000ull,
     // 62 DGSP Shift procedure gate
-    du2_DGSP         = 0000000001000ll,
+    du2_DGSP         = 0000000001000ull,
     // 63 FFLTG Floating result flag
-    du2_FFLTG        = 0000000000400ll,
+    du2_FFLTG        = 0000000000400ull,
     // 64 FRND Rounding flag
-    du2_FRND         = 0000000000200ll,
+    du2_FRND         = 0000000000200ull,
     // 65 DADD-GATE Add/subtract execute gate
-    du2_DADD_GATE    = 0000000000100ll,
+    du2_DADD_GATE    = 0000000000100ull,
     // 66 DMP+DV-GATE Multiply/divide execution gate
-    du2_DMP_DV_GATE  = 0000000000040ll,
+    du2_DMP_DV_GATE  = 0000000000040ull,
     // 67 DXPN-GATE Exponent network execution gate
-    du2_DXPN_GATE    = 0000000000020ll,
+    du2_DXPN_GATE    = 0000000000020ull,
     // 68 Unused
-    //               = 0000000000010ll,
+    //               = 0000000000010ull,
     // 69 Unused
-    //               = 0000000000004ll,
+    //               = 0000000000004ull,
     // 70 Unused
-    //               = 0000000000002ll,
+    //               = 0000000000002ull,
     // 71 Unused
-    //               = 0000000000001ll,
+    //               = 0000000000001ull,
   };
 
 // L68 only
@@ -1265,86 +1265,86 @@ enum du_cycle2_e
 //
 enum du_cycle1_e
   {
-    du1_FDUD    = 01000000000000ll,   // Decimal Unit Idle
-    du1_GDLD    = 00400000000000ll,   // Decimal Unit Load
-    du1_GLP1    = 00200000000000ll,   // PR address bit 0
-    du1_GLP2    = 00100000000000ll,   // PR address bit 1
-    du1_GEA1    = 00040000000000ll,   // Descriptor 1 active
-    du1_GEM1    = 00020000000000ll,   //
-    du1_GED1    = 00010000000000ll,   // Prepare alignment count for 1st numeric
+    du1_FDUD    = 01000000000000ull,   // Decimal Unit Idle
+    du1_GDLD    = 00400000000000ull,   // Decimal Unit Load
+    du1_GLP1    = 00200000000000ull,   // PR address bit 0
+    du1_GLP2    = 00100000000000ull,   // PR address bit 1
+    du1_GEA1    = 00040000000000ull,   // Descriptor 1 active
+    du1_GEM1    = 00020000000000ull,   //
+    du1_GED1    = 00010000000000ull,   // Prepare alignment count for 1st numeric
                                       // operand load
-    du1_GDB     = 00004000000000ll,   // Decimal to binary gate
-    du1_GBD     = 00002000000000ll,   // Binary to decimal gate
-    du1_GSP     = 00001000000000ll,   // Shift procedure gate
-    du1_GED2    = 00000400000000ll,   // Prepare alignment count for 2nd numeric
+    du1_GDB     = 00004000000000ull,   // Decimal to binary gate
+    du1_GBD     = 00002000000000ull,   // Binary to decimal gate
+    du1_GSP     = 00001000000000ull,   // Shift procedure gate
+    du1_GED2    = 00000400000000ull,   // Prepare alignment count for 2nd numeric
                                       //  operand load
-    du1_GEA2    = 00000200000000ll,   // Descriptor 2 active
-    du1_GADD    = 00000100000000ll,   // Add subtract execute gate
-    du1_GCMP    = 00000040000000ll,   //
-    du1_GMSY    = 00000020000000ll,   //
-    du1_GMA     = 00000010000000ll,   //
-    du1_GMS     = 00000004000000ll,   //
-    du1_GQDF    = 00000002000000ll,   //
-    du1_GQPA    = 00000001000000ll,   //
-    du1_GQR1    = 00000000400000ll,   // Load rewrite register one gate
-    du1_GQR2    = 00000000200000ll,   // Load rewrite register two gate
-    du1_GRC     = 00000000100000ll,   //
-    du1_GRND    = 00000000040000ll,   //
-    du1_GCLZ    = 00000000020000ll,   // Load with count less than word size
-    du1_GEDJ    = 00000000010000ll,   // ? is the GED3?
-    du1_GEA3    = 00000000004000ll,   // Descriptor 3 active
-    du1_GEAM    = 00000000002000ll,   //
-    du1_GEDC    = 00000000001000ll,   //
-    du1_GSTR    = 00000000000400ll,   // Decimal unit store
-    du1_GSDR    = 00000000000200ll,   //
-    du1_NSTR    = 00000000000100ll,   // Numeric store gate
-    du1_SDUD    = 00000000000040ll,   //
-    du1_U32     = 00000000000020ll,   // ?
-    du1_U33     = 00000000000010ll,   // ?
-    du1_U34     = 00000000000004ll,   // ?
-    du1_FLTG    = 00000000000002ll,   // Floating result flag
-    du1_FRND    = 00000000000001ll    // Rounding flag
+    du1_GEA2    = 00000200000000ull,   // Descriptor 2 active
+    du1_GADD    = 00000100000000ull,   // Add subtract execute gate
+    du1_GCMP    = 00000040000000ull,   //
+    du1_GMSY    = 00000020000000ull,   //
+    du1_GMA     = 00000010000000ull,   //
+    du1_GMS     = 00000004000000ull,   //
+    du1_GQDF    = 00000002000000ull,   //
+    du1_GQPA    = 00000001000000ull,   //
+    du1_GQR1    = 00000000400000ull,   // Load rewrite register one gate
+    du1_GQR2    = 00000000200000ull,   // Load rewrite register two gate
+    du1_GRC     = 00000000100000ull,   //
+    du1_GRND    = 00000000040000ull,   //
+    du1_GCLZ    = 00000000020000ull,   // Load with count less than word size
+    du1_GEDJ    = 00000000010000ull,   // ? is the GED3?
+    du1_GEA3    = 00000000004000ull,   // Descriptor 3 active
+    du1_GEAM    = 00000000002000ull,   //
+    du1_GEDC    = 00000000001000ull,   //
+    du1_GSTR    = 00000000000400ull,   // Decimal unit store
+    du1_GSDR    = 00000000000200ull,   //
+    du1_NSTR    = 00000000000100ull,   // Numeric store gate
+    du1_SDUD    = 00000000000040ull,   //
+    du1_U32     = 00000000000020ull,   // ?
+    du1_U33     = 00000000000010ull,   // ?
+    du1_U34     = 00000000000004ull,   // ?
+    du1_FLTG    = 00000000000002ull,   // Floating result flag
+    du1_FRND    = 00000000000001ull    // Rounding flag
   };
 
 enum du_cycle2_e
   {
-    du2_ALD1    = 01000000000000ll,   // Alphanumeric operand one load gate
-    du2_ALD2    = 00400000000000ll,   // Alphanumeric operand two load gate
-    du2_NLD1    = 00200000000000ll,   // Numeric operand one load gate
-    du2_NLD2    = 00100000000000ll,   // Numeric operand two load gate
-    du2_LWT1    = 00040000000000ll,   // Load rewrite register one gate
-    du2_LWT2    = 00020000000000ll,   // Load rewrite register two gate
-    du2_ASTR    = 00010000000000ll,   // Alphanumeric store gate
-    du2_ANPK    = 00004000000000ll,   // Alphanumeric packing cycle gate
-    du2_FGCH    = 00002000000000ll,   // Character operation gate
-    du2_XMOP    = 00001000000000ll,   // Execute MOP
-    du2_BLNK    = 00000400000000ll,   // Blanking gate
-    du2_U11     = 00000200000000ll,   //
-    du2_U12     = 00000100000000ll,   //
-    du2_CS_0    = 00000040000000ll,   //
-    du2_CU_0    = 00000020000000ll,   //  CS=0
-    du2_FI_0    = 00000010000000ll,   //  CU=0
-    du2_CU_V    = 00000004000000ll,   //  CU=V
-    du2_UM_V    = 00000002000000ll,   //  UM<V
-    du2_U18     = 00000001000000ll,   // ?
-    du2_U19     = 00000000400000ll,   // ?
-    du2_U20     = 00000000200000ll,   // ?
-    du2_U21     = 00000000100000ll,   // ?
-    du2_U22     = 00000000040000ll,   // ?
-    du2_U23     = 00000000020000ll,   // ?
-    du2_U24     = 00000000010000ll,   // ?
-    du2_U25     = 00000000004000ll,   // ?
-    du2_U26     = 00000000002000ll,   // ?
-    du2_U27     = 00000000001000ll,   // ?
-    du2_L128    = 00000000000400ll,   // L<128 Length less than 128
-    du2_END_SEQ = 00000000000200ll,   // End sequence flag
-    du2_U29     = 00000000000100ll,   // ?
-    du2_U31     = 00000000000040ll,   // ?
-    du2_U32     = 00000000000020ll,   // ?
-    du2_U33     = 00000000000010ll,   // ?
-    du2_U34     = 00000000000004ll,   // ?
-    du2_U35     = 00000000000002ll,   // ?
-    du2_U36     = 00000000000001ll    // ?
+    du2_ALD1    = 01000000000000ull,   // Alphanumeric operand one load gate
+    du2_ALD2    = 00400000000000ull,   // Alphanumeric operand two load gate
+    du2_NLD1    = 00200000000000ull,   // Numeric operand one load gate
+    du2_NLD2    = 00100000000000ull,   // Numeric operand two load gate
+    du2_LWT1    = 00040000000000ull,   // Load rewrite register one gate
+    du2_LWT2    = 00020000000000ull,   // Load rewrite register two gate
+    du2_ASTR    = 00010000000000ull,   // Alphanumeric store gate
+    du2_ANPK    = 00004000000000ull,   // Alphanumeric packing cycle gate
+    du2_FGCH    = 00002000000000ull,   // Character operation gate
+    du2_XMOP    = 00001000000000ull,   // Execute MOP
+    du2_BLNK    = 00000400000000ull,   // Blanking gate
+    du2_U11     = 00000200000000ull,   //
+    du2_U12     = 00000100000000ull,   //
+    du2_CS_0    = 00000040000000ull,   //
+    du2_CU_0    = 00000020000000ull,   //  CS=0
+    du2_FI_0    = 00000010000000ull,   //  CU=0
+    du2_CU_V    = 00000004000000ull,   //  CU=V
+    du2_UM_V    = 00000002000000ull,   //  UM<V
+    du2_U18     = 00000001000000ull,   // ?
+    du2_U19     = 00000000400000ull,   // ?
+    du2_U20     = 00000000200000ull,   // ?
+    du2_U21     = 00000000100000ull,   // ?
+    du2_U22     = 00000000040000ull,   // ?
+    du2_U23     = 00000000020000ull,   // ?
+    du2_U24     = 00000000010000ull,   // ?
+    du2_U25     = 00000000004000ull,   // ?
+    du2_U26     = 00000000002000ull,   // ?
+    du2_U27     = 00000000001000ull,   // ?
+    du2_L128    = 00000000000400ull,   // L<128 Length less than 128
+    du2_END_SEQ = 00000000000200ull,   // End sequence flag
+    du2_U29     = 00000000000100ull,   // ?
+    du2_U31     = 00000000000040ull,   // ?
+    du2_U32     = 00000000000020ull,   // ?
+    du2_U33     = 00000000000010ull,   // ?
+    du2_U34     = 00000000000004ull,   // ?
+    du2_U35     = 00000000000002ull,   // ?
+    du2_U36     = 00000000000001ull    // ?
   };
 # endif /* if defined(PANEL68) */
 #endif

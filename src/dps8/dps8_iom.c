@@ -3432,7 +3432,7 @@ int send_special_interrupt (uint iom_unit_idx, uint chan, uint devCode,
     word36 dcw;
     iom_core_read_lock (iom_unit_idx, chanloc + IOM_MBX_DCW, & dcw, __func__);
 
-    word36 status  = 0400000000000;
+    word36 status  = 0400000000000ull;
     status        |= (((word36) chan)    & MASK6) << 27;
     status        |= (((word36) devCode) & MASK8) << 18;
     status        |= (((word36) status0) & MASK8) <<  9;
