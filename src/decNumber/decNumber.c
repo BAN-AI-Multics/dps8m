@@ -315,8 +315,8 @@ Int decNumberToInt32(const decNumber *dn, decContext *set) {
     up=dn->lsu;                    // -> lsu
     lo=*up;                        // get 1 to 9 digits
 #if DECDPUN>1                  // split to higher
-      hi=lo/10;
-      lo=lo%10;
+    hi=lo/10;
+    lo=lo%10;
 #endif
     up++;
     // collect remaining Units, if any, into hi
@@ -348,8 +348,8 @@ uInt decNumberToUInt32(const decNumber *dn, decContext *set) {
     up=dn->lsu;                    // -> lsu
     lo=*up;                        // get 1 to 9 digits
 #if DECDPUN>1                  // split to higher
-      hi=lo/10;
-      lo=lo%10;
+    hi=lo/10;
+    lo=lo%10;
 #endif
     up++;
     // collect remaining Units, if any, into hi
@@ -2753,14 +2753,14 @@ decNumber * decNumberSquareRoot(decNumber *res, const decNumber *rhs,
       t->exponent=-3;
       a->exponent=-3;
 #if DECDPUN>=3
-        t->lsu[0]=259;
-        a->lsu[0]=819;
+      t->lsu[0]=259;
+      a->lsu[0]=819;
 #elif DECDPUN==2
-        t->lsu[0]=59; t->lsu[1]=2;
-        a->lsu[0]=19; a->lsu[1]=8;
+      t->lsu[0]=59; t->lsu[1]=2;
+      a->lsu[0]=19; a->lsu[1]=8;
 #else
-        t->lsu[0]=9; t->lsu[1]=5; t->lsu[2]=2;
-        a->lsu[0]=9; a->lsu[1]=1; a->lsu[2]=8;
+      t->lsu[0]=9; t->lsu[1]=5; t->lsu[2]=2;
+      a->lsu[0]=9; a->lsu[1]=1; a->lsu[2]=8;
 #endif
       }
      else {                                  // odd exponent
@@ -2770,14 +2770,14 @@ decNumber * decNumberSquareRoot(decNumber *res, const decNumber *rhs,
       t->exponent=-4;
       a->exponent=-2;
 #if DECDPUN>=3
-        t->lsu[0]=819;
-        a->lsu[0]=259;
+      t->lsu[0]=819;
+      a->lsu[0]=259;
 #elif DECDPUN==2
-        t->lsu[0]=19; t->lsu[1]=8;
-        a->lsu[0]=59; a->lsu[1]=2;
+      t->lsu[0]=19; t->lsu[1]=8;
+      a->lsu[0]=59; a->lsu[1]=2;
 #else
-        t->lsu[0]=9; t->lsu[1]=1; t->lsu[2]=8;
-        a->lsu[0]=9; a->lsu[1]=5; a->lsu[2]=2;
+      t->lsu[0]=9; t->lsu[1]=1; t->lsu[2]=8;
+      a->lsu[0]=9; a->lsu[1]=5; a->lsu[2]=2;
 #endif
       }
 
@@ -2924,9 +2924,9 @@ decNumber * decNumberSquareRoot(decNumber *res, const decNumber *rhs,
       Int ae=rhs->exponent+rhs->digits-1;    // adjusted exponent
       // check if truly subnormal
 #if DECEXTFLAG                         // DEC_Subnormal too
-        if (ae>=set->emin*2) status&=~(DEC_Subnormal|DEC_Underflow);
+      if (ae>=set->emin*2) status&=~(DEC_Subnormal|DEC_Underflow);
 #else
-        if (ae>=set->emin*2) status&=~DEC_Underflow;
+      if (ae>=set->emin*2) status&=~DEC_Underflow;
 #endif
       // check if truly inexact
       if (!(status&DEC_Inexact)) status&=~DEC_Underflow;
@@ -3249,9 +3249,9 @@ uByte * decNumberGetBCD(const decNumber *dn, uByte *bcd) {
   uByte *ub=bcd+dn->digits-1;      // -> lsd
   const Unit *up=dn->lsu;          // Unit pointer, -> lsu
 
-#if DECDPUN==1                   // trivial simple copy
+#if DECDPUN==1                     // trivial simple copy
     for (; ub>=bcd; ub--, up++) *ub=*up;
-#else                            // chopping needed
+#else                              // chopping needed
     uInt u=*up;                    // work
     uInt cut=DECDPUN;              // downcounter through unit
     for (; ub>=bcd; ub--) {
@@ -3280,21 +3280,21 @@ uByte * decNumberGetBCD(const decNumber *dn, uByte *bcd) {
 /* and bcd[0] zero.                                                   */
 /* ------------------------------------------------------------------ */
 decNumber * decNumberSetBCD(decNumber *dn, const uByte *bcd, uInt n) {
-  Unit *up=dn->lsu+D2U(dn->digits)-1;   // -> msu [target pointer]
-  const uByte *ub=bcd;                  // -> source msd
+  Unit *up=dn->lsu+D2U(dn->digits)-1; // -> msu [target pointer]
+  const uByte *ub=bcd;                // -> source msd
 
 #if DECDPUN==1                        // trivial simple copy
     for (; ub<bcd+n; ub++, up--) *up=*ub;
 #else                                 // some assembly needed
     // calculate how many digits in msu, and hence first cut
-    Int cut=MSUDIGITS(n);               // [faster than remainder]
-    for (;up>=dn->lsu; up--) {          // each Unit from msu
-      *up=0;                            // will take <=DECDPUN digits
+    Int cut=MSUDIGITS(n);             // [faster than remainder]
+    for (;up>=dn->lsu; up--) {        // each Unit from msu
+      *up=0;                          // will take <=DECDPUN digits
       for (; cut>0; ub++, cut--) *up=X10(*up)+*ub;
-      cut=DECDPUN;                      // next Unit has all digits
+      cut=DECDPUN;                    // next Unit has all digits
       }
 #endif
-  dn->digits=n;                         // set digit count
+  dn->digits=n;                       // set digit count
   return dn;
   } // decNumberSetBCD
 
@@ -7253,11 +7253,11 @@ static Int decGetInt(const decNumber *dn) {
       Int rem;                          // work
       // slice off fraction digits and check for non-zero
 #if DECDPUN<=4
-        theInt=QUOT10(*up, count);
-        rem=*up-theInt*powers[count];
+      theInt=QUOT10(*up, count);
+      rem=*up-theInt*powers[count];
 #else
-        rem=*up%powers[count];          // slice off discards
-        theInt=*up/powers[count];
+      rem=*up%powers[count];          // slice off discards
+      theInt=*up/powers[count];
 #endif
       if (rem!=0) return BADINT;        // non-zero fraction
       // it looks good
