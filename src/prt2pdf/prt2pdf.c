@@ -306,14 +306,14 @@
         if(GLOBAL_LINENUMBERS != 0){
         (void)fprintf(stdout,"%6d ",GLOBAL_LINECOUNT);
         }
-              while((c = *buffer++) != '\0') {
-                    switch(c+GLOBAL_ADD) {
-                       case '(':
-                       case ')':
-                       case '\\':
-                          (void)putchar('\\');
-                    }
-                    (void)putchar(c+GLOBAL_ADD);
+        while((c = *buffer++) != '\0') {
+              switch(c+GLOBAL_ADD) {
+                 case '(':
+                 case ')':
+                 case '\\':
+                    (void)putchar('\\');
+              }
+              (void)putchar(c+GLOBAL_ADD);
         }
         (void)putchar(')');
  }
@@ -482,7 +482,7 @@ printline:
         GLOBAL_YPOS -= GLOBAL_LEAD_SIZE;
         i = GLOBAL_SHIFT;
       }
-   end_page();
+    end_page();
 }
 /* ============================================================================================================================== */
  static void dopages(void){
@@ -834,12 +834,12 @@ int main(int argc, char **argv) {
            if(GLOBAL_SHADE_STEP < 1 ){
               (void)fprintf(stderr,"W-A-R-N-I-N-G: prt2pdf(1) resetting -i %d to -i 1\n",GLOBAL_SHADE_STEP);
               GLOBAL_SHADE_STEP=1;
-   }
+           }
 
-   for (prindex = optind; prindex < argc; prindex++){
-      (void)fprintf (stderr,"Non-option argument %s\n", argv[prindex]);
-   }
-   dopages();
-   exit(0);
+           for (prindex = optind; prindex < argc; prindex++){
+              (void)fprintf (stderr,"Non-option argument %s\n", argv[prindex]);
+           }
+           dopages();
+           exit(0);
 }
 /* ============================================================================================================================== */
