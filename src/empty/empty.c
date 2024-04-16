@@ -190,8 +190,8 @@ main(int argc, char *argv[])
 # endif /* if defined(PATH_MAX) && PATH_MAX > 1024 */
 #endif /* if !defined(MAXPATHLEN) */
 
-  char infifo[MAXPATHLEN];
-  char outfifo[MAXPATHLEN];
+  char infifo[MAXPATHLEN * 20];
+  char outfifo[MAXPATHLEN * 20];
 
   struct sembuf check_sem = {
     0, -1, 0
@@ -872,7 +872,7 @@ main(int argc, char *argv[])
                 {
                   /* our input */
                   (void)!write(master, buf, cc);
-                  if (lfd)
+                  if (lfd > 0)
                     {
                       if (fl_state != 1)
                         {
@@ -891,7 +891,7 @@ main(int argc, char *argv[])
                 {
                   /* remote output */
                   (void)!write(ofd, buf, cc);
-                  if (lfd)
+                  if (lfd > 0)
                     {
                       if (fl_state != 0)
                         {
@@ -943,8 +943,8 @@ toint(char *intstr)
 static long
 pidbyppid(pid_t ppid, int lflg)
 {
-  char fmask[( MAXPATHLEN * 2 ) + 1];
-  char fname[( MAXPATHLEN * 4 ) + 1];
+  char fmask[( MAXPATHLEN * 16 ) + 1];
+  char fname[( MAXPATHLEN * 8 ) + 1];
   const char *sep = ".";
   DIR *dir;
   struct dirent *dent;
@@ -1001,13 +1001,16 @@ pidbyppid(pid_t ppid, int lflg)
                   header--;
                 }
 
-              (void)printf(
-                "%ld\t%ld\t%s\t%s/%s\n",
-                (long)ppid,
-                (long)pid,
-                tail,
-                tmpdir,
-                dent->d_name);
+              if (tail)
+                {
+                  (void)printf(
+                    "%ld\t%ld\t%s\t%s/%s\n",
+                    (long)ppid,
+                    (long)pid,
+                    tail,
+                    tmpdir,
+                    dent->d_name);
+                }
             }
         }
     }
