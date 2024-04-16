@@ -177,6 +177,20 @@ vmpctool: .rebuild.env                                                       \
             2> /dev/null || $(TRUE)
 
 ##############################################################################
+# Builds libsir
+
+.PHONY: libsir .rebuild.env
+libsir: .rebuild.env                                                         \
+    # libsir:    # Builds the libsir logging library
+	-@$(PRINTF) '%s\n' "BUILD: Starting libsir build" 2> /dev/null ||        \
+        $(TRUE)
+	-@$(MAKE) -s -C "." ".rebuild.env";                                      \
+      $(TEST) -f ".needrebuild" && $(MAKE) -C "." "clean" || $(TRUE);        \
+        $(MAKE) -C "src/dps8" "libsir" &&                                    \
+          $(PRINTF) '%s\n' "BUILD: Successful libsir build"                  \
+            2> /dev/null || $(TRUE)
+
+##############################################################################
 # Builds novdso utility
 
 .PHONY: xovdso novdso .rebuild.env

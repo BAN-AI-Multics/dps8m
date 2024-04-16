@@ -338,8 +338,9 @@ DECN_OBJS = ../decNumber/decContext.o  ../decNumber/decNumber.o
 ###############################################################################
 
 .PHONY: all
-all:  sysdefs.h   ver.h   unifdef   locallibs_then_dps8   prt2pdf             \
-      punutil     mcmb    vmpctool  empty        xovdso   novdso              \
+all:  sysdefs.h ver.h                                                         \
+      libsir unifdef prt2pdf punutil mcmb vmpctool empty xovdso novdso        \
+      locallibs_then_dps8                                                     \
       $(TAGS)
 	-@$(TRUE)
 
@@ -434,8 +435,23 @@ slte.inc: system_book_12_3.ascii
 
 ###############################################################################
 
+.PHONY: libsir
+ifeq ($(TESTING),1)
+  SIR_TESTING="SIR_DEBUG=1"
+endif
+libsir:
+	@($(SETV); $(CD) "../libsir" &&                                           \
+      $(ENV) CC="$(CC)"                                                       \
+             CFLAGS='$(CFLAGS)'                                               \
+             LDFLAGS='$(LDFLAGS)'                                             \
+      $(MAKE) -C "." "static"                                                 \
+        SIR_NO_PLUGINS=1 SIR_NO_SHARED=1                                      \
+        SIR_USE_EOL_CRLF=1 FORTIFY_FLAGS= $(SIR_TESTING))
+
+###############################################################################
+
 .PHONY: locallibs_then_dps8
-locallibs_then_dps8: ver.h sysdefs.h errnos.h
+locallibs_then_dps8: ver.h sysdefs.h errnos.h libsir
 	@($(SETV); $(CD) "../decNumber" && $(MAKE) -C "." -f "GNUmakefile" "all")
 	@($(SETV); $(CD) "$(SIMHx)" && $(MAKE) -C "." -f "GNUmakefile" "all")
 	@$(SETV); $(MAKE) -C "." -f "GNUmakefile" "dps8$(EXE)"
@@ -535,6 +551,7 @@ ifneq (,$(findstring clean,$(MAKECMDGOALS)))
 .NOTPARALLEL: distclean clean
 endif
 distclean: clean
+	@$(SETV); $(MAKE) -C "../libsir" "distclean"
 	@$(RMF) *.gc??                           2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../blinkenLights2/*.gc??         2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../decNumber/*.gc??              2> /dev/null  ||  $(TRUE)
@@ -613,6 +630,7 @@ clean:
 	@$(SETV); $(MAKE) -C "../novdso"         -f "GNUmakefile"  "clean"
 	@$(SETV); ( cd ../blinkenLights2 && $(RMF) blinkenLights2 || $(TRUE) )
 	@$(SETV); $(MAKE) -C "."                 -f "GNUmakefile"  "clean_dps8"
+	@$(SETV); $(MAKE) -C "../libsir"                           "clean"
 	@$(SETV); $(RMF)  ../../"$(KITNAME)"."$(TARXT)"    ||  $(TRUE)
 	@$(SETV); $(RMF)  ../../"$(KITNAME)"."$(TARXT)".*  ||  $(TRUE)
 	@$(SETV); $(RMF)  ../../"$(KITNAME)"."TMP"         ||  $(TRUE)

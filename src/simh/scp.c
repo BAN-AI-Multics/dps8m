@@ -96,8 +96,7 @@
 # include <sys/sysctl.h>
 #endif /* if defined(_APPLE_) */
 
-#if ( defined(__linux__) || defined(__linux) \
-  ||  defined(_linux)    || defined(linux) )
+#if ( defined(__linux__) || defined(__linux) ||  defined(_linux)    || defined(linux) )
 # include <sys/sysinfo.h>
 # define LINUX_OS
 #endif
@@ -1386,11 +1385,9 @@ const char
   const char *ret = NULL;
   static __thread char buf[XSTR_EMAXLEN];
 
-#if defined(__APPLE__) || defined(_AIX) || \
-      defined(__MINGW32__) || defined(__MINGW64__) || \
-        defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
-# if defined(__MINGW32__) || defined(__MINGW64__) || \
-        defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
+#if defined(__APPLE__) || defined(_AIX) || defined(__MINGW32__) || \
+    defined(__MINGW64__) || defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
+# if defined(__MINGW32__) || defined(__MINGW64__) || defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
   if (strerror_s(buf, sizeof(buf), errnum) == 0) ret = buf; /*LINTOK: xstrerror_l*/
 # else
   if (strerror_r(errnum, buf, sizeof(buf)) == 0) ret = buf; /*LINTOK: xstrerror_l*/
@@ -5179,6 +5176,22 @@ if (flag) {
 #else
     (void)fprintf (st, "\n  Compiler: Unknown");
 #endif
+
+#if defined(__ppc64__) || defined(__PPC64__) || defined(__ppc64le__) || defined(__PPC64LE__) || defined(__powerpc64__) || \
+    defined(__POWERPC64__) || defined(_M_PPC64) || defined(__PPC64) || defined(_ARCH_PPC64)
+# define SC_IS_PPC64 1
+#else
+# define SC_IS_PPC64 0
+#endif
+
+#if defined(__ppc__) || defined(__PPC__) || defined(__powerpc__) || defined(__POWERPC__) || defined(_M_PPC) || defined(__PPC) || \
+    defined(__ppc32__) || defined(__PPC32__) || defined(__powerpc32__) || defined(__POWERPC32__) || defined(_M_PPC32) || \
+    defined(__PPC32)
+# define SC_IS_PPC32 1
+#else
+# define SC_IS_PPC32 0
+#endif
+
 #if defined(_M_X64) || defined(_M_AMD64) || defined(__amd64__) || defined(__x86_64__) || defined(__AMD64)
     arch = " x86_64";
 #elif defined(_M_IX86) || defined(__i386) || defined(__i486) || defined(__i586) || defined(__i686) || defined(__ix86)
@@ -5189,14 +5202,9 @@ if (flag) {
     arch = " arm";
 #elif defined(__ia64__) || defined(_M_IA64) || defined(__itanium__)
     arch = " ia64";
-#elif defined(__ppc64__) || defined(__PPC64__) || defined(__ppc64le__) || \
-      defined(__PPC64LE__) || defined(__powerpc64__) || defined(__POWERPC64__) || \
-      defined(_M_PPC64) || defined(__PPC64) || defined(_ARCH_PPC64)
+#elif SC_IS_PPC64
     arch = " powerpc64";
-#elif defined(__ppc__) || defined(__PPC__) || defined(__powerpc__) || \
-      defined(__POWERPC__) || defined(_M_PPC) || defined(__PPC) || \
-      defined(__ppc32__) || defined(__PPC32__) || defined(__powerpc32__) || \
-      defined(__POWERPC32__) || defined(_M_PPC32) || defined(__PPC32)
+#elif SC_IS_PPC32
     arch = " powerpc";
 #elif defined(__s390x__)
     arch = " s390x";
