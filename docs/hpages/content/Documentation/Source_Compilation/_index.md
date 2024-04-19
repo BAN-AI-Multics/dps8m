@@ -526,8 +526,8 @@ Install the required prerequisites (using OpenBSD Packages or Ports):
 
 * **GCC** is recommended for optimal performance, but compilation using **Clang** is supported.
 * A version of **Clang** newer than the base system version may be available via the '**`llvm`**' package or port.
-* Once installed, it can be used for compilation by setting the appropriate environment variables,
-  (*i.e.* `CC=/usr/local/bin/clang` and `LDFLAGS="-fuse-ld=lld"`).
+* Once installed, it can be used for compilation by setting the appropriate environment variables before
+  invoking the '`make`' program (*i.e.* '`CC="/usr/local/bin/clang"`' and '`LDFLAGS="-fuse-ld=lld"`').
 
 ### Additional OpenBSD Notes
 
