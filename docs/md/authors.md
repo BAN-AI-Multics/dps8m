@@ -23,8 +23,7 @@
   * Jean-Michel Merliot, &nbsp;
   * Michael Mondy &nbsp;
     \<[`michael.mondy@coffeebird.net`](mailto:michael.mondy@coffeebird.net)\>,
-  * Harry Reed &nbsp;
-    \<[`doon386@reedclan.org`](mailto:doon386@reedclan.org)\>,
+  * Harry Reed, &nbsp;
   * Craig Ruff, &nbsp;
   * Eric Swenson &nbsp;
     \<[`eric@swenson.org`](mailto:eric@swenson.org)\>,
