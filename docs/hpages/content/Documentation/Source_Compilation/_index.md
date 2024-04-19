@@ -772,7 +772,7 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 
 []()
 
-* The simulator can be built for **64-bit** **AIX®** using [**IBM XL C/C++ for AIX**](https://www.ibm.com/products/xl-c-aix-compiler-power) (**`xlc`**), [**IBM Open XL C/C++ for AIX**](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) (**`ibm-clang`**), mainline **Clang** (**`clang`**), and **GNU C** (**`gcc`**).  When using **XL compilers**, ensure that you are using the [latest available XL compiler and associated PTF updates](https://www.ibm.com/support/pages/aix-os-levels-supported-xl-compilers) for your **IBM AIX** OS level. Review the current [fix list for XL compilers on AIX](https://www.ibm.com/support/pages/fix-list-xl-cc-aix) for complete details.
+* The simulator can be built for **64-bit** **AIX®** systems using [**IBM XL C/C++ for AIX**](https://www.ibm.com/products/xl-c-aix-compiler-power) (**`xlc`**), [**IBM Open XL C/C++ for AIX**](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) (**`ibm-clang`**), mainline **Clang** (**`clang`**), and **GNU C** (**`gcc`**).  When using **XL compilers**, ensure that you are using the [latest available XL compiler and associated PTF updates](https://www.ibm.com/support/pages/aix-os-levels-supported-xl-compilers) for your **IBM AIX** OS level. Review the current [fix list for XL compilers on AIX](https://www.ibm.com/support/pages/fix-list-xl-cc-aix) for complete details.
 
 []()
 
