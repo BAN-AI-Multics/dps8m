@@ -6010,6 +6010,7 @@ anyerror
 argv
 arml
 armv
+atime
 basename
 bitmode
 brewpath
@@ -6019,6 +6020,7 @@ compressxt
 cppcpp
 cppflags
 cstd
+ctime
 dbuildinfo
 dclock
 dduma
@@ -6032,6 +6034,7 @@ dumalibs
 duse
 dver
 endif
+exthdr
 fcntl
 findstring
 flock
@@ -12136,6 +12139,7 @@ picking
 picture
 pierce
 pieter
+pigz
 pine
 pings
 pinning
