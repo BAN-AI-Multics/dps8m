@@ -1153,7 +1153,7 @@ THE POSSIBILITY OF SUCH DAMAGE.**
 
 #### novdso
 
-* **novdso** is a wrapper, originally authored by **Daniel Teunis** that,
+* **novdso** is a wrapper, originally authored by **Daniel Teunis**, that
   forces the wrapped process to not use the Linux vDSO system call
   acceleration library (by overwriting the `AT_SYSINFO_EHDR` tag in its
   auxiliary vector) and allows for wrapped processes to be paused at startup
