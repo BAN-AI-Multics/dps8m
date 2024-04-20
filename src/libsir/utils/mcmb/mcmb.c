@@ -88,9 +88,9 @@
   ( defined(__PPC__) || defined(_ARCH_PPC) )
 # include <mach/clock.h>
 # include <mach/mach.h>
-# ifdef MACOSXPPC
+# if defined(MACOSXPPC)
 #  undef MACOSXPPC
-# endif /* ifdef MACOSXPPC */
+# endif /* if defined(MACOSXPPC) */
 # define MACOSXPPC 1
 #endif /* if defined(__MACH__) && defined(__APPLE__) &&
            ( defined(__PPC__) || defined(_ARCH_PPC) ) */
@@ -102,7 +102,9 @@
 # define FALSE 0
 #endif /* ifndef FALSE */
 
-#undef FREE
+#if defined(FREE)
+# undef FREE
+#endif /* if defined(FREE) */
 #define FREE(p) do  \
   {                 \
     free((p));      \
@@ -372,16 +374,16 @@ static struct cmb_xitem *cmb_transform_find;
  * Limits
  */
 
-#ifdef BUFSIZE_MAX
+#if defined(BUFSIZE_MAX)
 # undef BUFSIZE_MAX
-#endif /* ifdef BUFSIZE_MAX */
+#endif /* if defined(BUFSIZE_MAX) */
 #define BUFSIZE_MAX ( 2 * 1024 * 1024 )
 
 /*
  * Buffer size for read(2) input
  */
 
-#ifndef MAXPHYS
+#if !defined(MAXPHYS)
 # define MAXPHYS ( 128 * 1024 )
 #endif /* ifndef MAXPHYS */
 
@@ -405,14 +407,14 @@ static struct cmb_xitem *cmb_transform_find;
  * Math macros
  */
 
-#ifdef MIN
+#if defined(MIN)
 # undef MIN
-#endif /* ifdef MIN */
+#endif /* if defined(MIN) */
 #define MIN(x, y) (( x ) < ( y ) ? ( x ) : ( y ))
 
-#ifdef MAX
+#if defined(MAX)
 # undef MAX
-#endif /* ifdef MAX */
+#endif /* if defined(MAX) */
 #define MAX(x, y) (( x ) > ( y ) ? ( x ) : ( y ))
 
 #ifndef MAXPATHLEN
@@ -1351,9 +1353,9 @@ main(int argc, char *argv[])
   uint8_t opt_range         = FALSE;
   uint8_t opt_total         = FALSE;
   uint8_t opt_version       = FALSE;
-#ifdef HAVE_BUILD
+#if defined(HAVE_BUILD)
   uint8_t opt_build         = FALSE;
-#endif /* ifdef HAVE_BUILD */
+#endif /* if defined(HAVE_BUILD) */
   const char *cp            = NULL;
   char *cmdver              = version;
   char *endptr              = NULL;
@@ -1565,11 +1567,11 @@ main(int argc, char *argv[])
           opt_total = TRUE;
           break;
 
-#ifdef HAVE_BUILD
+#if defined(HAVE_BUILD)
         case 'V': /* build */
           opt_build = TRUE;
           break;
-#endif /* ifdef HAVE_BUILD */
+#endif /* if defined(HAVE_BUILD) */
 
         case 'v': /* version */
           opt_version = TRUE;
@@ -1595,23 +1597,23 @@ main(int argc, char *argv[])
     {
       (void)fprintf(stdout, "mcmb: (miniature) combinatorics utility"
         " %s (cmb %s + %s)\r\n", mcmbver, cmdver, libver);
-#ifdef HAVE_BUILD
+#if defined(HAVE_BUILD)
       if (!opt_build)
         {
-#endif /* ifdef HAVE_BUILD */
+#endif /* if defined(HAVE_BUILD) */
           FREE(config);
           exit(EXIT_SUCCESS);
           /*NOTREACHED*/ /* unreachable */
-#ifdef HAVE_BUILD
+#if defined(HAVE_BUILD)
         }
-#endif /* ifdef HAVE_BUILD */
+#endif /* if defined(HAVE_BUILD) */
     }
 
-#ifdef HAVE_BUILD
+#if defined(HAVE_BUILD)
   if (opt_build)
     {
-# ifdef __VERSION__
-#  ifdef __GNUC__
+# if defined(__VERSION___)
+#  if defined(__GNUC__)
 #   if !defined (__clang_version__) || defined(__INTEL_COMPILER)
       char xcmp[2];
       /* cppcheck-suppress invalidPrintfArgType_s */
@@ -1633,13 +1635,13 @@ main(int argc, char *argv[])
 #  else
       /* cppcheck-suppress invalidPrintfArgType_s */
       (void)fprintf(stdout, "Compiler: %s\r\n", __VERSION__ );
-#  endif /* ifdef __GNUC__ */
-# endif /* ifdef __VERSION__ */
+#  endif /* if defined(__GNUC__) */
+# endif /* if defined(__VERSION__) */
       FREE(config);
       exit(EXIT_SUCCESS);
       /*NOTREACHED*/ /* unreachable */
     }
-#endif /* ifdef HAVE_BUILD */
+#endif /* if defined(HAVE_BUILD) */
 
   /*
    * At least one non-option argument is required unless `-e' is given
@@ -2160,7 +2162,7 @@ cmb_usage(void)
     "-s text", "Suffix text for each line of output");
   (void)fprintf(stderr, OPTFMT,
     "-t", "Print total number of combinations and exit");
-#ifdef HAVE_BUILD
+#if defined(HAVE_BUILD)
   (void)fprintf(stderr, OPTFMT,
     "-V", "Print build information and exit");
 #endif

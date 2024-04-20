@@ -63,7 +63,9 @@ static const char copyright[] =
   "@(#) $  Author: The DPS8M Development Team and Tony Finch <dot@dotat.at> $\n"
   "@(#) $     URL: https://gitlab.com/dps8m/dps8m/-/tree/master/src/unifdef $\n";
 
-#undef FREE
+#if defined(FREE)
+# undef FREE
+#endif /* if defined(FREE) */
 #define FREE(p) do  \
   {                 \
     free((p));      \

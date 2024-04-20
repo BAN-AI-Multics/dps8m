@@ -105,7 +105,9 @@
 # include <regex.h>
 #endif /* if !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) */
 
-#undef FREE
+#if defined(FREE)
+# undef FREE
+#endif /* if defined(FREE) */
 #define FREE(p) do  \
   {                 \
     free((p));      \

@@ -136,7 +136,9 @@
 #endif /* if defined(MAX) */
 #define MAX(a,b)  (((a) >= (b)) ? (a) : (b))
 
-#undef FREE
+#if defined(FREE)
+# undef FREE
+#endif /* if defined(FREE) */
 #define FREE(p) do  \
   {                 \
     free((p));      \

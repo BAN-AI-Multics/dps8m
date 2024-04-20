@@ -49,7 +49,9 @@
 #endif /* if defined(__MACH__) && defined(__APPLE__) &&
            ( defined(__PPC__) || defined(_ARCH_PPC) ) */
 
-#undef FREE
+#if defined(FREE)
+# undef FREE
+#endif /* if defined(FREE) */
 #define FREE(p) do  \
   {                 \
     free((p));      \

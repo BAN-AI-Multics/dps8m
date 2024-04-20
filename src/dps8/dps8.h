@@ -563,7 +563,9 @@ typedef enum
 
 # define ARRAY_SIZE(a) ( sizeof(a) / sizeof((a)[0]) )
 
-# undef FREE
+# if defined(FREE)
+#  undef FREE
+# endif /* if defined(FREE) */
 # define FREE(p) do  \
   {                  \
     free((p));       \

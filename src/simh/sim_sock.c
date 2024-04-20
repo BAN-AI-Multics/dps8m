@@ -70,7 +70,9 @@
 # define NI_MAXHOST 1025
 #endif /* if !defined(NI_MAXHOST) */
 
-#undef FREE
+#if defined(FREE)
+# undef FREE
+#endif /* if defined(FREE) */
 #define FREE(p) do  \
   {                 \
     free((p));      \

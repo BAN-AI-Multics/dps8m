@@ -85,7 +85,9 @@ typedef unsigned char uint8_t;
 
 # define UTHASH_VERSION 21.9.8
 
-# undef FREE
+# if defined(FREE)
+#  undef FREE
+# endif /* if defined(FREE) */
 # define FREE(p) do  \
   {                  \
     free((p));       \
