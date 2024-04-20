@@ -116,9 +116,10 @@
 # include <OS.h>
 #endif /* if defined(__HAIKU__) */
 
-#if !defined(_AIX)
+#if !defined(__CYGWIN__) && !defined(__APPLE__) && !defined(_AIX) && !defined(__MINGW32__) || \
+    !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64)
 # include <link.h>
-#endif /* if !defined( _AIX ) */
+#endif
 
 #define DBG_CTR 0
 
@@ -135,9 +136,10 @@
 
 #include "../dps8/dps8_math128.h"
 
-#if !defined(_AIX)
+#if !defined(__CYGWIN__) && !defined(__APPLE__) && !defined(_AIX) && !defined(__MINGW32__) || \
+    !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64)
 static unsigned int dl_iterate_phdr_callback_called = 0;
-#endif /* if !defined( _AIX ) */
+#endif
 
 #if defined(MAX)
 # undef MAX
@@ -1521,7 +1523,8 @@ void CleanDUMA(void)
 # endif /* if defined(BACKTRACE_SUPPORTED) */
 #endif /* if defined(USE_BACKTRACE) */
 
-#if !defined(_AIX)
+#if !defined(__CYGWIN__) && !defined(__APPLE__) && !defined(_AIX) && !defined(__MINGW32__) || \
+    !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64)
 static int
 dl_iterate_phdr_callback (struct dl_phdr_info *info, size_t size, void *data)
 {
@@ -1538,7 +1541,7 @@ dl_iterate_phdr_callback (struct dl_phdr_info *info, size_t size, void *data)
 
   return 0;
 }
-#endif /* if !defined( _AIX ) */
+#endif
 
 /* Main command loop */
 
@@ -4538,11 +4541,12 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
 #else
     (void)fprintf (st, "\r\n      Compilation info: Not available\n" );
 #endif
-#if !defined(_AIX)
+#if !defined(__CYGWIN__) && !defined(__APPLE__) && !defined(_AIX) && !defined(__MINGW32__) || \
+    !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64)
     (void)dl_iterate_phdr (dl_iterate_phdr_callback, NULL);
     if (dl_iterate_phdr_callback_called)
         (void)fprintf (st, "\n");
-#endif /* if !defined( _AIX ) */
+#endif
 #if defined(UV_VERSION_MAJOR) && \
     defined(UV_VERSION_MINOR) && \
     defined(UV_VERSION_PATCH)
