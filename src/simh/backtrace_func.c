@@ -51,12 +51,12 @@
 
 #  include <signal.h>
 
-struct backtrace_state *state = NULL;
-volatile long bt_pid;
-int stopbt, function_count, hidden_function_count,
-    unknown_function_count, backtrace_reported = 0;
+static struct backtrace_state *state = NULL;
+static volatile long bt_pid;
+static int stopbt, function_count, hidden_function_count,
+           unknown_function_count, backtrace_reported = 0;
 
-_Noreturn void
+_Noreturn static void
 error_callback(void *data, const char *message, int error_number)
 {
   sigset_t block; sigset_t block_n;
@@ -69,7 +69,7 @@ error_callback(void *data, const char *message, int error_number)
   abort();
 }
 
-int
+static int
 full_callback(void *data, uintptr_t pc, const char *pathname,
               int line_number, const char *function)
 {
@@ -115,7 +115,7 @@ full_callback(void *data, uintptr_t pc, const char *pathname,
   return 0;
 }
 
-_Noreturn void
+_Noreturn static void
 backtrace_handler(int number)
 {
   sigset_t block; sigset_t block_n;

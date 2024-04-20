@@ -44,12 +44,12 @@
 #include <errno.h>
 #include <unistd.h>
 
-# undef HAS_INCLUDE
-# if defined __has_include
-#  define HAS_INCLUDE(inc) __has_include(inc)
-# else
-#  define HAS_INCLUDE(inc) 0
-# endif /* if defined __has_include */
+#undef HAS_INCLUDE
+#if defined __has_include
+# define HAS_INCLUDE(inc) __has_include(inc)
+#else
+# define HAS_INCLUDE(inc) 0
+#endif /* if defined __has_include */
 
 #if defined(__linux__) && \
   ( defined(__x86_64__) || defined(__x86_64) || \

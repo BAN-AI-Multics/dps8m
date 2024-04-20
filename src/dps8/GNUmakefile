@@ -444,6 +444,7 @@ ifneq ($(V),1)
 endif
 libsir:
 	@($(SETV); $(CD) "../libsir" &&                                           \
+      $(PRINTF) '%s\n' "LIBSIR: libsir_s.a" &&                                \
       $(ENV) CC="$(CC)"                                                       \
              CFLAGS='$(CFLAGS)'                                               \
              LDFLAGS='$(LDFLAGS)'                                             \

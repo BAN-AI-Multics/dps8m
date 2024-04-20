@@ -4341,19 +4341,6 @@ static void dps8_init (void) {
     sim_msg ("DUMA");
 # endif /* if defined(USE_DUMA) */
 
-/* BACKTRACE */
-# if defined(USE_BACKTRACE)
-#  if defined(HAVE_DPSOPT)
-    sim_msg (", ");
-#  else
-    sim_msg ("\n Options: ");
-#  endif
-#  if !defined(HAVE_DPSOPT)
-#   define HAVE_DPSOPT 1
-#  endif
-    sim_msg ("BACKTRACE");
-# endif /* if defined(USE_BACKTRACE) */
-
 # if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_HASH)
     sim_msg ("\n  Commit: %s", VER_H_GIT_HASH);
 # endif

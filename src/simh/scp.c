@@ -116,6 +116,10 @@
 # include <OS.h>
 #endif /* if defined(__HAIKU__) */
 
+#if !defined(_AIX)
+# include <link.h>
+#endif /* if !defined( _AIX ) */
+
 #define DBG_CTR 0
 
 #include "../dps8/dps8.h"
@@ -130,6 +134,10 @@
 #include "../decNumber/decNumberLocal.h"
 
 #include "../dps8/dps8_math128.h"
+
+#if !defined(_AIX)
+static unsigned int dl_iterate_phdr_callback_called = 0;
+#endif /* if !defined( _AIX ) */
 
 #if defined(MAX)
 # undef MAX
@@ -1512,6 +1520,25 @@ void CleanDUMA(void)
 #  include "backtrace_func.c"
 # endif /* if defined(BACKTRACE_SUPPORTED) */
 #endif /* if defined(USE_BACKTRACE) */
+
+#if !defined(_AIX)
+static int
+dl_iterate_phdr_callback (struct dl_phdr_info *info, size_t size, void *data)
+{
+  (void)size;
+  (void)data;
+
+  if (strlen(info->dlpi_name) >= 2) {
+      if (!dl_iterate_phdr_callback_called)
+          (void)printf ("\r\n Loaded shared objects: ");
+
+      dl_iterate_phdr_callback_called++;
+      (void)printf ("%s ", info->dlpi_name);
+  }
+
+  return 0;
+}
+#endif /* if !defined( _AIX ) */
 
 /* Main command loop */
 
@@ -4511,6 +4538,11 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
 #else
     (void)fprintf (st, "\r\n      Compilation info: Not available\n" );
 #endif
+#if !defined(_AIX)
+    (void)dl_iterate_phdr (dl_iterate_phdr_callback, NULL);
+    if (dl_iterate_phdr_callback_called)
+        (void)fprintf (st, "\n");
+#endif /* if !defined( _AIX ) */
 #if defined(UV_VERSION_MAJOR) && \
     defined(UV_VERSION_MINOR) && \
     defined(UV_VERSION_PATCH)
@@ -4605,9 +4637,11 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
 #if !defined(USE_FLOCK) && !defined(USE_FCNTL)
     (void)fprintf (st, "No file locking available");
 #endif
-#if defined(USE_BACKTRACE)
     (void)fprintf (st, "\r\n     Backtrace support: ");
-    (void)fprintf (st, "libbacktrace");
+#if defined(USE_BACKTRACE)
+    (void)fprintf (st, "Enabled (libbacktrace)");
+#else
+    (void)fprintf (st, "Disabled");
 #endif /* if defined(USE_BACKTRACE) */
     (void)fprintf (st, "\r\n");
     return 0;
@@ -4864,20 +4898,6 @@ if (flag) {
 # endif
     (void)fprintf (st, "DUMA");
 #endif /* if defined(USE_DUMA) */
-/* DUMA */
-
-/* BACKTRACE */
-#if defined(USE_BACKTRACE)
-# if defined(HAVE_DPSOPT)
-    (void)fprintf (st, ", ");
-# else
-    (void)fprintf (st, "\n   Options: ");
-# endif
-# if !defined(HAVE_DPSOPT)
-#  define HAVE_DPSOPT 1
-# endif
-    (void)fprintf (st, "BACKTRACE");
-#endif /* if defined(USE_BACKTRACE) */
 
 #if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_DATE)
 # if defined(NO_SUPPORT_VERSION)
@@ -4990,7 +5010,9 @@ if (flag) {
     (void)sprintf(clangllvmver, "%.1023s", __clang_version__);
     strremove(clangllvmver, "git://github.com/OpenIndiana/oi-userland.git ");
     strremove(clangllvmver, "https://github.com/OpenIndiana/oi-userland.git ");
+    strremove(clangllvmver, "https://github.com/llvm/llvm-project.git ");
     strremove(clangllvmver, "c13b7485b87909fcf739f62cfa382b55407433c0");
+    strremove(clangllvmver, "e6c3289804a67ea0bb6a86fadbe454dd93b8d855");
     strremove(clangllvmver, "https://github.com/llvm/llvm-project.git");
     strremove(clangllvmver, " ( )");
     strremove(clangllvmver, " ()");
