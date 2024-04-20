@@ -65,7 +65,7 @@ error_callback(void *data, const char *message, int error_number)
   (void)data; (void)error_number;
   (void)fprintf(stderr, "\r No backtrace: %s\r\n", message);
   (void)fprintf(stderr,
-    "\r\n****************************************************\r\n\r\n");
+    "\r\n***********************************************************\r\n\r\n");
   abort();
 }
 
@@ -122,7 +122,7 @@ backtrace_handler(int number)
   sigfillset(&block); sigfillset(&block_n);
   sigprocmask(SIG_SETMASK, &block, &block_n);
   (void)fprintf(stderr,
-    "\r\n\r\n****** FATAL ERROR *********************************\r\n");
+    "\r\n\r\n****** FATAL ERROR ****************************************\r\n");
   if (bt_pid > 1)
     {
 #  if defined(SIGUSR2)
@@ -168,13 +168,13 @@ backtrace_handler(int number)
   if (number != SIGUSR2)
     {
       (void)fprintf(stderr,
-        "\r\n****** BUG REPORTING *******************************\r\n\r\n");
+        "\r\n****** BUG REPORTING **************************************\r\n\r\n");
       (void)fprintf(stderr,
         " URL: https://gitlab.com/dps8m/dps8m/-/wikis/Bug-Reporting\r\n");
     }
 #  endif /* if defined(SIGUSR2) */
   (void)fprintf(stderr,
-    "\r\n****************************************************\r\n\r\n");
+    "\r\n***********************************************************\r\n\r\n");
 #  if defined(USE_DUMA)
   DUMA_CHECKALL();
 #  endif /* if defined(USE_DUMA) */
