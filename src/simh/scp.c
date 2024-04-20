@@ -131,9 +131,10 @@
 
 #include "../dps8/dps8_math128.h"
 
-#if !defined(MAX)
-# define MAX(a,b)  (((a) >= (b)) ? (a) : (b))
-#endif /* if !defined(MAX) */
+#if defined(MAX)
+# undef MAX
+#endif /* if defined(MAX) */
+#define MAX(a,b)  (((a) >= (b)) ? (a) : (b))
 
 #undef FREE
 #define FREE(p) do  \

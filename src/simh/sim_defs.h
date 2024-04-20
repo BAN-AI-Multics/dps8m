@@ -84,14 +84,6 @@
 
 /* avoid internal macro name collisions */
 
-# if defined(MAX)
-#  undef MAX
-# endif /* if defined(MAX) */
-
-# if defined(MIN)
-#  undef MIN
-# endif /* if defined(MIN) */
-
 # if defined(PMASK)
 #  undef PMASK
 # endif /* if defined(PMASK) */

@@ -67,12 +67,16 @@
 
 #define SIM_INTERNAL_CLK (SIM_NTIMERS+(1<<30))
 #define SIM_INTERNAL_UNIT sim_internal_timer_unit
-#if !defined(MIN)
-# define MIN(a,b)  (((a) < (b)) ? (a) : (b))
-#endif /* if !defined(MIN) */
-#if !defined(MAX)
-# define MAX(a,b)  (((a) > (b)) ? (a) : (b))
-#endif /* if !defined(MAX) */
+
+#if defined(MIN)
+# undef MIN
+#endif /* if defined(MIN) */
+#define MIN(a,b)  (((a) < (b)) ? (a) : (b))
+
+#if defined(MAX)
+# undef MAX
+#endif /* if defined(MAX) */
+#define MAX(a,b)  (((a) > (b)) ? (a) : (b))
 
 uint32 sim_idle_ms_sleep (unsigned int msec);
 
