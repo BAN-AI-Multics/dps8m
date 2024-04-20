@@ -14,6 +14,9 @@ Official releases of the simulator are available from:
 |    |    |    |
 | -- | -- | -- |
 | &nbsp;&nbsp;[**The DPS8M Simulator Homepage**](https://dps8m.gitlab.io/) <br> | [https://dps8m.gitlab.io/](https://dps8m.gitlab.io/) | *Binary distributions and source kits* |
+
+|    |    |    |
+| -- | -- | -- |
 | <br> &nbsp;&nbsp;[**GitLab DPS8M `git` Repository**](https://gitlab.com/dps8m/dps8m/) | [https://gitlab.com/dps8m/dps8m/](https://gitlab.com/dps8m/dps8m/) | *Developmental source code* |
 
 <!-- br -->
