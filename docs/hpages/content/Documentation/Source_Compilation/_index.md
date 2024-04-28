@@ -733,7 +733,7 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 []()
 
 * Building with **Clang** (version 13 or later) is also supported (*but not recommended due to lack of LTO support*).
-  * **Clang 18** can be installed from the standard IPS repository via '**`pkg install runtime/clang-18 developer/clang-18`**'.
+  * **Clang 18** can be installed from the standard IPS repository via '**`pkg install developer/clang-18`**'.
 
 ### OpenIndiana prerequisites
 
