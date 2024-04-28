@@ -1,7 +1,7 @@
 /*
  * mcmb.c
  *
- * Version: 2120.5.06-dps (libcmb 3.5.6)
+ * Version: 2120.5.09-dps (libcmb 3.5.6)
  *
  * -----------------------------------------------------------------------------
  *
@@ -79,10 +79,12 @@
 #include <string.h>
 #include <unistd.h>
 #include <ctype.h>
-#if defined(__APPLE__)
-# include <xlocale.h>
-#endif
-#include <locale.h>
+#if !defined(NO_LOCALE)
+# if defined(__APPLE__)
+#  include <xlocale.h>
+# endif
+# include <locale.h>
+#endif /* if !defined(NO_LOCALE) */
 
 #if defined(__MACH__) && defined(__APPLE__) && \
   ( defined(__PPC__) || defined(_ARCH_PPC) )
@@ -94,13 +96,13 @@
 # define MACOSXPPC 1
 #endif /* if defined(__MACH__) && defined(__APPLE__) &&
            ( defined(__PPC__) || defined(_ARCH_PPC) ) */
-#ifndef TRUE
+#if !defined(TRUE)
 # define TRUE 1
-#endif /* ifndef TRUE */
+#endif /* if !defined(TRUE) */
 
-#ifndef FALSE
+#if !defined(FALSE)
 # define FALSE 0
-#endif /* ifndef FALSE */
+#endif /* if !defined(FALSE) */
 
 #if defined(FREE)
 # undef FREE
@@ -385,16 +387,16 @@ static struct cmb_xitem *cmb_transform_find;
 
 #if !defined(MAXPHYS)
 # define MAXPHYS ( 128 * 1024 )
-#endif /* ifndef MAXPHYS */
+#endif /* if !defined(MAXPHYS) */
 
 /*
  * Memory strategy threshold, in pages; if physmem
  * is larger than this, use a large buffer.
  */
 
-#ifndef PHYSPAGES_THRESHOLD
+#if !defined(PHYSPAGES_THRESHOLD)
 # define PHYSPAGES_THRESHOLD ( 32 * 1024 )
-#endif /* ifndef PHYSPAGES_THRESHOLD */
+#endif /* if !defined(PHYSPAGES_THRESHOLD) */
 
 /*
  * Small (default) buffer size in bytes.
@@ -417,23 +419,23 @@ static struct cmb_xitem *cmb_transform_find;
 #endif /* if defined(MAX) */
 #define MAX(x, y) (( x ) > ( y ) ? ( x ) : ( y ))
 
-#ifndef MAXPATHLEN
+#if !defined(MAXPATHLEN)
 # if defined(PATH_MAX) && PATH_MAX > 1024
 #  define MAXPATHLEN PATH_MAX
 # else
 #  define MAXPATHLEN 1024
 # endif /* if defined(PATH_MAX) && PATH_MAX > 1024 */
-#endif /* ifndef MAXPATHLEN */
+#endif /* if !defined(MAXPATHLEN) */
 
-#ifndef PATH_MAX
+#if !defined(PATH_MAX)
 # define PATH_MAX MAXPATHLEN
-#endif /* ifndef PATH_MAX */
+#endif /* if !defined(PATH_MAX) */
 
-#ifndef CMB_PARSE_FRAGSIZE
+#if !defined(CMB_PARSE_FRAGSIZE)
 # define CMB_PARSE_FRAGSIZE 512
-#endif /* ifndef CMB_PARSE_FRAGSIZE */
+#endif /* if !defined(CMB_PARSE_FRAGSIZE) */
 
-static const char mcmbver[]         = "2120.5.06-dps";
+static const char mcmbver[]         = "2120.5.09-dps";
 static const char libversion[]      = "libcmb 3.5.6";
 
 /*
@@ -1154,9 +1156,9 @@ CMB_ACTION(cmb_print)
   return 0;
 }
 
-#ifndef UINT_MAX
+#if !defined(UINT_MAX)
 # define UINT_MAX 0xFFFFFFFF
-#endif /* ifndef UINT_MAX */
+#endif /* if !defined(UINT_MAX) */
 
 static char version[] = "3.9.5";
 
@@ -1173,13 +1175,13 @@ static char *pgm; /* set to argv[0] by main() */
 static uint8_t opt_quiet    = FALSE;
 static const char digit[11] = "0123456789";
 
-#ifndef __attribute__
+#if !defined(__attribute__)
 # define __attribute__(xyz) /* Ignore */
-#endif /* ifndef __attribute__ */
+#endif /* if !defined(__attribute__) */
 
-#ifndef _Noreturn
+#if !defined(_Noreturn)
 # define _Noreturn __attribute__ (( noreturn ))
-#endif /* ifndef _Noreturn */
+#endif /* if !defined(_Noreturn) */
 
 /*
  * Function prototypes
@@ -1275,9 +1277,9 @@ static struct cmb_xfdef cmb_xforms[] = {
 
 #if ( defined(__VERSION__) && defined(__GNUC__) ) || \
   ( defined(__VERSION__) && defined(__clang_version__) )
-# ifndef HAVE_BUILD
+# if !defined(HAVE_BUILD)
 #  define HAVE_BUILD
-# endif /* ifndef HAVE_BUILD */
+# endif /* if !defined(HAVE_BUILD) */
 #endif /* if  ( defined(__VERSION__) && defined(__GNUC__) ) ||
            ( defined(__VERSION__) && defined(__clang_version__) */
 
@@ -1290,7 +1292,7 @@ static const char
   const char *ret = NULL;
   static /* __thread */ char buf[XSTR_EMAXLEN];
 
-#if defined(__APPLE__) || defined(_AIX) || \
+#if defined(NO_LOCALE) || defined(__APPLE__) || defined(_AIX) || \
       defined(__MINGW32__) || defined(__MINGW64__) || \
         defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
 # if defined(__MINGW32__) || defined(__MINGW64__) || \
@@ -1329,6 +1331,7 @@ static const char
   return ret;
 }
 
+#if !defined(NO_LOCALE)
 static locale_t locale;
 
 static int
@@ -1339,12 +1342,15 @@ init_locale(void)
       return 0;
   return 1;
 }
+#endif /* if !defined(NO_LOCALE) */
 
 int
 main(int argc, char *argv[])
 {
+#if !defined(NO_LOCALE)
   (void)setlocale(LC_ALL, "");
   (void)init_locale();
+#endif /* if !defined(NO_LOCALE) */
   uint8_t free_find         = FALSE;
   uint8_t opt_empty         = FALSE;
   uint8_t opt_find          = FALSE;
@@ -1396,9 +1402,9 @@ main(int argc, char *argv[])
       /*NOTREACHED*/ /* unreachable */
     }
 
-#ifndef bzero
+#if !defined(bzero)
 # define bzero(b,len) ((void)memset((b), '\0', (len)), (void) 0)
-#endif /* ifndef bzero */
+#endif /* if !defined(bzero) */
 
   bzero(config, sizeof ( struct cmb_config ));
 
@@ -1612,9 +1618,8 @@ main(int argc, char *argv[])
 #if defined(HAVE_BUILD)
   if (opt_build)
     {
-# if defined(__VERSION___)
-#  if defined(__GNUC__)
-#   if !defined (__clang_version__) || defined(__INTEL_COMPILER)
+# if defined(__VERSION__) && defined(__GNUC__)
+#  if !defined (__clang_version__) || defined(__INTEL_COMPILER)
       char xcmp[2];
       /* cppcheck-suppress invalidPrintfArgType_s */
       (void)sprintf(xcmp, "%.1s", __VERSION__ );
@@ -1628,15 +1633,14 @@ main(int argc, char *argv[])
           /* cppcheck-suppress invalidPrintfArgType_s */
           (void)fprintf(stdout, "Compiler: GCC %s\r\n", __VERSION__ );
         }
-#   else
-      /* cppcheck-suppress invalidPrintfArgType_s */
-      (void)fprintf(stdout, "Compiler: Clang %s\r\n", __clang_version__ );
-#   endif /* if !defined (__clang_version__) || defined(__INTEL_COMPILER) */
 #  else
       /* cppcheck-suppress invalidPrintfArgType_s */
+      (void)fprintf(stdout, "Compiler: Clang %s\r\n", __clang_version__ );
+#  endif /* if !defined (__clang_version__) || defined(__INTEL_COMPILER) */
+# else
+      /* cppcheck-suppress invalidPrintfArgType_s */
       (void)fprintf(stdout, "Compiler: %s\r\n", __VERSION__ );
-#  endif /* if defined(__GNUC__) */
-# endif /* if defined(__VERSION__) */
+# endif /* if defined(__VERSION__) && defined(__GNUC__) */
       FREE(config);
       exit(EXIT_SUCCESS);
       /*NOTREACHED*/ /* unreachable */
@@ -2165,7 +2169,7 @@ cmb_usage(void)
 #if defined(HAVE_BUILD)
   (void)fprintf(stderr, OPTFMT,
     "-V", "Print build information and exit");
-#endif
+#endif /* if defined(HAVE_BUILD) */
   (void)fprintf(stderr, OPTFMT,
     "-v", "Print version information and exit");
   (void)fprintf(stderr, OPTFMT,
