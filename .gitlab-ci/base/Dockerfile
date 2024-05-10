@@ -182,7 +182,7 @@ RUN set -x && \
       zsh \
 && \
   dnf -y --setopt=install_weak_deps=True --setopt=keepcache=True \
-    --skip-broken --best --allowerasing group install \
+    --best group install \
       development-tools \
       c-development \
 && \
@@ -235,7 +235,7 @@ RUN set -x && \
       ucrt64-winpthreads \
       ucrt64-winpthreads-static \
 && \
-  (yes | dnf -y copr enable yselkowitz/cygwin fedora-rawhide-x86_64) && \
+  (yes | dnf-3 -y copr enable yselkowitz/cygwin fedora-rawhide-x86_64) && \
   dnf -y --setopt=install_weak_deps=True --setopt=keepcache=True install \
       cygwin64 \
       cygwin64-binutils \
