@@ -288,7 +288,6 @@ amsdw
 anaq
 aneg
 anld
-anormal
 ansa
 ansq
 anstr
@@ -849,6 +848,7 @@ dlcss
 dlen
 dlfcn
 dlopen
+dlpi
 dlsym
 dlvl
 dmant
@@ -2122,7 +2122,6 @@ ostart
 ostate
 osversion
 osvn
-oter
 outbuf
 outfifo
 outi
@@ -2198,6 +2197,7 @@ pgsz
 pgte
 phaf
 phdbg
+phdr
 phys
 physmem
 physpages
@@ -4160,7 +4160,6 @@ newbkt
 newdata
 nextasgn
 nmax
-nmber
 nmerges
 noassoc
 noasynch
@@ -5279,7 +5278,6 @@ emchalt
 emcstart
 emcstop
 endm
-entrys
 ergo
 fbit
 fmask
@@ -6485,6 +6483,7 @@ aren
 didn
 doesn
 eposit
+fadbe
 figuration
 ices
 llvmorg
@@ -6493,7 +6492,7 @@ overrunat
 rsion
 shouldn
 ssign
-stript
+strip
 tures
 ueue
 uildinfo
@@ -6550,7 +6549,6 @@ darksisers
 doesn
 nnnn
 nonidentical
-pach
 refetches
 therefrom
 unborrow
@@ -7906,7 +7904,6 @@ identifierstyle
 idrule
 ifdisplaystyle
 ightmargin
-indention
 inespread
 istoffigures
 istoftables
@@ -8712,7 +8709,6 @@ activated
 activating
 activation
 active
-activites
 activities
 activity
 acts
@@ -8877,7 +8873,6 @@ applied
 applies
 apply
 applying
-appoximately
 appreciated
 approach
 approaches
@@ -9067,7 +9062,6 @@ began
 begin
 beginning
 begins
-behaivor
 behalf
 behaves
 behavior
@@ -9653,7 +9647,6 @@ contributors
 controlled
 controllers
 controlling
-controlls
 controls
 convenience
 conveniently
@@ -9761,6 +9754,7 @@ curses
 cursor
 curves
 customer
+customers
 customized
 cutoff
 cutting
@@ -10265,7 +10259,6 @@ entry
 entrypoint
 enumerated
 enumerator
-enviroment
 environment
 environmental
 environments
@@ -10402,7 +10395,6 @@ explain
 explanations
 explicit
 explicitly
-explict
 exploited
 exploits
 exponential
@@ -10636,7 +10628,6 @@ functionality
 functioning
 functions
 funky
-funtions
 furnished
 furnishes
 further
@@ -11136,7 +11127,6 @@ interruption
 interrupts
 interval
 intervals
-intializer
 into
 intrinsically
 intrinsics
@@ -11982,15 +11972,14 @@ overlaid
 overlap
 overlapping
 overlay
-overlayed
 overlaying
 overprint
 overpunched
 overread
 overridden
 override
+overriden
 overrides
-overrriden
 overrun
 overseer
 oversized
@@ -12204,7 +12193,6 @@ positioned
 positioning
 positions
 positive
-positon
 posix
 posixly
 possibility
@@ -12214,7 +12202,6 @@ post
 postconditioning
 posted
 poster
-postiion
 posting
 postprocessing
 posts
@@ -12233,10 +12220,10 @@ preamble
 prebuilt
 precalculate
 preceded
+preceded
 precedence
 precedes
 preceding
-preceeded
 precise
 precision
 precisions

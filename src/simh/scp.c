@@ -991,7 +991,7 @@ static const char simh_help[] =
       "3GOTO\n"
       " Commands in a command file execute in sequence until either an error\n"
       " trap occurs (when a command completes with an error status), or when an\n"
-      " explict request is made to start command execution elsewhere with\n"
+      " explicit request is made to start command execution elsewhere with\n"
       " the `GOTO` command:\n\n"
       "++GOTO <label>\n\n"
       " * Labels are lines in a command file which the first non-whitespace\n"
@@ -1915,7 +1915,7 @@ else if (*argv[0]) {                                    /* sim name arg? */
     nbuf[0] = '"';                                      /* starting " */
     stat = do_cmd (-1, nbuf) & ~SCPE_NOMESSAGE;         /* proc default cmd file */
     if (stat == SCPE_OPENERR) {                         /* didn't exist/can't open? */
-        np = strrchr (nbuf, '/');                       /* stript path and try again in cwd */
+        np = strrchr (nbuf, '/');                       /* strip path and try again in cwd */
         if (np == NULL)
             np = strrchr (nbuf, '\\');                  /* windows path separator */
         if (np != NULL) {
@@ -2942,7 +2942,7 @@ return stat | SCPE_NOMESSAGE;                           /* suppress message sinc
 
 /*
  * Substitute_args - replace %n tokens in 'instr' with the do command's arguments
- *                   and other enviroment variables
+ *                   and other environment variables
  *
  * Calling sequence
  * instr        =       input string
@@ -2958,7 +2958,7 @@ return stat | SCPE_NOMESSAGE;                           /* suppress message sinc
  *
  * Omitted parameters result in null-string substitutions.
  *
- * A Tokens preceeded and followed by % characters are expanded as environment
+ * A Tokens preceded and followed by % characters are expanded as environment
  * variables, and if one isn't found then can be one of several special
  * variables:
  *   %DATE%              yyyy-mm-dd
@@ -9328,7 +9328,7 @@ return msg;
 
    The package contains the following public routines:
 
-        sim_set_expect          expect command parser and intializer
+        sim_set_expect          expect command parser and initializer
         sim_set_noexpect        noexpect command parser
         sim_exp_set             set or add an expect rule
         sim_exp_clr             clear or delete an expect rule
@@ -9922,7 +9922,7 @@ int32 offset = 0;
 if (dptr->debflags == 0)
     return debtab_none;
 
-dbits &= dptr->dctrl;                           /* Look for just the bits tha matched */
+dbits &= dptr->dctrl;                           /* Look for just the bits that matched */
 
 /* Find matching words for bitmask */
 

@@ -275,7 +275,7 @@ extern t_stat parse_sym (CONST char *cptr, t_addr addr, UNIT *uptr, t_value *val
     int32 sw);
 
 /* The per-simulator init routine is a weak global that defaults to NULL
-   The other per-simulator pointers can be overrriden by the init routine */
+   The other per-simulator pointers can be overriden by the init routine */
 
 extern void (*sim_vm_init) (void);
 extern char *(*sim_vm_read) (char *ptr, int32 size, FILE *stream);
@@ -304,7 +304,7 @@ extern const char *xstrerror_l(int errnum);
               it could be merely the simulator name if the simulator binary
               is located in the current PATH.
             - The simulator binary must be built from the same version
-              simh source code that the frontpanel API was acquired fron
+              simh source code that the front-panel API was acquired from
               (the API and the simh framework must speak the same language)
 
     Note 2: - Configuration file specified should contain device setup
@@ -352,14 +352,14 @@ sim_panel_destroy (PANEL *panel);
 
 /**
 
-   The frontpanel API exposes the state of a simulator via access to
+   The front-panel API exposes the state of a simulator via access to
    simh register variables that the simulator and its devices define.
    These registers certainly include any architecturally described
    registers (PC, PSL, SP, etc.), but also include anything else
    the simulator uses as internal state to implement the running
    simulator.
 
-   The registers that a particular frontpanel application might need
+   The registers that a particular front-panel application might need
    access to are described by the application by calling:
 
    sim_panel_add_register
@@ -417,7 +417,7 @@ sim_panel_add_register_indirect (PANEL *panel,
            simulator.  The callback routine merely serves as a notification
            that a complete register set has arrived.
    Note 2: The callback routine should, in general, not run for a long time
-           or frontpanel interactions with the simulator may be disrupted.
+           or front-panel interactions with the simulator may be disrupted.
            Setting a flag, signaling an event or posting a message are
            reasonable activities to perform in a callback routine.
 

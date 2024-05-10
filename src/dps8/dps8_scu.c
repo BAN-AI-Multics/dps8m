@@ -382,7 +382,7 @@
  * describe memory within that SCU.
  *
  *       The cioc instruction (discussed below) also depends on the
- * final absolute addres of the target operand to identify the SCU
+ * final absolute address of the target operand to identify the SCU
  * to perform the operation. In the case of the cioc instruction,
  * though, the has no particular impact in Multics software. All
  * target operands for the cioc instruction when referencing IOMs

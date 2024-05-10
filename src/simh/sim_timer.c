@@ -671,7 +671,7 @@ DEVICE sim_timer_dev = {
     NULL, NULL, &sim_timer_clock_reset, NULL, NULL, NULL,
     NULL, DEV_DEBUG | DEV_NOSAVE, 0, sim_timer_debug};
 
-/* Clock assist activites */
+/* Clock assist activities */
 t_stat sim_timer_tick_svc (UNIT *uptr)
 {
 int tmr = (int)(uptr-sim_timer_units);

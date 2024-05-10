@@ -2846,7 +2846,7 @@ static t_stat stack_trace (UNUSED int32 arg,  UNUSED const char * buf)
               sim_msg ("call_type Inter-segment\n");
               break;
             case 8u:
-              sim_msg ("call_type Enviroment pointer\n");
+              sim_msg ("call_type Environment pointer\n");
               break;
             default:
               sim_msg ("call_type Unknown (%o)\n", callType);

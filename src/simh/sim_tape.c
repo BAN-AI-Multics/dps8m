@@ -1018,7 +1018,7 @@ struct tape_context *ctx = (struct tape_context *)uptr->tape_ctx;
 if (ctx == NULL)                                        /* if not properly attached? */
     return sim_messagef (SCPE_IERR, "Bad Attach\n");    /*   that's a problem */
 sim_debug (ctx->dbit, ctx->dptr, "sim_tape_wreom(unit=%d)\n", (int)(uptr-ctx->dptr->units));
-if (MT_GET_FMT (uptr) == MTUF_F_P7B)                    /* cant do P7B */
+if (MT_GET_FMT (uptr) == MTUF_F_P7B)                    /* can't do P7B */
     return MTSE_FMT;
 
 result = sim_tape_wrdata (uptr, MTR_EOM);               /* write the EOM marker */

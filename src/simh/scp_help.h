@@ -124,7 +124,7 @@
  *
  *     Related Devices       - If devices are configured or used together, list the other devices here.
  *                             E.G. The DEC KMC/DUP are two hardware devices that are closely related;
- *                             The KMC controlls the DUP on behalf of the OS.
+ *                             The KMC controls the DUP on behalf of the OS.
  *
  * API:
  *  To make use of this type of help in your device, create (or replace) a help routine with one that

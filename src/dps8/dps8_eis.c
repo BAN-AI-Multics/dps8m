@@ -4446,7 +4446,7 @@ void mlr (void)
 
     // The user of string replication or overlaying is warned that the decimal
     // unit addresses the main memory in unaligned (not on modulo 8 boundary)
-    // units of Y-block8 words and that the overlayed string, C(Y-charn2), is
+    // units of Y-block8 words and that the overlaid string, C(Y-charn2), is
     // not returned to main memory until the unit of Y-block8 words is filled or
     // the instruction completes.
 
@@ -4848,7 +4848,7 @@ void mrl (void)
 
     // The user of string replication or overlaying is warned that the decimal
     // unit addresses the main memory in unaligned (not on modulo 8 boundary)
-    // units of Y-block8 words and that the overlayed string, C(Y-charn2), is
+    // units of Y-block8 words and that the overlaid string, C(Y-charn2), is
     // not returned to main memory until the unit of Y-block8 words is filled or
     // the instruction completes.
 

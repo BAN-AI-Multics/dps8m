@@ -770,7 +770,7 @@ refreshMultiLine(struct linenoiseState *l)
              / l->cols; /* rows used by current buf. */
   int rpos = ( plen + l->oldpos + l->cols ) / l->cols; /* cursor relative row. */
   int rpos2; /* rpos after refresh. */
-  int col; /* colum position, zero-based. */
+  int col; /* column position, zero-based. */
   int old_rows = l->maxrows;
   int fd = l->ofd, j;
   struct abuf ab;
@@ -848,7 +848,7 @@ refreshMultiLine(struct linenoiseState *l)
   /* Move cursor to right position. */
   rpos2 = ( plen + l->pos + l->cols ) / l->cols;
 
-  /* Go up till we reach the expected positon. */
+  /* Go up till we reach the expected position. */
   if (rows - rpos2 > 0)
   {
     (void)snprintf(seq, sizeof ( seq ), "\x1b[%dA", rows - rpos2);
@@ -1148,7 +1148,7 @@ linenoiseSearchInHistory(struct linenoiseState *l, int direction)
 
           /*
            * Set history index so that we can contiune
-           * the search on this postiion
+           * the search on this position
            */
 
           l->history_index = history_len - 1 - cnt;
@@ -1177,7 +1177,7 @@ linenoiseSearchInHistory(struct linenoiseState *l, int direction)
 
           /*
            * Set history index so that we can contiune
-           * the search on this postiion
+           * the search on this position
            */
 
           l->history_index = history_len - 1 - cnt;

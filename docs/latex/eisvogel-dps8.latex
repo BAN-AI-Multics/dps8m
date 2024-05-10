@@ -692,7 +692,7 @@ $endif$
 $endif$
 
 %
-% remove paragraph indention
+% remove paragraph indentation
 %
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{6pt plus 2pt minus 1pt}

@@ -138,9 +138,9 @@
 
 /* Commands */
 #define TN_IAC          0xFFu /* -1 */                  /* protocol delim */
-#define TN_DONT         0xFEu /* -2 */                  /* dont */
+#define TN_DONT         0xFEu /* -2 */                  /* don't */
 #define TN_DO           0xFDu /* -3 */                  /* do */
-#define TN_WONT         0xFCu /* -4 */                  /* wont */
+#define TN_WONT         0xFCu /* -4 */                  /* won't */
 #define TN_WILL         0xFBu /* -5 */                  /* will */
 #define TN_SB           0xFAu /* -6 */                  /* sub-option negotiation */
 #define TN_GA           0xF9u /* -7 */                  /* go ahead */
@@ -388,7 +388,7 @@ lp->txbpi = psave;                                      /* restore insertion poi
 unwritten = tmxr_send_buffered_data (lp);               /* send the message */
 
 if (unwritten == 0)                                     /* buffer now empty? */
-    lp->xmte = 1;                                       /* reenable transmission if paused */
+    lp->xmte = 1;                                       /* re-enable transmission if paused */
 
 lp->txcnt -= (int32)strlen (msgbuf);                    /* adjust statistics */
 return;

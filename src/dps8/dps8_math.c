@@ -1087,7 +1087,7 @@ void fneg (void) {
   // and increment the exponent.
   if (ISEQ_128 (m, SIGN72)) {
     // Negation of 400..0 / 2 is 200..0; we can get there shifting; we know
-    // that a zero will be shifted into the sign bit because fo the masking
+    // that a zero will be shifted into the sign bit because of the masking
     // in 'm='.
 #if defined(NEED_128)
     m = rshift_128 (m, 1);

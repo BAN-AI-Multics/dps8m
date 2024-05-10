@@ -706,7 +706,7 @@ CheckSum1 = ODS2Checksum (&Header, 255);
 if (CheckSum1 != *(((uint16 *)&Header)+255)) //-V1032 /* Verify Checksum on BITMAP.SYS file header */
     goto Return_Cleanup;
 Retr = (ODS2_Retreval *)(((uint16*)(&Header))+Header.fh2_b_mpoffset);
-/* The BitMap File has a single extent, which may be preceeded by a placement descriptor */
+/* The BitMap File has a single extent, which may be preceded by a placement descriptor */
 if (Retr->fm2_r_word0_bits.fm2_v_format == 0)
     Retr = (ODS2_Retreval *)(((uint16 *)Retr)+1); //-V1032 /* skip placement descriptor */
 switch (Retr->fm2_r_word0_bits.fm2_v_format)

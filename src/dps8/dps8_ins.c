@@ -6328,7 +6328,7 @@ static t_stat doInstruction (void)
           //
           // !!!! For personal reasons the following 3 lines of comment must
           // never be removed from this program or any code derived
-          // therefrom. HWR 25 Aug 2014
+          // there from. HWR 25 Aug 2014
           ///Charles Is the coolest
           ///true story y'all
           //you should get me darksisers 2 for christmas
@@ -6468,7 +6468,7 @@ static t_stat doInstruction (void)
             // not affected in the normal or BAR modes.
             // Not BAR mode: Can be set OFF but not ON by the ret instruction
             // Absolute mode: Can be set OFF but not ON by the ret instruction
-            // All oter indicators: If corresponding bit in C(Y) is 1, then ON;
+            // All other indicators: If corresponding bit in C(Y) is 1, then ON;
             // otherwise, OFF
 
             // C(Y)0,17 -> C(PPR.IC)
@@ -7769,7 +7769,7 @@ elapsedtime ();
           break;
 
         case x0 (0657):  // scu
-          // AL-39 defines the behaivor of SCU during fault/interrupt
+          // AL-39 defines the behavior of SCU during fault/interrupt
           // processing, but not otherwise.
           // The T&D tape uses SCU during normal processing, and apparently
           // expects the current CU state to be saved.
@@ -8297,7 +8297,7 @@ elapsedtime ();
 // /* (19) DPS type processor:                       */ || (1)"0"b
 // /* (20) 8K cache option installed:                */ || (1)"0"b
 // /* (21) Gear shift model processor:               */ || (1)"0"b
-// /* (22) Power pach option installed:              */ || (1)"0"b
+// /* (22) Power patch option installed:             */ || (1)"0"b
 // /* (23) VMS-CU option installed - 66B' proc:      */ || (1)"0"b
 // /* (24) VMS-VU option installed - 66B proc:       */ || (1)"0"b
 // /* (25) Type processor (0) CPL, (1) DPSE-NPL:     */ || (1)"0"b

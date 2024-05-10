@@ -1671,7 +1671,7 @@ typedef struct
 
     word18   rX [8]; // index
 
-    // Nmber of banks in each SCU
+    // Number of banks in each SCU
     uint sc_num_banks [N_SCU_UNITS_MAX];
 
     // Caching some cabling data for interrupt handling.
