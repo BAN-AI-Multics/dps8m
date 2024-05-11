@@ -12,7 +12,7 @@
     echo -e "section_start:`date +%s`:alma9install_section[collapsed=true]\r\e[0K\033[0;36mSetting up AlmaLinux 9 ...\033[0m" || true
     echo "Checking for Docker ..."
     test -f /.dockerenv || exit 1
-    dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update || true
+    dnf -y --refresh --best update || dnf -y --refresh --nobest update || true
     dnf -y --refresh --best update || dnf -y --refresh --nobest update
     dnf -y --best install epel-release || dnf -y --nobest epel-release
     curl -fsSL https://repo.almalinux.org/almalinux/9/devel/almalinux-devel.repo -o /etc/yum.repos.d/almalinux-devel.repo || curl -fsSL https://repo.almalinux.org/almalinux/9/devel/almalinux-devel.repo -o /etc/yum.repos.d/almalinux-devel.repo || true
@@ -27,11 +27,11 @@
     sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-extras.repo || true
     sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-appstream.repo || true
     sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-resilientstorage.repo || true
-    dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update || true
+    dnf -y --refresh --best update || dnf -y --refresh --nobest update || true
     dnf -y --refresh --best update || dnf -y --refresh --nobest update || true
     dnf -y install zstd libzstd libzstd-devel xz xz-libs xz-devel libzstd libzstd-devel rpmconf || dnf -y install zstd libzstd-devel libzstd xz xz-libs xz-devel libzstd libzstd-devel rpmconf
     yes | rpmconf -a -u use_maintainer || true
-    dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update || true
+    dnf -y --refresh --best update || dnf -y --refresh --nobest update || true
     dnf -y --refresh --best update || dnf -y --refresh --nobest update
     echo -e "section_end:`date +%s`:alma9install_section\r\e[0K" || true
 
@@ -275,12 +275,12 @@
     echo "Configure dnf ..."
     sed -i 's/tsflags=nodocs//' /etc/dnf/dnf.conf || true
     echo "Updating system ..."
-    dnf -y --refresh --allowerasing --best update || dnf -y --refresh --nobest update || true
+    dnf -y --refresh --best update || dnf -y --refresh --nobest update || true
     dnf -y --refresh --best update || dnf -y --refresh --nobest update || true
     dnf -y update
     echo "Installing software ..."
     export ARGS="file ccache lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make gnupg2 bash curl wget git time gcc clang xz xz-libs xz-devel libzstd libzstd-devel"
-    dnf -y --allowerasing --best install ${ARGS:?} || dnf -y --skip-broken --nobest install ${ARGS:?} || true
+    dnf -y --best install ${ARGS:?} || dnf -y --nobest install ${ARGS:?} || true
     dnf -y --best install ${ARGS:?} || dnf -y --nobest install ${ARGS:?}
     echo -e "section_end:`date +%s`:dnfuinstall_section\r\e[0K" || true
 
@@ -319,7 +319,7 @@
     echo "Enabling Cygwin repo ..."
     dnf -y copr enable yselkowitz/cygwin || dnf -y copr enable yselkowitz/cygwin || dnf-3 -y copr enable yselkowitz/cygwin || dnf-3 -y copr enable yselkowitz/cygwin
     echo "Installing Cygwin software ..."
-    dnf --best install -y cygport cygwin32-binutils cygwin32-w32api-headers cygwin32-w32api-runtime cygwin32-libltdl cygwin32-cpp cygwin32-gcc cygwin32-libtool cygwin32-filesystem cygwin32 cygwin64-binutils cygwin64-w32api-headers cygwin64-w32api-runtime cygwin64-libltdl cygwin64-cpp cygwin64-gcc cygwin64-libtool cygwin64-filesystem cygwin64 || dnf --skip-broken --nobest install -y cygport cygwin64-binutils cygwin64-w32api-headers cygwin64-w32api-runtime cygwin64-libltdl cygwin64-cpp cygwin64-gcc cygwin64-libtool cygwin64-filesystem cygwin64 cygwin32-binutils cygwin32-w32api-headers cygwin32-w32api-runtime cygwin32-libltdl cygwin32-cpp cygwin32-gcc cygwin32-libtool cygwin32-filesystem cygwin32
+    dnf --best install -y cygport cygwin32-binutils cygwin32-w32api-headers cygwin32-w32api-runtime cygwin32-libltdl cygwin32-cpp cygwin32-gcc cygwin32-libtool cygwin32-filesystem cygwin32 cygwin64-binutils cygwin64-w32api-headers cygwin64-w32api-runtime cygwin64-libltdl cygwin64-cpp cygwin64-gcc cygwin64-libtool cygwin64-filesystem cygwin64 || dnf --nobest install -y cygport cygwin64-binutils cygwin64-w32api-headers cygwin64-w32api-runtime cygwin64-libltdl cygwin64-cpp cygwin64-gcc cygwin64-libtool cygwin64-filesystem cygwin64 cygwin32-binutils cygwin32-w32api-headers cygwin32-w32api-runtime cygwin32-libltdl cygwin32-cpp cygwin32-gcc cygwin32-libtool cygwin32-filesystem cygwin32
     echo -e "section_end:`date +%s`:coprcygwinstall_section\r\e[0K" || true
 
 ############################################################################
@@ -563,7 +563,7 @@ Cross-compiled release binaries:
     - dnf -y install --best copr-cli dnf-utils || dnf -y install --nobest copr-cli dnf-utils || true
     - yes | dnf copr enable "@fedora-llvm-team/llvm16" || true
     - dnf -y install "@core" "@Development Tools" "@C Development Tools and Libraries" gcc clang || true
-    - dnf -y --best --skip-broken update || dnf -y --nobest --skip-broken update || true
+    - dnf -y --best update || dnf -y --nobest update || true
     - dnf -y --best update || dnf -y --nobest update
     - export JOB_PKGS="libmd libmd-devel libbsd libbsd-devel tar bzip2 lzip wget libzstd-devel libzstd zlib zlib-devel zstd libzstd libzstd-devel brotli-devel brotli libbrotli libcom_err libxcrypt openssl-devel openssl libcurl libcurl-devel elfutils-debuginfod-client elfutils-debuginfod expat-devel expat libffi libffi-devel gc-devel libevent-devel libgcc gmp-devel krb5-devel compat-guile18 guile-devel guile22-devel libidn2-devel libidn libidn-devel keyutils-libs-devel openldap-devel libtool-ltdl-devel xz-devel mpfr-devel msgpack-devel pcre2-devel libselinux-devel libssh-devel libssh2-devel ncurses-devel libunistring xxhash-devel qemu-user-binfmt qemu qemu-tools qemu-common qemu-user qemu-img qemu-user-static sudo lld lld-devel llvm llvm-devel clang clang-devel"
     - dnf -y install --best ${JOB_PKGS:?} || dnf -y install --nobest ${JOB_PKGS:?}
@@ -2590,7 +2590,7 @@ PVS-Studio:
     - dnf --setopt sslverify=0 --setopt sslverifystatus=0 --refresh -y install pvs-studio || dnf --setopt sslverify=0 --setopt sslverifystatus=0 --refresh -y install pvs-studio
     - wget -O /etc/yum.repos.d/viva64-beta.repo https://dps8m.gitlab.io/dps8m-archive/CI/viva64-beta.repo || true
     - dnf --setopt sslverify=0 --setopt sslverifystatus=0 --refresh -y install pvs-studio || dnf --setopt sslverify=0 --setopt sslverifystatus=0 --refresh -y install pvs-studio
-    - dnf --setopt sslverify=0 --setopt sslverifystatus=0 upgrade --best -y || dnf --setopt sslverify=0 --setopt sslverifystatus=0 upgrade --skip-broken --nobest -y
+    - dnf --setopt sslverify=0 --setopt sslverifystatus=0 upgrade --best -y || dnf --setopt sslverify=0 --setopt sslverifystatus=0 upgrade --nobest -y
     - pvs-studio-analyzer credentials "${PVS_STUDIO_NAME:?}" "${PVS_STUDIO_KEY:?}" || true
     - rm -f compile_commands.json
     - rm -f compile_commands.events.json
