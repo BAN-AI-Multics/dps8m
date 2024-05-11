@@ -537,7 +537,7 @@ Linux/powerpc64el, IBM Advance Toolchain 17:
 ############################################################################
 
 Cross-compiled release binaries:
-  image: fedora:39
+  image: fedora:40
   stage: build
   tags:
     - Docker-x64
@@ -1660,7 +1660,7 @@ Cross-compiled release binaries:
 ############################################################################
 
 Windows/x86_64, Cygwin64-GCC:
-  image: fedora:39
+  image: fedora:40
   stage: build
   tags:
     - Docker-x64
@@ -1743,7 +1743,7 @@ Linux/x86_64, Fedora, Oracle Developer Studio:
 ############################################################################
 
 Linux/x86_64, Fedora, Clang, GCC:
-  image: fedora:39
+  image: fedora:40
   stage: build
   tags:
     - Docker-x64
@@ -1786,7 +1786,7 @@ Linux/x86_64, Fedora, Clang, GCC:
 ############################################################################
 
 GNU GLOBAL Hypertext:
-  image: fedora:39
+  image: fedora:40
   stage: docs
   tags:
     - Docker-x64
@@ -1820,7 +1820,7 @@ GNU GLOBAL Hypertext:
 ############################################################################
 
 Hugo:
-  image: fedora:39
+  image: fedora:40
   stage: docs
   tags:
     - Docker-x64
@@ -2346,7 +2346,7 @@ Solaris/x86_64, Oracle Solaris 11.4, Oracle Developer Studio:
 
 NSIS Installer:
   stage: nsis_installer
-  image: fedora:39
+  image: fedora:40
   needs:
     - job: DPS8M Omnibus Documentation
     - job: Source Kits
@@ -2382,7 +2382,7 @@ NSIS Installer:
 
 Option Verification Test:
   stage: cmb_test
-  image: fedora:39
+  image: fedora:40
   needs:
     - job: Linux/x86_64, Ubuntu LTS, Clang, GCC
     - job: Linux/x86_64, Fedora, Clang, GCC
@@ -2424,7 +2424,7 @@ Option Verification Test:
 DPS8M Omnibus Documentation:
   when: always
   stage: docs
-  image: fedora:39
+  image: fedora:40
   tags:
     - Docker-x64-fast
     - Linux
@@ -2460,7 +2460,7 @@ DPS8M Omnibus Documentation:
 
 Multics CI-Kit Test:
   stage: ci_test
-  image: fedora:39
+  image: fedora:40
   tags:
     - Docker-x64-fast
     - Linux
@@ -2530,7 +2530,7 @@ Flawfinder:
 #############################################################################
 
 Clang Analyzer:
-  image: fedora:39
+  image: fedora:40
   stage: test
   allow_failure: false
   needs:
@@ -2566,7 +2566,7 @@ Clang Analyzer:
 #############################################################################
 
 PVS-Studio:
-  image: fedora:39
+  image: fedora:40
   stage: test
   allow_failure: false
   needs:
@@ -2616,7 +2616,7 @@ PVS-Studio:
 #############################################################################
 
 Coverity:
-  image: fedora:39
+  image: fedora:40
   stage: coverity_test
   allow_failure: true
   when: manual
@@ -2729,7 +2729,7 @@ Oracle Developer Studio Lint:
 
 Source Tree Checks:
   stage: src_test
-  image: fedora:39
+  image: fedora:40
   tags:
     - Docker-x64
     - Linux
