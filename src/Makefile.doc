@@ -21,7 +21,7 @@ ifneq (,$(findstring docs,$(MAKECMDGOALS)))
 .NOTPARALLEL: docspdf
 endif
 docspdf:                                                                      \
-    # docspdf:    # Build Omnibus Docs (Book-style PDF)
+    # docspdf:    # Build Omnibus Docs
 	@( cd "docs" && $(ENV) sh "./shell/builddoc.sh" )
 
 ###############################################################################
@@ -32,7 +32,7 @@ ifneq (,$(findstring docs,$(MAKECMDGOALS)))
 .NOTPARALLEL: dokdocspdf
 endif
 dokdocspdf:                                                                   \
-    # dokdocspdf:    # Build Omnibus Docs (Docker, Book)
+    # dokdocspdf:    # Build Omnibus Docs (using Docker)
 	@( cd "docs" && $(ENV) sh "./shell/builddoc-docker.sh" )
 
 ###############################################################################
