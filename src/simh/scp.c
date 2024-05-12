@@ -124,7 +124,9 @@
 #     if !defined(CROSS_MINGW32)
 #      if !defined(CROSS_MINGW64)
 #       if !defined(_WIN32)
-#        include <link.h>
+#        if !defined(__HAIKU__)
+#         include <link.h>
+#        endif
 #       endif
 #      endif
 #     endif
@@ -157,7 +159,9 @@
 #     if !defined(CROSS_MINGW32)
 #      if !defined(CROSS_MINGW64)
 #       if !defined(_WIN32)
+#        if !defined(__HAIKU__)
 static unsigned int dl_iterate_phdr_callback_called = 0;
+#        endif
 #       endif
 #      endif
 #     endif
@@ -1557,6 +1561,7 @@ void CleanDUMA(void)
 #     if !defined(CROSS_MINGW32)
 #      if !defined(CROSS_MINGW64)
 #       if !defined(_WIN32)
+#        if !defined(__HAIKU__)
 static int
 dl_iterate_phdr_callback (struct dl_phdr_info *info, size_t size, void *data)
 {
@@ -1573,6 +1578,7 @@ dl_iterate_phdr_callback (struct dl_phdr_info *info, size_t size, void *data)
 
   return 0;
 }
+#        endif
 #       endif
 #      endif
 #     endif
@@ -4588,9 +4594,11 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
 #     if !defined(CROSS_MINGW32)
 #      if !defined(CROSS_MINGW64)
 #       if !defined(_WIN32)
+#        if !deffined(__HAIKU__)
     (void)dl_iterate_phdr (dl_iterate_phdr_callback, NULL);
     if (dl_iterate_phdr_callback_called)
         (void)fprintf (st, "\n");
+#        endif
 #       endif
 #      endif
 #     endif
