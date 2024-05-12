@@ -4594,7 +4594,7 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
 #     if !defined(CROSS_MINGW32)
 #      if !defined(CROSS_MINGW64)
 #       if !defined(_WIN32)
-#        if !deffined(__HAIKU__)
+#        if !defined(__HAIKU__)
     (void)dl_iterate_phdr (dl_iterate_phdr_callback, NULL);
     if (dl_iterate_phdr_callback_called)
         (void)fprintf (st, "\n");
