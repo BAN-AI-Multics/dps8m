@@ -1067,6 +1067,7 @@ The default **Haiku** installation includes the required header files, the recom
 
   * **Canonical** similarly offers two [**Ubuntu Toolchain PPAs**](https://wiki.ubuntu.com/ToolChain#Toolchain_Updates), one providing **GCC** updates for release branches, and the other providing new **GCC** versions for both current and **LTS** releases, maintained by the Ubuntu Toolchain team.
     * For example, at the time of writing, Ubuntu 22.04 LTS ships **GCC 11.3** and **GCC 12.1**, and the **Toolchain PPAs** ship **GCC 12.3** and **GCC 13.1**. Although these packages are *not formally supported* by Canonical, they are regularly and successfully used by **The DPS8M Development Team**.
+    * **NOTE**: Ubuntu has shipped multiple versions of the **LLVM** and **Clang** packages that are ***broken*** in various ways (*incorrect library paths, missing libraries, broken LTO support, etc.*).  If you encounter problems building from source code using **Clang** on Ubuntu, try installing different package versions, wait for an update, or use **GCC** to build instead.
 
 []()
 
