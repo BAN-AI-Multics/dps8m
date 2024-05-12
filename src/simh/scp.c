@@ -9135,7 +9135,8 @@ for (i = any = 0; i < 26; i++) {
             if (any) {
                 if (st != NULL) {
                     (void)fprintf (st, ", "); } }
-            fputc (i + 'A', st);
+            if (st != NULL) {
+                fputc (i + 'A', st); }
             }
         } else {
             if (st != NULL) {
