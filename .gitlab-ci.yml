@@ -2163,12 +2163,12 @@ Linux/x86_64, Ubuntu, Clang, GCC:
     - *scriptBuildlibbacktrace
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make WITH_BACKTRACE=1 CC="$(command -v ccache) $(command -v clang)" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
+    - env NO_LTO=1 make WITH_BACKTRACE=1 CC="$(command -v ccache) $(command -v clang)" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
     - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - make distclean
     - *scriptDPS8Mods
-    - make WITH_BACKTRACE=1 CC="$(command -v ccache) $(command -v gcc)" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
+    - env NO_LTO=1 make WITH_BACKTRACE=1 CC="$(command -v ccache) $(command -v gcc)" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
     - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -2214,12 +2214,12 @@ Linux/x86_64, Ubuntu LTS, Clang, GCC:
     - *scriptBuildlibbacktrace
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make WITH_BACKTRACE=1 CC="$(command -v ccache) $(command -v clang)" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
+    - env NO_LTO=1 make WITH_BACKTRACE=1 CC="$(command -v ccache) $(command -v clang)" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
     - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - make distclean
     - *scriptDPS8Mods
-    - make WITH_BACKTRACE=1 CC="$(command -v ccache) $(command -v gcc)" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
+    - env NO_LTO=1 make WITH_BACKTRACE=1 CC="$(command -v ccache) $(command -v gcc)" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
     - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - *scriptVerifyVersion
