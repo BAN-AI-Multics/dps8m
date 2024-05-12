@@ -9126,8 +9126,8 @@ if (sw & SWMASK ('C')) {
     } else {
         fprint_val
             (st, loc, dptr->aradix, dptr->awidth, PV_LEFT); }
-    (void)fprintf
-        (st, ":\t");
+    if (st != NULL) {
+        (void)fprintf (st, ":\t"); }
     }
 for (i = any = 0; i < 26; i++) {
     if ((bp->typ >> i) & 1) {
