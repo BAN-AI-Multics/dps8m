@@ -9117,35 +9117,48 @@ dptr = sim_dflt_dev;
 if (dptr == NULL)
     return SCPE_OK;
 if (sw & SWMASK ('C'))
-    (void)fprintf (st, "SET BREAK ");
+    if (st != NULL)
+        (void)fprintf (st, "SET BREAK ");
 else {
     if (sim_vm_fprint_addr)
-        sim_vm_fprint_addr (st, dptr, loc);
-    else fprint_val (st, loc, dptr->aradix, dptr->awidth, PV_LEFT);
-    (void)fprintf (st, ":\t");
+        if (st != NULL)
+            sim_vm_fprint_addr (st, dptr, loc);
+    else
+        if (st != NULL)
+            fprint_val (st, loc, dptr->aradix, dptr->awidth, PV_LEFT);
+    if (st != NULL)
+        (void)fprintf (st, ":\t");
     }
 for (i = any = 0; i < 26; i++) {
     if ((bp->typ >> i) & 1) {
         if ((sw & SWMASK ('C')) == 0) {
             if (any)
-                (void)fprintf (st, ", ");
+                if (st != NULL)
+                    (void)fprintf (st, ", ");
             fputc (i + 'A', st);
             }
         else
-            (void)fprintf (st, "-%c", i + 'A');
+            if (st != NULL)
+                (void)fprintf (st, "-%c", i + 'A');
         any = 1;
         }
     }
 if (sw & SWMASK ('C')) {
-    (void)fprintf (st, " ");
+    if (st != NULL)
+        (void)fprintf (st, " ");
     if (sim_vm_fprint_addr)
-        sim_vm_fprint_addr (st, dptr, loc);
-    else fprint_val (st, loc, dptr->aradix, dptr->awidth, PV_LEFT);
+        if (st != NULL)
+            sim_vm_fprint_addr (st, dptr, loc);
+    else
+        if (st != NULL)
+            fprint_val (st, loc, dptr->aradix, dptr->awidth, PV_LEFT);
     }
 if (bp->cnt > 0)
-    (void)fprintf (st, "[%d]", bp->cnt);
+    if (st != NULL)
+        (void)fprintf (st, "[%d]", bp->cnt);
 if (bp->act != NULL)
-    (void)fprintf (st, "; %s", bp->act);
+    if (st != NULL)
+        (void)fprintf (st, "; %s", bp->act);
 (void)fprintf (st, "\n");
 return SCPE_OK;
 }
