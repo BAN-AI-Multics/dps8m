@@ -117,8 +117,10 @@
 #endif /* if defined(__HAIKU__) */
 
 #if !defined(__CYGWIN__) && !defined(__APPLE__) && !defined(_AIX) && !defined(__MINGW32__) || \
-    !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64)
-# include <link.h>
+    !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) && !defined(_WIN32)
+# if !defined(__CYGWIN__)
+#  include <link.h>
+# endif
 #endif
 
 #define DBG_CTR 0
@@ -137,8 +139,10 @@
 #include "../dps8/dps8_math128.h"
 
 #if !defined(__CYGWIN__) && !defined(__APPLE__) && !defined(_AIX) && !defined(__MINGW32__) || \
-    !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64)
+    !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) && !defined(_WIN32)
+# if !defined(__CYGWIN__)
 static unsigned int dl_iterate_phdr_callback_called = 0;
+# endif
 #endif
 
 #if defined(MAX)
@@ -1524,7 +1528,8 @@ void CleanDUMA(void)
 #endif /* if defined(USE_BACKTRACE) */
 
 #if !defined(__CYGWIN__) && !defined(__APPLE__) && !defined(_AIX) && !defined(__MINGW32__) || \
-    !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64)
+    !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) && !defined(_WIN32)
+# if !defined(__CYGWIN__)
 static int
 dl_iterate_phdr_callback (struct dl_phdr_info *info, size_t size, void *data)
 {
@@ -1541,6 +1546,7 @@ dl_iterate_phdr_callback (struct dl_phdr_info *info, size_t size, void *data)
 
   return 0;
 }
+# endif
 #endif
 
 /* Main command loop */
@@ -4542,10 +4548,12 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
     (void)fprintf (st, "\r\n      Compilation info: Not available\n" );
 #endif
 #if !defined(__CYGWIN__) && !defined(__APPLE__) && !defined(_AIX) && !defined(__MINGW32__) || \
-    !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64)
+    !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) && !defined(_WIN32)
+# if !defined(__CYGWIN__)
     (void)dl_iterate_phdr (dl_iterate_phdr_callback, NULL);
     if (dl_iterate_phdr_callback_called)
         (void)fprintf (st, "\n");
+# endif
 #endif
 #if defined(UV_VERSION_MAJOR) && \
     defined(UV_VERSION_MINOR) && \
