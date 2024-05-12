@@ -500,7 +500,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { tar axf /arm64-unknown-netbsdelf9.3.tar.lz; }; fi
     - *scriptDPS8Mods
     - export DPS8_CPUTYPE=armv8-a
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env CFLAGS="-m64 -fpic -fPIC -march=${DPS8_CPUTYPE} -Wno-unused-command-line-argument -Wno-char-subscripts" LOCAL_CONFOPTS="--host=arm64-unknown-netbsdelf9.3" CSTD="gnu11" CC="clang -I$(pwd)/arm64-unknown-netbsdelf9.3/usr/include -L$(pwd)/arm64-unknown-netbsdelf9.3/usr/lib -B$(pwd)/arm64-unknown-netbsdelf9.3/usr/lib --target=arm64-unknown-netbsdelf9.3 -fuse-ld=lld" gmake libuvdev LIBDL="" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && env CFLAGS="-m64 -fpic -fPIC -march=${DPS8_CPUTYPE} -Wno-unused-command-line-argument -Wno-char-subscripts" CSTD="gnu11" LDFLAGS="-static -lgcc -lm" CC="clang -I$(pwd)/arm64-unknown-netbsdelf9.3/usr/include -L$(pwd)/arm64-unknown-netbsdelf9.3/usr/lib -B$(pwd)/arm64-unknown-netbsdelf9.3/usr/lib --target=arm64-unknown-netbsdelf9.3 -fuse-ld=lld" NO_LTO=1 gmake LIBDL="" LOCALLIBS="-lm" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env CFLAGS="-m64 -fpic -fPIC -march=${DPS8_CPUTYPE} -Wno-unused-command-line-argument -Wno-char-subscripts" LOCAL_CONFOPTS="--host=arm64-unknown-netbsdelf9.3" CSTD="gnu11" CC="clang -I$(pwd)/arm64-unknown-netbsdelf9.3/usr/include -L$(pwd)/arm64-unknown-netbsdelf9.3/usr/lib -B$(pwd)/arm64-unknown-netbsdelf9.3/usr/lib --target=arm64-unknown-netbsdelf9.3 -fuse-ld=lld" gmake libuvrel LIBDL="" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && env CFLAGS="-m64 -fpic -fPIC -march=${DPS8_CPUTYPE} -Wno-unused-command-line-argument -Wno-char-subscripts" CSTD="gnu11" LDFLAGS="-static -lgcc -lm" CC="clang -I$(pwd)/arm64-unknown-netbsdelf9.3/usr/include -L$(pwd)/arm64-unknown-netbsdelf9.3/usr/lib -B$(pwd)/arm64-unknown-netbsdelf9.3/usr/lib --target=arm64-unknown-netbsdelf9.3 -fuse-ld=lld" NO_LTO=1 gmake LIBDL="" LOCALLIBS="-lm" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { mkdir -p "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
@@ -1200,7 +1200,7 @@ Cross-compiled release binaries:
     - ( cd / && tar axf /x86_64-local-netbsd9.tar.lz )
     - touch /home/jhj/src/NetBSD-AMD64-crossgcc/sysroot/usr/include/sys/cpuset.h
     - export DPS8_CPUTYPE=x86-64
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-AMD64-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=x86_64-local-netbsd9" CC=/home/jhj/src/NetBSD-AMD64-crossgcc/out/bin/x86_64-local-netbsd9-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-AMD64-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=x86_64-local-netbsd9" CC=/home/jhj/src/NetBSD-AMD64-crossgcc/out/bin/x86_64-local-netbsd9-gcc gmake libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-AMD64-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?} -Wno-char-subscripts" CC=/home/jhj/src/NetBSD-AMD64-crossgcc/out/bin/x86_64-local-netbsd9-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBDL=""; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
@@ -1216,7 +1216,7 @@ Cross-compiled release binaries:
     - touch /home/jhj/src/NetBSD-i386-crossgcc/sysroot/usr/include/sys/cpuset.h
     - *scriptDPS8Mods
     - export DPS8_CPUTYPE=i586
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-i386-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=i386-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-i386-crossgcc/out/bin/i386-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-i386-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=i386-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-i386-crossgcc/out/bin/i386-unknown-netbsdelf-gcc gmake libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-i386-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?} -Wno-char-subscripts" CC=/home/jhj/src/NetBSD-i386-crossgcc/out/bin/i386-unknown-netbsdelf-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NEED_128=1 LIBDL=""; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
@@ -1228,7 +1228,7 @@ Cross-compiled release binaries:
     - PARALLEL_CI_COUNT=$(( PARALLEL_CI_COUNT + 1 )) ; test ${PARALLEL_CI_COUNT:?} -gt ${CI_NODE_TOTAL:?} && PARALLEL_CI_COUNT=1 || true
     - *scriptDPS8Mods
     - export DPS8_CPUTYPE=i686
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-i386-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=i386-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-i386-crossgcc/out/bin/i386-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-i386-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=i386-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-i386-crossgcc/out/bin/i386-unknown-netbsdelf-gcc gmake libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-i386-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?} -Wno-char-subscripts" CC=/home/jhj/src/NetBSD-i386-crossgcc/out/bin/i386-unknown-netbsdelf-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NEED_128=1 LIBDL=""; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
@@ -1245,7 +1245,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd / && lzip -dv /libatomic.a.lz && mv -f /libatomic.a /home/jhj/src/NetBSD-VAX-crossgcc/out/lib/gcc/vax-unknown-netbsdelf/12.2.1/../../../../vax-unknown-netbsdelf/lib/libatomic.a ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { touch /home/jhj/src/NetBSD-VAX-crossgcc/sysroot/usr/include/sys/cpuset.h; }; fi
     - *scriptDPS8Mods
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-VAX-crossgcc/out/bin:${PATH:-} CFLAGS="-Wno-char-subscripts" LOCAL_CONFOPTS="--host=vax-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-VAX-crossgcc/out/bin/vax-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-VAX-crossgcc/out/bin:${PATH:-} CFLAGS="-Wno-char-subscripts" LOCAL_CONFOPTS="--host=vax-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-VAX-crossgcc/out/bin/vax-unknown-netbsdelf-gcc gmake libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-VAX-crossgcc/out/bin:${PATH:-} CFLAGS="-Wno-char-subscripts" CC=/home/jhj/src/NetBSD-VAX-crossgcc/out/bin/vax-unknown-netbsdelf-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NEED_128=1 LIBDL="" OPTFLAGS="-O2" ATOMICS=GNU LOCALLIBS="-latomic"; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
@@ -1261,7 +1261,7 @@ Cross-compiled release binaries:
     - touch /home/jhj/src/NetBSD-powerpc-crossgcc/sysroot/usr/include/sys/cpuset.h
     - *scriptDPS8Mods
     - export DPS8_CPUTYPE=970
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin:${PATH:-} CFLAGS="-m32 -mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" LDFLAGS="-m32" LOCAL_CONFOPTS="--host=powerpc-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin/powerpc-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin:${PATH:-} CFLAGS="-m32 -mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" LDFLAGS="-m32" LOCAL_CONFOPTS="--host=powerpc-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin/powerpc-unknown-netbsdelf-gcc gmake libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin:${PATH:-} CFLAGS="-m32 -mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" CC=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin/powerpc-unknown-netbsdelf-gcc LDFLAGS="-m32 -static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBDL="" NEED_128=1 LOCALLIBS="-latomic"; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
@@ -1273,7 +1273,7 @@ Cross-compiled release binaries:
     - PARALLEL_CI_COUNT=$(( PARALLEL_CI_COUNT + 1 )) ; test ${PARALLEL_CI_COUNT:?} -gt ${CI_NODE_TOTAL:?} && PARALLEL_CI_COUNT=1 || true
     - *scriptDPS8Mods
     - export DPS8_CPUTYPE=7400
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin:${PATH:-} CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" LOCAL_CONFOPTS="--host=powerpc-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin/powerpc-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin:${PATH:-} CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" LOCAL_CONFOPTS="--host=powerpc-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin/powerpc-unknown-netbsdelf-gcc gmake libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin:${PATH:-} CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" CC=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin/powerpc-unknown-netbsdelf-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBDL="" NEED_128=1 LOCALLIBS="-latomic"; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
@@ -1285,7 +1285,7 @@ Cross-compiled release binaries:
     - PARALLEL_CI_COUNT=$(( PARALLEL_CI_COUNT + 1 )) ; test ${PARALLEL_CI_COUNT:?} -gt ${CI_NODE_TOTAL:?} && PARALLEL_CI_COUNT=1 || true
     - *scriptDPS8Mods
     - export DPS8_CPUTYPE=740
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin:${PATH:-} CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" LOCAL_CONFOPTS="--host=powerpc-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin/powerpc-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin:${PATH:-} CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" LOCAL_CONFOPTS="--host=powerpc-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin/powerpc-unknown-netbsdelf-gcc gmake libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin:${PATH:-} CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" CC=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin/powerpc-unknown-netbsdelf-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBDL="" NEED_128=1 LOCALLIBS="-latomic"; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
@@ -1300,7 +1300,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd / && tar axf /sparc64-unknown-netbsdelf.tar.lz ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { touch /home/jhj/src/NetBSD-sparc64-crossgcc/sysroot/usr/include/sys/cpuset.h; }; fi
     - *scriptDPS8Mods
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-sparc64-crossgcc/out/bin:${PATH:-} CFLAGS="-Wno-char-subscripts" LOCAL_CONFOPTS="--host=sparc64-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-sparc64-crossgcc/out/bin/sparc64-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-sparc64-crossgcc/out/bin:${PATH:-} CFLAGS="-Wno-char-subscripts" LOCAL_CONFOPTS="--host=sparc64-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-sparc64-crossgcc/out/bin/sparc64-unknown-netbsdelf-gcc gmake libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-sparc64-crossgcc/out/bin:${PATH:-} CFLAGS="-Wno-char-subscripts" CC=/home/jhj/src/NetBSD-sparc64-crossgcc/out/bin/sparc64-unknown-netbsdelf-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBDL=""; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
@@ -1317,7 +1317,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd / && lzip -dv /libatomic.a.lz && mv -f /libatomic.a /home/jhj/src/NetBSD-sparc-crossgcc/out/lib/gcc/sparc-unknown-netbsdelf/12.2.1/../../../../sparc-unknown-netbsdelf/lib/libatomic.a ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { touch /home/jhj/src/NetBSD-sparc-crossgcc/sysroot/usr/include/sys/cpuset.h; }; fi
     - *scriptDPS8Mods
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-sparc-crossgcc/out/bin:${PATH:-} CFLAGS="-Wno-char-subscripts" LOCAL_CONFOPTS="--host=sparc-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-sparc-crossgcc/out/bin/sparc-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-sparc-crossgcc/out/bin:${PATH:-} CFLAGS="-Wno-char-subscripts" LOCAL_CONFOPTS="--host=sparc-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-sparc-crossgcc/out/bin/sparc-unknown-netbsdelf-gcc gmake libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-sparc-crossgcc/out/bin:${PATH:-} CFLAGS="-Wno-char-subscripts" CC=/home/jhj/src/NetBSD-sparc-crossgcc/out/bin/sparc-unknown-netbsdelf-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBDL="" NEED_128=1 LOCALLIBS="-latomic"; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
