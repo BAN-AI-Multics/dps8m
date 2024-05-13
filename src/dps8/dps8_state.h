@@ -14,11 +14,11 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifndef API
+#if !defined(API)
 # define N_SYMBOLS    1024
 #else
 # define N_SYMBOLS    0
-#endif
+#endif /* if !defined(API) */
 
 #define SYMBOL_SZ     32
 enum symbolType {
@@ -80,15 +80,15 @@ struct system_state_s {
   char        stateHdr[STATE_HDR_SZ];  // = STATE_HDR
   int32_t     stateVer;                // = STATE_VER
   struct      symbolTable_s symbolTable;
-#ifndef API
+#if !defined(API)
   char        commit_id [41];
   vol         word36 M [MEMSIZE];
   cpu_state_t cpus [N_CPU_UNITS_MAX];
   struct cables_s cables;
-#endif
+#endif /* if !defined(API) */
 };
 
-#ifndef API
+#if !defined(API)
 extern struct system_state_s * system_state;
 #else
 int sim_iglock     =  0;
@@ -96,4 +96,4 @@ int sim_nolock     =  0;
 int sim_randompst  =  0;
 int sim_randstate  =  0;
 int sim_nostate    =  0;
-#endif
+#endif /* if !defined(API) */

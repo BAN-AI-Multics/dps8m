@@ -23,7 +23,6 @@
 /* ------------------------------------------------------------------- */
 
 #include <string.h>           // for strcmp
-#include <stdio.h>
 #include "decContext.h"       // context and base types
 #include "decNumberLocal.h"   // decNumber local types, etc.
 

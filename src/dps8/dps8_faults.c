@@ -106,7 +106,7 @@
  *       27     ;        66     ;           ;   Unassigned           ;          ;
  */
 
-#ifndef QUIET_UNUSED
+#if !defined(QUIET_UNUSED)
 static dps8faults _faultsP[] = { // sorted by priority
 //      number  address  mnemonic  name                   Priority   Group
     {   12,     030,     "suf",    "Startup",                   1,      1,     false },
@@ -140,8 +140,7 @@ static dps8faults _faultsP[] = { // sorted by priority
     {   27,     066,     "???",    "Unassigned",               -1,     -1,     false },
     {   -1,      -1,      NULL,     NULL,                      -1,     -1,     false }
 };
-#endif
-#ifndef QUIET_UNUSED
+
 static dps8faults _faults[] = {    // sorted by number
 //      number  address  mnemonic  name                   Priority   Group
     {   0,        0,     "sdf",    "Shutdown",                 27,      7,     false },
@@ -178,7 +177,7 @@ static dps8faults _faults[] = {    // sorted by number
     {   31,     076,     "trb",    "Trouble",                   3,      2,     false },
     {   -1,     -1,       NULL,     NULL,                      -1,     -1,     false }
 };
-#endif
+#endif /* if !defined(QUIET_UNUSED) */
 
 char * faultNames [N_FAULTS] =
   {
@@ -217,14 +216,14 @@ char * faultNames [N_FAULTS] =
   };
 //bool pending_fault = false;     // true when a fault has been signalled, but not processed
 
-#ifndef QUIET_UNUSED
+#if !defined(QUIET_UNUSED)
 static bool port_interrupts[8] = { false, false, false, false, false, false, false, false };
-#endif
+#endif /* if !defined(QUIET_UNUSED) */
 
 //-----------------------------------------------------------------------------
 // ***  Constants, unchanging lookup tables, etc
 
-#ifndef QUIET_UNUSED
+#if !defined (QUIET_UNUSED)
 static int fault2group[32] = {
     // from AL39, page 7-3
     7, 4, 5, 5, 7, 4, 5, 4,
@@ -240,13 +239,13 @@ static int fault2prio[32] = {
     20, 21, 22, 23, 24, 12, 13, 14,
     18, 19,  0,  0,  0,  0,  0,  3
 };
-#endif
+#endif /* if !defined(QUIET_UNUSED) */
 
 /*
  * fault handler(s).
  */
 
-#ifdef TESTING
+#if defined(TESTING)
 // We stash a few things for debugging; they are accessed by emCall.
 static word18 fault_ic;
 static word15 fault_psr;
@@ -261,7 +260,7 @@ void emCallReportFault (void)
            sim_printf ("  faulting address %05o:%06o\n", fault_psr, fault_ic);
            sim_printf ("  msg %s\n", fault_msg);
   }
-#endif
+#endif /* if defined(TESTING) */
 
 void clearFaultCycle (void)
   {
@@ -347,12 +346,12 @@ bit-28 tp inhibit interrupts
 
 */
 
-#ifdef LOOPTRC
+#if defined(LOOPTRC)
 # include <time.h>
 void elapsedtime (void);
-#endif
+#endif /* if defined(LOOPRTC) */
 
-#ifndef NEED_128
+#if !defined(NEED_128)
 const _fault_subtype fst_zero      = (_fault_subtype) {.bits=0};
 const _fault_subtype fst_acv9      = (_fault_subtype) {.fault_acv_subtype=ACV9};
 const _fault_subtype fst_acv15     = (_fault_subtype) {.fault_acv_subtype=ACV15};
@@ -366,12 +365,12 @@ const _fault_subtype fst_str_ptr   = (_fault_subtype) {.fault_str_subtype=flt_st
 const _fault_subtype fst_cmd_lprpn = (_fault_subtype) {.fault_cmd_subtype=flt_cmd_lprpn_bits};
 const _fault_subtype fst_cmd_ctl   = (_fault_subtype) {.fault_cmd_subtype=flt_cmd_not_control};
 const _fault_subtype fst_onc_nem   = (_fault_subtype) {.fault_onc_subtype=flt_onc_nem};
-#endif
+#endif /* if !defined(NEED_128) */
 // CANFAULT
 void doFault (_fault faultNumber, _fault_subtype subFault,
               const char * faultMsg)
   {
-#ifdef LOOPTRC
+#if defined(LOOPTRC)
 if (faultNumber == FAULT_TRO)
 {
  elapsedtime ();
@@ -382,7 +381,7 @@ else if (faultNumber == FAULT_ACV)
  elapsedtime ();
  sim_printf (" ACV %012llo PSR:IC %05o:%06o\r\n", subFault.bits, cpu.PPR.PSR, cpu.PPR.IC);
 }
-#endif
+#endif /* if defined(LOOPRTC) */
 //if (current_running_cpu_idx)
     //sim_printf ("Fault %d(0%0o), sub %ld(0%lo), dfc %c, '%s'\n",
                //faultNumber, faultNumber, subFault, subFault,
@@ -393,28 +392,28 @@ else if (faultNumber == FAULT_ACV)
                "Fault %d(0%0o), sub %"PRIu64"(0%"PRIo64"), dfc %c, '%s'\n",
                faultNumber, faultNumber, subFault.bits, subFault.bits,
                cpu . bTroubleFaultCycle ? 'Y' : 'N', faultMsg);
-#ifdef PROFILER
-# ifndef GNU_ATOMICS
+#if defined(PROFILER)
+# if !defined(GNU_ATOMICS)
 #  error PROFILER requires GNU_ATOMICS
-# endif
+# endif /* if !defined(GNU_ATOMICS) */
     __atomic_add_fetch (& cpu.faults[faultNumber], 1u, __ATOMIC_ACQUIRE);
-#endif
-#ifdef TESTING
+#endif /* if defined(PROFILER) */
+#if defined(TESTING)
     HDBGFault (faultNumber, subFault, faultMsg, "");
-#endif
-#ifndef SPEED
+#endif /* if defined(TESTING) */
+#if !defined(SPEED)
     if_sim_debug (DBG_FAULT, & cpu_dev)
       traceInstruction (DBG_FAULT);
-#endif
+#endif /* if !defined(SPEED) */
 
     PNL (cpu.DACVpDF = faultNumber >=  FAULT_DF0 && faultNumber <= FAULT_ACV;)
 
-#ifdef TESTING
+#if defined(TESTING)
     // some debugging support stuff
     fault_psr = cpu . PPR.PSR;
     fault_ic  = cpu . PPR.IC;
     strcpy (fault_msg, faultMsg);
-#endif
+#endif /* if defined(TESTING) */
 
     //if (faultNumber < 0 || faultNumber > 31)
     if (faultNumber & ~037U)  // quicker?
@@ -676,8 +675,8 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle,
         if (cpu . bTroubleFaultCycle)
           {
 #if !defined(THREADZ) && !defined(LOCKLESS)
-# ifndef PANEL68
-#  ifndef ROUND_ROBIN
+# if !defined(PANEL68)
+#  if !defined(ROUND_ROBIN)
             if ((! sample_interrupts ()) &&
                 (sim_qcount () == 0))  // XXX If clk_svc is implemented it will
                                      // break this logic
@@ -690,8 +689,8 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle,
                 //stop_reason = STOP_FLT_CASCADE;
                 longjmp (cpu.jmpMain, JMP_STOP);
               }
-#  endif
-# endif
+#  endif /* if !defined(ROUND_ROBIN) */
+# endif /* if !defined(PANEL68) */
 #endif
           }
         else
@@ -713,8 +712,10 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle,
     cpu . cycle = FAULT_cycle;
     sim_debug (DBG_CYCLE, & cpu_dev, "Setting cycle to FAULT_cycle\n");
     longjmp (cpu.jmpMain, JMP_REENTRY);
+#if !defined(__SUNPRO_C) && !defined(__SUNPRO_CC)
     /*NOTREACHED*/ /* unreachable */
     abort(); /* not reached */
+#endif
 }
 
 void do_FFV_fault (uint fault_number, const char * fault_msg)
@@ -722,10 +723,10 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
     sim_debug (DBG_FAULT, & cpu_dev,
                "Floating fault %d '%s'\n",
                fault_number, fault_msg);
-#ifndef SPEED
+#if !defined(SPEED)
     if_sim_debug (DBG_FAULT, & cpu_dev)
       traceInstruction (DBG_FAULT);
-#endif
+#endif /* if !defined(SPEED) */
 
     if (fault_number < 1 || fault_number > 3)
       {
@@ -766,9 +767,9 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
     cpu.cu.OCALL     = 0;
     cpu.cu.BOC       = 0;
 // FFVs are L68 only, so we don't need this:
-//# ifdef DPS8M
+//# if defined(DPS8M)
   //cpu.cu.PTWAM_ER  = 0;
-//# endif
+//# endif /* if defined(DPS8M) */
     cpu.cu.CRT       = 0;
     cpu.cu.RALR      = 0;
     cpu.cu.SDWAM_ER  = 0;
@@ -820,8 +821,8 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
         if (cpu.bTroubleFaultCycle)
           {
 #if !defined(THREADZ) && !defined(LOCKLESS)
-# ifndef PANEL68
-#  ifndef ROUND_ROBIN
+# if !defined(PANEL68)
+#  if !defined(ROUND_ROBIN)
             if ((! sample_interrupts ()) &&
                 (sim_qcount () == 0))  // XXX If clk_svc is implemented it will
                                        // break this logic
@@ -833,9 +834,9 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
                 sim_printf("\nInstructions = %"PRId64"\n", cpu.instrCnt);
                 longjmp (cpu.jmpMain, JMP_STOP);
               }
-#  endif
-# endif
-#endif
+#  endif /* if !defined(ROUND_ROBIN) */
+# endif /* if !defined(PANEL68) */
+#endif /* if !defined(THREADZ) && !defined(LOCKLESS) */
           }
         else
           {

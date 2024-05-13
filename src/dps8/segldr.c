@@ -113,12 +113,13 @@ static void addSDW (word24 addr, long segnum, long length)
     // word36 * sdwp = (word36 *) M + ADDR_DSP + y1;
     word24 sdw0 = ADDR_DSP + y1 + 0;
     word24 sdw1 = ADDR_DSP + y1 + 1;
-    //sim_printf ("segnum %lo length %lu bound %u sdw0 %o sdw1 %o ADDR %06o\n", (unsigned long) segnum, length, bound, sdw0, sdw1, pgTblAddr);
+    //sim_printf ("segnum %lo length %lu bound %u sdw0 %o sdw1 %o ADDR %06o\n",
+    //            (unsigned long) segnum, length, bound, sdw0, sdw1, pgTblAddr);
     putbits36_24 ((word36 *) & M[sdw0],  0, pgTblAddr); // ADDR
 // I can't get segldr_boot to cross to ring 4
-//    putbits36_3  (& M[sdw0], 24, 4);                // R1
-//    putbits36_3  (& M[sdw0], 27, 4);                // R2
-//    putbits36_3  (& M[sdw0], 30, 4);                // R3
+//  putbits36_3  (& M[sdw0], 24, 4);                // R1
+//  putbits36_3  (& M[sdw0], 27, 4);                // R2
+//  putbits36_3  (& M[sdw0], 30, 4);                // R3
     putbits36_3  ((word36 *) & M[sdw0], 24, 0);     // R1
     putbits36_3  ((word36 *) & M[sdw0], 27, 0);     // R2
     putbits36_3  ((word36 *) & M[sdw0], 30, 0);     // R3
@@ -191,38 +192,38 @@ static t_stat stack (char * p2, char * p3)
     long segnum = strtol (p2, & endptr, 8);
     if (* endptr)
       {
-#ifdef PERF_STRIP
+#if defined(PERF_STRIP)
         exit(1);
         /*NOTREACHED*/ /* unreachable */
-#endif /* ifdef PERF_STRIP */
+#endif /* if defined(PERF_STRIP) */
         return SCPE_ARG;
       }
     if (segnum < 0 || segnum > MAX_SEG_NO)
       {
         sim_printf ("Segment number is limited to 0 to 0377\n");
-#ifdef PERF_STRIP
+#if defined(PERF_STRIP)
         exit(1);
         /*NOTREACHED*/ /* unreachable */
-#endif /* ifdef PERF_STRIP */
+#endif /* if defined(PERF_STRIP) */
         return SCPE_ARG;
       }
 
     long len = strtol (p3, & endptr, 8);
     if (* endptr)
       {
-#ifdef PERF_STRIP
+#if defined(PERF_STRIP)
         exit(1);
         /*NOTREACHED*/ /* unreachable */
-#endif /* ifdef PERF_STRIP */
+#endif /* if defined(PERF_STRIP) */
         return SCPE_ARG;
       }
     if (len < 1 || len > 255)
       {
         sim_printf ("Segment length is limited to 1 to 0377\n");
-#ifdef PERF_STRIP
+#if defined(PERF_STRIP)
         exit(1);
         /*NOTREACHED*/ /* unreachable */
-#endif /* ifdef PERF_STRIP */
+#endif /* if defined(PERF_STRIP) */
         return SCPE_ARG;
       }
 
@@ -231,7 +232,8 @@ static t_stat stack (char * p2, char * p3)
     // Add SDW
     addSDW (nextSegAddr, segnum, length);
 
-    sim_printf ("Placed stack (%lo) at %o length %lo allocated %lo\n", (unsigned long) segnum, nextSegAddr, (unsigned long) len, length);
+    sim_printf ("Placed stack (%lo) at %o length %lo allocated %lo\n",
+                (unsigned long) segnum, nextSegAddr, (unsigned long) len, length);
     // Mark the pages as used
     nextSegAddr += length;
 
@@ -253,19 +255,19 @@ static t_stat bload (char * p2, char * p3)
         segnum = strtol (p2, & endptr, 8);
         if (* endptr)
           {
-#ifdef PERF_STRIP
+#if defined(PERF_STRIP)
             exit(1);
             /*NOTREACHED*/ /* unreachable */
-#endif /* ifdef PERF_STRIP */
+#endif /* if defined(PERF_STRIP) */
             return SCPE_ARG;
           }
         if (segnum < 0 || segnum > MAX_SEG_NO)
           {
             sim_printf ("Segment number is limited to 0 to 0377\n");
-#ifdef PERF_STRIP
+#if defined(PERF_STRIP)
             exit(1);
             /*NOTREACHED*/ /* unreachable */
-#endif /* ifdef PERF_STRIP */
+#endif /* if defined(PERF_STRIP) */
             return SCPE_ARG;
           }
       }
@@ -276,10 +278,10 @@ static t_stat bload (char * p2, char * p3)
       {
         if (errno) sim_printf ("Error: %s\n", xstrerror_l(errno));
         sim_printf ("Unable to open '%s'\n", p3);
-#ifdef PERF_STRIP
+#if defined(PERF_STRIP)
         exit(1);
         /*NOTREACHED*/ /* unreachable */
-#endif /* ifdef PERF_STRIP */
+#endif /* if defined(PERF_STRIP) */
         return SCPE_ARG;
       }
 
@@ -298,7 +300,7 @@ static t_stat bload (char * p2, char * p3)
         ssize_t sz;
         // 72 bits at a time; 2 dps8m words == 9 bytes
         uint8_t bytes [9];
-        memset (bytes, 0, 9);
+        (void)memset (bytes, 0, 9);
         sz = read (deckfd, bytes, 9);
         if (sz == 0)
           break;
@@ -329,7 +331,8 @@ static t_stat bload (char * p2, char * p3)
         addSDW (0, 0, lengthp);
       }
 
-    sim_printf ("Loaded %s (%lo) at %o length %o allocated %o\n", p3, segnum < 0 ? 0 : (unsigned long) segnum, startAddr, length, lengthp);
+    sim_printf ("Loaded %s (%lo) at %o length %o allocated %o\n",
+                p3, segnum < 0 ? 0 : (unsigned long) segnum, startAddr, length, lengthp);
     close (deckfd);
     return SCPE_OK;
   }
@@ -344,10 +347,10 @@ static t_stat msave (char * p2, word24 sz)
       {
         if (errno) sim_printf ("Error: %s\n", xstrerror_l(errno));
         sim_printf ("Unable to open '%s'\n", p2);
-#ifdef PERF_STRIP
+#if defined(PERF_STRIP)
         exit(1);
         /*NOTREACHED*/ /* unreachable */
-#endif /* ifdef PERF_STRIP */
+#endif /* if defined(PERF_STRIP) */
         return SCPE_ARG;
       }
     ssize_t n = write (fd, (void *) M, wrsz);
@@ -355,10 +358,10 @@ static t_stat msave (char * p2, word24 sz)
       {
         if (errno) sim_printf ("Error: %s\n", xstrerror_l(errno));
         sim_printf ("Unable to write '%s'\n", p2);
-#ifdef PERF_STRIP
+#if defined(PERF_STRIP)
         exit(1);
         /*NOTREACHED*/ /* unreachable */
-#endif /* ifdef PERF_STRIP */
+#endif /* if defined(PERF_STRIP) */
         return SCPE_ARG;
       }
     (void) close (fd);
@@ -372,10 +375,10 @@ static t_stat mrestore (char * p2)
       {
         if (errno) sim_printf ("Error: %s\n", xstrerror_l(errno));
         sim_printf ("Unable to open '%s'\n", p2);
-#ifdef PERF_STRIP
+#if defined(PERF_STRIP)
         exit(1);
         /*NOTREACHED*/ /* unreachable */
-#endif /* ifdef PERF_STRIP */
+#endif /* if defined(PERF_STRIP) */
         return SCPE_ARG;
       }
     ssize_t n = read (fd, (void *) M, msize);
@@ -384,17 +387,17 @@ static t_stat mrestore (char * p2)
         if (errno) sim_printf ("Error: %s\n", xstrerror_l(errno));
         sim_printf ("Unable to read '%s'\n", p2);
         (void) close (fd);
-#ifdef PERF_STRIP
+#if defined(PERF_STRIP)
         exit(1);
         /*NOTREACHED*/ /* unreachable */
-#endif /* ifdef PERF_STRIP */
+#endif /* if defined(PERF_STRIP) */
         return SCPE_ARG;
       }
-#ifdef WIN_STDIO
+#if defined(WIN_STDIO)
     sim_printf ("Read %llu bytes (%llu pages, %llu segments)\n",
 #else
     sim_printf ("Read %'llu bytes (%'llu pages, %'llu segments)\n",
-#endif /* ifdef WIN_STDIO */
+#endif /* if defined(WIN_STDIO) */
                 (unsigned long long) n,
                 (unsigned long long) (n / sizeof (word36)),
                 (unsigned long long) (n / sizeof (36) / 1024));
@@ -447,14 +450,14 @@ t_stat segment_loader (int32 arg, const char * buf)
     sim_msg ("Usage:\n"
              "   sl init    initialize\n"
              "   sl bload   <segno> <filename>\n");
-#ifdef PERF_STRIP
+#if defined(PERF_STRIP)
     exit(0);
     /*NOTREACHED*/ /* unreachable */
-#endif /* ifdef PERF_STRIP */
+#endif /* if defined(PERF_STRIP) */
     return SCPE_ARG;
   }
 
-#ifdef PERF_STRIP
+#if defined(PERF_STRIP)
 extern DEVICE opc_dev;
 int main (int argc, char * argv[])
   {
@@ -468,4 +471,4 @@ int main (int argc, char * argv[])
     threadz_sim_instr ();
     return 0;
   }
-#endif
+#endif /* if defined(PERF_STRIP) */

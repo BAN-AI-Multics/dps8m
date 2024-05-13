@@ -16,7 +16,7 @@
 
 // Multipass data
 
-#ifdef MULTIPASS
+#if defined(MULTIPASS)
 
 typedef struct multipassStats
   {

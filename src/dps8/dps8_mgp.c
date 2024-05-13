@@ -53,19 +53,16 @@
 #include "dps8_cpu.h"
 #include "dps8_utils.h"
 
-#undef FREE
+#if defined(FREE)
+# undef FREE
+#endif /* if defined(FREE) */
 #define FREE(p) do  \
   {                 \
     free((p));      \
     (p) = NULL;     \
   } while(0)
 
-#ifdef TESTING
-# undef FREE
-# define FREE(p) free(p)
-#endif /* ifdef TESTING */
-
-#ifdef WITH_MGP_DEV
+#if defined(WITH_MGP_DEV)
 
 # define DBG_CTR  1
 
@@ -229,10 +226,10 @@ mgp_set_device_name(UNIT *uptr, UNUSED int32 value, const char *cptr,
 # define UNIT_WATCH  UNIT_V_UF
 
 static MTAB mgp_mod[] = {
-# ifndef SPEED
+# if !defined(SPEED)
   { UNIT_WATCH, 1, "WATCH",   "WATCH",   0, 0, NULL, NULL },
   { UNIT_WATCH, 0, "NOWATCH", "NOWATCH", 0, 0, NULL, NULL },
-# endif /* ifndef SPEED */
+# endif /* if !defined(SPEED) */
   {
     MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* Mask               */
     0,                                          /* Match              */
@@ -337,7 +334,7 @@ DEVICE mgp_dev = {
 void
 mgp_init(void)
 {
-  memset(mgp_state, 0, sizeof ( mgp_state ));
+  (void)memset(mgp_state, 0, sizeof ( mgp_state ));
   // Init the other state too
   mgp_init_dev_state();
 }
@@ -670,7 +667,7 @@ mgp_process_event(void)
       // This is normally 128 or 129, needs 4 for header + 488/4 data = 128
       word36 buffer[128];
       uint words_processed = 128;
-      memset(buffer, 0, sizeof(buffer));
+      (void)memset(buffer, 0, sizeof(buffer));
 
       int v = poll_from_cbridge(buffer, words_processed, 0);
       // mgp_dev_state.want_to_read = 0;
@@ -837,7 +834,7 @@ valid_chaos_host_address(u_short addr)
 static void
 copy_packet9_to_cbridge8(word36 *buf, uint words, u_char *dest, int dlen)
 {
-# ifndef __clang_analyzer__
+# if !defined(__clang_analyzer__)
   int j;
   /* Convert from 9-bit to 8-bit */
   for (j = 0; j < words * 4 && j < dlen; j++)
@@ -845,7 +842,7 @@ copy_packet9_to_cbridge8(word36 *buf, uint words, u_char *dest, int dlen)
       // Clang Analyzer warning: 1st function call argument is an uninitialized value
       dest[j] = getbits36_9(buf[MGP_PACKET_HEADER_SIZE + j / 4], ( j % 4 ) * 9);
     }
-# endif /* ifndef __clang_analyzer__ */
+# endif /* if !defined(__clang_analyzer__) */
 }
 
 // and the other way around
@@ -922,13 +919,13 @@ parse_packet_header(word36 *buf, uint words)
   struct mgp_packet_header *p = malloc(sizeof ( struct mgp_packet_header ));
   if (p == NULL)
     {
-      fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-               __func__, __FILE__, __LINE__);
+      (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                     __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
-#  ifdef SIGUSR2
+#  if defined(SIGUSR2)
       (void)raise(SIGUSR2);
       /*NOTREACHED*/ /* unreachable */
-#  endif /* ifdef SIGUSR2 */
+#  endif /* if defined(SIGUSR2) */
 # endif /* if defined(USE_BACKTRACE) */
       abort();
     }
@@ -1081,7 +1078,7 @@ dumppkt(char *hdr, word36 *buf, uint words)
         {
           /* avoid printing NULs for the console output to work */
           char chars[128], *cp = chars;
-          memset(chars, 0, sizeof ( chars ));
+          (void)memset(chars, 0, sizeof ( chars ));
           if (b0 && b0 < 0177 && b0 >= 040)
             {
               cp += sprintf(cp, "'%c' ",
@@ -1127,7 +1124,7 @@ dumppkt(char *hdr, word36 *buf, uint words)
             }
 
           sim_printf(" %d: %06o,,%06o = 0x%02x %02x %02x %02x = %s\n",
-                      i, lh, rh, b0, b1, b2, b3, chars);
+                     i, lh, rh, b0, b1, b2, b3, chars);
         }
     }
 
@@ -1140,7 +1137,7 @@ static int status_conns[2];
 static void
 mgp_init_dev_state(void)
 {
-  memset(&mgp_dev_state, 0, sizeof ( mgp_dev_state ));
+  (void)memset(&mgp_dev_state, 0, sizeof ( mgp_dev_state ));
   // Start reading at the lowest index
   mgp_dev_state.read_index  = -1;
 
@@ -1246,17 +1243,17 @@ make_cbridge_pkt(int len, int opcode)
   u_char *pkt = malloc(len + CBRIDGE_PACKET_HEADER_SIZE); /* space for cbridge header */
   if (pkt == NULL)
     {
-      fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-               __func__, __FILE__, __LINE__);
+      (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                     __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
-#  ifdef SIGUSR2
+#  if defined(SIGUSR2)
       (void)raise(SIGUSR2);
       /*NOTREACHED*/ /* unreachable */
-#  endif /* ifdef SIGUSR2 */
+#  endif /* if defined(SIGUSR2) */
 # endif /* if defined(USE_BACKTRACE) */
       abort();
     }
-  memset(pkt, 0, len + CBRIDGE_PACKET_HEADER_SIZE);
+  (void)memset(pkt, 0, len + CBRIDGE_PACKET_HEADER_SIZE);
 
   pkt[0]  = opcode;
   pkt[2]  = len & 0xff;
@@ -1273,10 +1270,10 @@ make_rfc_pkt(int *len, char *host, char *contact, char *args)
          ( args == NULL ? 0 : 1 + strlen(args) ) + 1;
 
   u_char *pkt = make_cbridge_pkt(*len, CHOP_RFC);
-  sprintf((char *)&pkt[CBRIDGE_PACKET_HEADER_SIZE],
-          "%s %s%s%s", host, contact,
-          args == NULL || *args == '\0' ? "" : " ",
-          args == NULL || *args == '\0' ? "" : args);
+  (void)sprintf((char *)&pkt[CBRIDGE_PACKET_HEADER_SIZE],
+                "%s %s%s%s", host, contact,
+                args == NULL || *args == '\0' ? "" : " ",
+                args == NULL || *args == '\0' ? "" : args);
 
   return pkt;
 }
@@ -1298,8 +1295,8 @@ cbridge_open_socket(void)
     }
 
   server.sun_family  = AF_UNIX;
-  sprintf(server.sun_path, "%s", CBRIDGE_PACKET_SOCKET);
-  slen               = strlen(server.sun_path) + 1 + sizeof ( server.sun_family );
+  (void)sprintf(server.sun_path, "%s", CBRIDGE_PACKET_SOCKET);
+  slen = strlen(server.sun_path) + 1 + sizeof ( server.sun_family );
 
   if (connect(sock, (struct sockaddr *)&server, slen) < 0)
     {
@@ -1714,7 +1711,7 @@ static void
 make_mgp_header(struct mgp_packet_header *p, u_char opcode, u_char *pkt,
                 uint pklen, int i)
 {
-  memset(p, 0, sizeof ( struct mgp_packet_header ));
+  (void)memset(p, 0, sizeof ( struct mgp_packet_header ));
   p->identification = '#';
   if (( opcode > 0 ) && ( opcode <= CHOP_BRD ))
     {
@@ -1894,9 +1891,9 @@ make_connect_packet(u_char *pkt, uint pklen, word36 *buf, uint words,
       return -1;
     }
 
-  sprintf(connect, "CHAOS %s %s%s%s",
-          rhost, mgp_dev_state.conns[conni].contact_name,
-          args == NULL ? "" : " ", args == NULL ? "" : args);
+  (void)sprintf(connect, "CHAOS %s %s%s%s",
+                rhost, mgp_dev_state.conns[conni].contact_name,
+                args == NULL ? "" : " ", args == NULL ? "" : args);
 
   return make_mgp_packet(CHOP_RFC,
     (u_char *)connect, strlen(connect), buf, words, conni);
@@ -2212,4 +2209,4 @@ poll_from_cbridge(word36 *buf, uint words, uint probe_only)
   return rval;
 }
 
-#endif /* ifdef WITH_MGP_DEV */
+#endif /* if defined(WITH_MGP_DEV) */

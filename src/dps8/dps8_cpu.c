@@ -54,7 +54,7 @@
 #include "dps8_mgp.h"
 #include "dps8_utils.h"
 
-#ifdef M_SHARED
+#if defined(M_SHARED)
 # include "shm.h"
 #endif
 
@@ -70,9 +70,9 @@ __thread uint current_running_cpu_idx;
   ( defined(__PPC__) || defined(_ARCH_PPC) )
 # include <mach/clock.h>
 # include <mach/mach.h>
-# ifdef MACOSXPPC
+# if defined(MACOSXPPC)
 #  undef MACOSXPPC
-# endif /* ifdef MACOSXPPC */
+# endif /* if defined(MACOSXPPC) */
 # define MACOSXPPC 1
 #endif /* if defined(__MACH__) && defined(__APPLE__) &&
            ( defined(__PPC__) || defined(_ARCH_PPC) ) */
@@ -83,15 +83,16 @@ __thread uint current_running_cpu_idx;
 
 #define ASSUME0 0
 
-#ifdef TESTING
-# undef FREE
-# define FREE(p) free(p)
-#endif /* ifdef TESTING */
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
 
 // CPU data structures
 
 static UNIT cpu_unit [N_CPU_UNITS_MAX] = {
-#ifdef NO_C_ELLIPSIS
+#if defined(NO_C_ELLIPSIS)
   { UDATA (NULL, UNIT_FIX|UNIT_BINK, MEMSIZE), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA (NULL, UNIT_FIX|UNIT_BINK, MEMSIZE), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA (NULL, UNIT_FIX|UNIT_BINK, MEMSIZE), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
@@ -124,9 +125,9 @@ static uint64 luf_limits[] =
 struct stall_point_s stall_points [N_STALL_POINTS];
 bool stall_point_active = false;
 
-#ifdef PANEL68
+#if defined(PANEL68)
 static void panel_process_event (void);
-#endif
+#endif /* if defined(PANEL68) */
 
 static t_stat simh_cpu_reset_and_clear_unit (UNIT * uptr,
                                              UNUSED int32 value,
@@ -174,14 +175,14 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
                 cpus[cpu_unit_idx].switches.cpu_num);
     sim_msg ("Data switches:                %012llo(8)\n",
                 (unsigned long long)cpus[cpu_unit_idx].switches.data_switches);
-    snprintf (dsbin, 65, PFC_INT64,
-                PBI_64((unsigned long long)cpus[cpu_unit_idx].switches.data_switches));
+    (void)snprintf (dsbin, 65, PFC_INT64,
+                    PBI_64((unsigned long long)cpus[cpu_unit_idx].switches.data_switches));
     sim_msg ("                              %36s(2)\n",
                 dsbin + strlen(dsbin) - 36);
     sim_msg ("Address switches:             %06o(8)\n",
                 cpus[cpu_unit_idx].switches.addr_switches);
-    snprintf (adbin, 33, PFC_INT32,
-                PBI_32(cpus[cpu_unit_idx].switches.addr_switches));
+    (void)snprintf (adbin, 33, PFC_INT32,
+                    PBI_32(cpus[cpu_unit_idx].switches.addr_switches));
     sim_msg ("                              %18s(2)\n",
                 adbin + strlen(adbin) - 18);
     for (int i = 0; i < (cpus[cpu_unit_idx].tweaks.l68_mode ? N_L68_CPU_PORTS : N_DPS8M_CPU_PORTS); i ++)
@@ -198,7 +199,8 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
                     'A' + i, cpus[cpu_unit_idx].switches.store_size [i]);
       }
     sim_msg ("Processor mode:               %s [%o]\n",
-                cpus[cpu_unit_idx].switches.procMode == procModeMultics ? "Multics" : cpus[cpu_unit_idx].switches.procMode == procModeGCOS ? "GCOS" : "???",
+                cpus[cpu_unit_idx].switches.procMode == \
+                    procModeMultics ? "Multics" : cpus[cpu_unit_idx].switches.procMode == procModeGCOS ? "GCOS" : "???",
                 cpus[cpu_unit_idx].switches.procMode);
     sim_msg ("8K Cache:                     %s\n",
                 cpus[cpu_unit_idx].switches.enable_cache ? "Enabled" : "Disabled");
@@ -235,7 +237,7 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
                 cpus[cpu_unit_idx].options.cache_installed);
     sim_msg ("Clock slave installed:        %01o(8)\n",
                 cpus[cpu_unit_idx].options.clock_slave_installed);
-#ifdef AFFINITY
+#if defined(AFFINITY)
     if (cpus[cpu_unit_idx].set_affinity)
       sim_msg ("CPU affinity:                 %d\n", cpus[cpu_unit_idx].affinity);
     else
@@ -243,7 +245,8 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
 #endif
     sim_msg ("ISOLTS mode:                  %01o(8)\n", cpus[cpu_unit_idx].tweaks.isolts_mode);
     sim_msg ("NODIS mode:                   %01o(8)\n", cpus[cpu_unit_idx].tweaks.nodis);
-    sim_msg ("6180 mode:                    %01o(8) [%s]\n", cpus[cpu_unit_idx].tweaks.l68_mode, cpus[cpu_unit_idx].tweaks.l68_mode ? "6180" : "DPS8/M");
+    sim_msg ("6180 mode:                    %01o(8) [%s]\n",
+             cpus[cpu_unit_idx].tweaks.l68_mode, cpus[cpu_unit_idx].tweaks.l68_mode ? "6180" : "DPS8/M");
     return SCPE_OK;
   }
 
@@ -324,7 +327,7 @@ static config_value_list_t cfg_interlace [] =
     { NULL,  0 }
   };
 
-#ifdef AFFINITY
+#if defined(AFFINITY)
 static config_value_list_t cfg_affinity [] =
   {
     { "off", -1 },
@@ -456,7 +459,7 @@ static config_list_t cpu_config_list [] =
     { "enable_emcall",         0,  1,               cfg_on_off             },
 
     // Tuning
-#ifdef AFFINITY
+#if defined(AFFINITY)
     { "affinity",              -1, 32767,           cfg_affinity           },
 #endif
     { "isolts_mode",           0,  1,               cfg_on_off             },
@@ -600,7 +603,7 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
           cpus[cpu_unit_idx].options.clock_slave_installed = v;
         else if (strcmp (p, "enable_emcall") == 0)
           cpus[cpu_unit_idx].tweaks.enable_emcall = v;
-#ifdef AFFINITY
+#if defined(AFFINITY)
         else if (strcmp (p, "affinity") == 0)
           if (v < 0)
             {
@@ -764,7 +767,7 @@ static t_stat cpu_show_stall (UNUSED FILE * st, UNUSED UNIT * uptr,
     for (int i = 0; i < N_STALL_POINTS; i ++)
       if (stall_points[i].segno || stall_points[i].offset)
         {
-#ifdef WIN_STDIO
+#if defined(WIN_STDIO)
           sim_printf ("%2ld %05o:%06o %10lu\n",
 #else
           sim_printf ("%2ld %05o:%06o %'10lu\n",
@@ -920,7 +923,7 @@ uint set_cpu_idx (UNUSED uint cpu_idx)
 #if defined(THREADZ) || defined(LOCKLESS)
     current_running_cpu_idx = cpu_idx;
 #endif
-#ifdef ROUND_ROBIN
+#if defined(ROUND_ROBIN)
     current_running_cpu_idx = cpu_idx;
 #endif
     cpup = & cpus [current_running_cpu_idx];
@@ -935,7 +938,7 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
         for (uint i = 0; i < MEMSIZE; i ++)
           {
             // Clear lock bits and data field; set uninitialized
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
             M[i] = (M[i] & ~(MASK36 | MEM_LOCKED)) | MEM_UNINITIALIZED;
 #else
             M[i] = (M[i] & ~(MASK36)) | MEM_UNINITIALIZED;
@@ -972,7 +975,7 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
       set_cpu_cycle (EXEC_cycle);
       cpu.cu.IWB = 0000000616000; //-V536  // Stuff DIS instruction in instruction buffer
     }
-#ifdef PERF_STRIP
+#if defined(PERF_STRIP)
     set_cpu_cycle (FETCH_cycle);
 #endif
     cpu.wasXfer        = false;
@@ -984,11 +987,11 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
     cpu.faultRegister [0] = 0;
     cpu.faultRegister [1] = 0;
 
-#ifdef RAPRx
+#if defined(RAPRx)
     cpu.apu.lastCycle = UNKNOWN_CYCLE;
 #endif
 
-    memset (& cpu.PPR, 0, sizeof (struct ppr_s));
+    (void)memset (& cpu.PPR, 0, sizeof (struct ppr_s));
 
     setup_scbank_map ();
 
@@ -1033,10 +1036,10 @@ static t_stat simh_cpu_reset_unit (UNIT * uptr,
     return SCPE_OK;
   }
 
-#ifndef PERF_STRIP
+#if !defined(PERF_STRIP)
 static uv_loop_t * ev_poll_loop;
 static uv_timer_t ev_poll_handle;
-#endif /* ifndef PERF_STRIP */
+#endif /* if !defined(PERF_STRIP) */
 
 static MTAB cpu_mod[] =
   {
@@ -1227,17 +1230,17 @@ const char *sim_stop_messages[] =
  *
  */
 
-#ifndef SPEED
+#if !defined(SPEED)
 static bool watch_bits [MEMSIZE];
-#endif
+#endif /* if !defined(SPEED) */
 
 char * str_SDW0 (char * buf, sdw0_s * SDW)
   {
-    sprintf (buf, "ADDR=%06o R1=%o R2=%o R3=%o F=%o FC=%o BOUND=%o R=%o "
-                     "E=%o W=%o P=%o U=%o G=%o C=%o EB=%o",
-             SDW->ADDR, SDW->R1,    SDW->R2, SDW->R3, SDW->DF,
-             SDW->FC,   SDW->BOUND, SDW->R,  SDW->E,  SDW->W,
-             SDW->P,    SDW->U,     SDW->G,  SDW->C,  SDW->EB);
+    (void)sprintf (buf, "ADDR=%06o R1=%o R2=%o R3=%o F=%o FC=%o BOUND=%o R=%o "
+                        "E=%o W=%o P=%o U=%o G=%o C=%o EB=%o",
+                   SDW->ADDR, SDW->R1,    SDW->R2, SDW->R3, SDW->DF,
+                   SDW->FC,   SDW->BOUND, SDW->R,  SDW->E,  SDW->W,
+                   SDW->P,    SDW->U,     SDW->G,  SDW->C,  SDW->EB);
     return buf;
   }
 
@@ -1401,7 +1404,7 @@ int lookup_cpu_mem_map (word24 addr)
 //  Additional numbers will be for multi-cpu systems.
 //  XXX: Other fields to be added.
 
-#ifndef PERF_STRIP
+#if !defined(PERF_STRIP)
 static void get_serial_number (void)
   {
       bool havesn = false;
@@ -1447,13 +1450,13 @@ static void get_serial_number (void)
     if (fp)
       fclose (fp);
   }
-#endif /* ifndef PERF_STRIP */
+#endif /* if !defined(PERF_STRIP) */
 
-#ifdef MACOSXPPC
+#if defined(MACOSXPPC)
 # undef STATS
-#endif /* ifdef MACOSXPPC */
+#endif /* if defined(MACOSXPPC) */
 
-#ifdef STATS
+#if defined(STATS)
 static void do_stats (void)
   {
     static struct timespec stats_time;
@@ -1476,11 +1479,11 @@ static void do_stats (void)
         sim_msg ("Instruction counts\r\n");
         for (uint i = 0; i < 8; i ++)
           {
-# ifdef WIN_STDIO
+# if defined(WIN_STDIO)
             sim_msg (" %9lld\r\n", (long long int) cpus[i].instrCnt);
 # else
             sim_msg (" %'9lld\r\n", (long long int) cpus[i].instrCnt);
-# endif /* ifdef WIN_STDIO */
+# endif /* if defined(WIN_STDIO) */
             cpus[i].instrCnt = 0;
           }
         sim_msg ("\r\n");
@@ -1490,7 +1493,7 @@ static void do_stats (void)
 
 // The 100Hz timer has expired; poll I/O
 
-#ifndef PERF_STRIP
+#if !defined(PERF_STRIP)
 static void ev_poll_cb (UNUSED uv_timer_t * handle)
   {
     // Call the one hertz stuff every 100 loops
@@ -1499,53 +1502,35 @@ static void ev_poll_cb (UNUSED uv_timer_t * handle)
       {
         oneHz = 0;
         rdrProcessEvent ();
-# ifdef STATS
+# if defined(STATS)
         do_stats ();
 # endif
         cpu.instrCntT0 = cpu.instrCntT1;
         cpu.instrCntT1 = cpu.instrCnt;
       }
     fnpProcessEvent ();
-# ifdef WITH_SOCKET_DEV
-#  ifndef __MINGW64__
-#   ifndef __MINGW32__
-#    ifndef CROSS_MINGW32
-#     ifndef CROSS_MINGW64
+# if defined(WITH_SOCKET_DEV)
+#  if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64)
     sk_process_event ();
-#     endif /* ifndef CROSS_MINGW64 */
-#    endif /* ifndef CROSS_MINGW32 */
-#   endif /* ifndef __MINGW32__ */
-#  endif /* ifndef __MINGW64__ */
-# endif /* ifdef WITH_SOCKET_DEV */
+#  endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) */
+# endif /* if defined(WITH_SOCKET_DEV) */
     consoleProcess ();
-# ifdef IO_ASYNC_PAYLOAD_CHAN
+# if defined(IO_ASYNC_PAYLOAD_CHAN)
     iomProcess ();
 # endif
-# ifdef WITH_ABSI_DEV
-#  ifndef __MINGW32__
-#   ifndef __MINGW64__
-#    ifndef CROSS_MINGW32
-#     ifndef CROSS_MINGW64
+# if defined(WITH_ABSI_DEV)
+#  if !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64)
     absi_process_event ();
-#     endif /* ifndef CROSS_MINGW64 */
-#    endif /* ifndef CROSS_MINGW32 */
-#   endif /* ifndef __MINGW64__ */
-#  endif /* ifndef __MINGW32__ */
-# endif /* ifdef WITH_ABSI_DEV */
-# ifdef WITH_MGP_DEV
-#  ifndef __MINGW32__
-#   ifndef __MINGW64__
-#    ifndef CROSS_MINGW32
-#     ifndef CROSS_MINGW64
+#  endif /* if !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) */
+# endif /* if defined(WITH_ABSI_DEV) */
+# if defined(WITH_MGP_DEV)
+#  if !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64)
     mgp_process_event ();
-#     endif /* ifndef CROSS_MINGW64 */
-#    endif /* ifndef CROSS_MINGW32 */
-#   endif /* ifndef __MINGW64__ */
-#  endif /* ifndef __MINGW32__ */
-# endif /* ifdef WITH_MGP_DEV */
+#  endif /*  if !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) */
+# endif /* if defined(WITH_MGP_DEV) */
     PNL (panel_process_event ());
   }
-#endif /* ifndef PERF_STRIP */
+#endif /* if !defined(PERF_STRIP) */
 
 // called once initialization
 
@@ -1556,27 +1541,27 @@ void cpu_init (void)
 // !!!! attribute
 
     M = system_state->M;
-#ifdef M_SHARED
+#if defined(M_SHARED)
     cpus = system_state->cpus;
-#endif
+#endif /* if defined(M_SHARED) */
 
-#ifndef SPEED
-    memset (& watch_bits, 0, sizeof (watch_bits));
-#endif
+#if !defined(SPEED)
+    (void)memset (& watch_bits, 0, sizeof (watch_bits));
+#endif /* if !defined(SPEED) */
 
     set_cpu_idx (0);
 
-    memset (cpus, 0, sizeof (cpu_state_t) * N_CPU_UNITS_MAX);
+    (void)memset (cpus, 0, sizeof (cpu_state_t) * N_CPU_UNITS_MAX);
     cpus [0].switches.FLT_BASE = 2; // Some of the UnitTests assume this
 
-#ifndef PERF_STRIP
+#if !defined(PERF_STRIP)
     get_serial_number ();
 
     ev_poll_loop = uv_default_loop ();
     uv_timer_init (ev_poll_loop, & ev_poll_handle);
     // 10 ms == 100Hz
     uv_timer_start (& ev_poll_handle, ev_poll_cb, sys_opts.sys_poll_interval, sys_opts.sys_poll_interval);
-#endif
+#endif /* if !defined(PERF_STRIP) */
     // TODO: reset *all* other structures to zero
 
     cpu.instrCnt = 0;
@@ -1584,9 +1569,9 @@ void cpu_init (void)
     for (int i = 0; i < N_FAULTS; i ++)
       cpu.faultCnt [i] = 0;
 
-#ifdef MATRIX
+#if defined(MATRIX)
     initializeTheMatrix ();
-#endif
+#endif /* if defined(MATRIX) */
   }
 
 static void cpu_reset (void)
@@ -1604,7 +1589,7 @@ static void cpu_reset (void)
 
 static t_stat sim_cpu_reset (UNUSED DEVICE *dptr)
   {
-    //memset (M, -1, MEMSIZE * sizeof (word36));
+    //(void)memset (M, -1, MEMSIZE * sizeof (word36));
 
     // Fill DPS8M memory with zeros, plus a flag only visible to the emulator
     // marking the memory as uninitialized.
@@ -1647,7 +1632,7 @@ static t_stat cpu_dep (t_value val, t_addr addr, UNUSED UNIT * uptr,
  * register stuff ...
  */
 
-#ifdef M_SHARED
+#if defined(M_SHARED)
 // scp has to have a statically allocated IC to refer to.
 static word18 dummy_IC;
 #endif
@@ -1655,7 +1640,7 @@ static word18 dummy_IC;
 static REG cpu_reg[] =
   {
     // IC must be the first; see sim_PC.
-#ifdef M_SHARED
+#if defined(M_SHARED)
     { ORDATA (IC, dummy_IC,       VASIZE), 0, 0, 0 },
 #else
     { ORDATA (IC, cpus[0].PPR.IC, VASIZE), 0, 0, 0 },
@@ -1711,13 +1696,13 @@ void printPtid(pthread_t pt)
       sim_msg ("%02x", (unsigned)(ptc[i]));
     }
   sim_msg ("\r\n");
-#ifdef __APPLE__
+#if defined(__APPLE__)
   sim_msg ("\r   Mach TID: 0x%x\r\n",
            pthread_mach_thread_np( pt ));
-#endif /* ifdef __APPLE__ */
+#endif /* if defined(__APPLE__) */
 }
 
-#ifdef M_SHARED
+#if defined(M_SHARED)
 cpu_state_t * cpus = NULL;
 #else
 cpu_state_t cpus [N_CPU_UNITS_MAX];
@@ -1727,7 +1712,7 @@ __thread cpu_state_t * restrict cpup;
 #else
 cpu_state_t * restrict cpup;
 #endif
-#ifdef ROUND_ROBIN
+#if defined(ROUND_ROBIN)
 uint current_running_cpu_idx;
 #endif
 
@@ -1796,16 +1781,16 @@ t_stat simh_hooks (void)
                       ((((t_addr) cpu.PPR.PSR) & 037777) << 18),
                       SWMASK ('E')))  /* breakpoint? */
       return STOP_BKPT; /* stop simulation */
-# ifndef SPEED
+# if !defined(SPEED)
     if (sim_deb_break && cpu.cycleCnt >= sim_deb_break)
       return STOP_BKPT; /* stop simulation */
-# endif
-#endif
+# endif /* if !defined(SPEED) */
+#endif /* if !defined(THREADZ) && !defined(LOCKLESS) */
 
     return reason;
   }
 
-#ifdef PANEL68
+#if defined(PANEL68)
 static void panel_process_event (void)
   {
     // INITIALIZE pressed; treat at as a BOOT.
@@ -1860,7 +1845,7 @@ t_stat sim_instr (void)
       {
         inited = true;
 
-#  ifdef IO_THREADZ
+#  if defined(IO_THREADZ)
 // Create channel threads
 
         for (uint iom_unit_idx = 0; iom_unit_idx < N_IOM_UNITS_MAX; iom_unit_idx ++)
@@ -1941,16 +1926,16 @@ t_stat sim_instr (void)
           break;
         }
 
-# ifndef PERF_STRIP
+# if !defined(PERF_STRIP)
 // Loop runs at 1000 Hz
 
-#  ifdef LOCKLESS
+#  if defined(LOCKLESS)
         lock_iom();
 #  endif
         lock_libuv ();
         uv_run (ev_poll_loop, UV_RUN_NOWAIT);
         unlock_libuv ();
-#  ifdef LOCKLESS
+#  if defined(LOCKLESS)
         unlock_iom();
 #  endif
         PNL (panel_process_event ());
@@ -1960,9 +1945,9 @@ t_stat sim_instr (void)
           console_attn_idx (con_unit_idx);
 # endif
 
-# ifdef IO_ASYNC_PAYLOAD_CHAN_THREAD
+# if defined(IO_ASYNC_PAYLOAD_CHAN_THREAD)
         struct timespec next_time;
-#  ifdef MACOSXPPC
+#  if defined(MACOSXPPC)
         clock_serv_t cclock;
         mach_timespec_t mts;
         host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
@@ -1972,7 +1957,7 @@ t_stat sim_instr (void)
         next_time.tv_nsec = mts.tv_nsec;
 #  else
         clock_gettime (CLOCK_REALTIME, & next_time);
-#  endif /* ifdef MACOSXPPC */
+#  endif /* if defined(MACOSXPPC) */
         next_time.tv_nsec += 1000l * 1000l;
         if (next_time.tv_nsec >= 1000l * 1000l *1000l)
           {
@@ -1995,7 +1980,7 @@ t_stat sim_instr (void)
             unlock_libuv ();
             unlock_iom ();
 
-#  ifdef MACOSXPPC
+#  if defined(MACOSXPPC)
             clock_serv_t cclock;
             mach_timespec_t mts;
             host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
@@ -2005,14 +1990,14 @@ t_stat sim_instr (void)
             new_time.tv_nsec = mts.tv_nsec;
 #  else
             clock_gettime (CLOCK_REALTIME, & new_time);
-#  endif /* ifdef MACOSXPPC */
+#  endif /* if defined(MACOSXPPC) */
           }
         while ((next_time.tv_sec == new_time.tv_sec) ? (next_time.tv_nsec > new_time.tv_nsec) : \
                                                        (next_time.tv_sec  > new_time.tv_sec));
 # else
-//#  ifndef MACOSXPPC /* XXX(jhj) */
+//#  if !defined(MACOSXPPC) /* XXX(jhj) */
         sim_usleep (1000); // 1000 us == 1 ms == 1/1000 sec.
-//#  endif /* ifndef MACOSXPPC */
+//#  endif /* if !defined(MACOSXPPC) */
 # endif
       }
     while (reason == 0); //-V654
@@ -2021,7 +2006,7 @@ t_stat sim_instr (void)
       cpuStats (cpuNo);
     }
 
-# ifdef TESTING
+# if defined(TESTING)
     HDBGPrint ();
 # endif
     return reason;
@@ -2088,9 +2073,9 @@ void * cpu_thread_main (void * arg)
     unsigned char umyid = (unsigned char)toupper('a' + (int)myid);
 
     sim_msg ("\rCPU %c thread created.\r\n", (unsigned int)umyid);
-# ifdef TESTING
+# if defined(TESTING)
     printPtid(pthread_self());
-# endif /* ifdef TESTING */
+# endif /* if defined(TESTING) */
 
     sim_os_set_thread_priority (PRIORITY_ABOVE_NORMAL);
     setSignals ();
@@ -2174,9 +2159,9 @@ t_stat threadz_sim_instr (void)
   {
   //cpu.have_tst_lock = false;
 
-#ifndef SCHED_NEVER_YIELD
+#if !defined(SCHED_NEVER_YIELD)
     unsigned long long lockYieldAll     = 0;
-#endif
+#endif /* if !defined(SCHED_NEVER_YIELD) */
     unsigned long long lockWaitMaxAll   = 0;
     unsigned long long lockWaitAll      = 0;
     unsigned long long lockImmediateAll = 0;
@@ -2188,7 +2173,7 @@ t_stat threadz_sim_instr (void)
 
 #if !defined(THREADZ) && !defined(LOCKLESS)
     set_cpu_idx (0);
-# ifdef M_SHARED
+# if defined(M_SHARED)
 // scp needs to have the IC statically allocated, so a placeholder was
 // created.
 
@@ -2196,7 +2181,7 @@ t_stat threadz_sim_instr (void)
     cpus [0].PPR.IC = dummy_IC;
 # endif
 
-# ifdef ROUND_ROBIN
+# if defined(ROUND_ROBIN)
     cpu.isRunning = true;
     set_cpu_idx (cpu_dev.numunits - 1);
 
@@ -2286,13 +2271,13 @@ setCPU:;
         if (fast_queue_subsample ++ > sys_opts.sys_poll_check_rate) // ~ 1KHz
           {
             fast_queue_subsample = 0;
-# ifdef CONSOLE_FIX
+# if defined(CONSOLE_FIX)
 #  if defined(THREADZ) || defined(LOCKLESS)
             lock_libuv ();
 #  endif
 # endif
             uv_run (ev_poll_loop, UV_RUN_NOWAIT);
-# ifdef CONSOLE_FIX
+# if defined(CONSOLE_FIX)
 #  if defined(THREADZ) || defined(LOCKLESS)
             unlock_libuv ();
 #  endif
@@ -2303,18 +2288,18 @@ setCPU:;
 
         cpu.cycleCnt ++;
 
-#ifdef THREADZ
+#if defined(THREADZ)
         // If we faulted somewhere with the memory lock set, clear it.
         unlock_mem_force ();
 
         // wait on run/switch
         cpuRunningWait ();
 #endif // THREADZ
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
         core_unlock_all ();
 #endif
 
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
         core_unlock_all();
 #endif // LOCKLESS
 
@@ -2392,7 +2377,7 @@ setCPU:;
                 // present register.
 
                 uint intr_pair_addr = get_highest_intr ();
-#ifdef TESTING
+#if defined(TESTING)
                 HDBGIntr (intr_pair_addr, "");
 #endif
                 cpu.cu.FI_ADDR = (word5) (intr_pair_addr / 2);
@@ -2410,10 +2395,10 @@ setCPU:;
 
                 sim_debug (DBG_INTR, & cpu_dev, "intr_pair_addr %u flag %d\n",
                            intr_pair_addr, cpu.interrupt_flag);
-#ifndef SPEED
+#if !defined(SPEED)
                 if_sim_debug (DBG_INTR, & cpu_dev)
                     traceInstruction (DBG_INTR);
-#endif
+#endif /* if !defined(SPEED) */
                 // Check that an interrupt is actually pending
                 if (cpu.interrupt_flag)
                   {
@@ -2432,7 +2417,7 @@ setCPU:;
                         // get interrupt pair
                         core_read2 (intr_pair_addr,
                                     & cpu.cu.IWB, & cpu.cu.IRODD, __func__);
-#ifdef TESTING
+#if defined(TESTING)
                         HDBGMRead (intr_pair_addr, cpu.cu.IWB, "intr even");
                         HDBGMRead (intr_pair_addr + 1, cpu.cu.IRODD, "intr odd");
 #endif
@@ -2465,8 +2450,8 @@ setCPU:;
               break;
 
             case FETCH_cycle:
-#ifdef PANEL68
-                memset (cpu.cpt, 0, sizeof (cpu.cpt));
+#if defined(PANEL68)
+                (void)memset (cpu.cpt, 0, sizeof (cpu.cpt));
 #endif
                 CPT (cpt1U, 13); // fetch cycle
 
@@ -2715,15 +2700,15 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
             {
               CPT (cpt1U, 22); // exec cycle
 
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
                 if (stall_point_active)
                   {
                     for (int i = 0; i < N_STALL_POINTS; i ++)
                       if (stall_points[i].segno  && stall_points[i].segno  == cpu.PPR.PSR &&
                           stall_points[i].offset && stall_points[i].offset == cpu.PPR.IC)
                         {
-# ifdef CTRACE
-                          fprintf (stderr, "%10lu %s stall %d\n", seqno (), cpunstr[current_running_cpu_idx], i);
+# if defined(CTRACE)
+                          (void)fprintf (stderr, "%10lu %s stall %d\n", seqno (), cpunstr[current_running_cpu_idx], i);
 # endif
                           //sim_printf ("stall %2d %05o:%06o\n", i, stall_points[i].segno, stall_points[i].offset);
                           sim_usleep(stall_points[i].time);
@@ -2739,7 +2724,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                 cpu.wasInhibited = true;
 
               t_stat ret = executeInstruction ();
-#ifdef TR_WORK_EXEC
+#if defined(TR_WORK_EXEC)
               cpu.rTRticks ++;
 #endif
               CPT (cpt1U, 23); // execution complete
@@ -2865,7 +2850,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 // The usleep logic is not smart enough w.r.t. ROUND_ROBIN/ISOLTS.
 // The sleep should only happen if all running processors are in
 // DIS mode.
-#ifndef ROUND_ROBIN
+#if !defined(ROUND_ROBIN)
                   // 1/100 is .01 secs.
                   // *1000 is 10  milliseconds
                   // *1000 is 10000 microseconds
@@ -2880,7 +2865,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   //   rTR * 250 / 128
                   //   rTR * 125 / 64
 
-#  ifdef NO_TIMEWAIT
+#  if defined(NO_TIMEWAIT)
                   //sim_usleep (sys_opts.sys_poll_interval * 1000 /*10000*/ );
                   struct timespec req, rem;
                   uint ms        = sys_opts.sys_poll_interval;
@@ -2944,13 +2929,13 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   //sim_sleep (10000);
                   sim_usleep (sys_opts.sys_poll_interval * 1000/*10000*/);
                   // Trigger I/O polling
-#  ifdef CONSOLE_FIX
+#  if defined(CONSOLE_FIX)
 #   if defined(THREADZ) || defined(LOCKLESS)
                   lock_libuv ();
 #   endif
 #  endif
                   uv_run (ev_poll_loop, UV_RUN_NOWAIT);
-#  ifdef CONSOLE_FIX
+#  if defined(CONSOLE_FIX)
 #   if defined(THREADZ) || defined(LOCKLESS)
                   unlock_libuv ();
 #   endif
@@ -3210,7 +3195,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                 }
 
               core_read2 (addr, & cpu.cu.IWB, & cpu.cu.IRODD, __func__);
-#ifdef TESTING
+#if defined(TESTING)
               HDBGMRead (addr, cpu.cu.IWB, "fault even");
               HDBGMRead (addr + 1, cpu.cu.IRODD, "fault odd");
 #endif
@@ -3227,7 +3212,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 
           }  // switch (cpu.cycle)
       }
-#ifdef ROUND_ROBIN
+#if defined(ROUND_ROBIN)
     while (0);
     if (reason == 0)
       goto setCPU;
@@ -3236,15 +3221,15 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 #endif
 
 leave:
-#ifdef TESTING
+#if defined(TESTING)
     HDBGPrint ();
 #endif
 
     for (unsigned short n = 0; n < N_CPU_UNITS_MAX; n++)
       {
-#ifndef SCHED_NEVER_YIELD
+#if !defined(SCHED_NEVER_YIELD)
         lockYieldAll     = lockYieldAll     + (unsigned long long)cpus[n].lockYield;
-#endif
+#endif /* if !defined(SCHED_NEVER_YIELD) */
         lockWaitMaxAll   = lockWaitMaxAll   + (unsigned long long)cpus[n].lockWaitMax;
         lockWaitAll      = lockWaitAll      + (unsigned long long)cpus[n].lockWait;
         lockImmediateAll = lockImmediateAll + (unsigned long long)cpus[n].lockImmediate;
@@ -3256,17 +3241,17 @@ leave:
     (void)fflush(stderr);
     (void)fflush(stdout);
 #if 1
-# ifndef PERF_STRIP
+# if !defined(PERF_STRIP)
     if (cycleCntAll > (unsigned long long)cpu.cycleCnt)
       {
-# endif
+# endif /*if !defined(PERF_STRIP) */
         sim_msg ("\r\n");
         sim_msg ("\r+---------------------------------+\r\n");
         sim_msg ("\r|     Aggregate CPU Statistics    |\r\n");
         sim_msg ("\r+---------------------------------+\r\n");
         (void)fflush(stderr);
         (void)fflush(stdout);
-# ifdef WIN_STDIO
+# if defined(WIN_STDIO)
         sim_msg ("\r|  cycles        %15llu  |\r\n", cycleCntAll);
         sim_msg ("\r|  instructions  %15llu  |\r\n", instrCntAll);
         (void)fflush(stderr);
@@ -3281,11 +3266,11 @@ leave:
         sim_msg ("\r|  lockWaitMax   %15llu  |\r\n", lockWaitMaxAll);
         (void)fflush(stderr);
         (void)fflush(stdout);
-#  ifndef SCHED_NEVER_YIELD
+#  if !defined(SCHED_NEVER_YIELD)
         sim_msg ("\r|  lockYield     %15llu  |\r\n", lockYieldAll);
 #  else
         sim_msg ("\r|  lockYield                ----  |\r\n");
-#  endif /* ifndef SCHED_NEVER_YIELD */
+#  endif /* if !defined(SCHED_NEVER_YIELD) */
         sim_msg ("\r+---------------------------------+\r\n");
         (void)fflush(stderr);
         (void)fflush(stdout);
@@ -3304,20 +3289,20 @@ leave:
         sim_msg ("\r|  lockWaitMax   %'15llu  |\r\n", lockWaitMaxAll);
         (void)fflush(stderr);
         (void)fflush(stdout);
-#  ifndef SCHED_NEVER_YIELD
+#  if !defined(SCHED_NEVER_YIELD)
         sim_msg ("\r|  lockYield     %'15llu  |\r\n", lockYieldAll);
 #  else
         sim_msg ("\r|  lockYield                ----  |\r\n");
-#  endif /* ifndef SCHED_NEVER_YIELD */
+#  endif /* if !defined(SCHED_NEVER_YIELD) */
         sim_msg ("\r+---------------------------------+\r\n");
         (void)fflush(stderr);
         (void)fflush(stdout);
-# endif /* ifdef WIN_STDIO */
-# ifndef PERF_STRIP
+# endif /* if defined(WIN_STDIO) */
+# if !defined(PERF_STRIP)
       }
 # else
     sim_msg("\r\n");
-# endif
+# endif /* if !defined(PERF_STRIP) */
 #endif
 
 #if 0
@@ -3333,7 +3318,7 @@ leave:
     stopCPUThread();
 #endif
 
-#ifdef M_SHARED
+#if defined(M_SHARED)
 // scp needs to have the IC statically allocated, so a placeholder
 // was created. Update the placeholder so the IC can be seen via scp
 // and restarting sim_instr won't lose the place.
@@ -3380,7 +3365,7 @@ int operand_size (void)
 void readOperandRead (word18 addr) {
   CPT (cpt1L, 6); // read_operand
 
-#ifdef THREADZ
+#if defined(THREADZ)
   DCDstruct * i = & cpu.currentInstruction;
   if (RMWOP (i)) // ldac, ldqc, stac, stacq, snzc
     lock_rmw ();
@@ -3480,7 +3465,7 @@ t_stat write_operand (word18 addr, UNUSED processor_cycle_type cyctyp)
             break;
       }
 
-#ifdef THREADZ
+#if defined(THREADZ)
     if (cyctyp == OPERAND_STORE)
       {
         DCDstruct * i = & cpu.currentInstruction;
@@ -3492,7 +3477,7 @@ t_stat write_operand (word18 addr, UNUSED processor_cycle_type cyctyp)
 
   }
 
-#ifndef SPEED
+#if !defined(SPEED)
 t_stat set_mem_watch (int32 arg, const char * buf)
   {
     if (strlen (buf) == 0)
@@ -3503,7 +3488,7 @@ t_stat set_mem_watch (int32 arg, const char * buf)
             return SCPE_ARG;
           }
         sim_msg ("Clearing all watch points\n");
-        memset (& watch_bits, 0, sizeof (watch_bits));
+        (void)memset (& watch_bits, 0, sizeof (watch_bits));
         return SCPE_OK;
       }
     char * end;
@@ -3516,13 +3501,13 @@ t_stat set_mem_watch (int32 arg, const char * buf)
     watch_bits [n] = arg != 0;
     return SCPE_OK;
   }
-#endif
+#endif /* if !defined(SPEED) */
 
 /*!
  * "Raw" core interface ....
  */
 
-#ifndef SPEED
+#if !defined(SPEED)
 static void nem_check (word24 addr, const char * context)
   {
     if (lookup_cpu_mem_map (addr) < 0)
@@ -3530,7 +3515,7 @@ static void nem_check (word24 addr, const char * context)
         doFault (FAULT_STR, fst_str_nea,  context);
       }
   }
-#endif
+#endif /* if !defined(SPEED) */
 
 // static uint get_scu_unit_idx (word24 addr, word24 * offset)
 //   {
@@ -3548,7 +3533,7 @@ int core_read (word24 addr, word36 *data, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
     SC_MAP_ADDR (addr, addr);
-# ifndef LOCKLESS
+# if !defined(LOCKLESS)
     if (M[addr] & MEM_UNINITIALIZED)
       {
         sim_debug (DBG_WARN, & cpu_dev,
@@ -3556,8 +3541,8 @@ int core_read (word24 addr, word36 *data, const char * ctx)
                    "IC is 0%06o:0%06o (%s(\n",
                    addr, cpu.PPR.PSR, cpu.PPR.IC, ctx);
       }
-# endif
-# ifndef SPEED
+# endif /* if !defined(LOCKLESS) */
+# if !defined(SPEED)
     if (watch_bits [addr])
       {
         sim_msg ("WATCH [%llu] %05o:%06o read   %08o %012llo (%s)\n",
@@ -3565,18 +3550,18 @@ int core_read (word24 addr, word36 *data, const char * ctx)
                     (long long unsigned int)M [addr], ctx);
         traceInstruction (0);
       }
-# endif
-# ifdef LOCKLESS
-#  ifndef SUNLINT
+# endif /* if !defined(SPEED) */
+# if defined(LOCKLESS)
+#  if !defined(SUNLINT)
     word36 v;
     LOAD_ACQ_CORE_WORD(v, addr);
     *data = v & DMASK;
-#  endif /* ifndef SUNLINT */
+#  endif /* if !defined(SUNLINT) */
 # else
     *data = M[addr] & DMASK;
-# endif
+# endif /* if defined(LOCKLESS) */
 
-# ifdef TR_WORK_MEM
+# if defined(TR_WORK_MEM)
     cpu.rTRticks ++;
 # endif
     sim_debug (DBG_CORE, & cpu_dev,
@@ -3587,7 +3572,7 @@ int core_read (word24 addr, word36 *data, const char * ctx)
   }
 #endif
 
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
 int core_read_lock (word24 addr, word36 *data, UNUSED const char * ctx)
 {
     SC_MAP_ADDR (addr, addr);
@@ -3599,11 +3584,11 @@ int core_read_lock (word24 addr, word36 *data, UNUSED const char * ctx)
       core_unlock_all ();
     }
     cpu.locked_addr = addr;
-# ifndef SUNLINT
+# if !defined(SUNLINT)
     word36 v;
     LOAD_ACQ_CORE_WORD(v, addr);
     * data = v & DMASK;
-# endif /* ifndef SUNLINT */
+# endif /* if !defined(SUNLINT) */
     return 0;
 }
 #endif
@@ -3626,15 +3611,15 @@ int core_write (word24 addr, word36 data, const char * ctx)
                 cpu.MR.separ = 0;
           }
       }
-# ifdef LOCKLESS
+# if defined(LOCKLESS)
     LOCK_CORE_WORD(addr);
-#  ifndef SUNLINT
+#  if !defined(SUNLINT)
     STORE_REL_CORE_WORD(addr, data);
-#  endif /* ifndef SUNLINT */
+#  endif /* if !defined(SUNLINT) */
 # else
     M[addr] = data & DMASK;
-# endif
-# ifndef SPEED
+# endif /* if defined(LOCKLESS) */
+# if !defined(SPEED)
     if (watch_bits [addr])
       {
         sim_msg ("WATCH [%llu] %05o:%06o write  %08llo %012llo (%s)\n",
@@ -3642,19 +3627,19 @@ int core_write (word24 addr, word36 data, const char * ctx)
                  (long long unsigned int)addr, (unsigned long long int)M [addr], ctx);
         traceInstruction (0);
       }
-# endif
-# ifdef TR_WORK_MEM
+# endif /* if !defined(SPEED) */
+# if defined(TR_WORK_MEM)
     cpu.rTRticks ++;
-# endif
+# endif /* if defined(TR_WORK_MEM) */
     sim_debug (DBG_CORE, & cpu_dev,
                "core_write %08o %012"PRIo64" (%s)\n",
                 addr, data, ctx);
     PNL (trackport (addr, data));
     return 0;
   }
-#endif
+#endif /* if !defined(SPEED) || !defined(INLINE_CORE) */
 
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
 int core_write_unlock (word24 addr, word36 data, UNUSED const char * ctx)
 {
     SC_MAP_ADDR (addr, addr);
@@ -3666,9 +3651,9 @@ int core_write_unlock (word24 addr, word36 data, UNUSED const char * ctx)
        core_unlock_all ();
       }
 
-# ifndef SUNLINT
+# if !defined(SUNLINT)
     STORE_REL_CORE_WORD(addr, data);
-# endif /* ifndef SUNLINT */
+# endif /* if !defined(SUNLINT) */
     cpu.locked_addr = 0;
     return 0;
 }
@@ -3679,9 +3664,9 @@ int core_unlock_all (void)
       sim_warn ("core_unlock_all: locked %08o %c %05o:%06o\n",
                 cpu.locked_addr, current_running_cpu_idx + 'A',
                 cpu.PPR.PSR,     cpu.PPR.IC);
-# ifndef SUNLINT
+# if !defined(SUNLINT)
       STORE_REL_CORE_WORD(cpu.locked_addr, M[cpu.locked_addr]);
-# endif /* ifndef SUNLINT */
+# endif /* if !defined(SUNLINT) */
       cpu.locked_addr = 0;
   }
   return 0;
@@ -3707,7 +3692,7 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
       }
     word24 mapAddr = 0;
     SC_MAP_ADDR (addr, mapAddr);
-# ifdef LOCKLESS
+# if defined(LOCKLESS)
     word36 v;
     core_read_lock(addr,  &v, ctx);
     v = (v & ~cpu.zone) | (data & cpu.zone);
@@ -3716,7 +3701,7 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
     M[mapAddr] = (M[mapAddr] & ~cpu.zone) | (data & cpu.zone);
 # endif
     cpu.useZone = false; // Safety
-# ifndef SPEED
+# if !defined(SPEED)
     if (watch_bits [mapAddr])
       {
         sim_msg ("WATCH [%llu] %05o:%06o writez %08llo %012llo (%s)\n",
@@ -3725,7 +3710,7 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
         traceInstruction (0);
       }
 # endif
-# ifdef TR_WORK_MEM
+# if defined(TR_WORK_MEM)
     cpu.rTRticks ++;
 # endif
     sim_debug (DBG_CORE, & cpu_dev,
@@ -3752,7 +3737,7 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
         addr &= (word24)~1; /* make it an even address */
       }
     SC_MAP_ADDR (addr, addr);
-# ifndef LOCKLESS
+# if !defined(LOCKLESS)
     if (M[addr] & MEM_UNINITIALIZED)
       {
         sim_debug (DBG_WARN, & cpu_dev,
@@ -3761,7 +3746,7 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
                    addr, cpu.PPR.PSR, cpu.PPR.IC, ctx);
       }
 # endif
-# ifndef SPEED
+# if !defined(SPEED)
     if (watch_bits [addr])
       {
         sim_msg ("WATCH [%llu] %05o:%06o read2  %08llo %012llo (%s)\n",
@@ -3770,8 +3755,8 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
         traceInstruction (0);
       }
 # endif
-# ifdef LOCKLESS
-#  ifndef SUNLINT
+# if defined(LOCKLESS)
+#  if !defined(SUNLINT)
     LOAD_ACQ_CORE_WORD(v, addr);
     if (v & MEM_LOCKED)
       sim_warn ("core_read2: even locked %08o locked_addr %08o %c %05o:%06o\n",
@@ -3779,7 +3764,7 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
                 cpu.PPR.PSR, cpu.PPR.IC);
     *even = v & DMASK;
     addr++;
-#  endif /* ifndef SUNLINT */
+#  endif /* if !defined(SUNLINT) */
 # else
     *even = M[addr++] & DMASK;
 # endif
@@ -3789,7 +3774,7 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
 
     // if the even address is OK, the odd will be
     //nem_check (addr,  "core_read2 nem");
-# ifndef LOCKLESS
+# if !defined(LOCKLESS)
     if (M[addr] & MEM_UNINITIALIZED)
       {
         sim_debug (DBG_WARN, & cpu_dev,
@@ -3798,7 +3783,7 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
                     addr, cpu.PPR.PSR, cpu.PPR.IC, ctx);
       }
 # endif
-# ifndef SPEED
+# if !defined(SPEED)
     if (watch_bits [addr])
       {
         sim_msg ("WATCH [%llu] %05o:%06o read2  %08llo %012llo (%s)\n",
@@ -3807,22 +3792,22 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
         traceInstruction (0);
       }
 # endif
-# ifdef LOCKLESS
-#  ifndef SUNLINT
+# if defined(LOCKLESS)
+#  if !defined(SUNLINT)
     LOAD_ACQ_CORE_WORD(v, addr);
     if (v & MEM_LOCKED)
       sim_warn ("core_read2: odd locked %08o locked_addr %08o %c %05o:%06o\n",
                 addr,        cpu.locked_addr, current_running_cpu_idx + 'A',
                 cpu.PPR.PSR, cpu.PPR.IC);
     *odd = v & DMASK;
-#  endif /* ifndef SUNLINT */
+#  endif /* if !defined(SUNLINT) */
 # else
     *odd = M[addr] & DMASK;
 # endif
     sim_debug (DBG_CORE, & cpu_dev,
                "core_read2 %08o %012"PRIo64" (%s)\n",
                 addr, * odd, ctx);
-# ifdef TR_WORK_MEM
+# if defined(TR_WORK_MEM)
     cpu.rTRticks ++;
 # endif
     PNL (trackport (addr - 1, * even));
@@ -3851,7 +3836,7 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx) {
     }
   }
 
-# ifndef SPEED
+# if !defined(SPEED)
   if (watch_bits [addr]) {
     sim_msg ("WATCH [%llu] %05o:%06o write2 %08llo %012llo (%s)\n",
              (unsigned long long int)cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC,
@@ -3859,11 +3844,11 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx) {
     traceInstruction (0);
   }
 # endif
-# ifdef LOCKLESS
+# if defined(LOCKLESS)
   LOCK_CORE_WORD(addr);
-#  ifndef SUNLINT
+#  if !defined(SUNLINT)
   STORE_REL_CORE_WORD(addr, even);
-#  endif /* ifndef SUNLINT */
+#  endif /* if !defined(SUNLINT) */
   addr++;
 # else
   M[addr++] = even & DMASK;
@@ -3874,7 +3859,7 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx) {
   // If the even address is OK, the odd will be
   //mem_check (addr,  "core_write2 nem");
 
-# ifndef SPEED
+# if !defined(SPEED)
   if (watch_bits [addr]) {
     sim_msg ("WATCH [%llu] %05o:%06o write2 %08llo %012llo (%s)\n",
              (long long unsigned int)cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC,
@@ -3882,15 +3867,15 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx) {
     traceInstruction (0);
   }
 # endif
-# ifdef LOCKLESS
+# if defined(LOCKLESS)
   LOCK_CORE_WORD(addr);
-#  ifndef SUNLINT
+#  if !defined(SUNLINT)
   STORE_REL_CORE_WORD(addr, odd);
-#  endif /* ifndef SUNLINT */
+#  endif /* if !defined(SUNLINT) */
 # else
   M[addr] = odd & DMASK;
 # endif
-# ifdef TR_WORK_MEM
+# if defined(TR_WORK_MEM)
   cpu.rTRticks ++;
 # endif
   PNL (trackport (addr - 1, even));
@@ -3911,7 +3896,7 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx) {
 void decode_instruction (word36 inst, DCDstruct * p)
   {
     CPT (cpt1L, 17); // instruction decoder
-    memset (p, 0, sizeof (DCDstruct));
+    (void)memset (p, 0, sizeof (DCDstruct));
 
     p->opcode   = GET_OP (inst);   // get opcode
     p->opcodeX  = GET_OPX(inst);   // opcode extension
@@ -3932,8 +3917,8 @@ void decode_instruction (word36 inst, DCDstruct * p)
         p->tag = 0;
         if (p->info->ndes > 1)
           {
-            memset (& cpu.currentEISinstruction, 0,
-                    sizeof (cpu.currentEISinstruction));
+            (void)memset (& cpu.currentEISinstruction, 0,
+                          sizeof (cpu.currentEISinstruction));
           }
       }
   }
@@ -4145,7 +4130,7 @@ void add_dps8m_CU_history (void)
     add_history (CU_HIST_REG, w0, w1);
   }
 
-#ifndef QUIET_UNUSED
+#if !defined(QUIET_UNUSED)
 void add_dps8m_DU_OU_history (word36 flags, word18 ICT, word9 RS_REG, word9 flags2)
   {
     word36 w0  = flags, w1 = 0;
@@ -4520,7 +4505,7 @@ void dps8_sim_debug (uint32 dbits, DEVICE * dptr, unsigned long long cnt, const 
         va_list arglist;
         int32 i, j, len;
         struct timespec t;
-# ifdef MACOSXPPC
+# if defined(MACOSXPPC)
         clock_serv_t cclock;
         mach_timespec_t mts;
         host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
@@ -4530,7 +4515,7 @@ void dps8_sim_debug (uint32 dbits, DEVICE * dptr, unsigned long long cnt, const 
         t.tv_nsec = mts.tv_nsec;
 # else
         clock_gettime(CLOCK_REALTIME, &t);
-# endif /* ifdef MACOSXPPC */
+# endif /* if defined(MACOSXPPC) */
 
         buf [bufsize-1] = '\0';
 
@@ -4572,9 +4557,9 @@ void dps8_sim_debug (uint32 dbits, DEVICE * dptr, unsigned long long cnt, const 
                   {
                     if ((i != j) || (i == 0))
                       {
-                          fprintf (sim_deb, "%lld.%06ld: DBG(%lld) %o: %s %s %.*s\r\n",
-                                  (long long)t.tv_sec, t.tv_nsec/1000, cnt,
-                                  current_running_cpu_idx, dptr->name, debug_type, i-j, &buf[j]);
+                          (void)fprintf (sim_deb, "%lld.%06ld: DBG(%lld) %o: %s %s %.*s\r\n",
+                                         (long long)t.tv_sec, t.tv_nsec/1000, cnt,
+                                         current_running_cpu_idx, dptr->name, debug_type, i-j, &buf[j]);
                       }
                   }
                 j = i + 1;
@@ -4672,59 +4657,59 @@ void setupPROM (uint cpuNo, unsigned char * PROM) {
   // bits 6,7 reserved for future use
 
   char serial[12];
-  sprintf (serial, "%-11u", cpus[cpuNo].switches.serno);
+  (void)sprintf (serial, "%-11u", cpus[cpuNo].switches.serno);
 
-#ifdef VER_H_PROM_SHIP
+#if defined(VER_H_PROM_SHIP)
   char * ship = VER_H_PROM_SHIP;
 #else
   char * ship = "200101";
 #endif /* VER_H_PROM_SHIP */
 
-#ifndef VER_H_PROM_MAJOR_VER
+#if !defined(VER_H_PROM_MAJOR_VER)
 # define VER_H_PROM_MAJOR_VER "999"
 #endif /* VER_H_PROM_MAJOR_VER */
 
-#ifndef VER_H_PROM_MINOR_VER
+#if !defined(VER_H_PROM_MINOR_VER)
 # define VER_H_PROM_MINOR_VER "999"
 #endif /* VER_H_PROM_MINOR_VER */
 
-#ifndef VER_H_PROM_PATCH_VER
+#if !defined(VER_H_PROM_PATCH_VER)
 # define VER_H_PROM_PATCH_VER "999"
 #endif /* VER_H_PROM_PATCH_VER */
 
-#ifndef VER_H_PROM_OTHER_VER
+#if !defined(VER_H_PROM_OTHER_VER)
 # define VER_H_PROM_OTHER_VER "999"
 #endif /* VER_H_PROM_OTHER_VER */
 
-#ifndef VER_H_GIT_RELT
+#if !defined(VER_H_GIT_RELT)
 # define VER_H_GIT_RELT "X"
 #endif /* VER_H_GIT_RELT */
 
-#ifndef VER_H_PROM_VER_TEXT
+#if !defined(VER_H_PROM_VER_TEXT)
 # define VER_H_PROM_VER_TEXT "Unknown                      "
 #endif /* VER_H_PROM_VER_TEXT */
 
-#ifdef BUILD_PROM_OSA_TEXT
+#if defined(BUILD_PROM_OSA_TEXT)
 # define BURN_PROM_OSA_TEXT BUILD_PROM_OSA_TEXT
 #else
-# ifndef VER_H_PROM_OSA_TEXT
+# if !defined(VER_H_PROM_OSA_TEXT)
 #  define BURN_PROM_OSA_TEXT "Unknown Build Op Sys"
 # else
 #  define BURN_PROM_OSA_TEXT VER_H_PROM_OSA_TEXT
 # endif /* VER_H_PROM_OSA_TEXT */
 #endif /* BUILD_PROM_OSA_TEXT */
 
-#ifdef BUILD_PROM_OSV_TEXT
+#if defined(BUILD_PROM_OSV_TEXT)
 # define BURN_PROM_OSV_TEXT BUILD_PROM_OSV_TEXT
 #else
-# ifndef VER_H_PROM_OSV_TEXT
+# if !defined(VER_H_PROM_OSV_TEXT)
 #  define BURN_PROM_OSV_TEXT "Unknown Build Arch. "
 # else
 #  define BURN_PROM_OSV_TEXT VER_H_PROM_OSV_TEXT
 # endif /* VER_H_PROM_OSV_TEXT */
 #endif /* BUILD_PROM_OSV_TEXT */
 
-#ifdef BUILD_PROM_TSA_TEXT
+#if defined(BUILD_PROM_TSA_TEXT)
 # define BURN_PROM_TSA_TEXT BUILD_PROM_TSA_TEXT
 #else
 # if defined(_M_X64) || defined(_M_AMD64) || defined(__amd64__) || defined(__x86_64__) || defined(__AMD64)
@@ -4737,9 +4722,20 @@ void setupPROM (uint cpuNo, unsigned char * PROM) {
 #  define VER_H_PROM_TSA_TEXT "AArch32/ARM32/32-bit"
 # elif defined(__ia64__) || defined(_M_IA64) || defined(__itanium__)
 #  define VER_H_PROM_TSA_TEXT "Intel Itanium (IA64)"
-# elif defined(__ppc64__) || defined(__PPC64__) || defined(__ppc64le__) || defined(__PPC64LE__) || defined(__powerpc64__) || defined(__POWERPC64__) || defined(_M_PPC64) || defined(__PPC64) || defined(_ARCH_PPC64)
+# elif defined(__ppc64__) || defined(__PPC64__) || defined(__ppc64le__) || defined(__PPC64LE__) || defined(__powerpc64__) || \
+  defined(__POWERPC64__) || \
+  defined(_M_PPC64) || \
+  defined(__PPC64) || \
+  defined(_ARCH_PPC64)
 #  define VER_H_PROM_TSA_TEXT "Power ISA (64-bit)  "
-# elif defined(__ppc__) || defined(__PPC__) || defined(__powerpc__) || defined(__POWERPC__) || defined(_M_PPC) || defined(__PPC) || defined(__ppc32__) || defined(__PPC32__) || defined(__powerpc32__) || defined(__POWERPC32__) || defined(_M_PPC32) || defined(__PPC32)
+# elif defined(__ppc__) || defined(__PPC__) || defined(__powerpc__) || defined(__POWERPC__) || defined(_M_PPC) || \
+  defined(__PPC) || \
+  defined(__ppc32__) || \
+  defined(__PPC32__) || \
+  defined(__powerpc32__) || \
+  defined(__POWERPC32__) || \
+  defined(_M_PPC32) || \
+  defined(__PPC32)
 #  define VER_H_PROM_TSA_TEXT "PowerPC ISA (32-bit)"
 # elif defined(__s390x__)
 #  define VER_H_PROM_TSA_TEXT "IBM z/Architecture  "
@@ -4761,7 +4757,7 @@ void setupPROM (uint cpuNo, unsigned char * PROM) {
 #  define VER_H_PROM_TSA_TEXT "MIPS64              "
 # elif defined(mips) || defined(__mips__) || defined(MIPS) || defined(_MIPS_) || defined(__mips)
 #  define VER_H_PROM_TSA_TEXT "MIPS                "
-# elif defined(__OpenRISC__) || defined(__OPENRISC__) || defined(__openrisc__) || defined(__OR1K__) || defined(__JOR1K__) || defined(__OPENRISC1K__) || defined(__OPENRISC1200__)
+# elif defined(__OpenRISC__) || defined(__OPENRISC__) || defined(__openrisc__) || defined(__OR1K__) || defined(__OPENRISC1K__)
 #  define VER_H_PROM_TSA_TEXT "OpenRISC            "
 # elif defined(__sparc64) || defined(__SPARC64) || defined(__SPARC64__) || defined(__sparc64__)
 #  define VER_H_PROM_TSA_TEXT "SPARC64             "
@@ -4784,21 +4780,29 @@ void setupPROM (uint cpuNo, unsigned char * PROM) {
 # elif defined(__MICROBLAZE__) || defined(__microblaze__)
 #  define VER_H_PROM_TSA_TEXT "Xilinx MicroBlaze   "
 # endif
-# ifndef VER_H_PROM_TSA_TEXT
+# if !defined(VER_H_PROM_TSA_TEXT)
 #  define BURN_PROM_TSA_TEXT "Unknown Target Arch."
 # else
 #  define BURN_PROM_TSA_TEXT VER_H_PROM_TSA_TEXT
 # endif /* VER_H_PROM_TSA_TEXT */
 #endif /* BUILD_PROM_TSA_TEXT */
 
-#ifdef BUILD_PROM_TSV_TEXT
+#if (defined(__WIN__) || defined(_WIN32) || defined(IS_WINDOWS) || defined(_MSC_VER) || defined(__MINGW32__) || \
+        defined(__MINGW64__) || defined(CROSS_MINGW32) || defined(CROSS_MINGW64)) && !defined(__CYGWIN__)
+# define DC_IS_WINDOWS 1
+#else
+# define DC_IS_WINDOWS 0
+#endif
+
+#if defined(BUILD_PROM_TSV_TEXT)
 # define BURN_PROM_TSV_TEXT BUILD_PROM_TSV_TEXT
 #else
-# if (defined(__WIN__) || defined(_WIN32) || defined(IS_WINDOWS) || defined(_MSC_VER) || defined(__MINGW32__) || defined(__MINGW64__) || defined(CROSS_MINGW32) || defined(CROSS_MINGW64)) && !defined(__CYGWIN__)
+# if DC_IS_WINDOWS
 #  define VER_H_PROM_TSV_TEXT "Microsoft Windows   "
 # elif defined(__CYGWIN__)
 #  define VER_H_PROM_TSV_TEXT "Windows/Cygwin      "
-# elif (defined(__sunos) || defined( __sun ) || defined(__sun__)) && (defined(SYSV) || defined( __SVR4 ) || defined(__SVR4__) || defined(__svr4__))
+# elif (defined(__sunos) || defined(__sun) || defined(__sun__)) && (defined(SYSV) || defined(__SVR4) || defined(__SVR4__) || \
+        defined(__svr4__))
 #  if defined(__illumos__)
 #   define VER_H_PROM_TSV_TEXT "illumos             "
 #  else
@@ -4877,25 +4881,25 @@ void setupPROM (uint cpuNo, unsigned char * PROM) {
 #   define VER_H_PROM_TSV_TEXT "QNX                 "
 #  endif
 # endif
-# ifndef VER_H_PROM_TSV_TEXT
+# if !defined(VER_H_PROM_TSV_TEXT)
 #  define BURN_PROM_TSV_TEXT "Unknown Target OpSys"
 # else
 #  define BURN_PROM_TSV_TEXT VER_H_PROM_TSV_TEXT
 # endif /* VER_H_PROM_TSV_TEXT */
 #endif /* BUILD_PROM_TSV_TEXT */
 
-#ifndef VER_H_GIT_DATE_SHORT
+#if !defined(VER_H_GIT_DATE_SHORT)
 # define VER_H_GIT_DATE_SHORT "2021-01-01"
-#endif /* ifndef VER_H_GIT_DATE_SHORT */
+#endif /* if !defined(VER_H_GIT_DATE_SHORT) */
 
-#ifndef BURN_PROM_BUILD_NUM
+#if !defined(BURN_PROM_BUILD_NUM)
 # define BURN_PROM_BUILD_NUM "        "
-#endif /* ifndef BURN_PROM_BUILD_NUM */
+#endif /* if !defined(BURN_PROM_BUILD_NUM) */
 
 #define BURN(offset, length, string) memcpy ((char *) PROM + (offset), string, length)
 #define BURN1(offset, byte) PROM[offset] = (char) (byte)
 
-  memset (PROM, 255, 1024);
+  (void)memset (PROM, 255, 1024);
 
   //   Offset Length  Data
   BURN  ( 00,  11,  "DPS 8/SIM M");                //    0-10  CPU model ("XXXXXXXXXXX")       //-V1086
@@ -4938,7 +4942,7 @@ void cpuStats (uint cpuNo) {
   sim_msg ("\r+---------------------------------+\r\n");
   (void)fflush(stdout);
   (void)fflush(stderr);
-#ifdef WIN_STDIO
+#if defined(WIN_STDIO)
   sim_msg ("\r|  cycles        %15llu  |\r\n", (unsigned long long)cpus[cpuNo].cycleCnt);
   sim_msg ("\r|  instructions  %15llu  |\r\n", (unsigned long long)cpus[cpuNo].instrCnt);
   (void)fflush(stdout);
@@ -4953,7 +4957,7 @@ void cpuStats (uint cpuNo) {
   sim_msg ("\r|  lockWaitMax   %15llu  |\r\n", (unsigned long long)cpus[cpuNo].lockWaitMax);
   (void)fflush(stdout);
   (void)fflush(stderr);
-# ifndef SCHED_NEVER_YIELD
+# if !defined(SCHED_NEVER_YIELD)
   sim_msg ("\r|  lockYield     %15llu  |\r\n", (unsigned long long)cpus[cpuNo].lockYield);
   (void)fflush(stdout);
   (void)fflush(stderr);
@@ -4961,12 +4965,12 @@ void cpuStats (uint cpuNo) {
   sim_msg ("\r|  lockYield                ----  |\r\n");
   (void)fflush(stdout);
   (void)fflush(stderr);
-# endif /* ifndef SCHED_NEVER_YIELD */
+# endif /* if !defined(SCHED_NEVER_YIELD) */
   sim_msg ("\r+---------------------------------+");
   (void)fflush(stdout);
   (void)fflush(stderr);
-# ifndef UCACHE
-#  ifndef UCACHE_STATS
+# if !defined(UCACHE)
+#  if !defined(UCACHE_STATS)
   sim_msg ("\r\n");
 #  endif
 # endif
@@ -4987,7 +4991,7 @@ void cpuStats (uint cpuNo) {
   sim_msg ("\r|  lockWaitMax   %'15llu  |\r\n", (unsigned long long)cpus[cpuNo].lockWaitMax);
   (void)fflush(stdout);
   (void)fflush(stderr);
-# ifndef SCHED_NEVER_YIELD
+# if !defined(SCHED_NEVER_YIELD)
   sim_msg ("\r|  lockYield     %'15llu  |\r\n", (unsigned long long)cpus[cpuNo].lockYield);
   (void)fflush(stdout);
   (void)fflush(stderr);
@@ -4995,12 +4999,12 @@ void cpuStats (uint cpuNo) {
   sim_msg ("\r|  lockYield                ----  |\r\n");
   (void)fflush(stdout);
   (void)fflush(stderr);
-# endif /* ifndef SCHED_NEVER_YIELD */
+# endif /* if !defined(SCHED_NEVER_YIELD) */
   sim_msg ("\r+---------------------------------+");
   (void)fflush(stdout);
   (void)fflush(stderr);
-# ifndef UCACHE
-#  ifndef UCACHE_STATS
+# if !defined(UCACHE)
+#  if !defined(UCACHE_STATS)
   sim_msg ("\r\n");
 #  endif
 # endif
@@ -5008,7 +5012,7 @@ void cpuStats (uint cpuNo) {
   (void)fflush(stdout);
 #endif
 
-#ifdef UCACHE_STATS
+#if defined(UCACHE_STATS)
   ucacheStats (cpuNo);
 #endif
 

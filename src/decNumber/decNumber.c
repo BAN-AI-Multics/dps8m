@@ -4,6 +4,7 @@
 /* ------------------------------------------------------------------- */
 /* Decimal Number arithmetic module                                    */
 /* ------------------------------------------------------------------- */
+/*                                                                     */
 /* Copyright (c) IBM Corporation, 2000, 2009.  All rights reserved.    */
 /*                                                                     */
 /* This software is made available under the terms of the ICU License. */
@@ -17,7 +18,9 @@
 /*   mfc@uk.ibm.com                                                    */
 /*   Mike Cowlishaw, IBM Fellow                                        */
 /*   IBM UK, PO Box 31, Birmingham Road, Warwick CV34 5JL, UK          */
+/*                                                                     */
 /* ------------------------------------------------------------------- */
+/*                                                                     */
 /* This module comprises the routines for arbitrary-precision General  */
 /* Decimal Arithmetic as defined in the specification which may be     */
 /* found on the General Decimal Arithmetic pages.  It implements both  */
@@ -26,24 +29,7 @@
 /*                                                                     */
 /* Usage notes:                                                        */
 /*                                                                     */
-/* 1. This code is ANSI C89 except:                                    */
-/*                                                                     */
-/*    a) C99 line comments (double forward slash) are used.  (Most C   */
-/*       compilers accept these.  If yours does not, the "uncrustify"  */
-/*       program can be used to convert them to ANSI C comments.)      */
-/*                                                                     */
-/*    b) Types from C99 stdint.h are used.  If you do not have this    */
-/*       header file, see the User's Guide section of the decNumber    */
-/*       documentation; this lists the necessary definitions.          */
-/*                                                                     */
-/*    c) If DECDPUN>4 or DECUSE64=1, the C99 64-bit int64_t and        */
-/*       uint64_t types may be used.  To avoid these, set DECUSE64=0   */
-/*       and DECDPUN<=4 (see documentation).                           */
-/*                                                                     */
-/*    The code also conforms to C99 restrictions; in particular,       */
-/*    strict aliasing rules are observed.                              */
-/*                                                                     */
-/* 2. The decNumber format which this library uses is optimized for    */
+/* 1. The decNumber format which this library uses is optimized for    */
 /*    efficient processing of relatively short numbers; in particular  */
 /*    it allows the use of fixed sized structures and minimizes copy   */
 /*    and move operations.  It does, however, support arbitrary        */
@@ -55,16 +41,16 @@
 /*    DEC_MAX_MATH (999999), and their operand(s) must be within       */
 /*    these bounds.                                                    */
 /*                                                                     */
-/* 3. Logical functions are further restricted; their operands must    */
+/* 2. Logical functions are further restricted; their operands must    */
 /*    be finite, positive, have an exponent of zero, and all digits    */
 /*    must be either 0 or 1.  The result will only contain digits      */
 /*    which are 0 or 1 (and will have exponent=0 and a sign of 0).     */
 /*                                                                     */
-/* 4. Operands to operator functions are never modified unless they    */
+/* 3. Operands to operator functions are never modified unless they    */
 /*    are also specified to be the result number (which is always      */
 /*    permitted).  Other than that case, operands must not overlap.    */
 /*                                                                     */
-/* 5. Error handling: the type of the error is ORed into the status    */
+/* 4. Error handling: the type of the error is ORed into the status    */
 /*    flags in the current context (decContext structure).  The SIGFPE */
 /*    signal is then raised if the corresponding trap-enabler flag in  */
 /*    the decContext is set (is 1).                                    */
@@ -76,14 +62,16 @@
 /*    a valid number (which may be a special value, such as an         */
 /*    Infinity or NaN).                                                */
 /*                                                                     */
-/* 6. The decNumber format is not an exchangeable concrete             */
+/* 5. The decNumber format is not an exchangeable concrete             */
 /*    representation as it comprises fields which may be machine-      */
 /*    dependent (packed or unpacked, or special length, for example).  */
 /*    Canonical conversions to and from strings are provided; other    */
 /*    conversions are available in separate modules.                   */
 /*                                                                     */
-/* 7. Subset arithmetic is available only if DECSUBSET is set to 1.    */
+/* 6. Subset arithmetic is available only if DECSUBSET is set to 1.    */
+/*                                                                     */
 /* ------------------------------------------------------------------- */
+/*                                                                     */
 /* Implementation notes for maintenance of this module:                */
 /*                                                                     */
 /* 1. Storage leak protection:  Routines which use malloc are not      */
@@ -148,25 +136,23 @@
 /*      +ve -- positive                                                */
 /*      -ve -- negative                                                */
 /*      **  -- raise to the power                                      */
+/*                                                                     */
 /* ------------------------------------------------------------------- */
 
 #include <string.h>                // for strcpy
 #include <stdlib.h>                // for malloc, free, etc.
-#include <stdio.h>                 // for printf [if needed]
 #include <ctype.h>                 // for lower
 #include "decNumber.h"             // base number library
 #include "decNumberLocal.h"        // decNumber local types, etc.
 
-#undef FREE
-#ifdef TESTING
-# define FREE(p) free(p)
-#else
-# define FREE(p) do  \
-  {                  \
-    free((p));       \
-    (p) = NULL;      \
+#if defined(FREE)
+# undef FREE
+#endif /* if defined(FREE) */
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
   } while(0)
-#endif
 
 /* Constants */
 // Public lookup table used by the D2U macro
@@ -331,8 +317,8 @@ Int decNumberToInt32(const decNumber *dn, decContext *set) {
     up=dn->lsu;                    // -> lsu
     lo=*up;                        // get 1 to 9 digits
 #if DECDPUN>1                  // split to higher
-      hi=lo/10;
-      lo=lo%10;
+    hi=lo/10;
+    lo=lo%10;
 #endif
     up++;
     // collect remaining Units, if any, into hi
@@ -364,8 +350,8 @@ uInt decNumberToUInt32(const decNumber *dn, decContext *set) {
     up=dn->lsu;                    // -> lsu
     lo=*up;                        // get 1 to 9 digits
 #if DECDPUN>1                  // split to higher
-      hi=lo/10;
-      lo=lo%10;
+    hi=lo/10;
+    lo=lo%10;
 #endif
     up++;
     // collect remaining Units, if any, into hi
@@ -1043,7 +1029,6 @@ decNumber * decNumberFMA(decNumber *res, const decNumber *lhs,
       acc=allocbufa;                    // use the allocated space
       }
     // multiply with extended range and necessary precision
-    //printf("emin=%ld\n", dcmul.emin);
     decMultiplyOp(acc, lhs, rhs, &dcmul, &status);
     // Only Invalid operation (from sNaN or Inf * 0) is possible in
     // status; if either is seen than ignore fhs (in case it is
@@ -2046,10 +2031,10 @@ decNumber * decNumberPower(decNumber *res, const decNumber *lhs,
             }
           // [inv now points to big-enough buffer or allocated storage]
           decNumberCopy(inv, dac);      // copy the 1/lhs
-#if defined(__GNUC__) && \
+#if defined(__GNUC__) && !defined(__PCC__) && \
  ( !defined(__clang__) || !defined(__llvm__) )
           if (dnOne.digits > 1) __builtin_unreachable ();
-#endif /* if defined(__GNUC__) &&
+#endif /* if defined(__GNUC__) && !defined(__PCC__) &&
           ( !defined(__clang__) || !defined(__llvm__) ) */
           decNumberCopy(dac, &dnOne);   // restore acc=1
           lhs=inv;                      // .. and go forward with new lhs
@@ -2770,14 +2755,14 @@ decNumber * decNumberSquareRoot(decNumber *res, const decNumber *rhs,
       t->exponent=-3;
       a->exponent=-3;
 #if DECDPUN>=3
-        t->lsu[0]=259;
-        a->lsu[0]=819;
+      t->lsu[0]=259;
+      a->lsu[0]=819;
 #elif DECDPUN==2
-        t->lsu[0]=59; t->lsu[1]=2;
-        a->lsu[0]=19; a->lsu[1]=8;
+      t->lsu[0]=59; t->lsu[1]=2;
+      a->lsu[0]=19; a->lsu[1]=8;
 #else
-        t->lsu[0]=9; t->lsu[1]=5; t->lsu[2]=2;
-        a->lsu[0]=9; a->lsu[1]=1; a->lsu[2]=8;
+      t->lsu[0]=9; t->lsu[1]=5; t->lsu[2]=2;
+      a->lsu[0]=9; a->lsu[1]=1; a->lsu[2]=8;
 #endif
       }
      else {                                  // odd exponent
@@ -2787,14 +2772,14 @@ decNumber * decNumberSquareRoot(decNumber *res, const decNumber *rhs,
       t->exponent=-4;
       a->exponent=-2;
 #if DECDPUN>=3
-        t->lsu[0]=819;
-        a->lsu[0]=259;
+      t->lsu[0]=819;
+      a->lsu[0]=259;
 #elif DECDPUN==2
-        t->lsu[0]=19; t->lsu[1]=8;
-        a->lsu[0]=59; a->lsu[1]=2;
+      t->lsu[0]=19; t->lsu[1]=8;
+      a->lsu[0]=59; a->lsu[1]=2;
 #else
-        t->lsu[0]=9; t->lsu[1]=1; t->lsu[2]=8;
-        a->lsu[0]=9; a->lsu[1]=5; a->lsu[2]=2;
+      t->lsu[0]=9; t->lsu[1]=1; t->lsu[2]=8;
+      a->lsu[0]=9; a->lsu[1]=5; a->lsu[2]=2;
 #endif
       }
 
@@ -2941,9 +2926,9 @@ decNumber * decNumberSquareRoot(decNumber *res, const decNumber *rhs,
       Int ae=rhs->exponent+rhs->digits-1;    // adjusted exponent
       // check if truly subnormal
 #if DECEXTFLAG                         // DEC_Subnormal too
-        if (ae>=set->emin*2) status&=~(DEC_Subnormal|DEC_Underflow);
+      if (ae>=set->emin*2) status&=~(DEC_Subnormal|DEC_Underflow);
 #else
-        if (ae>=set->emin*2) status&=~DEC_Underflow;
+      if (ae>=set->emin*2) status&=~DEC_Underflow;
 #endif
       // check if truly inexact
       if (!(status&DEC_Inexact)) status&=~DEC_Underflow;
@@ -3266,9 +3251,9 @@ uByte * decNumberGetBCD(const decNumber *dn, uByte *bcd) {
   uByte *ub=bcd+dn->digits-1;      // -> lsd
   const Unit *up=dn->lsu;          // Unit pointer, -> lsu
 
-#if DECDPUN==1                   // trivial simple copy
+#if DECDPUN==1                     // trivial simple copy
     for (; ub>=bcd; ub--, up++) *ub=*up;
-#else                            // chopping needed
+#else                              // chopping needed
     uInt u=*up;                    // work
     uInt cut=DECDPUN;              // downcounter through unit
     for (; ub>=bcd; ub--) {
@@ -3297,21 +3282,21 @@ uByte * decNumberGetBCD(const decNumber *dn, uByte *bcd) {
 /* and bcd[0] zero.                                                   */
 /* ------------------------------------------------------------------ */
 decNumber * decNumberSetBCD(decNumber *dn, const uByte *bcd, uInt n) {
-  Unit *up=dn->lsu+D2U(dn->digits)-1;   // -> msu [target pointer]
-  const uByte *ub=bcd;                  // -> source msd
+  Unit *up=dn->lsu+D2U(dn->digits)-1; // -> msu [target pointer]
+  const uByte *ub=bcd;                // -> source msd
 
 #if DECDPUN==1                        // trivial simple copy
     for (; ub<bcd+n; ub++, up--) *up=*ub;
 #else                                 // some assembly needed
     // calculate how many digits in msu, and hence first cut
-    Int cut=MSUDIGITS(n);               // [faster than remainder]
-    for (;up>=dn->lsu; up--) {          // each Unit from msu
-      *up=0;                            // will take <=DECDPUN digits
+    Int cut=MSUDIGITS(n);             // [faster than remainder]
+    for (;up>=dn->lsu; up--) {        // each Unit from msu
+      *up=0;                          // will take <=DECDPUN digits
       for (; cut>0; ub++, cut--) *up=X10(*up)+*ub;
-      cut=DECDPUN;                      // next Unit has all digits
+      cut=DECDPUN;                    // next Unit has all digits
       }
 #endif
-  dn->digits=n;                         // set digit count
+  dn->digits=n;                       // set digit count
   return dn;
   } // decNumberSetBCD
 
@@ -3530,7 +3515,7 @@ static void decToString(const decNumber *dn, char *string, Flag eng) {
 
   /* Finally add the E-part, if needed.  It will never be 0, has a
      base maximum and minimum of +999999999 through -999999999, but
-     could range down to -1999999998 for anormal numbers */
+     could range down to -1999999998 for abnormal numbers */
   if (e!=0) {
     Flag had=0;               // 1=had non-zero
     *c='E'; c++;
@@ -3812,7 +3797,6 @@ static decNumber * decAddOp(decNumber *res, const decNumber *lhs,
       Int need=D2U(maxdigits)+1;
       acc=accbuff;                      // assume use local buffer
       if (need*sizeof(Unit)>sizeof(accbuff)) {
-        // printf("malloc add %ld %ld\n", need, sizeof(accbuff));
         allocacc=(Unit *)malloc(need*sizeof(Unit));
         if (allocacc==NULL) {           // hopeless -- abandon
           *status|=DEC_Insufficient_storage;
@@ -3975,7 +3959,7 @@ static decNumber * decAddOp(decNumber *res, const decNumber *lhs,
 /* long subtractions.  These are acc and var1 respectively.           */
 /* var1 is a copy of the lhs coefficient, var2 is the rhs coefficient.*/
 /* The static buffers may be larger than might be expected to allow   */
-/* for calls from higher-level funtions (notable exp).                */
+/* for calls from higher-level functions (notable exp).               */
 /* ------------------------------------------------------------------ */
 static decNumber * decDivideOp(decNumber *res,
                                const decNumber *lhs, const decNumber *rhs,
@@ -4162,7 +4146,6 @@ static decNumber * decDivideOp(decNumber *res,
     // If it needs to be too long for stack storage, then allocate.
     acclength=D2U(reqdigits+DECDPUN);   // in Units
     if (acclength*sizeof(Unit)>sizeof(accbuff)) {
-      // printf("malloc dvacc %ld units\n", acclength);
       allocacc=(Unit *)malloc(acclength*sizeof(Unit));
       if (allocacc==NULL) {             // hopeless -- abandon
         *status|=DEC_Insufficient_storage;
@@ -4187,7 +4170,6 @@ static decNumber * decDivideOp(decNumber *res,
     // allocate a guard unit above msu1 for REMAINDERNEAR
     if (!(op&DIVIDE)) var1units++;
     if ((var1units+1)*sizeof(Unit)>sizeof(varbuff)) {
-      // printf("malloc dvvar %ld units\n", var1units+1);
       varalloc=(Unit *)malloc((var1units+1)*sizeof(Unit));
       if (varalloc==NULL) {             // hopeless -- abandon
         *status|=DEC_Insufficient_storage;
@@ -4335,9 +4317,9 @@ static decNumber * decDivideOp(decNumber *res,
 
       // if the residue is zero, the operation is done (unless divide
       // or divideInteger and still not enough digits yet)
-#ifdef __clang_analyzer__
+#if defined(__clang_analyzer__)
       *var1=0;
-#endif /* ifdef __clang_analyzer__ */
+#endif /* if defined(__clang_analyzer__) */
       if (*var1==0 && var1units==1) {        // residue is 0
         if (op&(REMAINDER|REMNEAR)) break;
         if ((op&DIVIDE) && (exponent<=maxexponent)) break;
@@ -4951,7 +4933,7 @@ static decNumber * decMultiplyOp(decNumber *res, const decNumber *lhs,
 /*    exp(-x) where x can be the tiniest number (Ntiny).              */
 /*                                                                    */
 /* 2. Normalizing x to be <=0.1 (instead of <=1) reduces loop         */
-/*    iterations by appoximately a third with additional (although    */
+/*    iterations by approximately a third with additional (although   */
 /*    diminishing) returns as the range is reduced to even smaller    */
 /*    fractions.  However, h (the power of 10 used to correct the     */
 /*    result at the end, see below) must be kept <=8 as otherwise     */
@@ -5310,7 +5292,7 @@ const uShort LNnn[90]={9016,  8652,  8316,  8008,  7724,  7456,  7208,
 /*    would certainly save at least one if it were made ten times     */
 /*    bigger, too (for truncated fractions 0.100 through 0.999).      */
 /*    However, for most practical evaluations, at least four or five  */
-/*    iterations will be neede -- so this would only speed up by      */
+/*    iterations will be needed -- so this would only speed up by     */
 /*    20-25% and that probably does not justify increasing the table  */
 /*    size.                                                           */
 /*                                                                    */
@@ -5435,13 +5417,13 @@ decNumber * decLnOp(decNumber *res, const decNumber *rhs,
     decCopyFit(b, rhs, &aset, &residue, &ignore); // copy & shorten
     b->exponent=0;                      // make integer
     t=decGetInt(b);                     // [cannot fail]
-#ifdef __clang_analyzer__
+#if defined(__clang_analyzer__)
     if (t<0) t=10;
-#endif /* ifdef __clang_analyzer__ */
+#endif /* if defined(__clang_analyzer__) */
     if (t<10) t=X10(t);                 // adjust single-digit b
-#ifndef __clang_analyzer__
+#if !defined(__clang_analyzer__)
     t=LNnn[t-10];                       // look up ln(b)
-#endif /* ifndef __clang_analyzer__ */
+#endif /* if !defined(__clang_analyzer__) */
     decNumberFromInt32(b, t>>2);        // b=ln(b) coefficient
     b->exponent=-(t&3)-3;               // set exponent
     b->bits=DECNEG;                     // ln(0.10)->ln(0.99) always -ve
@@ -6899,11 +6881,9 @@ static void decApplyRound(decNumber *dn, decContext *set, Int residue,
         for (up=up-1; up>=dn->lsu; up--) *up=(Unit)powers[DECDPUN]-1;
         dn->exponent--;                      // and bump exponent
 
-        // iff the number was at the subnormal boundary (exponent=etiny)
+        // if the number was at the subnormal boundary (exponent=etiny)
         // then the exponent is now out of range, so it will in fact get
         // clamped to etiny and the final 9 dropped.
-        // printf(">> emin=%d exp=%d sdig=%d\n", set->emin,
-        //        dn->exponent, set->digits);
         if (dn->exponent+1==set->emin-set->digits+1) { //-V584
           if (count==1 && dn->digits==1) *sup=0;  // here 9 -> 0[.9]
            else {
@@ -7275,11 +7255,11 @@ static Int decGetInt(const decNumber *dn) {
       Int rem;                          // work
       // slice off fraction digits and check for non-zero
 #if DECDPUN<=4
-        theInt=QUOT10(*up, count);
-        rem=*up-theInt*powers[count];
+      theInt=QUOT10(*up, count);
+      rem=*up-theInt*powers[count];
 #else
-        rem=*up%powers[count];          // slice off discards
-        theInt=*up/powers[count];
+      rem=*up%powers[count];          // slice off discards
+      theInt=*up/powers[count];
 #endif
       if (rem!=0) return BADINT;        // non-zero fraction
       // it looks good
@@ -7406,9 +7386,9 @@ static decNumber * decNaNs(decNumber *res, const decNumber *lhs,
     // copy safe number of units, then decapitate
     res->bits=lhs->bits;                // need sign etc.
     uresp1=res->lsu+D2U(set->digits);
-#ifndef __clang_analyzer__
+#if !defined(__clang_analyzer__)
     for (ur=res->lsu, ul=lhs->lsu; ur<uresp1; ur++, ul++) *ur=*ul;
-#endif /* ifndef __clang_analyzer__ */
+#endif /* if !defined(__clang_analyzer__) */
     res->digits=D2U(set->digits)*DECDPUN;
     // maybe still too long
     if (res->digits>set->digits) decDecap(res, res->digits-set->digits);

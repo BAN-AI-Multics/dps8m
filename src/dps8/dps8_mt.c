@@ -47,10 +47,14 @@
 
 #define DBG_CTR 1
 
-#ifdef TESTING
+#if defined(FREE)
 # undef FREE
-# define FREE(p) free(p)
-#endif /* ifdef TESTING */
+#endif /* if defined(FREE) */
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
 
 /*
  * mt.c -- mag tape
@@ -201,7 +205,7 @@ static t_stat mtp_set_boot_drive (UNIT * uptr, UNUSED int32 value,
   }
 
 UNIT mtp_unit [N_MTP_UNITS_MAX] = {
-#ifdef NO_C_ELLIPSIS
+#if defined(NO_C_ELLIPSIS)
   { UDATA (NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA (NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA (NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
@@ -347,48 +351,46 @@ UNIT mt_unit [N_MT_UNITS_MAX] = {
     // by the "run" command's reset sequence; units that have UNIT_SEQ
     // set will be issued a rewind on reset.
     // Looking at the sim source again... It is used on several of the
-    // run commands, including CONTINUE.
-    // Turning UNIT_SEQ off.
-    // XXX Should we rewind on reset? What is the actual behavior?
+    // run commands, including CONTINUE. Leave UNIT_SEQ off.
 // Unit 0 is the controller
-#ifdef NO_C_ELLIPSIS
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
-  { UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL }
+#if defined(NO_C_ELLIPSIS)
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL }
 #else
   [0 ... N_MT_UNITS_MAX-1] = {
-    UDATA (NULL, UNIT_ATTABLE | /* UNIT_SEQ | */ UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL
+    UDATA (NULL, UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL
   }
 #endif
 };
@@ -477,7 +479,8 @@ static t_stat mt_set_tape_path (UNUSED UNIT * uptr, UNUSED int32 value,
 
     size_t len = strlen(cptr);
 
-    // We check for length - (2 + max label length) to allow for the null, a possible '/' being added and the label file name being added
+    // We check for length - (2 + max label length) to allow for the null,
+    // a possible '/' being added and the label file name being added
     if (len >= (sizeof(tape_path_prefix) - (LABEL_MAX + 2)))
       return SCPE_ARG;
 
@@ -594,13 +597,13 @@ static t_stat mt_add_tape_search_path(UNUSED UNIT * uptr, UNUSED int32 value,
     PATH_ENTRY *new_entry = malloc(sizeof(PATH_ENTRY));
     if (!new_entry)
       {
-        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                 __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -739,10 +742,10 @@ static t_stat tape_set_ready (UNIT * uptr, UNUSED int32 value,
 
 static MTAB mt_mod [] =
   {
-#ifndef SPEED
+#if !defined(SPEED)
     { UNIT_WATCH, UNIT_WATCH, "WATCH",   "WATCH",   NULL, NULL, NULL, NULL },
     { UNIT_WATCH, 0,          "NOWATCH", "NOWATCH", NULL, NULL, NULL, NULL },
-#endif
+#endif /* if !defined(SPEED) */
     {
        MTAB_XTD | MTAB_VUN | \
        MTAB_NC,                                  /* Mask               */
@@ -958,7 +961,7 @@ t_stat unloadTape (uint driveNumber)
 
 void mt_init(void)
   {
-    memset(tape_states, 0, sizeof(tape_states));
+    (void)memset(tape_states, 0, sizeof(tape_states));
     for (int i = 0; i < N_MT_UNITS_MAX; i ++)
       {
         mt_unit [i] . capac = 40000000;
@@ -1139,7 +1142,7 @@ static void mtInitRdMem (uint devUnitIdx, uint iomUnitIdx, uint chan)
         return;
       }
     uint16 mem [04000 * 2];
-    memset (mem, 0, sizeof (mem));
+    (void)memset (mem, 0, sizeof (mem));
 
     const uint charTableOS = 0xE0; // Mtc500 characteristics table at 00E0 (hex)
 
@@ -1185,7 +1188,7 @@ static void mtInitRdMem (uint devUnitIdx, uint iomUnitIdx, uint chan)
 
     word36 buf [tally];
     // Make clang analyzer happy
-    memset (buf, 0, sizeof (word36) * tally);
+    (void)memset (buf, 0, sizeof (word36) * tally);
     for (uint i = 0; i < tally; i ++)
       {
         putbits36_18 (buf + i,  0, mem [i * 2]);
@@ -1465,9 +1468,9 @@ static int surveyDevices (uint iomUnitIdx, uint chan)
 
 iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
   iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
-#ifdef TESTING
+#if defined(TESTING)
   if_sim_debug (DBG_TRACE, & tape_dev) dumpDCW (p->DCW, 0);
-#endif
+#endif /* if defined(TESTING) */
 // The bootload read command does a read on drive 0; the controller
 // recognizes (somehow) a special case for bootload and subs. in
 // the boot drive unit set by the controller config. switches
@@ -1482,9 +1485,9 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
   uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
   uint dev_code = p->IDCW_DEV_CODE;
-#ifdef TESTING
+#if defined(TESTING)
   if_sim_debug (DBG_TRACE, & tape_dev) dumpDCW (p->DCW, 0);
-#endif
+#endif /* if defined(TESTING) */
   if (p->IDCW_DEV_CODE == 0)
     dev_code = mtp_state[ctlr_unit_idx].boot_drive;
 
@@ -1821,9 +1824,9 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
           sim_printf ("// Tape Forward Skip One Record\r\n");
           sim_printf ("//    pos before %d\r\n", unitp->pos);
         }
-#ifdef TESTING
+#if defined(TESTING)
         hdbgNote ("tape", "Tape Forward Skip One Record pos before %d", unitp->pos);
-#endif
+#endif /* if defined(TESTING) */
         if (! (unitp->flags & UNIT_ATT)) {
           p->stati = 04104;
           return IOM_CMD_ERROR;
@@ -1872,9 +1875,9 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
         if_sim_debug (DBG_TRACE, & tape_dev) {
           sim_printf ("//    pos after %d\r\n", unitp->pos);
         }
-#ifdef TESTING
+#if defined(TESTING)
         hdbgNote ("tape", "Tape Forward Skip One Record pos after %d", unitp->pos);
-#endif
+#endif /* if defined(TESTING) */
       }
       break;
 
@@ -1883,9 +1886,9 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
           sim_printf ("// Tape Forward Skip One File\r\n");
           sim_printf ("//    pos before %d\r\n", unitp->pos);
         }
-#ifdef TESTING
+#if defined(TESTING)
         hdbgNote ("tape", "Tape Forward Skip One File pos before %d", unitp->pos);
-#endif
+#endif /* if defined(TESTING) */
         sim_debug (DBG_DEBUG, & tape_dev, "%s:: Forward Skip File\n", __func__);
         if (! (unitp->flags & UNIT_ATT)) {
           p->stati = 04104;
@@ -1895,7 +1898,11 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
         uint32 skipped, recsskipped;
         t_stat ret = sim_tape_spfilebyrecf (unitp, tally, & skipped, & recsskipped, false);
-        if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// sim_tape_spfilebyrecf ret %d skipped %d recsskipped %d\r\n", ret, skipped, recsskipped); }
+        if_sim_debug (DBG_TRACE, & tape_dev)
+          {
+              sim_printf ("// sim_tape_spfilebyrecf ret %d skipped %d recsskipped %d\r\n",
+                          ret, skipped, recsskipped);
+          }
         if (ret != MTSE_OK && ret != MTSE_TMK && ret != MTSE_LEOT) {
           sim_warn ("sim_tape_spfilebyrecf returned %d\n", ret);
           break;
@@ -1922,9 +1929,9 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
         if_sim_debug (DBG_TRACE, & tape_dev) {
           sim_printf ("//    pos after %d\r\n", unitp->pos);
         }
-#ifdef TESTING
+#if defined(TESTING)
         hdbgNote ("tape", "Tape Forward Skip One File pos after %d", unitp->pos);
-#endif
+#endif /* if defined(TESTING) */
         break;
 
       case 046: { // CMD 046 -- Backspace One Record
@@ -1932,9 +1939,9 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
           sim_printf ("// Tape Backspace One Record\r\n");
           sim_printf ("//    pos before %d\r\n", unitp->pos);
         }
-#ifdef TESTING
+#if defined(TESTING)
         hdbgNote ("tape", "Tape Backspace One Record pos before %d", unitp->pos);
-#endif
+#endif /* if defined(TESTING) */
         sim_debug (DBG_DEBUG, & tape_dev, "%s: Backspace Record\n", __func__);
         if (! (unitp->flags & UNIT_ATT)) {
           p->stati = 04104;
@@ -1988,9 +1995,9 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
         if_sim_debug (DBG_TRACE, & tape_dev) {
           sim_printf ("//    pos after %d\r\n", unitp->pos);
         }
-#ifdef TESTING
+#if defined(TESTING)
         hdbgNote ("tape", "Tape Backspace One Record pos after %d", unitp->pos);
-#endif
+#endif /* if defined(TESTING) */
         break;
 
       case 047: { // CMD 047 -- Backspace One File
@@ -1999,9 +2006,9 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
           sim_printf ("//    pos before %d\r\n", unitp->pos);
         }
         sim_debug (DBG_DEBUG, & tape_dev, "%s: Backspace File\n", __func__);
-#ifdef TESTING
+#if defined(TESTING)
         hdbgNote ("tape", "Tape Backspace One File pos before %d", unitp->pos);
-#endif
+#endif /* if defined(TESTING) */
         if (! (unitp->flags & UNIT_ATT)) {
           p->stati = 04104;
           return IOM_CMD_ERROR;
@@ -2056,9 +2063,9 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
         if_sim_debug (DBG_TRACE, & tape_dev) {
           sim_printf ("//    pos after %d\r\n", unitp->pos);
         }
-#ifdef TESTING
+#if defined(TESTING)
         hdbgNote ("tape", "Tape Backspace One File pos after %d", unitp->pos);
-#endif
+#endif /* if defined(TESTING) */
         break;
 
       case 050: {              // CMD 050 -- Request device status
@@ -2111,9 +2118,9 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
           sim_printf ("//    pos before %d\r\n", unitp->pos);
         }
         sim_debug (DBG_DEBUG, & tape_dev, "%s: Write tape mark\n", __func__);
-#ifdef TESTING
+#if defined(TESTING)
         hdbgNote ("tape", "Tape Write EOF pos before %d", unitp->pos);
-#endif
+#endif /* if defined(TESTING) */
 
         if (! (unitp->flags & UNIT_ATT)) {
           p->stati = 04104;
@@ -2154,9 +2161,9 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
         if_sim_debug (DBG_TRACE, & tape_dev) {
           sim_printf ("//    pos after %d\r\n", unitp->pos);
         }
-#ifdef TESTING
+#if defined(TESTING)
         hdbgNote ("tape", "Tape Write EOF pos after %d", unitp->pos);
-#endif
+#endif /* if defined(TESTING) */
         break;
 
 //      case 056: Unassigned
@@ -2296,9 +2303,9 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
           sim_printf ("// Tape IOT Read\r\n");
           sim_printf ("//    pos before %d\r\n", unitp->pos);
         }
-#ifdef TESTING
+#if defined(TESTING)
         hdbgNote ("tape", "Tape IOT Read pos before %d", unitp->pos);
-#endif
+#endif /* if defined(TESTING) */
         int rc = mtReadRecord (devUnitIdx, iomUnitIdx, chan);
         if (rc)
           return IOM_CMD_ERROR;
@@ -2306,9 +2313,9 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
         if_sim_debug (DBG_TRACE, & tape_dev) {
           sim_printf ("//    pos after %d\r\n", unitp->pos);
         }
-#ifdef TESTING
+#if defined(TESTING)
         hdbgNote ("tape", "Tape IOT Read pos after %d", unitp->pos);
-#endif
+#endif /* if defined(TESTING) */
         break;
 
     case tape_wr_9:
@@ -2317,16 +2324,16 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
           sim_printf ("// Tape IOT Write\r\n");
           sim_printf ("//    pos before %d\r\n", unitp->pos);
         }
-#ifdef TESTING
+#if defined(TESTING)
         hdbgNote ("tape", "Tape IOT write pos before %d", unitp->pos);
-#endif
+#endif /* if defined(TESTING) */
         int rc = mtWriteRecord (devUnitIdx, iomUnitIdx, chan);
         if_sim_debug (DBG_TRACE, & tape_dev) {
           sim_printf ("//    pos after %d\r\n", unitp->pos);
         }
-#ifdef TESTING
+#if defined(TESTING)
         hdbgNote ("tape", "Tape IOT write pos after %d", unitp->pos);
-#endif
+#endif /* if defined(TESTING) */
         if (rc)
           return IOM_CMD_ERROR;
       }
@@ -2454,7 +2461,7 @@ usage:
      return SCPE_ARG;
   }
 
-#ifndef QUIET_UNUSED
+#if !defined(QUIET_UNUSED)
 t_stat detachTape (char * drive)
   {
     //sim_printf ("%s %s %s\n", label, withring ? "rw" : "ro", drive);
@@ -2472,4 +2479,4 @@ t_stat detachTape (char * drive)
     unloadTape ((uint) i);
     return SCPE_OK;
   }
-#endif
+#endif /* if !defined(QUIET_UNUSED) */

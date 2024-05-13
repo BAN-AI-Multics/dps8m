@@ -18,11 +18,11 @@
 
 void tidy_cu (void);
 void cu_safe_store(void);
-#ifdef MATRIX
+#if defined(MATRIX)
 void initializeTheMatrix (void);
 void addToTheMatrix (uint32 opcode, bool opcodeX, bool a, word6 tag);
 t_stat display_the_matrix (int32 arg, const char * buf);
-#endif
+#endif /* if defined(MATRIX) */
 t_stat prepareComputedAddress (void);   // new
 void cu_safe_restore(void);
 void fetchInstruction(word18 addr);

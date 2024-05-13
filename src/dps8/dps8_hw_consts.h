@@ -16,7 +16,7 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifndef DPS8_HW_CONSTS_H
+#if !defined(DPS8_HW_CONSTS_H)
 # define DPS8_HW_CONSTS_H
 
 # include "dps8_math128.h"
@@ -124,7 +124,7 @@ enum { IOM_CONNECT_CHAN =  2 };
 # define ZEROEXT         0777777777777LLU         // mask to zero extend a 36 => 64-bit int
 # define ZEROEXT18       0777777U                 // mask to zero extend a 18 => 32-bit int
 
-# ifdef NEED_128
+# if defined(NEED_128)
 
 #  define SIGN72          (construct_128 (0200U, 0U))
 // NB. these use the wrong bit number convention
@@ -319,7 +319,7 @@ static inline t_int64 SIGNEXT24_64 (word36 w)
 
 static inline int128 SIGNEXT72_128 (word72 w)
   {
-# ifdef NEED_128
+# if defined(NEED_128)
     if (isnonzero_128 (and_128 (w, SIGN72)))
       {
         uint128 v = or_128 (w, construct_128 (0xFFFFFFFFFFFFFF80, 0));
@@ -342,7 +342,7 @@ static inline int128 SIGNEXT72_128 (word72 w)
 # endif
   }
 
-# ifdef NEED_128
+# if defined(NEED_128)
 static inline int128 SIGNEXT36_128 (word36 w)
   {
     if (w & SIGN36)
@@ -378,7 +378,7 @@ static inline word24 SIGNEXT18_24 (word18 w)
 
 static inline word72 SIGNEXT36_72 (word36 w)
   {
-# ifdef NEED_128
+# if defined(NEED_128)
     if (w & SIGN36)
       {
         //return (w | ((word72) DMASK) << 36) & MASK72;
@@ -689,7 +689,6 @@ enum _fault
 
 typedef enum _fault _fault;
 
-# if 0
     //no_fault_subtype = 0,
 
     // FAULT_IPR
@@ -707,14 +706,17 @@ typedef enum _fault _fault;
 
     // FAULT_ONC
 
-    //da_err,     // Operation not complete. Processor/system controller interface sequence error 1 has been detected. (Yeah, right)
-    //da_err2,    // Operation not completed. Processor/system controller interface sequence error 2 has been detected.
+    //da_err,     // Operation not complete. Processor/system controller interface
+    //                                       sequence error 1 has been detected. (Yeah, right)
+    //da_err2,    // Operation not completed. Processor/system controller interface
+    //                                        sequence error 2 has been detected.
 
     // Misc
 
     //cpar_dir,   // A parity error has been detected in the cache memory directory. (Not likely)
     //cpar_str,   // PAR fault. A data parity error has been detected in the cache memory.
-    //cpar_ia,    // PAR fault. An illegal action has been received from a system controller during a store operation with cache memory enabled.
+    //cpar_ia,    // PAR fault. An illegal action has been received from a system controller
+    //                          during a store operation with cache memory enabled.
     //cpar_blk,   // PAR fault. A cache memory parity error has occurred during a cache memory data block load.
 
     // odd word
@@ -739,9 +741,8 @@ typedef enum _fault _fault;
     //par_sdwam,  // A parity error has been detected in the SDWAM.
     //par_ptwam,  // A parity error has been detected in the PTWAM.
 
-};
-typedef enum _fault_subtype _fault_subtype;
-# endif
+//};
+//typedef enum _fault_subtype _fault_subtype;
 
 typedef enum fault_onc_subtype_
   {
@@ -829,55 +830,55 @@ typedef union _fault_subtype
     word36 bits;
   } _fault_subtype;
 
-// Fault Register bits
-enum _faultRegisterBits0
-  {
-    FR_IA_MASK   = 017,
-    FR_IAA_SHIFT =  16,  // 0000003600000llu,
-    FR_IAB_SHIFT =  12,  // 0000000170000llu,
-    FR_IAC_SHIFT =   8,  // 0000000007400llu,
-    FR_IAD_SHIFT =   4,  // 0000000000360llu,
-
-    FR_CPAR_DIR  = 0000000000010llu, // 32 p CPAR DIR
-    FR_CPAR_STR  = 0000000000004llu, // 33 q CPAR STR
-    FR_CPAR_IA   = 0000000000002llu, // 34 r CPAR IA
-    FR_CPAR_BLK  = 0000000000001llu  // 35 s CPAR BLK
-  };
-
-enum _faultRegisterBits1
-  {
-     FR_PORT_A    = 0400000000000llu, //  0 t PORT A
-     FR_PORT_B    = 0200000000000llu, //  1 u PORT B
-     FR_PORT_C    = 0100000000000llu, //  2 v PORT C
-     FR_PORT_D    = 0040000000000llu, //  3 w PORT D
-     FR_WNO_BO    = 0020000000000llu, //  4 x Cache Primary Directory WNO Buffer Overflow
-     FR_WNO_PAR   = 0010000000000llu, //  5 y Write Notify (WNO) Parity Error on Port A, B, C or D.
-     FR_LEVEL_0   = 0004000000000llu, //  6 z Level 0
-     FR_LEVEL_1   = 0002000000000llu, //  7 A Level 1
-     FR_LEVEL_2   = 0001000000000llu, //  8 B Level 2
-     FR_LEVEL_3   = 0000400000000llu, //  0 C Level 3
-     FR_CDDMM     = 0000200000000llu, // 10 D Cache Duplicate Directory Multiple Match
-     FR_PAR_SDWAM = 0000100000000llu, // 11 E SDWAM parity error
-     FR_PAR_PTWAM = 0000040000000llu  // 12 F PTWAM parity error
-  };
-
-enum _systemControllerIllegalActionCodes
-  {
-    SCIAC_NONE    = 000,
-    SCIAC_NEA     = 002,
-    SCIAC_SOC     = 003,
-    SCIAC_PAR5    = 005,
-    SCIAC_PAR6    = 006,
-    SCIAC_PAR7    = 007,
-    SCIAC_NC      = 010,
-    SCIAC_PNE     = 011,
-    SCIAC_ILL_CMD = 012,
-    SCIAC_NR      = 013,
-    SCIAC_PAR14   = 014,
-    SCIAC_PAR15   = 015,
-    SCIAC_PAR16   = 016,
-    SCIAC_PAR17   = 017
-  };
+/*// Fault Register bits*/
+/*enum _faultRegisterBits0*/
+/*  {*/
+/*    FR_IA_MASK   = 017,*/
+/*    FR_IAA_SHIFT =  16,  // 0000003600000llu,*/
+/*    FR_IAB_SHIFT =  12,  // 0000000170000llu,*/
+/*    FR_IAC_SHIFT =   8,  // 0000000007400llu,*/
+/*    FR_IAD_SHIFT =   4,  // 0000000000360llu,*/
+/**/
+/*    FR_CPAR_DIR  = 0000000000010llu, // 32 p CPAR DIR*/
+/*    FR_CPAR_STR  = 0000000000004llu, // 33 q CPAR STR*/
+/*    FR_CPAR_IA   = 0000000000002llu, // 34 r CPAR IA*/
+/*    FR_CPAR_BLK  = 0000000000001llu  // 35 s CPAR BLK*/
+/*  };*/
+/**/
+/*enum _faultRegisterBits1*/
+/*  {*/
+/*     FR_PORT_A    = 0400000000000llu, //  0 t PORT A*/
+/*     FR_PORT_B    = 0200000000000llu, //  1 u PORT B*/
+/*     FR_PORT_C    = 0100000000000llu, //  2 v PORT C*/
+/*     FR_PORT_D    = 0040000000000llu, //  3 w PORT D*/
+/*     FR_WNO_BO    = 0020000000000llu, //  4 x Cache Primary Directory WNO Buffer Overflow*/
+/*     FR_WNO_PAR   = 0010000000000llu, //  5 y Write Notify (WNO) Parity Error on Port A, B, C or D.*/
+/*     FR_LEVEL_0   = 0004000000000llu, //  6 z Level 0*/
+/*     FR_LEVEL_1   = 0002000000000llu, //  7 A Level 1*/
+/*     FR_LEVEL_2   = 0001000000000llu, //  8 B Level 2*/
+/*     FR_LEVEL_3   = 0000400000000llu, //  0 C Level 3*/
+/*     FR_CDDMM     = 0000200000000llu, // 10 D Cache Duplicate Directory Multiple Match*/
+/*     FR_PAR_SDWAM = 0000100000000llu, // 11 E SDWAM parity error*/
+/*     FR_PAR_PTWAM = 0000040000000llu  // 12 F PTWAM parity error*/
+/*  };*/
+/**/
+/*enum _systemControllerIllegalActionCodes*/
+/*  {*/
+/*    SCIAC_NONE    = 000,*/
+/*    SCIAC_NEA     = 002,*/
+/*    SCIAC_SOC     = 003,*/
+/*    SCIAC_PAR5    = 005,*/
+/*    SCIAC_PAR6    = 006,*/
+/*    SCIAC_PAR7    = 007,*/
+/*    SCIAC_NC      = 010,*/
+/*    SCIAC_PNE     = 011,*/
+/*    SCIAC_ILL_CMD = 012,*/
+/*    SCIAC_NR      = 013,*/
+/*    SCIAC_PAR14   = 014,*/
+/*    SCIAC_PAR15   = 015,*/
+/*    SCIAC_PAR16   = 016,*/
+/*    SCIAC_PAR17   = 017*/
+/*  };*/
 
 /////////////////////////////////////
 //
@@ -1508,41 +1509,41 @@ enum
 
 enum
   {
-    DU_FANLD1  = 0400000000000,  //   0  Alpha-num load desc l (complemented)
-    DU_FANLD2  = 0200000000000,  //   1  Alpha-num load desc 2 (complemented)
-    DU_FANSTR  = 0100000000000,  //   2  Alpha-num store (complemented)
-    DU_FLDWRT1 = 0040000000000,  //   3  Load re-write reg l (complemented)
-    DU_FLDWRT2 = 0020000000000,  //   4  Load re-write reg 2 (complemented)
-    DU_FNLD1   = 0010000000000,  //   5  Numeric load desc l (complemented)
-    DU_FNLD2   = 0004000000000,  //   6  Numeric load desc 2 (complemented)
-    DU_NOSEQF  = 0002000000000,  //   7  End sequence flag
-    DU_FDUD    = 0001000000000,  //   8  Decimal unit idle (complemented)
-    DU_FGSTR   = 0000400000000,  //   9  General store flag (complemented)
-    DU_NOSEQ   = 0000200000000,  //  10  End of sequence (complemented)
-    DU_NINE    = 0000100000000,  //  11  9-bit character operation
-    DU_SIX     = 0000040000000,  //  12  6-bit character operation
-    DU_FOUR    = 0000020000000,  //  13  4-bit character operation
-    DU_DUBIT   = 0000010000000,  //  14  Bit operation
-    DU_UWORD   = 0000004000000,  //  15  Word operation
-    DU_PTR1    = 0000002000000,  //  16  Select ptr l
-    DU_PTR2    = 0000001000000,  //  17  Select ptr 2
-    DU_PRT3    = 0000000400000,  //  18  Select ptr 3
-    DU_FPOP    = 0000000200000,  //  19  Prepare operand pointer
-    DU_GEAM    = 0000000100000,  //  20  Add timing gates (complemented)
-    DU_LPD12   = 0000000040000,  //  21  Load pointer l or 2 (complemented)
-    DU_GEMAE   = 0000000020000,  //  22  Multiply gates A E (complemented)
-    DU_BTDS    = 0000000010000,  //  23  Binary to decimal gates (complemented)
-    DU_SP15    = 0000000004000,  //  24  Align cycles (complemented)
-    DU_FSWEQ   = 0000000002000,  //  25  Single word sequence flag (complemented)
-    DU_FGCH    = 0000000001000,  //  26  Character cycle (complemented)
-    DU_DFRST   = 0000000000400,  //  27  Processing descriptor for first time
-    DU_EXH     = 0000000000200,  //  28  Exhaust
-    DU_FGADO   = 0000000000100,  //  29  Add cycle (complemented)
-    DU_INTRPTD = 0000000000040,  //  30  Interrupted
-    DU_GLDP2   = 0000000000020,  //  31  Load DP2
-    DU_GEMC    = 0000000000010,  //  32  Multiply gate C
-    DU_GBDA    = 0000000000004,  //  33  Binary to decimal gate A
-    DU_GSP5    = 0000000000002   //  34  Final align cycle
+    DU_FANLD1  = 0400000000000ull,  //   0  Alpha-num load desc l (complemented)
+    DU_FANLD2  = 0200000000000ull,  //   1  Alpha-num load desc 2 (complemented)
+    DU_FANSTR  = 0100000000000ull,  //   2  Alpha-num store (complemented)
+    DU_FLDWRT1 = 0040000000000ull,  //   3  Load re-write reg l (complemented)
+    DU_FLDWRT2 = 0020000000000ull,  //   4  Load re-write reg 2 (complemented)
+    DU_FNLD1   = 0010000000000ull,  //   5  Numeric load desc l (complemented)
+    DU_FNLD2   = 0004000000000ull,  //   6  Numeric load desc 2 (complemented)
+    DU_NOSEQF  = 0002000000000ull,  //   7  End sequence flag
+    DU_FDUD    = 0001000000000ull,  //   8  Decimal unit idle (complemented)
+    DU_FGSTR   = 0000400000000ull,  //   9  General store flag (complemented)
+    DU_NOSEQ   = 0000200000000ull,  //  10  End of sequence (complemented)
+    DU_NINE    = 0000100000000ull,  //  11  9-bit character operation
+    DU_SIX     = 0000040000000ull,  //  12  6-bit character operation
+    DU_FOUR    = 0000020000000ull,  //  13  4-bit character operation
+    DU_DUBIT   = 0000010000000ull,  //  14  Bit operation
+    DU_UWORD   = 0000004000000ull,  //  15  Word operation
+    DU_PTR1    = 0000002000000ull,  //  16  Select ptr l
+    DU_PTR2    = 0000001000000ull,  //  17  Select ptr 2
+    DU_PRT3    = 0000000400000ull,  //  18  Select ptr 3
+    DU_FPOP    = 0000000200000ull,  //  19  Prepare operand pointer
+    DU_GEAM    = 0000000100000ull,  //  20  Add timing gates (complemented)
+    DU_LPD12   = 0000000040000ull,  //  21  Load pointer l or 2 (complemented)
+    DU_GEMAE   = 0000000020000ull,  //  22  Multiply gates A E (complemented)
+    DU_BTDS    = 0000000010000ull,  //  23  Binary to decimal gates (complemented)
+    DU_SP15    = 0000000004000ull,  //  24  Align cycles (complemented)
+    DU_FSWEQ   = 0000000002000ull,  //  25  Single word sequence flag (complemented)
+    DU_FGCH    = 0000000001000ull,  //  26  Character cycle (complemented)
+    DU_DFRST   = 0000000000400ull,  //  27  Processing descriptor for first time
+    DU_EXH     = 0000000000200ull,  //  28  Exhaust
+    DU_FGADO   = 0000000000100ull,  //  29  Add cycle (complemented)
+    DU_INTRPTD = 0000000000040ull,  //  30  Interrupted
+    DU_GLDP2   = 0000000000020ull,  //  31  Load DP2
+    DU_GEMC    = 0000000000010ull,  //  32  Multiply gate C
+    DU_GBDA    = 0000000000004ull,  //  33  Binary to decimal gate A
+    DU_GSP5    = 0000000000002ull   //  34  Final align cycle
   };
 
 // apu_hist_t flags

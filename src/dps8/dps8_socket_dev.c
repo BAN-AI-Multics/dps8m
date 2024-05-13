@@ -37,9 +37,9 @@
 
 #define DBG_CTR 1
 
-#ifndef bzero
-# define bzero(b,len) (memset((b), '\0', (len)), (void) 0)
-#endif /* ifndef bzero */
+#if !defined(bzero)
+# define bzero(b,len) ((void)memset((b), '\0', (len)), (void) 0)
+#endif /* if !defined(bzero) */
 
 static struct {
     const char *name;
@@ -50,7 +50,7 @@ static struct {
 };
 #define N_ERRNOS (sizeof (errnos) / sizeof (errnos[0]))
 
-#ifdef WITH_SOCKET_DEV
+#if defined(WITH_SOCKET_DEV)
 # define SKC_UNIT_IDX(uptr) ((uptr) - sk_unit)
 
 struct skc_state_s
@@ -156,7 +156,7 @@ static MTAB sk_mod [] =
   };
 
 UNIT sk_unit [N_SKC_UNITS_MAX] = {
-# ifdef NO_C_ELLIPSIS
+# if defined(NO_C_ELLIPSIS)
   { UDATA ( NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA ( NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA ( NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
@@ -277,7 +277,7 @@ DEVICE skc_dev = {
 void sk_init(void)
   {
     // sets unit_state to unit_idle
-    memset(& sk_data, 0, sizeof(sk_data));
+    (void)memset(& sk_data, 0, sizeof(sk_data));
     for (uint i = 0; i < N_FDS; i ++)
       sk_data.fd_unit[i] = -1;
     //for (uint i = 0; i < N_SKC_UNITS_MAX; i ++)
@@ -322,7 +322,7 @@ static void set_error (word36 * error_str, int _errno)
           }
       }
     char huh [256];
-    sprintf (huh, "E%d", _errno);
+    (void)sprintf (huh, "E%d", _errno);
     huh[8] = 0;
     set_error_str (error_str, huh);
   }
@@ -454,7 +454,11 @@ sim_printf ("gethostbyname returned %p\n", (void *) hostent);
     if (hostent)
       {
 sim_printf ("addr_len %d\n", hostent->h_length);
-sim_printf ("%hhu.%hhu.%hhu.%hhu\n", hostent->h_addr_list[0][0],hostent->h_addr_list[0][1], hostent->h_addr_list[0][2],hostent->h_addr_list[0][3]);
+sim_printf ("%hhu.%hhu.%hhu.%hhu\n",
+            hostent->h_addr_list[0][0],
+            hostent->h_addr_list[0][1],
+            hostent->h_addr_list[0][2],
+            hostent->h_addr_list[0][3]);
 
         uint32_t addr = * ((uint32_t *) & hostent->h_addr_list[0][0]);
 sim_printf ("addr %08x\n", addr);
@@ -574,7 +578,8 @@ sim_printf ("listen() backlog    %d\n", backlog   );
     if (sk_data.fd_unit[socket_fd] != (int) unit_idx || sk_data.fd_dev_code[socket_fd] != dev_code)
       {
 sim_printf ("listen() socket doesn't belong to us\n");
-sim_printf ("socket_fd %u fd_unit %d fd_dev_code %u unit_idx %u dev_code %u\n", socket_fd, sk_data.fd_unit[socket_fd], sk_data.fd_dev_code[socket_fd], unit_idx, dev_code);
+sim_printf ("socket_fd %u fd_unit %d fd_dev_code %u unit_idx %u dev_code %u\n",
+            socket_fd, sk_data.fd_unit[socket_fd], sk_data.fd_dev_code[socket_fd], unit_idx, dev_code);
         _errno = EBADF;
         goto done;
       }
@@ -589,7 +594,7 @@ sim_printf ("listen() setsockopt returned %d\n", rc);
         goto done;
       }
 
-# ifdef FIONBIO
+# if defined(FIONBIO)
     rc = ioctl (socket_fd, FIONBIO, (char *) & on);
 sim_printf ("listen() ioctl returned %d\n", rc);
     if (rc < 0)
@@ -1188,7 +1193,7 @@ static void do_try_read (uint unit_idx, word6 dev_code)
     uint buffer_size_wds = (count + 3) / 4;
     word36 buffer [buffer_size_wds];
     // Make clang analyzer happy
-    memset (buffer, 0, sizeof (word36) * buffer_size_wds);
+    (void)memset (buffer, 0, sizeof (word36) * buffer_size_wds);
     uint8_t netdata [count];
     ssize_t nread = read (sk_data.unit_data[unit_idx][dev_code].read_fd, & netdata, count);
     if (nread == -1)
@@ -1241,4 +1246,4 @@ void sk_process_event (void)
           }
       }
   }
-#endif /* ifdef WITH_SOCKET_DEV */
+#endif /* if defined(WITH_SOCKET_DEV) */

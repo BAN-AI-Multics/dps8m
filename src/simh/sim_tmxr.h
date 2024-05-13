@@ -41,10 +41,10 @@
  *  Arthur Krewat.
  */
 
-#ifndef SIM_TMXR_H_
+#if !defined(SIM_TMXR_H_)
 # define SIM_TMXR_H_    0
 
-# ifndef SIMH_SERHANDLE_DEFINED
+# if !defined(SIMH_SERHANDLE_DEFINED)
 #  define SIMH_SERHANDLE_DEFINED 0
 typedef struct SERPORT *SERHANDLE;
 # endif
@@ -273,15 +273,40 @@ t_stat tmxr_shutdown (void);
 t_stat tmxr_start_poll (void);
 t_stat tmxr_stop_poll (void);
 void _tmxr_debug (uint32 dbits, TMLN *lp, const char *msg, char *buf, int bufsize);
-# define tmxr_debug(dbits, lp, msg, buf, bufsize) do {if (sim_deb && (lp)->mp && (lp)->mp->dptr && ((dbits) & (lp)->mp->dptr->dctrl)) _tmxr_debug (dbits, lp, msg, buf, bufsize); } while (0)
-# define tmxr_debug_msg(dbits, lp, msg) do {if (sim_deb && (lp)->mp && (lp)->mp->dptr && ((dbits) & (lp)->mp->dptr->dctrl)) sim_debug (dbits, (lp)->mp->dptr, "%s", msg); } while (0)
-# define tmxr_debug_return(lp, val) do {if (sim_deb && (val) && (lp)->mp && (lp)->mp->dptr && (TMXR_DBG_RET & (lp)->mp->dptr->dctrl)) { if ((lp)->rxbps) sim_debug (TMXR_DBG_RET, (lp)->mp->dptr, "Ln%d: 0x%x - Next after: %.0f\n", (int)((lp)-(lp)->mp->ldsc), val, (lp)->rxnexttime); else sim_debug (TMXR_DBG_RET, (lp)->mp->dptr, "Ln%d: 0x%x\n", (int)((lp)-(lp)->mp->ldsc), val); } } while (0)
-# define tmxr_debug_trace(mp, msg) do {if (sim_deb && (mp)->dptr && (TMXR_DBG_TRC & (mp)->dptr->dctrl)) sim_debug (TMXR_DBG_TRC, mp->dptr, "%s\n", (msg)); } while (0)
-# define tmxr_debug_trace_line(lp, msg) do {if (sim_deb && (lp)->mp && (lp)->mp->dptr && (TMXR_DBG_TRC & (lp)->mp->dptr->dctrl)) sim_debug (TMXR_DBG_TRC, (lp)->mp->dptr, "Ln%d:%s\n", (int)((lp)-(lp)->mp->ldsc), (msg)); } while (0)
-# define tmxr_debug_connect(mp, msg) do {if (sim_deb && (mp)->dptr && (TMXR_DBG_CON & (mp)->dptr->dctrl)) sim_debug (TMXR_DBG_CON, mp->dptr, "%s\n", (msg)); } while (0)
-# define tmxr_debug_connect_line(lp, msg) do {if (sim_deb && (lp)->mp && (lp)->mp->dptr && (TMXR_DBG_CON & (lp)->mp->dptr->dctrl)) sim_debug (TMXR_DBG_CON, (lp)->mp->dptr, "Ln%d:%s\n", (int)((lp)-(lp)->mp->ldsc), (msg)); } while (0)
+
+# define tmxr_debug(dbits, lp, msg, buf, bufsize) \
+    do { if (sim_deb && (lp)->mp && (lp)->mp->dptr && ((dbits) & (lp)->mp->dptr->dctrl)) \
+        _tmxr_debug (dbits, lp, msg, buf, bufsize); } while (0)
+
+# define tmxr_debug_msg(dbits, lp, msg) \
+    do { if (sim_deb && (lp)->mp && (lp)->mp->dptr && ((dbits) & (lp)->mp->dptr->dctrl)) \
+        sim_debug (dbits, (lp)->mp->dptr, "%s", msg); } while (0)
+
+# define tmxr_debug_return(lp, val) \
+    do { if (sim_deb && (val) && (lp)->mp && (lp)->mp->dptr && (TMXR_DBG_RET & (lp)->mp->dptr->dctrl)) \
+        { if ((lp)->rxbps) sim_debug (TMXR_DBG_RET, (lp)->mp->dptr, "Ln%d: 0x%x - Next after: %.0f\n", \
+                (int)((lp)-(lp)->mp->ldsc), val, (lp)->rxnexttime); \
+          else sim_debug (TMXR_DBG_RET, (lp)->mp->dptr, "Ln%d: 0x%x\n", (int)((lp)-(lp)->mp->ldsc), val); \
+        } } while (0)
+
+# define tmxr_debug_trace(mp, msg) \
+    do { if (sim_deb && (mp)->dptr && (TMXR_DBG_TRC & (mp)->dptr->dctrl)) \
+        sim_debug (TMXR_DBG_TRC, mp->dptr, "%s\n", (msg)); } while (0)
+
+# define tmxr_debug_trace_line(lp, msg) \
+    do { if (sim_deb && (lp)->mp && (lp)->mp->dptr && (TMXR_DBG_TRC & (lp)->mp->dptr->dctrl)) \
+        sim_debug (TMXR_DBG_TRC, (lp)->mp->dptr, "Ln%d:%s\n", (int)((lp)-(lp)->mp->ldsc), (msg)); } while (0)
+
+# define tmxr_debug_connect(mp, msg) \
+    do { if (sim_deb && (mp)->dptr && (TMXR_DBG_CON & (mp)->dptr->dctrl)) \
+        sim_debug (TMXR_DBG_CON, mp->dptr, "%s\n", (msg)); } while (0)
+
+# define tmxr_debug_connect_line(lp, msg) \
+    do { if (sim_deb && (lp)->mp && (lp)->mp->dptr && (TMXR_DBG_CON & (lp)->mp->dptr->dctrl)) \
+        sim_debug (TMXR_DBG_CON, (lp)->mp->dptr, "Ln%d:%s\n", (int)((lp)-(lp)->mp->ldsc), (msg)); } while (0)
 
 # define tmxr_attach(mp, uptr, cptr) tmxr_attach_ex(mp, uptr, cptr, FALSE)
+
 # if (!defined(NOT_MUX_USING_CODE))
 #  define sim_activate tmxr_activate
 #  define sim_activate_after tmxr_activate_after

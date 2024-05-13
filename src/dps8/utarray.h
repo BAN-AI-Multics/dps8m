@@ -36,13 +36,13 @@
  * a dynamic array implementation using macros
  */
 
-#ifndef UTARRAY_H
+#if !defined(UTARRAY_H)
 # define UTARRAY_H
 
 /* Derived from utarray version */
 # define UTARRAY_VERSION 21.9.8
 
-# ifdef __GNUC__
+# if defined(__GNUC__)
 #  define _UNUSED_ __attribute__ ((__unused__))
 # else
 #  define _UNUSED_
@@ -55,32 +55,28 @@
 
 # include "dps8.h"
 
-# undef FREE
-# ifdef TESTING
-#  define FREE(p) free(p)
-#  undef realloc
-#  define realloc trealloc
-# else
-#  define FREE(p) do  \
-  {                   \
-    free((p));        \
-    (p) = NULL;       \
+# if defined(FREE)
+#  undef FREE
+# endif /* if defined(FREE) */
+# define FREE(p) do  \
+  {                  \
+    free((p));       \
+    (p) = NULL;      \
   } while(0)
-# endif /* ifdef TESTING */
 
 # undef oom
-# define oom() do                                                          \
-  {                                                                        \
-    fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",  \
-             __func__, __FILE__, __LINE__);                                \
-#  if defined(USE_BACKTRACE)                                               \
-#   ifdef SIGUSR2                                                          \
-    (void)raise(SIGUSR2);                                                  \
-    /*NOTREACHED*/ /* unreachable */                                       \
-#   endif /* ifdef SIGUSR2 */                                              \
-#  endif /* if defined(USE_BACKTRACE) */                                   \
-    abort();                                                               \
-    /*NOTREACHED*/ /* unreachable */                                       \
+# define oom() do                                                                \
+  {                                                                              \
+    (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",  \
+                   __func__, __FILE__, __LINE__);                                \
+#  if defined(USE_BACKTRACE)                                                     \
+#   if defined(SIGUSR2)                                                          \
+    (void)raise(SIGUSR2);                                                        \
+    /*NOTREACHED*/ /* unreachable */                                             \
+#   endif /* if defined(SIGUSR2) */                                              \
+#  endif /* if defined(USE_BACKTRACE) */                                         \
+    abort();                                                                     \
+    /*NOTREACHED*/ /* unreachable */                                             \
   } while(0)
 
 typedef void (ctor_f)(void *dst, const void *src);
@@ -101,7 +97,7 @@ typedef struct {
 } UT_array;
 
 # define utarray_init(a,_icd) do {                                            \
-  memset(a,0,sizeof(UT_array));                                               \
+  (void)memset(a,0,sizeof(UT_array));                                         \
   (a)->icd=*_icd;                                                             \
 } while(0)
 
@@ -149,7 +145,7 @@ typedef struct {
 # define utarray_extend_back(a) do {                                          \
   utarray_reserve(a,1);                                                       \
   if ((a)->icd.init) { (a)->icd.init(_utarray_eltptr(a,(a)->i)); }            \
-  else { memset(_utarray_eltptr(a,(a)->i),0,(a)->icd.sz); }                   \
+  else { (void)memset(_utarray_eltptr(a,(a)->i),0,(a)->icd.sz); }             \
   (a)->i++;                                                                   \
 } while(0)
 
@@ -206,7 +202,7 @@ typedef struct {
         (dst)->icd.init(utarray_eltptr(dst,_ut_i));                           \
       }                                                                       \
     } else {                                                                  \
-      memset(_utarray_eltptr(dst,dst->i),0,(dst)->icd.sz*(num-dst->i));       \
+      (void)memset(_utarray_eltptr(dst,dst->i),0,(dst)->icd.sz*(num-dst->i)); \
     }                                                                         \
   }                                                                           \
   dst->i = num;                                                               \
@@ -251,12 +247,18 @@ typedef struct {
   qsort((a)->d, (a)->i, (a)->icd.sz, cmp);                                    \
 } while(0)
 
-# define utarray_find(a,v,cmp) bsearch((v),(a)->d,(a)->i,(a)->icd.sz,cmp)
-# define utarray_front(a) (((a)->i) ? (_utarray_eltptr(a,0)) : NULL)
-# define utarray_next(a,e) (((e)==NULL) ? utarray_front(a) : ((((a)->i) > (utarray_eltidx(a,e)+1)) ? _utarray_eltptr(a,utarray_eltidx(a,e)+1) : NULL))
-# define utarray_prev(a,e) (((e)==NULL) ? utarray_back(a) : ((utarray_eltidx(a,e) > 0) ? _utarray_eltptr(a,utarray_eltidx(a,e)-1) : NULL))
-# define utarray_back(a) (((a)->i) ? (_utarray_eltptr(a,(a)->i-1)) : NULL)
-# define utarray_eltidx(a,e) (((char*)(e) >= (char*)((a)->d)) ? (((char*)(e) - (char*)((a)->d))/(ssize_t)(a)->icd.sz) : -1)
+# define utarray_find(a,v,cmp) \
+    bsearch((v),(a)->d,(a)->i,(a)->icd.sz,cmp)
+# define utarray_front(a) \
+    (((a)->i) ? (_utarray_eltptr(a,0)) : NULL)
+# define utarray_next(a,e) \
+    (((e)==NULL) ? utarray_front(a) : ((((a)->i) > (utarray_eltidx(a,e)+1)) ? _utarray_eltptr(a,utarray_eltidx(a,e)+1) : NULL))
+# define utarray_prev(a,e) \
+    (((e)==NULL) ? utarray_back(a) : ((utarray_eltidx(a,e) > 0) ? _utarray_eltptr(a,utarray_eltidx(a,e)-1) : NULL))
+# define utarray_back(a) \
+    (((a)->i) ? (_utarray_eltptr(a,(a)->i-1)) : NULL)
+# define utarray_eltidx(a,e) \
+    (((char*)(e) >= (char*)((a)->d)) ? (((char*)(e) - (char*)((a)->d))/(ssize_t)(a)->icd.sz) : -1)
 
 /*
  * last we pre-define a few icd for
@@ -269,13 +271,13 @@ static void utarray_str_cpy(void *dst, const void *src) {
   *dstc = (*srcc == NULL) ? NULL : strdup(*srcc);
   if (!*dstc)
     {
-      fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-               __func__, __FILE__, __LINE__);
+      (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                     __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
-#  ifdef SIGUSR2
+#  if defined(SIGUSR2)
       (void)raise(SIGUSR2);
       /*NOTREACHED*/ /* unreachable */
-#  endif /* ifdef SIGUSR2 */
+#  endif /* if defined(SIGUSR2) */
 # endif /* if defined(USE_BACKTRACE) */
       abort();
     }

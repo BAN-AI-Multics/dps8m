@@ -328,13 +328,6 @@ printf '%s\n' "" >&2
 
 ###############################################################################
 
-title_line "$(printf '%s' 'vmpctool')" >&2
-printf '%s\n' "" >&2
-do_cppcheck "vmpctool" "./src/vmpctool"
-printf '%s\n' "" >&2
-
-###############################################################################
-
 title_line "$(printf '%s' 'unifdef')" >&2
 printf '%s\n' "" >&2
 do_cppcheck "unifdef" "./src/unifdef"

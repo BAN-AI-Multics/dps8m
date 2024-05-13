@@ -63,16 +63,14 @@ static const char copyright[] =
   "@(#) $  Author: The DPS8M Development Team and Tony Finch <dot@dotat.at> $\n"
   "@(#) $     URL: https://gitlab.com/dps8m/dps8m/-/tree/master/src/unifdef $\n";
 
-#undef FREE
-#ifdef TESTING
-# define FREE(p) free(p)
-#else
-# define FREE(p) do  \
-  {                  \
-    free((p));       \
-    (p) = NULL;      \
+#if defined(FREE)
+# undef FREE
+#endif /* if defined(FREE) */
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
   } while(0)
-#endif /* ifdef TESTING */
 
 /* types of input lines: */
 
@@ -207,7 +205,7 @@ static int           depth;                 /*  current #if nesting        */
 static int           delcount;              /*  count of deleted lines     */
 static unsigned      blankcount;            /*  count of blank lines       */
 static unsigned      blankmax;              /*  maximum recent blankcount  */
-static bool          constexpr;             /*  constant #if expression    */
+static bool          xconstexp;             /*  constant #if expression    */
 static bool          zerosyms;              /*  to format symdepth output  */
 static bool          firstsym;              /*  ditto                      */
 static int           exitmode;              /*  exit status mode           */
@@ -441,7 +439,8 @@ main(int argc, char *argv[])
   if (showversion || showbuild)
     {
       version();
-      exit(0); /* unreachable */
+      /*NOTREACHED*/ /* unreachable */
+      exit(0);
     }
 
   if (compblank && lnblank)
@@ -516,14 +515,11 @@ main(int argc, char *argv[])
                        __func__, __FILE__, __LINE__);
         abort();  /* bug */
         /*NOTREACHED*/ /* unreachable */
-#ifndef __SUNPRO_C
-# ifndef __SUNPRO_CC
-#  ifndef __SUNPRO_CC_COMPAT
+#if !defined(__SUNPRO_C) && !defined(__SUNPRO_CC) && !defined(__SUNPRO_CC_COMPAT)
+        /*NOTREACHED */ /* unreachable */
         /* cppcheck-suppress unreachableCode */
-        exit(3);  /* unreachable */
-#  endif
-# endif
-#endif
+        exit(3);
+#endif /* if !defined(__SUNPRO_C) && !defined(__SUNPRO_CC) && !defined(__SUNPRO_CC_COMPAT) */
       /*NOTREACHED*/ /* unreachable */
     }
 }
@@ -673,8 +669,8 @@ version(void)
     ( defined(__VERSION__) && defined(__clang_version__) )
   if (showbuild)
     {
-# ifdef __VERSION__
-#  ifdef __GNUC__
+# if defined(__VERSION__)
+#  if defined(__GNUC__)
 #   if !defined (__clang_version__) || defined(__INTEL_COMPILER)
       char xcmp[2];
       (void)sprintf(xcmp, "%.1s", __VERSION__ );
@@ -691,8 +687,8 @@ version(void)
 #   endif /* if !defined (__clang_version__) || defined(__INTEL_COMPILER) */
 #  else
       (void)fprintf(stderr, "Compiler: %s\n", __VERSION__ );
-#  endif /* ifdef __GNUC__ */
-# endif /* ifdef __VERSION__ */
+#  endif /* if defined(__GNUC__) */
+# endif /* if defined(__VERSION__) */
     }
 #endif
 
@@ -1694,7 +1690,7 @@ static const struct ops eval_ops[] = {
 /*
  * Function for evaluating the innermost parts of expressions,
  * viz. !expr (expr) number defined(symbol) symbol
- * We reset the constexpr flag in the last two cases.
+ * We reset the xconstexp flag in the last two cases.
  */
 
 static Linetype
@@ -1816,7 +1812,7 @@ eval_unary(const struct ops *ops, long *valp, const char **cpp)
           lt    = *valp ? LT_TRUE : LT_FALSE;
         }
 
-      constexpr = false;
+      xconstexp = false;
     }
   else if (!endsym(*cp))
     {
@@ -1844,7 +1840,7 @@ eval_unary(const struct ops *ops, long *valp, const char **cpp)
           cp = skipargs(cp);
         }
 
-      constexpr = false;
+      xconstexp = false;
     }
   else
     {
@@ -1929,10 +1925,10 @@ ifeval(const char **cpp)
   Linetype ret;
   long val = 0;
 
-  constexpr = killconsts ? false : true;
+  xconstexp = killconsts ? false : true;
   ret       = eval_table(eval_ops, &val, cpp);
 
-  return ( constexpr ? LT_IF : ret == LT_ERROR ? LT_IF : ret );
+  return ( xconstexp ? LT_IF : ret == LT_ERROR ? LT_IF : ret );
 }
 
 /*
@@ -2250,15 +2246,15 @@ skipargs(const char *cp)
     }
 
   while ( level != 0 && *cp != '\0' );
-    if (level == 0)
-      {
-        return ( cp );
-      }
-    else
-      {
-        /* Rewind and re-detect the syntax error later. */
-        return ( ocp );
-      }
+  if (level == 0)
+    {
+      return ( cp );
+    }
+  else
+    {
+      /* Rewind and re-detect the syntax error later. */
+      return ( ocp );
+    }
 }
 
 /*
@@ -2288,10 +2284,10 @@ getsym(const char **cpp)
   cp = skipcomment(cp);
   cp = skipsym(sym = cp);
 
-    if (cp == sym)
-      {
-        return ( NULL );
-      }
+  if (cp == sym)
+    {
+      return ( NULL );
+    }
 
   *cpp = cp;
 

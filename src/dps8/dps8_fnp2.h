@@ -104,14 +104,14 @@ typedef struct t_MState
         uint sync_msg_size;
         // Pending requests
         bool line_break;
-#ifdef FNPDBG
+#if defined(FNPDBG)
 # define SEND_OUTPUT_DELAY 100
 #else
 # define SEND_OUTPUT_DELAY 2
 #endif
         uint send_output;
         bool accept_new_terminal;
-#ifdef DISC_DELAY
+#if defined(DISC_DELAY)
         uint line_disconnected;
 #else
         bool line_disconnected;
@@ -152,7 +152,7 @@ typedef struct t_MState
         uv_tcp_t server;
         int port;
 
-#ifdef TUN
+#if defined(TUN)
         // TUN hook
         bool is_tun;
         int tun_fd;

@@ -7,3 +7,8 @@ License: ICU
 Files: docs/hpages/archetypes/* docs/hpages/data/* docs/hpages/layouts/* docs/hpages/themes/*
 Copyright: 2022 Robert Kaussow <mail@thegeeklab.de>
 License: MIT
+
+Files: src/libsir/*
+Copyright: 2018-2024 Ryan M. Lederman <lederman@gmail.com>
+           2018-2024 Jeffrey H. Johnson <trnsz@pobox.com>
+License: MIT

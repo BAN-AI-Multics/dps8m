@@ -39,9 +39,8 @@
  * ---------------------------------------------------------------------------
  */
 
-#if defined( __MINGW64__ ) || defined( __MINGW32__ )
-
-# ifndef BSD_RANDOM_H
+#if defined(__MINGW64__) || defined(__MINGW32__)
+# if !defined(BSD_RANDOM_H)
 #  define BSD_RANDOM_H
 
 long  bsd_random(void);
@@ -49,6 +48,5 @@ char *bsd_setstate(char *arg_state);
 void  bsd_srandom(unsigned int x);
 char *bsd_initstate(unsigned int seed, char *arg_state, int n);
 
-# endif /* ifndef BSD_RANDOM_H */
-
+# endif /* if !defined(BSD_RANDOM_H) */
 #endif /* if defined(__MINGW64__) || defined(__MINGW32__) */

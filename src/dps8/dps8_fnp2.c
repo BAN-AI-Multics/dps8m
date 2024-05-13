@@ -101,18 +101,18 @@
 #include "sim_defs.h"
 #include "sim_tmxr.h"
 
-#ifndef CROSS_MINGW64
-# ifndef CROSS_MINGW32
-#  include <regex.h>
-# endif /* ifndef CROSS_MINGW32 */
-#endif /* ifndef CROSS_MINGW64 */
+#if !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32)
+# include <regex.h>
+#endif /* if !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) */
 
-#ifdef TESTING
-# undef realloc
+#if defined(FREE)
 # undef FREE
-# define FREE(p) free(p)
-# define realloc trealloc
-#endif /* ifdef TESTING */
+#endif /* if defined(FREE) */
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
 
 #define DBG_CTR 1
 
@@ -141,7 +141,7 @@ static int findMbx (uint fnpUnitIdx);
 #define N_FNP_UNITS 1 // default
 
 UNIT fnp_unit [N_FNP_UNITS_MAX] = {
-#ifdef NO_C_ELLIPSIS
+#if defined(NO_C_ELLIPSIS)
   { UDATA (NULL, UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA (NULL, UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA (NULL, UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
@@ -162,7 +162,7 @@ UNIT fnp_unit [N_FNP_UNITS_MAX] = {
   [0 ... N_FNP_UNITS_MAX - 1] = {
     UDATA (NULL, UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL
   }
-#endif
+#endif /* if defined(NO_C_ELLIPSIS) */
 };
 
 static DEBTAB fnpDT [] =
@@ -326,17 +326,17 @@ void setTIMW (uint iom_unit_idx, uint chan, word24 mailboxAddress, int mbx)
 void fnpInit(void)
   {
     // 0 sets set service to service_undefined
-    memset(& fnpData, 0, sizeof(fnpData));
+    (void)memset(& fnpData, 0, sizeof(fnpData));
     fnpData.telnet_address  = strdup("0.0.0.0");
     if (!fnpData.telnet_address)
       {
-        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                 __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -499,7 +499,7 @@ static void fnp_rcd_input_in_mailbox (uint mbx, int fnp_unit_idx, int lineno)
 
     uint n_chars = min(linep->nPos, 100);
 
-//Sim_printf ("fnp_rcd_input_in_mailbox nPos %d\n", linep->nPos);
+//sim_printf ("fnp_rcd_input_in_mailbox nPos %d\n", linep->nPos);
     word36 data = 0;
     l_putbits36_9 (& data, 9, (word9) n_chars); // n_chars
     l_putbits36_9 (& data, 18,  0102);          // op_code input_in_mailbox
@@ -790,10 +790,10 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
         sim_warn ("processInputCharacter bad client\r\n");
         return false;
       }
-#ifdef TUN
+#if defined(TUN)
     // TUN doesn't have a client
     if (! linep->is_tun)
-#endif
+#endif /* if defined(TUN) */
       {
 // telnet sends keyboard returns as CR/NUL. Drop the null when we see it;
         uvClientData * p = linep->line_client->data;
@@ -883,18 +883,18 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
 // The multiplexer input processor will also count characters processed by it
 // since it last echoed a character.
 
-#ifdef ECHNEGO_DEBUG
+#if defined(ECHNEGO_DEBUG)
             sim_printf ("\nkar <%c>\n", isprint (kar) ? kar : '*');
-#endif
+#endif /* if defined(ECHNEGO_DEBUG) */
             // Are we echoing?
             if (linep->echnego_on)
               {
                 if (linep->echnego_break_table[kar])
                   {
                     // Break.
-#ifdef ECHNEGO_DEBUG
+#if defined(ECHNEGO_DEBUG)
                     sim_printf ("break\n");
-#endif
+#endif /* if defined(ECHNEGO_DEBUG) */
                     // MTB418 pg 14:
                     // "Whenever the multiplexer delivers to the Ring Zero MCS
                     // interrupt side a character that takes ring zero out of
@@ -934,17 +934,17 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
                     // interrupt side since the last character echoed by the
                     // multiplexer."
                     linep->echnego_unechoed_cnt ++;
-#ifdef ECHNEGO_DEBUG
+#if defined(ECHNEGO_DEBUG)
                     sim_printf ("echnego break nPos %d unechoed cnt %d\r\n",
                       linep->nPos, linep->echnego_unechoed_cnt);
-#endif
+#endif /* if defined(ECHNEGO_DEBUG) */
                     linep->accept_input = 1;
                     return true;
                   } // if break char
 
-#ifdef ECHNEGO_DEBUG
+#if defined(ECHNEGO_DEBUG)
                 sim_printf ("echoing '%c'\r\n", kar);
-#endif
+#endif /* if defined(ECHNEGO_DEBUG) */
                 // Not break; so echo
                 unsigned char str [2] = { kar, 0 };
                 fnpuv_start_writestr (linep->line_client, str);
@@ -960,16 +960,16 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
 
                 if (linep->echnego_screen_left)
                   linep->echnego_screen_left --;
-#ifdef ECHNEGO_DEBUG
+#if defined(ECHNEGO_DEBUG)
                sim_printf ("echnego_screen_left %u\n", linep->echnego_screen_left);
-#endif
+#endif /* if defined(ECHNEGO_DEBUG) */
 
                 if (linep->echnego_screen_left == 0)
                   {
                     // End of line.
-#ifdef ECHNEGO_DEBUG
+#if defined(ECHNEGO_DEBUG)
                     sim_printf ("end of line\n");
-#endif
+#endif /* if defined(ECHNEGO_DEBUG) */
                     // MTB418 pg 14:
                     // "Whenever the multiplexer delivers to the Ring Zero MCS
                     // interrupt side a character that takes ring zero out of
@@ -995,7 +995,6 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
 
                     linep->input_break = false;
 
-#if 0
                     // MTB418 pg 15:
                     // "This determination is made by the ''input processor''
                     // of the multiplexer based upon a value called the
@@ -1004,12 +1003,11 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
                     // count of all characters received by the ring zero
                     // interrupt side since the last character echoed by the
                     // multiplexer."
-                    linep->echnego_unechoed_cnt ++;
-#endif
-#ifdef ECHNEGO_DEBUG
+                    //linep->echnego_unechoed_cnt ++;
+#if defined(ECHNEGO_DEBUG)
                     sim_printf ("echnego end of line nPos %d unechoed cnt %d\r\n",
                       linep->nPos, linep->echnego_unechoed_cnt);
-#endif
+#endif /* if defined(ECHNEGO_DEBUG) */
                     linep->accept_input = 1;
                     return true;
                   }
@@ -1029,10 +1027,10 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
 
             linep->input_break  = true;
             linep->accept_input = 1;
-#ifdef ECHNEGO_DEBUG
+#if defined(ECHNEGO_DEBUG)
             sim_printf ("break nPos %d unechoed cnt %d\r\n",
               linep->nPos, linep->echnego_unechoed_cnt);
-#endif
+#endif /* if defined(ECHNEGO_DEBUG) */
             return true;
           } // break all
 
@@ -1169,11 +1167,11 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
         // To make IMFT work...
         if (linep->service == service_slave || linep->service == service_autocall)
           {
-#ifdef TUN
+#if defined(TUN)
             if (linep->is_tun)
               linep->input_break = endOfBuffer;
             else
-#endif
+#endif /* if defined(TUN) */
               linep->input_break = true;
           }
 
@@ -1199,11 +1197,11 @@ void fnpRecvEOR (uv_tcp_t * client)
 static void fnpProcessBuffer (struct t_line * linep)
   {
     // The connection could have closed when we were not looking
-#ifdef TUN
+#if defined(TUN)
     if ((! linep->is_tun) && ! linep->line_client)
 #else
     if (! linep->line_client)
-#endif
+#endif /* if defined(TUN) */
       {
         if (linep->inBuffer)
           FREE (linep->inBuffer);
@@ -1530,7 +1528,7 @@ void fnpProcessEvent (void)
           {
             struct t_line * linep = & fnpData.fnpUnitData[fnp_unit_idx].MState.line[lineno];
 
-#ifdef DISC_DELAY
+#if defined(DISC_DELAY)
             // Disconnect pending?
             if (linep -> line_disconnected > 1)
               {
@@ -1546,7 +1544,7 @@ void fnpProcessEvent (void)
                     -- linep -> line_disconnected;
                   }
               }
-#endif
+#endif /* if defined(DISC_DELAY) */
 
             // Are we waiting for the previous command to complete?
             if (linep->waitForMbxDone)
@@ -1611,7 +1609,7 @@ void fnpProcessEvent (void)
 
             // Need to send an 'line_disconnected' command to CS?
 
-#ifdef DISC_DELAY
+#if defined(DISC_DELAY)
             else if (linep -> line_disconnected == 1)
               {
                 fnp_rcd_line_disconnected ((uint)mbx, (int) fnp_unit_idx, lineno);
@@ -1627,7 +1625,7 @@ void fnpProcessEvent (void)
                 linep -> listen            = false;
                 need_intr                  = true;
               }
-#endif
+#endif /* if defined(DISC_DELAY) */
 
             // Need to send an 'wru_timeout' command to CS?
 
@@ -1746,9 +1744,9 @@ void fnpProcessEvent (void)
           }
       } // for fnp_unit_idx
 
-#ifdef TUN
+#if defined(TUN)
     fnpTUNProcessEvent ();
-#endif
+#endif /* if defined(TUN) */
     fnp_process_3270_event ();
   }
 
@@ -2120,15 +2118,18 @@ static t_stat fnpShowFW (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
     if (fnpUnitIdx >= (long) N_FNP_UNITS_MAX)
       {
         sim_debug (DBG_ERR, & fnp_dev,
-                   "fnpShowConfig: Invalid unit number %ld\n", (long) fnpUnitIdx);
-        sim_printf ("error: Invalid unit number %ld\n", (long) fnpUnitIdx);
+                   "fnpShowConfig: Invalid unit number %ld\n",
+                   (long) fnpUnitIdx);
+        sim_printf ("error: Invalid unit number %ld\n",
+                    (long) fnpUnitIdx);
         return SCPE_ARG;
       }
 #if 0
     sim_printf ("FNP unit number %ld\n", fnpUnitIdx);
     struct fnpUnitData_s * fudp = fnpData.fnpUnitData + fnpUnitIdx;
 
-    sim_printf ("FNP Mailbox Address:         %04o(8)\n", fudp -> mailboxAddress);
+    sim_printf ("FNP Mailbox Address:         %04o(8)\n",
+                fudp -> mailboxAddress);
 #endif
     return SCPE_OK;
   }
@@ -2140,48 +2141,81 @@ static t_stat fnpShowStatus (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
     if (fnpUnitIdx >= (long) fnp_dev.numunits)
       {
         sim_debug (DBG_ERR, & fnp_dev,
-                   "fnpShowStatus: Invalid unit number %ld\n", (long) fnpUnitIdx);
-        sim_printf ("error: Invalid unit number %ld\n", (long) fnpUnitIdx);
+                   "fnpShowStatus: Invalid unit number %ld\n",
+                   (long) fnpUnitIdx);
+        sim_printf ("error: Invalid unit number %ld\n",
+                    (long) fnpUnitIdx);
         return SCPE_ARG;
       }
 
     sim_printf ("FNP unit number %ld:\n", (long) fnpUnitIdx);
     struct fnpUnitData_s * fudp = fnpData.fnpUnitData + fnpUnitIdx;
 
-    sim_printf ("\tmailboxAddress:              %04o\n", fudp->mailboxAddress);
-    sim_printf ("\tfnpIsRunning:                %o\n", fudp->fnpIsRunning);
-    sim_printf ("\tfnpMBXinUse:                 %o %o %o %o\n", fudp->fnpMBXinUse[0], fudp->fnpMBXinUse[1], fudp->fnpMBXinUse[2], fudp->fnpMBXinUse[3]);
-    sim_printf ("\tlineWaiting:                 %o %o %o %o\n", fudp->lineWaiting[0], fudp->lineWaiting[1], fudp->lineWaiting[2], fudp->lineWaiting[3]);
-    sim_printf ("\tfnpMBXlineno:                %o %o %o %o\n", fudp->fnpMBXlineno[0], fudp->fnpMBXlineno[1], fudp->fnpMBXlineno[2], fudp->fnpMBXlineno[3]);
-    sim_printf ("\taccept_calls:                %o\n", fudp->MState.accept_calls);
+    sim_printf ("\tmailboxAddress:              %04o\n",
+                fudp->mailboxAddress);
+    sim_printf ("\tfnpIsRunning:                %o\n",
+                fudp->fnpIsRunning);
+    sim_printf ("\tfnpMBXinUse:                 %o %o %o %o\n",
+                fudp->fnpMBXinUse[0], fudp->fnpMBXinUse[1],
+                fudp->fnpMBXinUse[2], fudp->fnpMBXinUse[3]);
+    sim_printf ("\tlineWaiting:                 %o %o %o %o\n",
+                fudp->lineWaiting[0], fudp->lineWaiting[1],
+                fudp->lineWaiting[2], fudp->lineWaiting[3]);
+    sim_printf ("\tfnpMBXlineno:                %o %o %o %o\n",
+                fudp->fnpMBXlineno[0], fudp->fnpMBXlineno[1],
+                fudp->fnpMBXlineno[2], fudp->fnpMBXlineno[3]);
+    sim_printf ("\taccept_calls:                %o\n",
+                fudp->MState.accept_calls);
     for (int l = 0; l < MAX_LINES; l ++)
       {
         sim_printf ("  line %d:\n", l);
-        sim_printf ("\tservice:                     %d\n", fudp->MState.line[l].service);
-        sim_printf ("\tline_client:                 %p\n", (void *) fudp->MState.line[l].line_client);
-        sim_printf ("\twas_CR:                      %d\n", fudp->MState.line[l].was_CR);
-        sim_printf ("\tlisten:                      %d\n", fudp->MState.line[l].listen);
-        sim_printf ("\tinputBufferSize:             %d\n", fudp->MState.line[l].inputBufferSize);
-        sim_printf ("\tline_break:                  %d\n", fudp->MState.line[l].line_break);
-        sim_printf ("\tsend_output:                 %d\n", fudp->MState.line[l].send_output);
-        sim_printf ("\taccept_new_terminal:         %d\n", fudp->MState.line[l].accept_new_terminal);
+        sim_printf ("\tservice:                     %d\n",
+                    fudp->MState.line[l].service);
+        sim_printf ("\tline_client:                 %p\n",
+                    (void *) fudp->MState.line[l].line_client);
+        sim_printf ("\twas_CR:                      %d\n",
+                    fudp->MState.line[l].was_CR);
+        sim_printf ("\tlisten:                      %d\n",
+                    fudp->MState.line[l].listen);
+        sim_printf ("\tinputBufferSize:             %d\n",
+                    fudp->MState.line[l].inputBufferSize);
+        sim_printf ("\tline_break:                  %d\n",
+                    fudp->MState.line[l].line_break);
+        sim_printf ("\tsend_output:                 %d\n",
+                    fudp->MState.line[l].send_output);
+        sim_printf ("\taccept_new_terminal:         %d\n",
+                    fudp->MState.line[l].accept_new_terminal);
 #if DISC_DELAY
-        sim_printf ("\tline_disconnected:           %d\n", fudp->MState.line[l].line_disconnected);
+        sim_printf ("\tline_disconnected:           %d\n",
+                    fudp->MState.line[l].line_disconnected);
 #else
-        sim_printf ("\tline_disconnected:           %c\n", fudp->MState.line[l].line_disconnected ? 'T' : 'F');
+        sim_printf ("\tline_disconnected:           %c\n",
+                    fudp->MState.line[l].line_disconnected ? 'T' : 'F');
 #endif
-        sim_printf ("\tacu_dial_failure:            %d\n", fudp->MState.line[l].acu_dial_failure);
-        sim_printf ("\taccept_input:                %d\n", fudp->MState.line[l].accept_input);
-        sim_printf ("\twaitForMbxDone:              %d\n", fudp->MState.line[l].waitForMbxDone);
-        sim_printf ("\tinput_reply_pending:         %d\n", fudp->MState.line[l].input_reply_pending);
-        sim_printf ("\tinput_break:                 %d\n", fudp->MState.line[l].input_break);
-        sim_printf ("\tnPos:                        %d\n", fudp->MState.line[l].nPos);
-        sim_printf ("\tinBuffer:                    %p\n", (void *) fudp->MState.line[l].inBuffer);
-        sim_printf ("\tinSize:                      %d\n", fudp->MState.line[l].inSize);
-        sim_printf ("\tinUsed:                      %d\n", fudp->MState.line[l].inUsed);
-        //sim_printf ("\tdoConnect:                   %p\n", fudp->MState.line[l].doConnect);
-        //sim_printf ("\tserver:                      %p\n", fudp->MState.line[l].server);
-        sim_printf ("\tport:                        %d\n", fudp->MState.line[l].port);
+        sim_printf ("\tacu_dial_failure:            %d\n",
+                    fudp->MState.line[l].acu_dial_failure);
+        sim_printf ("\taccept_input:                %d\n",
+                    fudp->MState.line[l].accept_input);
+        sim_printf ("\twaitForMbxDone:              %d\n",
+                    fudp->MState.line[l].waitForMbxDone);
+        sim_printf ("\tinput_reply_pending:         %d\n",
+                    fudp->MState.line[l].input_reply_pending);
+        sim_printf ("\tinput_break:                 %d\n",
+                    fudp->MState.line[l].input_break);
+        sim_printf ("\tnPos:                        %d\n",
+                    fudp->MState.line[l].nPos);
+        sim_printf ("\tinBuffer:                    %p\n",
+                    (void *) fudp->MState.line[l].inBuffer);
+        sim_printf ("\tinSize:                      %d\n",
+                    fudp->MState.line[l].inSize);
+        sim_printf ("\tinUsed:                      %d\n",
+                    fudp->MState.line[l].inUsed);
+        //sim_printf ("\tdoConnect:                   %p\n",
+        //            fudp->MState.line[l].doConnect);
+        //sim_printf ("\tserver:                      %p\n",
+        //            fudp->MState.line[l].server);
+        sim_printf ("\tport:                        %d\n",
+                    fudp->MState.line[l].port);
 
       }
     return SCPE_OK;
@@ -2400,13 +2434,13 @@ t_stat set_fnp_server_address (UNUSED int32 arg, const char * buf)
     fnpData.telnet_address = strdup (buf);
     if (!fnpData.telnet_address)
       {
-        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                 __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -2475,7 +2509,7 @@ void fnpConnectPrompt (uv_tcp_t * client)
                   fnpuv_start_writestr (client, (unsigned char *) ",");
                 char name [16];
                 first = false;
-                sprintf (name, "%c.h%03d", 'a' + fnp_unit_idx, lineno);
+                (void)sprintf (name, "%c.h%03d", 'a' + fnp_unit_idx, lineno);
                 fnpuv_start_writestr (client, (unsigned char *) name);
               }
           }
@@ -2579,7 +2613,8 @@ void fnp3270ConnectPrompt (uv_tcp_t * client)
     // Don't know ttype yet because Telnet negotiation won't
     // start until evPoll runs.
     unsigned char buf [256];
-    sprintf ((char *) buf, "DPS8/M 3270 connection to %c.%03d.%ld ttype %s\n", fnpno+'a',lineno, (long)p->stationNo, p->ttype);
+    (void)sprintf ((char *) buf, "DPS8/M 3270 connection to %c.%03d.%ld ttype %s\n",
+                   fnpno+'a',lineno, (long)p->stationNo, p->ttype);
     fnpData.ibm3270ctlr[ASSUME0].selDevChar = addr_map[p->stationNo];
     fnp3270Msg (client, buf);
 #endif
@@ -2719,7 +2754,9 @@ void process3270Input (uv_tcp_t * client, unsigned char * buf, ssize_t nread)
         stn_p->stn_in_used = 0;
       }
 
-sim_debug (DBG_TRACE, & fnp_dev, "process3270Input stashed %lu bytes in stn %u; stn_in_size now %u\n", (unsigned long)nread, stn_no, stn_p->stn_in_size);
+sim_debug (DBG_TRACE, & fnp_dev,
+           "process3270Input stashed %lu bytes in stn %u; stn_in_size now %u\n",
+           (unsigned long)nread, stn_no, stn_p->stn_in_size);
 done:;
     // Prevent further reading until this buffer is consumed
     // Rely on 3270 keyboard logic protocol to prevent buffer collision
@@ -2747,18 +2784,18 @@ void reset_line (struct t_line * linep)
     linep->input_flow_control      = false;
     linep->block_xfer_in_frame_sz  = 0;
     linep->block_xfer_out_frame_sz = 0;
-    memset (linep->delay_table,      0, sizeof (linep->delay_table));
+    (void)memset (linep->delay_table,      0, sizeof (linep->delay_table));
     linep->inputSuspendLen         = 0;
-    memset (linep->inputSuspendStr,  0, sizeof (linep->inputSuspendStr));
+    (void)memset (linep->inputSuspendStr,  0, sizeof (linep->inputSuspendStr));
     linep->inputResumeLen          = 0;
-    memset (linep->inputResumeStr,   0, sizeof (linep->inputResumeStr));
+    (void)memset (linep->inputResumeStr,   0, sizeof (linep->inputResumeStr));
     linep->outputSuspendLen        = 0;
-    memset (linep->outputSuspendStr, 0, sizeof (linep->outputSuspendStr));
+    (void)memset (linep->outputSuspendStr, 0, sizeof (linep->outputSuspendStr));
     linep->outputResumeLen         = 0;
-    memset (linep->outputResumeStr,  0, sizeof (linep->outputResumeStr));
+    (void)memset (linep->outputResumeStr,  0, sizeof (linep->outputResumeStr));
     linep->frame_begin             = 0;
     linep->frame_end               = 0;
-    memset (linep->echnego_break_table, 0, sizeof (linep->echnego_break_table));
+    (void)memset (linep->echnego_break_table, 0, sizeof (linep->echnego_break_table));
     linep->echnego_sync_ctr        = 0;
     linep->echnego_screen_left     = 0;
     linep->echnego_unechoed_cnt    = 0;
@@ -2955,7 +2992,7 @@ associate:;
         sim_printf ("CONNECT %s to %c.h%03d\n", inet_ntoa (p -> sin_addr), fnp_unit_idx +'a', lineno);
       }
 
-    sprintf (buf2, "Attached to line %c.h%03d\r\n", fnp_unit_idx +'a', lineno);
+    (void)sprintf (buf2, "Attached to line %c.h%03d\r\n", fnp_unit_idx +'a', lineno);
     fnpuv_start_writestr (client, (unsigned char *) buf2);
 
     if (! fnpData.fnpUnitData[fnp_unit_idx].MState.accept_calls)

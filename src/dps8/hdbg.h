@@ -14,14 +14,11 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifdef TESTING
+#if defined(TESTING)
 
-# ifndef Hdbg_def
+# if !defined(Hdbg_def)
 #  define Hdbg_def
 
-#  if 0
-void hdbg_mark (void);
-#  endif
 t_stat hdbg_size (int32 arg, UNUSED const char * buf);
 t_stat hdbg_print (int32 arg, UNUSED const char * buf);
 t_stat hdbg_cpu_mask (UNUSED int32 arg, const char * buf);
@@ -49,9 +46,9 @@ void hdbgFault (_fault faultNumber, _fault_subtype subFault,
 void hdbgIntrSet (uint inum, uint cpuUnitIdx, uint scuUnitIdx, const char * ctx);
 void hdbgIntr (uint intr_pair_addr, const char * ctx);
 void hdbgNote (const char * ctx, const char * fmt, ...)
-#  ifdef __GNUC__
+#  if defined(__GNUC__)
   __attribute__ ((format (printf, 2, 3)))
-#  endif
+#  endif /* if defined(__GNUC__) */
 ;
 
 // Keep sync'd with regNames
@@ -72,10 +69,6 @@ struct par_s;
 void hdbgPARegR (enum hregs_t type, struct par_s * data, const char * ctx);
 void hdbgPARegW (enum hregs_t type, struct par_s * data, const char * ctx);
 struct dsbr_s;
-#  if 0
-void hdbgDSBRRegR (enum hregs_t type, struct dsbr_s * data, const char * ctx);
-void hdbgDSBRRegW (enum hregs_t type, struct dsbr_s * data, const char * ctx);
-#  endif
 void hdbgAPURead (word15 segno, word18 offset, word24 final, word36 data, const char * ctx);
 void hdbgAPUWrite (word15 segno, word18 offset, word24 final, word36 data, const char * ctx);
 
@@ -98,15 +91,11 @@ void hdbgAPUWrite (word15 segno, word18 offset, word24 final, word36 data, const
 #  define HDBGRegPRW(i, c) hdbgPARegW (hreg_PR0+(i), & cpu.PAR[i], c)
 #  define HDBGRegARR(i, c) hdbgPARegR (hreg_AR0+(i), & cpu.PAR[i], c)
 #  define HDBGRegARW(i, c) hdbgPARegW (hreg_AR0+(i), & cpu.PAR[i], c)
-#  if 0
-#   define HDBGRegDSBRR(i, c) hdbgDSBRRegR (hreg_AR0+(i), & cpu.PAR[i], c)
-#   define HDBGRegDSBRW(i, c) hdbgDSBRRegW (hreg_AR0+(i), & cpu.PAR[i], c)
-#  endif
 #  define HDBGRegIR(c) hdbgRegW (hreg_IR, (word36) cpu.cu.IR, c)
 #  define HDBGTrace(c) hdbgTrace(c)
 #  define HDBGIntr(i, c) hdbgIntr(i, c)
 #  define HDBGIntrSet(i, c, s, ctx) hdbgIntrSet(i, c, s, ctx)
 #  define HDBGFault(n, s, m, c) hdbgFault(n, s, m, c)
 #  define HDBGPrint() hdbgPrint()
-# endif
-#endif
+# endif /* if !defined(Hdbg_def) */
+#endif /* if defined(TESTING) */

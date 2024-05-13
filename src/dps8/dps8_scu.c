@@ -382,7 +382,7 @@
  * describe memory within that SCU.
  *
  *       The cioc instruction (discussed below) also depends on the
- * final absolute addres of the target operand to identify the SCU
+ * final absolute address of the target operand to identify the SCU
  * to perform the operation. In the case of the cioc instruction,
  * though, the has no particular impact in Multics software. All
  * target operands for the cioc instruction when referencing IOMs
@@ -560,7 +560,7 @@ scu_t scu [N_SCU_UNITS_MAX];
 #define N_SCU_UNITS 1 // Default
 
 static UNIT scu_unit [N_SCU_UNITS_MAX] = {
-#ifdef NO_C_ELLIPSIS
+#if defined(NO_C_ELLIPSIS)
   { UDATA (NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA (NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA (NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
@@ -1175,7 +1175,7 @@ static uint64 set_SCU_clock (uint scu_unit_idx)
       {
         // The is a bit of code that is waiting for 5000 ms; this
         // fools into going faster
-#ifdef NEED_128
+#if defined(NEED_128)
         uint128 big = construct_128 (0, cpu.instrCnt);
         // Sync up the clock and the TR; see wiki page "CAC 08-Oct-2014"
         //big *= 4u;
@@ -1213,7 +1213,7 @@ static uint64 set_SCU_clock (uint scu_unit_idx)
         // Otherwise, we'll use the current time as the steady_clock starting point --
         uint64 UNIX_secs = (uint64)time(NULL);
 
-#ifdef NEED_128
+#if defined(NEED_128)
         uint64 UNIX_usecs = UNIX_secs * 1000000llu + big.l;
 #else
         uint64 UNIX_usecs = UNIX_secs * 1000000llu + (uint64) big;
@@ -1342,7 +1342,7 @@ static void deliver_interrupts (uint scu_unit_idx)
 // Since the interrupts are recognized by priority and terminate has a higher priority then
 // marker, if will be delivered first. The following code will deliver marker before terminate.
 
-#ifdef REORDER
+#if defined(REORDER)
     for (uint jnum = 0; jnum < N_CELL_INTERRUPTS; jnum ++)
       {
         static const uint reorder[N_CELL_INTERRUPTS] = {
@@ -1392,11 +1392,11 @@ static void deliver_interrupts (uint scu_unit_idx)
                 uint cpu_unit_udx = cables->scu_to_cpu[scu_unit_idx][port][sn].cpu_unit_idx;
 # if defined(THREADZ) || defined(LOCKLESS)
                 cpus[cpu_unit_udx].events.XIP[scu_unit_idx] = true;
-#  ifdef TESTING
+#  if defined(TESTING)
                 HDBGIntrSet (inum, cpu_unit_udx, scu_unit_idx, __func__);
 #  endif
                 createCPUThread((uint) cpu_unit_udx);
-#  ifndef NO_TIMEWAIT
+#  if !defined(NO_TIMEWAIT)
                 wakeCPU ((uint) cpu_unit_udx);
 #  endif
                 sim_debug (DBG_DEBUG, & scu_dev,
@@ -1404,7 +1404,7 @@ static void deliver_interrupts (uint scu_unit_idx)
                            cpu_unit_udx, scu_unit_idx);
 # else // ! THREADZ
 //if (cpu_unit_udx && ! cpu.isRunning) sim_printf ("starting CPU %c\n", cpu_unit_udx + 'A');
-#  ifdef ROUND_ROBIN
+#  if defined(ROUND_ROBIN)
                 cpus[cpu_unit_udx].isRunning = true;
 #  endif
                 cpus[cpu_unit_udx].events.XIP[scu_unit_idx] = true;
@@ -1459,11 +1459,11 @@ sim_debug (DBG_DEBUG, & scu_dev, "interrupt set for CPU %d SCU %d\n", cpu_unit_u
                 uint cpu_unit_udx = cables->scu_to_cpu[scu_unit_idx][port][sn].cpu_unit_idx;
 # if defined(THREADZ) || defined(LOCKLESS)
                 cpus[cpu_unit_udx].events.XIP[scu_unit_idx] = true;
-#  ifdef TESTING
+#  if defined(TESTING)
                 HDBGIntrSet (inum, cpu_unit_udx, scu_unit_idx, __func__);
 #  endif
                 createCPUThread((uint) cpu_unit_udx);
-#  ifndef NO_TIMEWAIT
+#  if !defined(NO_TIMEWAIT)
                 wakeCPU ((uint) cpu_unit_udx);
 #  endif
                 sim_debug (DBG_DEBUG, & scu_dev,
@@ -1471,7 +1471,7 @@ sim_debug (DBG_DEBUG, & scu_dev, "interrupt set for CPU %d SCU %d\n", cpu_unit_u
                            cpu_unit_udx, scu_unit_idx);
 # else // ! THREADZ
 //if (cpu_unit_udx && ! cpu.isRunning) sim_printf ("starting CPU %c\n", cpu_unit_udx + 'A');
-#  ifdef ROUND_ROBIN
+#  if defined(ROUND_ROBIN)
                 cpus[cpu_unit_udx].isRunning = true;
 #  endif
                 cpus[cpu_unit_udx].events.XIP[scu_unit_idx] = true;
@@ -2095,7 +2095,7 @@ gotit:;
             uint64 clk = set_SCU_clock (scu_unit_idx);
             cpu.rQ =  clk  & 0777777777777;    // lower 36-bits of clock
             cpu.rA = (clk >> 36) & 0177777;    // upper 16-bits of clock
-#ifdef TESTING
+#if defined(TESTING)
             HDBGRegAW ("rscr get clock");
             HDBGRegQW ("rscr get clock");
 #endif
@@ -2406,7 +2406,9 @@ uint scu_get_highest_intr (uint scu_unit_idx)
             if (scu [scu_unit_idx].cells [inum] &&
                 (mask & (1u << (31 - inum))) != 0)
               {
-                sim_debug (DBG_TRACE, & scu_dev, "scu_get_highest_intr inum %d pima %u mask 0%011o port %u cells 0%011o\n", inum, pima, mask, port, scu [scu_unit_idx].cells [inum]);
+                sim_debug (DBG_TRACE, & scu_dev,
+                           "scu_get_highest_intr inum %d pima %u mask 0%011o port %u cells 0%011o\n",
+                           inum, pima, mask, port, scu [scu_unit_idx].cells [inum]);
                 scu [scu_unit_idx].cells [inum] = false;
                 dump_intr_regs ("scu_get_highest_intr", scu_unit_idx);
                 deliver_interrupts (scu_unit_idx);

@@ -1,0 +1,26 @@
+var sir_8hh =
+[
+    [ "sir::error", "structsir_1_1error.html", "structsir_1_1error" ],
+    [ "sir::error_info", "structsir_1_1error__info.html", "structsir_1_1error__info" ],
+    [ "sir::exception", "classsir_1_1exception.html", null ],
+    [ "sir::policy", "classsir_1_1policy.html", "classsir_1_1policy" ],
+    [ "sir::default_policy", "classsir_1_1default__policy.html", "classsir_1_1default__policy" ],
+    [ "sir::adapter", "classsir_1_1adapter.html", null ],
+    [ "sir::default_adapter< TPolicy >", "classsir_1_1default__adapter.html", "classsir_1_1default__adapter" ],
+    [ "sir::std_format_adapter< TPolicy >", "classsir_1_1std__format__adapter.html", null ],
+    [ "sir::boost_format_adapter< TPolicy >", "classsir_1_1boost__format__adapter.html", null ],
+    [ "sir::fmt_format_adapter< TPolicy >", "classsir_1_1fmt__format__adapter.html", null ],
+    [ "sir::std_iostream_adapter< TPolicy >", "classsir_1_1std__iostream__adapter.html", null ],
+    [ "sir::logger< RAII, TPolicy, TAdapters >", "classsir_1_1logger.html", null ],
+    [ "sir::DerivedFromPolicy", "conceptsir_1_1_derived_from_policy.html", null ],
+    [ "sir::DerivedFromStreamBuf", "conceptsir_1_1_derived_from_stream_buf.html", null ],
+    [ "sir::DerivedFromT", "conceptsir_1_1_derived_from_t.html", null ],
+    [ "boost_logger", "sir_8hh.html#a27b8dfbb87bdf40379a55b9d4bb105b5", null ],
+    [ "default_logger", "sir_8hh.html#ac3c8132d7d64f839a8eebb8f91c3d43c", null ],
+    [ "fmt_logger", "sir_8hh.html#a6ca56fffad9f46909d2df3e7664fc72d", null ],
+    [ "iostream_logger", "sir_8hh.html#ae34b82a699369460553c660f4b2bcba3", null ],
+    [ "NthTypeOf", "sir_8hh.html#af7e07997ea6e1fd2886a5ddc09eb91f7", null ],
+    [ "std_format_logger", "sir_8hh.html#a50f9ed69f68f697c0839d6ea235f3685", null ],
+    [ "all_derived_from_t", "sir_8hh.html#a5f417c5e60499d22d51b5128a66dbe1a", null ],
+    [ "throw_on_policy", "sir_8hh.html#aeeaffc9b61a4a185d0376489c7424119", null ]
+];

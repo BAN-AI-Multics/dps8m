@@ -25,12 +25,14 @@
 #include "libtelnet.h"
 #include "uvutil.h"
 
-#ifdef TESTING
-# undef realloc
+#if defined(FREE)
 # undef FREE
-# define FREE(p) free(p)
-# define realloc trealloc
-#endif /* ifdef TESTING */
+#endif /* if defined(FREE) */
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
 
 #define USE_REQ_DATA
 
@@ -46,10 +48,10 @@ static void alloc_buffer (UNUSED uv_handle_t * handle, size_t suggested_size,
                           uv_buf_t * buf)
   {
 /* Suppress Clang Analyzer's possible memory leak warning */
-#if !defined ( __clang_analyzer__ )
+#if !defined(__clang_analyzer__)
     * buf = uv_buf_init ((char *) malloc (suggested_size),
                          (uint) suggested_size);
-#endif /* if !defined ( __clang_analyzer__ ) */
+#endif /* if !defined(__clang_analyzer__) */
   }
 
 static void accessWriteCallback (uv_write_t * req, int status)
@@ -71,16 +73,11 @@ static void accessWriteCallback (uv_write_t * req, int status)
         accessCloseConnection (req->handle);
       }
 
-#ifdef USE_REQ_DATA
+#if defined(USE_REQ_DATA)
     FREE (req->data);
 #else
     unsigned int nbufs = req->nbufs;
     uv_buf_t * bufs = req->bufs;
-    //if (! bufs)
-# if 0
-    if (nbufs > ARRAY_SIZE (req->bufsml))
-      bufs = req->bufsml;
-# endif
     for (unsigned int i = 0; i < nbufs; i ++)
       {
         if (bufs && bufs[i].base)
@@ -93,10 +90,10 @@ static void accessWriteCallback (uv_write_t * req, int status)
             FREE (req->bufsml[i].base);
           }
       }
-#endif
+#endif /* if defined(USE_REQ_DATA) */
 
     // the buf structure is copied; do not free.
-//sim_printf ("freeing req %p\n", req);
+    //sim_printf ("freeing req %p\n", req);
     FREE (req);
   }
 
@@ -154,27 +151,27 @@ static void accessStartWriteActual (uv_tcp_t * client, char * data,
     if (! client || uv_is_closing ((uv_handle_t *) client))
       return;
 /* Suppress Clang Analyzer's possible memory leak warning */
-#if !defined ( __clang_analyzer__ )
+#if !defined(__clang_analyzer__)
     uv_write_t * req = (uv_write_t *) malloc (sizeof (uv_write_t));
     if (!req)
       {
-        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                 __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
-#  ifdef SIGUSR2
+#  if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-#  endif /* ifdef SIGUSR2 */
+#  endif /* if defined(SIGUSR2) */
 # endif /* if defined(USE_BACKTRACE) */
         abort();
       }
     // This makes sure that bufs*.base and bufsml*.base are NULL
-    memset (req, 0, sizeof (uv_write_t));
+    (void)memset (req, 0, sizeof (uv_write_t));
     uv_buf_t buf = uv_buf_init ((char *) malloc ((unsigned long) datalen),
                                                  (uint) datalen);
-# ifdef USE_REQ_DATA
+# if defined(USE_REQ_DATA)
     req->data = buf.base;
-# endif
+# endif /* if defined(USE_REQ_DATA) */
     memcpy (buf.base, data, (unsigned long) datalen);
 //sim_printf ("write %u<%s>\n", datalen, data);
     int ret = uv_write (req, (uv_stream_t *) client, & buf, 1,
@@ -185,7 +182,7 @@ static void accessStartWriteActual (uv_tcp_t * client, char * data,
 // If the socket has been closed, write will return BADF; just ignore it.
     if (ret < 0 && ret != -EBADF)
       sim_printf ("uv_write returns %d\n", ret);
-#endif /* if !defined ( __clang_analyzer__ ) */
+#endif /* if !defined(__clang_analyzer__) */
   }
 
 void accessStartWrite (uv_tcp_t * client, char * data, ssize_t datalen)
@@ -370,13 +367,13 @@ static void accessProcessInput (uv_access * access, unsigned char * buf,
                    (unsigned long) (access->inSize + nread));
         if (! new)
           {
-            fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                     __func__, __FILE__, __LINE__);
+            (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                           __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
             (void)raise(SIGUSR2);
             /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
             abort();
           }
@@ -389,13 +386,13 @@ static void accessProcessInput (uv_access * access, unsigned char * buf,
         access->inBuffer = malloc ((unsigned long) nread);
         if (! access->inBuffer)
           {
-            fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                    __func__, __FILE__, __LINE__);
+            (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                           __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
             (void)raise(SIGUSR2);
             /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
             abort();
           }
@@ -525,8 +522,8 @@ static void * accessTelnetConnect (uv_tcp_t * client)
     void * p = (void *) telnet_init (my_telopts, evHandler, 0, client);
     if (!p)
       {
-        fprintf(stderr, "\rtelnet_init failed at %s[%s:%d]\r\n",
-                __func__, __FILE__, __LINE__);
+        (void)fprintf(stderr, "\rtelnet_init failed at %s[%s:%d]\r\n",
+                      __func__, __FILE__, __LINE__);
         return NULL;
       }
     const telnet_telopt_t * q = my_telopts;
@@ -546,7 +543,7 @@ static void onNewAccess (uv_stream_t * server, int status)
   {
     if (status < 0)
       {
-        fprintf (stderr, "\r[OPC emulation: new connection error %s]\r\n", uv_strerror(status));
+        (void)fprintf (stderr, "\r[OPC emulation: new connection error %s]\r\n", uv_strerror(status));
         // error!
         return;
       }
@@ -556,13 +553,13 @@ static void onNewAccess (uv_stream_t * server, int status)
     uv_tcp_t * client = (uv_tcp_t *) malloc (sizeof (uv_tcp_t));
     if (!client)
       {
-        fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                __func__, __FILE__, __LINE__);
+        (void)fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                      __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -652,23 +649,26 @@ void uv_open_access (uv_access * access)
                        onNewAccess);
     if (r)
      {
-        fprintf (stderr, "\r[OPC emulation: listen error: %s:%ld: %s]\r\n", access->address, (long) access->port, uv_strerror(r));
+        (void)fprintf (stderr, "\r[OPC emulation: listen error: %s:%ld: %s]\r\n",
+                       access->address, (long) access->port, uv_strerror(r));
       }
     access->open = true;
     if (access->address != NULL)
-      sim_printf ("\r[OPC emulation: TELNET server listening on %s:%ld]\r\n", access->address, (long) access->port);
+      sim_printf ("\r[OPC emulation: TELNET server listening on %s:%ld]\r\n",
+                  access->address, (long) access->port);
     else
-      sim_printf ("\r[OPC emulation: TELNET server listening on 0.0.0.0:%ld]\r\n", (long) access->port);
+      sim_printf ("\r[OPC emulation: TELNET server listening on 0.0.0.0:%ld]\r\n",
+                  (long) access->port);
   }
 
-#ifndef QUIET_UNUSED
+#if !defined(QUIET_UNUSED)
 void accessPutChar (uv_access * access, char ch)
   {
     //sim_putchar (ch);
     if (access->loggedOn)
       accessStartWrite (access->client, & ch, 1);
   }
-#endif
+#endif /* if !defined(QUIET_UNUSED) */
 
 int accessGetChar (uv_access * access)
   {
@@ -702,7 +702,7 @@ int accessGetChar (uv_access * access)
 
   }
 
-#ifndef QUIET_UNUSED
+#if !defined(QUIET_UNUSED)
 void accessPutStr (uv_access * access, char * str)
   {
     size_t l = strlen (str);
@@ -711,4 +711,4 @@ void accessPutStr (uv_access * access, char * str)
     if (access->loggedOn)
       accessStartWrite (access->client, str, (ssize_t) l);
   }
-#endif
+#endif /* if !defined(QUIET_UNUSED) */

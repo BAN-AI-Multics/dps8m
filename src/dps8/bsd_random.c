@@ -40,7 +40,7 @@
  * ---------------------------------------------------------------------------
  */
 
-#if defined( __MINGW64__ ) || defined( __MINGW32__ )
+#if defined(__MINGW64__) || defined(__MINGW32__)
 
 # include <stdio.h>
 

@@ -17,7 +17,7 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifndef UVUTIL_H
+#if !defined(UVUTIL_H)
 # define UVUTIL_H
 
 struct uv_access_s
@@ -46,7 +46,7 @@ struct uv_access_s
 typedef struct uv_access_s uv_access;
 void accessStartWriteStr (uv_tcp_t * client, char * data);
 void uv_open_access (uv_access * access);
-# ifndef QUIET_UNUSED
+# if !defined(QUIET_UNUSED)
 void accessPutStr (uv_access * access, char * str);
 void accessPutChar (uv_access * access,  char ch);
 # endif

@@ -74,16 +74,14 @@
 #endif
 #include <locale.h>
 
-#undef FREE
-#ifdef TESTING
-# define FREE(p) free(p)
-#else
-# define FREE(p) do  \
-  {                  \
-    free((p));       \
-    (p) = NULL;      \
+#if defined(FREE)
+# undef FREE
+#endif /* if defined(FREE) */
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
   } while(0)
-#endif /* ifdef TESTING */
 
 /* ============================================================================================================================== */
 #define MAX(x, y)       ((x) > (y) ?  (x) : (y))
@@ -137,9 +135,9 @@
     struct _PageList *next;
 
         int  page_id;
-#ifndef __MINGW64__
+#if !defined(__MINGW64__)
         char pad[sizeof(void(*)(void))-sizeof(int)];
-#endif /* ifndef __MINGW64__ */
+#endif /* if !defined(__MINGW64__) */
 
  } PageList;
 
@@ -175,13 +173,20 @@
 
            if(delta < 1000) {
               delta += 1000;
-          }
+           }
 
            new_num_xrefs = GLOBAL_NUM_XREFS + delta;
            new_xrefs = (long *)malloc(new_num_xrefs * sizeof(*new_xrefs));
 
            if(new_xrefs == NULL) {
               (void)fprintf(stderr, "\r\nERROR: Unable to allocate array for object %d.\r\n", id);
+              (void)fprintf(stderr, "\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
+                            __func__, __FILE__, __LINE__);
+              abort();
+           }
+
+           if(GLOBAL_XREFS == NULL) {
+              (void)fprintf(stderr, "\r\nERROR: GLOBAL_XREFS == NULL!\r\n");
               (void)fprintf(stderr, "\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
                             __func__, __FILE__, __LINE__);
               abort();
@@ -303,14 +308,14 @@
         if(GLOBAL_LINENUMBERS != 0){
         (void)fprintf(stdout,"%6d ",GLOBAL_LINECOUNT);
         }
-              while((c = *buffer++) != '\0') {
-                    switch(c+GLOBAL_ADD) {
-                       case '(':
-                       case ')':
-                       case '\\':
-                          (void)putchar('\\');
-                    }
-                    (void)putchar(c+GLOBAL_ADD);
+        while((c = *buffer++) != '\0') {
+              switch(c+GLOBAL_ADD) {
+                 case '(':
+                 case ')':
+                 case '\\':
+                    (void)putchar('\\');
+              }
+              (void)putchar(c+GLOBAL_ADD);
         }
         (void)putchar(')');
  }
@@ -479,7 +484,7 @@ printline:
         GLOBAL_YPOS -= GLOBAL_LEAD_SIZE;
         i = GLOBAL_SHIFT;
       }
-   end_page();
+    end_page();
 }
 /* ============================================================================================================================== */
  static void dopages(void){
@@ -771,12 +776,15 @@ int main(int argc, char **argv) {
 
            case 'N': GLOBAL_LINENUMBERS=1;                                                    break; /* number lines             */
            case 'P': GLOBAL_PAGES=1;                                                          break; /* number pages             */
-           case 'h': showhelp(1);exit(0);                                                     break; /* help                     */
+           case 'h': showhelp(1);
+                     exit(0);
+                     /*NOTREACHED*/ /* unreachable */
+                                                                                              break; /* help                     */
            case 'X': showhelp(2);
                                                                                               break;
            case 'V': ;
-#ifdef __VERSION__
-# ifdef __GNUC__
+#if defined(__VERSION__)
+# if defined(__GNUC__)
 #  if !defined (__clang_version__) || defined(__INTEL_COMPILER)
                      char xcmp[2];
                      (void)sprintf(xcmp, "%.1s", __VERSION__ );
@@ -791,11 +799,15 @@ int main(int argc, char **argv) {
 #  endif /* if !defined(__clang_version__) || defined(__INTEL_COMPILER)  */
 # else
                      (void)fprintf (stderr, "Compiler: %s\n", __VERSION__ );
-# endif /* ifdef __GNUC__ */
-#endif /* ifdef __VERSION__ */
+# endif /* if defined(__GNUC__) */
+#endif /* if defined(__VERSION__) */
                      exit(0);
-        break; /* build info               */
-           case 'v': (void)fprintf (stderr, "prt2pdf version %d.0.%d\n",GLOBAL_VERSION,GLOBAL_VERSION_PATCH); exit(0);        break; /* version                */
+                     /*NOTREACHED*/ /* unreachable */
+                                                                                              break; /* build info               */
+           case 'v': (void)fprintf (stderr, "prt2pdf version %d.0.%d\n",GLOBAL_VERSION,GLOBAL_VERSION_PATCH);
+                     exit(0);
+                     /*NOTREACHED*/ /* unreachable */
+                                                                                              break; /* version                  */
            case '?':
              (void)fprintf(stderr," SWITCH IS %c\n",c);
              if (isprint (optopt)){
@@ -806,38 +818,30 @@ int main(int argc, char **argv) {
              showhelp(2);
              _Exit(1);
              /*NOTREACHED*/ /* unreachable */
-#ifndef __SUNPRO_C
-# ifndef __SUNPRO_CC
-#  ifndef __SUNPRO_CC_COMPAT
+#if !defined(__SUNPRO_C) && !defined(__SUNPRO_CC) && !defined(__SUNPRO_CC_COMPAT)
              return 1;
-#  endif
-# endif
-#endif
+#endif /* if !defined(__SUNPRO_C) && !defined(__SUNPRO_CC) && !defined(__SUNPRO_CC_COMPAT) */
              /*NOTREACHED*/ /* unreachable */
            default:
              (void)fprintf (stderr, "\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
                             __func__, __FILE__, __LINE__);
              abort();
              /*NOTREACHED*/ /* unreachable */
-#ifndef __SUNPRO_C
-# ifndef __SUNPRO_CC
-#  ifndef __SUNPRO_CC_COMPAT
+#if !defined(__SUNPRO_C) && !defined(__SUNPRO_CC) && !defined(__SUNPRO_CC_COMPAT)
              return 1;
-#  endif
-# endif
-#endif
+#endif /* if !defined(__SUNPRO_C) && !defined(__SUNPRO_CC) && !defined(__SUNPRO_CC_COMPAT) */
              /*NOTREACHED*/ /* unreachable */
            }
 
            if(GLOBAL_SHADE_STEP < 1 ){
               (void)fprintf(stderr,"W-A-R-N-I-N-G: prt2pdf(1) resetting -i %d to -i 1\n",GLOBAL_SHADE_STEP);
               GLOBAL_SHADE_STEP=1;
-   }
+           }
 
-   for (prindex = optind; prindex < argc; prindex++){
-      (void)fprintf (stderr,"Non-option argument %s\n", argv[prindex]);
-   }
-   dopages();
-   exit(0);
+           for (prindex = optind; prindex < argc; prindex++){
+              (void)fprintf (stderr,"Non-option argument %s\n", argv[prindex]);
+           }
+           dopages();
+           exit(0);
 }
 /* ============================================================================================================================== */

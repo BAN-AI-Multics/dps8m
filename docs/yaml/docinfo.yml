@@ -37,7 +37,6 @@ include-before: |
     * &nbsp; &nbsp; **PunUtil** &nbsp; &nbsp;&nbsp; &nbsp; **##PUNUTILV##**
     * &nbsp; &nbsp; **Unifdef** &nbsp; &nbsp;&nbsp; &nbsp; **##UNIFDEFV##**
     * &nbsp; &nbsp; **mcmb** &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **##MCMBVERS##**
-    * &nbsp; &nbsp; **vmpctool** &nbsp;&nbsp; **##VMPCVERS##**
     * &nbsp; &nbsp; **empty** &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; **##EMPTYVER##**
 
   &nbsp;
@@ -282,3 +281,7 @@ include-before: |
 \hyphenation{Windows/}
 \hyphenation{Windows}
 \hyphenation{without}
+\hyphenation{customers}
+\hyphenation{tracking}
+\hyphenation{recommended}
+\hyphenation{specified}

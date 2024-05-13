@@ -36,7 +36,7 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifndef SIM_CONSOLE_H_
+#if !defined(SIM_CONSOLE_H_)
 # define SIM_CONSOLE_H_ 0
 
 # define TTUF_V_MODE    (UNIT_V_UF + 0)

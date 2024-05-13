@@ -295,7 +295,7 @@ mme_handler:
 	szn	mme_arg
 	tnz	mark_non
 
-" Set the F bit in the page table entrys
+" Set the F bit in the page table entry
 
 	lda	f_bit
 	orsa	s1p0
@@ -308,7 +308,7 @@ mme_handler:
 
 mark_non:
 
-" Clear the F bit in the page table entrys
+" Clear the F bit in the page table entry
 
 	lda	f_mask
 	ansa	s1p0

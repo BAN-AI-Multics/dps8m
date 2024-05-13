@@ -25,7 +25,6 @@
 #       PERF_STRIP=1                       Enable CPU-only benchmarking mode
 #      ROUND_ROBIN=1                       Enable non-threaded multiple CPUs
 #          TESTING=1                       Enable developmental testing mode
-#        NO_UCACHE=1                       Disables the appending unit cache
 #     WITH_MGP_DEV=1                       Enable (UNSTABLE) Chaosnet device
 #    WITH_ABSI_DEV=1                       Enable (UNSTABLE) ABSI/IMP device
 #             DUMA=1                       Enable the libDUMA malloc library
@@ -163,17 +162,17 @@ mcmb: .rebuild.env                                                           \
             $(TRUE)
 
 ##############################################################################
-# Builds vmpctool memory cache tool
+# Builds libsir
 
-.PHONY: vmpctool .rebuild.env
-vmpctool: .rebuild.env                                                       \
-    # vmpctool:    # Builds the vmpctool memory cache tool
-	-@$(PRINTF) '%s\n' "BUILD: Starting vmpctool build" 2> /dev/null ||      \
+.PHONY: libsir .rebuild.env
+libsir: .rebuild.env                                                         \
+    # libsir:    # Builds the libsir logging library
+	-@$(PRINTF) '%s\n' "BUILD: Starting libsir build" 2> /dev/null ||        \
         $(TRUE)
 	-@$(MAKE) -s -C "." ".rebuild.env";                                      \
       $(TEST) -f ".needrebuild" && $(MAKE) -C "." "clean" || $(TRUE);        \
-        $(MAKE) -C "src/vmpctool" "all" &&                                   \
-          $(PRINTF) '%s\n' "BUILD: Successful vmpctool build"                \
+        $(MAKE) -C "src/dps8" "libsir" &&                                    \
+          $(PRINTF) '%s\n' "BUILD: Successful libsir build"                  \
             2> /dev/null || $(TRUE)
 
 ##############################################################################

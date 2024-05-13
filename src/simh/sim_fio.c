@@ -63,14 +63,18 @@
 #include "../decNumber/decContext.h"
 #include "../decNumber/decNumberLocal.h"
 
-#ifndef DECLITEND
+#if !defined(DECLITEND)
 # error Unknown platform endianness
-#endif /* ifndef DECLITEND */
+#endif /* if !defined(DECLITEND) */
 
-#ifdef TESTING
+#if defined(FREE)
 # undef FREE
-# define FREE(p) free(p)
-#endif /* ifdef TESTING */
+#endif /* if defined(FREE) */
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
 
 t_bool sim_end;                     /* TRUE = little endian, FALSE = big endian */
 t_bool sim_taddr_64;                /* t_addr is > 32b and Large File Support available */
@@ -105,8 +109,8 @@ return sim_end;
 
 void sim_buf_swap_data (void *bptr, size_t size, size_t count)
 {
-uint32 j;
-int32 k;
+size_t j;
+size_t k;
 unsigned char by, *sptr, *dptr;
 
 if (sim_end || (count == 0) || (size == sizeof (char)))
@@ -138,7 +142,7 @@ return c;
 void sim_buf_copy_swapped (void *dbuf, const void *sbuf, size_t size, size_t count)
 {
 size_t j;
-int32 k;
+size_t k;
 const unsigned char *sptr = (const unsigned char *)sbuf;
 unsigned char *dptr = (unsigned char *)dbuf;
 
@@ -147,8 +151,12 @@ if (sim_end || (size == sizeof (char))) {
     return;
     }
 for (j = 0; j < count; j++) {                           /* loop on items */
-    for (k = (int32)(size - 1); k >= 0; k--)
-        *(dptr + k) = *sptr++;
+    /* Unsigned countdown loop. Pre-decrement k before it's used inside the
+       loop so that k == 0 in the loop body to process the last item, then
+       terminate. Initialize k to size for the same reason: the pre-decrement
+       gives us size - 1 in the loop body. */
+    for (k = size; k > 0; /* empty */)
+        *(dptr + --k) = *sptr++;
     dptr = dptr + size;
     }
 }
@@ -259,7 +267,7 @@ fsc = fopen (file, mode);
 #endif
 #if defined(USE_FCNTL)
 struct flock lock;
-memset (&lock, 0, sizeof(lock));
+(void)memset (&lock, 0, sizeof(lock));
 lock.l_type = F_WRLCK;
 if (writable && !sim_nolock) {
   if (fsc != NULL)

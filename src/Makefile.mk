@@ -8,6 +8,10 @@
 # Copyright (c) 2021-2024 The DPS8M Development Team
 
 ###############################################################################
+
+.NOTPARALLEL:
+
+###############################################################################
 # src/Makefile.mk: Macro definitions and operating system detection defaults
 ###############################################################################
 
@@ -103,12 +107,14 @@ XARGS      ?= xargs
 GTARUSER   ?= dps8m
 GTARGROUP  ?= $(GTARUSER)
 MAKEDEPEND ?= makedepend
-MAKETAR    ?= $(TAR) --owner=$(GTARUSER) --group=$(GTARGROUP) --posix -c      \
-                     --transform 's/^/.\/dps8\//g' -$(ZCTV)
+MAKETAR    ?= $(TAR) --owner=$(GTARUSER) --group=$(GTARGROUP) --format=posix  \
+                     -c --pax-option=exthdr.name="%d/PaxHeaders/%f"           \
+                     --pax-option=delete=atime,delete=ctime --sort=name       \
+                     --mode=go+u,go-w --transform 's/^/.\/dps8\//g' -$(ZCTV)
 TARXT      ?= tar
-COMPRESS   ?= gzip -f -9
-GUNZIP     ?= gzip -d
-GZIP       ?= gzip
+COMPRESS   ?= pigz -f -n -m -11
+GUNZIP     ?= pigz -d
+GZIP       ?= pigz
 GZCAT      ?= $(GZIP) -dc
 COMPRESSXT ?= gz
 KITNAME    ?= sources

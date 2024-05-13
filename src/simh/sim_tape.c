@@ -74,10 +74,11 @@
 #include <ctype.h>
 #include <signal.h>
 
-#ifdef TESTING
-# undef FREE
-# define FREE(p) free(p)
-#endif /* ifdef TESTING */
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
 
 struct sim_tape_fmt {
     const char          *name;                          /* name */
@@ -126,7 +127,7 @@ struct tape_context {
 */
 static void _sim_tape_io_flush (UNIT *uptr)
 {
-fflush (uptr->fileref);
+(void)fflush (uptr->fileref);
 }
 
 /* Attach tape unit */
@@ -206,10 +207,10 @@ if (!ctx)
   fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
           __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
   (void)raise(SIGUSR2);
   /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
   abort();
 }
@@ -401,7 +402,7 @@ uint32 f = MT_GET_FMT (uptr);
 t_mtrlnt sbc;
 t_tpclnt tpcbc;
 t_mtrlnt buffer [256];                                  /* local tape buffer */
-uint32 bufcntr, bufcap;                                 /* buffer counter and capacity */
+size_t bufcntr, bufcap;                                 /* buffer counter and capacity */
 int32 runaway_counter, sizeof_gap;                      /* bytes remaining before runaway and bytes per gap */
 t_stat r = MTSE_OK;
 
@@ -570,9 +571,10 @@ switch (f) {                                            /* the read method depen
     default:
         return MTSE_FMT;
         }
-#ifdef TESTING
-sim_debug (MTSE_DBG_STR, ctx->dptr, "rd_lnt: st: %d, lnt: %d, pos: %" T_ADDR_FMT "u\n", r, *bc, uptr->pos);
-#endif /* TESTING */
+#if defined(TESTING)
+sim_debug (MTSE_DBG_STR, ctx->dptr, "rd_lnt: st: %lld, lnt: %lld, pos: %" T_ADDR_FMT "u\n",
+           (long long)r, (long long)*bc, uptr->pos);
+#endif /* if defined(TESTING) */
 return r;
 }
 
@@ -615,7 +617,7 @@ t_addr ppos;
 t_mtrlnt sbc;
 t_tpclnt tpcbc;
 t_mtrlnt buffer [256];                                  /* local tape buffer */
-uint32 bufcntr, bufcap;                                 /* buffer counter and capacity */
+size_t bufcntr, bufcap;                                 /* buffer counter and capacity */
 int32 runaway_counter, sizeof_gap;                      /* bytes remaining before runaway and bytes per gap */
 t_stat r = MTSE_OK;
 
@@ -655,7 +657,7 @@ switch (f) {                                            /* the read method depen
                     }
 
                 else if (uptr->pos < sizeof (buffer))   /* if less than a full buffer remains */
-                    bufcap = (uint32) uptr->pos         /*   then reduce the capacity accordingly */
+                    bufcap = (size_t) uptr->pos         /*   then reduce the capacity accordingly */
                                / sizeof (t_mtrlnt);
 
                 (void)sim_fseek (uptr->fileref,                           /* seek back to the location */
@@ -756,7 +758,8 @@ switch (f) {                                            /* the read method depen
     default:
         return MTSE_FMT;
         }
-sim_debug (MTSE_DBG_STR, ctx->dptr, "rd_lnt: st: %d, lnt: %d, pos: %" T_ADDR_FMT "u\n", r, *bc, uptr->pos);
+sim_debug (MTSE_DBG_STR, ctx->dptr, "rd_lnt: st: %lld, lnt: %lld, pos: %" T_ADDR_FMT "u\n",
+           (long long)r, (long long)*bc, uptr->pos);
 return r;
 }
 
@@ -791,7 +794,8 @@ t_stat st;
 
 if (ctx == NULL)                                        /* if not properly attached? */
     return sim_messagef (SCPE_IERR, "Bad Attach\n");    /*   that's a problem */
-sim_debug (ctx->dbit, ctx->dptr, "sim_tape_rdrecf(unit=%d, buf=%p, max=%d)\n", (int)(uptr-ctx->dptr->units), buf, max);
+sim_debug (ctx->dbit, ctx->dptr, "sim_tape_rdrecf(unit=%d, buf=%p, max=%lld)\n",
+           (int)(uptr-ctx->dptr->units), buf, (long long)max);
 
 opos = uptr->pos;                                       /* old position */
 if (MTSE_OK != (st = sim_tape_rdlntf (uptr, &tbc)))     /* read rec lnt */
@@ -854,7 +858,8 @@ t_stat st;
 
 if (ctx == NULL)                                        /* if not properly attached? */
     return sim_messagef (SCPE_IERR, "Bad Attach\n");    /*   that's a problem */
-sim_debug (ctx->dbit, ctx->dptr, "sim_tape_rdrecr(unit=%d, buf=%p, max=%d)\n", (int)(uptr-ctx->dptr->units), buf, max);
+sim_debug (ctx->dbit, ctx->dptr, "sim_tape_rdrecr(unit=%d, buf=%p, max=%lld)\n",
+           (int)(uptr-ctx->dptr->units), buf, (long long)max);
 
 if (MTSE_OK != (st = sim_tape_rdlntr (uptr, &tbc)))     /* read rec lnt */
     return st;
@@ -904,7 +909,8 @@ t_mtrlnt sbc;
 
 if (ctx == NULL)                                        /* if not properly attached? */
     return sim_messagef (SCPE_IERR, "Bad Attach\n");    /*   that's a problem */
-sim_debug (ctx->dbit, ctx->dptr, "sim_tape_wrrecf(unit=%d, buf=%p, bc=%d)\n", (int)(uptr-ctx->dptr->units), buf, bc);
+sim_debug (ctx->dbit, ctx->dptr, "sim_tape_wrrecf(unit=%d, buf=%p, bc=%lld)\n",
+           (int)(uptr-ctx->dptr->units), buf, (long long)bc);
 
 sim_tape_data_trace(uptr, buf, bc, "Record Write", ctx->dptr->dctrl & MTSE_DBG_DAT, MTSE_DBG_STR);
 MT_CLR_PNU (uptr);
@@ -968,13 +974,14 @@ if (ctx == NULL)                                        /* if not properly attac
 if (sim_tape_wrp (uptr))                                /* write prot? */
     return MTSE_WRP;
 (void)sim_fseek (uptr->fileref, uptr->pos, SEEK_SET);         /* set pos */
-(void)sim_fwrite (&dat, sizeof (t_mtrlnt), 1, uptr->fileref);
+(void)sim_fwrite (&dat, sizeof (uint32_t), 1, uptr->fileref);
 if (ferror (uptr->fileref)) {                           /* error? */
     MT_SET_PNU (uptr);
     return sim_tape_ioerr (uptr);
     }
-sim_debug (MTSE_DBG_STR, ctx->dptr, "wr_lnt: lnt: %d, pos: %" T_ADDR_FMT "u\n", dat, uptr->pos);
-uptr->pos = uptr->pos + sizeof (t_mtrlnt);              /* move tape */
+sim_debug (MTSE_DBG_STR, ctx->dptr, "wr_lnt: lnt: %lld, pos: %" T_ADDR_FMT "u\n",
+           (long long)dat, uptr->pos);
+uptr->pos = uptr->pos + sizeof (uint32_t);              /* move tape */
 return MTSE_OK;
 }
 
@@ -1011,7 +1018,7 @@ struct tape_context *ctx = (struct tape_context *)uptr->tape_ctx;
 if (ctx == NULL)                                        /* if not properly attached? */
     return sim_messagef (SCPE_IERR, "Bad Attach\n");    /*   that's a problem */
 sim_debug (ctx->dbit, ctx->dptr, "sim_tape_wreom(unit=%d)\n", (int)(uptr-ctx->dptr->units));
-if (MT_GET_FMT (uptr) == MTUF_F_P7B)                    /* cant do P7B */
+if (MT_GET_FMT (uptr) == MTUF_F_P7B)                    /* can't do P7B */
     return MTSE_FMT;
 
 result = sim_tape_wrdata (uptr, MTR_EOM);               /* write the EOM marker */
@@ -1377,7 +1384,8 @@ t_mtrlnt tbc;
 
 if (ctx == NULL)                                        /* if not properly attached? */
     return sim_messagef (SCPE_IERR, "Bad Attach\n");    /*   that's a problem */
-sim_debug (ctx->dbit, ctx->dptr, "sim_tape_sprecsf(unit=%d, count=%d)\n", (int)(uptr-ctx->dptr->units), count);
+sim_debug (ctx->dbit, ctx->dptr, "sim_tape_sprecsf(unit=%d, count=%lld)\n",
+           (int)(uptr-ctx->dptr->units), (long long)count);
 
 *skipped = 0;
 while (*skipped < count) {                              /* loopo */
@@ -1469,7 +1477,8 @@ t_mtrlnt tbc;
 
 if (ctx == NULL)                                        /* if not properly attached? */
     return sim_messagef (SCPE_IERR, "Bad Attach\n");    /*   that's a problem */
-sim_debug (ctx->dbit, ctx->dptr, "sim_tape_sprecsr(unit=%d, count=%d)\n", (int)(uptr-ctx->dptr->units), count);
+sim_debug (ctx->dbit, ctx->dptr, "sim_tape_sprecsr(unit=%d, count=%lld)\n",
+           (int)(uptr-ctx->dptr->units), (long long)count);
 
 *skipped = 0;
 while (*skipped < count) {                              /* loopo */
@@ -1518,7 +1527,8 @@ uint32 filerecsskipped = 0;
 *skipped = *recsskipped = 0;
 if (ctx == NULL)                                        /* if not properly attached? */
     return sim_messagef (SCPE_IERR, "Bad Attach\n");    /*   that's a problem */
-sim_debug (ctx->dbit, ctx->dptr, "sim_tape_spfilebyrecf(unit=%d, count=%d, check_leot=%d)\n", (int)(uptr-ctx->dptr->units), count, check_leot);
+sim_debug (ctx->dbit, ctx->dptr, "sim_tape_spfilebyrecf(unit=%d, count=%lld, check_leot=%lld)\n",
+           (int)(uptr-ctx->dptr->units), (long long)count, (long long)check_leot);
 
 if (check_leot) {
     t_mtrlnt rbc;
@@ -1553,10 +1563,12 @@ while (*skipped < count) {                              /* loopo */
 return MTSE_OK;
 }
 
-t_stat sim_tape_spfilebyrecf_a (UNIT *uptr, uint32 count, uint32 *skipped, uint32 *recsskipped, t_bool check_leot, TAPE_PCALLBACK callback)
+t_stat sim_tape_spfilebyrecf_a \
+           (UNIT *uptr, uint32 count, uint32 *skipped, uint32 *recsskipped, t_bool check_leot, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-    r = sim_tape_spfilebyrecf (uptr, count, skipped, recsskipped, check_leot);
+    r = sim_tape_spfilebyrecf \
+        (uptr, count, skipped, recsskipped, check_leot);
 return r;
 }
 
@@ -1586,7 +1598,8 @@ uint32 totalrecsskipped;
 
 if (ctx == NULL)                                        /* if not properly attached? */
     return sim_messagef (SCPE_IERR, "Bad Attach\n");    /*   that's a problem */
-sim_debug (ctx->dbit, ctx->dptr, "sim_tape_spfilef(unit=%d, count=%d)\n", (int)(uptr-ctx->dptr->units), count);
+sim_debug (ctx->dbit, ctx->dptr, "sim_tape_spfilef(unit=%d, count=%lld)\n",
+           (int)(uptr-ctx->dptr->units), (long long)count);
 
 return sim_tape_spfilebyrecf (uptr, count, skipped, &totalrecsskipped, FALSE);
 }
@@ -1629,7 +1642,8 @@ uint32 filerecsskipped = 0;
 *recsskipped = 0;
 if (ctx == NULL)                                        /* if not properly attached? */
     return sim_messagef (SCPE_IERR, "Bad Attach\n");    /*   that's a problem */
-sim_debug (ctx->dbit, ctx->dptr, "sim_tape_spfilebyrecr(unit=%d, count=%d)\n", (int)(uptr-ctx->dptr->units), count);
+sim_debug (ctx->dbit, ctx->dptr, "sim_tape_spfilebyrecr(unit=%d, count=%lld)\n",
+           (int)(uptr-ctx->dptr->units), (long long)count);
 
 while (*skipped < count) {                              /* loopo */
     while (1) {
@@ -1680,7 +1694,8 @@ uint32 totalrecsskipped;
 
 if (ctx == NULL)                                        /* if not properly attached? */
     return sim_messagef (SCPE_IERR, "Bad Attach\n");    /*   that's a problem */
-sim_debug (ctx->dbit, ctx->dptr, "sim_tape_spfiler(unit=%d, count=%d)\n", (int)(uptr-ctx->dptr->units), count);
+sim_debug (ctx->dbit, ctx->dptr, "sim_tape_spfiler(unit=%d, count=%lld)\n",
+           (int)(uptr-ctx->dptr->units), (long long)count);
 
 return sim_tape_spfilebyrecr (uptr, count, skipped, &totalrecsskipped);
 }
@@ -1717,14 +1732,16 @@ return r;
 
 /* Position Tape */
 
-t_stat sim_tape_position (UNIT *uptr, uint32 flags, uint32 recs, uint32 *recsskipped, uint32 files, uint32 *filesskipped, uint32 *objectsskipped)
+t_stat sim_tape_position \
+           (UNIT *uptr, uint32 flags, uint32 recs, uint32 *recsskipped, uint32 files, uint32 *filesskipped, uint32 *objectsskipped)
 {
 struct tape_context *ctx = (struct tape_context *)uptr->tape_ctx;
 t_stat r = MTSE_OK;
 
 if (ctx == NULL)                                        /* if not properly attached? */
     return sim_messagef (SCPE_IERR, "Bad Attach\n");    /*   that's a problem */
-sim_debug (ctx->dbit, ctx->dptr, "sim_tape_position(unit=%d, flags=0x%X, recs=%d, files=%d)\n", (int)(uptr-ctx->dptr->units), flags, recs, files);
+sim_debug (ctx->dbit, ctx->dptr, "sim_tape_position(unit=%d, flags=0x%X, recs=%lld, files=%lld)\n",
+           (int)(uptr-ctx->dptr->units), flags, (long long)recs, (long long)files);
 
 *recsskipped = *filesskipped = *objectsskipped = 0;
 if (flags & MTPOS_M_REW)
@@ -1769,7 +1786,9 @@ else {
 return r;
 }
 
-t_stat sim_tape_position_a (UNIT *uptr, uint32 flags, uint32 recs, uint32 *recsskipped, uint32 files, uint32 *filesskipped, uint32 *objectsskipped, TAPE_PCALLBACK callback)
+t_stat sim_tape_position_a \
+           (UNIT *uptr, uint32 flags, uint32 recs, uint32 *recsskipped, uint32 files,
+            uint32 *filesskipped, uint32 *objectsskipped, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
     r = sim_tape_position (uptr, flags, recs, recsskipped, files, filesskipped, objectsskipped);
@@ -1882,10 +1901,10 @@ if (!countmap)
     fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
              __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
@@ -1895,10 +1914,10 @@ if (!recbuf)
     fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
              __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
@@ -1915,7 +1934,8 @@ for (objc = 0, sizec = 0, tpos = 0;; ) {
     if (map && (objc < mapsize))
         map[objc] = tpos;
     if (bc) {
-        sim_debug (MTSE_DBG_STR, dptr, "tpc_map: %d byte count at pos: %" T_ADDR_FMT "u\n", bc, tpos);
+        sim_debug (MTSE_DBG_STR, dptr, "tpc_map: %lld byte count at pos: %" T_ADDR_FMT "u\n",
+                   (long long)bc, tpos);
         if (sim_deb && (dptr->dctrl & MTSE_DBG_STR)) {
             (void)sim_fread (recbuf, 1, bc, uptr->fileref);
             sim_data_trace(dptr, uptr, ((dptr->dctrl & MTSE_DBG_DAT) ? recbuf : NULL), "", bc, "Data Record", MTSE_DBG_STR);
@@ -1935,9 +1955,11 @@ sim_debug (MTSE_DBG_STR, dptr, "tpc_map: objc: %u, different record sizes: %u\n"
 for (i=0; i<65535; i++) {
     if (countmap[i]) {
         if (i == 0)
-            sim_debug (MTSE_DBG_STR, dptr, "tpc_map: summary - %u tape marks\n", countmap[i]);
+            sim_debug (MTSE_DBG_STR, dptr, "tpc_map: summary - %u tape marks\n",
+                       countmap[i]);
         else
-            sim_debug (MTSE_DBG_STR, dptr, "tpc_map: summary - %u %d byte record%s\n", countmap[i], (int)i, (countmap[i] > 1) ? "s" : "");
+            sim_debug (MTSE_DBG_STR, dptr, "tpc_map: summary - %u %d byte record%s\n",
+                       countmap[i], (int)i, (countmap[i] > 1) ? "s" : "");
         }
     }
 if (((last_bc != 0xffff) &&
@@ -1947,24 +1969,31 @@ if (((last_bc != 0xffff) &&
     ((objc == countmap[0]) &&
      (countmap[0] != 2))) {     /* Unreasonable format? */
     if (last_bc != 0xffff)
-        sim_debug (MTSE_DBG_STR, dptr, "tpc_map: ERROR unexpected EOT byte count: %d\n", last_bc);
+        sim_debug (MTSE_DBG_STR, dptr,
+                   "tpc_map: ERROR unexpected EOT byte count: %lld\n",
+                   (long long)last_bc);
     if (tpos > tape_size)
-        sim_debug (MTSE_DBG_STR, dptr, "tpc_map: ERROR next record position %" T_ADDR_FMT "u beyond EOT: %" T_ADDR_FMT "u\n", tpos, tape_size);
+        sim_debug (MTSE_DBG_STR, dptr,
+                   "tpc_map: ERROR next record position %" T_ADDR_FMT "u beyond EOT: %" T_ADDR_FMT "u\n",
+                   tpos, tape_size);
     if (objc == countmap[0])
-        sim_debug (MTSE_DBG_STR, dptr, "tpc_map: ERROR tape cnly contains tape marks\n");
+        sim_debug (MTSE_DBG_STR, dptr,
+                   "tpc_map: ERROR tape cnly contains tape marks\n");
     FREE (countmap);
     FREE (recbuf);
     return 0;
     }
 
 if ((last_bc != 0xffff) && (tpos > tape_size)) {
-    sim_debug (MTSE_DBG_STR, dptr, "tpc_map: WARNING unexpected EOT byte count: %d, double tape mark before %" T_ADDR_FMT "u provides logical EOT\n", last_bc, leot);
+    sim_debug (MTSE_DBG_STR, dptr,
+               "tpc_map: WARNING unexpected EOT byte count: %lld, double tape mark before %" T_ADDR_FMT "u provides logical EOT\n",
+               (long long)last_bc, leot);
     objc = had_double_tape_mark;
     tpos = leot;
     }
 if (map)
     map[objc] = tpos;
-sim_debug (MTSE_DBG_STR, dptr, "tpc_map: OK objc: %d\n", objc);
+sim_debug (MTSE_DBG_STR, dptr, "tpc_map: OK objc: %lld\n", (long long)objc);
 FREE (countmap);
 FREE (recbuf);
 return objc;

@@ -5,6 +5,10 @@
 # Copyright (c) 2022-2024 The DPS8M Development Team
 
 ###############################################################################
+
+.NOTPARALLEL:
+
+###############################################################################
 # DPS8M Omnibus Documentation Targets
     # XXXX:    # ----------------------- Documentation ----------------------
 ###############################################################################
@@ -17,19 +21,8 @@ ifneq (,$(findstring docs,$(MAKECMDGOALS)))
 .NOTPARALLEL: docspdf
 endif
 docspdf:                                                                      \
-    # docspdf:    # Build Omnibus Docs (Book-style PDF)
+    # docspdf:    # Build Omnibus Docs
 	@( cd "docs" && $(ENV) sh "./shell/builddoc.sh" )
-
-###############################################################################
-# Print-only PDF
-
-.PHONY: docsprt
-ifneq (,$(findstring docs,$(MAKECMDGOALS)))
-.NOTPARALLEL: docsprt
-endif
-docsprt:                                                                      \
-    # docsprt:    # Build Omnibus Docs (Print-only PDF)
-	@( cd "docs" && $(ENV) ONESIDE=1 sh "./shell/builddoc.sh" )
 
 ###############################################################################
 # Docker Book-style PDF
@@ -39,19 +32,8 @@ ifneq (,$(findstring docs,$(MAKECMDGOALS)))
 .NOTPARALLEL: dokdocspdf
 endif
 dokdocspdf:                                                                   \
-    # dokdocspdf:    # Build Omnibus Docs (Docker, Book)
+    # dokdocspdf:    # Build Omnibus Docs (using Docker)
 	@( cd "docs" && $(ENV) sh "./shell/builddoc-docker.sh" )
-
-###############################################################################
-# Docker Print-only PDF
-
-.PHONY: dokdocsprt
-ifneq (,$(findstring docs,$(MAKECMDGOALS)))
-.NOTPARALLEL: dokdocsprt
-endif
-dokdocsprt:                                                                   \
-    # dokdocsprt:    # Build Omnibus Docs (Docker, Print)
-	@( cd "docs" && $(ENV) ONESIDE=1 sh "./shell/builddoc-docker.sh" )
 
 ###############################################################################
 

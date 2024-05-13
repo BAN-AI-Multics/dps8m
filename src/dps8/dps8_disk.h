@@ -38,7 +38,7 @@ struct dsk_state
     bool seekValid; // True if seekPosition contains a valid seek address.
     uint seekPosition;
     char device_name [MAX_DEV_NAME_LEN];
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
     pthread_mutex_t dsk_lock;
 #endif
   };

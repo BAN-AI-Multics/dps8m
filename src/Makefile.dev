@@ -6,6 +6,10 @@
 # Copyright (c) 2021-2024 The DPS8M Development Team
 
 ###############################################################################
+
+.NOTPARALLEL:
+
+###############################################################################
 # Development Tools Targets                                                   \
     # XXXX:    # --------------------- Development Tools --------------------
 ###############################################################################
@@ -96,8 +100,6 @@ dep depend: predepend                                                         \
       ( $(CD) "src/simh"      && $(DO_MAKEDEP) )
 	@$(PRINTF) 'DEPEND: %s' "unifdef" ;                                       \
       ( $(CD) "src/unifdef"   && $(DO_MAKEDEP) )
-	@$(PRINTF) 'DEPEND: %s' "vmpctool" ;                                      \
-      ( $(CD) "src/vmpctool"  && $(DO_MAKEDEP) )
 	@$(PRINTF) 'DEPEND: %s' "novdso" ;                                        \
       ( $(CD) "src/novdso"    && $(DO_MAKEDEP) )
 
@@ -145,8 +147,6 @@ dependclean depclean cleandepend cleandep:                                    \
       ( $(CD) "src/simh"      && $(DO_CLEANDEP) )
 	@$(PRINTF) 'DEPEND: %s' "unifdef" ;                                       \
       ( $(CD) "src/unifdef"   && $(DO_CLEANDEP) )
-	@$(PRINTF) 'DEPEND: %s' "vmpctool" ;                                      \
-      ( $(CD) "src/vmpctool"  && $(DO_CLEANDEP) )
 	@$(PRINTF) 'DEPEND: %s' "novdso" ;                                        \
       ( $(CD) "src/novdso"    && $(DO_CLEANDEP) )
 
@@ -161,16 +161,17 @@ printdefs:                                                                    \
 	@( ( $(FIND) . -name '*.[ch]' -exec $(SH) -c "export n2=\"{}\";           \
      $(PRINTF) '%s ' \"\$${n2:?}\";                                           \
       "$$($(GIT) rev-parse --show-toplevel)/./src/unifdef/unifdef" "-Stn"     \
-       \"\$${n2:?}\"" \; | while read -r n; do $(PRINTF) '%s  %s \n'          \
-        $$($(PRINTF) '%s ' "$${n:?}" | $(WC) -w) "$${n:?}"; done           |  \
-         $(SORT) -urn | $(EXPAND) | $(CUT) -d ' ' -f 2-                    |  \
-          $(SED) -e 's/ S.._.*H_ / /g' -e 's/ DEC.* / /g' | $(TR) -s ' '   |  \
-           $(SED) -e 's/^\ //g' | $(SED) -e 's/^\.\/.*\.[ch] \./\./g'         \
-            -e 's/^\.\/.*[ch] $$//g' | $(GREP) -v '^$$') ) | while read       \
-             line; do $(PRINTF) '%s\n' "$${line:?} "                       |  \
-              $(AWK) '{ for (i=1; i<=NF; i++) if (!a[$$i]++)                  \
-               printf("%s%s", $$i, FS); } { printf("\n"); }'; done         |  \
-                $(SED) 's/ /: /'
+       \"\$${n2:?}\"" \; | grep -v '/libsir/'                              |  \
+        while read -r n; do $(PRINTF) '%s  %s \n'                             \
+         $$($(PRINTF) '%s ' "$${n:?}" | $(WC) -w) "$${n:?}"; done          |  \
+          $(SORT) -urn | $(EXPAND) | $(CUT) -d ' ' -f 2-                   |  \
+           $(SED) -e 's/ S.._.*H_ / /g' -e 's/ DEC.* / /g' | $(TR) -s ' '  |  \
+            $(SED) -e 's/^\ //g' | $(SED) -e 's/^\.\/.*\.[ch] \./\./g'        \
+             -e 's/^\.\/.*[ch] $$//g' | $(GREP) -v '^$$') ) | while read      \
+              line; do $(PRINTF) '%s\n' "$${line:?} "                      |  \
+               $(AWK) '{ for (i=1; i<=NF; i++) if (!a[$$i]++)                 \
+                printf("%s%s", $$i, FS); } { printf("\n"); }'; done        |  \
+                 $(SED) 's/ /: /'
 
 ###############################################################################
 # Convenience target: Runs Cppcheck
@@ -305,6 +306,10 @@ lmscspell:                                                                    \
 	@( ( set -o pipefail > /dev/null 2>&1 ) && set -o pipefail ;              \
      $(GREP) -riaL 'scspell-id: '                                           | \
      $(GREP) -Ev '(\.ascii$$)'                                              | \
+     $(GREP) -Ev '(docs/wiki/)'                                             | \
+     $(GREP) -Ev '(src/libsir/)'                                            | \
+     $(GREP) -Ev '(libuv-local/)'                                           | \
+     $(GREP) -Ev '(\.envrc$$)'                                              | \
      $(GREP) -Ev '(\.Attic/.)'                                              | \
      $(GREP) -Ev '(bound_library_wired_$$)'                                 | \
      $(GREP) -Ev '(cctree.db$$)'                                            | \
@@ -357,7 +362,6 @@ lmscspell:                                                                    \
      $(GREP) -Ev '(/unifdef$$)'                                             | \
      $(GREP) -Ev '(ver\.h$$)'                                               | \
      $(GREP) -Ev '(\.vim$$)'                                                | \
-     $(GREP) -Ev '(/vmpctool$$)'                                            | \
      $(GREP) -Ev '(/novdso$$)'                                              | \
      $(GREP) -Ev '(\.yml$$)'                                                | \
      $(GREP) -Ev '(\.yml\.in$$)'                                            | \

@@ -14,10 +14,10 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifdef WITH_MGP_DEV
+#if defined(WITH_MGP_DEV)
 extern       DEVICE  mgp_dev;
 extern       UNIT    mgp_unit[N_MGP_UNITS_MAX];
 void         mgp_init(void);
 void         mgp_process_event(void);
 iom_cmd_rc_t mgp_iom_cmd(uint iomUnitIdx, uint chan);
-#endif /* ifdef WITH_MGP_DEV */
+#endif /* if defined(WITH_MGP_DEV) */

@@ -8,7 +8,7 @@
 
 ### BUILDINFO (B)
 
-"**`BUILDINFO`**" (*abbreviated* "`B`") shows build-time compilation information including the complete compiler flags (*i.e.* "`CFLAGS`", "`LDFLAGS`", etc.) used when building the simulator, the libraries the simulator is linked against and their versions, relevant definitions set by the C preprocessor at build-time, the types of file locking mechanisms available, and the style of atomic operation primitives in use.
+"**`BUILDINFO`**" (*abbreviated* "`B`") shows build-time compilation information including the complete compiler flags (*i.e.* "`CFLAGS`", "`LDFLAGS`", etc.) used when building the simulator, the libraries the simulator is statically and dynamically linked against and their versions, relevant definitions set by the C preprocessor at build-time, the types of file locking mechanisms available, and the style of atomic operation primitives in use.
 
 **Example**
 

@@ -8,21 +8,13 @@ FROM fedora:##RELEASEVER##
 WORKDIR /builds
 RUN set -x; \
 dnf -y --setopt=keepcache=True --setopt=install_weak_deps=True \
- --allowerasing --refresh update && printf %s\\n "" && \
+ --refresh update && printf %s\\n "" && \
 dnf -y --setopt=keepcache=True --setopt=install_weak_deps=True \
- --allowerasing install dnf-utils && printf %s\\n "" && \
+ install dnf-utils && printf %s\\n "" && \
 dnf -y --setopt=keepcache=True --setopt=install_weak_deps=True \
- --allowerasing groupinstall "Core" && printf %s\\n "" && \
+ update && printf %s\\n "" && \
 dnf -y --setopt=keepcache=True --setopt=install_weak_deps=True \
- --allowerasing groupinstall "Minimal Install" && printf %s\\n "" && \
-dnf -y --setopt=keepcache=True --setopt=install_weak_deps=True \
- --allowerasing groupinstall "Development Tools" && printf %s \\n "" && \
-dnf -y --setopt=keepcache=True --setopt=install_weak_deps=True \
- --allowerasing groupinstall "C Development Tools and Libraries" && printf %s\\n "" && \
-dnf -y --setopt=keepcache=True --setopt=install_weak_deps=True \
- --allowerasing update && printf %s\\n "" && \
-dnf -y --setopt=keepcache=True --setopt=install_weak_deps=True \
- --allowerasing install \
+ install \
 adobe-source-code-pro-fonts \
 adobe-source-sans-pro-fonts \
 advancecomp \

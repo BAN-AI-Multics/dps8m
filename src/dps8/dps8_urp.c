@@ -50,7 +50,7 @@ static struct urpState
 #define UNIT_FLAGS ( UNIT_FIX | UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | \
                      UNIT_IDLE )
 UNIT urp_unit [N_URP_UNITS_MAX] = {
-#ifdef NO_C_ELLIPSIS
+#if defined(NO_C_ELLIPSIS)
   { UDATA (NULL, UNIT_FLAGS, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA (NULL, UNIT_FLAGS, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA (NULL, UNIT_FLAGS, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
@@ -71,7 +71,7 @@ UNIT urp_unit [N_URP_UNITS_MAX] = {
   [0 ... N_URP_UNITS_MAX-1] = {
     UDATA (NULL, UNIT_FLAGS, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL
   }
-#endif
+#endif /* if defined(NO_C_ELLIPSIS) */
 };
 
 #define URPUNIT_NUM(uptr) ((uptr) - urp_unit)
@@ -133,10 +133,10 @@ static t_stat urpSetDeviceName (UNUSED UNIT * uptr, UNUSED int32 value, UNUSED c
 
 static MTAB urp_mod [] =
   {
-#ifndef SPEED
+#if !defined(SPEED)
     { UNIT_WATCH, 1, "WATCH", "WATCH", 0, 0, NULL, NULL },
     { UNIT_WATCH, 0, "NOWATCH", "NOWATCH", 0, 0, NULL, NULL },
-#endif
+#endif /* if !defined(SPEED) */
     {
       MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* Mask               */
       0,                                          /* Match              */
@@ -204,14 +204,14 @@ DEVICE urp_dev = {
 
 void urp_init (void)
   {
-    memset (urpState, 0, sizeof (urpState));
+    (void)memset (urpState, 0, sizeof (urpState));
   }
 
 static iom_cmd_rc_t urpCmd (uint iomUnitIdx, uint chan) {
   iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
-#ifdef TESTING
+#if defined(TESTING)
   if_sim_debug (DBG_TRACE, & urp_dev) dumpDCW (p->DCW, 0);
-#endif
+#endif /* if defined(TESTING) */
  uint ctlrUnitIdx = get_ctlr_idx (iomUnitIdx, chan);
  uint devUnitIdx  = cables->urp_to_urd[ctlrUnitIdx][p->IDCW_DEV_CODE].unit_idx;
  //UNIT * unitp = & urp_unit [devUnitIdx];

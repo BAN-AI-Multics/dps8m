@@ -34,10 +34,11 @@
 
 #define DBG_CTR 1
 
-#ifdef TESTING
-# undef FREE
-# define FREE(p) free(p)
-#endif /* ifdef TESTING */
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
 
 /*
  * misc utility routines used by simulator
@@ -45,23 +46,23 @@
 
 char * dump_flags(char * buffer, word18 flags)
 {
-    sprintf(buffer, "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
-            flags & I_HEX   ? "Hex "   : "",  // L68 will never have I_HEX set, so no need to DPS8M-only
-            flags & I_ABS   ? "Abs "   : "",
-            flags & I_MIF   ? "MIF "   : "",
-            flags & I_TRUNC ? "Trunc " : "",
-            flags & I_NBAR  ? "~BAR "  : "",
-            flags & I_PMASK ? "PMask " : "",
-            flags & I_PERR  ? "PErr"   : "",
-            flags & I_TALLY ? "Tally " : "",
-            flags & I_OMASK ? "OMASK " : "",
-            flags & I_EUFL  ? "EUFL "  : "",
-            flags & I_EOFL  ? "EOFL "  : "",
-            flags & I_OFLOW ? "Ovr "   : "",
-            flags & I_CARRY ? "Carry " : "",
-            flags & I_NEG   ? "Neg "   : "",
-            flags & I_ZERO  ? "Zero "  : ""
-            );
+    (void)sprintf(buffer, "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+                  flags & I_HEX   ? "Hex "   : "",  // L68 will never have I_HEX set, so no need to DPS8M-only
+                  flags & I_ABS   ? "Abs "   : "",
+                  flags & I_MIF   ? "MIF "   : "",
+                  flags & I_TRUNC ? "Trunc " : "",
+                  flags & I_NBAR  ? "~BAR "  : "",
+                  flags & I_PMASK ? "PMask " : "",
+                  flags & I_PERR  ? "PErr"   : "",
+                  flags & I_TALLY ? "Tally " : "",
+                  flags & I_OMASK ? "OMASK " : "",
+                  flags & I_EUFL  ? "EUFL "  : "",
+                  flags & I_EOFL  ? "EOFL "  : "",
+                  flags & I_OFLOW ? "Ovr "   : "",
+                  flags & I_CARRY ? "Carry " : "",
+                  flags & I_NEG   ? "Neg "   : "",
+                  flags & I_ZERO  ? "Zero "  : ""
+                 );
     return buffer;
 
 }
@@ -111,11 +112,11 @@ char *disassemble(char * result, word36 instruction)
         int n = (address >> 15) & 07;
         int offset = address & 077777;
 
-        sprintf(buff, " pr%d|%o", n, offset);
+        (void)sprintf (buff, " pr%d|%o", n, offset);
         strcat (result, buff);
         // return dps8_strupr(result);
     } else {
-        sprintf(buff, " %06o", address);
+        (void)sprintf (buff, " %06o", address);
         strcat (result, buff);
     }
     // get mod
@@ -150,7 +151,7 @@ char *get_mod_string(char * msg, word6 tag)
 
     if (tag >= 0100) //-V536
     {
-        sprintf(msg, "getModReg(tag out-of-range %o)", tag);
+        (void)sprintf (msg, "getModReg(tag out-of-range %o)", tag);
     } else {
         for(uint n = 0 ; n < 0100 ; n++) //-V536
             if (extMods[n].mod)
@@ -172,7 +173,9 @@ char *get_mod_string(char * msg, word6 tag)
 word36 Add36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf)
   {
     CPT (cpt2L, 17); // Add36b
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Add36b op1 %012"PRIo64" op2 %012"PRIo64" carryin %o flagsToSet %06o flags %06o\n", op1, op2, carryin, flagsToSet, * flags);
+    sim_debug (DBG_TRACEEXT, & cpu_dev,
+               "Add36b op1 %012"PRIo64" op2 %012"PRIo64" carryin %o flagsToSet %06o flags %06o\n",
+               op1, op2, carryin, flagsToSet, * flags);
 
 // See: https://en.wikipedia.org/wiki/Two%27s_complement#Addition
 
@@ -206,7 +209,7 @@ word36 Add36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 
     // Truncate the result
     res &= MASK36;
 
-#ifdef PANEL68
+#if defined(PANEL68)
     if (cry) CPT (cpt2L, 28); // carry
     if (ovf) CPT (cpt2L, 29); // ovf
     if (!res) CPT (cpt2L, 30); // zero
@@ -291,7 +294,7 @@ word36 Sub36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 
     // Check for carry
     bool cry = r38;
 
-#ifdef PANEL68
+#if defined(PANEL68)
     if (cry) CPT (cpt2L, 28); // carry
     if (ovf) CPT (cpt2L, 29); // ovf
     if (!res) CPT (cpt2L, 30); // zero
@@ -367,7 +370,7 @@ word18 Add18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 
     // Check for carry
     bool cry = r20;
 
-#ifdef PANEL68
+#if defined(PANEL68)
     if (cry) CPT (cpt2L, 28); // carry
     if (ovf) CPT (cpt2L, 29); // ovf
     if (!res) CPT (cpt2L, 30); // zero
@@ -451,7 +454,7 @@ word18 Sub18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 
     // Check for carry
     bool cry = r20;
 
-#ifdef PANEL68
+#if defined(PANEL68)
     if (cry) CPT (cpt2L, 28); // carry
     if (ovf) CPT (cpt2L, 29); // ovf
     if (!res) CPT (cpt2L, 30); // zero
@@ -498,7 +501,7 @@ word72 Add72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
 // See: https://en.wikipedia.org/wiki/Two%27s_complement#Addition
 
     // 73 bit arithmetic for the above N+1 algorithm
-#ifdef NEED_128
+#if defined(NEED_128)
     word74 op1e = and_128 (op1, MASK72);
     word74 op2e = and_128 (op2, MASK72);
     word74 ci   = construct_128 (0, carryin ? 1 : 0);
@@ -509,7 +512,7 @@ word72 Add72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
 #endif
 
     // extend sign bits
-#ifdef NEED_128
+#if defined(NEED_128)
     if (isnonzero_128 (and_128 (op1e, SIGN72)))
       op1e = or_128 (op1e, BIT73);
     if (isnonzero_128 (and_128 (op2e, SIGN72)))
@@ -522,14 +525,14 @@ word72 Add72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
 #endif
 
     // Do the math
-#ifdef NEED_128
+#if defined(NEED_128)
     word74 res = add_128 (op1e, add_128 (op2e, ci));
 #else
     word74 res = op1e + op2e + ci;
 #endif
 
     // Extract the overflow bits
-#ifdef NEED_128
+#if defined(NEED_128)
     bool r73 = isnonzero_128 (and_128 (res, BIT73));
     bool r72 = isnonzero_128 (and_128 (res, SIGN72));
 #else
@@ -538,14 +541,14 @@ word72 Add72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
 #endif
 
     // Extract the carry bit
-#ifdef NEED_128
+#if defined(NEED_128)
     bool r74 = isnonzero_128 (and_128 (res, BIT74));
 #else
     bool r74 = res & BIT74 ? true : false;
 #endif
 
     // Truncate the result
-#ifdef NEED_128
+#if defined(NEED_128)
     res = and_128 (res, MASK72);
 #else
     res &= MASK72;
@@ -557,7 +560,7 @@ word72 Add72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
     // Check for carry
     bool cry = r74;
 
-#ifdef PANEL68
+#if defined(PANEL68)
     if (cry) CPT (cpt2L, 28); // carry
     if (ovf) CPT (cpt2L, 29); // ovf
     if (!res) CPT (cpt2L, 30); // zero
@@ -580,7 +583,7 @@ word72 Add72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
 
     if (flagsToSet & I_ZERO)
       {
-#ifdef NEED_128
+#if defined(NEED_128)
         if (isnonzero_128 (res))
 #else
         if (res)
@@ -592,7 +595,7 @@ word72 Add72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
 
     if (flagsToSet & I_NEG)
       {
-#ifdef NEED_128
+#if defined(NEED_128)
         if (isnonzero_128 (and_128 (res, SIGN72)))
 #else
         if (res & SIGN72)
@@ -608,12 +611,22 @@ word72 Add72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
 word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf)
   {
     CPT (cpt2L, 22); // Sub72b
-#ifdef NEED_128
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b op1 %012"PRIo64"%012"PRIo64" op2 %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\n",
- (word36) ((rshift_128 (op1, 36).l) & MASK36), (word36) (op1.l & MASK36), (word36) (rshift_128 (op2, 36).l & MASK36), (word36) (op2.l & MASK36), carryin, flagsToSet, * flags);
+#if defined(NEED_128)
+    sim_debug (DBG_TRACEEXT, & cpu_dev,
+               "Sub72b op1 %012"PRIo64"%012"PRIo64" op2 %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\n",
+               (word36) ((rshift_128 (op1, 36).l) & MASK36),
+               (word36) (op1.l & MASK36),
+               (word36) (rshift_128 (op2, 36).l & MASK36),
+               (word36) (op2.l & MASK36),
+               carryin, flagsToSet, * flags);
 #else
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b op1 %012"PRIo64"%012"PRIo64" op2 %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\n",
- (word36) ((op1 >> 36) & MASK36), (word36) (op1 & MASK36), (word36) ((op2 >> 36) & MASK36), (word36) (op2 & MASK36), carryin, flagsToSet, * flags);
+    sim_debug (DBG_TRACEEXT, & cpu_dev,
+               "Sub72b op1 %012"PRIo64"%012"PRIo64" op2 %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\n",
+               (word36) ((op1 >> 36) & MASK36),
+               (word36) (op1 & MASK36),
+               (word36) ((op2 >> 36) & MASK36),
+               (word36) (op2 & MASK36),
+               carryin, flagsToSet, * flags);
 #endif
 
 // See: https://en.wikipedia.org/wiki/Two%27s_complement
@@ -624,7 +637,7 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
 //  If carry indicator OFF, then C(A) - C(Y) - 1 -> C(A)
 
     // 73 bit arithmetic for the above N+1 algorithm
-#ifdef NEED_128
+#if defined(NEED_128)
     word74 op1e = and_128 (op1, MASK72);
     word74 op2e = and_128 (op2, MASK72);
 #else
@@ -632,14 +645,14 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
     word74 op2e = op2 & MASK72;
 #endif
     // Note that carryin has an inverted sense for borrow
-#ifdef NEED_128
+#if defined(NEED_128)
     word74 ci = construct_128 (0, carryin ? 0 : 1);
 #else
     word74 ci = carryin ? 0 : 1;
 #endif
 
     // extend sign bits
-#ifdef NEED_128
+#if defined(NEED_128)
     if (isnonzero_128 (and_128 (op1e, SIGN72)))
       op1e = or_128 (op1e, BIT73);
     if (isnonzero_128 (and_128 (op2e, SIGN72)))
@@ -652,28 +665,40 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
 #endif
 
     // Do the math
-#ifdef NEED_128
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b op1e %012"PRIo64"%012"PRIo64" op2e %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\n",
- (word36) ((rshift_128 (op1e, 36).l) & MASK36), (word36) (op1e.l & MASK36), (word36) (rshift_128 (op2e, 36).l & MASK36), (word36) (op2e.l & MASK36), carryin, flagsToSet, * flags);
+#if defined(NEED_128)
+    sim_debug (DBG_TRACEEXT, & cpu_dev,
+               "Sub72b op1e %012"PRIo64"%012"PRIo64" op2e %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\n",
+               (word36) ((rshift_128 (op1e, 36).l) & MASK36),
+               (word36) (op1e.l & MASK36),
+               (word36) (rshift_128 (op2e, 36).l & MASK36),
+               (word36) (op2e.l & MASK36),
+               carryin, flagsToSet, * flags);
 #else
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b op1e %012"PRIo64"%012"PRIo64" op2e %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\n",
- (word36) ((op1e >> 36) & MASK36), (word36) (op1e & MASK36), (word36) ((op2e >> 36) & MASK36), (word36) (op2e & MASK36), carryin, flagsToSet, * flags);
+    sim_debug (DBG_TRACEEXT, & cpu_dev,
+               "Sub72b op1e %012"PRIo64"%012"PRIo64" op2e %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\n",
+               (word36) ((op1e >> 36) & MASK36),
+               (word36) (op1e & MASK36),
+               (word36) ((op2e >> 36) & MASK36),
+               (word36) (op2e & MASK36),
+               carryin, flagsToSet, * flags);
 #endif
-#ifdef NEED_128
+#if defined(NEED_128)
     word74 res = subtract_128 (subtract_128 (op1e, op2e), ci);
 #else
     // word74 res = op1e - op2e - ci;
     // ubsan
     word74 res = (word72) (((word72s) op1e) - ((word72s) op2e) - ((word72s) ci));
 #endif
-#ifdef NEED_128
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n", (word36) (rshift_128 (res, 36).l & MASK36), (word36) (res.l & MASK36), * flags, * ovf);
+#if defined(NEED_128)
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n",
+               (word36) (rshift_128 (res, 36).l & MASK36), (word36) (res.l & MASK36), * flags, * ovf);
 #else
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n", (word36) ((res >> 36) & MASK36), (word36) (res & MASK36), * flags, * ovf);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n",
+               (word36) ((res >> 36) & MASK36), (word36) (res & MASK36), * flags, * ovf);
 #endif
 
     // Extract the overflow bits
-#ifdef NEED_128
+#if defined(NEED_128)
     bool r73 = isnonzero_128 (and_128 (res, BIT73));
     bool r72 = isnonzero_128 (and_128 (res, SIGN72));
 #else
@@ -682,14 +707,14 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
 #endif
 
     // Extract the carry bit
-#ifdef NEED_128
+#if defined(NEED_128)
     bool r74 = isnonzero_128 (and_128 (res, BIT74));
 #else
     bool r74 = res & BIT74 ? true : false;
 #endif
 
     // Truncate the result
-#ifdef NEED_128
+#if defined(NEED_128)
     res = and_128 (res, MASK72);
 #else
     res &= MASK72;
@@ -701,7 +726,7 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
     // Check for carry
     bool cry = r74;
 
-#ifdef PANEL68
+#if defined(PANEL68)
     if (cry) CPT (cpt2L, 28); // carry
     if (ovf) CPT (cpt2L, 29); // ovf
     if (!res) CPT (cpt2L, 30); // zero
@@ -724,7 +749,7 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
 
     if (flagsToSet & I_ZERO)
       {
-#ifdef NEED_128
+#if defined(NEED_128)
         if (isnonzero_128 (res))
 #else
         if (res)
@@ -736,7 +761,7 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
 
     if (flagsToSet & I_NEG)
       {
-#ifdef NEED_128
+#if defined(NEED_128)
         if (isnonzero_128 (and_128 (res, SIGN72)))
 #else
         if (res & SIGN72)
@@ -746,10 +771,12 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
           CLRF (* flags, I_NEG);
       }
 
-#ifdef NEED_128
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n", (word36) (rshift_128 (res, 36).l & MASK36), (word36) (res.l & MASK36), * flags, * ovf);
+#if defined(NEED_128)
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n",
+               (word36) (rshift_128 (res, 36).l & MASK36), (word36) (res.l & MASK36), * flags, * ovf);
 #else
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n", (word36) ((res >> 36) & MASK36), (word36) (res & MASK36), * flags, * ovf);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n",
+               (word36) ((res >> 36) & MASK36), (word36) (res & MASK36), * flags, * ovf);
 #endif
     return res;
   }
@@ -758,7 +785,7 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
 word36 compl36(word36 op1, word18 *flags, bool * ovf)
 {
     CPT (cpt2L, 23); // compl36
-    //printf("op1 = %"PRIo64" %"PRIo64"\n", op1, (-op1) & DMASK);
+    //(void)printf("op1 = %"PRIo64" %"PRIo64"\n", op1, (-op1) & DMASK);
 
     op1 &= DMASK;
 
@@ -768,7 +795,7 @@ word36 compl36(word36 op1, word18 *flags, bool * ovf)
 
     * ovf = op1 == MAXNEG;
 
-#ifdef PANEL68
+#if defined(PANEL68)
     if (* ovf) CPT (cpt2L, 29); // ovf
     if (!res) CPT (cpt2L, 30); // zero
     if (res & SIGN36) CPT (cpt2L, 31); // neg
@@ -794,7 +821,7 @@ word36 compl36(word36 op1, word18 *flags, bool * ovf)
 word18 compl18(word18 op1, word18 *flags, bool * ovf)
 {
     CPT (cpt2L, 24); // compl18
-    //printf("op1 = %"PRIo64" %"PRIo64"\n", op1, (-op1) & DMASK);
+    //(void)printf("op1 = %"PRIo64" %"PRIo64"\n", op1, (-op1) & DMASK);
 
     op1 &= MASK18;
 
@@ -803,7 +830,7 @@ word18 compl18(word18 op1, word18 *flags, bool * ovf)
     word18 res = ((word18) (- (word18s) op1)) & MASK18;
 
     * ovf = op1 == MAX18NEG;
-#ifdef PANEL68
+#if defined(PANEL68)
     if (* ovf) CPT (cpt2L, 29); // ovf
     if (!res) CPT (cpt2L, 30); // zero
     if (res & SIGN18) CPT (cpt2L, 31); // neg
@@ -937,7 +964,7 @@ void putChar(word36 *dst, word6 data, int posn)
 
 word72 convert_to_word72(word36 even, word36 odd)
 {
-#ifdef NEED_128
+#if defined(NEED_128)
     return or_128 (lshift_128 (construct_128 (0, even), 36), construct_128 (0, odd));
 #else
     return ((word72)even << 36) | (word72)odd;
@@ -946,7 +973,7 @@ word72 convert_to_word72(word36 even, word36 odd)
 
 void convert_to_word36 (word72 src, word36 *even, word36 *odd)
 {
-#ifdef NEED_128
+#if defined(NEED_128)
     *even = rshift_128 (src, 36).l & DMASK;
     *odd  = src.l & DMASK;
 #else
@@ -1084,7 +1111,7 @@ void cmp72(word72 op1, word72 op2, word18 *flags)
    // The case of op1 == 400000000000000000000000 and op2 == 0 falls through
    // this code.
     L68_ (cpu.ou.cycle |= ou_GOS;)
-#ifdef NEED_128
+#if defined(NEED_128)
 sim_debug (DBG_TRACEEXT, & cpu_dev, "op1 %016"PRIx64"%016"PRIx64"\n", op1.h, op1.l);
 sim_debug (DBG_TRACEEXT, & cpu_dev, "op2 %016"PRIx64"%016"PRIx64"\n", op2.h, op2.l);
     int128 op1s =  SIGNEXT72_128 (and_128 (op1, MASK72));
@@ -1099,13 +1126,13 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "op2 %016"PRIx64"%016"PRIx64"\n", (uint64_t)
 sim_debug (DBG_TRACEEXT, & cpu_dev, "op1s %016"PRIx64"%016"PRIx64"\n", (uint64_t) (op1s>>64), (uint64_t) op1s);
 sim_debug (DBG_TRACEEXT, & cpu_dev, "op2s %016"PRIx64"%016"PRIx64"\n", (uint64_t) (op2s>>64), (uint64_t) op2s);
 #endif
-#ifdef NEED_128
+#if defined(NEED_128)
     if (isgt_s128 (op1s, op2s))
 #else
     if (op1s > op2s)
 #endif
       {
-#ifdef NEED_128
+#if defined(NEED_128)
         if (isnonzero_128 (and_128 (op2, SIGN72)))
 #else
         if (op2 & SIGN72)
@@ -1118,7 +1145,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "op2s %016"PRIx64"%016"PRIx64"\n", (uint64_t
           }
         CLRF (* flags, I_ZERO | I_NEG);
       }
-#ifdef NEED_128
+#if defined(NEED_128)
     else if (iseq_128 (cast_128 (op1s), cast_128 (op2s)))
 #else
     else if (op1s == op2s)
@@ -1132,7 +1159,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "op2s %016"PRIx64"%016"PRIx64"\n", (uint64_t
     else /* op1s < op2s */
       {
         CPT (cpt2L, 31); // neg
-#ifdef NEED_128
+#if defined(NEED_128)
         if (isnonzero_128 (and_128 (op1, SIGN72)))
 #else
         if (op1 & SIGN72)
@@ -1273,8 +1300,10 @@ int strmask (char * str, char * mask)
               break;
           } // switch (* mp)
       } // while (1)
+#if defined(SUNLINT) || !defined(__SUNPRO_C) && !defined(__SUNPRO_CC)
     /*NOTREACHED*/ /* unreachable */
     return false;
+#endif /* if defined(SUNLINT) || !defined(__SUNPRO_C) && !defined(__SUNPRO_CC) */
   }
 
 #if 0
@@ -1353,7 +1382,7 @@ char * Strtok (char * line, char * sep) {
                 return NULL;
 
             default:
-                fprintf(stderr, "(Strtok):unknown state - %d",state);
+                (void)fprintf(stderr, "(Strtok):unknown state - %d",state);
                 state = EOB;
                 return NULL;
         }
@@ -1452,13 +1481,13 @@ int cfg_parse (const char * tag, const char * cptr, config_list_t * clist, confi
         state -> copy            = strdup (cptr);
         if (! state->copy)
           {
-            fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                     __func__, __FILE__, __LINE__);
+            (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                           __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
             (void)raise(SIGUSR2);
             /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
             abort();
           }
@@ -1622,13 +1651,13 @@ char * strdupesc (const char * str)
     char * buf = strdup (str);
     if (!buf)
       {
-        fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                __func__, __FILE__, __LINE__);
+        (void)fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                      __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -1905,7 +1934,7 @@ int insertWord36toBuffer (uint8 * bufp, t_mtrlnt tbc, uint * words_processed, wo
     return 0;
   }
 
-#ifndef NEED_128
+#if !defined(NEED_128)
 static void print_uint128o_r (uint128 n, char * p)
   {
     if (n == 0)

@@ -111,10 +111,10 @@ static DEBTAB rdr_dt [] =
 
 static MTAB rdr_mod [] =
   {
-#ifndef SPEED
+#if !defined(SPEED)
     { UNIT_WATCH, 1, "WATCH",   "WATCH",   0, 0, NULL, NULL },
     { UNIT_WATCH, 0, "NOWATCH", "NOWATCH", 0, 0, NULL, NULL },
-#endif
+#endif /* if !defined(SPEED) */
     {
       MTAB_XTD | MTAB_VDV | \
       MTAB_NMO | MTAB_VALR,                 /* Mask               */
@@ -215,8 +215,8 @@ static char rdr_path_prefix[PATH_MAX+1];
 
 void rdr_init (void)
   {
-    memset (rdr_path_prefix, 0, sizeof (rdr_path_prefix));
-    memset (rdr_state, 0, sizeof (rdr_state));
+    (void)memset (rdr_path_prefix, 0, sizeof (rdr_path_prefix));
+    (void)memset (rdr_state, 0, sizeof (rdr_state));
     for (uint i = 0; i < N_RDR_UNITS_MAX; i ++)
       rdr_state [i] . deckfd = -1;
   }
@@ -431,13 +431,15 @@ static int getCardLine (int fd, unsigned char * buffer)
         if (n > 79)
           return 0;
       }
+#if defined(SUNLINT) || !defined(__SUNPRO_C) && !defined(__SUNPRO_CC)
     /*NOTREACHED*/ /* unreachable */
     return 0;
+#endif /* if defined(SUNLINT) || !defined(__SUNPRO_C) && !defined(__SUNPRO_CC) */
   }
 
 static int getCardData (int fd, char * buffer)
   {
-    memset (buffer, 0, 80);
+    (void)memset (buffer, 0, 80);
     ssize_t rc = read (fd, buffer, 80);
     if (rc < 0)
       return 0;
@@ -447,16 +449,16 @@ static int getCardData (int fd, char * buffer)
 #define rawCardImageBytes (80 * 12 / 8)
 static int getRawCardData (int fd, uint8_t * buffer)
   {
-    memset (buffer, 0, rawCardImageBytes + 2);
+    (void)memset (buffer, 0, rawCardImageBytes + 2);
     ssize_t rc = read (fd, buffer, rawCardImageBytes);
     if (rc < 0)
       return 0;
     return (int) rc;
   }
 
-#ifdef TESTING
+#if defined(TESTING)
 static bool empty = false;
-#endif
+#endif /* if defined(TESTING) */
 
 static int rdrReadRecord (uint iomUnitIdx, uint chan) {
   iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
@@ -472,7 +474,7 @@ empty:;
     //p->stati = 04200; // offline
     //p->stati = 04240; // data alert
     p->tallyResidue = 0;
-# ifdef TESTING
+# if defined(TESTING)
     if (! empty)
       sim_printf ("hopper empty\r\n");
     empty = true;
@@ -480,7 +482,7 @@ empty:;
     return IOM_CMD_ERROR;
   }
 #endif
-#ifdef TESTING
+#if defined(TESTING)
   sim_printf ("hopper not empty\r\n");
   empty = false;
 #endif
@@ -495,7 +497,7 @@ empty:;
   switch (rdr_state [unitIdx].deckState) {
 
     case deckStart: {
-#ifdef TESTING
+#if defined(TESTING)
   sim_printf ("deckStart: sending ++EOF\r\n");
 #endif
       strcpy ((char *) cardImage, "++EOF");
@@ -507,10 +509,10 @@ empty:;
     break;
 
     case eof1Sent: {
-#ifdef TESTING
+#if defined(TESTING)
   sim_printf ("eof1Sent: sending ++UID\r\n");
 #endif
-      sprintf ((char *) cardImage, "++UID %d", jobNo);
+      (void)sprintf ((char *) cardImage, "++UID %d", jobNo);
       l = strlen ((char *) cardImage);
       thisCard = cardDeck; //-V1048
       rdr_state [unitIdx].deckState = uid1Sent;
@@ -518,12 +520,12 @@ empty:;
     break;
 
     case uid1Sent: {
-#ifdef TESTING
+#if defined(TESTING)
   sim_printf ("uid1Sent: sending data\r\n");
 #endif
       int rc = getCardLine (rdr_state [unitIdx].deckfd, cardImage);
       if (rc) {
-#ifdef TESTING
+#if defined(TESTING)
   sim_printf ("uid1Sent: getCardLine returned %d\r\n", rc);
 #endif
         close (rdr_state [unitIdx].deckfd);
@@ -536,13 +538,13 @@ empty:;
         p->stati = 04201; // hopper empty
         return IOM_CMD_DISCONNECT;
       }
-#ifdef TESTING
+#if defined(TESTING)
   sim_printf ("uid1Sent: getCardLine returned <%s>\r\n", cardImage);
 #endif
       l = strlen ((char *) cardImage);
       thisCard = cardDeck; //-V1048
       if (strncasecmp ((char *) cardImage, "++input", 7) == 0) {
-#ifdef TESTING
+#if defined(TESTING)
   sim_printf ("uid1Sent: switching to inputSent <%s>\r\n", cardImage);
 #endif
         rdr_state [unitIdx].deckState = inputSent;
@@ -553,12 +555,12 @@ empty:;
     // Reading the actual data cards
 
     case inputSent: {
-#ifdef TESTING
+#if defined(TESTING)
   sim_printf ("inputSent: format %d\r\n", rdr_state [unitIdx].deckFormat);
 #endif
       switch (rdr_state [unitIdx].deckFormat) {
         case cardDeck: {
-#ifdef TESTING
+#if defined(TESTING)
   sim_printf ("inputSent: cardDeck\r\n");
 #endif
           int rc = getCardLine (rdr_state [unitIdx].deckfd, cardImage);
@@ -572,7 +574,7 @@ empty:;
         break;
 
         case streamDeck: {
-#ifdef TESTING
+#if defined(TESTING)
   sim_printf ("inputSent: streamDeck\r\n");
 #endif
           l = (size_t) getCardData (rdr_state [unitIdx].deckfd, (char *) cardImage);
@@ -584,14 +586,14 @@ empty:;
             rdr_state [unitIdx].deckState = eof2Sent;
             thisCard = cardDeck; //-V1048
           }
-#ifdef TESTING
+#if defined(TESTING)
   sim_printf ("inputSent: getCardLine returned <%s>\r\n", cardImage);
 #endif
         }
         break;
 
         case sevenDeck: {
-#ifdef TESTING
+#if defined(TESTING)
   sim_printf ("inputSent: 7Deck\r\n");
 #endif
           l = (size_t) getRawCardData (rdr_state [unitIdx].deckfd, rawCardImage);
@@ -613,10 +615,10 @@ empty:;
 // Sending a ++END means that the read_cards command has to be reissued
 #if 1
     case eof2Sent: {
-# ifdef TESTING
+# if defined(TESTING)
   sim_printf ("eof2Sent\r\n");
 # endif
-      sprintf ((char *) cardImage, "++UID %d", jobNo);
+      (void)sprintf ((char *) cardImage, "++UID %d", jobNo);
       l = strlen ((char *) cardImage);
       thisCard = cardDeck; //-V1048
       rdr_state [unitIdx].deckState = deckStart;
@@ -630,10 +632,10 @@ empty:;
     break;
 #else
     case eof2Sent: {
-# ifdef TESTING
+# if defined(TESTING)
   sim_printf ("eof2Sent\r\n");
 # endif
-      sprintf ((char *) cardImage, "++UID %d", jobNo);
+      (void)sprintf ((char *) cardImage, "++UID %d", jobNo);
       l = strlen ((char *) cardImage);
       thisCard = cardDeck;
       rdr_state [unitIdx].deckState = uid2Sent;
@@ -641,10 +643,10 @@ empty:;
     break;
 
     case uid2Sent: {
-# ifdef TESTING
+# if defined(TESTING)
   sim_printf ("uid2Sent\r\n");
 # endif
-      sprintf ((char *) cardImage, "++END");
+      (void)sprintf ((char *) cardImage, "++END");
       l = strlen ((char *) cardImage);
       thisCard = cardDeck;
       rdr_state [unitIdx].deckState = deckStart;
@@ -664,7 +666,7 @@ empty:;
       cardImage [-- l] = 0;
 #endif
     //sim_printf ("card <%s>\r\n", cardImage);
-#ifdef TESTING
+#if defined(TESTING)
   sim_printf ("\r\n");
   sim_printf ("\r\n");
   for (uint i = 0; i < 80; i ++) {
@@ -722,7 +724,7 @@ empty:;
 
       // Remember that Hollerith for blank is 0, this is really
       // filling the buffer with blanks.
-      memset (buffer, 0, sizeof (buffer));
+      (void)memset (buffer, 0, sizeof (buffer));
       for (uint col = 0; col < l; col ++) {
         uint wordno  = col / 3;
         uint fieldno = col % 3;
@@ -768,7 +770,7 @@ static void submit (enum deckFormat fmt, char * fname, uint16 readerIndex)
       perror ("card reader deck open\n");
     // Windows can't unlink open files; save the file name and unlink on close.
     // int rc = unlink (fname); // this only works on UNIX
-#ifdef TESTING
+#if defined(TESTING)
     sim_printf ("submit %s\r\n", fname);
 #endif
     strcpy (rdr_state [readerIndex].fname, fname);
@@ -930,7 +932,7 @@ iom_cmd_rc_t rdr_iom_cmd (uint iomUnitIdx, uint chan) {
         // This is controller status, not device status
         //if (rdr_state[unitIdx].deckfd < 0)
           //p->stati = 04201; // hopper empty
-#ifdef TESTING
+#if defined(TESTING)
         sim_printf ("Request status %04o\r\n", p->stati);
 #endif
         break;
@@ -940,7 +942,7 @@ iom_cmd_rc_t rdr_iom_cmd (uint iomUnitIdx, uint chan) {
         if (rdr_state [unitIdx].deckfd < 0) {
           p->stati        = 04201; // hopper empty
           p->tallyResidue = 0;
-#ifdef TESTING
+#if defined(TESTING)
           if (! empty)
             sim_printf ("hopper empty\r\n");
           empty = true;
@@ -952,7 +954,7 @@ iom_cmd_rc_t rdr_iom_cmd (uint iomUnitIdx, uint chan) {
         // This is controller status, not device status
         //if (rdr_state[unitIdx].deckfd < 0)
           //p->stati = 04201; // hopper empty
-#ifdef TESTING
+#if defined(TESTING)
 sim_printf ("read binary %04o\r\n", p->stati);
 #endif
         break;
@@ -964,13 +966,13 @@ sim_printf ("read binary %04o\r\n", p->stati);
         // This is controller status, not device status
         //if (rdr_state[unitIdx].deckfd < 0)
           //p->stati = 04201; // hopper empty
-#ifdef TESTING
+#if defined(TESTING)
 sim_printf ("reset status %04o\r\n", p->stati);
 #endif
         break;
 
       default:
-#ifdef TESTING
+#if defined(TESTING)
 sim_printf ("unknown  %o\r\n", p->IDCW_DEV_CMD);
 #endif
         if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
@@ -988,7 +990,7 @@ sim_printf ("unknown  %o\r\n", p->IDCW_DEV_CMD);
   switch (statep->io_mode) {
 
     case rdr_no_mode:
-#ifdef TESTING
+#if defined(TESTING)
       sim_printf ("%s: Unexpected IOTx\r\n", __func__);
 #endif
       //sim_warn ("%s: Unexpected IOTx\n", __func__);
@@ -997,7 +999,7 @@ sim_printf ("unknown  %o\r\n", p->IDCW_DEV_CMD);
 
     case rdr_rd_bin: {
       int rc = rdrReadRecord (iomUnitIdx, chan);
-#ifdef TESTING
+#if defined(TESTING)
 sim_printf ("rdrReadRecord returned %d\r\n", rc);
 #endif
       if (rc)

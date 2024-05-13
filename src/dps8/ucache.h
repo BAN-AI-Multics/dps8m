@@ -45,14 +45,14 @@ typedef struct ucache_s ucache_t;
 
 struct uCache_s {
   ucache_t caches [UC_NUM][UC_CACHE_SZ];
-#ifdef UCACHE_STATS
+#if defined(UCACHE_STATS)
   uint64_t hits   [UC_NUM];
   uint64_t misses [UC_NUM];
   uint64_t skips  [UC_NUM];
   uint64_t call6Skips;
   uint64_t ralrSkips;
   uint64_t segnoSkips;
-#endif
+#endif /* if defined(UCACHE_STATS) */
 };
 
 typedef struct uCache_s uCache_t;
@@ -60,6 +60,6 @@ typedef struct uCache_s uCache_t;
 void ucInvalidate (void);
 void ucCacheSave  (uint ucNum, word15 segno, word18 offset, word14   bound, word1   p, word24   address, word3   r1, bool   paged);
 bool ucCacheCheck (uint ucNum, word15 segno, word18 offset, word14 * bound, word1 * p, word24 * address, word3 * r1, bool * paged);
-#ifdef UCACHE_STATS
+#if defined(UCACHE_STATS)
 void ucacheStats (int cpuNo);
-#endif
+#endif /* if defined(UCACHE_STATS) */

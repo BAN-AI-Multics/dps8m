@@ -48,10 +48,14 @@
 
 #define DBG_CTR 1
 
-#ifdef TESTING
+#if defined(FREE)
 # undef FREE
-# define FREE(p) free(p)
-#endif /* ifdef TESTING */
+#endif /* if defined(FREE) */
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
 
 //-- // XXX We use this where we assume there is only one unit
 //-- #define ASSUME0 0
@@ -112,10 +116,10 @@ static DEBTAB pun_dt [] =
 
 static MTAB pun_mod [] =
   {
-#ifndef SPEED
+#if !defined(SPEED)
     { UNIT_WATCH, 1, "WATCH",   "WATCH",   0, 0, NULL, NULL },
     { UNIT_WATCH, 0, "NOWATCH", "NOWATCH", 0, 0, NULL, NULL },
-#endif
+#endif /* if !defined(SPEED) */
     {
       MTAB_XTD | MTAB_VDV | \
       MTAB_NMO | MTAB_VALR,                 /* Mask               */
@@ -256,8 +260,8 @@ static char pun_path_prefix[PATH_MAX-63];   // The -63 is to leave room for file
 
 void pun_init (void)
   {
-    memset (pun_path_prefix, 0, sizeof (pun_path_prefix));
-    memset (pun_state, 0, sizeof (pun_state));
+    (void)memset (pun_path_prefix, 0, sizeof (pun_path_prefix));
+    (void)memset (pun_state, 0, sizeof (pun_state));
     for (int i = 0; i < N_PUN_UNITS_MAX; i ++)
       {
         pun_state [i] . punfile_raw   = -1;
@@ -610,16 +614,16 @@ static void create_punch_file(pun_state_t * state)
 
     if (pun_path_prefix [0])
       {
-        sprintf (template, "%s%s/%s.spool.%s.XXXXXX.pun",
-                 pun_path_prefix, state -> device_name,
-                 state -> device_name,
-                 state -> raw_file_name);
+        (void)sprintf (template, "%s%s/%s.spool.%s.XXXXXX.pun",
+                       pun_path_prefix, state -> device_name,
+                       state -> device_name,
+                       state -> raw_file_name);
       }
     else
       {
-        sprintf (template, "%s.spool.%s.XXXXXX.pun",
-                 state -> device_name,
-                 state -> raw_file_name);
+        (void)sprintf (template, "%s.spool.%s.XXXXXX.pun",
+                       state -> device_name,
+                       state -> raw_file_name);
       }
 
     state -> punfile_raw = utfile_mkstemps(template, 4);
@@ -640,10 +644,10 @@ static void write_punch_files (pun_state_t * state, word36* in_buffer, int word_
         }
 
       uint8 byte_buffer[120];
-      memset(&byte_buffer, 0, sizeof(byte_buffer));
+      (void)memset(&byte_buffer, 0, sizeof(byte_buffer));
 
       word12 word12_buffer[80];
-      memset(&word12_buffer, 0, sizeof(word12_buffer));
+      (void)memset(&word12_buffer, 0, sizeof(word12_buffer));
 
       for (int nibble_index = 0; nibble_index < (CARD_COL_COUNT * NIBBLES_PER_COL); nibble_index++)
         {
@@ -829,13 +833,13 @@ static void save_card_in_cache(pun_state_t * state, word12 tally, word36 * card_
     CARD_CACHE_ENTRY *new_entry = malloc(sizeof(CARD_CACHE_ENTRY));
     if (!new_entry)
       {
-        fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                __func__, __FILE__, __LINE__);
+        (void)fprintf(stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                      __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -921,14 +925,15 @@ static enum parse_event do_state_end_of_header(enum parse_event event,
     if (strlen(state -> glyph_buffer) < 86)
       {
         sim_warn \
-            ("*** Punch: glyph buffer too short, unable to parse file name '%s'\n", state -> glyph_buffer);
+            ("*** Punch: glyph buffer too short, unable to parse file name '%s'\n",
+             state -> glyph_buffer);
         punch_file_name[0] = 0;
       }
     else
       {
-        sprintf(punch_file_name, "%5.5s.%22.22s",
-            &state -> glyph_buffer[14],
-            &state -> glyph_buffer[88]
+        (void)sprintf (punch_file_name, "%5.5s.%22.22s",
+                       &state -> glyph_buffer[14],
+                       &state -> glyph_buffer[88]
         );
         remove_spaces(punch_file_name);
       }

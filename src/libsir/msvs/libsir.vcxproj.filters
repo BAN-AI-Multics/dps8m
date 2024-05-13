@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\src\sirtextstyle.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\sir.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\sirconsole.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\sirerrors.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\sirfilecache.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\sirhelpers.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\sirinternal.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\sirmutex.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\sirfilesystem.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\sirmaps.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\sirplugins.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\sirqueue.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\sirthreadpool.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\sircondition.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\sir.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sir\types.h">
+      <Filter>Include\sir</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sir\ansimacros.h">
+      <Filter>Include\sir</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sir\config.h">
+      <Filter>Include\sir</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sir\console.h">
+      <Filter>Include\sir</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sir\defaults.h">
+      <Filter>Include\sir</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sir\errors.h">
+      <Filter>Include\sir</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sir\filecache.h">
+      <Filter>Include\sir</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sir\filesystem.h">
+      <Filter>Include\sir</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sir\helpers.h">
+      <Filter>Include\sir</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sir\internal.h">
+      <Filter>Include\sir</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sir\maps.h">
+      <Filter>Include\sir</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sir\mutex.h">
+      <Filter>Include\sir</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sir\platform.h">
+      <Filter>Include\sir</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sir\plugins.h">
+      <Filter>Include\sir</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sir\textstyle.h">
+      <Filter>Include\sir</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sir\queue.h">
+      <Filter>Include\sir</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sir\threadpool.h">
+      <Filter>Include\sir</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sir\condition.h">
+      <Filter>Include\sir</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sir\impl.h">
+      <Filter>Include\sir</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{defae9eb-05cf-4523-8232-37a3fbdea27d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include">
+      <UniqueIdentifier>{f4e754b1-cf99-4039-a398-45ab68ee23c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Documentation">
+      <UniqueIdentifier>{cc320764-66c0-4a3f-a9a6-4d9b370799c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\sir">
+      <UniqueIdentifier>{a6c4a0e5-6cd9-422c-a4dc-f2a6bafb19cd}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

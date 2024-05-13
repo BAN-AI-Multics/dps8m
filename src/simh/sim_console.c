@@ -86,17 +86,19 @@
 
 #include "../dps8/dps8.h"
 
-#ifdef __HAIKU__
+#if defined(__HAIKU__)
 # define nice(n) ({})
-#endif /* ifdef __HAIKU__ */
+#endif /* if defined(__HAIKU__) */
 
-#ifdef TESTING
+#if defined(TESTING)
 # include "../dps8/dps8_cpu.h"
-# undef realloc
-# undef FREE
-# define FREE(p) free(p)
-# define realloc trealloc
-#endif /* ifdef TESTING */
+#endif /* if defined(TESTING) */
+
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
 
 /* Forward Declarations of Platform specific routines */
 
@@ -403,16 +405,20 @@ if (sim_rem_active_number >= 0) {
     if (sim_rem_master_mode && (sim_rem_active_number == 0))
         fprintf (st, "Running from Master Mode Remote Console Connection\n");
     else
-        fprintf (st, "Running from Remote Console Connection %lu\n", (unsigned long)sim_rem_active_number);
+        fprintf (st, "Running from Remote Console Connection %lu\n",
+                 (unsigned long)sim_rem_active_number);
     }
 if (sim_rem_con_tmxr.lines > 1)
-    fprintf (st, "Remote Console Input Connections from %lu sources are supported concurrently\n", (unsigned long)sim_rem_con_tmxr.lines);
+    fprintf (st, "Remote Console Input Connections from %lu sources are supported concurrently\n",
+             (unsigned long)sim_rem_con_tmxr.lines);
 if (sim_rem_read_timeout)
-    fprintf (st, "Remote Console Input automatically continues after %lu seconds\n", (unsigned long)sim_rem_read_timeout);
+    fprintf (st, "Remote Console Input automatically continues after %lu seconds\n",
+             (unsigned long)sim_rem_read_timeout);
 if (!sim_rem_con_tmxr.master)
     fprintf (st, "Remote Console Command input is disabled\n");
 else
-    fprintf (st, "Remote Console Command Input listening on TCP port: %s\n", sim_rem_con_unit[0].filename);
+    fprintf (st, "Remote Console Command Input listening on TCP port: %s\n",
+             sim_rem_con_unit[0].filename);
 for (i=connections=0; i<sim_rem_con_tmxr.lines; i++) {
     lp = &sim_rem_con_tmxr.ldsc[i];
     if (!lp->conn)
@@ -423,9 +429,11 @@ for (i=connections=0; i<sim_rem_con_tmxr.lines; i++) {
     tmxr_fconns (st, lp, i);
     if (sim_rem_read_timeouts[i] != sim_rem_read_timeout) {
         if (sim_rem_read_timeouts[i])
-            fprintf (st, "Remote Console Input on connection %lu automatically continues after %lu seconds\n", (unsigned long)i, (unsigned long)sim_rem_read_timeouts[i]);
+            fprintf (st, "Remote Console Input on connection %lu automatically continues after %lu seconds\n",
+                     (unsigned long)i, (unsigned long)sim_rem_read_timeouts[i]);
         else
-            fprintf (st, "Remote Console Input on connection %lu does not continue automatically\n", (unsigned long)i);
+            fprintf (st, "Remote Console Input on connection %lu does not continue automatically\n",
+                     (unsigned long)i);
         }
     }
 return SCPE_OK;
@@ -442,18 +450,18 @@ if (c >= 0) {                                           /* poll connect */
     TMLN *lp = &sim_rem_con_tmxr.ldsc[c];
     char wru_name[8];
 
-    sim_activate_after(uptr+1, 1000000);                /* start data poll after 1 second */
+    sim_activate_after(uptr + 1, 1000000);                /* start data poll after 1 second */
     lp->rcve                 = 1;                       /* rcv enabled */
     sim_rem_buf_ptr[c]       = 0;                       /* start with empty command buffer */
     sim_rem_single_mode[c]   = TRUE;                    /* start in single command mode */
     sim_rem_read_timeouts[c] = sim_rem_read_timeout;    /* Start with default timeout */
-    if (isprint(sim_int_char&0xFF))
-        sprintf(wru_name, "'%c'", sim_int_char&0xFF);
+    if (isprint(sim_int_char & 0xFF))
+        (void)sprintf(wru_name, "'%c'", sim_int_char & 0xFF);
     else
         if (sim_int_char <= 26)
-            sprintf(wru_name, "^%c", '@' + (sim_int_char&0xFF));
+            (void)sprintf(wru_name, "^%c", '@' + (sim_int_char & 0xFF));
         else
-            sprintf(wru_name, "'\\%03o'", sim_int_char&0xFF);
+            (void)sprintf(wru_name, "'\\%03o'", sim_int_char & 0xFF);
     tmxr_linemsgf (lp, "%s Remote Console\r\n"
                        "Enter single commands or to enter multiple command mode enter the %s character\r"
                        "%s",
@@ -588,9 +596,9 @@ static void _sim_rem_log_out (TMLN *lp)
 char cbuf[4*CBUFSIZE];
 
 if (sim_log) {
-    int32 unwritten;
+    size_t unwritten;
 
-    fflush (sim_log);
+    (void)fflush (sim_log);
     (void)sim_fseeko (sim_log, sim_rem_cmd_log_start, SEEK_SET);
     cbuf[sizeof(cbuf)-1] = '\0';
     while (fgets (cbuf, sizeof(cbuf)-1, sim_log))
@@ -696,7 +704,7 @@ for (i=(was_active_command ? sim_rem_cmd_active_line : 0);
             continue;
         c = c & ~TMXR_VALID;
         if (sim_rem_single_mode[i]) {
-            if (c == sim_int_char) {                    /* ^E (the interrupt character) must start continue mode console interaction */
+            if (c == sim_int_char) { /* ^E (the interrupt character) must start continue mode console interaction */
                 sim_rem_single_mode[i] = FALSE;         /* enter multi command mode */
                 sim_is_running = 0;
                 sim_stop_timer_services ();
@@ -707,14 +715,16 @@ for (i=(was_active_command ? sim_rem_cmd_active_line : 0);
                     TMLN *lpj = &sim_rem_con_tmxr.ldsc[j];
                     if ((i == j) || (!lpj->conn))
                         continue;
-                    tmxr_linemsgf (lpj, "\nRemote Console %lu(%s) Entering Commands\n", (unsigned long)i, lp->ipad);
+                    tmxr_linemsgf (lpj, "\nRemote Console %lu(%s) Entering Commands\n",
+                                   (unsigned long)i, lp->ipad);
                     tmxr_send_buffered_data (lpj);      /* flush any buffered data */
                     }
                 lp = &sim_rem_con_tmxr.ldsc[i];
                 if (!master_session)
                     tmxr_linemsg (lp, "\r\nSimulator paused.\r\n");
                 if (!master_session && sim_rem_read_timeouts[i]) {
-                    tmxr_linemsgf (lp, "Simulation will resume automatically if input is not received in %lu seconds\n", (unsigned long)sim_rem_read_timeouts[i]);
+                    tmxr_linemsgf (lp, "Simulation will resume automatically if input is not received in %lu seconds\n",
+                                   (unsigned long)sim_rem_read_timeouts[i]);
                     tmxr_linemsgf (lp, "\r\n");
                     tmxr_send_buffered_data (lp);       /* flush any buffered data */
                     }
@@ -815,7 +825,9 @@ for (i=(was_active_command ? sim_rem_cmd_active_line : 0);
                         sim_rem_buf[i] = (char *)realloc (sim_rem_buf[i], sim_rem_buf_size[i]);
                         }
                     sim_rem_buf[i][sim_rem_buf_ptr[i]++] = '\0';
-                    sim_debug (DBG_RCV, &sim_remote_console, "Got Command (%lu bytes still in buffer): %s\n", (unsigned long)tmxr_input_pending_ln (lp), sim_rem_buf[i]);
+                    sim_debug (DBG_RCV, &sim_remote_console,
+                               "Got Command (%lu bytes still in buffer): %s\n",
+                               (unsigned long)tmxr_input_pending_ln (lp), sim_rem_buf[i]);
                     got_command = TRUE;
                     break;
                 case '\004': /* EOF (^D) */
@@ -889,7 +901,7 @@ for (i=(was_active_command ? sim_rem_cmd_active_line : 0);
             int32 save_quiet = sim_quiet;
 
             sim_quiet = 1;
-            sprintf (sim_rem_con_temp_name, "sim_remote_console_%d.temporary_log", (int)getpid());
+            (void)sprintf (sim_rem_con_temp_name, "sim_remote_console_%d.temporary_log", (int)getpid());
             sim_set_logon (0, sim_rem_con_temp_name);
             sim_quiet = save_quiet;
             sim_log_temp = TRUE;
@@ -908,7 +920,10 @@ for (i=(was_active_command ? sim_rem_cmd_active_line : 0);
                 stat = SCPE_UNK;
             }
         else {
-            if ((cmdp = find_ctab (sim_rem_single_mode[i] ? allowed_single_remote_cmds : (master_session ? allowed_master_remote_cmds : allowed_remote_cmds), gbuf))) {/* lookup command */
+            if ((cmdp = find_ctab (
+                            sim_rem_single_mode[i] ? allowed_single_remote_cmds : \
+                              (master_session ? allowed_master_remote_cmds : \
+                               allowed_remote_cmds), gbuf))) { /* lookup command */
                 if (cmdp->action == &x_continue_cmd)
                     stat = SCPE_OK;
                 else {
@@ -969,7 +984,7 @@ for (i=(was_active_command ? sim_rem_cmd_active_line : 0);
                 sim_log_temp = FALSE;
                 }
             else {
-                fflush (sim_log);
+                (void)fflush (sim_log);
                 sim_rem_cmd_log_start = sim_ftell (sim_log);
                 }
             if (!sim_rem_single_mode[i]) {
@@ -1107,98 +1122,98 @@ if (!sim_rem_con_tmxr.ldsc)
     fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
              __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
-memset (sim_rem_con_tmxr.ldsc, 0, sizeof(*sim_rem_con_tmxr.ldsc)*lines);
+(void)memset (sim_rem_con_tmxr.ldsc, 0, sizeof(*sim_rem_con_tmxr.ldsc)*lines);
 sim_rem_buf = (char **)realloc (sim_rem_buf, sizeof(*sim_rem_buf)*lines);
 if (!sim_rem_buf)
   {
     fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
              __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
-memset (sim_rem_buf, 0, sizeof(*sim_rem_buf)*lines);
+(void)memset (sim_rem_buf, 0, sizeof(*sim_rem_buf)*lines);
 sim_rem_buf_size = (int32 *)realloc (sim_rem_buf_size, sizeof(*sim_rem_buf_size)*lines);
 if (!sim_rem_buf_size)
   {
     fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
              __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
-memset (sim_rem_buf_size, 0, sizeof(*sim_rem_buf_size)*lines);
+(void)memset (sim_rem_buf_size, 0, sizeof(*sim_rem_buf_size)*lines);
 sim_rem_buf_ptr = (int32 *)realloc (sim_rem_buf_ptr, sizeof(*sim_rem_buf_ptr)*lines);
 if (!sim_rem_buf_ptr)
   {
     fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
              __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
-memset (sim_rem_buf_ptr, 0, sizeof(*sim_rem_buf_ptr)*lines);
+(void)memset (sim_rem_buf_ptr, 0, sizeof(*sim_rem_buf_ptr)*lines);
 sim_rem_single_mode = (t_bool *)realloc (sim_rem_single_mode, sizeof(*sim_rem_single_mode)*lines);
 if (!sim_rem_single_mode)
   {
     fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
              __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
-memset (sim_rem_single_mode, 0, sizeof(*sim_rem_single_mode)*lines);
+(void)memset (sim_rem_single_mode, 0, sizeof(*sim_rem_single_mode)*lines);
 sim_rem_read_timeouts = (uint32 *)realloc (sim_rem_read_timeouts, sizeof(*sim_rem_read_timeouts)*lines);
 if (!sim_rem_read_timeouts)
   {
     fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
              __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
-memset (sim_rem_read_timeouts, 0, sizeof(*sim_rem_read_timeouts)*lines);
+(void)memset (sim_rem_read_timeouts, 0, sizeof(*sim_rem_read_timeouts)*lines);
 sim_rem_command_buf = (char *)realloc (sim_rem_command_buf, 4*CBUFSIZE+1);
 if (!sim_rem_command_buf)
   {
     fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
              __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
     (void)raise(SIGUSR2);
     /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
     abort();
   }
-memset (sim_rem_command_buf, 0, 4*CBUFSIZE+1);
+(void)memset (sim_rem_command_buf, 0, 4*CBUFSIZE+1);
 return SCPE_OK;
 }
 
@@ -1356,9 +1371,9 @@ time_t now;
   ( defined(__PPC__) || defined(_ARCH_PPC) )
 # include <mach/clock.h>
 # include <mach/mach.h>
-# ifdef MACOSXPPC
+# if defined(MACOSXPPC)
 #  undef MACOSXPPC
-# endif /* ifdef MACOSXPPC */
+# endif /* if defined(MACOSXPPC) */
 # define MACOSXPPC 1
 #endif /* if defined(__MACH__) && defined(__APPLE__) &&
            ( defined(__PPC__) || defined(_ARCH_PPC) ) */
@@ -1375,7 +1390,7 @@ if (r != SCPE_OK)
     return r;
 
 if (sim_deb_switches & SWMASK ('R')) {
-#ifdef MACOSXPPC
+#if defined(MACOSXPPC)
     clock_serv_t cclock;
     mach_timespec_t mts;
     host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
@@ -1385,20 +1400,24 @@ if (sim_deb_switches & SWMASK ('R')) {
     sim_deb_basetime.tv_nsec = mts.tv_nsec;
 #else
     clock_gettime(CLOCK_REALTIME, &sim_deb_basetime);
-#endif /* ifdef MACOSXPPC */
+#endif /* if defined(MACOSXPPC) */
     if (!(sim_deb_switches & (SWMASK ('A') | SWMASK ('T'))))
         sim_deb_switches |= SWMASK ('T');
     }
 if (!sim_quiet) {
-    sim_printf ("Debug output to \"%s\"\n", sim_logfile_name (sim_deb, sim_deb_ref));
+    sim_printf ("Debug output to \"%s\"\n",
+                sim_logfile_name (sim_deb, sim_deb_ref));
     if (sim_deb_switches & SWMASK ('P'))
         sim_printf ("   Debug messages contain current PC value\n");
     if (sim_deb_switches & SWMASK ('T'))
-        sim_printf ("   Debug messages display time of day as hh:mm:ss.msec%s\n", sim_deb_switches & SWMASK ('R') ? " relative to the start of debugging" : "");
+        sim_printf ("   Debug messages display time of day as hh:mm:ss.msec%s\n",
+                    sim_deb_switches & SWMASK ('R') ? " relative to the start of debugging" : "");
     if (sim_deb_switches & SWMASK ('A'))
-        sim_printf ("   Debug messages display time of day as seconds.msec%s\n", sim_deb_switches & SWMASK ('R') ? " relative to the start of debugging" : "");
+        sim_printf ("   Debug messages display time of day as seconds.msec%s\n",
+                    sim_deb_switches & SWMASK ('R') ? " relative to the start of debugging" : "");
     time(&now);
-    fprintf (sim_deb, "Debug output to \"%s\" at %s", sim_logfile_name (sim_deb, sim_deb_ref), ctime(&now));
+    fprintf (sim_deb, "Debug output to \"%s\" at %s",
+             sim_logfile_name (sim_deb, sim_deb_ref), ctime(&now));
     show_version (sim_deb, NULL, NULL, 0, NULL);
     }
 if (sim_deb_switches & SWMASK ('N'))
@@ -1419,7 +1438,7 @@ if (sim_deb == NULL)                                    /* no debug? */
     return SCPE_OK;
 
 if (sim_deb == sim_log) {                               /* debug is log */
-    fflush (sim_deb);                                   /* fflush is the best we can do */
+    (void)fflush (sim_deb);                             /* fflush is the best we can do */
     return SCPE_OK;
     }
 
@@ -1461,13 +1480,15 @@ if (cptr && (*cptr != 0))
     return SCPE_2MARG;
 if (sim_deb) {
     fprintf (st, "Debug output enabled to \"%s\"\n",
-                 sim_logfile_name (sim_deb, sim_deb_ref));
+             sim_logfile_name (sim_deb, sim_deb_ref));
     if (sim_deb_switches & SWMASK ('P'))
         fprintf (st, "   Debug messages contain current PC value\n");
     if (sim_deb_switches & SWMASK ('T'))
-        fprintf (st, "   Debug messages display time of day as hh:mm:ss.msec%s\n", sim_deb_switches & SWMASK ('R') ? " relative to the start of debugging" : "");
+        fprintf (st, "   Debug messages display time of day as hh:mm:ss.msec%s\n",
+                 sim_deb_switches & SWMASK ('R') ? " relative to the start of debugging" : "");
     if (sim_deb_switches & SWMASK ('A'))
-        fprintf (st, "   Debug messages display time of day as seconds.msec%s\n", sim_deb_switches & SWMASK ('R') ? " relative to the start of debugging" : "");
+        fprintf (st, "   Debug messages display time of day as seconds.msec%s\n",
+                 sim_deb_switches & SWMASK ('R') ? " relative to the start of debugging" : "");
     for (i = 0; (dptr = sim_devices[i]) != NULL; i++) {
         if (!(dptr->flags & DEV_DIS) &&
             (dptr->flags & DEV_DEBUG) &&
@@ -1568,7 +1589,7 @@ t_stat sim_set_cons_buff (int32 flg, CONST char *cptr)
 {
 char cmdbuf[CBUFSIZE];
 
-sprintf(cmdbuf, "BUFFERED%c%s", cptr ? '=' : '\0', cptr ? cptr : "");
+(void)sprintf(cmdbuf, "BUFFERED%c%s", cptr ? '=' : '\0', cptr ? cptr : "");
 return tmxr_open_master (&sim_con_tmxr, cmdbuf);      /* open master socket */
 }
 
@@ -1578,7 +1599,7 @@ t_stat sim_set_cons_unbuff (int32 flg, CONST char *cptr)
 {
 char cmdbuf[CBUFSIZE];
 
-sprintf(cmdbuf, "UNBUFFERED%c%s", cptr ? '=' : '\0', cptr ? cptr : "");
+(void)sprintf(cmdbuf, "UNBUFFERED%c%s", cptr ? '=' : '\0', cptr ? cptr : "");
 return tmxr_open_master (&sim_con_tmxr, cmdbuf);      /* open master socket */
 }
 
@@ -1588,7 +1609,7 @@ t_stat sim_set_cons_log (int32 flg, CONST char *cptr)
 {
 char cmdbuf[CBUFSIZE];
 
-sprintf(cmdbuf, "LOG%c%s", cptr ? '=' : '\0', cptr ? cptr : "");
+(void)sprintf(cmdbuf, "LOG%c%s", cptr ? '=' : '\0', cptr ? cptr : "");
 return tmxr_open_master (&sim_con_tmxr, cmdbuf);      /* open master socket */
 }
 
@@ -1598,7 +1619,7 @@ t_stat sim_set_cons_nolog (int32 flg, CONST char *cptr)
 {
 char cmdbuf[CBUFSIZE];
 
-sprintf(cmdbuf, "NOLOG%c%s", cptr ? '=' : '\0', cptr ? cptr : "");
+(void)sprintf(cmdbuf, "NOLOG%c%s", cptr ? '=' : '\0', cptr ? cptr : "");
 return tmxr_open_master (&sim_con_tmxr, cmdbuf);      /* open master socket */
 }
 
@@ -1620,7 +1641,8 @@ if (cptr && (*cptr != 0))
 if (!sim_con_tmxr.ldsc->txbfd)
     fprintf (st, "Unbuffered\n");
 else
-    fprintf (st, "Buffer Size = %d\n", sim_con_tmxr.ldsc->txbsz);
+    fprintf (st, "Buffer Size = %lld\n",
+             (long long)sim_con_tmxr.ldsc->txbsz);
 return SCPE_OK;
 }
 
@@ -1740,9 +1762,9 @@ if (sim_rem_master_mode) {
             break;
         if ((trys % 10) == 0) {                         /* Status every 10 sec */
             sim_printf ("Waiting for Remote Console connection\r\n");
-            fflush (stdout);
+            (void)fflush (stdout);
             if (sim_log)                                /* log file? */
-                fflush (sim_log);
+                (void)fflush (sim_log);
             }
         sim_os_sleep (1);                               /* wait 1 second */
         }
@@ -1774,9 +1796,9 @@ if (sim_con_ldsc.conn || sim_con_ldsc.txbfd) {          /* connected or buffered
     if (sim_con_ldsc.conn || sim_con_ldsc.txbfd) {      /* still connected? */
         if (!sim_con_ldsc.conn) {
             sim_printf ("Running with Buffered Console\r\n"); /* print transition */
-            fflush (stdout);
+            (void)fflush (stdout);
             if (sim_log)                                /* log file? */
-                fflush (sim_log);
+                (void)fflush (sim_log);
             }
         return SCPE_OK;
         }
@@ -1786,9 +1808,9 @@ for (; trys < sec; trys++) {                            /* loop */
         sim_con_ldsc.rcve = 1;                          /* rcv enabled */
         if (trys) {                                     /* if delayed */
             sim_printf ("Running\r\n");                 /* print transition */
-            fflush (stdout);
+            (void)fflush (stdout);
             if (sim_log)                                /* log file? */
-                fflush (sim_log);
+                (void)fflush (sim_log);
             }
         return SCPE_OK;                                 /* ready to proceed */
         }
@@ -1797,9 +1819,9 @@ for (; trys < sec; trys++) {                            /* loop */
         return SCPE_STOP;
     if ((trys % 10) == 0) {                             /* Status every 10 sec */
         sim_printf ("Waiting for console Telnet connection\r\n");
-        fflush (stdout);
+        (void)fflush (stdout);
         if (sim_log)                                    /* log file? */
-            fflush (sim_log);
+            (void)fflush (sim_log);
         }
     sim_os_sleep (1);                                   /* wait 1 second */
     }
@@ -2003,7 +2025,7 @@ if ((std_input) &&                                      /* If Not Background pro
      !SetConsoleMode(std_input, RAW_MODE)))
     return SCPE_TTYERR;
 if (sim_log) {
-    fflush (sim_log);
+    (void)fflush (sim_log);
     _setmode (_fileno (sim_log), _O_BINARY);
     }
 sim_os_set_thread_priority (PRIORITY_BELOW_NORMAL);
@@ -2013,7 +2035,7 @@ return SCPE_OK;
 static t_stat sim_os_ttcmd (void)
 {
 if (sim_log) {
-    fflush (sim_log);
+    (void)fflush (sim_log);
     _setmode (_fileno (sim_log), _O_TEXT);
     }
 sim_os_set_thread_priority (PRIORITY_NORMAL);
@@ -2378,10 +2400,10 @@ else {
         fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                  __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -2393,16 +2415,16 @@ else {
         fprintf (stderr, "\rFATAL: Out out memory! Aborting at %s[%s:%d]\r\n",
                  __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
-    sprintf (mbuf2, "%s%s%s", (sim_switches & SWMASK ('A')) ? "\n" : "",
-                              mbuf,
-                              (sim_switches & SWMASK ('I')) ? "" : "\n");
+    (void)sprintf (mbuf2, "%s%s%s",
+                   (sim_switches & SWMASK ('A')) ? "\n" : "", mbuf,
+                   (sim_switches & SWMASK ('I')) ? ""   : "\n");
     FREE (mbuf);
     mbuf = sim_encode_quoted_string ((uint8 *)mbuf2, strlen (mbuf2));
     sim_exp_set (&sim_con_expect, mbuf, 0, sim_con_expect.after, EXP_TYP_PERSIST, NULL);
@@ -2431,10 +2453,10 @@ else {
         fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
                  __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }

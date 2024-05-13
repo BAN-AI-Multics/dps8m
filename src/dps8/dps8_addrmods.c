@@ -58,13 +58,13 @@ static word18 get_Cr (word4 Tdes)
           return 0;
 
         case TD_AU: // rY + C(A)0,17
-#ifdef TESTING
+#if defined(TESTING)
           HDBGRegAR ("au");
 #endif
           return GETHI (cpu.rA);
 
         case TD_QU: // rY + C(Q)0,17
-#ifdef TESTING
+#if defined(TESTING)
           HDBGRegAR ("qu");
 #endif
           return GETHI (cpu.rQ);
@@ -84,13 +84,13 @@ static word18 get_Cr (word4 Tdes)
           return cpu.PPR.IC;
 
         case TD_AL: // rY + C(A)18,35
-#ifdef TESTING
+#if defined(TESTING)
           HDBGRegAR ("al");
 #endif
           return GETLO (cpu.rA);
 
         case TD_QL: // rY + C(Q)18,35
-#ifdef TESTING
+#if defined(TESTING)
           HDBGRegAR ("ql");
 #endif
           return GETLO (cpu.rQ);
@@ -215,7 +215,7 @@ static void do_ITP (void)
 
     word3 n = GET_ITP_PRNUM (cpu.itxPair);
     CPTUR (cptUsePRn + n);
-#ifdef TESTING
+#if defined(TESTING)
     HDBGRegPRR (n, "ITP");
 #endif
     cpu.TPR.TSR  = cpu.PR[n].SNR;
@@ -363,7 +363,7 @@ void do_caf (void)
     else
       {
         word3 n = GET_PRN(IWB_IRODD);  // get PRn
-#ifdef TESTING
+#if defined(TESTING)
         HDBGRegPRR (n, "b29");
 #endif
         word15 offset = GET_OFFSET(IWB_IRODD);
@@ -484,7 +484,7 @@ startCA:;
             if (cpu.currentInstruction.b29)
               {
                 word3 PRn = GET_PRN(IWB_IRODD);
-#ifdef TESTING
+#if defined(TESTING)
                 HDBGRegPRR (PRn, "rpx b29");
 #endif
                 CPTUR (cptUsePRn + PRn);
@@ -531,7 +531,7 @@ startCA:;
                 if (cpu.currentInstruction.b29)
                   {
                     word3 PRn = GET_PRN(IWB_IRODD);
-#ifdef TESTING
+#if defined(TESTING)
                     HDBGRegPRR (PRn, "rpx b29");
 #endif
                     CPTUR (cptUsePRn + PRn);
@@ -577,7 +577,7 @@ startCA:;
             if (ISITP (cpu.itxPair[0]) || ISITS (cpu.itxPair[0]))
               {
                 sim_warn ("%s: itp/its at odd address\n", __func__);
-#ifdef TESTING
+#if defined(TESTING)
                 traceInstruction (0);
 #endif
               }
@@ -655,7 +655,7 @@ startCA:;
             if (ISITP (cpu.itxPair[0]) || ISITS (cpu.itxPair[0]))
               {
                 sim_warn ("%s: itp/its at odd address\n", __func__);
-#ifdef TESTING
+#if defined(TESTING)
                 traceInstruction (0);
 #endif
               }
@@ -700,20 +700,16 @@ startCA:;
                       }
                   }
                 // fall through to TM_R
-#ifndef __SUNPRO_C
-# ifndef __SUNPRO_CC
-#  ifndef __SUNPRO_CC_COMPAT
+#if !defined(__SUNPRO_C) && !defined(__SUNPRO_CC) && !defined(__SUNPRO_CC_COMPAT)
                 /*FALLTHRU*/
                 /* fall through */
-#   if defined(__GNUC__) && __GNUC__ > 6
+# if defined(__GNUC__) && __GNUC__ > 6
                 __attribute__ ((fallthrough));
-#   endif
+# endif /* if defined(__GNUC__) && __GNUC__ > 6 */
                 /*FALLTHRU*/
-#   ifdef __clang__
+# if defined(__clang__)
                 (void)0;
-#   endif
-#  endif
-# endif
+# endif /* if defined(__clang__) */
 #endif
               } // TM_IT
 
@@ -843,7 +839,7 @@ startCA:;
                 word36 indword;
                 word18 indaddr = cpu.TPR.CA;
                 ReadAPUDataRead (indaddr, & indword);
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
                 word24 phys_address = cpu.iefpFinalAddress;
 #endif
 
@@ -944,14 +940,14 @@ startCA:;
 
                 cpu.cu.pot = 1;
 
-#ifdef LOCKLESSXXX
+#if defined(LOCKLESSXXX)
                 // gives warnings as another lock is acquired in between
                 Read (cpu.TPR.CA, & cpu.ou.character_data, (i->info->flags & RMW) == \
                         STORE_OPERAND ? OPERAND_RMW : OPERAND_READ);
 #else
                 ReadOperandRead (cpu.TPR.CA, & cpu.ou.character_data);
 #endif
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
                 cpu.char_word_address = cpu.iefpFinalAddress;
 #endif
 
@@ -999,7 +995,7 @@ startCA:;
                     //                    cpu.ou.characterOperandSize |
                     //                    cpu.ou.characterOperandOffset);
                     //Write (cpu.TPR.CA,  new_indword, APU_DATA_STORE);
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
                     word36 indword_new;
                     core_read_lock(phys_address, &indword_new, __func__);
                     if (indword_new != indword)
@@ -1010,7 +1006,7 @@ startCA:;
                     putbits36_18 (& indword,  0, Yi);
                     putbits36_12 (& indword, 18, tally);
                     putbits36_3  (& indword, 33, os);
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
                     core_write_unlock(phys_address, indword, __func__);
 #else
                     WriteAPUDataStore (indaddr, indword);
@@ -1064,7 +1060,7 @@ startCA:;
                            "IT_MOD(IT_AD): reading indirect word from %06o\n",
                            cpu.TPR.CA);
 
-#ifdef THREADZ
+#if defined(THREADZ)
                 lock_rmw ();
 #endif
 
@@ -1099,13 +1095,13 @@ startCA:;
                 indword = (word36) (((word36) Yi << 18) |
                                     (((word36) cpu.AM_tally & 07777) << 6) |
                                     delta);
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
                 core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else
                 WriteAPUDataStore (saveCA, indword);
 #endif
 
-#ifdef THREADZ
+#if defined(THREADZ)
                 unlock_rmw ();
 #endif
 
@@ -1131,7 +1127,7 @@ startCA:;
                 // otherwise it is set OFF. The computed address is the value
                 // of the decremented ADDRESS field of the indirect word.
 
-#ifdef THREADZ
+#if defined(THREADZ)
                 lock_rmw ();
 #endif
 
@@ -1167,13 +1163,13 @@ startCA:;
                 indword = (word36) (((word36) Yi << 18) |
                                     (((word36) cpu.AM_tally & 07777) << 6) |
                                     delta);
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
                 core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else
                 WriteAPUDataStore (saveCA, indword);
 #endif
 
-#ifdef THREADZ
+#if defined(THREADZ)
                 unlock_rmw ();
 #endif
 
@@ -1202,7 +1198,7 @@ startCA:;
                            "IT_MOD(IT_DI): reading indirect word from %06o\n",
                            cpu.TPR.CA);
 
-#ifdef THREADZ
+#if defined(THREADZ)
                 lock_rmw ();
 #endif
 
@@ -1240,13 +1236,13 @@ startCA:;
                            "addr %06o\n",
                            indword, saveCA);
 
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
                 core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else
                 WriteAPUDataStore (saveCA, indword);
 #endif
 
-#ifdef THREADZ
+#if defined(THREADZ)
                 unlock_rmw ();
 #endif
                 cpu.TPR.CA = Yi;
@@ -1271,7 +1267,7 @@ startCA:;
                            "IT_MOD(IT_ID): fetching indirect word from %06o\n",
                            cpu.TPR.CA);
 
-#ifdef THREADZ
+#if defined(THREADZ)
                 lock_rmw ();
 #endif
 
@@ -1311,13 +1307,13 @@ startCA:;
                            "addr %06o\n",
                            indword, saveCA);
 
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
                 core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else
                 WriteAPUDataStore (saveCA, indword);
 #endif
 
-#ifdef THREADZ
+#if defined(THREADZ)
                 unlock_rmw ();
 #endif
 
@@ -1353,7 +1349,7 @@ startCA:;
                            "IT_MOD(IT_DIC): fetching indirect word from %06o\n",
                            cpu.TPR.CA);
 
-#ifdef THREADZ
+#if defined(THREADZ)
                 lock_rmw ();
 #endif
 
@@ -1393,13 +1389,13 @@ startCA:;
                            "IT_MOD(IT_DIC): writing indword=%012"PRIo64" to "
                            "addr %06o\n", indword, saveCA);
 
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
                 core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else
                 WriteAPUDataStore (saveCA, indword);
 #endif
 
-#ifdef THREADZ
+#if defined(THREADZ)
                 unlock_rmw ();
 #endif
                 // If the TAG of the indirect word invokes a register, that is,
@@ -1465,7 +1461,7 @@ startCA:;
                            "IT_MOD(IT_IDC): fetching indirect word from %06o\n",
                            cpu.TPR.CA);
 
-#ifdef THREADZ
+#if defined(THREADZ)
                 lock_rmw ();
 #endif
 
@@ -1505,13 +1501,13 @@ startCA:;
                            " to addr %06o\n",
                            indword, saveCA);
 
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
                 core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else
                 WriteAPUDataStore (saveCA, indword);
 #endif
 
-#ifdef THREADZ
+#if defined(THREADZ)
                 unlock_rmw ();
 #endif
 

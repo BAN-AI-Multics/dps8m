@@ -182,13 +182,13 @@ static void evHandler (UNUSED telnet_t *telnet, telnet_event_t *event, void *use
             p->ttype = strdup (event->ttype.name);
             if (!p->ttype)
               {
-                fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                         __func__, __FILE__, __LINE__);
+                (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                               __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
                 (void)raise(SIGUSR2);
                 /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
                 abort();
               }
@@ -213,13 +213,13 @@ void * ltnConnect (uv_tcp_t * client)
     void * p = (void *) telnet_init (my_telopts, evHandler, 0, client);
     if (! p)
       {
-        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                 __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -237,13 +237,13 @@ void * ltnConnect3270 (uv_tcp_t * client)
     void * p = (void *) telnet_init (my_3270telopts, evHandler, 0, client);
     if (! p)
       {
-        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                 __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }

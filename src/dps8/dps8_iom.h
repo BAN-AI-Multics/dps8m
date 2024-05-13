@@ -22,7 +22,7 @@
 // IOTP IO Transfer and proceed       18-20 !111,  22-23 01
 // IONTP IO Non-Transfer and proceed  18-20 !111,  22-23 11
 
-#ifdef IO_THREADZ
+#if defined(IO_THREADZ)
 extern __thread uint this_iom_idx;
 extern __thread uint this_chan_num;
 //extern __thread bool thisIOMHaveLock;
@@ -406,10 +406,10 @@ void iom_indirect_data_service (uint iom_unit_idx, uint chan, word36 * data,
                                 uint * cnt, bool write);
 void iom_init (void);
 int send_marker_interrupt (uint iom_unit_idx, int chan);
-#ifdef PANEL68
+#if defined(PANEL68)
 void do_boot (void);
 #endif
-#ifdef IO_THREADZ
+#if defined(IO_THREADZ)
 void * iom_thread_main (void * arg);
 void * chan_thread_main (void * arg);
 #endif
@@ -426,6 +426,6 @@ void iomProcess (void);
 #endif
 
 char iomChar (uint iomUnitIdx);
-#ifdef TESTING
+#if defined(TESTING)
 void dumpDCW (word36 DCW, word1 LPW_23_REL);
 #endif

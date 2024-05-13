@@ -71,9 +71,16 @@ Review the complete [**DPS8M Omnibus Documentation**](https://dps8m.gitlab.io/dp
 []()
 
 - [AIX](#aix)
+  * [Recommended compilers](#recommended-compilers)
+    + [Other supported compilers](#other-supported-compilers)
   * [AIX prerequisites](#aix-prerequisites)
+    + [Libraries and tools](#libraries-and-tools)
+    + [GNU C compilers](#gnu-c-compilers)
+    + [Clang compilers](#clang-compilers)
+    + [IBM compiler support](#ibm-compiler-support)
   * [AIX compilation](#aix-compilation)
     + [IBM Open XL C/C++ for AIX](#ibm-open-xl-cc-for-aix)
+    + [Clang](#clang-1)
     + [IBM XL C/C++ for AIX](#ibm-xl-cc-for-aix)
     + [GCC](#gcc-1)
 
@@ -96,7 +103,7 @@ Review the complete [**DPS8M Omnibus Documentation**](https://dps8m.gitlab.io/dp
   * [Linux prerequisites](#linux-prerequisites)
   * [Standard Linux compilation](#standard-linux-compilation)
   * [Alternative Linux compilation](#alternative-linux-compilation)
-    + [Clang](#clang-1)
+    + [Clang](#clang-2)
     + [Intel oneAPI DPC++/C++](#intel-oneapi-dpcc)
     + [AMD Optimizing C/C++](#amd-optimizing-cc)
       - [AOCC with AMD Optimized CPU Libraries](#aocc-with-amd-optimized-cpu-libraries)
@@ -127,8 +134,6 @@ Review the complete [**DPS8M Omnibus Documentation**](https://dps8m.gitlab.io/dp
 - [macOS](#macos)
   * [macOS prerequisites](#macos-prerequisites)
   * [macOS compilation](#macos-compilation)
-    + [Xcode](#xcode)
-    + [Intel C/C++ Compiler Classic for macOS](#intel-cc-compiler-classic-for-macos)
   * [macOS cross-compilation](#macos-cross-compilation)
     + [ARM64](#arm64)
     + [Intel](#intel)
@@ -143,7 +148,6 @@ Review the complete [**DPS8M Omnibus Documentation**](https://dps8m.gitlab.io/dp
     + [Cygwin-hosted cross-compilation to MinGW](#cygwin-hosted-cross-compilation-to-mingw)
       - [Windows i686](#windows-i686)
       - [Windows x86_64](#windows-x86_64)
-    + [Unix-hosted cross-compilation to Cygwin](#unix-hosted-cross-compilation-to-cygwin)
   * [MSYS2](#msys2)
   * [Unix-hosted LLVM-MinGW Clang cross-compilation](#unix-hosted-llvm-mingw-clang-cross-compilation)
     + [Windows i686](#windows-i686-1)
@@ -164,7 +168,7 @@ Review the complete [**DPS8M Omnibus Documentation**](https://dps8m.gitlab.io/dp
 
 ## General Information
 
-* For optimal performance, building the simulator from source is highly recommended.
+* Expert users may wish to build the simulator from source code to enable experimental features, or for reasons of performance and compatibility.
 
 []()
 
@@ -173,7 +177,7 @@ Review the complete [**DPS8M Omnibus Documentation**](https://dps8m.gitlab.io/dp
 []()
 
 * **The DPS8M Development Team** recommends most users download a [**source kit distribution**](https://dps8m.gitlab.io/dps8m/Releases/).
-  * A source kit requires approximately **6.5 MiB** of storage space to decompress and **28 MiB** to
+  * A source kit requires approximately **20 MiB** of storage space to decompress and **40 MiB** to
     build.
 
 []()
@@ -181,8 +185,8 @@ Review the complete [**DPS8M Omnibus Documentation**](https://dps8m.gitlab.io/dp
 * Advanced users may prefer to clone the
   [**git repository**](https://gitlab.com/dps8m/dps8m) which contains additional tools not required
   for simulator operation, but useful to developers.
-  * The [**git repository**](https://gitlab.com/dps8m/dps8m) requires approximately **175 MiB** of storage
-    space to clone and **250 MiB** to build.
+  * The [**git repository**](https://gitlab.com/dps8m/dps8m) requires approximately **275 MiB** of storage
+    space to clone and **300 MiB** to build.
 
 <!-- br -->
 
@@ -232,7 +236,7 @@ Install the required prerequisites (using FreeBSD Packages or Ports):
 * **FreeBSD** provides the **Clang** compiler as part of the base system.  While *sufficient* to build
   the simulator, we recommend that version 12 or later of the **GNU C** (`gcc`) compiler be used for
   optimal performance.
-* At the time of writing, **GCC 13.1** is available for **FreeBSD** systems and is the version of GCC
+* At the time of writing, **GCC 13.2** is available for **FreeBSD** systems and is the version of GCC
   currently recommended by **The DPS8M Development Team**.
   \
   \
@@ -299,7 +303,7 @@ Install the required prerequisites (using FreeBSD Packages or Ports):
 
 * Ensure you are running a [supported release](https://www.netbsd.org/releases/formal.html) of
   [**NetBSD**](https://www.netbsd.org) on a [supported platform](https://www.netbsd.org/ports/).
-  * **NetBSD**/[**amd64**](https://www.netbsd.org/ports/amd64/) is regularly tested by **The DPS8M Development Team**.
+  * **NetBSD**/[**amd64**](https://www.netbsd.org/ports/amd64/) and **NetBSD**/[**evbarm**](https://www.netbsd.org/ports/evbarm/) are regularly tested by **The DPS8M Development Team**.
 
 []()
 
@@ -386,7 +390,7 @@ Install the required prerequisites (using NetBSD Packages or [pkgsrc](https://ww
 
   ```sh
   env CC="clang" \
-    LDFLAGS="-L/usr/lib -L/usr/pkg/lib -fuse-ld="$(command -v ld.lld)" gmake
+    LDFLAGS="-L/usr/lib -L/usr/pkg/lib -fuse-ld=\"$(command -v ld.lld)\"" gmake
   ```
 
 ### blinkenLights2 on NetBSD
@@ -429,7 +433,7 @@ Install the required prerequisites (using NetBSD Packages or [pkgsrc](https://ww
 
 []()
 
-* The following instructions were verified using **OpenBSD 7.4** on
+* The following instructions were verified using **OpenBSD 7.5** on
   [**amd64**](https://www.openbsd.org/amd64.html) and
   [**arm64**](https://www.openbsd.org/arm64.html).
 
@@ -522,11 +526,12 @@ Install the required prerequisites (using OpenBSD Packages or Ports):
 
 * **GCC** is recommended for optimal performance, but compilation using **Clang** is supported.
 * A version of **Clang** newer than the base system version may be available via the '**`llvm`**' package or port.
-* Once installed, it can be used for compilation by setting `CC=/usr/local/bin/clang`.
+* Once installed, it can be used for compilation by setting the appropriate environment variables before
+  invoking the '`gmake`' program (*i.e.* '`CC="/usr/local/bin/clang"`' and '`LDFLAGS="-fuse-ld=lld"`').
 
 ### Additional OpenBSD Notes
 
-* At the time of writing, **OpenBSD**/[**luna88k**](https://www.openbsd.org/luna88k.html) has not been tested.
+* **OpenBSD**/[**luna88k**](https://www.openbsd.org/luna88k.html) is **not supported**.
 
 <br>
 
@@ -584,7 +589,7 @@ Install the required prerequisites (using OpenBSD Packages or Ports):
 
 * **GCC** is recommended for optimal performance, but compilation using **Clang** is supported.
 * At the time of writing, **Clang 16** is available for DragonFly BSD and recommended by **The DPS8M Development Team**.
-* While some optional utilities may fail to build using **Clang** on DragonFly, the simulator (`src/dps8/dps8`) is fully tested with each DragonFly release.
+* While some optional utilities *may* fail to build using **Clang** on DragonFly, the simulator (`src/dps8/dps8`) is fully tested with each DragonFly release.
 
   * **Clang 16** may be installed using DragonFly BSD DPorts (as *root*):
 
@@ -609,22 +614,29 @@ Install the required prerequisites (using OpenBSD Packages or Ports):
 
 ## Solaris
 
-* Ensure your **Solaris** installation is reasonably current. [**Oracle Solaris**](https://www.oracle.com/solaris) **11.4 SRU42** or later is recommended.
+* Ensure your **Solaris** installation is reasonably current.
+  * [**Oracle Solaris**](https://www.oracle.com/solaris) **11.4 SRU42** or later is recommended.
 
 []()
 
 * The simulator can be built on **Solaris** using the **GCC**, **Clang**, and **Oracle Developer Studio** compilers.
-  * **GCC 11** is the recommended compiler for optimal performance on all Intel-based **Solaris** systems.
-    * **GCC 11** can be installed from the standard IPS repository via '**`pkg install gcc-11`**'.
-  * Link-time optimization (*LTO*) is supported ***only*** when building with **GCC** version 10 or later.
-    * The `NO_LTO=1` build option should be specified when using earlier versions of the **GCC** compiler.
-  * Building with **Clang 11** or later is also supported (*but not recommended due to lack of LTO support*).
-    * **Clang 11** can be installed from the standard IPS repository via '**`pkg install clang@11 llvm@11`**'.
-  * Building with the **Oracle Developer Studio 12.6** (`suncc`) compiler is also supported.
 
 []()
 
-* Note that building for **Solaris** using the **Oracle Developer Studio** compiler currently requires a non-trivial amount of `CFLAGS` to be specified. This will be simplified in a future release of the simulator.
+* **GCC 11** is the recommended compiler for optimal performance on all Intel-based **Solaris** systems.
+  * **GCC 11** can be installed from the standard IPS repository via '**`pkg install gcc-11`**'.
+  * Link-time optimization (*LTO*) is supported ***only*** when building with **GCC** version 10 or later.
+  * The `NO_LTO=1` build option should be specified when using earlier versions of the **GCC** compiler.
+
+[]()
+
+  * Building with **Clang 11** (or later) is also supported (*but not recommended due to lack of LTO support*).
+    * **Clang 11** can be installed from the standard IPS repository, *i.e.* '**`pkg install clang@11 llvm@11`**'.
+
+[]()
+
+  * Building with the **Oracle Developer Studio 12.6** (`suncc`) compiler is also supported.
+    * Note that building for **Solaris** using the **Oracle Developer Studio** compiler currently requires a non-trivial amount of `CFLAGS` to be specified. This will be simplified in a future release of the simulator.
 
 ### Solaris prerequisites
 
@@ -709,19 +721,19 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 ## OpenIndiana
 
 * Ensure your [**OpenIndiana**](https://www.openindiana.org/) installation is up-to-date.
-  * **OpenIndiana** *Hipster* **January 2024** was used to verify these instructions.
+  * **OpenIndiana** *Hipster* **April 2024** was used to verify these instructions.
 
 []()
 
 * **GCC 13.2** is currently the recommended compiler for optimal performance.
-  * **GCC 13.2** can be installed from the standard IPS repository via '**`pkg install gcc-13`**'.
+  * **GCC 13.2** can be installed from the standard IPS repository via '**`pkg install developer/gcc-13`**'.
   * Link-time optimization (*LTO*) is supported ***only*** when building with **GCC** version 10 or later.
   * The `NO_LTO=1` build option should be specified when using earlier versions of the **GCC** compiler.
 
 []()
 
 * Building with **Clang** (version 13 or later) is also supported (*but not recommended due to lack of LTO support*).
-  * **Clang 17** can be installed from the standard IPS repository via '**`pkg install clang-17`**'.
+  * **Clang 18** can be installed from the standard IPS repository via '**`pkg install developer/clang-18`**'.
 
 ### OpenIndiana prerequisites
 
@@ -741,10 +753,10 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 
 ### Compiling using Clang
 
-* Build the simulator from the top-level source directory (using **GNU Make** and **Clang 17**):
+* Build the simulator from the top-level source directory (using **GNU Make** and **Clang 18**):
 
   ```sh
-  env NO_LTO=1 CC="clang-17" gmake
+  env NO_LTO=1 CC="clang-18" gmake
   ```
 
 <br>
@@ -760,25 +772,49 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 
 []()
 
-* The simulator can be built for **64-bit** **AIX®** using [**IBM XL C/C++ for AIX**](https://www.ibm.com/products/xl-c-aix-compiler-power) (**`xlc`**), [**IBM Open XL C/C++ for AIX**](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) (**`ibm-clang`**), or **GNU C** (**`gcc`**).
-* **The DPS8M Development Team** recommends building with **IBM Open XL C/C++ V17.1.2** (or later) or **GCC 11** (or later) for optimal performance.
-* [**IBM Open XL C/C++ for AIX V17.1.2 Fix Pack 2** (February 2024)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the *minimum* recommended version of the **Open XL C/C++** compiler on **POWER8**, **POWER9**, and **Power10** systems.
-* [**IBM XL C/C++ for AIX V16.1.0 Fix Pack 16** (February 2024)](https://www.ibm.com/support/pages/ibm-xl-cc-aix-161) is the *minimum* recommended version of the **IBM XL C/C++** compiler on **POWER8** and **POWER9** systems.
+* The simulator can be built for **64-bit** **AIX®** systems using [**IBM XL C/C++ for AIX**](https://www.ibm.com/products/xl-c-aix-compiler-power) (**`xlc`**), [**IBM Open XL C/C++ for AIX**](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) (**`ibm-clang`**), mainline **Clang** (**`clang`**), and **GNU C** (**`gcc`**).  When using **XL compilers**, ensure that you are using the [latest available XL compiler and associated PTF updates](https://www.ibm.com/support/pages/aix-os-levels-supported-xl-compilers) for your **IBM AIX** OS level. Review the current [fix list for XL compilers on AIX](https://www.ibm.com/support/pages/fix-list-xl-cc-aix) for complete details.
 
 []()
 
-* Ensure that you are using the [latest available XL compiler and associated PTF updates](https://www.ibm.com/support/pages/aix-os-levels-supported-xl-compilers) for your **IBM AIX** OS level.
+* **The DPS8M Development Team** recommends building with **IBM Open XL C/C++ V17.1.2** (or later) or mainline **Clang 18** (or later) for optimal performance. Building with **GNU C** is supported (*but not recommended*) when using **GCC 10** (or later).
+
+### Recommended compilers
+
+* [**IBM Open XL C/C++ for AIX V17.1.2 Fix Pack 5** (April 2024)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the *minimum* recommended version of the **Open XL C/C++ V17.1.2** compiler on **POWER8**, **POWER9**, and **Power10** systems.
+  * LTO (*link-time optimization*) and native 128-bit integer operations are both fully supported.
 
 []()
 
-* When building the simulator using **GNU C**, it recommended to use **GCC 11** (or later) for optimal performance.
-  * **GCC 11** can be installed from the [IBM AIX Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository.
+* [**Clang 18.1.3**](https://clang.llvm.org/) is the *minimum* recommended version of the **Clang** compiler on **POWER8**, **POWER9**, and **Power10** systems.
+  * LTO *(link-time optimization)* and native 128-bit integer operations are both fully supported.
+
+#### Other supported compilers
+
+* [**IBM Open XL C/C++ for AIX V17.1.1 Fix Pack 6** (February 2024)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the *minimum* recommended version of the **Open XL C/C++ V17.1.1** compiler on **POWER8**, **POWER9**, and **Power10** systems.
+  * LTO (*link-time optimization*) is supported, but 128-bit integer operations are **not supported**.
+    * Use of the **`NEED_128=1`** option is required when building with **Open XL C/C++ V17.1.1**.
 
 []()
 
-* Note that building for **IBM AIX** currently requires a non-trivial number of options to be specified *after* the `gmake` command, which overrides various build defaults appropriate for **Linux**, **macOS**, and **BSD** systems, but not IBM **AIX**.  This will be simplified in a future release of the simulator.
+* [**IBM XL C/C++ for AIX V16.1.0 Fix Pack 17** (April 2024)](https://www.ibm.com/support/pages/ibm-xl-cc-aix-161) is the *minimum* recommended version of the **IBM XL C/C++ V16.1.0** compiler on **POWER8** and **POWER9** systems.
+  * LTO (*link-time optimization*) and 128-bit integer operations are both **not supported**.
+    * Use of the **`NEED_128=1`** and **`NO_LTO=1`** options are required when building with **IBM XL C/C++ V16.1.0**.
+  * **IBM XL C/C++ V16.1.0** is **not** recommended for **Power10** systems.
+
+[]()
+
+* **GNU C 11.3.0** is the *minimum* recommended version of the **GNU C** compiler on **POWER8**, **POWER9**, and **Power10** systems.
+  * LTO (*link-time optimization*) and 128-bit integer operations are both **not supported**.
+    * Use of the **`NEED_128=1`** and **`NO_LTO=1`** options are required when building with **GNU C**.
+  * **GCC 11** and **GCC 12** can be installed from the [IBM AIX Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository.
+
+[]()
+
+* Note that building fully-featured binaries for **IBM AIX** currently requires a non-trivial number of options to be specified *after* the `gmake` command, which overrides various build defaults appropriate for **Linux**, **macOS**, and **BSD** systems, but not IBM **AIX**.  This will be simplified in a future release of the simulator.
 
 ### AIX prerequisites
+
+#### Libraries and tools
 
 * Install the required prerequisites from the [IBM AIX Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository (as *root*):
 
@@ -786,24 +822,35 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
   /opt/freeware/bin/dnf install sed gmake libuv libuv-devel popt coreutils gawk
   ```
 
-* *Optionally* install **GCC 11** (or **GCC 12** on **AIX 7.3**) from the [IBM AIX Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository (as *root*):
+#### GNU C compilers
 
-  * Install **GCC 11**:
+* *Optionally* install **GCC 11.3** (or **GCC 12.3**) from the [IBM AIX Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository (as *root*).
+  * GCC availability from the [IBM AIX Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) site varies depending on **IBM AIX** OS version.
+
+[]()
+
+  * Install **GCC 11.3**:
 
     ```sh
     /opt/freeware/bin/dnf install gcc gcc11
     ```
 
-  * Install **GCC 12** (on **AIX 7.3**):
+  * Install **GCC 12.3**:
 
     ```sh
     /opt/freeware/bin/dnf install gcc gcc12
     ```
 
-[]()
+#### Clang compilers
 
-* GCC availability from the [IBM AIX Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) site varies depending on **IBM AIX** version.
-* IBM does not provide support for **GCC** through **IBM AIX** support cases; we recommend using **Open XL C/C++** where possible.
+* *Optionally* install mainline **Clang**.  At the time of writing, mainline **Clang** for **AIX** was not yet available from the [IBM AIX Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository, but can be obtained from:
+
+  * [LLVM Downloads](https://releases.llvm.org/) (*source code*), or,
+  * [GitHub Releases](https://github.com/llvm/llvm-project/releases) (*source code and binary releases*)
+
+#### IBM compiler support
+
+* IBM does not provide support for any version of **GNU C** through **IBM AIX** support cases; we recommend IBM customers with support contracts use **Open XL C/C++** if possible.
 
 ### AIX compilation
 
@@ -814,25 +861,72 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 * Using **IBM Open XL C/C++ for AIX V17.1.2**:
 
   ```sh
-  env PATH="/opt/freeware/bin:${PATH}"                                     \
-      CC="/opt/IBM/openxlC/17.1.2/bin/ibm-clang_r"                         \
-      ATOMICS="AIX"                                                        \
-      AWK="gawk"                                                           \
-      OBJECT_MODE=64                                                       \
-      NEED_128=1                                                           \
-    gmake PULIBS="-lpopt"                                                  \
-          LDFLAGS="-L/opt/freeware/lib -L/usr/local/lib -flto=auto -b64"   \
-          LIBS="-lpthread -luv -lbsd -lm"                                  \
-          CFLAGS="-flto=auto -I/opt/freeware/include -I/usr/local/include  \
-                  -I../simh -I../decNumber -DUSE_FLOCK=1 -DUSE_FCNTL=1     \
-                  -DHAVE_POPT=1 -DNEED_128=1 -DAIX_ATOMICS=1 -m64          \
-                  -DLOCKLESS=1 -D_ALL_SOURCE -D_GNU_SOURCE -O3             \
+  env PATH="/opt/freeware/bin:${PATH}"                                      \
+      CC="/opt/IBM/openxlC/17.1.2/bin/ibm-clang_r"                          \
+      ATOMICS="AIX"                                                         \
+      AWK="gawk"                                                            \
+      OBJECT_MODE=64                                                        \
+    gmake PULIBS="-lpopt"                                                   \
+          LDFLAGS="-L/opt/freeware/lib -L/usr/local/lib -flto=auto -b64"    \
+          LIBS="-lpthread -luv -lbsd -lm"                                   \
+          CFLAGS="-flto=auto -I/opt/freeware/include -I/usr/local/include   \
+                  -I../simh -I../decNumber -DUSE_FLOCK=1 -DUSE_FCNTL=1      \
+                  -DHAVE_POPT=1 -DAIX_ATOMICS=1 -m64                        \
+                  -DLOCKLESS=1 -D_ALL_SOURCE -D_GNU_SOURCE -O3              \
                   -U__STRICT_POSIX__ -fno-strict-aliasing -mcpu=power8"
   ```
 
   * When building on IBM **POWER9** (or **Power10**) systems, ‘`-mcpu=power9`’ (*or* ‘`-mcpu=power10`’) should replace ‘`-mcpu=power8`’ in the above compiler invocation.
 
   * Refer to the [**IBM Open XL C/C++ for AIX V17.1.2 documentation**](https://www.ibm.com/docs/en/openxl-c-and-cpp-aix/17.1.2) for additional information.
+
+* Using **IBM Open XL C/C++ for AIX V17.1.1**:
+
+  ```sh
+  env PATH="/opt/freeware/bin:${PATH}"                                      \
+      CC="/opt/IBM/openxlC/17.1.1/bin/ibm-clang_r"                          \
+      ATOMICS="AIX"                                                         \
+      AWK="gawk"                                                            \
+      OBJECT_MODE=64                                                        \
+      NEED_128=1                                                            \
+    gmake PULIBS="-lpopt"                                                   \
+          LDFLAGS="-L/opt/freeware/lib -L/usr/local/lib -flto=auto -b64"    \
+          LIBS="-lpthread -luv -lbsd -lm"                                   \
+          CFLAGS="-flto=auto -I/opt/freeware/include -I/usr/local/include   \
+                  -I../simh -I../decNumber -DUSE_FLOCK=1 -DUSE_FCNTL=1      \
+                  -DHAVE_POPT=1 -DNEED_128=1 -DAIX_ATOMICS=1 -m64           \
+                  -DLOCKLESS=1 -D_ALL_SOURCE -D_GNU_SOURCE -O3              \
+                  -U__STRICT_POSIX__ -fno-strict-aliasing -mcpu=power8"
+  ```
+
+  * When building on IBM **POWER9** (or **Power10**) systems, ‘`-mcpu=power9`’ (*or* ‘`-mcpu=power10`’) should replace ‘`-mcpu=power8`’ in the above compiler invocation.
+
+  * Refer to the [**IBM Open XL C/C++ for AIX V17.1.1 documentation**](https://www.ibm.com/docs/en/openxl-c-and-cpp-aix/17.1.1) for additional information.
+
+#### Clang
+
+* Using mainline **Clang 18.1.3**:
+
+  ```sh
+  env PATH="/opt/llvm/bin:/opt/freeware/bin:${PATH}"                        \
+      CC="/opt/llvm/bin/clang"                                              \
+      ATOMICS="AIX"                                                         \
+      AWK="gawk"                                                            \
+      OBJECT_MODE=64                                                        \
+    gmake PULIBS="-lpopt"                                                   \
+          LDFLAGS="-L/opt/freeware/lib -L/usr/local/lib -flto=auto -b64"    \
+          LIBS="-lpthread -luv -lbsd -lm"                                   \
+          CFLAGS="-flto=auto -I/opt/freeware/include -I/usr/local/include   \
+                  -I../simh -I../decNumber -DUSE_FLOCK=1 -DUSE_FCNTL=1      \
+                  -DHAVE_POPT=1 -DAIX_ATOMICS=1 -m64                        \
+                  -DLOCKLESS=1 -D_ALL_SOURCE -D_GNU_SOURCE -O3              \
+                  -U__STRICT_POSIX__ -fno-strict-aliasing -mcpu=power8"
+  ```
+
+  * When building on IBM **POWER9** (or **Power10**) systems, ‘`-mcpu=power9`’ (*or* ‘`-mcpu=power10`’) should replace ‘`-mcpu=power8`’ in the above compiler invocation.
+
+  * Refer to the [**Clang documentation**](https://clang.llvm.org/docs/) for additional information.
+
 
 #### IBM XL C/C++ for AIX
 
@@ -868,19 +962,21 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 #### GCC
 
-* Using **GCC 11**:
+* Using **GCC 11.3**:
 
   ```sh
   env PATH="/opt/freeware/bin:${PATH}" CC="gcc-11" \
     ATOMICS="AIX" NO_LTO=1 gmake
   ```
+  * Refer to the [**GCC 11.3 online documentation**](https://gcc.gnu.org/onlinedocs/11.3.0/) for additional information.
 
-* Using **GCC 12**:
+* Using **GCC 12.3**:
 
   ```sh
   env PATH="/opt/freeware/bin:${PATH}" CC="gcc-12" \
     ATOMICS="AIX" NO_LTO=1 gmake
   ```
+  * Refer to the [**GCC 12.3 online documentation**](https://gcc.gnu.org/onlinedocs/12.3.0/) for additional information.
 
 <br>
 
@@ -893,7 +989,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 * Ensure you are running a recent release of [**Haiku**](https://www.haiku-os.org/) on a [supported **64-bit** platform](https://www.haiku-os.org/guides/building/port_status).
   * Use the '**SoftwareUpdater**' application to ensure your **Haiku** installation is up-to-date.
 * **The DPS8M Development Team** regularly tests the simulator using the [nightly **Haiku** **x86_64** snapshots](https://download.haiku-os.org/nightly-images/x86_64/).
-  * **Haiku** **x86_64** (**`hrev57498`**) was used to verify the following instructions.
+  * **Haiku** **x86_64** (**`hrev57700`**) was used to verify the following instructions.
 
 ### Haiku prerequisites
 
@@ -954,24 +1050,32 @@ The default **Haiku** installation includes the required header files, the recom
 
 ## Linux
 
-* Most major **Linux** distributions using the [**GNU C Library**](https://www.gnu.org/software/libc/), [**Bionic**](https://developer.android.com/), [**uClibc-ng**](https://uclibc-ng.org/), and [**musl-libc**](https://musl.libc.org/) are supported.
-  * [**Debian GNU/Linux**](https://www.debian.org/) and derivatives ([**Raspberry Pi OS**](https://www.raspberrypi.com/software/)), **Red Hat** variants ([**Fedora**](https://fedoraproject.org/), [**CentOS Stream**](https://www.centos.org/centos-stream/), [**RHEL**](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux)) and compatibles ([**AlmaLinux**](https://almalinux.org/), [**Amazon Linux**](https://aws.amazon.com/amazon-linux-2/), [**Oracle Linux**](https://www.oracle.com/linux/)),  [**Alpine**](https://www.alpinelinux.org/), **SUSE** ([**SLES**](https://www.suse.com/products/server/), [**OpenSUSE**](https://www.opensuse.org/)), [**Void**](https://voidlinux.org/), and [**Ubuntu**](https://ubuntu.com/) are regularly tested on **Intel**, **ARM**, and **POWER** systems.
+* Most major **Linux** distributions using the [**GNU C Library**](https://www.gnu.org/software/libc/), [**uClibc-ng**](https://uclibc-ng.org/), and [**musl-libc**](https://musl.libc.org/) are supported.
+  * [**Debian GNU/Linux**](https://www.debian.org/) and derivatives ([**Raspberry Pi OS**](https://www.raspberrypi.com/software/)), **Red Hat** variants ([**Fedora**](https://fedoraproject.org/), [**CentOS Stream**](https://www.centos.org/centos-stream/), [**RHEL**](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux)) and compatibles ([**AlmaLinux**](https://almalinux.org/), [**Amazon Linux**](https://aws.amazon.com/amazon-linux-2/), [**Oracle Linux**](https://www.oracle.com/linux/)),  [**Alpine**](https://www.alpinelinux.org/), **SUSE** ([**SLES**](https://www.suse.com/products/server/), [**OpenSUSE**](https://www.opensuse.org/)), [**Void**](https://voidlinux.org/), and [**Ubuntu**](https://ubuntu.com/) are regularly tested on **Intel**, **ARM**, **RISC-V**, and **POWER** systems.
 
 ### Linux compilers
 
 * **GCC** **12** or later is recommended for optimal performance on most architectures including **Intel** and **ARM**.
   * **The DPS8M Development Team** regularly tests and supports a wide range of Linux compilers, including **Clang**, AMD Optimizing C/C++ (**AOCC**), Arm C/C++ Compiler (**ARMClang**), GNU C (**GCC**) (*version* **9**+), IBM Advance Toolchain for Linux, IBM XL C/C++ for Linux (**XLC**), IBM Open XL C/C++ for Linux (**IBMClang**), Intel oneAPI DPC++/C++ (**ICX**), NVIDIA HPC SDK C Compiler (**NVC**), and Oracle Developer Studio (**SunCC**).
 
+[]()
+
   * **Red Hat** offers the [**Red Hat Developer Toolset**](https://developers.redhat.com/products/developertoolset/) for **Red Hat Enterprise Linux** and **CentOS Stream**, which provides up-to-date versions of **GCC** on a rapid release cycle, with *full support*.
     * The *Toolset* packages are also included in various "clone" distributions such as **AlmaLinux**. These tools are regularly tested and highly recommended by **The DPS8M Development Team**. Check your distribution packager manager (*i.e.* '**`dnf search`**') for packages named '**`gcc-toolset-12`**', '**`gcc-toolset-13`**', or similar.
 
+[]()
+
   * **Canonical** similarly offers two [**Ubuntu Toolchain PPAs**](https://wiki.ubuntu.com/ToolChain#Toolchain_Updates), one providing **GCC** updates for release branches, and the other providing new **GCC** versions for both current and **LTS** releases, maintained by the Ubuntu Toolchain team.
     * For example, at the time of writing, Ubuntu 22.04 LTS ships **GCC 11.3** and **GCC 12.1**, and the **Toolchain PPAs** ship **GCC 12.3** and **GCC 13.1**. Although these packages are *not formally supported* by Canonical, they are regularly and successfully used by **The DPS8M Development Team**.
+    * **NOTE**: Ubuntu has shipped multiple versions of the **LLVM** and **Clang** packages that are ***broken*** in various ways (*incorrect library paths, missing libraries, broken LTO support, etc.*).  If you encounter problems building from source code using **Clang** on Ubuntu, try installing different package versions, wait for an update, or use **GCC** to build instead.
+
+[]()
 
   * **Intel®** **C++ Compiler** **Classic** (**ICC**) **for Linux** is ***no longer supported*** for building **DPS8M** (*as of* ***R3.0.0***):
     * Users should upgrade to the current version of the [**Intel® oneAPI DPC++/C++** (**ICX**) **Compiler**](https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html).
-    * **ICC** remains a supported compiler for building **DPS8M** on **Intel**-based **macOS** systems **only**.
     * Intel® has *retired* support for **ICC**.
+
+[]()
 
 * Cross-compilation is supported. Popular targets including various **Linux** platforms, **Microsoft Windows** on **Intel** and **ARM** (using the **MinGW-w64** and **LLVM-MinGW** toolchains) and **Linux on POWER** (using the **IBM Advance Toolchain for Linux**) are regularly built and tested.
 
@@ -1052,10 +1156,10 @@ Examples of building the simulator on **Linux** using various popular compilers 
 
 #### AMD Optimizing C/C++
 
-* Build the simulator using **AMD Optimizing C/C++** (**AOCC**), version 4.1.0, (with **AOCC**-provided **AMD LibM**):
+* Build the simulator using **AMD Optimizing C/C++** (**AOCC**), version 4.2.0, (with **AOCC**-provided **AMD LibM**):
 
   ```sh
-  export AOCCVER="4.1.0" &&                               \
+  export AOCCVER="4.2.0" &&                               \
   export AOCLPATH="/opt/AMD/aocc-compiler-${AOCCVER}" &&  \
   source ${AOCCPATH}/setenv_AOCC.sh &&                    \
   env CC="clang" CFLAGS="-mllvm -vector-library=AMDLIBM"  \
@@ -1066,14 +1170,14 @@ Examples of building the simulator on **Linux** using various popular compilers 
 
 ##### AOCC with AMD Optimized CPU Libraries
 
-* Build the simulator using **AMD Optimizing C/C++** (**AOCC**), version 4.1.0, with **AMD Optimized CPU Libraries** (**AOCL**) (**AMD AOCL-LibM** and **AMD AOCL-LibMem**), version 4.1.0:
+* Build the simulator using **AMD Optimizing C/C++** (**AOCC**), version 4.2.0, with **AMD Optimized CPU Libraries** (**AOCL**) (**AMD AOCL-LibM** and **AMD AOCL-LibMem**), version 4.2.0:
 
   ```sh
-  export AOCCVER="4.1.0" &&                                               \
+  export AOCCVER="4.2.0" &&                                               \
   export AOCCPATH="/opt/AMD/aocc-compiler-${AOCCVER}" &&                  \
-  export AOCLVER="4.1.0" &&                                               \
+  export AOCLVER="4.2.0" &&                                               \
   export AOCLPATH="/opt/AMD/aocl/aocl-linux-aocc-${AOCLVER}" &&           \
-  export LD_LIBRARY_PATH="${AOCLPATH}/lib:${LD_LIBRARY_PATH}" &&          \
+  export LD_LIBRARY_PATH="${AOCLPATH}/aocc/lib:${LD_LIBRARY_PATH}" &&     \
   source ${AOCCPATH}/setenv_AOCC.sh &&                                    \
   env CC="clang" CFLAGS="-mllvm -vector-library=AMDLIBM"                  \
       LDFLAGS="-Wno-unused-command-line-argument -L${AOCLPATH}/aocc/lib"  \
@@ -1125,35 +1229,39 @@ Examples of building the simulator on **Linux** using various popular compilers 
 
 #### NVIDIA HPC SDK C Compiler
 
-* Build the simulator using **NVIDIA HPC SDK C Compiler** (**NVC**), version 24.1, for Linux/**x86_64** (also available for Linux/**ARM64** and Linux/**OpenPOWER**):
+* Build the simulator using **NVIDIA HPC SDK C Compiler** (**NVC**), version 24.3, for Linux/**x86_64** (also available for Linux/**ARM64** and Linux/**OpenPOWER**):
 
   ```sh
-  export NVCVER="24.1" &&                                             \
-  export NVCPATH="/opt/nvidia/hpc_sdk/Linux_x86_64/${NVCVER}/bin" &&  \
-  env CFLAGS="-noswitcherror" CC="${NVCPATH}/nvc" NO_LTO=1            \
-    make OPTFLAGS="-fast -O4"
+  export NVCVER="24.3" &&                                                    \
+  export NVPLAT="Linux_x86_64" &&                                            \
+  export NVCPATH="/opt/nvidia/hpc_sdk/${NVPLAT}/${NVCVER}/compilers/bin" &&  \
+  env CFLAGS="-noswitcherror --diag_suppress=mixed_enum_type                 \
+                             --diag_suppress=branch_past_initialization      \
+                             --diag_suppress=set_but_not_used"               \
+      CC="${NVCPATH}/nvc" NO_LTO=1                                           \
+    make OPTFLAGS="-fast -O4 -Mnofprelaxed"
   ```
 
-  * The **NVIDIA HPC SDK C Compiler** is the successor to the **PGI C Compiler** product. If you are using the earlier **PGI C Compiler** (**PGCC**), adjust paths appropriately, and replace '**`nvc`**' with '**`pgcc`**' in the above invocation.
+  * **DPS8M** is known to trigger bugs in some versions of the **NVIDIA HPC SDK C Compiler**, such as:
 
-  * **DPS8M** is known to trigger bugs in many versions of the **PGCC** and **NVC** compilers, such as:
     ```text
     NVC++-F-0000-Internal compiler error. add_cilis(): bad jmp code 1056
     ```
+
     If you encounter this (*or similar*) compiler errors, try adding '`-Mnovect`' to '`OPTFLAGS`' as a workaround.
 
 #### Arm HPC C/C++ Compiler for Linux
 
-The **Arm HPC C/C++ Compiler for Linux** with **Arm Performance Libraries** (*also available as a component of* **Arm Allinea Studio**) provides a packaged **Clang**/**LLVM**-based toolchain with optimized math and string libraries, validated against common ARM HPC platforms.
+The **Arm HPC C/C++ Compiler for Linux** with **Arm Performance Libraries** (also available as a component of **Arm Allinea Studio**) provides a packaged **Clang**/**LLVM**-based toolchain with optimized math and string libraries, validated against common ARM HPC platforms.
 
 Note the following examples *do not* make use of [**Environment Modules**](https://modules.sourceforge.net/) and/or [**Lmod**](https://lmod.readthedocs.org), commonly used to manage compiler and development tool installations in HPC environments.
 
 If your site uses modules (*i.e.* `module avail`), loading the appropriate module is usually preferred to setting paths manually.  Contact your system administrator for site-specific configuration details and recommended local compiler flags.
 
-* Build the simulator using the [**Arm HPC C/C++ Compiler for Linux** (**ARMClang**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Compiler%20for%20Linux), version 23.10, for Linux/**ARM64**:
+* Build the simulator using the [**Arm HPC C/C++ Compiler for Linux** (**ARMClang**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Compiler%20for%20Linux), version 24.04, for Linux/**ARM64**:
 
   ```sh
-  export ACFLVER="23.10" &&                                 \
+  export ACFLVER="24.04" &&                                 \
   export ACFLCMP="arm-linux-compiler-${ACFLVER}" &&         \
   export ACFLTYP="Generic-AArch64_RHEL-9_aarch64-linux" &&  \
   export ACFLPATH="/opt/arm/${ACFLCMP}_${ACFLTYP}" &&       \
@@ -1165,10 +1273,10 @@ If your site uses modules (*i.e.* `module avail`), loading the appropriate modul
 
 ##### ACFL with Arm Performance Libraries
 
-* Build the simulator using the [**Arm HPC C/C++ Compiler for Linux** (**ARMClang**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Compiler%20for%20Linux) with the integrated [**Arm Performance Libraries** (**ArmPL**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Performance%20Libraries), version 23.10, for Linux/**ARM64**:
+* Build the simulator using the [**Arm HPC C/C++ Compiler for Linux** (**ARMClang**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Compiler%20for%20Linux) with the integrated [**Arm Performance Libraries** (**ArmPL**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Performance%20Libraries), version 24.04, for Linux/**ARM64**:
 
   ```sh
-  export ACFLVER="23.10" &&                                 \
+  export ACFLVER="24.04" &&                                 \
   export ACFLCMP="arm-linux-compiler-${ACFLVER}" &&         \
   export ACFLTYP="Generic-AArch64_RHEL-9_aarch64-linux" &&  \
   export ACFLPATH="/opt/arm/${ACFLCMP}_${ACFLTYP}" &&       \
@@ -1179,10 +1287,10 @@ If your site uses modules (*i.e.* `module avail`), loading the appropriate modul
     make OPTFLAGS="-Ofast"
   ```
 
-* Build the simulator using the [**Arm HPC C/C++ Compiler for Linux** (**ARMClang**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Compiler%20for%20Linux) with the integrated [**Arm Performance Libraries** (**ArmPL**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Performance%20Libraries), version 23.10, for Linux/**ARMv8-A+SVE2** (*Scalable Vector Extensions*):
+* Build the simulator using the [**Arm HPC C/C++ Compiler for Linux** (**ARMClang**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Compiler%20for%20Linux) with the integrated [**Arm Performance Libraries** (**ArmPL**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Performance%20Libraries), version 24.04, for Linux/**ARMv8-A+SVE2** (*Scalable Vector Extensions*):
 
   ```sh
-  export ACFLVER="23.10" &&                                 \
+  export ACFLVER="24.04" &&                                 \
   export ACFLCMP="arm-linux-compiler-${ACFLVER}" &&         \
   export ACFLTYP="Generic-AArch64_RHEL-9_aarch64-linux" &&  \
   export ACFLPATH="/opt/arm/${ACFLCMP}_${ACFLTYP}" &&       \
@@ -1462,10 +1570,10 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
 []()
 
 * [**Xcode**](https://developer.apple.com/xcode/) is required; it is **strongly recommended** to use the most recent release for optimal performance.
-  * Building with [**Intel® C++ Compiler Classic for macOS**](https://www.intel.com/content/www/us/en/developer/articles/tool/oneapi-standalone-components.html#dpcpp-cpp) (**`icc`**), version **2021.9.0** (with update **2022.6.0** minimum, **2023.1.0** recommended) and version **2021.10.0** is supported.
-  * While **ICC** remains a supported compiler for building **DPS8M** on **Intel**-based **macOS** systems, Intel® has *retired* support for **ICC**.
-  * At the time of writing, building the simulator on **macOS** using **GCC** is ***not recommended***.
-* The following instructions were verified using **macOS 14.2.1** with **Xcode 15.2** (Apple Clang 15.0.0).
+  * [**Intel® C++ Compiler Classic for macOS**](https://www.intel.com/content/www/us/en/developer/articles/tool/oneapi-standalone-components.html#dpcpp-cpp) (**`icc`**) is ***no longer supported*** for building **DPS8M** (*as of* ***R3.0.2***).
+    * Intel® has *retired* support for **ICC**.
+  * Building the simulator on **macOS** using **GCC** is ***not recommended***.
+* The following instructions were verified using **macOS 14.4** with **Xcode 15.4** (Apple Clang 15.0.0).
 
 ### macOS prerequisites
 
@@ -1483,23 +1591,11 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
 
 Build the simulator from the top-level source directory (using **GNU Make**):
 
-#### Xcode
-
 * Build using **Xcode**:
 
   ```sh
   make
   ```
-
-#### Intel C/C++ Compiler Classic for macOS
-
-* Build using **Intel® C/C++ Compiler Classic for macOS** (**`icc`**):
-
-  ```sh
-  env CC="icc" make
-  ```
-
-  * Use of the `NATIVE=1` build option (*i.e.* `env CC="icc" NATIVE=1 make`) is suggested for performance when building with **ICC**, if the binary is not intended for redistribution.
 
 ### macOS cross-compilation
 
@@ -1645,7 +1741,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
       "dps8.x86_64" "dps8.x86_64h" "dps8.arm64" &&   \
     make distclean && rm -f                          \
       "dps8.x86_64" "dps8.x86_64h" "dps8.arm64" &&   \
-    lipo -detailed_info "dps8"
+    lipo "dps8"
     ```
 
 <br>
@@ -1661,7 +1757,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 []()
 
-* Microsoft **Windows** supports various development and runtime environments, including [**MSVCRT**](https://docs.microsoft.com/en-us/cpp/)[/**MinGW**](https://www.mingw-w64.org/), [**Cygwin**](https://www.cygwin.com/), [**Midipix**](https://midipix.org/), [**MSYS2**](https://www.msys2.org/), [**UWIN**](https://github.com/att/uwin), [**UWP**](https://docs.microsoft.com/en-us/windows/uwp/), and others.
+* Microsoft **Windows** supports various development and runtime environments, including [**MSVCRT**](https://docs.microsoft.com/en-us/cpp/), [**MinGW**](https://www.mingw-w64.org/), [**Cygwin**](https://www.cygwin.com/), [**Midipix**](https://midipix.org/), [**MSYS2**](https://www.msys2.org/), and many others.
   * Care must be taken to avoid mixing incompatible libraries and tools.
 
 []()
@@ -1784,54 +1880,6 @@ In the following cross-compilation examples, the *latest* **`libuv`** sources (f
 
   * The compiled native binary will require `libwinpthread-1.dll` (located at `/usr/x86_64-w64-mingw32/sys-root/mingw/bin/libwinpthread-1.dll`) and `libuv.dll` (located at `${HOME}/libuv-win32-x86_64/bin/libuv.dll`) at runtime.
     * It is sufficient to copy these files into the directory containing the `dps8.exe` binary.
-
-#### Unix-hosted cross-compilation to Cygwin
-
-This section documents the procedure for building Windows Cygwin binaries using a Unix-based host system to download and cross-compile **`libuv`** library and then cross-compile the simulator.
-
-In the following cross-compilation examples, the *latest* **`libuv`** sources (from the `v1.x` *git* branch) are used, but the current official release (available from `https://libuv.org/`) can also be used.
-
-* Using **GCC** from the [**Fedora Cygwin cross-compiler toolchain**](https://copr.fedorainfracloud.org/coprs/yselkowitz/cygwin/) (maintained by [Yaakov Selkowitz](mailto:yselkowitz@cygwin.com)) to cross-compile a **64-bit** Windows Cygwin executable (*depending on `cygwin1.dll`*):
-
-  * Build `libuv`:
-
-    ```sh
-    mkdir -p "${HOME}/libuv-build" &&                               \
-    mkdir -p "${HOME}/libuv-cygwin-x64" &&                          \
-    ( cd "${HOME}/libuv-build" &&                                   \
-      wget -v "https://github.com/libuv/libuv/archive/v1.x.zip" &&  \
-      unzip -xa "v1.x.zip" && cd "libuv-1.x" && sh ./autogen.sh &&  \
-      cygwin64-configure --prefix="${HOME}/libuv-cygwin-x64"        \
-        --enable-static --disable-shared &&                         \
-      make && make install )
-    ```
-
-  * Build the simulator:
-
-    ```sh
-    cygwin64-make
-    ```
-
-* Using **GCC** from the [**Fedora Cygwin cross-compiler toolchain**](https://copr.fedorainfracloud.org/coprs/yselkowitz/cygwin/) to cross-compile a **32-bit** Windows Cygwin executable (*depending on `cygwin1.dll`*):
-
-  * Build `libuv`:
-
-    ```sh
-    mkdir -p "${HOME}/libuv-build" &&                               \
-    mkdir -p "${HOME}/libuv-cygwin-x86" &&                          \
-    ( cd "${HOME}/libuv-build" &&                                   \
-      wget -v "https://github.com/libuv/libuv/archive/v1.x.zip" &&  \
-      unzip -xa "v1.x.zip" && cd "libuv-1.x" && sh ./autogen.sh &&  \
-      cygwin32-configure --prefix="${HOME}/libuv-cygwin-x86"        \
-        --enable-static --disable-shared &&                         \
-      make && make install )
-    ```
-
-  * Build the simulator:
-
-    ```sh
-    env NEED_128=1 cygwin32-make
-    ```
 
 ### MSYS2
 
@@ -1959,7 +2007,7 @@ In the following cross-compilation examples, the *latest* **`libuv`** sources (f
 The [**MinGW-w64 GCC**](https://www.mingw-w64.org/) toolchain supports building native Windows (**i686** and **x86_64**) executables on *non*-**Windows** host systems (or **Windows** using the **Windows Subsystem for Linux**).
 
 * [Many **MinGW-w64 toolchains** are available](https://www.mingw-w64.org/downloads/) for a wide variety of host platforms and operating systems.
-* Version **9.0** is the *minimum* version of **MinGW-w64** tested with **DPS8M**; version **11.0** is *recommended*.
+* Version **9.0** is the *minimum* version of **MinGW-w64** tested with **DPS8M**; version **11.0** (or later) is *strongly* recommended.
 * **The DPS8M Development Team** regularly cross-compiles **Windows** executables using **GCC**-based **MinGW-w64** toolchains on **Alpine Linux** and **Fedora Linux** host systems.
 
 In the following cross-compilation examples, the *latest* **`libuv`** sources (from the `v1.x` *git* branch) are used, but the current official release (available from `https://libuv.org/`) can also be used.

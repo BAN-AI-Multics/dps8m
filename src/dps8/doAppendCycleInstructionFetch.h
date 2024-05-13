@@ -91,10 +91,12 @@ static int evcnt = 0;
 //   The offset is on the same page as the cached value.
 //
 // doAppendCycle (INSTRUCTION_FETCH) checks:
-//   associative memory: Don't Care. If the cache hits, the WAM won't be queried which is the best case condition.
+//   associative memory: Don't Care. If the cache hits, the WAM won't be
+//     queried which is the best case condition.
 //   lastCycle: Set to INSTRUCTION_FETCH.
 //   RSDWH_R1: Restored from cache.
-//   lastCycle == RTCD_OPERAND_FETCH. One would think that RTCD would always go to a new page, but that is not guaranteed; skip ucache.
+//   lastCycle == RTCD_OPERAND_FETCH. One would think that RTCD would always
+//     go to a new page, but that is not guaranteed; skip ucache.
 //   rRALR. Since it is before a segment change, the ucache will always miss.
 //   Ring brackets.  They will be the same, so recheck is unnecessary.
 //   ACVs: They will be the same, so recheck is unnecessary.
@@ -105,7 +107,7 @@ static int evcnt = 0;
 // Is this cycle a candidate for ucache?
 
 //#define TEST_UCACHE
-#ifdef TEST_UCACHE
+#if defined(TEST_UCACHE)
   bool cacheHit;
   cacheHit = false; // Assume skip...
 #endif
@@ -136,7 +138,7 @@ static int evcnt = 0;
 // Yes; check the ucache
 
 //#define TEST_UCACHE
-#ifdef TEST_UCACHE
+#if defined(TEST_UCACHE)
   word24 cachedAddress;
   word3 cachedR1;
   word14 cachedBound;
@@ -164,7 +166,7 @@ static int evcnt = 0;
 
 skip_ucache:;
   //sim_printf ("miss %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
-#ifdef UCACHE_STATS
+#if defined(UCACHE_STATS)
   cpu.uCache.skips[this] ++;
 #endif
 
@@ -416,7 +418,8 @@ G:;
     cpu.acvFaults |= ACV15;
     PNL (L68_ (cpu.apu.state |= apu_FLT;))
     FMSG (acvFaultsMsg = "acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND";)
-    DBGAPP ("acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND\n" "   CA %06o CA>>4 & 037777 %06o SDW->BOUND %06o", cpu.TPR.CA, ((cpu.TPR.CA >> 4) & 037777), cpu.SDW->BOUND);
+    DBGAPP ("acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND\n" "   CA %06o CA>>4 & 037777 %06o SDW->BOUND %06o",
+            cpu.TPR.CA, ((cpu.TPR.CA >> 4) & 037777), cpu.SDW->BOUND);
   }
   bound = cpu.SDW->BOUND;
   p = cpu.SDW->P;
@@ -513,16 +516,16 @@ I:;
   finalAddress &= 0xffffff;
   PNL (cpu.APUMemAddr = finalAddress;)
 
-#ifdef L68
+#if defined(L68)
   if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
     add_APU_history (APUH_FAP);
-#endif
+#endif /* if defined(L68) */
   DBGAPP ("doAppendCycleInstructionFetch(H:FAP): (%05o:%06o) finalAddress=%08o\n", cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
 
 HI:
   DBGAPP ("doAppendCycleInstructionFetch(HI)\n");
 
-#ifdef TEST_UCACHE
+#if defined(TEST_UCACHE)
   if (cacheHit) {
     bool err = false;
     if (cachedAddress != pageAddress) {
@@ -542,24 +545,24 @@ HI:
       err = true;
     }
     if (err) {
-# ifdef HDBG
+# if defined(HDBG)
       HDBGPrint ();
 # endif
       sim_printf ("ins fetch err  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
       exit (1);
     }
     //sim_printf ("hit  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
-# ifdef HDBG
+# if defined(HDBG)
     hdbgNote ("doAppendCycleOperandRead.h", "test hit %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
 # endif
   } else {
     //sim_printf ("miss %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
-# ifdef HDBG
+# if defined(HDBG)
     hdbgNote ("doAppendCycleOperandRead.h", "test miss %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
 # endif
   }
 #endif
-#ifdef TEST_UCACHE
+#if defined(TEST_UCACHE)
 if (cacheHit) {
   if (cachedPaged != paged) sim_printf ("cachedPaged %01o != paged %01o\r\n", cachedPaged, paged);
   //sim_printf ("hit  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
@@ -609,7 +612,7 @@ evcnt ++;
     cpu.PR[5].RNR =
     cpu.PR[6].RNR =
     cpu.PR[7].RNR = cpu.TPR.TRR;
-#ifdef TESTING
+#if defined(TESTING)
     HDBGRegPRW (0, "app rtcd");
     HDBGRegPRW (1, "app rtcd");
     HDBGRegPRW (2, "app rtcd");
@@ -650,8 +653,10 @@ M: // Set P
 
   PNL (L68_ (cpu.apu.state |= apu_FA;))
 
-  DBGAPP ("doAppendCycleInstructionFetch (Exit) PRR %o PSR %05o P %o IC %06o\n", cpu.PPR.PRR, cpu.PPR.PSR, cpu.PPR.P, cpu.PPR.IC);
-  DBGAPP ("doAppendCycleInstructionFetch (Exit) TRR %o TSR %05o TBR %02o CA %06o\n", cpu.TPR.TRR, cpu.TPR.TSR, cpu.TPR.TBR, cpu.TPR.CA);
+  DBGAPP ("doAppendCycleInstructionFetch (Exit) PRR %o PSR %05o P %o IC %06o\n",
+          cpu.PPR.PRR, cpu.PPR.PSR, cpu.PPR.P, cpu.PPR.IC);
+  DBGAPP ("doAppendCycleInstructionFetch (Exit) TRR %o TSR %05o TBR %02o CA %06o\n",
+          cpu.TPR.TRR, cpu.TPR.TSR, cpu.TPR.TBR, cpu.TPR.CA);
 
   return finalAddress;
 }

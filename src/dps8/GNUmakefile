@@ -17,6 +17,10 @@
 #
 ###############################################################################
 
+.NOTPARALLEL:
+
+###############################################################################
+
 .DEFAULT_GOAL := all
 
 ###############################################################################
@@ -334,8 +338,9 @@ DECN_OBJS = ../decNumber/decContext.o  ../decNumber/decNumber.o
 ###############################################################################
 
 .PHONY: all
-all:  sysdefs.h   ver.h   unifdef   locallibs_then_dps8   prt2pdf             \
-      punutil     mcmb    vmpctool  empty        xovdso   novdso              \
+all:  sysdefs.h ver.h                                                         \
+      libsir unifdef prt2pdf punutil mcmb empty xovdso novdso                 \
+      locallibs_then_dps8                                                     \
       $(TAGS)
 	-@$(TRUE)
 
@@ -369,7 +374,7 @@ printuk:
 printmod:
 	@$(PRINTF) '%s\n' "*** Begin printmod (git tracked modified files)"
 	@$(SETV); ($(CD) "../.." && $(GIT) status -s 2> /dev/null |               \
-        $(GREP) '^\ \?M ' || $(TRUE))
+        $(GREP) '^ \?M ' || $(TRUE))
 	@$(PRINTF) '%s\n' "*** End printmod"
 
 ###############################################################################
@@ -430,8 +435,27 @@ slte.inc: system_book_12_3.ascii
 
 ###############################################################################
 
+.PHONY: libsir
+ifeq ($(TESTING),1)
+  M_SIR_TESTING="SIR_DEBUG=1"
+endif
+ifneq ($(V),1)
+  M_SIR_QFLAG=-s
+endif
+libsir:
+	@($(SETV); $(CD) "../libsir" &&                                           \
+      $(PRINTF) '%s\n' "LIBSIR: libsir_s.a" &&                                \
+      $(ENV) CC="$(CC)"                                                       \
+             CFLAGS='$(CFLAGS)'                                               \
+             LDFLAGS='$(LDFLAGS)'                                             \
+      $(MAKE) $(M_SIR_QFLAG) -C "." "static"                                  \
+        SIR_NO_PLUGINS=1 SIR_NO_SHARED=1                                      \
+        SIR_USE_EOL_CRLF=1 FORTIFY_FLAGS= $(M_SIR_TESTING))
+
+###############################################################################
+
 .PHONY: locallibs_then_dps8
-locallibs_then_dps8: ver.h sysdefs.h errnos.h
+locallibs_then_dps8: ver.h sysdefs.h errnos.h libsir
 	@($(SETV); $(CD) "../decNumber" && $(MAKE) -C "." -f "GNUmakefile" "all")
 	@($(SETV); $(CD) "$(SIMHx)" && $(MAKE) -C "." -f "GNUmakefile" "all")
 	@$(SETV); $(MAKE) -C "." -f "GNUmakefile" "dps8$(EXE)"
@@ -459,12 +483,6 @@ punutil:
 .PHONY: mcmb
 mcmb:
 	-@$(SETV); $(MAKE) -C "../mcmb" "all"
-
-###############################################################################
-
-.PHONY: vmpctool
-vmpctool:
-	-@$(SETV); $(MAKE) -C "../vmpctool" "all"
 
 ###############################################################################
 
@@ -531,6 +549,7 @@ ifneq (,$(findstring clean,$(MAKECMDGOALS)))
 .NOTPARALLEL: distclean clean
 endif
 distclean: clean
+	@$(SETV); $(MAKE) -C "../libsir" "distclean"
 	@$(RMF) *.gc??                           2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../blinkenLights2/*.gc??         2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../decNumber/*.gc??              2> /dev/null  ||  $(TRUE)
@@ -539,7 +558,6 @@ distclean: clean
 	@$(RMF) ../punutil/*.gc??                2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../simh/*.gc??                   2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../unifdef/*.gc??                2> /dev/null  ||  $(TRUE)
-	@$(RMF) ../vmpctool/*.gc??               2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../empty/*.gc??                  2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../novdso/*.gc??                 2> /dev/null  ||  $(TRUE)
 	@$(RMF) *.prof*                          2> /dev/null  ||  $(TRUE)
@@ -549,7 +567,6 @@ distclean: clean
 	@$(RMF) ../prt2pdf/*.prof*               2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../simh/*.prof*                  2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../unifdef/*.prof*               2> /dev/null  ||  $(TRUE)
-	@$(RMF) ../vmpctool/*.prof*              2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../empty/*.prof*                 2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../punutil/*.prof*               2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../novdso/*.prof*                2> /dev/null  ||  $(TRUE)
@@ -603,12 +620,12 @@ clean:
 	@$(SETV); $(MAKE) -C "../prt2pdf"        -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../punutil"        -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../mcmb"           -f "GNUmakefile"  "clean"
-	@$(SETV); $(MAKE) -C "../vmpctool"       -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../empty"          -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../unifdef"        -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../novdso"         -f "GNUmakefile"  "clean"
 	@$(SETV); ( cd ../blinkenLights2 && $(RMF) blinkenLights2 || $(TRUE) )
 	@$(SETV); $(MAKE) -C "."                 -f "GNUmakefile"  "clean_dps8"
+	@$(SETV); $(MAKE) -C "../libsir"                           "clean"
 	@$(SETV); $(RMF)  ../../"$(KITNAME)"."$(TARXT)"    ||  $(TRUE)
 	@$(SETV); $(RMF)  ../../"$(KITNAME)"."$(TARXT)".*  ||  $(TRUE)
 	@$(SETV); $(RMF)  ../../"$(KITNAME)"."TMP"         ||  $(TRUE)
@@ -671,7 +688,7 @@ kit dist:
                $(GREP) -v '^.*\.license$$' | $(GREP) -v 'src/Makefile.doc' |  \
                 $(GREP) -v '^src/perf_test/' | $(GREP) -v '^.nsis/'        |  \
                  $(GREP) -v '^.hpkg/' | $(GREP) -v '^.editorconfig'        |  \
-                  $(GREP) -v '^src/Makefile.dev')                              \
+                  $(GREP) -v '^src/Makefile.dev' | $(GREP) -v '^.gtags' )     \
                               'src/dps8/ver.h~' )
 	@$(PRINTF) '%s\n'                                                         \
        "COMPRESS: $(KITNAME).$(TARXT) -> $(KITNAME).$(TARXT).$(COMPRESSXT)"
@@ -699,7 +716,7 @@ zipkit zipdist:
                $(GREP) -v '^src/dps8/listings/'                            |  \
                 $(GREP) -v '^src/perf_test/' | $(GREP) -v '^.nsis/'        |  \
                  $(GREP) -v '^.hpkg/' | $(GREP) -v '^.editorconfig'        |  \
-                  $(GREP) -v '.reuse/dep5' )                                  \
+                  $(GREP) -v '.reuse/dep5' | $(GREP) -v '^.gtags' )           \
                              'src/dps8/ver.h~' )
 	@$(SETV); ($(CD) "../.." && $(TAR) xf "$(KITNAME)"."TMP"              &&  \
       $(RMF) "$(KITNAME)"."zip"                                           &&  \

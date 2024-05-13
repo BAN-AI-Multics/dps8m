@@ -44,24 +44,28 @@
 
 #define DBG_CTR 1
 
-#ifdef THREADZ
+#if defined(THREADZ)
 # include "threadz.h"
-#endif
+#endif /* if defined(THREADZ) */
 
-#ifdef TESTING
+#if defined(FREE)
 # undef FREE
-# define FREE(p) free(p)
-#endif /* ifdef TESTING */
+#endif /* if defined(FREE) */
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
 
 static inline void fnp_core_read (word24 addr, word36 *data, UNUSED const char * ctx)
   {
-#ifdef THREADZ
+#if defined(THREADZ)
     lock_mem_rd ();
-#endif
+#endif /* if defined(THREADZ) */
     * data = M [addr] & DMASK;
-#ifdef THREADZ
+#if defined(THREADZ)
     unlock_mem ();
-#endif
+#endif /* if defined(THREADZ) */
   }
 #define N_DIA_UNITS 1 // default
 #define DIA_UNIT_IDX(uptr) ((uptr) - dia_unit)
@@ -366,7 +370,7 @@ struct mailbox
 void dia_init (void)
   {
     // 0 sets set service to service_undefined
-    memset(& dia_data, 0, sizeof(dia_data));
+    (void)memset(& dia_data, 0, sizeof(dia_data));
     for (uint unit_num = 0; unit_num < N_DIA_UNITS_MAX; unit_num ++)
       {
         cables -> cables_from_iom_to_dia [unit_num].iomUnitIdx = -1;
@@ -376,13 +380,13 @@ void dia_init (void)
 
 static inline void fnp_core_write (word24 addr, word36 data, UNUSED const char * ctx)
   {
-#ifdef THREADZ
+#if defined(THREADZ)
     lock_mem_wr ();
-#endif
+#endif /* if defined(THREADZ) */
     M [addr] = data & DMASK;
-#ifdef THREADZ
+#if defined(THREADZ)
     unlock_mem ();
-#endif
+#endif /* if defined(THREADZ) */
   }
 
 //
@@ -428,7 +432,7 @@ static void cmd_bootload (uint iom_unit_idx, uint dev_unit_idx, uint chan, word2
                           (uint16_t) sizeof (pkt), PFLG_FINAL);
     if (rc < 0)
       {
-        fprintf (stderr, "udp_send failed\n");
+        (void)fprintf (stderr, "udp_send failed\n");
       }
   }
 
@@ -724,13 +728,15 @@ sim_printf ("phys_addr %08o\r\n", phys_addr);
         //word24 L66Addr = (B << (24 - 3)) | (D << (24 - 3 - 3)) | A;
 
         // According to fnp_util:
-        //  dcl  1 a_dia_pcw aligned based (mbxp),                      /* better declaration than the one used when MCS is running */
+        //                      /* better declaration than the one used when MCS is running */
+        //  dcl  1 a_dia_pcw aligned based (mbxp),
         //         2 address fixed bin (18) unsigned unaligned,
         //         2 error bit (1) unaligned,
         //         2 pad1 bit (3) unaligned,
         //         2 parity bit (1) unaligned,
         //         2 pad2 bit (1) unaligned,
-        //         2 pad3 bit (3) unaligned,                            /* if we used address extension this would be important */
+        //                            /* if we used address extension this would be important */
+        //         2 pad3 bit (3) unaligned,
         //         2 interrupt_level fixed bin (3) unsigned unaligned,
         //         2 command bit (6) unaligned;
         //

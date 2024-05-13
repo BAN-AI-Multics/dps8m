@@ -36,7 +36,7 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifndef SIM_SOCK_H_
+#if !defined(SIM_SOCK_H_)
 # define SIM_SOCK_H_    0
 
 # if defined (_WIN32)                                    /* Windows */
@@ -83,20 +83,30 @@
 #  define sim_printf printf
 # endif
 
-int sim_parse_addr (const char *cptr, char *host, size_t hostlen, const char *default_host, char *port, size_t port_len, const char *default_port, const char *validate_addr);
-# ifdef UNUSED
-int sim_parse_addr_ex (const char *cptr, char *host, size_t hostlen, const char *default_host, char *port, size_t port_len, char *localport, size_t local_port_len, const char *default_port);
-# endif
+int sim_parse_addr \
+        (const char *cptr, char *host, size_t hostlen, const char *default_host,
+         char *port, size_t port_len, const char *default_port, const char *validate_addr);
+# if defined(UNUSED)
+int sim_parse_addr_ex \
+        (const char *cptr, char *host, size_t hostlen, const char *default_host,
+         char *port, size_t port_len, char *localport, size_t local_port_len, const char *default_port);
+# endif /* if defined(UNUSED) */
 # define SIM_SOCK_OPT_REUSEADDR      0x0001
 # define SIM_SOCK_OPT_DATAGRAM       0x0002
 # define SIM_SOCK_OPT_NODELAY        0x0004
 # define SIM_SOCK_OPT_BLOCKING       0x0008
-SOCKET sim_master_sock_ex (const char *hostport, int *parse_status, int opt_flags);
-# define sim_master_sock(hostport, parse_status) sim_master_sock_ex(hostport, parse_status, ((sim_switches & SWMASK ('U')) ? SIM_SOCK_OPT_REUSEADDR : 0))
-SOCKET sim_connect_sock_ex (const char *sourcehostport, const char *hostport, const char *default_host, const char *default_port, int opt_flags);
-# define sim_connect_sock(hostport, default_host, default_port) sim_connect_sock_ex(NULL, hostport, default_host, default_port, SIM_SOCK_OPT_NONBLOCK)
-SOCKET sim_accept_conn_ex (SOCKET master, char **connectaddr, int opt_flags);
-# define sim_accept_conn(master, connectaddr) sim_accept_conn_ex(master, connectaddr, 0)
+SOCKET sim_master_sock_ex \
+           (const char *hostport, int *parse_status, int opt_flags);
+# define sim_master_sock(hostport, parse_status) \
+    sim_master_sock_ex(hostport, parse_status, ((sim_switches & SWMASK ('U')) ? SIM_SOCK_OPT_REUSEADDR : 0))
+SOCKET sim_connect_sock_ex \
+           (const char *sourcehostport, const char *hostport, const char *default_host, const char *default_port, int opt_flags);
+# define sim_connect_sock(hostport, default_host, default_port) \
+    sim_connect_sock_ex(NULL, hostport, default_host, default_port, SIM_SOCK_OPT_NONBLOCK)
+SOCKET sim_accept_conn_ex \
+           (SOCKET master, char **connectaddr, int opt_flags);
+# define sim_accept_conn(master, connectaddr) \
+    sim_accept_conn_ex(master, connectaddr, 0)
 int sim_check_conn (SOCKET sock, int rd);
 int sim_read_sock (SOCKET sock, char *buf, int nbytes);
 int sim_write_sock (SOCKET sock, const char *msg, int nbytes);

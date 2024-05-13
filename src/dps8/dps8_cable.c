@@ -126,27 +126,25 @@
 #include "dps8_crdpun.h"
 #include "dps8_prt.h"
 #include "dps8_utils.h"
-#ifndef __MINGW64__
-# ifndef __MINGW32__
-#  ifndef CROSS_MINGW64
-#   ifndef CROSS_MINGW32
-#    include "dps8_absi.h"
-#    include "dps8_mgp.h"
-#   endif /* ifndef CROSS_MINGW32 */
-#  endif /* ifndef CROSS_MINGW64 */
-# endif /* ifndef __MINGW32__ */
-#endif /* ifndef __MINGW64__ */
-#ifdef M_SHARED
+#if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined (CROSS_MINGW64) && !defined (CROSS_MINGW32)
+# include "dps8_absi.h"
+# include "dps8_mgp.h"
+#endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined (CROSS_MINGW64) && !defined (CROSS_MINGW32) */
+#if defined(M_SHARED)
 # include <unistd.h>
 # include "shm.h"
 #endif
 
 #define DBG_CTR 1
 
-#ifdef TESTING
+#if defined(FREE)
 # undef FREE
-# define FREE(p) free(p)
-#endif /* ifdef TESTING */
+#endif /* if defined(FREE) */
+#define FREE(p) do  \
+  {                 \
+    free((p));      \
+    (p) = NULL;     \
+  } while(0)
 
 struct cables_s * cables = NULL;
 
@@ -842,11 +840,8 @@ static t_stat cable_iom (int uncable, uint iom_unit_idx, char * * name_save)
                            & fnp_unit [unit_idx], fnp_iom_cmd);
       }
 
-#ifdef WITH_ABSI_DEV
-# ifndef __MINGW64__
-#  ifndef __MINGW32__
-#   ifndef CROSS_MINGW64
-#    ifndef CROSS_MINGW32
+#if defined(WITH_ABSI_DEV)
+# if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined (CROSS_MINGW64) && !defined(CROSS_MINGW32)
     // IOMx ABSIx
     if (name_match (param, "ABSI", & unit_idx))
       {
@@ -866,17 +861,11 @@ static t_stat cable_iom (int uncable, uint iom_unit_idx, char * * name_save)
                            CTLR_T_ABSI, chan_type_direct,
                            & absi_unit [unit_idx], absi_iom_cmd);
       }
-#    endif /* ifndef CROSS_MINGW64 */
-#   endif /* ifndef CROSS_MINGW32 */
-#  endif /* ifndef __MINGW64__ */
-# endif /* ifndef __MINGW32__ */
-#endif /* ifdef WITH_ABSI_DEV */
+# endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined (CROSS_MINGW64) && !defined(CROSS_MINGW32) */
+#endif /* if defined(WITH_ABSI_DEV) */
 
-#ifdef WITH_MGP_DEV
-# ifndef __MINGW64__
-#  ifndef __MINGW32__
-#   ifndef CROSS_MINGW64
-#    ifndef CROSS_MINGW32
+#if defined(WITH_MGP_DEV)
+# if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32)
     // IOMx MGPx
     if (name_match (param, "MGP", & unit_idx))
       {
@@ -896,17 +885,11 @@ static t_stat cable_iom (int uncable, uint iom_unit_idx, char * * name_save)
                            CTLR_T_MGP, chan_type_direct,
                            & mgp_unit [unit_idx], mgp_iom_cmd);
       }
-#    endif /* ifndef CROSS_MINGW64 */
-#   endif /* ifndef CROSS_MINGW32 */
-#  endif /* ifndef __MINGW64__ */
-# endif /* ifndef __MINGW32__ */
-#endif /* ifdef WITH_MGP_DEV */
+# endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) */
+#endif /* if defined(WITH_MGP_DEV) */
 
-#ifdef WITH_SOCKET_DEV
-# ifndef __MINGW64__
-#  ifndef __MINGW32__
-#   ifndef CROSS_MINGW64
-#    ifndef CROSS_MINGW32
+#if defined(WITH_SOCKET_DEV)
+# if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32)
     // IOMx SKCx
     if (name_match (param, "SKC", & unit_idx))
       {
@@ -926,11 +909,8 @@ static t_stat cable_iom (int uncable, uint iom_unit_idx, char * * name_save)
                            CTLR_T_SKC, chan_type_direct,
                            & sk_unit [unit_idx], skc_iom_cmd);
       }
-#    endif /* ifndef CROSS_MINGW64 */
-#   endif /* ifndef CROSS_MINGW32 */
-#  endif /* ifndef __MINGW64__ */
-# endif /* ifndef __MINGW32__ */
-#endif /* ifdef WITH_SOCKET_DEV */
+# endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) */
+#endif /* if defined(WITH_SOCKET_DEV) */
 
     sim_printf ("cable IOM: can't parse controller type\n");
     return SCPE_ARG;
@@ -1286,13 +1266,13 @@ t_stat sys_cable (int32 arg, const char * buf)
     char * copy = strdup (buf);
     if (!copy)
       {
-        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                 __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
 #if defined(USE_BACKTRACE)
-# ifdef SIGUSR2
+# if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-# endif /* ifdef SIGUSR2 */
+# endif /* if defined(SIGUSR2) */
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -1351,7 +1331,7 @@ static void cable_init (void)
     // sets cablesFromIomToDev[iomUnitIdx].devices[chanNum][dev_code].type
     //  to DEVT_NONE and in_use to false
 
-    memset (cables, 0, sizeof (struct cables_s));
+    (void)memset (cables, 0, sizeof (struct cables_s));
   }
 
 #define all(i,n) \
@@ -1362,7 +1342,7 @@ sys_cable_graph (void)
 {
         // Find used CPUs
         bool cpus_used[N_CPU_UNITS_MAX];
-        memset (cpus_used, 0, sizeof (cpus_used));
+        (void)memset (cpus_used, 0, sizeof (cpus_used));
 
         all (u, N_CPU_UNITS_MAX) all (prt, N_CPU_PORTS)
         {
@@ -1373,7 +1353,7 @@ sys_cable_graph (void)
 
         // Find used SCUs
         bool scus_used[N_SCU_UNITS_MAX];
-        memset (scus_used, 0, sizeof (scus_used));
+        (void)memset (scus_used, 0, sizeof (scus_used));
 
         all (u, N_SCU_UNITS_MAX) all (prt, N_SCU_PORTS)
         {
@@ -1390,7 +1370,7 @@ sys_cable_graph (void)
 
         // Find used IOMs
         bool ioms_used[N_IOM_UNITS_MAX];
-        memset (ioms_used, 0, sizeof (ioms_used));
+        (void)memset (ioms_used, 0, sizeof (ioms_used));
 
         all (u, N_SCU_UNITS_MAX) all (prt, N_SCU_PORTS)
         {
@@ -1450,16 +1430,16 @@ sys_cable_graph (void)
         R_CTLR_IOM (FNP,  fnp,  egg,     snow2)
         R_CTLR_IOM (URP,  urp,  polygon, gold4)
         R_CTLR_IOM (DIA,  dia,  oval,    orange)
-#ifdef WITH_ABSI_DEV
-# ifndef __MINGW64__
+#if defined(WITH_ABSI_DEV)
+# if !defined(__MINGW64__)
         R_CTLR_IOM (ABSI, absi, oval,    teal)
-# endif /* ifndef __MINGW64__ */
-#endif /* ifdef WITH_ABSI_DEV */
-#ifdef WITH_MGP_DEV
-# ifndef __MINGW64__
+# endif /* if !defined(__MINGW64__) */
+#endif /* if defined(WITH_ABSI_DEV) */
+#if defined(WITH_MGP_DEV)
+# if !defined(__MINGW64__)
         R_CTLR_IOM (MGP, mgp, oval,    teal)
-# endif /* ifndef __MINGW64__ */
-#endif /* ifdef WITH_MGP_DEV */
+# endif /* if !defined(__MINGW64__) */
+#endif /* if defined(WITH_MGP_DEV) */
         R_CTLR_IOM (OPC,  opc,  oval,    hotpink)
 
 #define R_DEV_CTLR(from_big, from_small, to_label,                       \
@@ -1487,7 +1467,7 @@ sys_cable_graph (void)
                 struct cpu_to_scu_s *p = &cables->cpu_to_scu[u][prt];
                 if (p->in_use)
                         sim_printf ("    CPU%c -- SCU%c;\n", u + 'A',
-                                p->scu_unit_idx + 'A');
+                                    p->scu_unit_idx + 'A');
         }
 
         // Generate SCI/IOM cables
@@ -1496,7 +1476,7 @@ sys_cable_graph (void)
                 struct scu_to_iom_s *p = &cables->scu_to_iom[u][prt];
                 if (p->in_use)
                         sim_printf ("    SCU%c -- IOM%c;\n", u + 'A',
-                                p->iom_unit_idx + 'A');
+                                    p->iom_unit_idx + 'A');
         }
 
         // Generate IOM to controller cables
@@ -1506,7 +1486,7 @@ sys_cable_graph (void)
                 if (p->in_use)
                         sim_printf ("    IOM%c -- %s%d;\n", u + 'A',
                                     ctlr_type_strs[p->ctlr_type],
-                                        p->ctlr_unit_idx);
+                                    p->ctlr_unit_idx);
         }
 
         // Generate controller to device cables
@@ -1517,8 +1497,8 @@ sys_cable_graph (void)
                     &cables->to_small ## _to_ ## from_small[u];      \
                 if (p->in_use)                                       \
                 sim_printf ("    %s%d -- %s%d;\n",                   \
-                                ctlr_type_strs[p->ctlr_type],        \
-                                p->ctlr_unit_idx, #to_label, u);     \
+                            ctlr_type_strs[p->ctlr_type],            \
+                            p->ctlr_unit_idx, #to_label, u);         \
         }
 
         G_DEV_CTLR (MTP,  mtp,  TAPE, MT,  tape);
@@ -1612,39 +1592,21 @@ t_stat sys_cable_show (int32 dump, UNUSED const char * buf)
         CTLR_IOM (URP, urp)
         CTLR_IOM (FNP, fnp)
         CTLR_IOM (DIA, dia)
-#ifdef WITH_ABSI_DEV
-# ifndef __MINGW64__
-#  ifndef __MINGW32__
-#   ifndef CROSS_MINGW32
-#    ifndef CROSS_MINGW64
+#if defined(WITH_ABSI_DEV)
+# if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64)
         CTLR_IOM (ABSI, absi)
-#    endif /* ifndef CROSS_MINGW64 */
-#   endif /* ifndef CROSS_MINGW32 */
-#  endif /* ifndef __MINGW32__ */
-# endif /* ifndef __MINGW64__ */
-#endif /* ifdef WITH_ABSI_DEV */
-#ifdef WITH_MGP_DEV
-# ifndef __MINGW64__
-#  ifndef __MINGW32__
-#   ifndef CROSS_MINGW32
-#    ifndef CROSS_MINGW64
+# endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) */
+#endif /* if defined(WITH_ABSI_DEV) */
+#if defined(WITH_MGP_DEV)
+# if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64)
         CTLR_IOM (MGP, mgp)
-#    endif /* ifndef CROSS_MINGW64 */
-#   endif /* ifndef CROSS_MINGW32 */
-#  endif /* ifndef __MINGW32__ */
-# endif /* ifndef __MINGW64__ */
-#endif /* ifdef WITH_MGP_DEV */
-#ifdef WITH_SOCKET_DEV
-# ifndef __MINGW32__
-#  ifndef __MINGW64__
-#   ifndef CROSS_MINGW32
-#    ifndef CROSS_MINGW64
+# endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) */
+#endif /* if defined(WITH_MGP_DEV) */
+#if defined(WITH_SOCKET_DEV)
+# if !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64)
         CTLR_IOM (SKC, sk)
-#    endif /* ifndef CROSS_MINGW64 */
-#   endif /* ifndef CROSS_MINGW32 */
-#  endif /* ifndef __MINGW64__ */
-# endif /* ifndef __MINGW32__ */
-#endif /* ifdef WITH_SOCKET_DEV */
+# endif /* if !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) */
+#endif /* if defined(WITH_SOCKET_DEV) */
         CTLR_IOM (OPC, opc)
       }
     sim_printf ("\n");
@@ -1709,7 +1671,7 @@ void sysCableInit (void)
 #if 0
    if (! cables)
       {
-# ifdef M_SHARED
+# if defined(M_SHARED)
         cables = (struct cables_s *) create_shm ("cables",
                                                  sizeof (struct cables_s));
 # else

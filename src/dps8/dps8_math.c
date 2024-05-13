@@ -46,7 +46,7 @@
 
 #define DBG_CTR cpu.cycleCnt
 
-#ifdef __CYGWIN__
+#if defined(__CYGWIN__)
 long double ldexpl(long double x, int n) {
        return __builtin_ldexpl(x, n);
 }
@@ -56,12 +56,16 @@ long double exp2l (long double e) {
 }
 #endif
 
-#ifdef NEED_128
+#if defined(NEED_128)
 # define ISZERO_128(m) iszero_128 (m)
 # define ISEQ_128(a,b) iseq_128 (a, b)
 #else
 # define ISZERO_128(m) ((m) == 0)
-# define ISEQ_128(a,b)  ((a) == (b))
+# define ISEQ_128(a,b) ((a) == (b))
+#endif
+
+#if defined(__NVCOMPILER) || defined(__NVCOMPILER_LLVM__) || defined(__PGI) || defined(__PGLLVM__)
+# pragma global novector
 #endif
 
 /*
@@ -74,7 +78,7 @@ long double EAQToIEEElongdouble(void)
 
     if (ISZERO_128 (Mant))
         return (long double) 0;
-#ifdef NEED_128
+#if defined(NEED_128)
 
     bool S = isnonzero_128 (and_128 (Mant, SIGN72)); // sign of mantissa
     if (S)
@@ -94,7 +98,7 @@ long double EAQToIEEElongdouble(void)
     long double v = 0.5;
     for(int n = 70 ; n >= 0 ; n -= 1) // this also normalizes the mantissa
     {
-#ifdef NEED_128
+#if defined(NEED_128)
         if (isnonzero_128 (and_128 (Mant, lshift_128 (construct_128 (0, 1), (unsigned int) n))))
         {
             m += v;
@@ -127,7 +131,7 @@ double EAQToIEEEdouble(void)
     if (ISZERO_128 (Mant))
         return 0;
 
-# ifdef NEED_128
+# if defined(NEED_128)
     bool S = isnonzero_128 (and_128 (Mant, SIGN72)); // sign of mantissa
     if (S)
         Mant = and_128 (negate_128 (Mant), MASK71); // 71 bits (not 72!)
@@ -146,7 +150,7 @@ double EAQToIEEEdouble(void)
     double v = 0.5;
     for(int n = 70 ; n >= 0 ; n -= 1) // this also normalizes the mantissa
     {
-# ifdef NEED_128
+# if defined(NEED_128)
         if (isnonzero_128 (and_128 (Mant, lshift_128 (construct_128 (0, 1), (unsigned int) n))))
         {
             m += v;
@@ -164,7 +168,7 @@ double EAQToIEEEdouble(void)
 }
 #endif
 
-#ifndef QUIET_UNUSED
+#if !defined(QUIET_UNUSED)
 /*
  * return normalized dps8 representation of IEEE double f0 ...
  */
@@ -200,18 +204,21 @@ float72 IEEElongdoubleToFloat72(long double f0)
             //result = bitfieldInsert72(result, 1, n, 1);
             putbits72 (& result, 71-n, 1, 1);
             mant -= bitval;
-            //sim_printf ("Inserting a bit @ %d %012"PRIo64" %012"PRIo64"\n", n , (word36)((result >> 36) & DMASK), (word36)(result & DMASK));
+            //sim_printf ("Inserting a bit @ %d %012"PRIo64" %012"PRIo64"\n",
+            //            n, (word36)((result >> 36) & DMASK), (word36)(result & DMASK));
         }
         bitval /= 2.0;
     }
     //sim_printf ("n=%d mant=%f\n", n, mant);
-    //sim_printf ("result=%012"PRIo64" %012"PRIo64"\n", (word36)((result >> 36) & DMASK), (word36)(result & DMASK));
+    //sim_printf ("result=%012"PRIo64" %012"PRIo64"\n",
+    //            (word36)((result >> 36) & DMASK), (word36)(result & DMASK));
 
     // if f is < 0 then take 2-comp of result ...
     if (sign)
     {
         result = -result & (((word72)1 << 64) - 1);
-        //sim_printf ("-result=%012"PRIo64" %012"PRIo64"\n", (word36)((result >> 36) & DMASK), (word36)(result & DMASK));
+        //sim_printf ("-result=%012"PRIo64" %012"PRIo64"\n",
+        //            (word36)((result >> 36) & DMASK), (word36)(result & DMASK));
     }
     // insert exponent ...
     int e = (int)exp;
@@ -224,7 +231,7 @@ float72 IEEElongdoubleToFloat72(long double f0)
 }
 #endif
 
-#ifndef QUIET_UNUSED
+#if !defined(QUIET_UNUSED)
 static long double MYfrexpl(long double x, int *exp)
 {
     long double exponents[20], *next;
@@ -277,7 +284,7 @@ static long double MYfrexpl(long double x, int *exp)
 }
 #endif
 
-#ifndef QUIET_UNUSED
+#if !defined(QUIET_UNUSED)
 /*
  * Store EAQ with normalized dps8 representation of IEEE double f0 ...
  */
@@ -286,7 +293,7 @@ void IEEElongdoubleToEAQ(long double f0)
     if (f0 == 0)
     {
         cpu . rA = 0;
-# ifdef TESTING
+# if defined(TESTING)
         HDBGRegAW ("IEEEld2EAQ");
 # endif
         cpu . rQ = 0;
@@ -317,7 +324,8 @@ void IEEElongdoubleToEAQ(long double f0)
             //result = bitfieldInsert72(result, 1, n, 1);
             putbits72 (& result 71-n, 1, 1);
             mant -= bitval;
-            //sim_printf ("Inserting a bit @ %d %012"PRIo64" %012"PRIo64"\n", n , (word36)((result >> 36) & DMASK), (word36)(result & DMASK));
+            //sim_printf ("Inserting a bit @ %d %012"PRIo64" %012"PRIo64"\n",
+            //            n, (word36)((result >> 36) & DMASK), (word36)(result & DMASK));
         }
         bitval /= 2.0;
     }
@@ -328,7 +336,7 @@ void IEEElongdoubleToEAQ(long double f0)
 
     cpu . rE = exp & MASK8;
     cpu . rA = (result >> 36) & MASK36;
-# ifdef TESTING
+# if defined(TESTING)
     HDBGRegAW ("IEEEld2EAQ");
 # endif
     cpu . rQ = result & MASK36;
@@ -430,10 +438,10 @@ float36 IEEEdoubleTofloat36(double f0)
  * single-precision arithmetic routines ...
  */
 
-#ifdef HEX_MODE
+#if defined(HEX_MODE)
 //#define HEX_SIGN (SIGN72 | BIT71 | BIT70 | BIT69 | BIT68)
 //#define HEX_MSB  (         BIT71 | BIT70 | BIT69 | BIT68)
-# ifdef NEED_128
+# if defined(NEED_128)
 #  define HEX_SIGN construct_128 (0xF0, 0)
 #  define HEX_MSB  construct_128 (0x70, 0)
 #  define HEX_NORM construct_128 (0x78, 0)
@@ -469,14 +477,14 @@ void ufa (bool sub, bool normalize) {
   // * C(E) is increased by one.
 
   CPTUR (cptUseE);
-#ifdef HEX_MODE
+#if defined(HEX_MODE)
   uint shift_amt = isHex () ? 4 : 1;
 #else
   uint shift_amt = 1;
 #endif
   word72 m1 = convert_to_word72 (cpu.rA, cpu.rQ);
   // 28-bit mantissa (incl sign)
-#ifdef NEED_128
+#if defined(NEED_128)
   word72 m2 = lshift_128 (construct_128 (0, (uint64_t) getbits36_28 (cpu.CY, 8)), 44u); // 28-bit mantissa (incl sign)
 #else
   word72 m2 = ((word72) getbits36_28 (cpu.CY, 8)) << 44; // 28-bit mantissa (incl sign)
@@ -496,7 +504,7 @@ void ufa (bool sub, bool normalize) {
 
     if (ISZERO_128 (m2))
       m2zero = 1;
-#ifdef NEED_128
+#if defined(NEED_128)
     if (iseq_128 (m2, SIGN72)) {  // -1.0 -> 0.5, increase exponent, ISOLTS-735 08i,j
       m2 = rshift_128 (m2, shift_amt);
       e2 += 1;
@@ -529,7 +537,7 @@ void ufa (bool sub, bool normalize) {
     e3 = e1;
   } else if (e1 < e2) {
     shift_count = abs (e2 - e1) * (int) shift_amt;
-#ifdef NEED_128
+#if defined(NEED_128)
     bool sign = isnonzero_128 (and_128 (m1, SIGN72)); // mantissa negative?
     for (int n = 0 ; n < shift_count ; n += 1) {
       //last = m1.l & 1;
@@ -562,7 +570,7 @@ void ufa (bool sub, bool normalize) {
   } else {
     // e2 < e1;
     shift_count = abs (e1 - e2) * (int) shift_amt;
-#ifdef NEED_128
+#if defined(NEED_128)
     bool sign = isnonzero_128 (and_128 (m2, SIGN72)); // mantissa negative?
     for (int n = 0 ; n < shift_count ; n += 1) {
       //last = m2.l & 1;
@@ -602,8 +610,8 @@ void ufa (bool sub, bool normalize) {
     SET_I_CARRY;
 
   if (ovf) {
-#ifdef NEED_128
-# ifdef HEX_MODE
+#if defined(NEED_128)
+# if defined(HEX_MODE)
 //    word72 signbit = m3 & sign_msk;
 //    m3 >>= shift_amt;
 //    m3 = (m3 & MASK71) | signbit;
@@ -635,7 +643,7 @@ void ufa (bool sub, bool normalize) {
     e3 += 1;
 # endif // ! HEX_MODE
 #else // ! NEED_128
-# ifdef HEX_MODE
+# if defined(HEX_MODE)
 //    word72 signbit = m3 & sign_msk;
 //    m3 >>= shift_amt;
 //    m3 = (m3 & MASK71) | signbit;
@@ -668,7 +676,7 @@ void ufa (bool sub, bool normalize) {
   }
 
   convert_to_word36 (m3, & cpu.rA, & cpu.rQ);
-#ifdef TESTING
+#if defined(TESTING)
   HDBGRegAW ("ufa");
 #endif
   cpu.rE = e3 & 0377;
@@ -730,7 +738,7 @@ void fno_ext (int * e0, word8 * E, word36 * A, word36 * Q) {
   // If C(AQ) = 0, then C(E) is set to -128 and the zero indicator is set ON.
 
   L68_ (cpu.ou.cycle |= ou_GON;)
-#ifdef HEX_MODE
+#if defined(HEX_MODE)
   uint shift_amt = isHex() ? 4 : 1;
 #endif
   * A &= DMASK;
@@ -738,9 +746,9 @@ void fno_ext (int * e0, word8 * E, word36 * A, word36 * Q) {
   float72 m = convert_to_word72 (* A, * Q);
   if (TST_I_OFLOW) {
     CLR_I_OFLOW;
-#ifdef NEED_128
+#if defined(NEED_128)
     word72 s = and_128 (m, SIGN72); // save the sign bit
-# ifdef HEX_MODE
+# if defined(HEX_MODE)
     if (isHex ()) {
       m = rshift_128 (m, shift_amt); // renormalize the mantissa
       if (isnonzero_128 (s)) // sign of mantissa
@@ -777,7 +785,7 @@ void fno_ext (int * e0, word8 * E, word36 * A, word36 * Q) {
   }
 #else // ! NEED_128
   word72 s = m & SIGN72; // save the sign bit
-# ifdef HEX_MODE
+# if defined(HEX_MODE)
   if (isHex ()) {
     m >>= shift_amt; // renormalize the mantissa
     if (s)
@@ -819,7 +827,7 @@ void fno_ext (int * e0, word8 * E, word36 * A, word36 * Q) {
   }
 
   // only normalize C(EAQ) if C(AQ) ≠ 0 and the overflow indicator is OFF
-#ifdef NEED_128
+#if defined(NEED_128)
   if (iszero_128 (m)) { /// C(AQ) == 0.
     //* A = (m >> 36) & MASK36;
     //* Q = m & MASK36;
@@ -841,13 +849,13 @@ void fno_ext (int * e0, word8 * E, word36 * A, word36 * Q) {
 
   //int e = SIGNEXT8_int ((* E) & MASK8);
   int e = * e0;
-#ifdef NEED_128
+#if defined(NEED_128)
   bool s = isnonzero_128 (and_128 (m, SIGN72));
 #else
   bool s = (m & SIGN72) != (word72)0;    ///< save sign bit
 #endif
 
-#ifdef HEX_MODE
+#if defined(HEX_MODE)
 // Normalized in Hex Mode: If sign is 0, bits 1-4 != 0; if sign is 1,
 // bits 1-4 != 017.
   if (isHex ()) {
@@ -857,7 +865,7 @@ void fno_ext (int * e0, word8 * E, word36 * A, word36 * Q) {
       // Termination guarantee: Zeros are being shifted into the right
       // end, so the loop will terminate when the first shifted
       // zero enters bits 1-4.
-# ifdef NEED_128
+# if defined(NEED_128)
       while (iseq_128 (and_128 (m, HEX_NORM), HEX_NORM)) {
         m = lshift_128 (m, 4);
         e -= 1;
@@ -873,7 +881,7 @@ void fno_ext (int * e0, word8 * E, word36 * A, word36 * Q) {
       m |= SIGN72;
 # endif // ! NEED_128
     } else { // ! s
-# ifdef NEED_128
+# if defined(NEED_128)
       // Positive
       // Until bits 1-4 != 0
       // Termination guarantee: m is known to be non-zero; a non-zero
@@ -896,7 +904,7 @@ void fno_ext (int * e0, word8 * E, word36 * A, word36 * Q) {
 # endif // ! NEED_128
     } // ! s
   } else { // ! isHex
-# ifdef NEED_128
+# if defined(NEED_128)
     while (s == isnonzero_128 (and_128 (m, BIT71))) { // until C(AQ)0 != C(AQ)1?
       m = lshift_128 (m, 1);
       e -= 1;
@@ -919,7 +927,7 @@ void fno_ext (int * e0, word8 * E, word36 * A, word36 * Q) {
 # endif // ! NEED_128
   } // ! isHex
 #else // ! HEX_MODE
-# ifdef NEED_128
+# if defined(NEED_128)
   while (s == isnonzero_128 (and_128 (m, BIT71))) { // until C(AQ)0 != C(AQ)1?
     m = lshift_128 (m, 1);
     e -= 1;
@@ -1079,9 +1087,9 @@ void fneg (void) {
   // and increment the exponent.
   if (ISEQ_128 (m, SIGN72)) {
     // Negation of 400..0 / 2 is 200..0; we can get there shifting; we know
-    // that a zero will be shifted into the sign bit because fo the masking
+    // that a zero will be shifted into the sign bit because of the masking
     // in 'm='.
-#ifdef NEED_128
+#if defined(NEED_128)
     m = rshift_128 (m, 1);
 #else
     m >>= 1;
@@ -1096,7 +1104,7 @@ void fneg (void) {
     cpu.rE &= MASK8;
   } else {
     // Do the negation
-#ifdef NEED_128
+#if defined(NEED_128)
     m = negate_128 (m);
 #else
     // m = -m;
@@ -1106,7 +1114,7 @@ void fneg (void) {
   }
   convert_to_word36 (m, & cpu.rA, & cpu.rQ);
   fno (& cpu.rE, & cpu.rA, & cpu.rQ);  // normalize
-#ifdef TESTING
+#if defined(TESTING)
   HDBGRegAW ("fneg");
 #endif
 }
@@ -1127,7 +1135,7 @@ void ufm (bool normalize) {
   CPTUR (cptUseE);
   word72 m1 = convert_to_word72 (cpu.rA, cpu.rQ);
   int    e1 = SIGNEXT8_int (cpu.rE & MASK8);
-#ifdef NEED_128
+#if defined(NEED_128)
   word72 m2 = lshift_128 (construct_128 (0, (uint64_t) getbits36_28 (cpu.CY, 8)), 44u); // 28-bit mantissa (incl sign)
 #else
   word72 m2 = ((word72) getbits36_28 (cpu.CY, 8)) << 44; ///< 28-bit mantissa (incl sign)
@@ -1140,7 +1148,7 @@ void ufm (bool normalize) {
 
     cpu.rE = 0200U; /*-128*/
     cpu.rA = 0;
-#ifdef TESTING
+#if defined(TESTING)
     HDBGRegAW ("ufm");
 #endif
     cpu.rQ = 0;
@@ -1169,7 +1177,7 @@ void ufm (bool normalize) {
   // the leading 71 bits plus sign of which -> C(AQ).
 
   // shift the CY mantissa to get 98 bits precision
-#ifdef NEED_128
+#if defined(NEED_128)
   int128 t = SIGNEXT72_128(m2);
   uint128 ut = rshift_128 (cast_128 (t), 44);
   int128 m3 = multiply_s128 (SIGNEXT72_128(m1), cast_s128 (ut));
@@ -1179,7 +1187,7 @@ void ufm (bool normalize) {
 //sim_debug (DBG_TRACEEXT, & cpu_dev, "m3 %016"PRIx64"%016"PRIx64"\n", (uint64_t) (m3>>64), (uint64_t) m3);
 #endif
   // realign to 72bits
-#ifdef NEED_128
+#if defined(NEED_128)
   word72 m3a = and_128 (rshift_128 (cast_128 (m3), 98u - 71u), MASK72);
 //sim_debug (DBG_TRACEEXT, & cpu_dev, "m3a %016"PRIx64"%016"PRIx64"\n", m3a.h, m3a.l);
 #else
@@ -1195,7 +1203,7 @@ void ufm (bool normalize) {
       if (tstOVFfault ())
         dlyDoFault (FAULT_OFL, fst_zero, "ufm exp overflow fault");
     }
-#ifdef NEED_128
+#if defined(NEED_128)
     m3a = rshift_128 (m3a, 1);
 #else
     m3a >>= 1;
@@ -1204,7 +1212,7 @@ void ufm (bool normalize) {
   }
 
   convert_to_word36 (m3a, & cpu.rA, & cpu.rQ);
-#ifdef TESTING
+#if defined(TESTING)
   HDBGRegAW ("ufm");
 #endif
   cpu.rE = (word8) e3 & MASK8;
@@ -1252,7 +1260,7 @@ static void fdvX (bool bInvert) {
   // 00...0 → C(Q)
 
   CPTUR (cptUseE);
-#ifdef HEX_MODE
+#if defined(HEX_MODE)
   uint shift_amt = isHex() ? 4 : 1;
 #else
   uint shift_amt = 1;
@@ -1269,7 +1277,7 @@ static void fdvX (bool bInvert) {
     m1 = convert_to_word72 (cpu.rA, cpu.rQ);
     e1 = SIGNEXT8_int (cpu.rE & MASK8);
 
-#ifdef NEED_128
+#if defined(NEED_128)
     m2 = lshift_128 (construct_128 (0, (uint64_t) getbits36_28 (cpu.CY, 8)), 44u); // 28-bit mantissa (incl sign)
 #else
     m2 = ((word72) getbits36_28 (cpu.CY, 8)) << 44; ///< 28-bit mantissa (incl sign)
@@ -1284,7 +1292,7 @@ static void fdvX (bool bInvert) {
     // round divisor per RJ78
     // If AQ(28-71) is not equal to 0 and A(0) = 0, then 1 is added to AQ(27).
     // 0 -> AQ(28-71) unconditionally. AQ(0-27) is then used as the divisor mantissa.
-#ifdef NEED_128
+#if defined(NEED_128)
     if ((iszero_128 (and_128 (m2, SIGN72))) &&
         (isnonzero_128 (and_128 (m2, construct_128 (0, 0377777777777777LL))))) {
       m2  = add_128 (m2, construct_128 (0, 0400000000000000LL));
@@ -1314,7 +1322,7 @@ static void fdvX (bool bInvert) {
 
     cpu.rE = 0200U; /*-128*/
     cpu.rA = 0;
-#ifdef TESTING
+#if defined(TESTING)
     HDBGRegAW ("fdvX");
 #endif
     cpu.rQ = 0;
@@ -1324,14 +1332,14 @@ static void fdvX (bool bInvert) {
 
   // make everything positive, but save sign info for later....
   int sign = 1;
-#ifdef NEED_128
+#if defined(NEED_128)
   if (isnonzero_128 (and_128 (m1, SIGN72)))
 #else
   if (m1 & SIGN72)
 #endif
   {
     SET_I_NEG; // in case of divide fault
-#ifdef NEED_128
+#if defined(NEED_128)
     if (iseq_128 (m1, SIGN72)) {
       m1 = rshift_128 (m1, shift_amt);
       e1 += 1;
@@ -1351,7 +1359,7 @@ static void fdvX (bool bInvert) {
     CLR_I_NEG; // in case of divide fault
   }
 
-#ifdef NEED_128
+#if defined(NEED_128)
   if ((isnonzero_128 (and_128 (m2, SIGN72))) && !roundovf) {
     if (iseq_128 (m2, SIGN72)) {
       m2 = rshift_128 (m2, shift_amt);
@@ -1386,7 +1394,7 @@ static void fdvX (bool bInvert) {
     // Instead, a divide check fault occurs and all the registers remain unchanged.
     if (! bInvert) {
       convert_to_word36 (m1, & cpu.rA, & cpu.rQ);
-#ifdef TESTING
+#if defined(TESTING)
       HDBGRegAW ("fdvX");
 #endif
     }
@@ -1394,7 +1402,7 @@ static void fdvX (bool bInvert) {
     doFault (FAULT_DIV, fst_zero, "FDV: divide check fault");
   }
 
-#ifdef NEED_128
+#if defined(NEED_128)
   while (isge_128 (m1, m2)) {
     // DH02 (equivalent but perhaps clearer description):
     // dividend exponent C(E) increased accordingly until | C(AQ)0,71 | < | C(Y)8,35 with zero fill |
@@ -1428,7 +1436,7 @@ static void fdvX (bool bInvert) {
   // We need 35 bits quotient + sign. Divisor is at most 28 bits.
   // Do a 63(28+35) by 35 fractional divide
   // lo 44bits are always zero
-#ifdef NEED_128
+#if defined(NEED_128)
   uint32_t divisor = rshift_128 (m2, 44).l & MASK28;
   word72 m3;
   if (divisor > MASK16)
@@ -1439,7 +1447,7 @@ static void fdvX (bool bInvert) {
   word72 m3 = (m1 >> (44-35)) / (m2 >> 44);
 #endif
 
-#ifdef NEED_128
+#if defined(NEED_128)
   m3 = lshift_128 (m3, 36);
   if (sign == -1)
     m3 = and_128 (negate_128 (m3), MASK72);
@@ -1450,12 +1458,12 @@ static void fdvX (bool bInvert) {
 #endif
 
   cpu.rE = (word8) e3 & MASK8;
-#ifdef NEED_128
+#if defined(NEED_128)
   cpu.rA = rshift_128 (m3, 36u).l & MASK36;
 #else
   cpu.rA = (m3 >> 36) & MASK36;
 #endif
-#ifdef TESTING
+#if defined(TESTING)
   HDBGRegAW ("fdvX");
 #endif
   cpu.rQ = 0;
@@ -1556,7 +1564,7 @@ void frd (void) {
   word18 flags1 = 0;
   word1 carry = 0;
   // If C(AQ)0 = 0, then a carry is added at AQ71
-#ifdef NEED_128
+#if defined(NEED_128)
   if (iszero_128 (and_128 (m, SIGN72)))
 #else
   if ((m & SIGN72) == 0)
@@ -1564,14 +1572,14 @@ void frd (void) {
   {
     carry = 1;
   }
-#ifdef NEED_128
+#if defined(NEED_128)
   m = Add72b (m, construct_128 (0, 0177777777777777LL), carry, I_OFLOW, & flags1, & ovf);
 #else
   m = Add72b (m, 0177777777777777LL, carry, I_OFLOW, & flags1, & ovf);
 #endif
 
   // 0 -> C(AQ)28,71  (per. RJ78)
-#ifdef NEED_128
+#if defined(NEED_128)
   m = and_128 (m, lshift_128 (construct_128 (0, 0777777777400), 36));
 #else
   m &= ((word72)0777777777400 << 36);
@@ -1587,7 +1595,7 @@ void frd (void) {
   convert_to_word36 (m, & cpu.rA, & cpu.rQ);
 
   fno (& cpu.rE, & cpu.rA, & cpu.rQ);
-#ifdef TESTING
+#if defined(TESTING)
   HDBGRegAW ("frd");
 #endif
   SC_I_OFLOW(savedovf);
@@ -1609,7 +1617,7 @@ void fstr (word36 *Y)
     //E &= (int) MASK8;
 
     float72 m = convert_to_word72 (A, Q);
-#ifdef NEED_128
+#if defined(NEED_128)
     if (iszero_128 (m))
 #else
     if (m == 0)
@@ -1628,7 +1636,7 @@ void fstr (word36 *Y)
     word18 flags1 = 0;
     word1 carry = 0;
     // If C(AQ)0 = 0, then a carry is added at AQ71
-#ifdef NEED_128
+#if defined(NEED_128)
     if (iszero_128 (and_128 (m, SIGN72)))
 #else
     if ((m & SIGN72) == 0)
@@ -1636,14 +1644,14 @@ void fstr (word36 *Y)
       {
         carry = 1;
       }
-#ifdef NEED_128
+#if defined(NEED_128)
     m = Add72b (m, construct_128 (0, 0177777777777777LL), carry, I_OFLOW, & flags1, & ovf);
 #else
     m = Add72b (m, 0177777777777777LL, carry, I_OFLOW, & flags1, & ovf);
 #endif
 
     // 0 -> C(AQ)28,71  (per. RJ78)
-#ifdef NEED_128
+#if defined(NEED_128)
     m = and_128 (m, lshift_128 (construct_128 (0, 0777777777400), 36));
 #else
     m &= ((word72)0777777777400 << 36);
@@ -1680,7 +1688,7 @@ void fcmp (void) {
   // The aligned mantissas are compared and the indicators set accordingly.
 
   CPTUR (cptUseE);
-#ifdef NEED_128
+#if defined(NEED_128)
   word72 m1= lshift_128 (construct_128 (0, cpu.rA & 0777777777400), 36);
 #else
   word72 m1 = ((word72)cpu.rA & 0777777777400LL) << 36;
@@ -1688,7 +1696,7 @@ void fcmp (void) {
   int    e1 = SIGNEXT8_int (cpu.rE & MASK8);
 
   // 28-bit mantissa (incl sign)
-#ifdef NEED_128
+#if defined(NEED_128)
   word72 m2 = lshift_128 (construct_128 (0, getbits36_28 (cpu.CY, 8)), 44);
 #else
   word72 m2 = ((word72) getbits36_28 (cpu.CY, 8)) << 44;
@@ -1698,7 +1706,7 @@ void fcmp (void) {
   // Which exponent is smaller???
 
   L68_ (cpu.ou.cycle = ou_GOE;)
-#ifdef HEX_MODE
+#if defined(HEX_MODE)
   uint shift_amt = isHex() ? 4 : 1;
 #else
   uint shift_amt = 1;
@@ -1712,13 +1720,13 @@ void fcmp (void) {
     L68_ (cpu.ou.cycle = ou_GOA;)
     shift_count = abs (e2 - e1) * (int) shift_amt;
     // mantissa negative?
-#ifdef NEED_128
+#if defined(NEED_128)
     bool s = isnonzero_128 (and_128 (m1, SIGN72));
 #else
     bool s = (m1 & SIGN72) != (word72)0;
 #endif
     for(int n = 0; n < shift_count; n += 1) {
-#ifdef NEED_128
+#if defined(NEED_128)
       notallzeros |= m1.l & 1;
       m1 = rshift_128 (m1, 1);
 #else
@@ -1726,13 +1734,13 @@ void fcmp (void) {
       m1 >>= 1;
 #endif
       if (s)
-#ifdef NEED_128
+#if defined(NEED_128)
         m1 = or_128 (m1, SIGN72);
 #else
         m1 |= SIGN72;
 #endif
     }
-#ifdef NEED_128
+#if defined(NEED_128)
     if (iseq_128 (m1, MASK72) && notallzeros == 1 && shift_count * (int) shift_amt > 71)
       m1 = construct_128 (0, 0);
     m1 = and_128 (m1, MASK72);
@@ -1745,13 +1753,13 @@ void fcmp (void) {
     L68_ (cpu.ou.cycle = ou_GOA;)
     shift_count = abs (e1 - e2) * (int) shift_amt;
     // mantissa negative?
-#ifdef NEED_128
+#if defined(NEED_128)
     bool s = isnonzero_128 (and_128 (m2, SIGN72));
 #else
     bool s = (m2 & SIGN72) != (word72)0;
 #endif
     for (int n = 0 ; n < shift_count ; n += 1) {
-#ifdef NEED_128
+#if defined(NEED_128)
       notallzeros |= m2.l & 1;
       m2 = rshift_128 (m2, 1);
 #else
@@ -1759,13 +1767,13 @@ void fcmp (void) {
       m2 >>= 1;
 #endif
       if (s)
-#ifdef NEED_128
+#if defined(NEED_128)
         m2 = or_128 (m2, SIGN72);
 #else
         m2 |= SIGN72;
 #endif
     } // for n
-#ifdef NEED_128
+#if defined(NEED_128)
     if (iseq_128 (m2, MASK72) && notallzeros == 1 && shift_count * (int) shift_amt > 71)
       m2 = construct_128 (0, 0);
     m2 = and_128 (m2, MASK72);
@@ -1779,7 +1787,7 @@ void fcmp (void) {
   }
 
   // need to do algebraic comparisons of mantissae
-#ifdef NEED_128
+#if defined(NEED_128)
   SC_I_ZERO (iseq_128 (m1, m2));
   SC_I_NEG (islt_s128 (SIGNEXT72_128(m1), SIGNEXT72_128(m2)));
 #else
@@ -1813,13 +1821,13 @@ void fcmg (void) {
 
   CPTUR (cptUseE);
   L68_ (cpu.ou.cycle = ou_GOS;)
-#ifdef HEX_MODE
+#if defined(HEX_MODE)
   uint shift_amt = isHex() ? 4 : 1;
 #else
   uint shift_amt = 1;
 #endif
   // C(AQ)0,27
-#ifdef NEED_128
+#if defined(NEED_128)
   word72 m1 = lshift_128 (construct_128 (0, cpu.rA & 0777777777400), 36);
 #else
   word72 m1 = ((word72)cpu.rA & 0777777777400LL) << 36;
@@ -1828,7 +1836,7 @@ void fcmg (void) {
 
   // C(Y)0,7
   // 28-bit mantissa (incl sign)
-#ifdef NEED_128
+#if defined(NEED_128)
   word72 m2 = lshift_128 (construct_128 (0, getbits36_28 (cpu.CY, 8)), 44);
 #else
   word72 m2 = ((word72) getbits36_28 (cpu.CY, 8)) << 44;
@@ -1846,13 +1854,13 @@ void fcmg (void) {
   } else if (e1 < e2) {
     L68_ (cpu.ou.cycle = ou_GOA;)
     shift_count = abs (e2 - e1) * (int) shift_amt;
-#ifdef NEED_128
+#if defined(NEED_128)
     bool s = isnonzero_128 (and_128 (m1, SIGN72));
 #else
     bool s = (m1 & SIGN72) != (word72)0;    ///< save sign bit
 #endif
     for (int n = 0; n < shift_count; n += 1) {
-#ifdef NEED_128
+#if defined(NEED_128)
       notallzeros |= m1.l & 1;
       m1 = rshift_128 (m1, 1);
 #else
@@ -1860,14 +1868,14 @@ void fcmg (void) {
       m1 >>= 1;
 #endif
     if (s)
-#ifdef NEED_128
+#if defined(NEED_128)
       m1 = or_128 (m1, SIGN72);
 #else
       m1 |= SIGN72;
 #endif
     }
 
-#ifdef NEED_128
+#if defined(NEED_128)
     if (iseq_128 (m1, MASK72) && notallzeros == 1 && shift_count * (int) shift_amt > 71)
       m1 = construct_128 (0, 0);
     m1 = and_128 (m1, MASK72);
@@ -1879,13 +1887,13 @@ void fcmg (void) {
   } else { // e2 < e1;
     L68_ (cpu.ou.cycle = ou_GOA;)
     shift_count = abs(e1 - e2) * (int) shift_amt;
-#ifdef NEED_128
+#if defined(NEED_128)
     bool s = isnonzero_128 (and_128 (m2, SIGN72));
 #else
     bool s = (m2 & SIGN72) != (word72)0;    ///< save sign bit
 #endif
     for (int n = 0; n < shift_count; n += 1) {
-#ifdef NEED_128
+#if defined(NEED_128)
       notallzeros |= m2.l & 1;
       m2 = rshift_128 (m2, 1);
 #else
@@ -1893,13 +1901,13 @@ void fcmg (void) {
       m2 >>= 1;
 #endif
       if (s)
-#ifdef NEED_128
+#if defined(NEED_128)
         m2 = or_128 (m2, SIGN72);
 #else
         m2 |= SIGN72;
 #endif
     }
-#ifdef NEED_128
+#if defined(NEED_128)
     if (iseq_128 (m2, MASK72) && notallzeros == 1 && shift_count * (int) shift_amt > 71)
       m2 = construct_128 (0, 0);
     m2 = and_128 (m2, MASK72);
@@ -1911,7 +1919,7 @@ void fcmg (void) {
   }
 
   SC_I_ZERO (ISEQ_128 (m1, m2));
-#ifdef NEED_128
+#if defined(NEED_128)
   int128 sm1 = SIGNEXT72_128 (m1);
   if (islt_s128 (sm1, construct_s128 (0, 0)))
     sm1 = negate_s128 (sm1);
@@ -1980,7 +1988,7 @@ void dufa (bool subtract, bool normalize) {
 
   CPTUR (cptUseE);
   L68_ (cpu.ou.cycle = ou_GOS;)
-#ifdef HEX_MODE
+#if defined(HEX_MODE)
   uint shift_amt = isHex() ? 4 : 1;
 #else
   uint shift_amt = 1;
@@ -1990,7 +1998,7 @@ void dufa (bool subtract, bool normalize) {
   int e1 = SIGNEXT8_int (cpu.rE & MASK8);
 
   // 64-bit mantissa (incl sign)
-#ifdef NEED_128
+#if defined(NEED_128)
   word72 m2 = lshift_128 (construct_128 (0, (uint64_t) getbits36_28 (cpu.Ypair[0], 8)), 44u); // 28-bit mantissa (incl sign)
          m2 = or_128 (m2, lshift_128 (construct_128 (0, cpu.Ypair[1]), 8u));
 #else
@@ -2004,11 +2012,11 @@ void dufa (bool subtract, bool normalize) {
   int m2zero = 0;
   if (subtract) {
 
-#ifdef NEED_128
+#if defined(NEED_128)
     if (iszero_128 (m2))
       m2zero = 1;
     if (iseq_128 (m2, SIGN72)) {
-# ifdef HEX_MODE
+# if defined(HEX_MODE)
       m2 = rshift_128 (m2, shift_amt);
       e2 += 1;
 # else
@@ -2022,7 +2030,7 @@ void dufa (bool subtract, bool normalize) {
     if (m2 == 0)
       m2zero = 1;
     if (m2 == SIGN72) {
-# ifdef HEX_MODE
+# if defined(HEX_MODE)
       m2 >>= shift_amt;
       e2 += 1;
 # else
@@ -2052,13 +2060,13 @@ void dufa (bool subtract, bool normalize) {
     L68_ (cpu.ou.cycle |= ou_GOA;)
     shift_count = abs(e2 - e1) * (int) shift_amt;
     // mantissa negative?
-#ifdef NEED_128
+#if defined(NEED_128)
     bool s = isnonzero_128 (and_128 (m1, SIGN72));
 #else
     bool s = (m1 & SIGN72) != (word72)0;
 #endif
     for (int n = 0; n < shift_count; n += 1) {
-#ifdef NEED_128
+#if defined(NEED_128)
       notallzeros |= m1.l & 1;
       m1 = rshift_128 (m1, 1);
 #else
@@ -2066,13 +2074,13 @@ void dufa (bool subtract, bool normalize) {
       m1 >>= 1;
 #endif
       if (s)
-#ifdef NEED_128
+#if defined(NEED_128)
         m1 = or_128 (m1, SIGN72);
 #else
         m1 |= SIGN72;
 #endif
     }
-#ifdef NEED_128
+#if defined(NEED_128)
     if (iseq_128 (m1, MASK72) && notallzeros == 1 && shift_count * (int) shift_amt > 71)
       m1 = construct_128 (0, 0);
     m1 = and_128 (m1, MASK72);
@@ -2085,13 +2093,13 @@ void dufa (bool subtract, bool normalize) {
   } else { // e2 < e1;
     L68_ (cpu.ou.cycle |= ou_GOA;)
     shift_count = abs(e1 - e2) * (int) shift_amt;
-#ifdef NEED_128
+#if defined(NEED_128)
     bool s = isnonzero_128 (and_128 (m2, SIGN72));
 #else
     bool s = (m2 & SIGN72) != (word72)0;    ///< save sign bit
 #endif
     for (int n = 0; n < shift_count; n += 1) {
-#ifdef NEED_128
+#if defined(NEED_128)
       notallzeros |= m2.l & 1;
       m2 = rshift_128 (m2, 1);
 #else
@@ -2099,13 +2107,13 @@ void dufa (bool subtract, bool normalize) {
       m2 >>= 1;
 #endif
       if (s)
-#ifdef NEED_128
+#if defined(NEED_128)
         m2 = or_128 (m2, SIGN72);
 #else
         m2 |= SIGN72;
 #endif
     }
-#ifdef NEED_128
+#if defined(NEED_128)
     if (iseq_128 (m2, MASK72) && notallzeros == 1 && shift_count * (int) shift_amt > 71)
       m2 = construct_128 (0, 0);
     m2 = and_128 (m2, MASK72);
@@ -2123,20 +2131,20 @@ void dufa (bool subtract, bool normalize) {
     SET_I_CARRY;
 
   if (ovf) {
-#ifdef HEX_MODE
+#if defined(HEX_MODE)
 //    word72 signbit = m3 & sign_msk;
 //    m3 >>= shift_amt;
 //    m3 = (m3 & MASK71) | signbit;
 //    m3 ^= SIGN72; // C(AQ)0 is inverted to restore the sign
 //    e3 += 1;
     // save the sign bit
-# ifdef NEED_128
+# if defined(NEED_128)
     bool s = isnonzero_128 (and_128 (m3, SIGN72));
 # else
     bool s = (m3 & SIGN72) != (word72)0;
 # endif
     if (isHex ()) {
-# ifdef NEED_128
+# if defined(NEED_128)
       m3 = rshift_128 (m3, shift_amt); // renormalize the mantissa
       if (s)
         // Sign is set, number should be positive; clear the sign bit and the 3 MSBs
@@ -2154,7 +2162,7 @@ void dufa (bool subtract, bool normalize) {
         m3 |=  HEX_SIGN;
 # endif
     } else {
-# ifdef NEED_128
+# if defined(NEED_128)
       word72 signbit = and_128 (m3, SIGN72);
       m3 = rshift_128 (m3, 1); // renormalize the mantissa
       m3 = or_128 (and_128 (m3, MASK71), signbit);
@@ -2168,7 +2176,7 @@ void dufa (bool subtract, bool normalize) {
     }
     e3 += 1;
 #else
-# ifdef NEED_128
+# if defined(NEED_128)
     word72 signbit = and_128 (m3, SIGN72);
     m3 = rshift_128 (m3, 1); // renormalize the mantissa
     m3 = or_128 (and_128 (m3, MASK71), signbit);
@@ -2184,7 +2192,7 @@ void dufa (bool subtract, bool normalize) {
   }
 
   convert_to_word36 (m3, & cpu.rA, & cpu.rQ);
-#ifdef TESTING
+#if defined(TESTING)
   HDBGRegAW ("dufa");
 #endif
   cpu.rE = e3 & 0377;
@@ -2301,11 +2309,12 @@ void dufm (bool normalize) {
   word72 m1 = convert_to_word72 (cpu.rA, cpu.rQ);
   int    e1 = SIGNEXT8_int (cpu . rE & MASK8);
 
-#ifndef NEED_128
-  sim_debug (DBG_TRACEEXT, & cpu_dev, "dufm e1 %d %03o m1 %012"PRIo64" %012"PRIo64"\n", e1, e1, (word36) (m1 >> 36) & MASK36, (word36) m1 & MASK36);
+#if !defined(NEED_128)
+  sim_debug (DBG_TRACEEXT, & cpu_dev, "dufm e1 %d %03o m1 %012"PRIo64" %012"PRIo64"\n",
+             e1, e1, (word36) (m1 >> 36) & MASK36, (word36) m1 & MASK36);
 #endif
    // 64-bit mantissa (incl sign)
-#ifdef NEED_128
+#if defined(NEED_128)
   word72 m2 = lshift_128 (construct_128 (0, (uint64_t) getbits36_28 (cpu.Ypair[0], 8)), 44u); // 28-bit mantissa (incl sign)
          m2 = or_128 (m2, lshift_128 (construct_128 (0, cpu.Ypair[1]), 8u));
 #else
@@ -2316,8 +2325,9 @@ void dufm (bool normalize) {
   // 8-bit signed integer (incl sign)
   int    e2 = SIGNEXT8_int (getbits36_8 (cpu.Ypair[0], 0));
 
-#ifndef NEED_128
-  sim_debug (DBG_TRACEEXT, & cpu_dev, "dufm e2 %d %03o m2 %012"PRIo64" %012"PRIo64"\n", e2, e2, (word36) (m2 >> 36) & MASK36, (word36) m2 & MASK36);
+#if !defined(NEED_128)
+  sim_debug (DBG_TRACEEXT, & cpu_dev, "dufm e2 %d %03o m2 %012"PRIo64" %012"PRIo64"\n",
+             e2, e2, (word36) (m2 >> 36) & MASK36, (word36) m2 & MASK36);
 #endif
 
   if (ISZERO_128 (m1) || ISZERO_128 (m2)) {
@@ -2326,7 +2336,7 @@ void dufm (bool normalize) {
 
     cpu.rE = 0200U; /*-128*/
     cpu.rA = 0;
-#ifdef TESTING
+#if defined(TESTING)
     HDBGRegAW ("dufm");
 #endif
     cpu.rQ = 0;
@@ -2359,7 +2369,7 @@ void dufm (bool normalize) {
   // fast signed multiplication algorithm without 2's complements
   // passes ISOLTS-745 08
 
-#ifdef NEED_128
+#if defined(NEED_128)
   // shift the CY mantissa
   int128 m2s = rshift_s128 (SIGNEXT72_128(m2), 8);
 
@@ -2399,7 +2409,7 @@ void dufm (bool normalize) {
       if (tstOVFfault ())
           dlyDoFault (FAULT_OFL, fst_zero, "dufm exp overflow fault");
     }
-#ifdef NEED_128
+#if defined(NEED_128)
     m3a = rshift_128 (m3a, 1);
 #else
     m3a >>= 1;
@@ -2408,7 +2418,7 @@ void dufm (bool normalize) {
   }
 
   convert_to_word36 (m3a, & cpu.rA, & cpu.rQ);
-#ifdef TESTING
+#if defined(TESTING)
   HDBGRegAW ("dufm");
 #endif
   cpu.rE = (word8) e3 & MASK8;
@@ -2457,7 +2467,7 @@ static void dfdvX (bool bInvert) {
 
   CPTUR (cptUseE);
   L68_ (cpu.ou.cycle |= ou_GOS;)
-#ifdef HEX_MODE
+#if defined(HEX_MODE)
   uint shift_amt = isHex() ? 4 : 1;
 #else
   uint shift_amt = 1;
@@ -2475,7 +2485,7 @@ static void dfdvX (bool bInvert) {
     e1 = SIGNEXT8_int (cpu.rE & MASK8);
 
     // 64-bit mantissa (incl sign)
-#ifdef NEED_128
+#if defined(NEED_128)
     m2 = lshift_128 (construct_128 (0, (uint64_t) getbits36_28 (cpu.Ypair[0], 8)), 44u); // 28-bit mantissa (incl sign)
     m2 = or_128 (m2, lshift_128 (construct_128 (0, cpu.Ypair[1]), 8u));
 #else
@@ -2492,29 +2502,30 @@ static void dfdvX (bool bInvert) {
     // If AQ(64-71) is not = 0 and A(0) = 0, a 1 is added to AQ(63). Zero is moved to
     // AQ(64-71), unconditionally. AQ(0-63) is then used as the divisor mantissa.
     // ISOLTS-745 10b
-#ifdef NEED_128
+#if defined(NEED_128)
     if ((iszero_128 (and_128 (m2, SIGN72))) && m2.l & 0377)
 #else
     if (!(m2 & SIGN72) && m2 & 0377)
 #endif
     {
-#ifdef NEED_128
+#if defined(NEED_128)
       m2 = add_128 (m2, construct_128 (0, 0400));
 #else
       m2 += 0400;
 #endif
-      // ISOLTS-745 10e asserts that an overflowing addition of 400 to 377777777777 7777777774xx does not shift the quotient (nor divisor)
+      // ISOLTS-745 10e asserts that an overflowing addition of 400
+      //   to 377777777777 7777777774xx does not shift the quotient (nor divisor)
       // I surmise that the divisor is taken as unsigned 64 bits in this case
       roundovf = 1;
     }
-#ifdef NEED_128
+#if defined(NEED_128)
     putbits72 (& m2, 64, 8, construct_128 (0, 0));
 #else
     putbits72 (& m2, 64, 8, 0);
 #endif
 
     // 64-bit mantissa (incl sign)
-#ifdef NEED_128
+#if defined(NEED_128)
     m1 = lshift_128 (construct_128 (0, (uint64_t) getbits36_28 (cpu.Ypair[0], 8)), 44u); // 28-bit mantissa (incl sign)
     m1 = or_128 (m1, lshift_128 (construct_128 (0, cpu.Ypair[1]), 8u));
 #else
@@ -2531,7 +2542,7 @@ static void dfdvX (bool bInvert) {
 
     cpu.rE = 0200U; /*-128*/
     cpu.rA = 0;
-#ifdef TESTING
+#if defined(TESTING)
     HDBGRegAW ("dfdvX");
 #endif
     cpu.rQ = 0;
@@ -2541,7 +2552,7 @@ static void dfdvX (bool bInvert) {
 
     // make everything positive, but save sign info for later....
   int sign = 1;
-#ifdef NEED_128
+#if defined(NEED_128)
   if (isnonzero_128 (and_128 (m1, SIGN72))) {
     SET_I_NEG; // in case of divide fault
     if (iseq_128 (m1, SIGN72)) {
@@ -2602,7 +2613,7 @@ static void dfdvX (bool bInvert) {
     // Instead, a divide check fault occurs and all the registers remain unchanged.
     if (! bInvert) {
       convert_to_word36 (m1, & cpu.rA, & cpu.rQ);
-#ifdef TESTING
+#if defined(TESTING)
       HDBGRegAW ("dfdvX");
 #endif
     }
@@ -2610,7 +2621,7 @@ static void dfdvX (bool bInvert) {
   } // m2 == 0
 
   L68_ (cpu.ou.cycle |= ou_GOA;)
-#ifdef NEED_128
+#if defined(NEED_128)
   while (isge_128 (m1, m2)) {
     m1 = rshift_128 (m1, shift_amt);
     e1 += 1;
@@ -2638,14 +2649,14 @@ static void dfdvX (bool bInvert) {
   // We need 63 bits quotient + sign. Divisor is at most 64 bits.
   // Do a 127 by 64 fractional divide
   // lo 8bits are always zero
-#ifdef NEED_128
+#if defined(NEED_128)
   word72 m3 = divide_128 (lshift_128 (m1, 63-8), rshift_128 (m2, 8), NULL);
 #else
   word72 m3 = ((uint128)m1 << (63-8)) / ((uint128)m2 >> 8);
 #endif
   L68_ (cpu.ou.cycle |= ou_GD2;)
 
-#ifdef NEED_128
+#if defined(NEED_128)
   m3 = lshift_128 (m3, 8);  // convert back to float
   if (sign == -1)
     m3 = and_128 (negate_128 (m3), MASK72);
@@ -2656,7 +2667,7 @@ static void dfdvX (bool bInvert) {
 #endif
 
   convert_to_word36 (m3, & cpu.rA, & cpu.rQ);
-#ifdef TESTING
+#if defined(TESTING)
   HDBGRegAW ("dfdvX");
 #endif
   cpu.rE = (word8) e3 & MASK8;
@@ -2684,7 +2695,7 @@ void dfdi (void) {
 // CANFAULT
 void dvf (void)
 {
-//#ifdef DBGCAC
+//#if defined(DBGCAC)
 //sim_printf ("DVF %"PRId64" %06o:%06o\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC);
 //#endif
     // C(AQ) / (Y)
@@ -2704,7 +2715,7 @@ void dvf (void)
     // reflects the dividend sign.
 
 // HWR code
-//HWR--#ifdef DVF_HWR
+//HWR--#if defined(DVF_HWR)
 //HWR--    // m1 Dividend
 //HWR--    // m2 divisor
 //HWR--
@@ -2775,7 +2786,7 @@ void dvf (void)
 //HWR--#endif
 
 // canonical code
-#ifdef DVF_FRACTIONAL
+#if defined(DVF_FRACTIONAL)
 // See: https://www.ece.ucsb.edu/~parhami/pres_folder/f31-book-arith-pres-pt4.pdf
 // Slide 10: Sequential Algorithm
 
@@ -2837,7 +2848,9 @@ void dvf (void)
 
     SC_I_ZERO (cpu.CY == 0);
     SC_I_NEG (cpu.rA & SIGN36);
-// /* if (current_running_cpu_idx) */ sim_printf ("dvf 1 divide check fault A %012llo B %012llo Y %012llo Z %d N %d\r\n", cpu.rA, cpu.rQ, cpu.CY, TST_I_ZERO, TST_I_NEG);
+// /* if (current_running_cpu_idx) */
+//        sim_printf ("dvf 1 divide check fault A %012llo B %012llo Y %012llo Z %d N %d\r\n",
+//                    cpu.rA, cpu.rQ, cpu.CY, TST_I_ZERO, TST_I_NEG);
     doFault(FAULT_DIV, fst_zero, "DVF: divide check fault");
   }
 
@@ -2879,11 +2892,13 @@ void dvf (void)
   if (quot & ~((uint128) MASK35)) {
     SC_I_ZERO (cpu.rA == 0);
     SC_I_NEG (cpu.rA & SIGN36);
-// /* if (current_running_cpu_idx) */ sim_printf ("dvf 2 divide check fault A %012llo B %012llo Y %012llo Z %d N %d\r\n", cpu.rA, cpu.rQ, cpu.CY, TST_I_ZERO, TST_I_NEG);
+// /* if (current_running_cpu_idx) */
+//       sim_printf ("dvf 2 divide check fault A %012llo B %012llo Y %012llo Z %d N %d\r\n",
+//                   cpu.rA, cpu.rQ, cpu.CY, TST_I_ZERO, TST_I_NEG);
     doFault(FAULT_DIV, fst_zero, "DVF: divide check fault");
   }
   cpu.rA = quot & MASK36;
-# ifdef TESTING
+# if defined(TESTING)
   HDBGRegAW ("dvf");
 # endif
   cpu.rQ = remainder & MASK36;
@@ -2891,7 +2906,7 @@ void dvf (void)
 #endif
 
 // MM code
-#ifdef DVF_CAC
+#if defined(DVF_CAC)
 
 # if 0
     if (cpu.CY == 0)
@@ -2923,7 +2938,7 @@ void dvf (void)
 
     // dividend format:   . d(0) ...  d(69)
 
-# ifdef NEED_128
+# if defined(NEED_128)
     uint128 zFrac = lshift_128 (construct_128 (0, cpu.rA & MASK35), 35);
     zFrac = or_128 (zFrac, construct_128 (0, (cpu.rQ >> 1) & MASK35));
 //sim_debug (DBG_TRACEEXT, & cpu_dev, "zfrac %016"PRIx64" %016"PRIx64"\n", zFrac.h, zFrac.l);
@@ -2935,7 +2950,7 @@ void dvf (void)
 
     if (dividendNegative)
       {
-# ifdef NEED_128
+# if defined(NEED_128)
         zFrac = negate_128 (zFrac);
 # else
         // zFrac = ~zFrac + 1;
@@ -2944,7 +2959,7 @@ void dvf (void)
 # endif
         sign = - sign;
       }
-# ifdef NEED_128
+# if defined(NEED_128)
     zFrac = and_128 (zFrac, MASK70);
 //sim_debug (DBG_TRACEEXT, & cpu_dev, "zfrac %016"PRIx64" %016"PRIx64"\n", zFrac.h, zFrac.l);
 # else
@@ -2966,14 +2981,14 @@ void dvf (void)
 
     // divisor goes in the low half
     uint128 dFrac = convert_to_word72 (0, cpu.CY & MASK35);
-# ifdef NEED_128
+# if defined(NEED_128)
 //sim_debug (DBG_TRACEEXT, & cpu_dev, "dfrac %016"PRIx64" %016"PRIx64"\n", dFrac.h, dFrac.l);
 # else
 //sim_debug (DBG_TRACEEXT, & cpu_dev, "dfrac %016"PRIx64" %016"PRIx64"\n", (uint64) (dFrac>>64), (uint64) dFrac);
 # endif
     if (divisorNegative)
       {
-# ifdef NEED_128
+# if defined(NEED_128)
         dFrac = negate_128 (dFrac);
 # else
         // dFrac = ~dFrac + 1;
@@ -2982,7 +2997,7 @@ void dvf (void)
 # endif
         sign = - sign;
       }
-# ifdef NEED_128
+# if defined(NEED_128)
     dFrac = and_128 (dFrac, construct_128 (0, MASK35));
 //sim_debug (DBG_TRACEEXT, & cpu_dev, "dfrac %016"PRIx64" %016"PRIx64"\n", dFrac.h, dFrac.l);
 # else
@@ -2996,7 +3011,7 @@ void dvf (void)
 
     //if (dFrac == 0 || zFrac >= dFrac)
     //if (dFrac == 0 || zFrac >= dFrac << 35)
-# ifdef NEED_128
+# if defined(NEED_128)
     if (iszero_128 (dFrac))
 # else
     if (dFrac == 0)
@@ -3023,7 +3038,7 @@ void dvf (void)
   //sim_printf ("dFrac %s \r\n", buf);
 
     L68_ (cpu.ou.cycle |= ou_GD2;)
-# ifdef NEED_128
+# if defined(NEED_128)
     uint128 remainder;
     uint128 quot = divide_128 (zFrac, dFrac, & remainder);
 //sim_debug (DBG_TRACEEXT, & cpu_dev, "remainder %016"PRIx64" %016"PRIx64"\n", remainder.h, remainder.l);
@@ -3039,7 +3054,7 @@ void dvf (void)
     // overflow prediction; implement it by checking that the calculated
     // quotient will fit in 35 bits.
 
-# ifdef NEED_128
+# if defined(NEED_128)
     if (isnonzero_128 (and_128 (quot, construct_128 (MASK36,  ~MASK35))))
 # else
     if (quot & ~MASK35)
@@ -3071,7 +3086,7 @@ void dvf (void)
             cpu.rQ = (cpu.rQ + 1) & MASK36;
           }
 # endif
-# ifdef TESTING
+# if defined(TESTING)
         HDBGRegAW ("dvf");
 # endif
         //cpu . rA = (zFrac >> 35) & MASK35;
@@ -3093,27 +3108,27 @@ void dvf (void)
     //sim_debug (DBG_CAC, & cpu_dev, "remainder %s\n", buf3);
 
     if (sign == -1)
-# ifdef NEED_128
+# if defined(NEED_128)
       quot = negate_128 (quot);
 # else
       quot = ~quot + 1;
 # endif
 
     if (dividendNegative)
-# ifdef NEED_128
+# if defined(NEED_128)
       remainder = negate_128 (remainder);
 # else
       remainder = ~remainder + 1;
 # endif
 
-# ifdef NEED_128
+# if defined(NEED_128)
     cpu.rA = quot.l & MASK36;
     cpu.rQ = remainder.l & MASK36;
 # else
     cpu . rA = quot & MASK36;
     cpu . rQ = remainder & MASK36;
 # endif
-# ifdef TESTING
+# if defined(TESTING)
     HDBGRegAW ("dvf");
 # endif
 #endif
@@ -3122,7 +3137,9 @@ void dvf (void)
 //sim_debug (DBG_CAC, & cpu_dev, "Remainder %"PRId64"\n", cpu . rQ);
     SC_I_ZERO (cpu . rA == 0 && cpu . rQ == 0);
     SC_I_NEG (cpu . rA & SIGN36);
-// /* if (current_running_cpu_idx) */ sim_printf ("dvf 3 A %012llo B %012llo Y %012llo Z %d N %d\r\n", cpu.rA, cpu.rQ, cpu.CY, TST_I_ZERO, TST_I_NEG);
+// /* if (current_running_cpu_idx) */
+//      sim_printf ("dvf 3 A %012llo B %012llo Y %012llo Z %d N %d\r\n",
+//                  cpu.rA, cpu.rQ, cpu.CY, TST_I_ZERO, TST_I_NEG);
 }
 
 /*!
@@ -3160,7 +3177,7 @@ void dfrd (void) {
   word18 flags1 = 0;
   word1 carry = 0;
   // If C(AQ)0 = 0, then a carry is added at AQ71
-#ifdef NEED_128
+#if defined(NEED_128)
   if (iszero_128 (and_128 (m, SIGN72)))
 #else
   if ((m & SIGN72) == 0)
@@ -3168,14 +3185,14 @@ void dfrd (void) {
   {
     carry = 1;
   }
-#ifdef NEED_128
+#if defined(NEED_128)
   m = Add72b (m, construct_128 (0, 0177), carry, I_OFLOW, & flags1, & ovf);
 #else
   m = Add72b (m, 0177, carry, I_OFLOW, & flags1, & ovf);
 #endif
 
   // 0 -> C(AQ)64,71
-#ifdef NEED_128
+#if defined(NEED_128)
   putbits72 (& m, 64, 8, construct_128 (0, 0));  // 64-71 => 0 per DH02
 #else
   putbits72 (& m, 64, 8, 0);  // 64-71 => 0 per DH02
@@ -3191,7 +3208,7 @@ void dfrd (void) {
   convert_to_word36 (m, & cpu.rA, & cpu.rQ);
 
   fno (& cpu.rE, & cpu.rA, & cpu.rQ);
-#ifdef TESTING
+#if defined(TESTING)
   HDBGRegAW ("dfrd");
 #endif
   SC_I_OFLOW (savedovf);
@@ -3227,7 +3244,7 @@ void dfstr (word36 *Ypair)
     //Q &= DMASK;
 
     float72 m = convert_to_word72 (A, Q);
-#ifdef NEED_128
+#if defined(NEED_128)
     if (iszero_128 (m))
 #else
     if (m == 0)
@@ -3248,7 +3265,7 @@ void dfstr (word36 *Ypair)
     word18 flags1 = 0;
     word1 carry = 0;
     // If C(AQ)0 = 0, then a carry is added at AQ71
-#ifdef NEED_128
+#if defined(NEED_128)
     if (iszero_128 (and_128 (m, SIGN72)))
 #else
     if ((m & SIGN72) == 0)
@@ -3256,14 +3273,14 @@ void dfstr (word36 *Ypair)
       {
         carry = 1;
       }
-#ifdef NEED_128
+#if defined(NEED_128)
     m = Add72b (m, construct_128 (0, 0177), carry, I_OFLOW, & flags1, & ovf);
 #else
     m = Add72b (m, 0177, carry, I_OFLOW, & flags1, & ovf);
 #endif
 
     // 0 -> C(AQ)65,71  (per. RJ78)
-#ifdef NEED_128
+#if defined(NEED_128)
     putbits72 (& m, 64, 8, construct_128 (0, 0));  // 64-71 => 0 per DH02
 #else
     putbits72 (& m, 64, 8, 0);  // 64-71 => 0 per DH02
@@ -3306,7 +3323,7 @@ void dfcmp (void) {
 
   // C(AQ)0,63
   CPTUR (cptUseE);
-#ifdef HEX_MODE
+#if defined(HEX_MODE)
   uint shift_amt = isHex() ? 4 : 1;
 #else
   uint shift_amt = 1;
@@ -3315,7 +3332,7 @@ void dfcmp (void) {
   int   e1 = SIGNEXT8_int (cpu . rE & MASK8);
 
   // C(Y-pair)8,71
-#ifdef NEED_128
+#if defined(NEED_128)
   word72 m2 = lshift_128 (construct_128 (0, getbits36_28 (cpu.Ypair[0], 8)), (36 + 8));
   m2 = or_128 (m2, lshift_128 (construct_128 (0, cpu.Ypair[1]), 8u));
 #else
@@ -3329,7 +3346,7 @@ void dfcmp (void) {
   int shift_count = -1;
   word1 notallzeros = 0;
 
-#ifdef NEED_128
+#if defined(NEED_128)
   if (e1 == e2) {
     shift_count = 0;
   } else if (e1 < e2) {
@@ -3342,7 +3359,7 @@ void dfcmp (void) {
         m1 = or_128 (m1, SIGN72);
     }
 
-# ifdef HEX_MODE
+# if defined(HEX_MODE)
     if (iseq_128 (m1, MASK72) && notallzeros == 1 && shift_count * (int) shift_amt > 71)
       m1 = construct_128 (0, 0);
 # else
@@ -3359,7 +3376,7 @@ void dfcmp (void) {
       if (s)
         m2 = or_128 (m2, SIGN72);
     }
-# ifdef HEX_MODE
+# if defined(HEX_MODE)
     if (iseq_128 (m2, MASK72) && notallzeros == 1 && shift_count * (int) shift_amt > 71)
       m2 = construct_128 (0, 0);
 # else
@@ -3386,7 +3403,7 @@ void dfcmp (void) {
         m1 |= SIGN72;
     }
 
-# ifdef HEX_MODE
+# if defined(HEX_MODE)
     if (m1 == MASK72 && notallzeros == 1 && shift_count * (int) shift_amt > 71)
       m1 = 0;
 # else
@@ -3403,7 +3420,7 @@ void dfcmp (void) {
       if (s)
         m2 |= SIGN72;
     }
-# ifdef HEX_MODE
+# if defined(HEX_MODE)
     if (m2 == MASK72 && notallzeros == 1 && shift_count * (int) shift_amt > 71)
       m2 = 0;
 # else
@@ -3440,7 +3457,7 @@ void dfcmg (void) {
   // values.
 
   CPTUR (cptUseE);
-#ifdef HEX_MODE
+#if defined(HEX_MODE)
   uint shift_amt = isHex () ? 4 : 1;
 #else
   uint shift_amt = 1;
@@ -3450,7 +3467,7 @@ void dfcmg (void) {
   int    e1 = SIGNEXT8_int (cpu.rE & MASK8);
 
   // C(Y-pair)8,71
-#ifdef NEED_128
+#if defined(NEED_128)
   word72 m2 = lshift_128 (construct_128 (0, getbits36_28 (cpu.Ypair[0], 8)), (36 + 8));
   m2 = or_128 (m2, lshift_128 (construct_128 (0, cpu.Ypair[1]), 8u));
 #else
@@ -3469,7 +3486,7 @@ void dfcmg (void) {
   } else if (e1 < e2) {
     L68_ (cpu.ou.cycle = ou_GOA;)
     shift_count = abs(e2 - e1) * (int) shift_amt;
-#ifdef NEED_128
+#if defined(NEED_128)
     bool s = isnonzero_128 (and_128 (m1, SIGN72));   ///< mantissa negative?
     for (int n = 0; n < shift_count; n += 1) {
       notallzeros |= m1.l & 1;
@@ -3477,7 +3494,7 @@ void dfcmg (void) {
       if (s)
         m1 = or_128 (m1, SIGN72);
     }
-# ifdef HEX_MODE
+# if defined(HEX_MODE)
     if (iseq_128 (m1, MASK72) && notallzeros == 1 && shift_count * (int) shift_amt > 71)
       m1 = construct_128 (0, 0);
 # else
@@ -3493,7 +3510,7 @@ void dfcmg (void) {
       if (s)
         m1 |= SIGN72;
     }
-# ifdef HEX_MODE
+# if defined(HEX_MODE)
     if (m1 == MASK72 && notallzeros == 1 && shift_count * (int) shift_amt > 71)
       m1 = 0;
 # else
@@ -3504,7 +3521,7 @@ void dfcmg (void) {
 #endif
   } else { // e2 < e1;
     shift_count = abs(e1 - e2) * (int) shift_amt;
-#ifdef NEED_128
+#if defined(NEED_128)
     bool s = isnonzero_128 (and_128 (m2, SIGN72));   ///< mantissa negative?
     for (int n = 0; n < shift_count; n += 1) {
       notallzeros |= m2.l & 1;
@@ -3512,7 +3529,7 @@ void dfcmg (void) {
       if (s)
         m2 = or_128 (m2, SIGN72);
     }
-# ifdef HEX_MODE
+# if defined(HEX_MODE)
     if (iseq_128 (m2, MASK72) && notallzeros == 1 && shift_count * (int) shift_amt > 71)
       m2 = construct_128 (0, 0);
 # else
@@ -3528,7 +3545,7 @@ void dfcmg (void) {
       if (s)
         m2 |= SIGN72;
     }
-# ifdef HEX_MODE
+# if defined(HEX_MODE)
     if (m2 == MASK72 && notallzeros == 1 && shift_count * (int) shift_amt > 71)
       m2 = 0;
 # else
@@ -3539,7 +3556,7 @@ void dfcmg (void) {
 #endif
   }
 
-#ifdef NEED_128
+#if defined(NEED_128)
   SC_I_ZERO (iseq_128 (m1, m2));
   int128 sm1 = SIGNEXT72_128 (m1);
   if (sm1.h < 0)
@@ -3561,3 +3578,7 @@ void dfcmg (void) {
   SC_I_NEG (sm1 < sm2);
 #endif // ! NEED_128
 }
+
+#if defined(__NVCOMPILER) || defined(__NVCOMPILER_LLVM__) || defined(__PGI) || defined(__PGLLVM__)
+# pragma global vector
+#endif

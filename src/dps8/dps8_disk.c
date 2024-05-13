@@ -45,9 +45,9 @@
 #include "sim_disk.h"
 #include "dps8_utils.h"
 
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
 # include "threadz.h"
-#endif
+#endif /* if defined(LOCKLESS) */
 
 #define DBG_CTR 1
 
@@ -124,9 +124,11 @@
 //           vfd       36/885*255          FIPS 3380
 //           vfd       36/1770*255         FIPS 3381
 
-//dcl  last_sect_num (9) fixed bin (24) static options (constant) init /* table of # last sector number for each device */
+/* table of # last sector number for each device */
+//dcl  last_sect_num (9) fixed bin (24) static options (constant) init
 //     (0, 618639, 616359, 309319, 239722, 71999, 1075199, 225674, 451349);
-//dcl  last_physical_sect_num (9) fixed bin (24) static options (constant) init /* table of # of last sector on device (includes T&D cylinders) */
+/* table of # of last sector on device (includes T&D cylinders) */
+//dcl  last_physical_sect_num (9) fixed bin (24) static options (constant) init
 //     (0, 639919, 619399, 312359, 242249, 72359, 1077759, 225674, 451859);
 
 //          last     t&d last
@@ -244,14 +246,14 @@ struct dsk_state dsk_states [N_DSK_UNITS_MAX];
 //  itr boot    001001
 //
 
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
 static int nCmds = 0;
-#endif
+#endif /* if defined(POLTS_DISK_TESTING) */
 
 #define UNIT_FLAGS ( UNIT_FIX | UNIT_ATTABLE | UNIT_ROABLE | \
                      UNIT_DISABLE | UNIT_IDLE | DKUF_F_STD )
 UNIT dsk_unit[N_DSK_UNITS_MAX] = {
-#ifdef NO_C_ELLIPSIS
+#if defined(NO_C_ELLIPSIS)
   { UDATA (/* & disk_svc */ NULL, UNIT_FLAGS, M3381_SECTORS), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA (/* & disk_svc */ NULL, UNIT_FLAGS, M3381_SECTORS), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA (/* & disk_svc */ NULL, UNIT_FLAGS, M3381_SECTORS), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
@@ -569,10 +571,10 @@ t_stat loadDisk (uint dsk_unit_idx, const char * disk_filename, bool ro) {
 
 static MTAB disk_mod[] =
   {
-#ifndef SPEED
+#if !defined(SPEED)
     { UNIT_WATCH, 1, "WATCH",   "WATCH",   0, 0, NULL, NULL },
     { UNIT_WATCH, 0, "NOWATCH", "NOWATCH", 0, 0, NULL, NULL },
-#endif
+#endif /* if !defined(SPEED) */
     {
       MTAB_dev_value,                                   /* Mask               */
       0,                                                /* Match              */
@@ -673,22 +675,22 @@ DEVICE dsk_dev = {
 void disk_init (void)
   {
     // Sets diskTypeIdx to 0: 3381
-    memset (dsk_states, 0, sizeof (dsk_states));
-#ifdef LOCKLESS
-# if defined ( __FreeBSD__ )
+    (void)memset (dsk_states, 0, sizeof (dsk_states));
+#if defined(LOCKLESS)
+# if defined(__FreeBSD__)
         pthread_mutexattr_t scu_attr;
         pthread_mutexattr_init (& scu_attr);
         pthread_mutexattr_settype (& scu_attr, PTHREAD_MUTEX_ADAPTIVE_NP);
-# endif
+# endif /* if defined(__FreeBSD__) */
     for (uint i = 0; i < N_DSK_UNITS_MAX; i ++)
       {
-# if defined ( __FreeBSD__ )
+# if defined(__FreeBSD__)
         pthread_mutex_init (& dsk_states[i].dsk_lock, & scu_attr);
 # else
         pthread_mutex_init (& dsk_states[i].dsk_lock, NULL);
-# endif
+# endif /* if defined(__FreeBSD__) */
       }
-#endif
+#endif /* if defined(LOCKLESS) */
   }
 
 static iom_cmd_rc_t diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
@@ -719,7 +721,7 @@ static iom_cmd_rc_t diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
     if (count != 1)
       sim_warn ("%s: count %d not 1\n", __func__, count);
 
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
     if_sim_debug (DBG_TRACE, & dsk_dev) { sim_printf ("// Seek address %012"PRIo64"\n", seekData); }
 #endif
 
@@ -813,7 +815,7 @@ static iom_cmd_rc_t diskSeekSpecial (uint devUnitIdx, uint iomUnitIdx, uint chan
     if (count   != 1)
       sim_warn ("%s: count %d not 1\n", __func__, count);
 
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
     if_sim_debug (DBG_TRACE, & dsk_dev)
       {
         sim_printf ("// Seek address %012"PRIo64"\n", seekData);
@@ -845,7 +847,7 @@ static int diskRead (uint devUnitIdx, uint iomUnitIdx, uint chan)
 
     if (! unitp->fileref) {
       p->stati = 04240; // device offline
-#ifdef POLTS_TESTING
+#if defined(POLTS_TESTING)
 if (chan == 014)
     if_sim_debug (DBG_TRACE, & dsk_dev) sim_printf ("// diskRead device offline\r\n");
 #endif
@@ -854,7 +856,7 @@ if (chan == 014)
     if (! disk_statep->seekValid) {
       p->stati               = 04510; // Invalid instruction sequence
       disk_statep->seekValid = false;
-#ifdef POLTS_TESTING
+#if defined(POLTS_TESTING)
 if (chan == 014)
     if_sim_debug (DBG_TRACE, & dsk_dev) sim_printf ("// diskRead seek invalid\r\n");
 #endif
@@ -873,7 +875,7 @@ if (chan == 014)
       {
         sim_warn ("%s: fseek (read) returned %d, errno %d\n", __func__, rc, errno);
         p->stati = 04202; // attn, seek incomplete
-#ifdef POLTS_TESTING
+#if defined(POLTS_TESTING)
 if (chan == 014)
     if_sim_debug (DBG_TRACE, & dsk_dev) sim_printf ("// diskRead seek incomplete\r\n");
 #endif
@@ -892,9 +894,9 @@ if (chan == 014)
     //uint tallyBytes = tallySectors * sectorSizeBytes;
     uint p72ByteCnt   = (tallyWords * 36) / 8;
     uint8 diskBuffer[p72ByteCnt];
-    memset (diskBuffer, 0, sizeof (diskBuffer));
+    (void)memset (diskBuffer, 0, sizeof (diskBuffer));
 
-    fflush (unitp->fileref);
+    (void)fflush (unitp->fileref);
     rc = (int) fread (diskBuffer, sectorSizeBytes,
                 tallySectors,
                 unitp->fileref);
@@ -905,7 +907,7 @@ if (chan == 014)
           {
             p->stati = 04202; // attn, seek incomplete
             //p->chanStatus = chanStatIncorrectDCW;
-#ifdef POLTS_TESTING
+#if defined(POLTS_TESTING)
 if (chan == 014)
     if_sim_debug (DBG_TRACE, & dsk_dev) sim_printf ("// diskRead seek incomplete2\r\n");
 #endif
@@ -929,7 +931,7 @@ if (chan == 014)
     iom_indirect_data_service (iomUnitIdx, chan, buffer,
                             & wordsProcessed, true);
     p->stati = 04000;
-#ifdef POLTS_TESTING
+#if defined(POLTS_TESTING)
 if (chan == 014)
     if_sim_debug (DBG_TRACE, & dsk_dev) sim_printf ("// diskRead ok\r\n");
 #endif
@@ -984,7 +986,7 @@ static int diskWrite (uint devUnitIdx, uint iomUnitIdx, uint chan)
     uint tallyWords   = tallySectors * sectorSizeWords;
     uint p72ByteCnt   = (tallyWords * 36) / 8;
     uint8 diskBuffer[p72ByteCnt];
-    memset (diskBuffer, 0, sizeof (diskBuffer));
+    (void)memset (diskBuffer, 0, sizeof (diskBuffer));
     uint wordsProcessed = 0;
 
     word36 buffer[tally];
@@ -1000,7 +1002,7 @@ static int diskWrite (uint devUnitIdx, uint iomUnitIdx, uint chan)
     rc = (int) fwrite (diskBuffer, sectorSizeBytes,
                  tallySectors,
                  unitp->fileref);
-    fflush (unitp->fileref);
+    (void)fflush (unitp->fileref);
 
     if (rc != (int) tallySectors)
       {
@@ -1036,12 +1038,12 @@ static int readStatusRegister (uint devUnitIdx, uint iomUnitIdx, uint chan)
 // XXX need status register data format
 // system_library_tools/source/bound_io_tools_.s.archive/analyze_detail_stat_.pl1  anal_fips_disk_().
 
-#ifdef TESTING
+#if defined(TESTING)
     sim_warn ("Need status register data format\n");
 #endif
     word36 buffer[tally];
-    memset (buffer, 0, sizeof (buffer));
-#ifdef POLTS_DISK_TESTING
+    (void)memset (buffer, 0, sizeof (buffer));
+#if defined(POLTS_DISK_TESTING)
 buffer[0] = nCmds;
 #endif
     uint wordsProcessed = tally;
@@ -1146,7 +1148,7 @@ static int read_configuration (uint dev_unit_idx, uint iom_unit_idx, uint chan)
 
 // XXX Temp
     word36 buffer[tally];
-    memset (buffer, 0, sizeof (buffer));
+    (void)memset (buffer, 0, sizeof (buffer));
     putbits36_9 (& buffer[0],  0, 0x12);
     putbits36_9 (& buffer[0],  9, 1);    // h/w revision
     putbits36_9 (& buffer[0], 18, '1');  // fw maj revision
@@ -1198,14 +1200,14 @@ static int read_and_clear_statistics (uint dev_unit_idx, uint iom_unit_idx, uint
 //  dcl reset_status_command   bit (6) internal static init ("40"b3);
 
 iom_cmd_rc_t dsk_iom_cmd (uint iomUnitIdx, uint chan) {
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
 nCmds ++;
 #endif
   iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
   uint ctlr_unit_idx  = get_ctlr_idx (iomUnitIdx, chan);
   uint devUnitIdx;
 
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
 if (chan == 014)   {if_sim_debug (DBG_TRACE, & dsk_dev) { dumpDCW (p->DCW, 0); }}
 #endif
   if (cables->iom_to_ctlr[iomUnitIdx][chan].ctlr_type == CTLR_T_IPC)
@@ -1222,7 +1224,7 @@ if (chan == 014)   {if_sim_debug (DBG_TRACE, & dsk_dev) { dumpDCW (p->DCW, 0); }
 
   iom_cmd_rc_t rc = IOM_CMD_PROCEED;
 
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
   lock_ptr (& dsk_states->dsk_lock); //-V619
 #endif
 
@@ -1232,14 +1234,14 @@ if (chan == 014)   {if_sim_debug (DBG_TRACE, & dsk_dev) { dumpDCW (p->DCW, 0); }
     disk_statep->io_mode = disk_no_mode;
     switch (p->IDCW_DEV_CMD) {
       case 000: // CMD 00 Request status
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
 //if (chan == 014)
-#endif
-#ifndef POLTS_DISK_TESTING
+#endif /* if defined(POLTS_DISK_TESTING) */
+#if !defined(POLTS_DISK_TESTING)
         if_sim_debug (DBG_TRACE, & dsk_dev) {
           sim_printf ("// Disk Request Status\r\n");
         }
-#endif
+#endif /* if !defined(POLTS_DISK_TESTING) */
         //disk_statep->io_mode = disk_no_mode;
         p->stati = 04000;
         if (! unitp->fileref)
@@ -1247,9 +1249,9 @@ if (chan == 014)   {if_sim_debug (DBG_TRACE, & dsk_dev) { dumpDCW (p->DCW, 0); }
         break;
 
       case 016: // CMD 16 Read and Clear Statistics -- Model 800
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
 if (chan == 014)
-#endif
+#endif /* if defined(POLTS_DISK_TESTING) */
         if_sim_debug (DBG_TRACE, & dsk_dev) {
           sim_printf ("// Disk Read And Clear Statistics\r\n");
         }
@@ -1261,7 +1263,7 @@ if (chan == 014)
         break;
 
       case 022: // CMD 22 Read Status Register
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1275,7 +1277,7 @@ if (chan == 014)
         break;
 
       case 024: // CMD 24 Read configuration -- Model 800
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1289,7 +1291,7 @@ if (chan == 014)
         break;
 
       case 025: // CMD 25 READ
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1303,7 +1305,7 @@ if (chan == 014)
         break;
 
       case 026: // CMD 26 READ CONTROL REGISTER
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1317,7 +1319,7 @@ if (chan == 014)
         break;
 
       case 030: // CMD 30 SEEK_512
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1332,7 +1334,7 @@ if (chan == 014)
 
       case 031: // CMD 31 WRITE
       case 033: // CMD 31 WRITE AND COMPARE
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1346,7 +1348,7 @@ if (chan == 014)
         break;
 
       case 034: // CMD 34 SEEK_64
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1361,7 +1363,7 @@ if (chan == 014)
 
       case 036: // CMD 36 SPECIAL SEEK (T&D) // Make it work like SEEK_64 and
                                              // hope for the best
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1375,7 +1377,7 @@ if (chan == 014)
         break;
 
       case 040: // CMD 40 Reset status
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1389,7 +1391,7 @@ if (chan == 014)
         // T&D probing
         if (p->IDCW_DEV_CODE == 077) {
           p->stati = 04502; // invalid device code
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
           unlock_ptr (& dsk_states->dsk_lock); //-V619
 #endif
           return IOM_CMD_DISCONNECT;
@@ -1399,7 +1401,7 @@ if (chan == 014)
         break;
 
       case 042: // CMD 42 RESTORE
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1417,7 +1419,7 @@ if (chan == 014)
         break;
 
       case 072: // CMD 72 SET STANDBY
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1429,7 +1431,7 @@ if (chan == 014)
         break;
 
       default:
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1449,7 +1451,7 @@ if (chan == 014)
   switch (disk_statep->io_mode) {
 
     case disk_no_mode:
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
 if (chan == 014)
 #endif
       if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1470,7 +1472,7 @@ if (chan == 014)
       goto done;
 
     case disk_rd_clr_stats: {
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1485,7 +1487,7 @@ if (chan == 014)
       break;
 
     case disk_rd_status_reg: {
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1500,7 +1502,7 @@ if (chan == 014)
       break;
 
     case disk_rd_config: {
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1516,7 +1518,7 @@ if (chan == 014)
       break;
 
     case disk_rd: {
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1531,7 +1533,7 @@ if (chan == 014)
       break;
 
     case disk_rd_ctrl_reg: {
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1546,7 +1548,7 @@ if (chan == 014)
       break;
 
     case disk_seek_512: {
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1561,7 +1563,7 @@ if (chan == 014)
       break;
 
     case disk_wr: {
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1576,7 +1578,7 @@ if (chan == 014)
       break;
 
     case disk_seek_64: {
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1591,7 +1593,7 @@ if (chan == 014)
       break;
 
     case disk_special_seek: { // Make it work like SEEK_64 and hope for the best
-#ifdef POLTS_DISK_TESTING
+#if defined(POLTS_DISK_TESTING)
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1607,7 +1609,7 @@ if (chan == 014)
   }
 
 done:
-#ifdef LOCKLESS
+#if defined(LOCKLESS)
   unlock_ptr (& dsk_states->dsk_lock); //-V619
 #endif
   return rc;
@@ -1629,7 +1631,7 @@ static struct ipc_state
   } ipc_states[N_IPC_UNITS_MAX];
 
 UNIT ipc_unit[N_IPC_UNITS_MAX] = {
-#ifdef NO_C_ELLIPSIS
+#if defined(NO_C_ELLIPSIS)
   { UDATA (NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA (NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA (NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
@@ -1771,7 +1773,7 @@ struct msp_state_s msp_states [N_MSP_UNITS_MAX];
 
 UNIT msp_unit[N_MSP_UNITS_MAX] =
   {
-#ifdef NO_C_ELLIPSIS
+#if defined(NO_C_ELLIPSIS)
   { UDATA (NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA (NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
   { UDATA (NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },

@@ -37,7 +37,7 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifndef SIM_SCP_H_
+#if !defined(SIM_SCP_H_)
 # define SIM_SCP_H_      0
 
 /* run_cmd parameters */
@@ -102,9 +102,10 @@ t_stat spawn_cmd (int32 flag, CONST char *ptr);
 t_stat echo_cmd (int32 flag, CONST char *ptr);
 
 /* Allow compiler to help validate printf style format arguments */
-# if !defined __GNUC__
+# if !defined (__GNUC__)
 #  define GCC_FMT_ATTR(n, m)
 # endif
+
 # if !defined(GCC_FMT_ATTR)
 #  define GCC_FMT_ATTR(n, m) __attribute__ ((format (__printf__, n, m)))
 # endif
@@ -149,12 +150,12 @@ t_value get_uint (const char *cptr, uint32 radix, t_value max, t_stat *status);
 CONST char *get_range (DEVICE *dptr, CONST char *cptr, t_addr *lo, t_addr *hi,
     uint32 rdx, t_addr max, char term);
 t_stat sim_decode_quoted_string (const char *iptr, uint8 *optr, uint32 *osize);
-char *sim_encode_quoted_string (const uint8 *iptr, uint32 size);
-void fprint_buffer_string (FILE *st, const uint8 *buf, uint32 size);
+char *sim_encode_quoted_string (const uint8 *iptr, size_t size);
+void fprint_buffer_string (FILE *st, const uint8 *buf, size_t size);
 t_value strtotv (CONST char *cptr, CONST char **endptr, uint32 radix);
 int Fprintf (FILE *f, const char *fmt, ...) GCC_FMT_ATTR(2, 3);
 t_stat fprint_val (FILE *stream, t_value val, uint32 rdx, uint32 wid, uint32 fmt);
-t_stat sprint_val (char *buf, t_value val, uint32 rdx, uint32 wid, uint32 fmt);
+t_stat sprint_val (char *buf, t_value val, uint32 rdx, size_t wid, uint32 fmt);
 const char *sim_fmt_secs (double seconds);
 const char *sprint_capac (DEVICE *dptr, UNIT *uptr);
 char *read_line (char *cptr, int32 size, FILE *stream);
@@ -203,7 +204,12 @@ void sim_debug_bits_hdr (uint32 dbits, DEVICE* dptr, const char *header,
 void sim_debug_bits (uint32 dbits, DEVICE* dptr, BITFIELD* bitdefs,
     uint32 before, uint32 after, int terminate);
 void _sim_debug (uint32 dbits, DEVICE* dptr, const char *fmt, ...) GCC_FMT_ATTR(3, 4);
-# define sim_debug(dbits, dptr, ...) do { if ((sim_deb != NULL) && ((dptr != NULL) && ((dptr)->dctrl & dbits))) _sim_debug (dbits, dptr, __VA_ARGS__);} while (0)
+# define sim_debug(dbits, dptr, ...)                                           \
+    do {                                                                       \
+         if ((sim_deb != NULL) && ((dptr != NULL) && ((dptr)->dctrl & dbits))) \
+         _sim_debug (dbits, dptr, __VA_ARGS__);                                \
+       }                                                                       \
+    while (0)
 void fprint_stopped_gen (FILE *st, t_stat v, REG *pc, DEVICE *dptr);
 # define SCP_HELP_FLAT   (1u << 31)       /* Force flat help when prompting is not possible */
 # define SCP_HELP_ONECMD (1u << 30)       /* Display one topic, do not prompt */
@@ -269,7 +275,7 @@ extern t_stat parse_sym (CONST char *cptr, t_addr addr, UNIT *uptr, t_value *val
     int32 sw);
 
 /* The per-simulator init routine is a weak global that defaults to NULL
-   The other per-simulator pointers can be overrriden by the init routine */
+   The other per-simulator pointers can be overriden by the init routine */
 
 extern void (*sim_vm_init) (void);
 extern char *(*sim_vm_read) (char *ptr, int32 size, FILE *stream);
@@ -298,7 +304,7 @@ extern const char *xstrerror_l(int errnum);
               it could be merely the simulator name if the simulator binary
               is located in the current PATH.
             - The simulator binary must be built from the same version
-              simh source code that the frontpanel API was acquired fron
+              simh source code that the front-panel API was acquired from
               (the API and the simh framework must speak the same language)
 
     Note 2: - Configuration file specified should contain device setup
@@ -346,14 +352,14 @@ sim_panel_destroy (PANEL *panel);
 
 /**
 
-   The frontpanel API exposes the state of a simulator via access to
+   The front-panel API exposes the state of a simulator via access to
    simh register variables that the simulator and its devices define.
    These registers certainly include any architecturally described
    registers (PC, PSL, SP, etc.), but also include anything else
    the simulator uses as internal state to implement the running
    simulator.
 
-   The registers that a particular frontpanel application might need
+   The registers that a particular front-panel application might need
    access to are described by the application by calling:
 
    sim_panel_add_register
@@ -411,7 +417,7 @@ sim_panel_add_register_indirect (PANEL *panel,
            simulator.  The callback routine merely serves as a notification
            that a complete register set has arrived.
    Note 2: The callback routine should, in general, not run for a long time
-           or frontpanel interactions with the simulator may be disrupted.
+           or front-panel interactions with the simulator may be disrupted.
            Setting a flag, signaling an event or posting a message are
            reasonable activities to perform in a callback routine.
 

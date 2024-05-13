@@ -86,10 +86,10 @@ static int evcnt = 0;
 // Is this cycle a candidate for ucache?
 
 //#define TEST_UCACHE
-#ifdef TEST_UCACHE
+#if defined(TEST_UCACHE)
   bool cacheHit;
   cacheHit = false; // Assume skip...
-#endif
+#endif /* if defined(TEST_UCACHE) */
 
 #if 1
   // Is OPCODE call6?
@@ -97,9 +97,9 @@ static int evcnt = 0;
   // See E1; The TRR needs to be checked and set to R2; this will vary across different
   // CALL6 calls.
   if (i->info->flags & CALL6_INS) {
-# ifdef UCACHE_STATS
+# if defined(UCACHE_STATS)
     cpu.uCache.call6Skips ++;
-# endif
+# endif /* if defined(UCACHE_STATS) */
     goto skip;
   }
 #endif
@@ -116,34 +116,36 @@ static int evcnt = 0;
   if (i->info->flags & TRANSFER_INS) {
     // check ring alarm to catch outbound transfers
     if (cpu.rRALR && (cpu.PPR.PRR >= cpu.rRALR)) {
-#ifdef UCACHE_STATS
+#if defined(UCACHE_STATS)
       cpu.uCache.ralrSkips ++;
-#endif
+#endif /* if defined(UCACHE_STATS) */
       goto skip;
     }
   }
 
 // Yes; check the ucache
 
-#ifdef TEST_UCACHE
+#if defined(TEST_UCACHE)
   word24 cachedAddress;
   word3 cachedR1;
   word14 cachedBound;
   word1 cachedP;
   bool cachedPaged;
   cacheHit = ucCacheCheck (this, cpu.TPR.TSR, cpu.TPR.CA, & cachedBound, & cachedP, & cachedAddress, & cachedR1, & cachedPaged);
-# ifdef HDBG
-  hdbgNote ("doAppendCycleOperandRead.h", "test cache check %s %d %u %05o:%06o %05o %o %08o %o %o", cacheHit ? "hit" : "miss", evcnt, this, cpu.TPR.TSR, cpu.TPR.CA, cachedBound, cachedP, cachedAddress, cachedR1, cachedPaged);
-# endif
+# if defined(HDBG)
+  hdbgNote ("doAppendCycleOperandRead.h", "test cache check %s %d %u %05o:%06o %05o %o %08o %o %o",
+            cacheHit ? "hit" : "miss", evcnt, this, cpu.TPR.TSR, cpu.TPR.CA, cachedBound,
+            cachedP, cachedAddress, cachedR1, cachedPaged);
+# endif /* if defined(HDBG) */
   goto miss;
 #else
   if (! ucCacheCheck (this, cpu.TPR.TSR, cpu.TPR.CA, & bound, & p, & pageAddress, & RSDWH_R1, & paged)) {
-# ifdef HDBG
+# if defined(HDBG)
     hdbgNote ("doAppendCycleOperandRead.h", "miss %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
-# endif
+# endif /* if defined(HDBG) */
     goto miss;
   }
-#endif
+#endif /* if defined(TEST_UCACHE) */
 
   if (paged) {
     finalAddress = pageAddress + (cpu.TPR.CA & OS18MASK);
@@ -154,9 +156,9 @@ static int evcnt = 0;
 
 // ucache hit; housekeeping...
   //sim_printf ("hit  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
-#ifdef HDBG
+#if defined(HDBG)
   hdbgNote ("doAppendCycleOperandRead.h", "hit  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
-#endif
+#endif /* if defined(HDBG) */
 
   cpu.apu.lastCycle = OPERAND_READ;
   goto HI;
@@ -164,13 +166,13 @@ static int evcnt = 0;
 #if 1
 skip:;
   //sim_printf ("miss %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
-# ifdef HDBG
+# if defined(HDBG)
   hdbgNote ("doAppendCycleOperandRead.h", "skip %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
-# endif
-# ifdef UCACHE_STATS
+# endif /* if defined(HDBG) */
+# if defined(UCACHE_STATS)
   cpu.uCache.skips[this] ++;
-# endif
-#endif
+# endif /* if defined(UCACHE_STATS) */
+#endif /* if defined(TEST_UCACHE) */
 
 miss:;
 
@@ -380,7 +382,9 @@ E:;
   //
 
   DBGAPP ("doAppendCycleOperandRead(E): CALL6\n");
-  DBGAPP ("doAppendCycleOperandRead(E): E %o G %o PSR %05o TSR %05o CA %06o " "EB %06o R %o%o%o TRR %o PRR %o\n", cpu.SDW->E, cpu.SDW->G, cpu.PPR.PSR, cpu.TPR.TSR, cpu.TPR.CA, cpu.SDW->EB, cpu.SDW->R1, cpu.SDW->R2, cpu.SDW->R3, cpu.TPR.TRR, cpu.PPR.PRR);
+  DBGAPP ("doAppendCycleOperandRead(E): E %o G %o PSR %05o TSR %05o CA %06o " "EB %06o R %o%o%o TRR %o PRR %o\n",
+          cpu.SDW->E,  cpu.SDW->G,  cpu.PPR.PSR, cpu.TPR.TSR, cpu.TPR.CA, cpu.SDW->EB,
+          cpu.SDW->R1, cpu.SDW->R2, cpu.SDW->R3, cpu.TPR.TRR, cpu.PPR.PRR);
 
   //SDW.E set ON?
   if (! cpu.SDW->E) {
@@ -521,7 +525,8 @@ G:;
     cpu.acvFaults |= ACV15;
     PNL (L68_ (cpu.apu.state |= apu_FLT;))
     FMSG (acvFaultsMsg = "acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND";)
-    DBGAPP ("acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND\n" "   CA %06o CA>>4 & 037777 %06o SDW->BOUND %06o", cpu.TPR.CA, ((cpu.TPR.CA >> 4) & 037777), cpu.SDW->BOUND);
+    DBGAPP ("acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND\n" "   CA %06o CA>>4 & 037777 %06o SDW->BOUND %06o",
+            cpu.TPR.CA, ((cpu.TPR.CA >> 4) & 037777), cpu.SDW->BOUND);
   }
   bound = cpu.SDW->BOUND;
   p = cpu.SDW->P;
@@ -530,7 +535,8 @@ G:;
     DBGAPP ("doAppendCycleOperandRead(G) acvFaults\n");
     PNL (L68_ (cpu.apu.state |= apu_FLT;))
     // Initiate an access violation fault
-    doFault (FAULT_ACV, (_fault_subtype) {.fault_acv_subtype=cpu.acvFaults}, "ACV fault");
+    doFault (FAULT_ACV, (_fault_subtype) {.fault_acv_subtype=cpu.acvFaults},
+            "ACV fault");
   }
 
   // is segment C(TPR.TSR) paged?
@@ -546,7 +552,8 @@ G:;
     fetch_ptw (cpu.SDW, cpu.TPR.CA);
     if (! cpu.PTW0.DF) {
       // initiate a directed fault
-      doFault (FAULT_DF0 + cpu.PTW0.FC, (_fault_subtype) {.bits=0}, "PTW0.F == 0");
+      doFault (FAULT_DF0 + cpu.PTW0.FC, (_fault_subtype) {.bits=0},
+              "PTW0.F == 0");
     }
     loadPTWAM (cpu.SDW->POINTER, cpu.TPR.CA, nomatch); // load PTW0 to PTWAM
   }
@@ -582,17 +589,19 @@ H:;
     ....
 #endif
   set_apu_status (apuStatus_FANP);
-#ifdef HDBG
+#if defined(HDBG)
   hdbgNote ("doAppendCycleOperandRead", "FANP");
-#endif
-  DBGAPP ("doAppendCycleOperandRead(H): SDW->ADDR=%08o CA=%06o \n", cpu.SDW->ADDR, cpu.TPR.CA);
+#endif /* if defined(HDBG) */
+  DBGAPP ("doAppendCycleOperandRead(H): SDW->ADDR=%08o CA=%06o \n",
+          cpu.SDW->ADDR, cpu.TPR.CA);
 
   pageAddress = (cpu.SDW->ADDR & 077777760);
   finalAddress = (cpu.SDW->ADDR & 077777760) + cpu.TPR.CA;
   finalAddress &= 0xffffff;
   PNL (cpu.APUMemAddr = finalAddress;)
 
-  DBGAPP ("doAppendCycleOperandRead(H:FANP): (%05o:%06o) finalAddress=%08o\n", cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
+  DBGAPP ("doAppendCycleOperandRead(H:FANP): (%05o:%06o) finalAddress=%08o\n",
+          cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
 
   goto HI;
 
@@ -604,9 +613,9 @@ I:;
 
   paged = true;
 
-#ifdef HDBG
+#if defined(HDBG)
   hdbgNote ("doAppendCycleOperandRead", "FAP");
-#endif
+#endif /* if defined(HDBG) */
   // final address paged
   set_apu_status (apuStatus_FAP);
   PNL (L68_ (cpu.apu.state |= apu_FAP;))
@@ -620,61 +629,70 @@ I:;
   finalAddress &= 0xffffff;
   PNL (cpu.APUMemAddr = finalAddress;)
 
-#ifdef L68
+#if defined(L68)
   if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
     add_APU_history (APUH_FAP);
-#endif
-  DBGAPP ("doAppendCycleOperandRead(H:FAP): (%05o:%06o) finalAddress=%08o\n", cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
+#endif /* if defined(L68) */
+  DBGAPP ("doAppendCycleOperandRead(H:FAP): (%05o:%06o) finalAddress=%08o\n",
+          cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
 
   //goto HI;
 
 HI:
   DBGAPP ("doAppendCycleOperandRead(HI)\n");
 
-#ifdef TEST_UCACHE
+#if defined(TEST_UCACHE)
   if (cacheHit) {
     bool err = false;
     if (cachedAddress != pageAddress) {
-     sim_printf ("cachedAddress %08o != pageAddress %08o\r\n", cachedAddress, pageAddress);
+     sim_printf ("cachedAddress %08o != pageAddress %08o\r\n",
+             cachedAddress, pageAddress);
      err = true;
     }
     if (cachedR1 != RSDWH_R1) {
-      sim_printf ("cachedR1 %01o != RSDWH_R1 %01o\r\n", cachedR1, RSDWH_R1);
+      sim_printf ("cachedR1 %01o != RSDWH_R1 %01o\r\n",
+              cachedR1, RSDWH_R1);
       err = true;
     }
     if (cachedBound != bound) {
-      sim_printf ("cachedBound %01o != bound %01o\r\n", cachedBound, bound);
+      sim_printf ("cachedBound %01o != bound %01o\r\n",
+              cachedBound, bound);
       err = true;
     }
     if (cachedPaged != paged) {
-      sim_printf ("cachedPaged %01o != paged %01o\r\n", cachedPaged, paged);
+      sim_printf ("cachedPaged %01o != paged %01o\r\n",
+              cachedPaged, paged);
       err = true;
     }
     if (err) {
-# ifdef HDBG
+# if defined(HDBG)
       HDBGPrint ();
-# endif
-      sim_printf ("oprnd read err  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
+# endif /* if defined(HDBG) */
+      sim_printf ("oprnd read err  %d %05o:%06o\r\n",
+              evcnt, cpu.TPR.TSR, cpu.TPR.CA);
       exit (1);
     }
     //sim_printf ("hit  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
-# ifdef HDBG
-    hdbgNote ("doAppendCycleOperandRead.h", "test hit %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
-# endif
+# if defined(HDBG)
+    hdbgNote ("doAppendCycleOperandRead.h", "test hit %d %05o:%06o\r\n",
+            evcnt, cpu.TPR.TSR, cpu.TPR.CA);
+# endif /* if defined(HDBG) */
   } else {
     //sim_printf ("miss %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
-# ifdef HDBG
-    hdbgNote ("doAppendCycleOperandRead.h", "test miss %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
-# endif
+# if defined(HDBG)
+    hdbgNote ("doAppendCycleOperandRead.h", "test miss %d %05o:%06o\r\n",
+            evcnt, cpu.TPR.TSR, cpu.TPR.CA);
+# endif /* if defined(HDBG) */
   }
 #endif
 
   ucCacheSave (this, cpu.TPR.TSR, cpu.TPR.CA, bound, p, pageAddress, RSDWH_R1, paged);
-#ifdef TEST_UCACHE
-# ifdef HDBG
-  hdbgNote ("doAppendCycleOperandRead.h", "cache %d %u %05o:%06o %05o %o %08o %o %o", evcnt, this, cpu.TPR.TSR, cpu.TPR.CA, bound, p, pageAddress, RSDWH_R1, paged);
-# endif
-#endif
+#if defined(TEST_UCACHE)
+# if defined(HDBG)
+  hdbgNote ("doAppendCycleOperandRead.h", "cache %d %u %05o:%06o %05o %o %08o %o %o",
+          evcnt, this, cpu.TPR.TSR, cpu.TPR.CA, bound, p, pageAddress, RSDWH_R1, paged);
+# endif /* if defined(HDBG) */
+#endif /* if defined(TEST_UCACHE) */
 evcnt ++;
 
   // isolts 870
@@ -722,9 +740,9 @@ L:; // Transfer or instruction fetch
       cpu.PR[n].SNR = cpu.PPR.PSR;
     cpu.PR[n].WORDNO = (cpu.PPR.IC + 1) & MASK18;
     SET_PR_BITNO (n, 0);
-#ifdef TESTING
+#if defined(TESTING)
     HDBGRegPRW (n, "app tspn");
-#endif
+#endif /* if defined(TESTING) */
   }
 
 // KL:
@@ -772,9 +790,9 @@ N: // CALL6
   cpu.PR[7].WORDNO = 0;
   // 000000 -> C(PR7.BITNO)
   SET_PR_BITNO (7, 0);
-#ifdef TESTING
+#if defined(TESTING)
   HDBGRegPRW (7, "app call6");
-#endif
+#endif /* if defined(TESTING) */
   // C(TPR.TRR) -> C(PPR.PRR)
   cpu.PPR.PRR = cpu.TPR.TRR;
   // C(TPR.TSR) -> C(PPR.PSR)

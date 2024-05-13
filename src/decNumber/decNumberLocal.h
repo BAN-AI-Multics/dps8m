@@ -4,6 +4,7 @@
 /* ------------------------------------------------------------------- */
 /* decNumber package local type, tuning, and macro definitions         */
 /* ------------------------------------------------------------------- */
+/*                                                                     */
 /* Copyright (c) IBM Corporation, 2000, 2010.  All rights reserved.    */
 /*                                                                     */
 /* This software is made available under the terms of the ICU License. */
@@ -17,25 +18,28 @@
 /*   mfc@uk.ibm.com                                                    */
 /*   Mike Cowlishaw, IBM Fellow                                        */
 /*   IBM UK, PO Box 31, Birmingham Road, Warwick CV34 5JL, UK          */
+/*                                                                     */
 /* ------------------------------------------------------------------- */
+/*                                                                     */
 /* This header file is included by all modules in the decNumber        */
 /* library, and contains local type definitions, tuning parameters,    */
 /* etc.  It should not need to be used by application programs.        */
 /* decNumber.h or one of decDouble (etc.) must be included first.      */
+/*                                                                     */
 /* ------------------------------------------------------------------- */
 
 #if !defined(DECNUMBERLOC)
 # define DECNUMBERLOC
 # define DECVERSION    "decNumber 3.68"  /* Package Version [16 max.] */
-# define DECVERSEXT    "20210520p3"    /* Local Custom Version String */
+# define DECVERSEXT    "20210520p4"    /* Local Custom Version String */
 # define DECNLAUTHOR   "Mike Cowlishaw"               /* Who to blame */
 
 # include <stdlib.h>          /* for abs                              */
 # include <string.h>          /* for memset, strcpy                   */
 
-# ifndef _MSC_VER
+# if !defined(_MSC_VER)
 #  include <sys/param.h>
-# endif
+# endif /* if !defined(_MSC_VER) */
 
 # include <sys/types.h>
 
@@ -45,16 +49,16 @@
 #  include <endian.h>
 #  if !defined(LITTLE_ENDIAN) && defined(__LITTLE_ENDIAN)
 #   define LITTLE_ENDIAN __LITTLE_ENDIAN
-#  endif
+#  endif /* if !defined(LITTLE_ENDIAN) && defined(__LITTLE_ENDIAN) */
 #  if !defined(BIG_ENDIAN) && defined(__BIG_ENDIAN)
 #   define BIG_ENDIAN __BIG_ENDIAN
-#  endif
+#  endif /* if !defined(BIG_ENDIAN) && defined(__BIG_ENDIAN) */
 #  if !defined(BYTE_ORDER) && defined(__BYTE_ORDER)
 #   define BYTE_ORDER __BYTE_ORDER
-#  endif
+#  endif /* if !defined(BYTE_ORDER) && defined(__BYTE_ORDER) */
 # endif
 
-# ifdef __sun
+# if defined(__sun)
 #  include <sys/byteorder.h>
 #  define LITTLE_ENDIAN 1234
 #  define BIG_ENDIAN 4321
@@ -65,7 +69,7 @@
 #  else
 #   error "Cannot determine endian-ness of this Sun system."
 #  endif
-# endif
+# endif /* if defined(__sun) */
 
 # if defined(_AIX) && !defined(BYTE_ORDER)
 #  define LITTLE_ENDIAN 1234
@@ -128,7 +132,6 @@
 # endif
 
   /* Development-use definitions                                      */
-  typedef long int LI;        /* for printf arguments only            */
 # define DECNOINT  0          /* 1 to check no internal use of 'int'  */
                               /*   or stdint types                    */
 # if DECNOINT

@@ -59,13 +59,13 @@
 #include <string.h>
 #include <stdarg.h>
 
-#ifdef __GNUC__
+#if defined(__GNUC__)
 # define NO_RETURN   __attribute__ ((noreturn))
 # define UNUSED      __attribute__ ((unused))
 #else
 # define NO_RETURN
 # define UNUSED
-#endif
+#endif /* if defined(__GNUC__) */
 
 /* Win32 compatibility */
 #if defined(_WIN32)
@@ -79,19 +79,14 @@
 
 #include "libtelnet.h"
 
-#undef FREE
+#if defined(FREE)
+# undef FREE
+#endif /* if defined(FREE) */
 #define FREE(p) do  \
   {                 \
     free((p));      \
     (p) = NULL;     \
   } while(0)
-
-#ifdef TESTING
-# undef realloc
-# undef FREE
-# define FREE(p) free(p)
-# define realloc trealloc
-#endif /* ifdef TESTING */
 
 /* helper for Q-method option tracking */
 #define Q_US(q)    ((q).state & 0x0F)
@@ -180,7 +175,7 @@ static telnet_error_t _error(telnet_t *telnet, unsigned line,
 
         /* format informational text */
         va_start(va, fmt);
-        vsnprintf(buffer, sizeof(buffer), fmt, va);
+        (void)vsnprintf(buffer, sizeof(buffer), fmt, va);
         va_end(va);
 
         /* send error event to the user */
@@ -298,7 +293,7 @@ static __inline__ void _set_rfc1143(telnet_t *telnet, unsigned char telopt,
                                        "realloc() failed: %s", xstrerror_l(errno));
                        return;
                }
-               memset(&qtmp[telnet->q_size], 0, sizeof(telnet_rfc1143_t) * QUANTUM);
+               (void)memset(&qtmp[telnet->q_size], 0, sizeof(telnet_rfc1143_t) * QUANTUM);
                telnet->q       = qtmp;
                telnet->q_size += QUANTUM;
         }

@@ -44,9 +44,18 @@
 #include <errno.h>
 #include <unistd.h>
 
+#undef HAS_INCLUDE
+#if defined __has_include
+# define HAS_INCLUDE(inc) __has_include(inc)
+#else
+# define HAS_INCLUDE(inc) 0
+#endif /* if defined __has_include */
+
 #if defined(__linux__) && \
   ( defined(__x86_64__) || defined(__x86_64) || \
-    defined(__amd64__)  || defined(__amd64) )
+    defined(__amd64__)  || defined(__amd64) ) && \
+  HAS_INCLUDE(<linux/auxvec.h>)
+
 # include <linux/auxvec.h>
 # include <signal.h>
 # include <string.h>
@@ -226,14 +235,15 @@ main(int argc, char *argv[])
   return (exitStatus);
 }
 
-#else  /* ifdef __linux__ */
+#else  /* if defined(__linux__) */
 int
 main(void)
 {
-  (void)fprintf(stderr, "\rError: A Linux/x86_64 system is required.\r\n");
+  (void)fprintf(stderr, "\rError: System not supported.\r\n");
 
   return (EXIT_FAILURE);
 }
 #endif /* if defined(__linux__) &&
            ( defined(__x86_64__) || defined(__x86_64) ||
-             defined(__amd64__)  || defined(__amd64) ) */
+             defined(__amd64__)  || defined(__amd64) ) &&
+           HAS_INCLUDE(<linux/auxvec.h> */

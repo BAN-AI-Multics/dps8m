@@ -36,7 +36,7 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifndef SIM_FIO_H_
+#if !defined(SIM_FIO_H_)
 # define SIM_FIO_H_     0
 
 # define FLIP_SIZE        (1 << 16)               /* flip buf size */

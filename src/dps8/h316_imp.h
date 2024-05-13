@@ -36,7 +36,7 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifdef WITH_ABSI_DEV
+#if defined(WITH_ABSI_DEV)
 
 // Common modem and host parameters ...
 # define MI_NUM            5     // number of modem interfaces
@@ -179,14 +179,28 @@ struct _HIDB {
 };
 typedef struct _HIDB HIDB;
 
-// I can't believe Bob managed to live without these, but I can't!
-# ifndef LOBYTE  // these are in winsock.h too!
-#  define LOBYTE(x)    ((uint8_t) ( (x)        & 0xFF))
-#  define HIBYTE(x)    ((uint8_t) (((x) >> 8)  & 0xFF))
-#  define MKWORD(h,l) ((uint16_t) ( (((h)&0xFF)   << 8) | ((l)&0xFF) ))
-#  define LOWORD(x)   ((uint16_t) ( (x)        & 0xFFFF))
-#  define HIWORD(x)   ((uint16_t) (((x) >> 16) & 0xFFFF))
-#  define MKLONG(h,l) ((uint32_t) ( (((h)&0xFFFF) << 16) | ((l)&0xFFFF) ))
-# endif
+# if !defined(LOBYTE)
+#  define LOBYTE(x)    ((uint8_t) ( (x) & 0xFF))
+# endif /* if !defined(LOBYTE) */
 
-#endif /* ifdef WITH_ABSI_DEV */
+# if !defined(HIBYTE)
+#  define HIBYTE(x)    ((uint8_t) (((x) >> 8) & 0xFF))
+# endif /* if !defined(HIBYTE) */
+
+# if !defined(MKWORD)
+#  define MKWORD(h,l) ((uint16_t) ( (((h)&0xFF) << 8) | ((l)&0xFF) ))
+# endif /* if !defined(MKWORD) */
+
+# if !defined(LOWORD)
+#  define LOWORD(x)   ((uint16_t) ( (x) & 0xFFFF))
+# endif /* if !defined(LOWORD) */
+
+# if !defined(HIWORD)
+#  define HIWORD(x)   ((uint16_t) ( ((x) >> 16) & 0xFFFF) )
+# endif /* if !defined(HIWORD) */
+
+# if !defined(MKLONG)
+#  define MKLONG(h,l) ((uint32_t) ( (((h)&0xFFFF) << 16) | ((l)&0xFFFF) ))
+# endif /* if !defined(MKLONG) */
+
+#endif /* if defined(WITH_ABSI_DEV) */

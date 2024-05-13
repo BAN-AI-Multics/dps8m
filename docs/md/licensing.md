@@ -1070,52 +1070,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.**
 
 <!-- pagebreak -->
 
-#### vmpctool
-
-* **vmpctool** is a utility to query and influence the filesystem cache
-  of most UNIX® and POSIX™ conforming systems. It is derived from the
-  `vmtouch` utility written by **Doug Hoyte** and other contributors,
-  and is distributed under the terms of a **three-clause BSD license**.
-
-<!-- br -->
-
-**vmpctool License**
-
-* Copyright © 2009-2017 &nbsp; **Doug Hoyte** and contributors.
-* Copyright © 2020-2021 &nbsp; **Jeffrey H. Johnson** &nbsp;
-   \<[`trnsz@pobox.com`](mailto:trnsz@pobox.com)\>
-* Copyright © 2021-2024 &nbsp; **The DPS8M Development Team**
-
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
- 1. Redistributions of source code must retain the above copyright notice,
-    this list of conditions and the following disclaimer.
-
- 2. Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution.
-
- 3. The name of the author may not be used to endorse or promote products
-    derived from this software without specific prior written permission.
-
-**THIS SOFTWARE IS PROVIDED BY THE AUTHOR “_AS IS_”, AND ANY EXPRESS OR
-IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN
-NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.**
-
-----
-
-<!-- pagebreak -->
-
 #### musl libc
 
 * **musl libc** is a lightweight and standards conforming implementation
@@ -1199,7 +1153,7 @@ THE POSSIBILITY OF SUCH DAMAGE.**
 
 #### novdso
 
-* **novdso** is a wrapper, originally authored by **Daniel Teunis** that,
+* **novdso** is a wrapper, originally authored by **Daniel Teunis**, that
   forces the wrapped process to not use the Linux vDSO system call
   acceleration library (by overwriting the `AT_SYSINFO_EHDR` tag in its
   auxiliary vector) and allows for wrapped processes to be paused at startup

@@ -36,7 +36,7 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifndef SIM_TAPE_H_
+#if !defined(SIM_TAPE_H_)
 # define SIM_TAPE_H_    0
 
 /* SIMH/E11 tape format */
@@ -177,8 +177,10 @@ t_stat sim_tape_sprecsf (UNIT *uptr, uint32 count, uint32 *skipped);
 t_stat sim_tape_sprecsf_a (UNIT *uptr, uint32 count, uint32 *skipped, TAPE_PCALLBACK callback);
 t_stat sim_tape_spfilef (UNIT *uptr, uint32 count, uint32 *skipped);
 t_stat sim_tape_spfilef_a (UNIT *uptr, uint32 count, uint32 *skipped, TAPE_PCALLBACK callback);
-t_stat sim_tape_spfilebyrecf (UNIT *uptr, uint32 count, uint32 *skipped, uint32 *recsskipped, t_bool check_leot);
-t_stat sim_tape_spfilebyrecf_a (UNIT *uptr, uint32 count, uint32 *skipped, uint32 *recsskipped, t_bool check_leot, TAPE_PCALLBACK callback);
+t_stat sim_tape_spfilebyrecf \
+           (UNIT *uptr, uint32 count, uint32 *skipped, uint32 *recsskipped, t_bool check_leot);
+t_stat sim_tape_spfilebyrecf_a \
+           (UNIT *uptr, uint32 count, uint32 *skipped, uint32 *recsskipped, t_bool check_leot, TAPE_PCALLBACK callback);
 t_stat sim_tape_sprecr (UNIT *uptr, t_mtrlnt *bc);
 t_stat sim_tape_sprecr_a (UNIT *uptr, t_mtrlnt *bc, TAPE_PCALLBACK callback);
 t_stat sim_tape_sprecsr (UNIT *uptr, uint32 count, uint32 *skipped);
@@ -189,8 +191,12 @@ t_stat sim_tape_spfilebyrecr (UNIT *uptr, uint32 count, uint32 *skipped, uint32 
 t_stat sim_tape_spfilebyrecr_a (UNIT *uptr, uint32 count, uint32 *skipped, uint32 *recsskipped, TAPE_PCALLBACK callback);
 t_stat sim_tape_rewind (UNIT *uptr);
 t_stat sim_tape_rewind_a (UNIT *uptr, TAPE_PCALLBACK callback);
-t_stat sim_tape_position (UNIT *uptr, uint32 flags, uint32 recs, uint32 *recskipped, uint32 files, uint32 *fileskipped, uint32 *objectsskipped);
-t_stat sim_tape_position_a (UNIT *uptr, uint32 flags, uint32 recs, uint32 *recsskipped, uint32 files, uint32 *filesskipped, uint32 *objectsskipped, TAPE_PCALLBACK callback);
+t_stat sim_tape_position \
+           (UNIT *uptr, uint32 flags, uint32 recs, uint32 *recskipped, uint32 files,
+            uint32 *fileskipped, uint32 *objectsskipped);
+t_stat sim_tape_position_a \
+           (UNIT *uptr, uint32 flags, uint32 recs, uint32 *recsskipped, uint32 files,
+            uint32 *filesskipped, uint32 *objectsskipped, TAPE_PCALLBACK callback);
 t_stat sim_tape_reset (UNIT *uptr);
 t_bool sim_tape_bot (UNIT *uptr);
 t_bool sim_tape_wrp (UNIT *uptr);

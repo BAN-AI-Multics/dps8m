@@ -288,7 +288,6 @@ amsdw
 anaq
 aneg
 anld
-anormal
 ansa
 ansq
 anstr
@@ -849,6 +848,7 @@ dlcss
 dlen
 dlfcn
 dlopen
+dlpi
 dlsym
 dlvl
 dmant
@@ -2007,6 +2007,7 @@ nouc
 nout
 novalue
 novdso
+novector
 noverbose
 noverify
 nowait
@@ -2121,7 +2122,6 @@ ostart
 ostate
 osversion
 osvn
-oter
 outbuf
 outfifo
 outi
@@ -2197,6 +2197,7 @@ pgsz
 pgte
 phaf
 phdbg
+phdr
 phys
 physmem
 physpages
@@ -2955,7 +2956,9 @@ tchars
 tclient
 tcomp
 tcpip
+tcsa
 tcsaflush
+tcsanow
 tcsetattr
 tcsetpgrp
 tctime
@@ -4157,7 +4160,6 @@ newbkt
 newdata
 nextasgn
 nmax
-nmber
 nmerges
 noassoc
 noasynch
@@ -5276,7 +5278,6 @@ emchalt
 emcstart
 emcstop
 endm
-entrys
 ergo
 fbit
 fmask
@@ -5728,6 +5729,7 @@ pkgconf
 pkgs
 plog
 powerpcle
+printf
 pvsreport
 ranlib
 roscspell
@@ -5754,6 +5756,7 @@ brtl
 iwmmxt
 librt
 lutil
+notparallel
 
 FILETYPE: NSIS; .nsi
 abortwarning
@@ -5830,6 +5833,7 @@ linestate
 splatting
 unevaluable
 unnest
+xconstexp
 xxxxxx
 
 FILEID: 8ce0c4f6-f631-11ec-a3f0-80ee73e9b8e7
@@ -6004,6 +6008,7 @@ anyerror
 argv
 arml
 armv
+atime
 basename
 bitmode
 brewpath
@@ -6013,6 +6018,7 @@ compressxt
 cppcpp
 cppflags
 cstd
+ctime
 dbuildinfo
 dclock
 dduma
@@ -6026,6 +6032,7 @@ dumalibs
 duse
 dver
 endif
+exthdr
 fcntl
 findstring
 flock
@@ -6111,6 +6118,7 @@ endif
 ibmaix
 ifndef
 listchars
+notparallel
 oslevel
 
 FILEID: 27fa3230-f62b-11ec-8cab-80ee73e9b8e7
@@ -6135,6 +6143,7 @@ colorcolumn
 daix
 dbsd
 dgnu
+dhdbg
 disolts
 dneed
 dperf
@@ -6161,6 +6170,7 @@ listchars
 lpthread
 ltosyn
 multiprocessing
+notparallel
 osap
 printf
 simulation
@@ -6283,6 +6293,7 @@ listchars
 newinstall
 norebuild
 notparallel
+obsoleted
 printf
 superclean
 warm
@@ -6407,7 +6418,9 @@ srcs
 stringop
 sunlint
 wextra
+wnounknownwarnings
 wpedantic
+wstringop
 
 FILEID: 71c4cc4f-f630-11ec-97d6-80ee73e9b8e7
 abcdefxp
@@ -6470,14 +6483,16 @@ aren
 didn
 doesn
 eposit
+fadbe
 figuration
 ices
+llvmorg
 odifiers
 overrunat
 rsion
 shouldn
 ssign
-stript
+strip
 tures
 ueue
 uildinfo
@@ -6534,7 +6549,6 @@ darksisers
 doesn
 nnnn
 nonidentical
-pach
 refetches
 therefrom
 unborrow
@@ -6543,6 +6557,7 @@ yyyymmdd
 
 FILEID: 4182f303-f62e-11ec-9475-80ee73e9b8e7
 doesn
+looprtc
 
 FILEID: 2fdee814-f62f-11ec-8f3d-80ee73e9b8e7
 abcdef
@@ -6623,6 +6638,7 @@ compressxt
 cppcpp
 crdpun
 crdrdr
+crlf
 dbuild
 dcross
 decn
@@ -6687,6 +6703,7 @@ printuk
 procdef
 procsrt
 psabi
+qflag
 qshowmacros
 realclean
 reallyclean
@@ -7887,7 +7904,6 @@ identifierstyle
 idrule
 ifdisplaystyle
 ightmargin
-indention
 inespread
 istoffigures
 istoftables
@@ -8300,6 +8316,7 @@ tryagain
 unparse
 
 FILEID: 268d2436-f2ea-11ed-9806-80ee73e9b8e7
+charset
 editmsg
 
 FILEID: 5d4185d0-fefd-11ed-b27a-80ee73e9b8e7
@@ -8440,6 +8457,187 @@ tama
 FILEID: a5f69ec5-f630-11ec-bcc3-80ee73e9b8e7
 ertv
 
+FILEID: 18701732-f75f-11ee-85ff-80ee73e9b8e7
+ansifilter
+dpkg
+libboost
+libfmt
+printf
+saalen
+useradd
+wine
+workdir
+
+FILEID: 1491bdaa-f75f-11ee-9c68-80ee73e9b8e7
+destdir
+dndebug
+fpie
+jprotopopov
+kefir
+musl
+printf
+registry
+workdir
+
+FILEID: 2d677914-f75f-11ee-8371-80ee73e9b8e7
+printf
+registry
+revived
+werror
+workdir
+
+FILEID: 1bc8ad72-f75f-11ee-99e7-80ee73e9b8e7
+printf
+
+FILEID: 04402bea-f75e-11ee-a7c2-80ee73e9b8e7
+buildkit
+mktemp
+tmplog
+
+FILEID: 11eb6a88-f75f-11ee-a997-80ee73e9b8e7
+conda
+dpcpp
+intelpython
+printf
+sbin
+sysroot
+
+FILEID: 2a232ab4-f75f-11ee-a08a-80ee73e9b8e7
+pigz
+printf
+
+FILEID: 22deec66-f75f-11ee-ac5f-80ee73e9b8e7
+autoreconf
+cisco
+openosc
+printf
+
+FILEID: 5338303a-f75e-11ee-b8c2-80ee73e9b8e7
+adduser
+advancecomp
+aesccm
+allowerasing
+ansifilter
+atool
+binutils
+bzip
+camellia
+ccache
+chacha
+chibicc
+ciphersuites
+cmake
+copr
+coveralls
+deps
+diffutils
+dlfcn
+doxygen
+ecdsa
+elinks
+fakeroot
+flto
+fontconfig
+fping
+gcovr
+gitignore
+golang
+harfbuzz
+htmlreport
+iconv
+imake
+keepcache
+ldconfig
+libasan
+libfaketime
+libnsl
+libtirpc
+libtool
+libubsan
+libxml
+libxslt
+mksh
+moreutils
+musl
+nmap
+nodejs
+nodesource
+nodocs
+nogpgcheck
+nsiswrapper
+opensslcnf
+pbzip
+pigz
+pkgconf
+printf
+procps
+psmisc
+quay
+rpmconf
+rsae
+seclevel
+setuptools
+srvany
+strace
+tcsh
+tsflags
+ucrt
+uncrustify
+xdelta
+yasm
+yselkowitz
+
+FILEID: 308a8adc-f75f-11ee-908f-80ee73e9b8e7
+baseurl
+deps
+gpgcheck
+keepcache
+printf
+viva
+
+FILEID: 0eae6960-f75f-11ee-be2e-80ee73e9b8e7
+golang
+keepcache
+modcache
+printf
+sudo
+testcache
+
+FILEID: 1efcf84a-f75f-11ee-8a77-80ee73e9b8e7
+keepcache
+nvhpc
+printf
+
+FILEID: 35d7d846-f79b-11ee-9c8d-80ee73e9b8e7
+biber
+keepcache
+lout
+pdftk
+poppler
+printf
+pygments
+qpdf
+
+FILEID: 66d20b70-f79a-11ee-9737-80ee73e9b8e7
+chmod
+conda
+miniconda
+printf
+sbin
+
+FILEID: d1f78a98-f7a8-11ee-a957-80ee73e9b8e7
+elease
+extrainfo
+imulator
+ipwd
+libwinpthread
+useddef
+
+FILEID: 77790b9a-f7d1-11ee-a80f-80ee73e9b8e7
+keepcache
+nogpgcheck
+printf
+
 NATURAL:
 abandon
 abandoned
@@ -8511,7 +8709,6 @@ activated
 activating
 activation
 active
-activites
 activities
 activity
 acts
@@ -8626,6 +8823,7 @@ ambiguous
 among
 amount
 amsterdam
+anaconda
 analogous
 analogs
 analysis
@@ -8675,7 +8873,6 @@ applied
 applies
 apply
 applying
-appoximately
 appreciated
 approach
 approaches
@@ -8865,7 +9062,6 @@ began
 begin
 beginning
 begins
-behaivor
 behalf
 behaves
 behavior
@@ -8959,6 +9155,7 @@ book
 bookmark
 boolean
 booleans
+boost
 boot
 bootable
 booted
@@ -9183,10 +9380,12 @@ chuck
 chunked
 chunking
 chunks
+cipher
 circuiting
 circuitry
 circular
 circumstances
+ckermit
 cksum
 claim
 claims
@@ -9422,6 +9621,7 @@ consuming
 contact
 contained
 container
+containers
 containing
 contains
 contention
@@ -9447,7 +9647,6 @@ contributors
 controlled
 controllers
 controlling
-controlls
 controls
 convenience
 conveniently
@@ -9544,6 +9743,7 @@ cross
 crossing
 cruft
 crypt
+crypto
 cscope
 ctags
 curl
@@ -9554,6 +9754,7 @@ curses
 cursor
 curves
 customer
+customers
 customized
 cutoff
 cutting
@@ -9702,6 +9903,7 @@ deposit
 deposited
 deposits
 deprecated
+deps
 depth
 derail
 dereference
@@ -10057,10 +10259,10 @@ entry
 entrypoint
 enumerated
 enumerator
-enviroment
 environment
 environmental
 environments
+envrc
 ephemeral
 epub
 equal
@@ -10193,7 +10395,6 @@ explain
 explanations
 explicit
 explicitly
-explict
 exploited
 exploits
 exponential
@@ -10337,6 +10538,7 @@ flaw
 flawfinder
 flawless
 flex
+flexible
 flickering
 flip
 flipped
@@ -10371,6 +10573,7 @@ foreground
 foreign
 forever
 forfeiting
+forge
 forked
 format
 formation
@@ -10425,7 +10628,6 @@ functionality
 functioning
 functions
 funky
-funtions
 furnished
 furnishes
 further
@@ -10473,6 +10675,7 @@ gmail
 gmake
 gnomes
 gnubin
+gnupg
 gnuplot
 goal
 goals
@@ -10924,7 +11127,6 @@ interruption
 interrupts
 interval
 intervals
-intializer
 into
 intrinsically
 intrinsics
@@ -11105,6 +11307,7 @@ libexec
 libraries
 library
 libs
+libsir
 libtelnet
 libuv
 libzstd
@@ -11769,15 +11972,14 @@ overlaid
 overlap
 overlapping
 overlay
-overlayed
 overlaying
 overprint
 overpunched
 overread
 overridden
 override
+overriden
 overrides
-overrriden
 overrun
 overseer
 oversized
@@ -11926,6 +12128,7 @@ picking
 picture
 pierce
 pieter
+pigz
 pine
 pings
 pinning
@@ -11990,7 +12193,6 @@ positioned
 positioning
 positions
 positive
-positon
 posix
 posixly
 possibility
@@ -12000,7 +12202,6 @@ post
 postconditioning
 posted
 poster
-postiion
 posting
 postprocessing
 posts
@@ -12019,10 +12220,10 @@ preamble
 prebuilt
 precalculate
 preceded
+preceded
 precedence
 precedes
 preceding
-preceeded
 precise
 precision
 precisions
@@ -12373,6 +12574,7 @@ regions
 register
 registered
 registers
+registry
 regressions
 regularly
 reinspect
@@ -12568,6 +12770,7 @@ rights
 ring
 ringing
 rings
+ripgrep
 ripout
 riscv
 rises
@@ -13170,6 +13373,7 @@ swapping
 swaps
 sweep
 swenson
+swig
 switched
 switches
 switching
@@ -13178,6 +13382,7 @@ symbolic
 symbolically
 symbols
 symlink
+symlinks
 symmetric
 symmetry
 symptom
@@ -13809,6 +14014,7 @@ williams
 willingness
 window
 windows
+wine
 winpthreads
 wins
 winsock
@@ -13825,6 +14031,7 @@ wonder
 word
 words
 workarounds
+workdir
 worker
 workflow
 working

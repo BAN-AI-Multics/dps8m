@@ -77,7 +77,7 @@
 #include "udplib.h"
 #include "h316_imp.h"
 
-#ifdef WITH_ABSI_DEV
+#if defined(WITH_ABSI_DEV)
 # define MAXLINKS        10      // maximum number of simultaneous connections
 //   This constant determines the longest possible IMP data payload that can be
 // sent. Most IMP messages are trivially small - 68 words or so - but, when one
@@ -157,19 +157,19 @@ static int udp_parse_remote (int link, char * premote)
     char host [64], port [16];
     if (* premote == '\0')
       return -1;
-    memset (udp_links [link] . lport, 0, sizeof (udp_links [link] . lport));
-    memset (udp_links [link] . rhost, 0, sizeof (udp_links [link] . rhost));
-    memset (udp_links [link] . rport, 0, sizeof (udp_links [link] . rport));
+    (void)memset (udp_links [link] . lport, 0, sizeof (udp_links [link] . lport));
+    (void)memset (udp_links [link] . rhost, 0, sizeof (udp_links [link] . rhost));
+    (void)memset (udp_links [link] . rport, 0, sizeof (udp_links [link] . rport));
     // Handle the llll::rrrr case first
     if (2 == sscanf (premote, "%d::%d", & lportno, & rport))
       {
         if ((lportno < 1) || (lportno >65535) || (rport < 1) || (rport >65535))
          return -1;
-        sprintf (udp_links [link] . lport, "%d", lportno);
-        udp_links [link] . lportno =  lportno;
-        sprintf (udp_links [link] . rhost, "localhost");
-        sprintf (udp_links [link] . rport, "%d", rport);
-        udp_links [link] . rportno = rport;
+        (void)sprintf (udp_links [link] . lport, "%d", lportno);
+                       udp_links [link] . lportno =  lportno;
+        (void)sprintf (udp_links [link] . rhost, "localhost");
+        (void)sprintf (udp_links [link] . rport, "%d", rport);
+                       udp_links [link] . rportno = rport;
         return 0;
       }
 
@@ -177,17 +177,17 @@ static int udp_parse_remote (int link, char * premote)
     lportno = (int) strtoul (premote, & end, 10);
     if ((* end == ':') && (lportno > 0))
       {
-        sprintf (udp_links [link] . lport, "%d", lportno);
-        udp_links [link] . lportno =  lportno;
+        (void)sprintf (udp_links [link] . lport, "%d", lportno);
+                       udp_links [link] . lportno =  lportno;
         premote = end + 1;
       }
 
     if (sim_parse_addr (premote, host, sizeof (host), "localhost", port,
                         sizeof (port), NULL, NULL) != -1 /* SCPE_OK */)
       return -1;
-    sprintf (udp_links [link] . rhost, "%s", host);
-    sprintf (udp_links [link] . rport, "%s", port);
-    udp_links [link] . rportno = atoi (port);
+    (void)sprintf (udp_links [link] . rhost, "%s", host);
+    (void)sprintf (udp_links [link] . rport, "%s", port);
+                   udp_links [link] . rportno = atoi (port);
     if (udp_links [link] . lport [0] == '\0')
       {
         strcpy (udp_links [link] . lport, port);
@@ -195,7 +195,7 @@ static int udp_parse_remote (int link, char * premote)
       }
     if ((strcmp (udp_links [link] . lport, port) == 0) &&
         (strcmp ("localhost", host) == 0))
-      fprintf (stderr, "WARNING - use different transmit and receive ports!\n");
+      (void)fprintf (stderr, "WARNING - use different transmit and receive ports!\n");
 
     return 0;
   }
@@ -209,7 +209,7 @@ static int udp_find_free_link (void)
     {
       if (udp_links [i] . used == 0)
         {
-          memset (& udp_links [i], 0, sizeof (UDP_LINK));
+          (void)memset (& udp_links [i], 0, sizeof (UDP_LINK));
           return i;
         }
      }
@@ -246,7 +246,9 @@ int udp_create (const char * premote, int * pln)
       return -2;
 # if 0
   // Create the socket connection to the destination ...
-  sprintf(linkinfo, "Buffer=%d,Line=%d,%s,UDP,Connect=%s", (int)(sizeof(UDP_PACKET)+sizeof(int32_t)), link, udp_links[link].lport, udp_links[link].rhostport);
+  (void)sprintf(linkinfo, "Buffer=%d,Line=%d,%s,UDP,Connect=%s",
+                (int)(sizeof(UDP_PACKET)+sizeof(int32_t)), link,
+                udp_links[link].lport, udp_links[link].rhostport);
   ret = tmxr_open_master (&udp_tmxr, linkinfo);
   if (ret != SCPE_OK) return ret;
 # endif
@@ -260,7 +262,7 @@ int udp_create (const char * premote, int * pln)
       return -4;
 
     struct sockaddr_in si_me;
-    memset ((char *) & si_me, 0, sizeof (si_me));
+    (void)memset ((char *) & si_me, 0, sizeof (si_me));
 
     si_me . sin_family = AF_INET;
     si_me . sin_port = htons ((uint16_t) udp_links [link] . lportno);
@@ -296,8 +298,11 @@ int udp_create (const char * premote, int * pln)
      //udp_tmxr.last_poll_time = 1;          // h316'a use of TMXR doesn't poll periodically for connects
      //tmxr_poll_conn (&udp_tmxr);           // force connection initialization now
      //udp_tmxr.last_poll_time = 1;          // h316'a use of TMXR doesn't poll periodically for connects
-     //sim_debug(IMP_DBG_UDP, dptr, "link %d - listening on port %s and sending to %s\n", link, udp_links[link].lport, udp_links[link].rhostport);
-printf ("link %d - listening on port %s and sending to %s:%s\n", link, udp_links [link] . lport, udp_links [link] . rhost, udp_links [link] . rport);
+     //sim_debug(IMP_DBG_UDP, dptr, "link %d - listening on port %s and sending to %s\n",
+     //          link, udp_links[link].lport, udp_links[link].rhostport);
+(void)printf ("link %d - listening on port %s and sending to %s:%s\n",
+              link, udp_links [link] . lport,
+              udp_links [link] . rhost, udp_links [link] . rport);
 
     return 0;
   }
@@ -318,7 +323,7 @@ int udp_release (int link)
     close (udp_links [link] . sock);
     udp_links [link] . used = false;
     //sim_debug(IMP_DBG_UDP, dptr, "link %d - closed\n", link);
-printf("link %d - closed\n", link);
+(void)printf("link %d - closed\n", link);
 
     return 0;
   }
@@ -368,7 +373,8 @@ int udp_send (int link, uint16_t * pdata, uint16_t count, uint16_t flags)
         return -2;
       }
     //sim_debug(IMP_DBG_UDP, dptr, "link %d - packet sent (sequence=%d, length=%d)\n", link, ntohl(pkt.sequence), ntohs(pkt.count));
-printf ("link %d - packet sent (sequence=%u, length=%u)\n", link, ntohl (pkt . sequence), ntohs (pkt . count));
+(void)printf ("link %d - packet sent (sequence=%u, length=%u)\n",
+              link, ntohl (pkt . sequence), ntohs (pkt . count));
     return 0;
   }
 
@@ -408,7 +414,7 @@ static int udp_receive_packet (int link, UDP_PACKET * ppkt, size_t pktsiz)
           return 0;
         return -1;
       }
-//printf ("udp_receive_packet returns %ld\n", (long) n);
+//(void)printf ("udp_receive_packet returns %ld\n", (long) n);
     return (int) n;
   }
 
@@ -444,20 +450,24 @@ int udp_receive (int link, uint16_t * pdata, uint16_t maxbuf)
         // First do some header checks for a valid UDP packet ...
         if (((size_t) pktlen) < UDP_HEADER_LEN)
           {
-            //sim_debug(IMP_DBG_UDP, dptr, "link %d - received packet w/o header (length=%d)\n", link, pktlen);
+            //sim_debug(IMP_DBG_UDP, dptr, "link %d - received packet w/o header (length=%d)\n",
+            //          link, pktlen);
             continue;
           }
         magic = ntohl (pkt . magic);
         if (magic != MAGIC)
           {
-            //sim_debug(IMP_DBG_UDP, dptr, "link %d - received packet w/bad magic number (magic=%08x)\n", link, magic);
+            //sim_debug(IMP_DBG_UDP, dptr, "link %d - received packet w/bad magic number (magic=%08x)\n",
+            //          link, magic);
             continue;
           }
         implen = ntohs (pkt . count);
         explen = (int32_t) UDP_HEADER_LEN + implen * (int32_t) sizeof (uint16_t);
         if (explen != pktlen)
           {
-            //sim_debug(IMP_DBG_UDP, dptr, "link %d - received packet length wrong (expected=%d received=%d)\n", link, explen, pktlen);
+            //sim_debug(IMP_DBG_UDP, dptr,
+            //          "link %d - received packet length wrong (expected=%d received=%d)\n",
+            //          link, explen, pktlen);
             continue;
           }
 
@@ -486,12 +496,16 @@ int udp_receive (int link, uint16_t * pdata, uint16_t maxbuf)
           }
         else if (pktseq < udp_links [link] . rxsequence)
           {
-            //sim_debug(IMP_DBG_UDP, dptr, "link %d - received packet out of sequence 1 (expected=%d received=%d\n", link, udp_links[link].rxsequence, pktseq);
+            //sim_debug(IMP_DBG_UDP, dptr,
+            //          "link %d - received packet out of sequence 1 (expected=%d received=%d\n",
+            //          link, udp_links[link].rxsequence, pktseq);
             continue;  // discard this packet!
           }
         else if (pktseq != udp_links [link] . rxsequence)
           {
-            //sim_debug(IMP_DBG_UDP, dptr, "link %d - received packet out of sequence 2 (expected=%d received=%d\n", link, udp_links[link].rxsequence, pktseq);
+            //sim_debug(IMP_DBG_UDP, dptr,
+            //          "link %d - received packet out of sequence 2 (expected=%d received=%d\n",
+            //          link, udp_links[link].rxsequence, pktseq);
           }
         udp_links [link] . rxsequence = pktseq + 1;
 
@@ -504,7 +518,8 @@ int udp_receive (int link, uint16_t * pdata, uint16_t maxbuf)
 
         // Copy the data to the H316 memory and we're done!
         //sim_debug (IMP_DBG_UDP, dptr, "link %d - packet received (sequence=%d, length=%d)\n", link, pktseq, pktlen);
-printf ("link %lu - packet received (sequence=%lu, length=%lu)\n", (unsigned long)link, (unsigned long)pktseq, (unsigned long)pktlen);
+(void)printf ("link %lu - packet received (sequence=%lu, length=%lu)\n",
+              (unsigned long)link, (unsigned long)pktseq, (unsigned long)pktlen);
         for (i = 0;  i < (implen < maxbuf ? implen : maxbuf);  ++ i)
           * pdata ++ = ntohs (pkt . data [i]);
         return implen;
@@ -514,8 +529,8 @@ printf ("link %lu - packet received (sequence=%lu, length=%lu)\n", (unsigned lon
     return pktlen;
   }
 
-//#define TEST
-# ifdef TEST
+//#define TEST__
+# if defined(TEST__)
 
 #  define CBUFSIZE        256
 #  define SCPE_ARG -1
@@ -548,7 +563,9 @@ printf ("link %lu - packet received (sequence=%lu, length=%lu)\n", (unsigned lon
                         doesn't match the parsed host)
 */
 
-int sim_parse_addr (const char *cptr, char *host, size_t host_len, const char *default_host, char *port, size_t port_len, const char *default_port, const char *validate_addr)
+int sim_parse_addr \
+        (const char *cptr, char *host, size_t host_len, const char *default_host,
+         char *port, size_t port_len, const char *default_port, const char *validate_addr)
 {
 char gbuf[CBUFSIZE];
 char *hostp, *portp;
@@ -558,9 +575,9 @@ unsigned long portval;
 if ((cptr == NULL) || (*cptr == 0))
     return SCPE_ARG;
 if ((host != NULL) && (host_len != 0))
-    memset (host, 0, host_len);
+    (void)memset (host, 0, host_len);
 if ((port != NULL) && (port_len != 0))
-    memset (port, 0, port_len);
+    (void)memset (port, 0, port_len);
 gbuf[sizeof(gbuf)-1] = '\0';
 strncpy (gbuf, cptr, sizeof(gbuf)-1);
 hostp = gbuf;                                           /* default addr */
@@ -655,8 +672,8 @@ int main (int argc, char * argv [])
     rc = udp_create ("4500::4426", & linkno);
     if (rc < 0)
       {
-        fprintf (stderr, "\rFATAL: udp_create() failed in %s:%d\r\n",
-                 __func__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: udp_create() failed in %s:%d\r\n",
+                       __func__, __LINE__);
         exit (1);
       }
 
@@ -667,26 +684,26 @@ int main (int argc, char * argv [])
         rc = udp_receive (linkno, pkt, psz);
         if (rc < 0)
           {
-            fprintf (stderr, "\rFATAL: udp_receive() failed in %s:%d\r\n",
-                     __func__, __LINE__);
+            (void)fprintf (stderr, "\rFATAL: udp_receive() failed in %s:%d\r\n",
+                           __func__, __LINE__);
             exit (1);
           }
         else if (rc == 0)
           {
-            fprintf (stderr, "\rudp_receive 0\r\n");
+            (void)fprintf (stderr, "\rudp_receive 0\r\n");
             sleep (1);
           }
         else
           {
             for (int i = 0; i < rc; i ++)
               {
-                fprintf (stderr, "  %06o  %04x  ", pkt [i], pkt [i]);
+                (void)fprintf (stderr, "  %06o  %04x  ", pkt [i], pkt [i]);
                 for (int b = 0; b < 16; b ++)
-                  fprintf (stderr, "%c", pkt [i] & (1 << b) ? '1' : '0');
-                fprintf (stderr, "\n");
+                  (void)fprintf (stderr, "%c", pkt [i] & (1 << b) ? '1' : '0');
+                (void)fprintf (stderr, "\n");
               }
           }
       }
   }
-# endif
-#endif /* #ifdef WITH_ABSI_DEV */
+# endif /* if defined(TEST__) */
+#endif /* if defined(WITH_ABSI_DEV) */

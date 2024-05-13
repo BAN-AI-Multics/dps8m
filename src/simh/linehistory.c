@@ -45,25 +45,26 @@
  * -------------------------------------------------------------------------
  */
 
-#ifndef _POSIX_C_SOURCE
+#if !defined(_POSIX_C_SOURCE)
 # define _POSIX_C_SOURCE 200809L
-#endif /* ifndef _POSIX_C_SOURCE */
+#endif /* if !defined(_POSIX_C_SOURCE) */
 
-#if !defined ( __MINGW32__ ) && !defined ( CROSS_MINGW32 ) && !defined ( CROSS_MINGW64 ) && !defined ( __MINGW64__ ) && !defined ( _MSC_VER ) && !defined ( _MSC_BUILD )
+#if !defined(__MINGW32__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) && \
+    !defined(__MINGW64__) && !defined(_MSC_VER) && !defined(_MSC_BUILD)
 
-# if defined( __sun ) && defined( __SVR4 )
-#  ifndef __EXTENSIONS__
+# if defined(__sun) && defined(__SVR4)
+#  if !defined(__EXTENSIONS__)
 #   define __EXTENSIONS__ 1
-#  endif /* ifndef __EXTENSIONS__ */
-# endif /* if defined( __sun ) && defined( __SVR4 ) */
+#  endif /* if !defined(__EXTENSIONS__) */
+# endif /* if defined(__sun) && defined(__SVR4) */
 # include <termios.h>
-# if defined( __sun ) && defined( __SVR4 )
+# if defined(__sun) && defined(__SVR4)
 #  include <sys/termiox.h>
-# endif /* if defined( __sun ) && defined( __SVR4 ) */
+# endif /* if defined(__sun) && defined(__SVR4) */
 # include "linehistory.h"
-# ifndef __NetBSD__
+# if !defined(__NetBSD__)
 #  include "../dps8/dps8.h"
-# endif /* ifndef __NetBSD__ */
+# endif /* if !defined(__NetBSD__) */
 # include <ctype.h>
 # include <errno.h>
 # include <stdio.h>
@@ -75,19 +76,14 @@
 # include <sys/types.h>
 # include <unistd.h>
 
-# undef FREE
+# if defined(FREE)
+#  undef FREE
+# endif /* if defined(FREE) */
 # define FREE(p) do  \
   {                  \
     free((p));       \
     (p) = NULL;      \
   } while(0)
-
-# ifdef TESTING
-#  undef realloc
-#  undef FREE
-#  define FREE(p) free(p)
-#  define realloc trealloc
-# endif /* ifdef TESTING */
 
 # define LINENOISE_DEFAULT_HISTORY_MAX_LEN  100
 # define LINENOISE_MAX_LINE                4096
@@ -96,20 +92,20 @@ static char *unsupported_term[] = {
   "dumb", "cons25", "emacs", NULL
 };
 
-# ifdef LH_COMPLETION
+# if defined(LH_COMPLETION)
 static linenoiseCompletionCallback *completionCallback = NULL;
-# endif /* ifdef LH_COMPLETION */
+# endif /* if defined(LH_COMPLETION) */
 
-# ifdef LH_HINTS
+# if defined(LH_HINTS)
 static linenoiseHintsCallback *hintsCallback           = NULL;
 static linenoiseFreeHintsCallback *freeHintsCallback   = NULL;
-# endif /* ifdef LH_HINTS */
+# endif /* if defined(LH_HINTS) */
 
 static struct termios orig_termios; /* In order to restore at exit.*/
 
-# ifdef LH_MASKMODE
+# if defined(LH_MASKMODE)
 static int maskmode          = 0;   /* Show "**" instead of input for passwords */
-# endif /* ifdef LH_MASKMODE */
+# endif /* if defined(LH_MASKMODE) */
 
 static int rawmode           = 0;
 static int mlmode            = 0;   /* Multi line mode. Default is single line. */
@@ -167,7 +163,7 @@ static void linenoiseAtExit(void);
 static void refreshLine(struct linenoiseState *l);
 size_t pstrlen(const char *s);
 
-# ifdef LH_MASKMODE
+# if defined(LH_MASKMODE)
 
 /*
  * Enable "mask mode". When it is enabled, instead of the input that
@@ -188,7 +184,7 @@ linenoiseMaskModeDisable(void)
 {
   maskmode = 0;
 }
-# endif /* ifdef LH_MASKMODE */
+# endif /* if defined(LH_MASKMODE) */
 
 /* Set if to use or not the multi line mode. */
 void
@@ -379,10 +375,8 @@ getColumns(int ifd, int ofd)
     if (cols > start)
     {
       char seq[32];
-      snprintf(seq, sizeof ( seq ), "\x1b[%dD", cols - start);
-      if (write(ofd, seq, strlen(seq)) == -1)
-      { /* Can't recover... */
-      }
+      (void)snprintf(seq, sizeof ( seq ), "\x1b[%dD", cols - start);
+      if (write(ofd, seq, strlen(seq)) == -1) { /* Can't recover... */ }
     }
 
     return ( cols );
@@ -405,7 +399,7 @@ linenoiseClearScreen(void)
   }
 }
 
-# ifdef LH_COMPLETION
+# if defined(LH_COMPLETION)
 
 /*
  * Beep, used for completion when there is nothing to complete or when all
@@ -415,8 +409,9 @@ linenoiseClearScreen(void)
 static void
 linenoiseBeep(void)
 {
-  fprintf(stderr, "\x7");
-  fflush(stderr);
+  (void)fflush(stdout);
+  (void)fprintf(stderr, "\x7");
+  (void)fflush(stderr);
 }
 
 /* Free a list of completion option populated by linenoiseAddCompletion(). */
@@ -526,9 +521,9 @@ linenoiseSetCompletionCallback(linenoiseCompletionCallback *fn)
   completionCallback = fn;
 }
 
-# endif /* ifdef LH_COMPLETION */
+# endif /* if defined(LH_COMPLETION) */
 
-# ifdef LH_HINTS
+# if defined(LH_HINTS)
 
 /*
  * Register a hits function to be called to show hits to the user at the
@@ -552,9 +547,9 @@ linenoiseSetFreeHintsCallback(linenoiseFreeHintsCallback *fn)
   freeHintsCallback = fn;
 }
 
-# endif /* ifdef LH_HINTS */
+# endif /* if defined(LH_HINTS) */
 
-# ifdef LH_COMPLETION
+# if defined(LH_COMPLETION)
 
 /*
  * This function is used by the callback function registered by the user
@@ -586,7 +581,7 @@ linenoiseAddCompletion(linenoiseCompletions *lc, const char *str)
   lc->cvec[lc->len++] = copy;
 }
 
-# endif /* ifdef LH_COMPLETION */
+# endif /* if defined(LH_COMPLETION) */
 
 /*
  * We define a very simple "append buffer" structure, that is an heap
@@ -634,7 +629,7 @@ abFree(const struct abuf *ab)
   free(ab->b); /* X-LINTED: FREE */
 }
 
-# ifdef LH_HINTS
+# if defined(LH_HINTS)
 
 /*
  * Helper of refreshSingleLine() and refreshMultiLine() to show hints
@@ -667,7 +662,7 @@ refreshShowHints(struct abuf *ab, const struct linenoiseState *l, int plen)
 
       if (color != -1 || bold != 0)
       {
-        snprintf(seq, sizeof ( seq ), "\033[%d;%d;49m", bold, color);
+        (void)snprintf(seq, sizeof ( seq ), "\033[%d;%d;49m", bold, color);
       }
       else
       {
@@ -690,7 +685,7 @@ refreshShowHints(struct abuf *ab, const struct linenoiseState *l, int plen)
   }
 }
 
-# endif /* ifdef LH_HINTS */
+# endif /* if defined(LH_HINTS) */
 
 /*
  * Single line low level line refresh.
@@ -723,11 +718,11 @@ refreshSingleLine(const struct linenoiseState *l)
 
   abInit(&ab);
   /* Cursor to left edge */
-  snprintf(seq, sizeof ( seq ), "\r");
+  (void)snprintf(seq, sizeof ( seq ), "\r");
   abAppend(&ab, seq, strlen(seq));
   /* Write the prompt and the current buffer content */
   abAppend(&ab, l->prompt, strlen(l->prompt));
-# ifdef LH_MASKMODE
+# if defined(LH_MASKMODE)
   if (maskmode == 1)
   {
     while (len--)
@@ -737,20 +732,20 @@ refreshSingleLine(const struct linenoiseState *l)
   }
   else
   {
-# endif /* ifdef LH_MASKMODE */
+# endif /* if defined(LH_MASKMODE) */
   abAppend(&ab, buf, len);
-# ifdef LH_MASKMODE
+# if defined(LH_MASKMODE)
 }
-# endif /* ifdef LH_MASKMODE */
-# ifdef LH_HINTS
+# endif /* if defined(LH_MASKMODE) */
+# if defined(LH_HINTS)
   /* Show hits if any. */
   refreshShowHints(&ab, l, plen);
-# endif /* ifdef LH_HINTS */
+# endif /* if defined(LH_HINTS) */
   /* Erase to right */
-  snprintf(seq, sizeof ( seq ), "\x1b[0K");
+  (void)snprintf(seq, sizeof ( seq ), "\x1b[0K");
   abAppend(&ab, seq, strlen(seq));
   /* Move cursor to original position. */
-  snprintf(seq, sizeof ( seq ), "\r\x1b[%dC", (int)( pos + plen ));
+  (void)snprintf(seq, sizeof ( seq ), "\r\x1b[%dC", (int)( pos + plen ));
   abAppend(&ab, seq, strlen(seq));
   if (write(fd, ab.b, ab.len) == -1)
   { /* Can't recover from write error. */
@@ -775,7 +770,7 @@ refreshMultiLine(struct linenoiseState *l)
              / l->cols; /* rows used by current buf. */
   int rpos = ( plen + l->oldpos + l->cols ) / l->cols; /* cursor relative row. */
   int rpos2; /* rpos after refresh. */
-  int col; /* colum position, zero-based. */
+  int col; /* column position, zero-based. */
   int old_rows = l->maxrows;
   int fd = l->ofd, j;
   struct abuf ab;
@@ -794,24 +789,24 @@ refreshMultiLine(struct linenoiseState *l)
   abInit(&ab);
   if (old_rows - rpos > 0)
   {
-    snprintf(seq, sizeof ( seq ), "\x1b[%dB", old_rows - rpos);
+    (void)snprintf(seq, sizeof ( seq ), "\x1b[%dB", old_rows - rpos);
     abAppend(&ab, seq, strlen(seq));
   }
 
   /* Now for every row clear it, go up. */
   for (j = 0; j < old_rows - 1; j++)
   {
-    snprintf(seq, sizeof ( seq ), "\r\x1b[0K\x1b[1A");
+    (void)snprintf(seq, sizeof ( seq ), "\r\x1b[0K\x1b[1A");
     abAppend(&ab, seq, strlen(seq));
   }
 
   /* Clean the top line. */
-  snprintf(seq, sizeof ( seq ), "\r\x1b[0K");
+  (void)snprintf(seq, sizeof ( seq ), "\r\x1b[0K");
   abAppend(&ab, seq, strlen(seq));
 
   /* Write the prompt and the current buffer content */
   abAppend(&ab, l->prompt, strlen(l->prompt));
-# ifdef LH_MASKMODE
+# if defined(LH_MASKMODE)
   if (maskmode == 1)
   {
     unsigned int i;
@@ -822,16 +817,16 @@ refreshMultiLine(struct linenoiseState *l)
   }
   else
   {
-# endif /* ifdef LH_MASKMODE */
+# endif /* if defined(LH_MASKMODE) */
   abAppend(&ab, l->buf, l->len);
-# ifdef LH_MASKMODE
+# if defined(LH_MASKMODE)
 }
-# endif /* ifdef LH_MASKMODE */
+# endif /* if defined(LH_MASKMODE) */
 
-# ifdef LH_HINTS
+# if defined(LH_HINTS)
   /* Show hits if any. */
   refreshShowHints(&ab, l, plen);
-# endif /* ifdef LH_HINTS */
+# endif /* if defined(LH_HINTS) */
 
   /*
    * If we are at the very end of the screen with our prompt, we need to
@@ -841,7 +836,7 @@ refreshMultiLine(struct linenoiseState *l)
   if (l->pos && l->pos == l->len && ( l->pos + plen ) % l->cols == 0)
   {
     abAppend(&ab, "\n", 1);
-    snprintf(seq, sizeof ( seq ), "\r");
+    (void)snprintf(seq, sizeof ( seq ), "\r");
     abAppend(&ab, seq, strlen(seq));
     rows++;
     if (rows > (int)l->maxrows)
@@ -853,10 +848,10 @@ refreshMultiLine(struct linenoiseState *l)
   /* Move cursor to right position. */
   rpos2 = ( plen + l->pos + l->cols ) / l->cols;
 
-  /* Go up till we reach the expected positon. */
+  /* Go up till we reach the expected position. */
   if (rows - rpos2 > 0)
   {
-    snprintf(seq, sizeof ( seq ), "\x1b[%dA", rows - rpos2);
+    (void)snprintf(seq, sizeof ( seq ), "\x1b[%dA", rows - rpos2);
     abAppend(&ab, seq, strlen(seq));
   }
 
@@ -864,11 +859,11 @@ refreshMultiLine(struct linenoiseState *l)
   col = ( plen + (int)l->pos ) % (int)l->cols;
   if (col)
   {
-    snprintf(seq, sizeof ( seq ), "\r\x1b[%dC", col);
+    (void)snprintf(seq, sizeof ( seq ), "\r\x1b[%dC", col);
   }
   else
   {
-    snprintf(seq, sizeof ( seq ), "\r");
+    (void)snprintf(seq, sizeof ( seq ), "\r");
   }
 
   abAppend(&ab, seq, strlen(seq));
@@ -917,7 +912,7 @@ linenoiseEditInsert(struct linenoiseState *l, char c)
       l->pos++;
       l->len++;
       l->buf[l->len] = '\0';
-# if defined( LH_MASKMODE ) && defined( LH_HINTS )
+# if defined(LH_MASKMODE) && defined(LH_HINTS)
       if (( !mlmode && l->plen + l->len < l->cols && !hintsCallback ))
       {
         /* Avoid a full update of the line in the trivial case. */
@@ -929,11 +924,11 @@ linenoiseEditInsert(struct linenoiseState *l, char c)
       }
       else
       {
-# endif /* if defined( LH_MASKMODE ) && defined( LH_HINTS ) */
+# endif /* if defined(LH_MASKMODE) && defined(LH_HINTS) */
       refreshLine(l);
-# if defined( LH_MASKMODE ) && defined( LH_HINTS )
+# if defined(LH_MASKMODE) && defined(LH_HINTS)
       }
-# endif /* if defined( LH_MASKMODE ) && defined( LH_HINTS ) */
+# endif /* if defined(LH_MASKMODE) && defined(LH_HINTS) */
     }
     else
     {
@@ -1068,13 +1063,13 @@ linenoiseEditHistoryNext(struct linenoiseState *l, int dir)
     history[history_len - 1 - l->history_index] = strdup(l->buf);
     if (!history[history_len - 1 - l->history_index])
       {
-        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                 __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
-#  ifdef SIGUSR2
+#  if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-#  endif /* ifdef SIGUSR2 */
+#  endif /* if defined(SIGUSR2) */
 # endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -1120,13 +1115,13 @@ linenoiseSearchInHistory(struct linenoiseState *l, int direction)
     history[history_len - 1 - l->history_index] = strdup(l->buf);
     if (!history[history_len - 1 - l->history_index])
       {
-        fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
-                 __func__, __FILE__, __LINE__);
+        (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                       __func__, __FILE__, __LINE__);
 # if defined(USE_BACKTRACE)
-#  ifdef SIGUSR2
+#  if defined(SIGUSR2)
         (void)raise(SIGUSR2);
         /*NOTREACHED*/ /* unreachable */
-#  endif /* ifdef SIGUSR2 */
+#  endif /* if defined(SIGUSR2) */
 # endif /* if defined(USE_BACKTRACE) */
         abort();
       }
@@ -1153,7 +1148,7 @@ linenoiseSearchInHistory(struct linenoiseState *l, int direction)
 
           /*
            * Set history index so that we can contiune
-           * the search on this postiion
+           * the search on this position
            */
 
           l->history_index = history_len - 1 - cnt;
@@ -1182,7 +1177,7 @@ linenoiseSearchInHistory(struct linenoiseState *l, int direction)
 
           /*
            * Set history index so that we can contiune
-           * the search on this postiion
+           * the search on this position
            */
 
           l->history_index = history_len - 1 - cnt;
@@ -1331,7 +1326,7 @@ linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen,
       return ( l.len );
     }
 
-# ifdef LH_COMPLETION
+# if defined(LH_COMPLETION)
 
     /*
      * Only autocomplete when the callback is set. It returns < 0 when
@@ -1357,7 +1352,7 @@ linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen,
       c = (char)cint;
     }
 
-# endif /* ifdef LH_COMPLETION */
+# endif /* if defined(LH_COMPLETION) */
 
     switch (c)
     {
@@ -1372,7 +1367,7 @@ linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen,
         linenoiseEditMoveEnd(&l);
       }
 
-# ifdef LH_HINTS
+# if defined(LH_HINTS)
       if (hintsCallback)
       {
 
@@ -1387,7 +1382,7 @@ linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen,
         hintsCallback              = hc;
       }
 
-# endif /* ifdef LH_HINTS */
+# endif /* if defined(LH_HINTS) */
       return ((int)l.len );
 
     case CTRL_C: /* Ctrl-C */
@@ -1554,8 +1549,10 @@ linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen,
       break;
     }
   }
+# if defined(SUNLINT) || !defined(__SUNPRO_C) && !defined(__SUNPRO_CC)
  /*NOTREACHED*/ /* unreachable */
  return ( -1 );
+# endif /* if defined(SUNLINT) || !defined(__SUNPRO_C) && !defined(__SUNPRO_CC) */
 }
 
 /*
@@ -1581,7 +1578,7 @@ linenoiseRaw(char *buf, size_t buflen, const char *prompt)
 
   count = linenoiseEdit(STDIN_FILENO, STDOUT_FILENO, buf, buflen, prompt);
   disableRawMode(STDIN_FILENO);
-  printf("\n");
+  (void)printf("\n");
   return ( count );
 }
 
@@ -1642,8 +1639,10 @@ linenoiseNoTTY(void)
       len++;
     }
   }
+# if defined(SUNLINT) || !defined(__SUNPRO_C) && !defined(__SUNPRO_CC)
  /*NOTREACHED*/ /* unreachable */
  return ( NULL );
+# endif /* if defined(SUNLINT) || !defined(__SUNPRO_C) && !defined(__SUNPRO_CC) */
 }
 
 /*
@@ -1674,8 +1673,9 @@ linenoise(const char *prompt)
   {
     size_t len;
 
-    printf("%s", prompt);
-    fflush(stdout);
+    (void)fflush(stderr);
+    (void)printf("%s", prompt);
+    (void)fflush(stdout);
     if (fgets(buf, LINENOISE_MAX_LINE, stdin) == NULL)
     {
       return ( NULL );
@@ -1770,7 +1770,7 @@ linenoiseHistoryAdd(const char *line)
       return ( 0 );
     }
 
-    memset(history, 0, ( sizeof ( char * ) * history_max_len ));
+    (void)memset(history, 0, ( sizeof ( char * ) * history_max_len ));
   }
 
   /* Don't add duplicated lines. */
@@ -1845,7 +1845,7 @@ linenoiseHistorySetMaxLen(int len)
       tocopy = len;
     }
 
-    memset(new, 0, sizeof ( char * ) * len);
+    (void)memset(new, 0, sizeof ( char * ) * len);
     memcpy(
       new,
       history + ( history_len - tocopy ),
@@ -1883,4 +1883,5 @@ pstrlen(const char *s)
   return ( len );
 }
 
-#endif /* if !defined ( __MINGW32__ ) && !defined ( CROSS_MINGW32 ) && !defined ( CROSS_MINGW64 ) && !defined ( __MINGW64__ ) && !defined ( _MSC_VER ) && !defined ( _MSC_BUILD ) */
+#endif /* if !defined(__MINGW32__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) &&
+             !defined(__MINGW64__) && !defined(_MSC_VER) && !defined(_MSC_BUILD) */

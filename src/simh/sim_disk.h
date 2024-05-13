@@ -36,7 +36,7 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifndef SIM_DISK_H_
+#if !defined(SIM_DISK_H_)
 # define SIM_DISK_H_    0
 
 /* Disk format */

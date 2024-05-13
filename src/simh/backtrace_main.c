@@ -42,50 +42,50 @@
  * -------------------------------------------------------------------------
  */
 
-#ifdef USE_BACKTRACE
-# ifdef _INC_BACKTRACE_FUNC
-#  ifndef _INC_BACKTRACE_MAIN
+#if defined(USE_BACKTRACE)
+# if defined(_INC_BACKTRACE_FUNC)
+#  if !defined(_INC_BACKTRACE_MAIN)
 #   define _INC_BACKTRACE_MAIN
-#   ifndef BACKTRACE_SKIP
+#   if !defined(BACKTRACE_SKIP)
 #    define BACKTRACE_SKIP 1
-#   endif /* ifndef BACKTRACE_SKIP */
+#   endif /* if !defined(BACKTRACE_SKIP) */
 #   include <signal.h>
-#   ifdef SIGSEGV
+#   if defined(SIGSEGV)
   (void)signal(SIGSEGV, backtrace_handler);
-#   endif /* ifdef SIGSEGV */
-#   ifdef SIGILL
+#   endif /* if defined(SIGSEGV) */
+#   if defined(SIGILL)
   (void)signal(SIGILL, backtrace_handler);
-#   endif /* ifdef SIGILL */
-#   ifdef SIGFPE
+#   endif /* if defined(SIGILL) */
+#   if defined(SIGFPE)
   (void)signal(SIGFPE, backtrace_handler);
-#   endif /* ifdef SIGFPE */
-#   ifdef SIGBUS
+#   endif /* if defined(SIGFPE) */
+#   if defined(SIGBUS)
   (void)signal(SIGBUS, backtrace_handler);
-#   endif /* ifdef SIGBUS */
-#   ifdef SIGUNUSED
+#   endif /* if defined(SIGBUS) */
+#   if defined(SIGUNUSED)
   (void)signal(SIGUNUSED, backtrace_handler);
-#   endif /* ifdef SIGUNUSED */
-#   ifdef SIGSYS
+#   endif /* if defined(SIGUNUSED) */
+#   if defined(SIGSYS)
   (void)signal(SIGSYS, backtrace_handler);
-#   endif /* ifdef SIGSYS */
-#   ifdef SIGUSR2
+#   endif /* if defined(SIGSYS) */
+#   if defined(SIGUSR2)
   (void)signal(SIGUSR2, backtrace_handler);
-#   endif /* ifdef SIGUSR2 */
-#   ifdef SIGSTKFLT
+#   endif /* if defined(SIGUSR2) */
+#   if defined(SIGSTKFLT)
   (void)signal(SIGSTKFLT, backtrace_handler);
-#   endif /* ifdef SIGSTKFLT */
-#   ifdef SIGPOWER
-#    ifdef SIG_IGN
+#   endif /* if defined(SIGSTKFLT) */
+#   if defined(SIGPOWER)
+#    if defined(SIG_IGN)
   (void)signal(SIGPOWER, SIG_IGN);
-#    endif /* ifdef SIG_IGN */
-#   endif /* ifdef SIGPOWER */
-#   ifdef SIGPWR
-#    ifdef SIG_IGN
+#    endif /* if defined(SIG_IGN) */
+#   endif /* if defined(SIGPOWER) */
+#   if defined(SIGPWR)
+#    if defined(SIG_IGN)
   (void)signal(SIGPWR, SIG_IGN);
-#    endif /* ifdef SIG_IGN */
-#   endif /* ifdef SIGPWR */
+#    endif /* if defined(SIG_IGN) */
+#   endif /* if defined(SIGPWR) */
 state = backtrace_create_state(
   NULL, BACKTRACE_SUPPORTS_THREADS, error_callback, NULL);
-#  endif /* ifdef _INC_BACKTRACE_FUNC */
-# endif /* ifdef _INC_BACKTRACE_MAIN */
-#endif /* ifdef USE_BACKTRACE */
+#  endif /* if !defined(_INC_BACKTRACE_MAIN) */
+# endif /* if defined(_INC_BACKTRACE_FUNC) */
+#endif /* if defined(USE_BACKTRACE) */

@@ -18,27 +18,29 @@
 
 extern DEVICE scu_dev;
 
-#ifdef SPEED
+#if defined(SPEED)
 # define if_sim_debug(dbits, dptr) if ((0))
 #else
-# define if_sim_debug(dbits, dptr) \
-  if ( \
-      sim_deb && \
-      (((dptr)->dctrl & (dbits)) || (dbits) == 0) && \
-      ((dptr != & cpu_dev) || ((1 << current_running_cpu_idx) & dbgCPUMask)) && \
-      ((dptr != & cpu_dev) || (((dptr)->dctrl & (DBG_INTR | DBG_FAULT))) || (! sim_deb_segno_on) || sim_deb_segno[cpu.PPR.PSR & (DEBUG_SEGNO_LIMIT - 1)]) && \
+# define if_sim_debug(dbits, dptr)                                                                     \
+  if (                                                                                                 \
+      sim_deb &&                                                                                       \
+      (((dptr)->dctrl & (dbits)) || (dbits) == 0) &&                                                   \
+      ((dptr != & cpu_dev) || ((1 << current_running_cpu_idx) & dbgCPUMask)) &&                        \
+        ((dptr != & cpu_dev) || (((dptr)->dctrl & (DBG_INTR | DBG_FAULT))) ||                          \
+            (! sim_deb_segno_on) || sim_deb_segno[cpu.PPR.PSR & (DEBUG_SEGNO_LIMIT - 1)]) &&           \
       ((dptr != & cpu_dev) || sim_deb_ringno == NO_SUCH_RINGNO || sim_deb_ringno == cpu . PPR. PRR) && \
-      ((dptr != & cpu_dev) || (! sim_deb_bar) || (! TST_I_NBAR)) && \
-      cpu.cycleCnt >= sim_deb_start && \
-      (sim_deb_stop == 0 || cpu.cycleCnt < sim_deb_stop) && \
-      (sim_deb_mme_cntdwn == 0) && \
-      ((dptr != & cpu_dev) | (((dbits) & DBG_TRACE) ? (sim_deb_skip_cnt ++ >= sim_deb_skip_limit) : (sim_deb_skip_cnt >= sim_deb_skip_limit))) \
+      ((dptr != & cpu_dev) || (! sim_deb_bar) || (! TST_I_NBAR)) &&                                    \
+      cpu.cycleCnt >= sim_deb_start &&                                                                 \
+      (sim_deb_stop == 0 || cpu.cycleCnt < sim_deb_stop) &&                                            \
+      (sim_deb_mme_cntdwn == 0) &&                                                                     \
+        ((dptr != & cpu_dev) | (((dbits) & DBG_TRACE) ? (sim_deb_skip_cnt ++ >= sim_deb_skip_limit) :  \
+            (sim_deb_skip_cnt >= sim_deb_skip_limit)))                                                 \
     )
-#endif
+#endif /* if defined(SPEED) */
 
 #if !defined(THREADZ) && !defined(LOCKLESS)
 # define dps8_sim_debug _sim_debug
-#endif
+#endif /* if !defined(THREADZ) && !defined(LOCKLESS) */
 
 #undef sim_debug
 #if defined(THREADZ) || defined(LOCKLESS)
@@ -53,7 +55,7 @@ extern DEVICE scu_dev;
     dps8_sim_debug ((dbits), dptr, __VA_ARGS__); \
   else \
     (void) 0
-#endif
+#endif /* if defined(THREADZ) || defined(LOCKLESS) */
 
 /* scp Debug flags */
 
@@ -154,8 +156,7 @@ void sim_printf( const char * format, ... );    // not really simh, by my impl
 
 #if defined(THREADZ) || defined(LOCKLESS)
 void dps8_sim_debug (uint32 dbits, DEVICE* dptr, unsigned long long cnt, const char* fmt, ...);
-
-#endif
+#endif /* if defined(THREADZ) || defined(LOCKLESS) */
 #define sim_msg sim_printf
 #define sim_warn sim_printf
 #define sim_print sim_printf

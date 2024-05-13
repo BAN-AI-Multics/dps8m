@@ -7,36 +7,6 @@
 
 ############################################################################
 
-.scriptAlma9Setup: &scriptAlma9Setup |
-    # *scriptAlma9Setup - Update AlmaLinux 9 (RHEL9 binary compatible) and install required tools ...
-    echo -e "section_start:`date +%s`:alma9install_section[collapsed=true]\r\e[0K\033[0;36mSetting up AlmaLinux 9 ...\033[0m" || true
-    echo "Checking for Docker ..."
-    test -f /.dockerenv || exit 1
-    dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update || true
-    dnf -y --refresh --best update || dnf -y --refresh --nobest update
-    dnf -y --best install epel-release || dnf -y --nobest epel-release
-    curl -fsSL https://repo.almalinux.org/almalinux/9/devel/almalinux-devel.repo -o /etc/yum.repos.d/almalinux-devel.repo || curl -fsSL https://repo.almalinux.org/almalinux/9/devel/almalinux-devel.repo -o /etc/yum.repos.d/almalinux-devel.repo || true
-    sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-devel.repo || true
-    sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-highavailability.repo || true
-    sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-plus.repo || true
-    sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-rt.repo || true
-    sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-crb.repo || true
-    sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-nfv.repo || true
-    sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-saphana.repo || true
-    sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-sap.repo || true
-    sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-extras.repo || true
-    sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-appstream.repo || true
-    sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-resilientstorage.repo || true
-    dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update || true
-    dnf -y --refresh --best update || dnf -y --refresh --nobest update || true
-    dnf -y install zstd libzstd libzstd-devel xz xz-libs xz-devel libzstd libzstd-devel rpmconf || dnf -y install zstd libzstd-devel libzstd xz xz-libs xz-devel libzstd libzstd-devel rpmconf
-    yes | rpmconf -a -u use_maintainer || true
-    dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update || true
-    dnf -y --refresh --best update || dnf -y --refresh --nobest update
-    echo -e "section_end:`date +%s`:alma9install_section\r\e[0K" || true
-
-############################################################################
-
 .scriptAlpineSetup: &scriptAlpineSetup |
     # *scriptAlpineSetup - Update Alpine Linux and install required tools ...
     echo -e "section_start:`date +%s`:alpinesetup_section[collapsed=true]\r\e[0K\033[0;36mSetting up Alpine Linux ...\033[0m" || true
@@ -275,12 +245,12 @@
     echo "Configure dnf ..."
     sed -i 's/tsflags=nodocs//' /etc/dnf/dnf.conf || true
     echo "Updating system ..."
-    dnf -y --refresh --allowerasing --best update || dnf -y --refresh --nobest update || true
+    dnf -y --refresh --best update || dnf -y --refresh --nobest update || true
     dnf -y --refresh --best update || dnf -y --refresh --nobest update || true
     dnf -y update
     echo "Installing software ..."
     export ARGS="file ccache lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make gnupg2 bash curl wget git time gcc clang xz xz-libs xz-devel libzstd libzstd-devel"
-    dnf -y --allowerasing --best install ${ARGS:?} || dnf -y --skip-broken --nobest install ${ARGS:?} || true
+    dnf -y --best install ${ARGS:?} || dnf -y --nobest install ${ARGS:?} || true
     dnf -y --best install ${ARGS:?} || dnf -y --nobest install ${ARGS:?}
     echo -e "section_end:`date +%s`:dnfuinstall_section\r\e[0K" || true
 
@@ -319,7 +289,7 @@
     echo "Enabling Cygwin repo ..."
     dnf -y copr enable yselkowitz/cygwin || dnf -y copr enable yselkowitz/cygwin || dnf-3 -y copr enable yselkowitz/cygwin || dnf-3 -y copr enable yselkowitz/cygwin
     echo "Installing Cygwin software ..."
-    dnf --best install -y cygport cygwin32-binutils cygwin32-w32api-headers cygwin32-w32api-runtime cygwin32-libltdl cygwin32-cpp cygwin32-gcc cygwin32-libtool cygwin32-filesystem cygwin32 cygwin64-binutils cygwin64-w32api-headers cygwin64-w32api-runtime cygwin64-libltdl cygwin64-cpp cygwin64-gcc cygwin64-libtool cygwin64-filesystem cygwin64 || dnf --skip-broken --nobest install -y cygport cygwin64-binutils cygwin64-w32api-headers cygwin64-w32api-runtime cygwin64-libltdl cygwin64-cpp cygwin64-gcc cygwin64-libtool cygwin64-filesystem cygwin64 cygwin32-binutils cygwin32-w32api-headers cygwin32-w32api-runtime cygwin32-libltdl cygwin32-cpp cygwin32-gcc cygwin32-libtool cygwin32-filesystem cygwin32
+    dnf --best install -y cygport cygwin32-binutils cygwin32-w32api-headers cygwin32-w32api-runtime cygwin32-libltdl cygwin32-cpp cygwin32-gcc cygwin32-libtool cygwin32-filesystem cygwin32 cygwin64-binutils cygwin64-w32api-headers cygwin64-w32api-runtime cygwin64-libltdl cygwin64-cpp cygwin64-gcc cygwin64-libtool cygwin64-filesystem cygwin64 || dnf --nobest install -y cygport cygwin64-binutils cygwin64-w32api-headers cygwin64-w32api-runtime cygwin64-libltdl cygwin64-cpp cygwin64-gcc cygwin64-libtool cygwin64-filesystem cygwin64 cygwin32-binutils cygwin32-w32api-headers cygwin32-w32api-runtime cygwin32-libltdl cygwin32-cpp cygwin32-gcc cygwin32-libtool cygwin32-filesystem cygwin32
     echo -e "section_end:`date +%s`:coprcygwinstall_section\r\e[0K" || true
 
 ############################################################################
@@ -364,6 +334,8 @@ workflow:
       when: never
     - if: $CI_PIPELINE_SOURCE == "external"
       when: never
+    - if: $CI_COMMIT_TAG
+      when: never
     - when: always
 
 ############################################################################
@@ -382,51 +354,6 @@ stages:
 
 ############################################################################
 # Jobs
-
-Linux/x86_64, AlmaLinux 9, Clang, GCC:
-  image: almalinux:9
-  stage: build
-  tags:
-    - Docker-x64
-    - amd64
-    - Linux
-    - EL
-  script:
-    - export GLCICD_JOB="AlmaLinuxEL9x64" && export DTIMESTAMP="$(stat -c "%Y" /etc/passwd)"
-    - echo -e "section_start:`date +%s`:bzip20004setup_section[collapsed=true]\r\e[0K\033[0;36mInstalling bzip2 ...\033[0m" || true
-    - dnf install -y bzip2 || dnf install -y bzip2
-    - echo -e "section_end:`date +%s`:bzip20004setup_section\r\e[0K" || true
-    - *scriptAlma9Setup
-    - *scriptDnfSetup
-    - *scriptInstallNfpm
-    - *scriptSanity
-    - *scriptCommon
-    - *scriptBuildlibbacktrace
-    - *scriptExtraInfo
-    - *scriptDPS8Mods
-    - make WITH_BACKTRACE=1 CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
-    - *scriptBuildInfo
-    - make distclean
-    - *scriptDPS8Mods
-    - make WITH_BACKTRACE=1 CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
-    - *scriptBuildInfo
-    - *scriptVerifyVersion
-    - *scriptCompressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - src/dps8/dps8.lz
-      - src/prt2pdf/prt2pdf.lz
-      - src/punutil/punutil.lz
-      - src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 90 minutes
-  interruptible: true
-
-############################################################################
 
 Linux/x86_64, Alpine Edge, Clang, GCC:
   image:
@@ -535,7 +462,7 @@ Linux/powerpc64el, IBM Advance Toolchain 17:
 ############################################################################
 
 Cross-compiled release binaries:
-  image: fedora:39
+  image: fedora:40
   stage: build
   tags:
     - Docker-x64
@@ -561,7 +488,7 @@ Cross-compiled release binaries:
     - dnf -y install --best copr-cli dnf-utils || dnf -y install --nobest copr-cli dnf-utils || true
     - yes | dnf copr enable "@fedora-llvm-team/llvm16" || true
     - dnf -y install "@core" "@Development Tools" "@C Development Tools and Libraries" gcc clang || true
-    - dnf -y --best --skip-broken update || dnf -y --nobest --skip-broken update || true
+    - dnf -y --best update || dnf -y --nobest update || true
     - dnf -y --best update || dnf -y --nobest update
     - export JOB_PKGS="libmd libmd-devel libbsd libbsd-devel tar bzip2 lzip wget libzstd-devel libzstd zlib zlib-devel zstd libzstd libzstd-devel brotli-devel brotli libbrotli libcom_err libxcrypt openssl-devel openssl libcurl libcurl-devel elfutils-debuginfod-client elfutils-debuginfod expat-devel expat libffi libffi-devel gc-devel libevent-devel libgcc gmp-devel krb5-devel compat-guile18 guile-devel guile22-devel libidn2-devel libidn libidn-devel keyutils-libs-devel openldap-devel libtool-ltdl-devel xz-devel mpfr-devel msgpack-devel pcre2-devel libselinux-devel libssh-devel libssh2-devel ncurses-devel libunistring xxhash-devel qemu-user-binfmt qemu qemu-tools qemu-common qemu-user qemu-img qemu-user-static sudo lld lld-devel llvm llvm-devel clang clang-devel"
     - dnf -y install --best ${JOB_PKGS:?} || dnf -y install --nobest ${JOB_PKGS:?}
@@ -573,7 +500,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { tar axf /arm64-unknown-netbsdelf9.3.tar.lz; }; fi
     - *scriptDPS8Mods
     - export DPS8_CPUTYPE=armv8-a
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env CFLAGS="-m64 -fpic -fPIC -march=${DPS8_CPUTYPE} -Wno-unused-command-line-argument -Wno-char-subscripts" LOCAL_CONFOPTS="--host=arm64-unknown-netbsdelf9.3" CSTD="gnu11" CC="clang -I$(pwd)/arm64-unknown-netbsdelf9.3/usr/include -L$(pwd)/arm64-unknown-netbsdelf9.3/usr/lib -B$(pwd)/arm64-unknown-netbsdelf9.3/usr/lib --target=arm64-unknown-netbsdelf9.3 -fuse-ld=lld" gmake libuvdev LIBDL="" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && env CFLAGS="-m64 -fpic -fPIC -march=${DPS8_CPUTYPE} -Wno-unused-command-line-argument -Wno-char-subscripts" CSTD="gnu11" LDFLAGS="-static -lgcc -lm" CC="clang -I$(pwd)/arm64-unknown-netbsdelf9.3/usr/include -L$(pwd)/arm64-unknown-netbsdelf9.3/usr/lib -B$(pwd)/arm64-unknown-netbsdelf9.3/usr/lib --target=arm64-unknown-netbsdelf9.3 -fuse-ld=lld" NO_LTO=1 gmake LIBDL="" LOCALLIBS="-lm" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env CFLAGS="-m64 -fpic -fPIC -march=${DPS8_CPUTYPE} -Wno-unused-command-line-argument -Wno-char-subscripts" LOCAL_CONFOPTS="--host=arm64-unknown-netbsdelf9.3" CSTD="gnu11" CC="clang -I$(pwd)/arm64-unknown-netbsdelf9.3/usr/include -L$(pwd)/arm64-unknown-netbsdelf9.3/usr/lib -B$(pwd)/arm64-unknown-netbsdelf9.3/usr/lib --target=arm64-unknown-netbsdelf9.3 -fuse-ld=lld" gmake libuvrel LIBDL="" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && env CFLAGS="-m64 -fpic -fPIC -march=${DPS8_CPUTYPE} -Wno-unused-command-line-argument -Wno-char-subscripts" CSTD="gnu11" LDFLAGS="-static -lgcc -lm" CC="clang -I$(pwd)/arm64-unknown-netbsdelf9.3/usr/include -L$(pwd)/arm64-unknown-netbsdelf9.3/usr/lib -B$(pwd)/arm64-unknown-netbsdelf9.3/usr/lib --target=arm64-unknown-netbsdelf9.3 -fuse-ld=lld" NO_LTO=1 gmake LIBDL="" LOCALLIBS="-lm" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { mkdir -p "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
@@ -589,8 +516,8 @@ Cross-compiled release binaries:
     - *scriptDPS8Mods
     - git clean -fdxq -e '*.tar*' -e 'dps8m*'
     - export DPS8_CPUTYPE=power7
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-maix64 -Wl,-b64 -static-libgcc" NO_LTO=1 LOCAL_CONFOPTS="--host=powerpc-ibm-aix7.2.0.0" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake NO_LTO=1 libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd libuv-local/libuv && env PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") ); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-maix64 -Wl,-b64 -static-libgcc" NO_LTO=1 LOCAL_CONFOPTS="--host=powerpc-ibm-aix7.2.0.0" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake NO_LTO=1 libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( rm libuv-local/*.tar.gz; (cd libuv-local; ln -fs libuv-* libuv); cd libuv-local/libuv && env PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env LOCALLIBS="-ldl -lrt -lbsd -lpthread -lm -lc -lperfstat" PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-static-libgcc -ldl -lrt -lbsd -lpthread -lm -lc -lperfstat -maix64 -Wl,-b64" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NO_LTO=1 MATHLIB="-lm -lpthread" LOCALOBJS="../../libuv-local/libuv/src/*.o ../../libuv-local/libuv/src/unix/*.o" LIBUV="" PULIBS="-lpopt" EMPTYLIBS=""; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
@@ -602,8 +529,8 @@ Cross-compiled release binaries:
     - PARALLEL_CI_COUNT=$(( PARALLEL_CI_COUNT + 1 )) ; test ${PARALLEL_CI_COUNT:?} -gt ${CI_NODE_TOTAL:?} && PARALLEL_CI_COUNT=1 || true
     - *scriptDPS8Mods
     - export DPS8_CPUTYPE=power8
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-maix64 -Wl,-b64 -static-libgcc" NO_LTO=1 LOCAL_CONFOPTS="--host=powerpc-ibm-aix7.2.0.0" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake NO_LTO=1 libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd libuv-local/libuv && env PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") ); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-maix64 -Wl,-b64 -static-libgcc" NO_LTO=1 LOCAL_CONFOPTS="--host=powerpc-ibm-aix7.2.0.0" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake NO_LTO=1 libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( rm libuv-local/*.tar.gz; (cd libuv-local; ln -fs libuv-* libuv); cd libuv-local/libuv && env PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env LOCALLIBS="-ldl -lrt -lbsd -lpthread -lm -lc -lperfstat" PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-static-libgcc -ldl -lrt -lbsd -lpthread -lm -lc -lperfstat -maix64 -Wl,-b64" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NO_LTO=1 MATHLIB="-lm -lpthread" LOCALOBJS="../../libuv-local/libuv/src/*.o ../../libuv-local/libuv/src/unix/*.o" LIBUV="" PULIBS="-lpopt" EMPTYLIBS=""; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
@@ -615,8 +542,8 @@ Cross-compiled release binaries:
     - PARALLEL_CI_COUNT=$(( PARALLEL_CI_COUNT + 1 )) ; test ${PARALLEL_CI_COUNT:?} -gt ${CI_NODE_TOTAL:?} && PARALLEL_CI_COUNT=1 || true
     - *scriptDPS8Mods
     - export DPS8_CPUTYPE=power9
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-maix64 -Wl,-b64 -static-libgcc" NO_LTO=1 LOCAL_CONFOPTS="--host=powerpc-ibm-aix7.2.0.0" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake NO_LTO=1 libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd libuv-local/libuv && env PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") ); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-maix64 -Wl,-b64 -static-libgcc" NO_LTO=1 LOCAL_CONFOPTS="--host=powerpc-ibm-aix7.2.0.0" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake NO_LTO=1 libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( rm libuv-local/*.tar.gz; (cd libuv-local; ln -fs libuv-* libuv); cd libuv-local/libuv && env PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env LOCALLIBS="-ldl -lrt -lbsd -lpthread -lm -lc -lperfstat" PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-static-libgcc -ldl -lrt -lbsd -lpthread -lm -lc -lperfstat -maix64 -Wl,-b64" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NO_LTO=1 MATHLIB="-lm -lpthread" LOCALOBJS="../../libuv-local/libuv/src/*.o ../../libuv-local/libuv/src/unix/*.o" LIBUV="" PULIBS="-lpopt" EMPTYLIBS=""; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
@@ -628,8 +555,8 @@ Cross-compiled release binaries:
     - PARALLEL_CI_COUNT=$(( PARALLEL_CI_COUNT + 1 )) ; test ${PARALLEL_CI_COUNT:?} -gt ${CI_NODE_TOTAL:?} && PARALLEL_CI_COUNT=1 || true
     - *scriptDPS8Mods
     - export DPS8_CPUTYPE=power10
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-maix64 -Wl,-b64 -static-libgcc" NO_LTO=1 LOCAL_CONFOPTS="--host=powerpc-ibm-aix7.2.0.0" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake NO_LTO=1 libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd libuv-local/libuv && env PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") ); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-maix64 -Wl,-b64 -static-libgcc" NO_LTO=1 LOCAL_CONFOPTS="--host=powerpc-ibm-aix7.2.0.0" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake NO_LTO=1 libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( rm libuv-local/*.tar.gz; (cd libuv-local; ln -fs libuv-* libuv); cd libuv-local/libuv && env PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env LOCALLIBS="-ldl -lrt -lbsd -lpthread -lm -lc -lperfstat" PATH=/home/jhj/src/AIX-crossgcc/out/bin:${PATH:-} CFLAGS="-maix64 -mcpu=${DPS8_CPUTYPE:?}" LDFLAGS="-static-libgcc -ldl -lrt -lbsd -lpthread -lm -lc -lperfstat -maix64 -Wl,-b64" CC=/home/jhj/src/AIX-crossgcc/out/bin/powerpc-ibm-aix7.2.0.0-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NO_LTO=1 MATHLIB="-lm -lpthread" LOCALOBJS="../../libuv-local/libuv/src/*.o ../../libuv-local/libuv/src/unix/*.o" LIBUV="" PULIBS="-lpopt" EMPTYLIBS=""; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
@@ -1273,7 +1200,7 @@ Cross-compiled release binaries:
     - ( cd / && tar axf /x86_64-local-netbsd9.tar.lz )
     - touch /home/jhj/src/NetBSD-AMD64-crossgcc/sysroot/usr/include/sys/cpuset.h
     - export DPS8_CPUTYPE=x86-64
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-AMD64-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=x86_64-local-netbsd9" CC=/home/jhj/src/NetBSD-AMD64-crossgcc/out/bin/x86_64-local-netbsd9-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-AMD64-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=x86_64-local-netbsd9" CC=/home/jhj/src/NetBSD-AMD64-crossgcc/out/bin/x86_64-local-netbsd9-gcc gmake libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-AMD64-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?} -Wno-char-subscripts" CC=/home/jhj/src/NetBSD-AMD64-crossgcc/out/bin/x86_64-local-netbsd9-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBDL=""; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
@@ -1289,7 +1216,7 @@ Cross-compiled release binaries:
     - touch /home/jhj/src/NetBSD-i386-crossgcc/sysroot/usr/include/sys/cpuset.h
     - *scriptDPS8Mods
     - export DPS8_CPUTYPE=i586
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-i386-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=i386-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-i386-crossgcc/out/bin/i386-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-i386-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=i386-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-i386-crossgcc/out/bin/i386-unknown-netbsdelf-gcc gmake libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-i386-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?} -Wno-char-subscripts" CC=/home/jhj/src/NetBSD-i386-crossgcc/out/bin/i386-unknown-netbsdelf-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NEED_128=1 LIBDL=""; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
@@ -1301,7 +1228,7 @@ Cross-compiled release binaries:
     - PARALLEL_CI_COUNT=$(( PARALLEL_CI_COUNT + 1 )) ; test ${PARALLEL_CI_COUNT:?} -gt ${CI_NODE_TOTAL:?} && PARALLEL_CI_COUNT=1 || true
     - *scriptDPS8Mods
     - export DPS8_CPUTYPE=i686
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-i386-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=i386-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-i386-crossgcc/out/bin/i386-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-i386-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=i386-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-i386-crossgcc/out/bin/i386-unknown-netbsdelf-gcc gmake libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-i386-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?} -Wno-char-subscripts" CC=/home/jhj/src/NetBSD-i386-crossgcc/out/bin/i386-unknown-netbsdelf-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NEED_128=1 LIBDL=""; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
@@ -1318,7 +1245,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd / && lzip -dv /libatomic.a.lz && mv -f /libatomic.a /home/jhj/src/NetBSD-VAX-crossgcc/out/lib/gcc/vax-unknown-netbsdelf/12.2.1/../../../../vax-unknown-netbsdelf/lib/libatomic.a ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { touch /home/jhj/src/NetBSD-VAX-crossgcc/sysroot/usr/include/sys/cpuset.h; }; fi
     - *scriptDPS8Mods
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-VAX-crossgcc/out/bin:${PATH:-} CFLAGS="-Wno-char-subscripts" LOCAL_CONFOPTS="--host=vax-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-VAX-crossgcc/out/bin/vax-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-VAX-crossgcc/out/bin:${PATH:-} CFLAGS="-Wno-char-subscripts" LOCAL_CONFOPTS="--host=vax-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-VAX-crossgcc/out/bin/vax-unknown-netbsdelf-gcc gmake libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-VAX-crossgcc/out/bin:${PATH:-} CFLAGS="-Wno-char-subscripts" CC=/home/jhj/src/NetBSD-VAX-crossgcc/out/bin/vax-unknown-netbsdelf-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") NEED_128=1 LIBDL="" OPTFLAGS="-O2" ATOMICS=GNU LOCALLIBS="-latomic"; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
@@ -1334,7 +1261,7 @@ Cross-compiled release binaries:
     - touch /home/jhj/src/NetBSD-powerpc-crossgcc/sysroot/usr/include/sys/cpuset.h
     - *scriptDPS8Mods
     - export DPS8_CPUTYPE=970
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin:${PATH:-} CFLAGS="-m32 -mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" LDFLAGS="-m32" LOCAL_CONFOPTS="--host=powerpc-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin/powerpc-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin:${PATH:-} CFLAGS="-m32 -mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" LDFLAGS="-m32" LOCAL_CONFOPTS="--host=powerpc-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin/powerpc-unknown-netbsdelf-gcc gmake libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin:${PATH:-} CFLAGS="-m32 -mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" CC=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin/powerpc-unknown-netbsdelf-gcc LDFLAGS="-m32 -static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBDL="" NEED_128=1 LOCALLIBS="-latomic"; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
@@ -1346,7 +1273,7 @@ Cross-compiled release binaries:
     - PARALLEL_CI_COUNT=$(( PARALLEL_CI_COUNT + 1 )) ; test ${PARALLEL_CI_COUNT:?} -gt ${CI_NODE_TOTAL:?} && PARALLEL_CI_COUNT=1 || true
     - *scriptDPS8Mods
     - export DPS8_CPUTYPE=7400
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin:${PATH:-} CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" LOCAL_CONFOPTS="--host=powerpc-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin/powerpc-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin:${PATH:-} CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" LOCAL_CONFOPTS="--host=powerpc-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin/powerpc-unknown-netbsdelf-gcc gmake libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin:${PATH:-} CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" CC=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin/powerpc-unknown-netbsdelf-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBDL="" NEED_128=1 LOCALLIBS="-latomic"; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
@@ -1358,7 +1285,7 @@ Cross-compiled release binaries:
     - PARALLEL_CI_COUNT=$(( PARALLEL_CI_COUNT + 1 )) ; test ${PARALLEL_CI_COUNT:?} -gt ${CI_NODE_TOTAL:?} && PARALLEL_CI_COUNT=1 || true
     - *scriptDPS8Mods
     - export DPS8_CPUTYPE=740
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin:${PATH:-} CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" LOCAL_CONFOPTS="--host=powerpc-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin/powerpc-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin:${PATH:-} CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" LOCAL_CONFOPTS="--host=powerpc-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin/powerpc-unknown-netbsdelf-gcc gmake libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin:${PATH:-} CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -Wno-char-subscripts" CC=/home/jhj/src/NetBSD-powerpc-crossgcc/out/bin/powerpc-unknown-netbsdelf-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBDL="" NEED_128=1 LOCALLIBS="-latomic"; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
@@ -1373,7 +1300,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd / && tar axf /sparc64-unknown-netbsdelf.tar.lz ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { touch /home/jhj/src/NetBSD-sparc64-crossgcc/sysroot/usr/include/sys/cpuset.h; }; fi
     - *scriptDPS8Mods
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-sparc64-crossgcc/out/bin:${PATH:-} CFLAGS="-Wno-char-subscripts" LOCAL_CONFOPTS="--host=sparc64-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-sparc64-crossgcc/out/bin/sparc64-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-sparc64-crossgcc/out/bin:${PATH:-} CFLAGS="-Wno-char-subscripts" LOCAL_CONFOPTS="--host=sparc64-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-sparc64-crossgcc/out/bin/sparc64-unknown-netbsdelf-gcc gmake libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-sparc64-crossgcc/out/bin:${PATH:-} CFLAGS="-Wno-char-subscripts" CC=/home/jhj/src/NetBSD-sparc64-crossgcc/out/bin/sparc64-unknown-netbsdelf-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBDL=""; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
@@ -1390,7 +1317,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd / && lzip -dv /libatomic.a.lz && mv -f /libatomic.a /home/jhj/src/NetBSD-sparc-crossgcc/out/lib/gcc/sparc-unknown-netbsdelf/12.2.1/../../../../sparc-unknown-netbsdelf/lib/libatomic.a ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { touch /home/jhj/src/NetBSD-sparc-crossgcc/sysroot/usr/include/sys/cpuset.h; }; fi
     - *scriptDPS8Mods
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-sparc-crossgcc/out/bin:${PATH:-} CFLAGS="-Wno-char-subscripts" LOCAL_CONFOPTS="--host=sparc-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-sparc-crossgcc/out/bin/sparc-unknown-netbsdelf-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-sparc-crossgcc/out/bin:${PATH:-} CFLAGS="-Wno-char-subscripts" LOCAL_CONFOPTS="--host=sparc-unknown-netbsdelf" CC=/home/jhj/src/NetBSD-sparc-crossgcc/out/bin/sparc-unknown-netbsdelf-gcc gmake libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/NetBSD-sparc-crossgcc/out/bin:${PATH:-} CFLAGS="-Wno-char-subscripts" CC=/home/jhj/src/NetBSD-sparc-crossgcc/out/bin/sparc-unknown-netbsdelf-gcc LDFLAGS="-static" gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LIBDL="" NEED_128=1 LOCALLIBS="-latomic"; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
@@ -1658,7 +1585,7 @@ Cross-compiled release binaries:
 ############################################################################
 
 Windows/x86_64, Cygwin64-GCC:
-  image: fedora:39
+  image: fedora:40
   stage: build
   tags:
     - Docker-x64
@@ -1741,7 +1668,7 @@ Linux/x86_64, Fedora, Oracle Developer Studio:
 ############################################################################
 
 Linux/x86_64, Fedora, Clang, GCC:
-  image: fedora:39
+  image: fedora:40
   stage: build
   tags:
     - Docker-x64
@@ -1784,7 +1711,7 @@ Linux/x86_64, Fedora, Clang, GCC:
 ############################################################################
 
 GNU GLOBAL Hypertext:
-  image: fedora:39
+  image: fedora:40
   stage: docs
   tags:
     - Docker-x64
@@ -1818,7 +1745,7 @@ GNU GLOBAL Hypertext:
 ############################################################################
 
 Hugo:
-  image: fedora:39
+  image: fedora:40
   stage: docs
   tags:
     - Docker-x64
@@ -1857,7 +1784,7 @@ AIX/powerpc64, IBM AIX, GCC:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - export LOCAL_CLONEOPTS=""
-    - env OBJECT_MODE=64 CI_SKIP_MKREBUILD=1 PATH="/opt/freeware/bin:/usr/local/bin:$PATH" CC=gcc-11 NO_LTO=1 CFLAGS="-m64 -maix64 -Wl,-b64 -mcpu=power8" LDFLAGS="-static-libgcc -Wl,-b64" gmake libuvdev -j $(lparstat -i | grep '^Desired Virtual CPUs' | cut -d ':' -f 2 | tr -cd '0-9\n' || printf '%s\n' "6")
+    - env OBJECT_MODE=64 CI_SKIP_MKREBUILD=1 PATH="/opt/freeware/bin:/usr/local/bin:$PATH" CC=gcc-11 NO_LTO=1 CFLAGS="-m64 -maix64 -Wl,-b64 -mcpu=power8" LDFLAGS="-static-libgcc -Wl,-b64" gmake libuvrel -j $(lparstat -i | grep '^Desired Virtual CPUs' | cut -d ':' -f 2 | tr -cd '0-9\n' || printf '%s\n' "6")
     - env OBJECT_MODE=64 CI_SKIP_MKREBUILD=1 PATH="/opt/freeware/bin:/usr/local/bin:$PATH" CC=gcc-11 NO_LTO=1 CFLAGS="-m64 -maix64 -Wl,-b64 -mcpu=power8" LDFLAGS="-static-libgcc -Wl,-b64" gmake LIBUV="$(pwd)/libuv-local/local/lib/libuv.a -lperfstat" -j $(lparstat -i | grep '^Desired Virtual CPUs' | cut -d ':' -f 2 | tr -cd '0-9\n' || printf '%s\n' "6")
     - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
@@ -2236,12 +2163,12 @@ Linux/x86_64, Ubuntu, Clang, GCC:
     - *scriptBuildlibbacktrace
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make WITH_BACKTRACE=1 CC="$(command -v ccache) $(command -v clang)" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
+    - env NO_LTO=1 make WITH_BACKTRACE=1 CC="$(command -v ccache) $(command -v clang)" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
     - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - make distclean
     - *scriptDPS8Mods
-    - make WITH_BACKTRACE=1 CC="$(command -v ccache) $(command -v gcc)" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
+    - env NO_LTO=1 make WITH_BACKTRACE=1 CC="$(command -v ccache) $(command -v gcc)" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
     - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -2287,12 +2214,12 @@ Linux/x86_64, Ubuntu LTS, Clang, GCC:
     - *scriptBuildlibbacktrace
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make WITH_BACKTRACE=1 CC="$(command -v ccache) $(command -v clang)" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
+    - env NO_LTO=1 make WITH_BACKTRACE=1 CC="$(command -v ccache) $(command -v clang)" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
     - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - make distclean
     - *scriptDPS8Mods
-    - make WITH_BACKTRACE=1 CC="$(command -v ccache) $(command -v gcc)" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
+    - env NO_LTO=1 make WITH_BACKTRACE=1 CC="$(command -v ccache) $(command -v gcc)" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
     - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -2344,7 +2271,7 @@ Solaris/x86_64, Oracle Solaris 11.4, Oracle Developer Studio:
 
 NSIS Installer:
   stage: nsis_installer
-  image: fedora:39
+  image: fedora:40
   needs:
     - job: DPS8M Omnibus Documentation
     - job: Source Kits
@@ -2380,7 +2307,7 @@ NSIS Installer:
 
 Option Verification Test:
   stage: cmb_test
-  image: fedora:39
+  image: fedora:40
   needs:
     - job: Linux/x86_64, Ubuntu LTS, Clang, GCC
     - job: Linux/x86_64, Fedora, Clang, GCC
@@ -2388,7 +2315,7 @@ Option Verification Test:
     - Docker-x64
     - amd64
     - Linux
-  parallel: 5
+  parallel: 2
   script:
     - export GLCICD_JOB="OptTestFedoraX64_${CI_NODE_INDEX:?}" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
     - *scriptDnfSetup
@@ -2397,7 +2324,7 @@ Option Verification Test:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - export NO_LTO=1
-    - export CMB_OPTIONS="NO_UCACHE=1 NO_LOCKLESS=1 TESTING=1 NEED_128=1 HDBG=1 ROUND_ROBIN=1 TRACKER=1 WITH_ABSI_DEV=1 WITH_MGP_DEV=1"
+    - export CMB_OPTIONS="NO_LOCKLESS=1 TESTING=1 NEED_128=1 ROUND_ROBIN=1 WITH_ABSI_DEV=1 WITH_MGP_DEV=1"
     - make -C "src/mcmb" && export CMB_TOOL="$(command -p env PATH="$(command -p env getconf PATH)" mktemp)" && mv -f "src/mcmb/mcmb" "${CMB_TOOL:?}" && chmod a+x "${CMB_TOOL:?}"
     - touch part_x.sh && rm -f part_*.sh > /dev/null 2>&1 || true > /dev/null 2>&1
     - ( export NSPLIT=${CI_NODE_TOTAL:?}; for i in $(seq 1 ${CI_NODE_TOTAL:?}); do ( env CPUS="$(( $((grep -c "^model name" /proc/cpuinfo 2> /dev/null) | head -n 1) + 1 ))" bash -c '${CMB_TOOL:?} -N -e ${CMB_OPTIONS:?} -p "make -j ${CPUS:?} " -s " && printf %s\\\\n \"SHOW VERSION\" | ./src/dps8/dps8 -t && make distclean && \\"' ) | awk '{ print "env ITERATION="$0 }' 2> /dev/null | split -e -n "r/${i:?}/${NSPLIT:?}" | awk "BEGIN { print \"#\!/usr/bin/env bash\"; print \"# Part ${i:?} of ${NSPLIT:?}\"; printf \"\"; print \"set -eux -o pipefail\" } { print \$0 } END { print \"true\"; print \"\" }" | tr -d '\r' > "part_${i:?}_of_${NSPLIT:?}.sh" 2> /dev/null; done )
@@ -2422,7 +2349,7 @@ Option Verification Test:
 DPS8M Omnibus Documentation:
   when: always
   stage: docs
-  image: fedora:39
+  image: fedora:40
   tags:
     - Docker-x64-fast
     - Linux
@@ -2458,7 +2385,7 @@ DPS8M Omnibus Documentation:
 
 Multics CI-Kit Test:
   stage: ci_test
-  image: fedora:39
+  image: fedora:40
   tags:
     - Docker-x64-fast
     - Linux
@@ -2528,7 +2455,7 @@ Flawfinder:
 #############################################################################
 
 Clang Analyzer:
-  image: fedora:39
+  image: fedora:40
   stage: test
   allow_failure: false
   needs:
@@ -2564,7 +2491,7 @@ Clang Analyzer:
 #############################################################################
 
 PVS-Studio:
-  image: fedora:39
+  image: fedora:40
   stage: test
   allow_failure: false
   needs:
@@ -2588,7 +2515,7 @@ PVS-Studio:
     - dnf --setopt sslverify=0 --setopt sslverifystatus=0 --refresh -y install pvs-studio || dnf --setopt sslverify=0 --setopt sslverifystatus=0 --refresh -y install pvs-studio
     - wget -O /etc/yum.repos.d/viva64-beta.repo https://dps8m.gitlab.io/dps8m-archive/CI/viva64-beta.repo || true
     - dnf --setopt sslverify=0 --setopt sslverifystatus=0 --refresh -y install pvs-studio || dnf --setopt sslverify=0 --setopt sslverifystatus=0 --refresh -y install pvs-studio
-    - dnf --setopt sslverify=0 --setopt sslverifystatus=0 upgrade --best -y || dnf --setopt sslverify=0 --setopt sslverifystatus=0 upgrade --skip-broken --nobest -y
+    - dnf --setopt sslverify=0 --setopt sslverifystatus=0 upgrade --best -y || dnf --setopt sslverify=0 --setopt sslverifystatus=0 upgrade --nobest -y
     - pvs-studio-analyzer credentials "${PVS_STUDIO_NAME:?}" "${PVS_STUDIO_KEY:?}" || true
     - rm -f compile_commands.json
     - rm -f compile_commands.events.json
@@ -2597,11 +2524,11 @@ PVS-Studio:
     - pvs-studio-analyzer analyze --intermodular -o log.pvs -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") || true
     - plog-converter -a "GA:1,2" -t fullhtml log.pvs -o pvsreport -d V576,V629,V701,V768 > pvs.txt 2>&1 || true
     - cat pvs.txt || true
-    - grep -Eiq 'Exception. No valid messages' pvs.txt && { echo 'PASSED'; mkdir -p ./pvsreport; printf '%s\n' "Congratulations!" > ./pvsreport/index.html; } || true
+    - grep -Eiq '(Exception. No valid messages|No messages generated)' pvs.txt && { echo 'PASSED'; mkdir -p ./pvsreport; printf '%s\n' "Congratulations!" > ./pvsreport/index.html; } || true
     - mkdir -p ./pvsreport
     - touch pvsreport/index.html
     - rm -f pvs.txt || true
-    - grep -q 'Congratulations!' pvsreport/index.html
+    - grep -Eiq '(Congratulations!|No messages generated)' pvsreport/index.html
   dependencies: []
   artifacts:
     when: always
@@ -2614,7 +2541,7 @@ PVS-Studio:
 #############################################################################
 
 Coverity:
-  image: fedora:39
+  image: fedora:40
   stage: coverity_test
   allow_failure: true
   when: manual
@@ -2727,7 +2654,7 @@ Oracle Developer Studio Lint:
 
 Source Tree Checks:
   stage: src_test
-  image: fedora:39
+  image: fedora:40
   tags:
     - Docker-x64
     - Linux

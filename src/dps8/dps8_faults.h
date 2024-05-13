@@ -16,7 +16,7 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifndef QUIET_UNUSED
+#if !defined(QUIET_UNUSED)
 struct _fault_register {
     // even word
     bool    ILL_OP;     // IPR fault. An illegal operation code has been detected.
@@ -32,15 +32,18 @@ struct _fault_register {
     bool    CON_B;      // CON fault. A $CONNECT signal has been received through port B.
     bool    CON_C;      // CON fault. A $CONNECT signal has been received through port C.
     bool    CON_D;      // CON fault. A $CONNECT signal has been received through port D.
-    bool    DA_ERR;     // ONC fault. Operation not complete. Processor/system controller interface sequence error 1 has been detected. (Yeah, right)
-    bool    DA_ERR2;    // ONC fault. Operation not completed. Processor/system controller interface sequence error 2 has been detected.
+    bool    DA_ERR;     // ONC fault. Operation not complete. Processor/system controller interface
+                        //                                     sequence error 1 has been detected. (Yeah, right)
+    bool    DA_ERR2;    // ONC fault. Operation not completed. Processor/system controller interface
+                        //                                     sequence error 2 has been detected.
     int     IA_A;       // Coded illegal action, port A. (See Table 3-2)
     int     IA_B;       // Coded illegal action, port B. (See Table 3-2)
     int     IA_C;       // Coded illegal action, port C. (See Table 3-2)
     int     IA_D;       // Coded illegal action, port D. (See Table 3-2)
     bool    CPAR_DIV;   // A parity error has been detected in the cache memory directory. (Not likely)
     bool    CPAR_STR;   // PAR fault. A data parity error has been detected in the cache memory.
-    bool    CPAR_IA;    // PAR fault. An illegal action has been received from a system controller during a store operation with cache memory enabled.
+    bool    CPAR_IA;    // PAR fault. An illegal action has been received from a system controller
+                        //             during a store operation with cache memory enabled.
     bool    CPAR_BLK;   // PAR fault. A cache memory parity error has occurred during a cache memory data block load.
 
     // odd word
@@ -65,9 +68,7 @@ struct _fault_register {
     bool    PAR_SDWAM;  // A parity error has been detected in the SDWAM.
     bool    PAR_PTWAM;  // A parity error has been detected in the PTWAM.
 };
-#endif
 
-#ifndef QUIET_UNUSED
 struct dps8faults
 {
     int         fault_number;
@@ -78,7 +79,7 @@ struct dps8faults
     int         fault_group;
 };
 typedef struct dps8faults dps8faults;
-#endif
+#endif /* if !defined(QUIET_UNUSED) */
 
 extern char * faultNames [N_FAULTS];
 void check_events (void);
@@ -89,7 +90,7 @@ void cu_safe_restore (void);
 
 void doG7Fault(bool allowTR) NO_RETURN;
 
-#ifdef NEED_128
+#if defined(NEED_128)
 # define fst_zero (_fault_subtype) {.bits=0}
 # define fst_acv9 (_fault_subtype) {.fault_acv_subtype=ACV9}
 # define fst_acv15 (_fault_subtype) {.fault_acv_subtype=ACV15}
@@ -117,7 +118,7 @@ extern const _fault_subtype fst_str_ptr;
 extern const _fault_subtype fst_cmd_lprpn;
 extern const _fault_subtype fst_cmd_ctl;
 extern const _fault_subtype fst_onc_nem;
-#endif
+#endif /* if defined(NEED_128) */
 
 void doFault (_fault faultNumber, _fault_subtype faultSubtype,
               const char * faultMsg) NO_RETURN;
