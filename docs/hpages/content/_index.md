@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: MIT
+<!-- SPDX-License-Identifier: MIT-0
      Copyright (c) 2016-2024 The DPS8M Development Team
  -->
 # DPS8M: A DPS‑8&nbsp;∕&nbsp;M mainframe&nbsp;simulator

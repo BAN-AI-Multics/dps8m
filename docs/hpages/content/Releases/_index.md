@@ -2,7 +2,7 @@
 weight: 3000
 title: DPS8M Releases
 ---
-<!-- SPDX-License-Identifier: MIT -->
+<!-- SPDX-License-Identifier: MIT-0 -->
 <!-- Copyright (c) 2016-2024 The DPS8M Development Team -->
 ### Current Releases
 * [**Stable Release**](#stable-release)

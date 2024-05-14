@@ -2,11 +2,11 @@
 more:
   - name: ""
     sub:
-    - name: "Multics"
+    - name: "Multics Home"
       icon: "gdoc_heart"
       ref: "https://swenson.org/multics_wiki/"
       external: true
-    - name: "Multicians"
+    - name: "Multicians.org"
       icon: "gdoc_heart"
       ref: "https://multicians.org/"
       external: true
@@ -21,4 +21,8 @@ more:
     - name: "Wikipedia"
       icon: "gdoc_bookmark"
       ref: "https://en.wikipedia.org/wiki/Honeywell_6000_series"
+      external: true
+    - name: "Multics Source Browser"
+      icon: "gdoc_path"
+      ref: "https://dps8m.gitlab.io/sb/MR12.8/"
       external: true

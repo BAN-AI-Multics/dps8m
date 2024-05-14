@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: MIT
+<!-- SPDX-License-Identifier: MIT-0
      Copyright (c) 2016-2024 The DPS8M Development Team -->
 
 The simulator is distributed in various forms, including an easy-to-build [**source code distribution**](https://dps8m.gitlab.io/dps8m/Releases/), which can be built simply via **`make`** on *most* systems.
