@@ -1197,7 +1197,6 @@ iom_cmd_rc_t pun_iom_cmd (uint iomUnitIdx, uint chan) {
     // IDCW
     statep->ioMode = punNoMode;
     switch (p->IDCW_DEV_CMD) {
-
       case 011: // CMD 011 Punch binary
         sim_debug (DBG_DEBUG, & pun_dev, "%s: Punch Binary\n", __func__);
         statep->ioMode = punWrBin;
@@ -1228,7 +1227,6 @@ iom_cmd_rc_t pun_iom_cmd (uint iomUnitIdx, uint chan) {
 
   // Not IDCW; TDCW are captured in IOM, so must be IOTD, IOTP or IOTNP
   switch (statep->ioMode) {
-
     case punNoMode:
       //sim_printf ("%s: Unexpected IOTx\n", __func__);
       //sim_warn ("%s: Unexpected IOTx\n", __func__);

@@ -606,7 +606,6 @@ void cu_safe_store (void)
     cpu.cu_data.IC  = cpu.PPR.IC;
 
     tidy_cu ();
-
 }
 
 void tidy_cu (void)
@@ -2448,7 +2447,6 @@ static t_stat doInstruction (void)
 
     switch (opcode10)
       {
-
 // Operations sorted by frequency of use; should help with caching issues
 
 // Operations counts from booting and build a boot tape from source:
@@ -9905,7 +9903,6 @@ elapsedtime ();
     if (cpu.cu.rfi || // S/W asked for the instruction to be started
         cpu.cu.FIF)   // fault occurred during instruction fetch
       {
-
         // I am misusing this bit; on restart I want a way to tell the
         // CPU state machine to restart the instruction, which is not
         // how Multics uses it. I need to pick a different way to

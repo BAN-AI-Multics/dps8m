@@ -65,8 +65,6 @@ create_shm(char *key, size_t shm_size)
 
   (void)sprintf (buf, "dps8m.%s", key);
 
-
-
 #if defined(USE_BFLOCK)
   (void)sprintf (lck, ".%s", buf);
 

@@ -327,7 +327,6 @@ fpos_t fileaddr;
 struct _stati64 statb;
 
 switch (whence) {
-
     case SEEK_SET:
         fileaddr = (fpos_t)offset;
         break;

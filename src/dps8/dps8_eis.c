@@ -191,7 +191,6 @@ static word4 get6 (word36 w, int pos)
 // AL39, Figure 2-5
 static word9 get9(word36 w, int pos)
   {
-
     switch (pos)
       {
         case 0:
@@ -214,7 +213,6 @@ static word9 get9(word36 w, int pos)
 // AL39, Figure 2-3
 static word36 put4 (word36 w, int pos, word4 c)
   {
-
 // AL-39 pg 13: "The 0 bits at it positions 0, 9, 18, and 27 are forced to be 0
 // by the processor on data transfers to main memory ..."
 //
@@ -292,7 +290,6 @@ static word36 put6 (word36 w, int pos, word6 c)
 // AL39, Figure 2-5
 static word36 put9 (word36 w, int pos, word9 c)
   {
-
     switch (pos)
       {
         case 0:
@@ -1821,7 +1818,6 @@ static void parseNumericOperandDescriptor (int k, fault_ipr_subtype_ *mod_fault)
                "parseNumericOperandDescriptor(): address:%06o cPos:%d bPos:%d N%u %u\n",
                a->address, a->cPos, a->bPos, k, e->N[k-1]);
 #endif
-
 }
 
 static void parseBitstringOperandDescriptor (int k, fault_ipr_subtype_ *mod_fault)
@@ -2262,7 +2258,6 @@ sim_printf ("abd r 0%o %d.\n", r, r);
 
     if (GET_A (cpu.cu.IWB))
       {
-
 if (current_running_cpu_idx)
 sim_printf ("abd ARn %d WORDNO %o CHAR %o BITNO %0o %d. PR_BITNO %0o %d.\n",
             ARn, cpu.PAR[ARn].WORDNO, cpu.PAR[ARn].CHAR, cpu.PAR[ARn].BITNO,
@@ -2287,7 +2282,6 @@ sim_printf ("abd augend 0%o %d.\n", augend, augend);
 # if defined(SEPARATE)
     if (GET_A (cpu.cu.IWB))
       {
-
 if (current_running_cpu_idx)
 sim_printf ("abd bitno 0%o %d.\n", bitno, bitno);
 
@@ -5665,7 +5659,6 @@ static int mopINSB (void)
         }
 
     } else {
-
         // ES is ON
 
         // If C(IF) != 0
@@ -7514,7 +7507,6 @@ void cmpn (void)
 
     cleanupOperandDescriptor (1);
     cleanupOperandDescriptor (2);
-
 }
 
 /*
@@ -8465,7 +8457,6 @@ void csr (void)
 
 void sztl (void)
   {
-
     // The execution of this instruction is identical to the Combine
     // Bit Strings Left (csl) instruction except that C(BOLR)m is
     // not placed into C(Y-bit2)i-1.
@@ -8653,7 +8644,6 @@ void sztl (void)
 
 void sztr (void)
   {
-
     // The execution of this instruction is identical to the Combine
     // Bit Strings Left (csl) instruction except that C(BOLR)m is
     // not placed into C(Y-bit2)i-1.
@@ -9262,7 +9252,6 @@ static void EISwriteToOutputStringReverse (int k, word9 charToWrite, bool * ovf)
  */
 static bool sign9n(word72 n128, int N)
 {
-
     // sign bit of  9-bit is bit 8  (1 << 8)
     // sign bit of 18-bit is bit 17 (1 << 17)
     // .
@@ -10331,7 +10320,6 @@ void ad2d (void)
         }
 
         if (op3->digits - min(max(sf,0),ctz) > 63) {
-
             enum rounding safeR = decContextGetRounding(&set);         // save rounding mode
             int safe = set.digits;
             decNumber tmp;
@@ -10723,7 +10711,6 @@ void ad3d (void)
         }
 
         if (op3->digits - min(max(sf,0),ctz) > 63) {
-
             enum rounding safeR = decContextGetRounding(&set);         // save rounding mode
             int safe = set.digits;
             decNumber tmp;
@@ -11045,7 +11032,6 @@ void sb2d (void)
         }
 
         if (op3->digits - min(max(sf,0),ctz) > 63) {
-
             enum rounding safeR = decContextGetRounding(&set);         // save rounding mode
             int safe = set.digits;
             decNumber tmp;
@@ -11387,7 +11373,6 @@ void sb3d (void)
         }
 
         if (op3->digits - min(max(sf,0),ctz) > 63) {
-
             enum rounding safeR = decContextGetRounding(&set);         // save rounding mode
             int safe = set.digits;
             decNumber tmp;
@@ -12160,7 +12145,6 @@ void mp3d (void)
 /* bcd is returned.                                                   */
 /* ------------------------------------------------------------------ */
 static uint8_t * decBCDFromNumber(uint8_t *bcd, int length, int *scale, const decNumber *dn) {
-
     //PRINTDEC("decBCDFromNumber()", dn);
 
     const Unit *up=dn->lsu;     // Unit array pointer
@@ -12378,7 +12362,6 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
                                 int n, int s, int sf, bool R, decNumber * num,
                                 decNumber * den, bool * OVR, bool * TRUNC)
   {
-
     bool bDgtN = false;
 
 // this is the sane way to do it.....
@@ -12392,7 +12375,6 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
     // effective precision of the result is reduced by one.
     if (s == CSFL)
       {
-
 //            decNumber _4, _5, _6a, _6b, *op4, *op5, *op6a, *op6b;
 //
 //            // we want to make exponents the same so as to align the operands.
@@ -12533,7 +12515,6 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
 
     decNumber _sf;  // scaling factor
     {
-
 # if !defined(SPEED)
       int scale;
       char out[256], out2[256];
@@ -12727,7 +12708,6 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
 
                 if (s==CSFL)
                   {
-
                     set->digits = adjLen;
                     decNumberPlus(ro, ro, set);
 

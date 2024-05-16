@@ -600,7 +600,6 @@ cmb_count(struct cmb_config *config, uint32_t nitems)
   for (curset = setinit; nextset > 0 ? curset <= setdone : curset >= setdone;
        curset += (uint32_t)nextset)
     {
-
       /*
        * Calculate number of combinations (incrementing)
        */
@@ -854,7 +853,6 @@ cmb(struct cmb_config *config, uint32_t nitems, char *items[])
   for (curset = setinit; nextset > 0 ? curset <= setdone : curset >= setdone;
        curset += (uint32_t)nextset)
     {
-
       /*
        * Calculate number of combinations (incrementing)
        */
@@ -1752,7 +1750,6 @@ main(int argc, char *argv[])
 
   if (opt_range)
     {
-
       /*
        * ... as a series of ranges if given `-r'
        */
@@ -1789,7 +1786,6 @@ main(int argc, char *argv[])
     }
   else
     {
-
       /*
        * ... as a series of strings or numbers if given `-X op'
        */

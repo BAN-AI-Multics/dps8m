@@ -410,25 +410,24 @@ if (f == DKUF_F_STD)
 if ((0 == (ctx->sector_size & (ctx->storage_sector_size - 1))) ||   /* Sector Aligned & whole sector transfers */
     ((0 == ((lba*ctx->sector_size) & (ctx->storage_sector_size - 1))) &&
      (0 == ((sects*ctx->sector_size) & (ctx->storage_sector_size - 1))))) {
-
-    sim_end = DECLITEND;
-    if (sim_end || (ctx->xfer_element_size == sizeof (char)))
-        switch (DK_GET_FMT (uptr)) {                            /* case on format */
-            default:
-                return SCPE_NOFNC;
+        sim_end = DECLITEND;
+        if (sim_end || (ctx->xfer_element_size == sizeof (char)))
+            switch (DK_GET_FMT (uptr)) {                            /* case on format */
+                default:
+                    return SCPE_NOFNC;
             }
 
-    tbuf = (uint8*) malloc (sects * ctx->sector_size);
-    if (NULL == tbuf)
-        return SCPE_MEM;
-    sim_buf_copy_swapped (tbuf, buf, ctx->xfer_element_size, (sects * ctx->sector_size) / ctx->xfer_element_size);
+        tbuf = (uint8*) malloc (sects * ctx->sector_size);
+        if (NULL == tbuf)
+            return SCPE_MEM;
+        sim_buf_copy_swapped (tbuf, buf, ctx->xfer_element_size, (sects * ctx->sector_size) / ctx->xfer_element_size);
 
-    switch (DK_GET_FMT (uptr)) {                            /* case on format */
-        default:
-            r = SCPE_NOFNC;
-            break;
+        switch (DK_GET_FMT (uptr)) {                            /* case on format */
+            default:
+                r = SCPE_NOFNC;
+                break;
+            }
         }
-    }
 else { /* Unaligned and/or partial sector transfers */
     t_lba sspsts = ctx->storage_sector_size/ctx->sector_size; /* sim sectors in a storage sector */
     t_lba tlba = lba & ~(sspsts - 1);

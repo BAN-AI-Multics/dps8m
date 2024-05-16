@@ -1026,81 +1026,61 @@ Melse(void)
 }
 
 static state_fn *const trans_table[IS_COUNT][LT_COUNT] = {
-
   /* IS_OUTSIDE */
-
   {
     Itrue,  Ifalse, Fpass,  Ftrue,  Ffalse, Eelif,  Eelif,   Eelif,
     Eelse,  Eendif, Oiffy,  Oiffy,  Fpass,  Oif,    Oif,     Eelif,
     Eelif,  Eelif,  Eelse,  Eendif, print,  done,   abort
   },
-
   /* IS_FALSE_PREFIX */
-
   {
     Idrop,  Idrop,  Fdrop,  Fdrop,  Fdrop,  Mpass,  Strue,   Sfalse,
     Selse,  Dendif, Idrop,  Idrop,  Fdrop,  Fdrop,  Fdrop,   Mpass,
     Eioccc, Eioccc, Eioccc, Eioccc, drop,   Eeof,   abort
   },
-
   /* IS_TRUE_PREFIX */
-
   {
     Itrue,  Ifalse, Fpass,  Ftrue,  Ffalse, Dfalse, Dfalse,  Dfalse,
     Delse,  Dendif, Oiffy,  Oiffy,  Fpass,  Oif,    Oif,     Eioccc,
     Eioccc, Eioccc, Eioccc, Eioccc, print,  Eeof,   abort
   },
-
   /* IS_PASS_MIDDLE */
-
   {
     Itrue,  Ifalse, Fpass,  Ftrue,  Ffalse, Pelif,  Mtrue,   Delif,
     Pelse,  Pendif, Oiffy,  Oiffy,  Fpass,  Oif,    Oif,     Pelif,
     Oelif,  Oelif,  Pelse,  Pendif, print,  Eeof,   abort
   },
-
   /* IS_FALSE_MIDDLE */
-
   {
     Idrop,  Idrop,  Fdrop,  Fdrop,  Fdrop,  Pelif,  Mtrue,   Delif,
     Pelse,  Pendif, Idrop,  Idrop,  Fdrop,  Fdrop,  Fdrop,   Eioccc,
     Eioccc, Eioccc, Eioccc, Eioccc, drop,   Eeof,   abort
   },
-
   /* IS_TRUE_MIDDLE */
-
   {
     Itrue,  Ifalse, Fpass,  Ftrue,  Ffalse, Melif,  Melif,   Melif,
     Melse,  Pendif, Oiffy,  Oiffy,  Fpass,  Oif,    Oif,     Eioccc,
     Eioccc, Eioccc, Eioccc, Pendif, print,  Eeof,   abort
   },
-
   /* IS_PASS_ELSE */
-
   {
     Itrue,  Ifalse, Fpass,  Ftrue,  Ffalse, Eelif,  Eelif,   Eelif,
     Eelse,  Pendif, Oiffy,  Oiffy,  Fpass,  Oif,    Oif,     Eelif,
     Eelif,  Eelif,  Eelse,  Pendif, print,  Eeof,   abort
   },
-
   /* IS_FALSE_ELSE */
-
   {
     Idrop,  Idrop,  Fdrop,  Fdrop,  Fdrop,  Eelif,  Eelif,   Eelif,
     Eelse,  Dendif, Idrop,  Idrop,  Fdrop,  Fdrop,  Fdrop,   Eelif,
     Eelif,  Eelif,  Eelse,  Eioccc, drop,   Eeof,   abort
   },
-
   /* IS_TRUE_ELSE */
-
   {
     Itrue,  Ifalse, Fpass,  Ftrue,  Ffalse, Eelif,  Eelif,   Eelif,
     Eelse,  Dendif, Oiffy,  Oiffy,  Fpass,  Oif,    Oif,     Eelif,
     Eelif,  Eelif,  Eelse,  Eioccc, print,  Eeof,   abort
   },
-
   /* IS_FALSE_TRAILER */
-
   {
     Idrop,  Idrop,  Fdrop,  Fdrop,  Fdrop,  Dfalse, Dfalse,  Dfalse,
     Delse,  Dendif, Idrop,  Idrop,  Fdrop,  Fdrop,  Fdrop,   Dfalse,
@@ -1282,9 +1262,7 @@ hashline(void)
 static void
 closeio(void)
 {
-
   /* Tidy up after findsym(). */
-
   if (symdepth && !zerosyms)
     {
       (void)printf("\n");

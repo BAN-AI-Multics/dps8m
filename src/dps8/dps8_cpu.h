@@ -1532,7 +1532,6 @@ enum
 
 typedef struct
   {
-
     EISstruct currentEISinstruction;
 
     uCache_t uCache;

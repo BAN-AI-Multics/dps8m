@@ -131,7 +131,6 @@
  static float GLOBAL_YPOS;
 
  typedef struct _PageList {
-
     struct _PageList *next;
 
         int  page_id;
@@ -146,7 +145,6 @@
 
 /* ============================================================================================================================== */
  static void store_page(int id){
-
    PageList *n = (PageList *)malloc(sizeof(*n));
 
    if(n == NULL) {
@@ -166,7 +164,6 @@
 /* ============================================================================================================================== */
  static void start_object(int id){
         if(id >= GLOBAL_NUM_XREFS) {
-
            long *new_xrefs;
            int delta, new_num_xrefs;
            delta = GLOBAL_NUM_XREFS / 5;
@@ -204,7 +201,6 @@
  }
 /* ============================================================================================================================== */
  static void print_bars(void){
-
         float x1;
         float yyy1;
         float height;
@@ -362,7 +358,6 @@
      printme_top();
 
      if(GLOBAL_CENTER_TITLE[0] != 0 /*NULL*/ ){
-
         /* assuming fixed-space font Courier-Bold */
         charwidth=GLOBAL_TITLE_SIZE*0.60;
         start=GLOBAL_PAGE_MARGIN_LEFT
@@ -408,7 +403,6 @@
  }
 /* ============================================================================================================================== */
  static void end_page(void){
-
     long stream_len;
     int page_id = GLOBAL_OBJECT_ID++;
 
@@ -430,7 +424,6 @@
 /* ============================================================================================================================== */
  static void do_text (void)
   {
-
     char buffer [8192];
     //char ASA;
     int c;

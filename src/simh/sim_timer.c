@@ -431,7 +431,6 @@ return time;
 
 int32 sim_rtcn_calb (uint32 ticksper, int32 tmr)
 {
-
 if (tmr == SIM_INTERNAL_CLK)
     tmr = SIM_NTIMERS;
 else {

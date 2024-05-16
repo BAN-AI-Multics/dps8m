@@ -124,7 +124,6 @@ miss:;
 
 #if defined(UCACHE_STATS)
 void ucacheStats (int cpuNo) {
-
   (void)fflush(stdout);
   (void)fflush(stderr);
   sim_msg ("\r\n|   CPU %c Micro-cache Statistics  |", 'A' + cpuNo);

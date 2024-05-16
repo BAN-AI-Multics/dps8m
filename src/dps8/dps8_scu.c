@@ -1299,7 +1299,6 @@ done:
 #endif
 
     return scu [scu_unit_idx].last_time;
-
   }
 
 //static char pcellb [N_CELL_INTERRUPTS + 1];
@@ -2274,7 +2273,6 @@ clock_gettime (CLOCK_REALTIME, & cioc_t0);
       }
     else if (portp -> type == ADEV_CPU)
       {
-
 #if 1
 // by subport_enables
         if (portp->is_exp)

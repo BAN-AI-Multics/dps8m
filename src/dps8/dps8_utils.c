@@ -64,7 +64,6 @@ char * dump_flags(char * buffer, word18 flags)
                   flags & I_ZERO  ? "Zero "  : ""
                  );
     return buffer;
-
 }
 
 static char * dps8_strupr(char *str)
@@ -1317,7 +1316,6 @@ int strmask (char * str, char * mask)
 # define EOB 3
 
 char * Strtok (char * line, char * sep) {
-
     static char *p = NULL; // current pointer position in input line; initialized to NULL for robustness.
     static int state = NORMAL;
 
@@ -1390,7 +1388,6 @@ char * Strtok (char * line, char * sep) {
     }
 
     return NULL; /* no more fields in buffer */
-
 }
 #endif
 

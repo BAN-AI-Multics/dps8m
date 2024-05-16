@@ -1420,5 +1420,4 @@ int main(int argc, char *argv[])
         (void)fprintf(stderr, "\n*****\nWriting MCC output\n*****\n");
         dump_mcc(stdout);
     }
-
 }

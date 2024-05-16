@@ -439,7 +439,6 @@ static t_stat dsk_set_device_name (UNIT * uptr, UNUSED int32 value,
 // it is just signal.
 
 t_stat signal_disk_ready (uint dsk_unit_idx) {
-
   // Don't signal if the sim is not actually running....
   if (! sim_is_running)
     return SCPE_OK;
@@ -1449,7 +1448,6 @@ if (chan == 014)
 
   // Not IDCW; TDCW are captured in IOM, so must be IOTD, IOTP or IOTNP
   switch (disk_statep->io_mode) {
-
     case disk_no_mode:
 #if defined(POLTS_DISK_TESTING)
 if (chan == 014)

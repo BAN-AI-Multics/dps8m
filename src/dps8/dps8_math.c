@@ -1061,7 +1061,6 @@ void fnoEAQ(word8 *E, word36 *A, word36 *Q)
 
     // Neg: If C(AQ)0 = 1, then ON; otherwise OFF
     SC_I_NEG (*A & SIGN36);
-
 }
 #endif
 
@@ -2011,7 +2010,6 @@ void dufa (bool subtract, bool normalize) {
   // see ufs
   int m2zero = 0;
   if (subtract) {
-
 #if defined(NEED_128)
     if (iszero_128 (m2))
       m2zero = 1;
@@ -2284,7 +2282,6 @@ void dufs (void)
     }
 
     dufa ();
-
 }
 #endif
 
