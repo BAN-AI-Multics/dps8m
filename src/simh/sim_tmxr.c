@@ -700,8 +700,8 @@ for (i=0; i<mp->lines; ++i) {
 
     lptr = tmxr_line_attach_string(lp);
     if (lptr) {
-        (void)sprintf (growstring(&tptr, 10+strlen(lptr)), "%s%s",
-                       *tptr ? "," : "", lptr);
+        char *tempstr = growstring(&tptr, 10 + strlen(lptr));
+        (void)sprintf(tempstr, "%s%s", *tptr ? "," : "", lptr);
         FREE (lptr);
         }
     }
