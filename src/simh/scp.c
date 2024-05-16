@@ -10381,7 +10381,7 @@ if (sim_deb && (dptr->dctrl & reason)) {
                 continue;
                 }
             if (same > 0) {
-                sim_debug (reason, dptr, "%04X thru %04X same as above\n",
+                sim_debug (reason, dptr, "%04lx thru %04lx same as above\n",
                            i - (16*same),
                            i - 1);
                 same = 0;
@@ -10426,10 +10426,10 @@ if (sim_deb && (dptr->dctrl & reason)) {
             strbuf[soff+sidx] = '\0';
             ebcdicbuf[eidx] = '\0';
             rad50buf[ridx] = '\0';
-            sim_debug (reason, dptr, "%04X%-48s %s%s%s\n", i, outbuf, strbuf, ebcdicbuf, rad50buf);
+            sim_debug (reason, dptr, "%04lx%-48s %s%s%s\n", i, outbuf, strbuf, ebcdicbuf, rad50buf);
             }
         if (same > 0) {
-            sim_debug (reason, dptr, "%04X thru %04X same as above\n", i-(16*same), (unsigned int)(len-1));
+            sim_debug (reason, dptr, "%04lx thru %04lx same as above\n", i-(16*same), (unsigned int)(len-1));
             }
         }
     }
