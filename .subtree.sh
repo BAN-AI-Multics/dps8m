@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 # scspell-id: a947428c-19f4-11ef-8936-80ee73e9b8e7
 
-set -eux
+set -eu
 
 test -n "${SIGN_CMD:-}" || {
   test -z "${SIGN_CMD:-}" && SIGN_CMD="-S"
