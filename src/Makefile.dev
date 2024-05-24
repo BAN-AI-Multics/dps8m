@@ -161,7 +161,7 @@ printdefs:                                                                    \
 	@( ( $(FIND) . -name '*.[ch]' -exec $(SH) -c "export n2=\"{}\";           \
      $(PRINTF) '%s ' \"\$${n2:?}\";                                           \
       "$$($(GIT) rev-parse --show-toplevel)/./src/unifdef/unifdef" "-Stn"     \
-       \"\$${n2:?}\"" \; | grep -v '/libsir/'                              |  \
+       \"\$${n2:?}\"" \; | grep -Ev '(/libsir/|/libbacktrace/)'            |  \
         while read -r n; do $(PRINTF) '%s  %s \n'                             \
          $$($(PRINTF) '%s ' "$${n:?}" | $(WC) -w) "$${n:?}"; done          |  \
           $(SORT) -urn | $(EXPAND) | $(CUT) -d ' ' -f 2-                   |  \
@@ -308,6 +308,7 @@ lmscspell:                                                                    \
      $(GREP) -Ev '(\.ascii$$)'                                              | \
      $(GREP) -Ev '(docs/wiki/)'                                             | \
      $(GREP) -Ev '(src/libsir/)'                                            | \
+     $(GREP) -Ev '(src/libbacktrace/)'                                      | \
      $(GREP) -Ev '(libuv-local/)'                                           | \
      $(GREP) -Ev '(\.envrc$$)'                                              | \
      $(GREP) -Ev '(\.Attic/.)'                                              | \

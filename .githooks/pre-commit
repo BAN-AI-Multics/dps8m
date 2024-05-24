@@ -97,7 +97,7 @@ ${GIT:-git} diff --check >&2 ||
 ${DEBUG_CALL:?} Checking Cppi indentation ...
 if (command -v cppi > /dev/null 2>&1); then
   CPPISCAN="$(${MAKE:-make} cppiscan 2> /dev/null | grep '/' | \
-    grep -Eiv '(^libuv|^src/libsir)' || true)"
+    grep -Eiv '(^libuv|^src/libsir|^src/libbacktrace)' || true)"
   test -z "${CPPISCAN:-}" ||
     {
       printf '%s\n' "${CPPISCAN:?}" >&2;
@@ -112,8 +112,9 @@ fi
 ####################################################################################################
 
 ${DEBUG_CALL:?} Checking for tabs in C source code files ...
-TLIST="$(${HOOK_CALL:?} | grep '\.[ch]$' | grep -v 'src/libsir/' | \
-  xargs -L 1 grep -l "$(printf '\t')" 2> /dev/null)";
+TLIST="$(${HOOK_CALL:?} | grep '\.[ch]$' | \
+  grep -Ev '(src/libsir/|src/libbacktrace)' | \
+    xargs -L 1 grep -l "$(printf '\t')" 2> /dev/null)";
 printf "%s\n" "${TLIST:-}" | grep -v '^$' 2> /dev/null | grep . >&2 &&
   {
     printf '%s\n' "ERROR: Tabs check failed!" >&2;
@@ -123,9 +124,10 @@ printf "%s\n" "${TLIST:-}" | grep -v '^$' 2> /dev/null | grep . >&2 &&
 ####################################################################################################
 
 ${DEBUG_CALL:?} Checking for FREE misuse in C source code files ...
-TLIST="$(${HOOK_CALL:?} | grep '\.[ch]$' | xargs -I{} | grep -v 'src/libsir/' | \
-  grep -HEn '( free \(| free\(|^free \(|^free\()' "{}" 2> /dev/null | \
-    grep -Ev '(FREE|free\(\(p\)\).*\\$)' 2> /dev/null || true 2> /dev/null)";
+TLIST="$(${HOOK_CALL:?} | grep '\.[ch]$' | xargs -I{} | \
+  grep -Ev '(src/libsir/|src/libbacktrace)' | \
+    grep -HEn '( free \(| free\(|^free \(|^free\()' "{}" 2> /dev/null | \
+      grep -Ev '(FREE|free\(\(p\)\).*\\$)' 2> /dev/null || true 2> /dev/null)";
 printf "%s\n" "${TLIST:-}" | grep -v '^$' 2> /dev/null | grep . >&2 &&
   {
     printf '%s\n' "ERROR: FREE check failed!" >&2;
@@ -135,9 +137,10 @@ printf "%s\n" "${TLIST:-}" | grep -v '^$' 2> /dev/null | grep . >&2 &&
 ####################################################################################################
 
 ${DEBUG_CALL:?} Checking for strerror misuse in C source code files ...
-TLIST="$(${HOOK_CALL:?} | grep '\.[ch]$' | grep -v 'src/libsir/' | xargs -I{} \
-  grep -HEn 'strerror' "{}" 2> /dev/null | \
-    grep -Ev '(xstrerror_l|uv_strerror|LINTOK )' 2> /dev/null || true 2> /dev/null)";
+TLIST="$(${HOOK_CALL:?} | grep '\.[ch]$' | \
+  grep -Ev '(src/libsir/|src/libbacktrace)' | xargs -I{} \
+    grep -HEn 'strerror' "{}" 2> /dev/null | \
+      grep -Ev '(xstrerror_l|uv_strerror|LINTOK )' 2> /dev/null || true 2> /dev/null)";
 printf "%s\n" "${TLIST:-}" | grep -v '^$' 2> /dev/null | grep . >&2 &&
   {
     printf '%s\n' "ERROR: strerror check failed!" >&2;
@@ -147,7 +150,7 @@ printf "%s\n" "${TLIST:-}" | grep -v '^$' 2> /dev/null | grep . >&2 &&
 
 ${DEBUG_CALL:?} Checking for trailing whitespace ...
 TLIST="$(${HOOK_CALL:?} | \
- grep -Ev '(src/libsir/|mcmb$|unifdef$|tags$|vmpctool$|prt2pdf$|GRTAGS$|GTAGS$)' |
+ grep -Ev '(src/libsir/|src/libbacktrace/|mcmb$|unifdef$|tags$|vmpctool$|prt2pdf$|GRTAGS$|GTAGS$)' |
   grep -Ev '(punutil$|dps8$|l68$|empty$|\.out$|\.tmp$|~$|\.exe$|\.dll$|\.o$|core$|\.git/.)' |
    grep -Ev '(strip\.mem$|bound_library_wired_$|ci_full\.log\.ref$|\.woff$|\.woff2$|\.png$|\.jpg$)' |
    xargs -I{} grep -ial ' \+$' "{}" 2> /dev/null)";

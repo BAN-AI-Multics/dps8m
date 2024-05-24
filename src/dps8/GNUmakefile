@@ -549,7 +549,8 @@ ifneq (,$(findstring clean,$(MAKECMDGOALS)))
 .NOTPARALLEL: distclean clean
 endif
 distclean: clean
-	@$(SETV); $(MAKE) -C "../libsir" "distclean"
+	@$(SETV); $(MAKE) -C "../libsir"       "distclean"              || $(TRUE)
+	@$(SETV); $(MAKE) -C "../libbacktrace" "distclean" 2> /dev/null || $(TRUE)
 	@$(RMF) *.gc??                           2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../blinkenLights2/*.gc??         2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../decNumber/*.gc??              2> /dev/null  ||  $(TRUE)
@@ -625,7 +626,8 @@ clean:
 	@$(SETV); $(MAKE) -C "../novdso"         -f "GNUmakefile"  "clean"
 	@$(SETV); ( cd ../blinkenLights2 && $(RMF) blinkenLights2 || $(TRUE) )
 	@$(SETV); $(MAKE) -C "."                 -f "GNUmakefile"  "clean_dps8"
-	@$(SETV); $(MAKE) -C "../libsir"                           "clean"
+	@$(SETV); $(MAKE) -C "../libsir"       "clean"               ||  $(TRUE)
+	@$(SETV); $(MAKE) -C "../libbacktrace" "clean" 2> /dev/null  ||  $(TRUE)
 	@$(SETV); $(RMF)  ../../"$(KITNAME)"."$(TARXT)"    ||  $(TRUE)
 	@$(SETV); $(RMF)  ../../"$(KITNAME)"."$(TARXT)".*  ||  $(TRUE)
 	@$(SETV); $(RMF)  ../../"$(KITNAME)"."TMP"         ||  $(TRUE)
