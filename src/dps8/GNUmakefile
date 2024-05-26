@@ -507,16 +507,22 @@ udplib$(EXE): udplib.c udplib.h
 tags TAGS ctags: $(C_SRCS) $(H_SRCS) ver.h
 	@$(PRINTF) '%s\n' "CTAGS: dps8"
 	-@$(SETV); $(CTAGS) $(C_SRCS) $(H_SRCS)                                   \
-        $(SIMHx)/*.[ch] ../decNumber/dec*.[ch]     2> /dev/null   || $(TRUE)
+        $(SIMHx)/*.[ch] ../decNumber/dec*.[ch]       2> /dev/null || $(TRUE)
 	@$(PRINTF) '%s\n' "ETAGS: dps8"
 	-@$(SETV); $(ETAGS) $(C_SRCS) $(H_SRCS)                                   \
-        $(SIMHx)/*.[ch] ../decNumber/dec*.[ch]     2> /dev/null   || $(TRUE)
+        $(SIMHx)/*.[ch] ../decNumber/dec*.[ch]       2> /dev/null || $(TRUE)
 	@$(PRINTF) '%s\n' "GTAGS: dps8"
-	-@($(SETV); $(CD) ../.. && $(GIT) ls-files     2> /dev/null    |          \
-        $(GREP) '\.[ch]'                           2> /dev/null    |          \
-         $(GREP) -E '(dps8|decNumber|simh|libsir)' 2> /dev/null    |          \
-          $(GREP) -vE '(blinkenLights|\.Attic/)'   2> /dev/null    |          \
-           $(GTAGS) -f -                           2> /dev/null)  || $(TRUE)
+	-@($(SETV); $(CD) ../.. && $(GIT) ls-files       2> /dev/null  |          \
+       $(GREP) '\.[ch]'                              2> /dev/null  |          \
+         $(GREP) -E '(dps8|decNumber|simh|libsir)'   2> /dev/null  |          \
+         $(GREP) -vE '(blinkenLights|\.Attic/)'      2> /dev/null  |          \
+         $(GREP) -vE '(libsir/example|libsir/tests)' 2> /dev/null  |          \
+         $(GREP) -vE '(libsir/bindings|libsir/docs)' 2> /dev/null  |          \
+         $(GREP) -vE '(libsir/sir\.code-workspace)'  2> /dev/null  |          \
+         $(GREP) -vE '(libsir/utils|libsir/plugins)' 2> /dev/null  |          \
+         $(GREP) -vE '(libsir/include/sir\.hh)'      2> /dev/null  |          \
+         $(GREP) -vE '(libbacktrace/)'               2> /dev/null  |          \
+       $(GTAGS) -f -                                 2> /dev/null) || $(TRUE)
 	@$(PRINTF) '%s\n' "CSCOPE: dps8"
 	-@$(SETV); $(CSCOPE) -bcq $(C_SRCS) $(H_SRCS)                             \
         $(SIMHx)/*.[ch] ../decNumber/dec*.[ch]     2> /dev/null   || $(TRUE)
