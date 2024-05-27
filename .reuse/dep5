@@ -12,3 +12,7 @@ Files: src/libsir/*
 Copyright: 2018-2024 Ryan M. Lederman <lederman@gmail.com>
            2018-2024 Jeffrey H. Johnson <trnsz@pobox.com>
 License: MIT
+
+Files: src/libbacktrace/*
+Copyright: 2012-2016 Free Software Foundation, Inc.
+License: MIT
