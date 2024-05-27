@@ -110,7 +110,6 @@ typedef enum chanStat
 
 typedef volatile struct
   {
-
 // scratch pad
 
     // packed LPW

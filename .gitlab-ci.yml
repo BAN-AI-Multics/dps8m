@@ -2440,6 +2440,7 @@ Flawfinder:
     - *scriptSanity
     - *scriptCommon
     - *scriptExtraInfo
+    - env rm -rf src/libbacktrace
     - flawfinder -C -m 5 -c . 2>&1 > flawfinder.txt || true
     - sh -xc 'set +e; grep "No hits found" flawfinder.txt && exit 0;exit 2'
   dependencies: []

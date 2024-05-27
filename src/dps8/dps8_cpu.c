@@ -1536,7 +1536,6 @@ static void ev_poll_cb (UNUSED uv_timer_t * handle)
 
 void cpu_init (void)
   {
-
 // !!!! Do not use 'cpu' in this routine; usage of 'cpus' violates 'restrict'
 // !!!! attribute
 
@@ -2411,7 +2410,6 @@ setCPU:;
 
                     if (intr_pair_addr != 1) // no interrupts
                       {
-
                         CPT (cpt1U, 3); // interrupt identified
 
                         // get interrupt pair
@@ -2766,7 +2764,6 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 
                   if (cpu.cycle != EXEC_cycle) // fault or interrupt
                     {
-
                       clearFaultCycle ();
 
 // BAR mode:  [NBAR] is set ON (taking the processor
@@ -3944,7 +3941,6 @@ void decode_instruction (word36 inst, DCDstruct * p)
 
 int is_priv_mode (void)
   {
-
 // Back when it was ABS/APP/BAR, this test was right; now that
 // it is ABS/APP,BAR/NBAR, check bar mode.
 // Fixes ISOLTS 890 05a.
@@ -4575,7 +4571,6 @@ void dps8_sim_debug (uint32 dbits, DEVICE * dptr, unsigned long long cnt, const 
 #endif
 
 void setupPROM (uint cpuNo, unsigned char * PROM) {
-
 // 58009997-040 MULTICS Differences Manual DPS 8-70M Aug83
 //
 // THESE OFFSETS ARE IN OCTAL

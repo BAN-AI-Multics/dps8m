@@ -220,7 +220,6 @@ decNumber * decBCD9ToNumber(const word9 *bcd, Int length, const Int scale, decNu
 /* ------------------------------------------------------------------ */
 
 static uint8_t * decBCDFromNumber(uint8_t *bcd, int length, int *scale, const decNumber *dn) {
-
     //PRINTDEC("decBCDFromNumber()", dn);
 
     const Unit *up=dn->lsu;     // Unit array pointer
@@ -583,7 +582,6 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
 
                 if (s==CSFL)
                 {
-
                     set->digits = adjLen;
                     decNumberPlus(ro, ro, set);
 
@@ -726,7 +724,6 @@ char *formatDecimal (uint8_t * out, decContext *set, decNumber *r, int nout, int
 
   // CSFL isn't rescaled and can't overflow
   if (s != CSFL) {
-
     // rescale to sf first
     // AL39: If N2 is not large enough to hold the integer part of C(Y-charn1) _as rescaled by SF2_, an overflow condition exists
     // ET 336
@@ -776,7 +773,6 @@ char *formatDecimal (uint8_t * out, decContext *set, decNumber *r, int nout, int
     // if sf>=0, this doesn't change anything, nout integer slots are available
     // ET 275, ET 336
     if (nout + min (sf,0) < r2digits) {
-
       // discard overflowing digits
       // note that this may set zero flag: ISOLTS-810 01l
       set->digits = r2digits - (nout + min (sf,0));

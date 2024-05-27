@@ -495,7 +495,6 @@ empty:;
   static int jobNo = 0;
 
   switch (rdr_state [unitIdx].deckState) {
-
     case deckStart: {
 #if defined(TESTING)
   sim_printf ("deckStart: sending ++EOF\r\n");
@@ -680,7 +679,6 @@ empty:;
 #endif
   word36 buffer [27];
   switch (thisCard) {
-
     case sevenDeck: {
       // This will overread rawCardImage by 12 bits, but that's okay
       // because Multics will ignore the last 12 bits.
@@ -925,7 +923,6 @@ iom_cmd_rc_t rdr_iom_cmd (uint iomUnitIdx, uint chan) {
     statep->io_mode = rdr_no_mode;
 
     switch (p->IDCW_DEV_CMD) {
-
       case 000: // CMD 00 Request status
         sim_debug (DBG_DEBUG, & rdr_dev, "%s: Request Status\n", __func__);
         p->stati = 04000;
@@ -988,7 +985,6 @@ sim_printf ("unknown  %o\r\n", p->IDCW_DEV_CMD);
 
   // Not IDCW; TDCW are captured in IOM, so must be IOTD, IOTP or IOTNP
   switch (statep->io_mode) {
-
     case rdr_no_mode:
 #if defined(TESTING)
       sim_printf ("%s: Unexpected IOTx\r\n", __func__);

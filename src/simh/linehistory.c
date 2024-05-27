@@ -1053,7 +1053,6 @@ linenoiseEditHistoryNext(struct linenoiseState *l, int dir)
 {
   if (history_len > 1)
   {
-
     /*
      * Update the current history entry before to
      * overwrite it with the next one.
@@ -1105,7 +1104,6 @@ linenoiseSearchInHistory(struct linenoiseState *l, int direction)
 {
   if (history_len > 1)
   {
-
     /*
      * Update the current history entry before to
      * overwrite it with the next one.
@@ -1133,7 +1131,6 @@ linenoiseSearchInHistory(struct linenoiseState *l, int direction)
       cnt = history_len - 2 - l->history_index;
       for (; cnt >= 0; cnt--)
       {
-
         /*
          * Search a history entry that start with same
          * as the current line until the cursor position
@@ -1162,7 +1159,6 @@ linenoiseSearchInHistory(struct linenoiseState *l, int direction)
       cnt = history_len - l->history_index;
       for (; cnt < history_len; cnt++)
       {
-
         /*
          * Search a history entry that start with same
          * as the current line until the cursor position
@@ -1370,7 +1366,6 @@ linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen,
 # if defined(LH_HINTS)
       if (hintsCallback)
       {
-
         /*
          * Force a refresh without hints to leave the previous
          * line as the user typed it after a newline.
@@ -1661,7 +1656,6 @@ linenoise(const char *prompt)
 
   if (!isatty(STDIN_FILENO))
   {
-
     /*
      * Not a tty: read from file / pipe. In this mode we don't want any
      * limit to the line size, so we call a function to handle that.

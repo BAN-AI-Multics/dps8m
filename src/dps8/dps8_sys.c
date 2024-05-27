@@ -3898,7 +3898,6 @@ static t_stat trkr (UNUSED int32 arg, const char * buf)
 #if !defined(PERF_STRIP)
 static CTAB dps8_cmds[] =
   {
-
 //
 // System configuration
 //

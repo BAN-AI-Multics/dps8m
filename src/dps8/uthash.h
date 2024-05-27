@@ -979,7 +979,6 @@ typedef struct UT_hash_bucket {
     */
 
    unsigned expand_mult;
-
 } UT_hash_bucket;
 
 /* random signature used only to find hash tables in external analysis */
@@ -1025,7 +1024,6 @@ typedef struct UT_hash_table {
    uint8_t *bloom_bv;
    char bloom_nbits;
 # endif
-
 } UT_hash_table;
 
 typedef struct UT_hash_handle {

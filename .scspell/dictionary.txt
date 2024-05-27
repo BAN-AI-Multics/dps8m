@@ -6543,6 +6543,7 @@ didn
 doesn
 forfeed
 haven
+tempstr
 
 FILEID: 7f512181-f62e-11ec-ad25-80ee73e9b8e7
 darksisers
@@ -8638,6 +8639,9 @@ keepcache
 nogpgcheck
 printf
 
+FILEID: a947428c-19f4-11ef-8936-80ee73e9b8e7
+aremmell
+
 NATURAL:
 abandon
 abandoned
@@ -9105,6 +9109,7 @@ binary
 bindable
 binder
 binding
+bindings
 bink
 binm
 biological
@@ -13179,6 +13184,7 @@ square
 squared
 squares
 squaring
+squash
 squeezed
 squid
 stable

@@ -280,7 +280,6 @@ static void fetch_dsptw (word15 segno)
 
 static void modify_dsptw (word15 segno)
   {
-
     PNL (L68_ (cpu.apu.state |= apu_MDPT;))
 
     set_apu_status (apuStatus_MDSPTW);

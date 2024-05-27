@@ -414,7 +414,6 @@ static uint virtToPhys (uint ptPtr, uint l66Address)
 
 static void cmd_bootload (uint iom_unit_idx, uint dev_unit_idx, uint chan, word24 l66_addr)
   {
-
     uint fnpno = dev_unit_idx; // XXX
     //iom_chan_data_t * p       = & iom_chan_data [iom_unit_idx] [chan];
     struct dia_unit_data * dudp = & dia_data.dia_unit_data[fnpno];

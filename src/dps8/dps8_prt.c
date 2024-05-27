@@ -1211,7 +1211,6 @@ iom_cmd_rc_t prt_cmd_300 (uint iomUnitIdx, uint chan) {
     statep->ioMode = prtNoMode;
 
     switch (p->IDCW_DEV_CMD) {
-
       case 000: // CMD 00 Request status
         sim_debug (DBG_DEBUG, & prt_dev, "%s: Request Status\n", __func__);
         p->stati = 04000;
@@ -1398,7 +1397,6 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
     statep->ioMode = prtNoMode;
 
     switch (p->IDCW_DEV_CMD) {
-
       case 000: // CMD 00 Request status
         sim_debug (DBG_DEBUG, & prt_dev, "%s: Request Status\n", __func__);
         p->stati = 04000;

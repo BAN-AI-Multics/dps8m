@@ -5721,7 +5721,6 @@ t_stat ssh_break_one (FILE *st, int32 flg, t_addr lo, int32 cnt, CONST char *apt
 if (!sim_brk_types)
     return sim_messagef (SCPE_NOFNC, "No breakpoint support in this simulator\n");
 switch (flg) {
-
     case SSH_ST:
         return sim_brk_set (lo, sim_switches, cnt, aptr);
         /*NOTREACHED*/ /* unreachable */
@@ -10334,7 +10333,6 @@ return;
 
 void sim_data_trace(DEVICE *dptr, UNIT *uptr, const uint8 *data, const char *position, size_t len, const char *txt, uint32 reason)
 {
-
 if (sim_deb && (dptr->dctrl & reason)) {
     sim_debug (reason, dptr, "%s %s %slen: %08X\n", sim_uname(uptr), txt, position, (unsigned int)len);
     if (data && len) {
@@ -10383,7 +10381,7 @@ if (sim_deb && (dptr->dctrl & reason)) {
                 continue;
                 }
             if (same > 0) {
-                sim_debug (reason, dptr, "%04X thru %04X same as above\n",
+                sim_debug (reason, dptr, "%04lx thru %04lx same as above\n",
                            i - (16*same),
                            i - 1);
                 same = 0;
@@ -10428,10 +10426,10 @@ if (sim_deb && (dptr->dctrl & reason)) {
             strbuf[soff+sidx] = '\0';
             ebcdicbuf[eidx] = '\0';
             rad50buf[ridx] = '\0';
-            sim_debug (reason, dptr, "%04X%-48s %s%s%s\n", i, outbuf, strbuf, ebcdicbuf, rad50buf);
+            sim_debug (reason, dptr, "%04lx%-48s %s%s%s\n", i, outbuf, strbuf, ebcdicbuf, rad50buf);
             }
         if (same > 0) {
-            sim_debug (reason, dptr, "%04X thru %04X same as above\n", i-(16*same), (unsigned int)(len-1));
+            sim_debug (reason, dptr, "%04lx thru %04lx same as above\n", i-(16*same), (unsigned int)(len-1));
             }
         }
     }
@@ -10999,7 +10997,6 @@ t_stat scp_vhelp (FILE *st, DEVICE *dptr,
                   UNIT *uptr, int32 flag,
                   const char *help, const char *cptr, va_list ap)
 {
-
 TOPIC top;
 TOPIC *topic = &top;
 int failed;
@@ -11013,7 +11010,6 @@ static const char attach_help[] = { " ATTACH" };
 static const char  brief_help[] = { "%s help.  Type <CR> to exit, HELP for navigation help.\n" };
 static const char onecmd_help[] = { "%s help.\n" };
 static const char   help_help[] = {
-
     /****|***********************80 column width guide********************************/
     "    To see more HELP information, type the listed subtopic name.  To move\n"
     "    up a level, just type <CR>.  To review the current subtopic, type \"?\".\n"

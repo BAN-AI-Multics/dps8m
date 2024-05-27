@@ -906,7 +906,6 @@ if (p_getaddrinfo(host[0] ? host : NULL, port[0] ? port : NULL, &hints, &result)
     return INVALID_SOCKET;
 
 if (sourcehostport) {
-
     /* Validate the local/source side address which we'll bind to */
     if (sim_parse_addr (sourcehostport, host, sizeof(host), NULL, port, sizeof(port), NULL, NULL)) {
         p_freeaddrinfo (result);

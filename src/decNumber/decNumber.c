@@ -3156,7 +3156,6 @@ const char *decNumberClassToString(enum decClass eclass) {
 /* so special values are unchanged and no error is possible.          */
 /* ------------------------------------------------------------------ */
 decNumber * decNumberCopy(decNumber *dest, const decNumber *src) {
-
   if (dest==src) return dest;                // no copy required
 
   // Use explicit assignments here as structure assignment could copy
@@ -3370,7 +3369,6 @@ const char * decNumberVersion(void) {
 /* ------------------------------------------------------------------ */
 // Memset is not used as it is much slower in some environments.
 decNumber * decNumberZero(decNumber *dn) {
-
   dn->bits=0;
   dn->exponent=0;
   dn->digits=1;

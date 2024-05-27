@@ -380,7 +380,6 @@ int divmnu (uint16_t q[], uint16_t r[],
             const uint16_t u[], const uint16_t v[],
             int m, int n)
   {
-
     const uint32_t b = 65536;   // Number base (16 bits).
     //uint16_t *un, *vn;        // Normalized form of u, v.
     unsigned qhat;              // Estimated quotient digit.

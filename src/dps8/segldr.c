@@ -186,7 +186,6 @@ bound=037777;
 
 static t_stat stack (char * p2, char * p3)
   {
-
     // Segment number
     char * endptr;
     long segnum = strtol (p2, & endptr, 8);
@@ -242,7 +241,6 @@ static t_stat stack (char * p2, char * p3)
 
 static t_stat bload (char * p2, char * p3)
   {
-
     // Segment number
     long segnum;
     if (strcasecmp ("boot", p2) == 0)

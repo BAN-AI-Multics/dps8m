@@ -680,7 +680,6 @@ static int _subnegotiate(telnet_t *telnet) {
         telnet->eh(telnet, &ev, telnet->ud);
 
         switch (telnet->sb_telopt) {
-
         /* specially handled subnegotiation telopt types */
         case TELNET_TELOPT_TTYPE:
                 return _ttype_telnet(telnet, telnet->buffer, telnet->buffer_pos);
@@ -945,7 +944,6 @@ static void _process(telnet_t *telnet, const char *buffer, size_t size) {
                                         telnet_recv(telnet, &buffer[start], size - start);
                                         return;
                                 } else {
-
                                         /*
                                          * Recursive call to get the current input byte processed
                                          * as a regular IAC command.  we could use a goto, but

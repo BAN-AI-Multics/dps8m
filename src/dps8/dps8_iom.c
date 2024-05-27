@@ -1823,7 +1823,6 @@ static int status_service (uint iom_unit_idx, uint chan, bool marker)
 
 static word24 UNUSED build_AUXPTW_address (uint iom_unit_idx, int chan)
   {
-
 //    0      5 6            16 17  18              21  22  23
 //   ---------------------------------------------------------
 //   | Zeroes | IOM Base Address  |                          |
@@ -1909,7 +1908,6 @@ static void fetch_IDSPTW (uint iom_unit_idx, int chan, word18 addr)
 
 static word24 build_LPWPTW_address (word18 PCW_PAGE_TABLE_PTR, word1 seg, word8 pageNumber)
   {
-
 //    0      5 6        15  16  17  18                       23
 //   ----------------------------------------------------------
 //   | Page Table Pointer         |                           |
@@ -2078,7 +2076,6 @@ static void update_chan_mode (uint iom_unit_idx, uint chan, bool tdcw)
       {
         if (p -> PCW_64_PGE == 0)
           {
-
             if (p -> LPW_20_AE == 0)
               {
                     p -> chanMode = cm1e;  // AE 0
@@ -2093,7 +2090,6 @@ static void update_chan_mode (uint iom_unit_idx, uint chan, bool tdcw)
           {
             if (p -> LPW_20_AE == 0)
               {
-
                 if (p -> LPW_23_REL == 0)
                   {
                     p -> chanMode = cm1;  // AE 0, REL 0
@@ -2106,7 +2102,6 @@ static void update_chan_mode (uint iom_unit_idx, uint chan, bool tdcw)
               }
             else  // AE 1
               {
-
                 if (p -> LPW_23_REL == 0)
                   {
                     p -> chanMode = cm3b;  // AE 1, REL 0
@@ -2836,7 +2831,6 @@ A:;
 
     if (IS_IDCW (p))
       {
-
         // LPW_18_RES?
 
         if (p -> LPW_18_RES)

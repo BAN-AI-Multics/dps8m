@@ -507,16 +507,22 @@ udplib$(EXE): udplib.c udplib.h
 tags TAGS ctags: $(C_SRCS) $(H_SRCS) ver.h
 	@$(PRINTF) '%s\n' "CTAGS: dps8"
 	-@$(SETV); $(CTAGS) $(C_SRCS) $(H_SRCS)                                   \
-        $(SIMHx)/*.[ch] ../decNumber/dec*.[ch]     2> /dev/null   || $(TRUE)
+        $(SIMHx)/*.[ch] ../decNumber/dec*.[ch]       2> /dev/null || $(TRUE)
 	@$(PRINTF) '%s\n' "ETAGS: dps8"
 	-@$(SETV); $(ETAGS) $(C_SRCS) $(H_SRCS)                                   \
-        $(SIMHx)/*.[ch] ../decNumber/dec*.[ch]     2> /dev/null   || $(TRUE)
+        $(SIMHx)/*.[ch] ../decNumber/dec*.[ch]       2> /dev/null || $(TRUE)
 	@$(PRINTF) '%s\n' "GTAGS: dps8"
-	-@($(SETV); $(CD) ../.. && $(GIT) ls-files     2> /dev/null    |          \
-        $(GREP) '\.[ch]'                           2> /dev/null    |          \
-         $(GREP) -E '(dps8|decNumber|simh|libsir)' 2> /dev/null    |          \
-          $(GREP) -vE '(blinkenLights|\.Attic/)'   2> /dev/null    |          \
-           $(GTAGS) -f -                           2> /dev/null)  || $(TRUE)
+	-@($(SETV); $(CD) ../.. && $(GIT) ls-files       2> /dev/null  |          \
+       $(GREP) '\.[ch]'                              2> /dev/null  |          \
+         $(GREP) -E '(dps8|decNumber|simh|libsir)'   2> /dev/null  |          \
+         $(GREP) -vE '(blinkenLights|\.Attic/)'      2> /dev/null  |          \
+         $(GREP) -vE '(libsir/example|libsir/tests)' 2> /dev/null  |          \
+         $(GREP) -vE '(libsir/bindings|libsir/docs)' 2> /dev/null  |          \
+         $(GREP) -vE '(libsir/sir\.code-workspace)'  2> /dev/null  |          \
+         $(GREP) -vE '(libsir/utils|libsir/plugins)' 2> /dev/null  |          \
+         $(GREP) -vE '(libsir/include/sir\.hh)'      2> /dev/null  |          \
+         $(GREP) -vE '(libbacktrace/)'               2> /dev/null  |          \
+       $(GTAGS) -f -                                 2> /dev/null) || $(TRUE)
 	@$(PRINTF) '%s\n' "CSCOPE: dps8"
 	-@$(SETV); $(CSCOPE) -bcq $(C_SRCS) $(H_SRCS)                             \
         $(SIMHx)/*.[ch] ../decNumber/dec*.[ch]     2> /dev/null   || $(TRUE)
@@ -549,7 +555,8 @@ ifneq (,$(findstring clean,$(MAKECMDGOALS)))
 .NOTPARALLEL: distclean clean
 endif
 distclean: clean
-	@$(SETV); $(MAKE) -C "../libsir" "distclean"
+	@$(SETV); $(MAKE) -C "../libsir"       "distclean"              || $(TRUE)
+	@$(SETV); $(MAKE) -C "../libbacktrace" "distclean" 2> /dev/null || $(TRUE)
 	@$(RMF) *.gc??                           2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../blinkenLights2/*.gc??         2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../decNumber/*.gc??              2> /dev/null  ||  $(TRUE)
@@ -625,7 +632,8 @@ clean:
 	@$(SETV); $(MAKE) -C "../novdso"         -f "GNUmakefile"  "clean"
 	@$(SETV); ( cd ../blinkenLights2 && $(RMF) blinkenLights2 || $(TRUE) )
 	@$(SETV); $(MAKE) -C "."                 -f "GNUmakefile"  "clean_dps8"
-	@$(SETV); $(MAKE) -C "../libsir"                           "clean"
+	@$(SETV); $(MAKE) -C "../libsir"       "clean"               ||  $(TRUE)
+	@$(SETV); $(MAKE) -C "../libbacktrace" "clean" 2> /dev/null  ||  $(TRUE)
 	@$(SETV); $(RMF)  ../../"$(KITNAME)"."$(TARXT)"    ||  $(TRUE)
 	@$(SETV); $(RMF)  ../../"$(KITNAME)"."$(TARXT)".*  ||  $(TRUE)
 	@$(SETV); $(RMF)  ../../"$(KITNAME)"."TMP"         ||  $(TRUE)

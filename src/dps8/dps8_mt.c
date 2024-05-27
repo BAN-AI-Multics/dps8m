@@ -669,7 +669,6 @@ static t_stat mt_set_capac (UNUSED UNIT * uptr, UNUSED int32 value,
   }
 
 t_stat signal_tape (uint tap_unit_idx, word8 status0, word8 status1) {
-
   // if substr (special_status_word, 20, 1) ^= "1"b | substr (special_status_word, 13, 6) ^= "00"b3
   // if substr (special_status_word, 34, 3) ^= "001"b
   // Note the 34,3 spans 34,35,36; therefore the bits are 1..36, not 0..35
@@ -980,7 +979,6 @@ void mt_exit (void) {
 
 static iom_cmd_rc_t mtReadRecord (uint devUnitIdx, uint iomUnitIdx, uint chan)
   {
-
 // If a tape read IDCW has multiple DDCWs, are additional records read?
 
     iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
@@ -1231,7 +1229,6 @@ static void mtMTPWr (uint devUnitIdx, uint iomUnitIdx, uint chan)
 
 static int mtWriteRecord (uint devUnitIdx, uint iomUnitIdx, uint chan)
   {
-
 // If a tape write IDCW has multiple DDCWs, are additional records written?
 
     iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
@@ -1521,7 +1518,6 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
     tape_statep->io_mode = tape_no_mode;
     sim_debug (DBG_DEBUG, & tape_dev, "%s: IDCW_DEV_CMD %oo %d.\n", __func__, p->IDCW_DEV_CMD, p->IDCW_DEV_CMD);
     switch (p->IDCW_DEV_CMD) {
-
       case 000: { // CMD 00 Request status -- controller status, not tape drive
           if_sim_debug (DBG_TRACE, & tape_dev) {
             sim_printf ("// Tape Request Status\r\n");
