@@ -9109,6 +9109,7 @@ binary
 bindable
 binder
 binding
+bindings
 bink
 binm
 biological
