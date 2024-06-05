@@ -197,7 +197,7 @@ mkdir -p "${HOME:-}/libuv-win32-x86_64" &&                                 \
 do_sim32()
 {
 printf '%s\n' "######  Build 32-bit Windows dps8  ##########################"
-( cd .. && "${MAKE:-make}" clean && env CC="i686-w64-mingw32ucrt-gcc"      \
+( cd .. && "${MAKE:-make}" clean && env CC="i686-w64-mingw32-gcc"          \
     CI_SKIP_MKREBUILD=1                                                    \
     CFLAGS="${GCFLAGS:-}                                                   \
             -I${HOME:-}/libuv-win32-i686/include                           \
