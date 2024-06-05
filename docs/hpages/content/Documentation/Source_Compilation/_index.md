@@ -1757,7 +1757,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 []()
 
-* Microsoft **Windows** supports various development and runtime environments, including [**MSVCRT**](https://docs.microsoft.com/en-us/cpp/), [**MinGW**](https://www.mingw-w64.org/), [**Cygwin**](https://www.cygwin.com/), [**Midipix**](https://midipix.org/), [**MSYS2**](https://www.msys2.org/), and many others.
+* Microsoft **Windows** supports various development and runtime environments, including [**Universal CRT**](https://learn.microsoft.com/en-us/cpp/porting/upgrade-your-code-to-the-universal-crt), [**MinGW-w64**](https://www.mingw-w64.org/), [**Cygwin**](https://www.cygwin.com/), [**Midipix**](https://midipix.org/), [**MSYS2**](https://www.msys2.org/), and many others.
   * Care must be taken to avoid mixing incompatible libraries and tools.
 
 []()
