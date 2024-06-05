@@ -881,7 +881,7 @@ title: DPS8M Releases
 {{< /tab >}}
 {{< tab "Windows" >}}
 
-{{< expand "Intel x86 Installer" "…" >}}
+{{< expand "Intel" "…" >}}
 | File                                                                                 | Platform                |
 |:------------------------------------------------------------------------------------ |:----------------------- |
 | [**dps8m-git-win-setup.exe**](https://dps8m.gitlab.io/dps8m/dps8m-git-win-setup.exe) | x86_64&nbsp;+&nbsp;i686 |
