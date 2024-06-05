@@ -129,10 +129,10 @@ test -z "${HTMLOUT:-}" ||
 
 test -z "${NOQUIET:-}" &&
 {
-  QUIET="--suppress=shadowArgument --suppress=shadowVariable           \
-         --suppress=shadowFunction --suppress=ConfigurationNotChecked  \
-         --suppress=unknownMacro   --suppress=memleakOnRealloc         \
-         --suppress=internalAstError                                   \
+  QUIET="--suppress=shadowArgument   --suppress=shadowVariable           \
+         --suppress=shadowFunction   --suppress=ConfigurationNotChecked  \
+         --suppress=unknownMacro     --suppress=memleakOnRealloc         \
+         --suppress=internalAstError                                     \
          --suppress=syntaxError:/usr/include/stdlib.h"
 }
 
@@ -275,7 +275,8 @@ do_cppcheck()
     --platform="unix64" --std="c11" --std="c++11" --suppress="*:/usr/*"   \
     --suppress="checkLibraryNoReturn" --suppress="funcArgNamesDifferent"  \
     --suppress="unmatchedSuppression" --suppress="variableScope"          \
-    --include="$(pwd -L)/src/dps8/ver.h" ${XMLGEN:-} ;                    \
+    --include="$(pwd -L)/src/dps8/ver.h" --check-level="exhaustive"       \
+    ${XMLGEN:-} ;                                                         \
   test -z "${HTMLOUT:-}" ||
   {
     ${MKDIR:-mkdir} -p "./cppcheck"          \
