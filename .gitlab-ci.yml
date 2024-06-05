@@ -1949,6 +1949,7 @@ Windows/ARM64, LLVM-MinGW:
     - mkdir -p "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - cp -f src/dps8/dps8.exe src/prt2pdf/prt2pdf.exe src/punutil/punutil.exe "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
+    - cp -f /opt/llvm-mingw/aarch64-w64-mingw32/bin/libwinpthread-1.dll "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - ( cd src && zip -9 ../dps8m-git-mingw-a64.zip ./dps8m-${CI_COMMIT_SHORT_SHA:?}/* )
     - rm -rf "src/dps8m-${CI_COMMIT_SHORT_SHA:?}" || true
     - *scriptCompressArtifacts
@@ -1984,6 +1985,7 @@ Windows/ARMv7, LLVM-MinGW:
     - mkdir -p "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - cp -f src/dps8/dps8.exe src/prt2pdf/prt2pdf.exe src/punutil/punutil.exe "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
+    - cp -f /opt/llvm-mingw/armv7-w64-mingw32/bin/libwinpthread-1.dll "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - ( cd src && zip -9 ../dps8m-git-mingw-av7.zip ./dps8m-${CI_COMMIT_SHORT_SHA:?}/* )
     - *scriptCompressArtifacts
   dependencies: []
@@ -2018,6 +2020,7 @@ Windows/i686, LLVM-MinGW:
     - mkdir -p "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - cp -f src/dps8/dps8.exe src/prt2pdf/prt2pdf.exe src/punutil/punutil.exe "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
+    - cp -f /opt/llvm-mingw/i686-w64-mingw32/bin/libwinpthread-1.dll "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - ( cd src && zip -9 ../dps8m-git-mingw-x32.zip ./dps8m-${CI_COMMIT_SHORT_SHA:?}/* )
     - *scriptCompressArtifacts
   dependencies: []
@@ -2084,6 +2087,7 @@ Windows/x86_64, MinGW64-GCC:
     - mkdir -p "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - cp -f src/dps8/dps8.exe src/prt2pdf/prt2pdf.exe src/punutil/punutil.exe "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
+    - cp -f /usr/x86_64-w64-mingw32/bin/libwinpthread-1.dll "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - ( cd src && zip -9 ../dps8m-git-mingw-x86.zip ./dps8m-${CI_COMMIT_SHORT_SHA:?}/* )
     - *scriptCompressArtifacts
   dependencies: []
@@ -2826,7 +2830,6 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-ox8.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-macos-uni.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-s114-641.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-mingw-x86.zip public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-iloi-641.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-bpt.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-ple.tar.gz public
@@ -2836,9 +2839,6 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-bp6.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-bp5.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-970.tar.gz public
-  - advzip -z4 public/dps8m-git-mingw-x86.zip
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-mingw-x32.zip public
-  - advzip -z4 public/dps8m-git-mingw-x32.zip
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-mingw-a64.zip public
   - advzip -z4 public/dps8m-git-mingw-a64.zip
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-mingw-av7.zip public

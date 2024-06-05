@@ -881,25 +881,10 @@ title: DPS8M Releases
 {{< /tab >}}
 {{< tab "Windows" >}}
 
-{{< expand "Intel x86" "…" >}}
 {{< expand "Intel x86 Installer" "…" >}}
 | File                                                                                 | Platform                |
 |:------------------------------------------------------------------------------------ |:----------------------- |
 | [**dps8m-git-win-setup.exe**](https://dps8m.gitlab.io/dps8m/dps8m-git-win-setup.exe) | x86_64&nbsp;+&nbsp;i686 |
-{{< /expand >}}
-
-{{< expand "Intel x86_64 (AMD64)" "…" >}}
-| File                                                                                       | Platform                  |
-|:------------------------------------------------------------------------------------------ |:------------------------- |
-| [**dps8m-git-mingw-x86.zip**](https://dps8m.gitlab.io/dps8m/dps8m-git-mingw-x86.zip)       | x86_64                    |
-| [**dps8m-git-cygwin-64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-cygwin-64.tar.gz) | Cygwin&nbsp;/&nbsp;x86_64 |
-{{< /expand >}}
-
-{{< expand "Intel ix86 (32-bit)" "…" >}}
-| File                                                                                       | Platform                |
-|:------------------------------------------------------------------------------------------ |:----------------------- |
-| [**dps8m-git-mingw-x32.zip**](https://dps8m.gitlab.io/dps8m/dps8m-git-mingw-x32.zip)       | i686                    |
-{{< /expand >}}
 {{< /expand >}}
 
 {{< expand "ARM" "…" >}}

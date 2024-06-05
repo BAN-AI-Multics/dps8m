@@ -25,7 +25,7 @@ CPUS="$(grep -c '^model name' /proc/cpuinfo 2> /dev/null || printf '%s\n' '4')"
 export CPUS
 
 # MinGW PATH for sed rewrite
-MGWP='-w64-mingw32/sys-root/mingw/'
+MGWP='-w64-mingw32ucrt/sys-root/mingw/'
 export MGWP
 
 # Output filename
@@ -155,47 +155,6 @@ test -f "./source/dps8m-sources.zip" ||
 
 ###############################################################################
 
-# Build 32-bit libbacktrace
-
-do_bt32()
-{
-# XXX TODO: Not yet working for Windows builds
-printf '%s\n' "######  Build 32-bit Windows libbacktrace  ##################"
-mkdir -p "${HOME:-}/libbacktrace-build" &&                                 \
-mkdir -p "${HOME:-}/libbacktrace-win32-i686" &&                            \
-( cd "${HOME:-}/libbacktrace-build" &&                                     \
-  git clone --depth=1 https://github.com/ianlancetaylor/libbacktrace &&    \
-  cd libbacktrace && time autoreconf -vfi &&                               \
-    time mingw32-configure --prefix="${HOME:-}/libbacktrace-win32-i686"    \
-      --enable-static --disable-shared --disable-werror &&                 \
-  sed -i                                                                   \
-    "s#/usr/i686${MGWP}#${HOME:-}/libbacktrace-win32-i686/#"               \
-      "./Makefile" &&                                                      \
-  time "${MAKE:-make}" -j "${CPUS:?}" && time "${MAKE:-make}" install )
-}
-
-###############################################################################
-
-# Build 64-bit libbacktrace
-
-do_bt64()
-{
-# XXX TODO: Not yet working for Windows builds
-printf '%s\n' "######  Build 64-bit Windows libbacktrace  ##################"
-mkdir -p "${HOME:-}/libbacktrace-build" &&                                 \
-mkdir -p "${HOME:-}/libbacktrace-win32-x86_64" &&                          \
-( cd "${HOME:-}/libbacktrace-build/libbacktrace" &&                        \
-  "${MAKE:-make}" distclean && autoreconf -vfi &&                          \
-  mingw64-configure --prefix="${HOME:-}/libbacktrace-win32-x86_64"         \
-    --enable-static --disable-shared --disable-werror &&                   \
-  sed -i                                                                   \
-    "s#/usr/x86_64${MGWP}#${HOME:-}/libbacktrace-win32-x86_64/#"           \
-      "./Makefile" &&                                                      \
-  "${MAKE:-make}" -j "${CPUS:?}" && "${MAKE:-make}" install )
-}
-
-###############################################################################
-
 # Build 32-bit libuv v1.x branch
 
 do_uv32()
@@ -209,7 +168,7 @@ mkdir -p "${HOME:-}/libuv-win32-i686" &&                                   \
     env CFLAGS="${GCFLAGS:-}" LDFLAGS="${GLDFLAGS:-}"                      \
      CI_SKIP_MKREBUILD=1                                                   \
       ./configure --prefix="${HOME:-}/libuv-win32-i686"                    \
-       --enable-static --disable-shared --host="i686-w64-mingw32" &&       \
+       --enable-static --disable-shared --host="i686-w64-mingw32ucrt" &&   \
     "${MAKE:-make}" -j "${CPUS:?}" && "${MAKE:-make}" install )
 }
 
@@ -226,7 +185,7 @@ mkdir -p "${HOME:-}/libuv-win32-x86_64" &&                                 \
     sh ./autogen.sh && env CFLAGS="${GCFLAGS:-}" LDFLAGS="${GLDFLAGS:-}"   \
      CI_SKIP_MKREBUILD=1
       ./configure --prefix="${HOME:-}/libuv-win32-x86_64"                  \
-       --enable-static --disable-shared --host="x86_64-w64-mingw32" &&     \
+       --enable-static --disable-shared --host="x86_64-w64-mingw32ucrt" && \
     "${MAKE:-make}" -j "${CPUS:?}" && "${MAKE:-make}" install &&           \
     "${MAKE:-make}" clean )
 }
@@ -238,7 +197,7 @@ mkdir -p "${HOME:-}/libuv-win32-x86_64" &&                                 \
 do_sim32()
 {
 printf '%s\n' "######  Build 32-bit Windows dps8  ##########################"
-( cd .. && "${MAKE:-make}" clean && env CC="i686-w64-mingw32-gcc"          \
+( cd .. && "${MAKE:-make}" clean && env CC="i686-w64-mingw32ucrt-gcc"      \
     CI_SKIP_MKREBUILD=1                                                    \
     CFLAGS="${GCFLAGS:-}                                                   \
             -I${HOME:-}/libuv-win32-i686/include                           \
@@ -248,8 +207,8 @@ printf '%s\n' "######  Build 32-bit Windows dps8  ##########################"
              -static                                                       \
              -L${HOME:-}/libuv-win32-i686/lib                              \
              -lpthread"                                                    \
-    LOCALLIBS="-lws2_32 -lpsapi -liphlpapi -lshell32                       \
-               -luserenv -luser32 -ldbghelp -lole32 -luuid"                \
+    LOCALLIBS="-lws2_32 -lpsapi -liphlpapi -lshell32 -lmincore -lversion   \
+               -luserenv -luser32 -ldbghelp -lole32 -luuid -lcryptbase"    \
     NEED_128=1                                                             \
     "${MAKE:-make}" CROSS="MINGW64" -j "${CPUS:?}" ) &&                    \
 mkdir -p "bin/32-bit" &&                                                   \
@@ -268,7 +227,7 @@ mkdir -p "bin/32-bit" &&                                                   \
 do_sim64()
 {
 printf '%s\n' "######  Build 64-bit Windows dps8  ##########################"
-( cd .. && "${MAKE:-make}" clean && env CC="x86_64-w64-mingw32-gcc"        \
+( cd .. && "${MAKE:-make}" clean && env CC="x86_64-w64-mingw32ucrt-gcc"    \
     CI_SKIP_MKREBUILD=1                                                    \
     CFLAGS="${GCFLAGS:-}                                                   \
             -I${HOME:-}/libuv-win32-x86_64/include                         \
@@ -277,8 +236,8 @@ printf '%s\n' "######  Build 64-bit Windows dps8  ##########################"
     LDFLAGS="${GLDFLAGS:-} -static                                         \
              -L${HOME:-}/libuv-win32-x86_64/lib                            \
              -lpthread"                                                    \
-    LOCALLIBS="-lws2_32 -lpsapi -liphlpapi -lshell32                       \
-               -luserenv -luser32 -ldbghelp -lole32 -luuid"                \
+    LOCALLIBS="-lws2_32 -lpsapi -liphlpapi -lshell32 -lmincore -lversion   \
+               -luserenv -luser32 -ldbghelp -lole32 -luuid -lcryptbase"    \
     "${MAKE:-make}" CROSS="MINGW64" -j "${CPUS:?}" ) &&                    \
 mkdir -p "bin/64-bit" &&                                                   \
   rm -f "bin/64-bit/dps8.exe" &&                                           \
@@ -336,11 +295,6 @@ test -z "${USE_CI:-}" &&
 # Verify
 
 do_verify
-
-# Build libbacktrace
-
-#do_bt32
-#do_bt64
 
 # Build libuv
 
