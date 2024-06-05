@@ -96,24 +96,6 @@
 
 ############################################################################
 
-.scriptBuildlibuvFCygwin64: &scriptBuildlibuvFCygwin64 |
-    # *scriptBuildlibuvFCygwin64 - Build static libuv from git with Fedora Cygwin64 cross-compiler ...
-    echo -e "section_start:`date +%s`:buildlibuvfedoracygwin64_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with Fedora Cygwin64 cross-compiler ...\033[0m" || true
-    echo "Checking for Docker ..."
-    test -f /.dockerenv || exit 1
-    echo "Getting libuv from GitHub ..."
-    git clone https://github.com/libuv/libuv.git -b v1.x
-    ( cd libuv && git reset --hard c8fad2ac099ade0e07e567cc8b8304d9e93a4a06 )
-    echo "Preparing libuv ..."
-    cd libuv && sh ./autogen.sh
-    echo "Configuring libuv ..."
-    cygwin64-configure --disable-shared --enable-static --disable-dependency-tracking
-    echo "Compiling libuv ..."
-    cygwin64-make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && cygwin64-make install && cd ..
-    echo -e "section_end:`date +%s`:buildlibuvfedoracygwin64_section\r\e[0K" || true
-
-############################################################################
-
 .scriptBuildlibuvLLVMMGW64-aarch64: &scriptBuildlibuvLLVMMGW64-aarch64 |
     # *scriptBuildlibuvLLVMMGW64-aarch64 - Build static libuv from git with LLVM-MinGW-Aarch64 cross-compiler ...
     echo -e "section_start:`date +%s`:buildlibuvllvmmgwaarch64_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with LLVM-MinGW-Aarch64 cross-compiler ...\033[0m" || true
@@ -231,7 +213,6 @@
     test -f ${CI_PROJECT_DIR:?}/src/unifdef/unifdef.exe && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/unifdef/unifdef.exe 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil.exe && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/punutil/punutil.exe 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt 2> /dev/null || true > /dev/null 2>&1
-    test -f ${CI_PROJECT_DIR:?}/cygwin1.dll && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/cygwin1.dll 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/libwinpthread-1.dll && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/libwinpthread-1.dll 2> /dev/null || true > /dev/null 2>&1
     echo -e "section_end:`date +%s`:compress_section\r\e[0K" || true
 
@@ -276,21 +257,6 @@
     echo -n "git status       : "; git status 2> /dev/null | awk '{ print $0", " }' | xargs | sed 's/,$//' || true > /dev/null 2>&1; echo ""
     echo -n "ulimit -a        : "; ulimit -a 2> /dev/null | awk '{ print $0", " }' | xargs | sed 's/,$//' || true > /dev/null 2>&1; echo ""
     echo -e "section_end:`date +%s`:extrainfo_section\r\e[0K" || true
-
-############################################################################
-
-.scriptInstallDnfCoprCygwin: &scriptInstallDnfCoprCygwin |
-    # *scriptInstallDnfCoprCygwin - Enable and install Fedora Cygwin from Fedora Copr ...
-    echo -e "section_start:`date +%s`:coprcygwinstall_section[collapsed=true]\r\e[0K\033[0;36mInstalling Fedora Cygwin64 ...\033[0m" || true
-    echo "Checking for Docker ..."
-    test -f /.dockerenv || exit 1
-    echo "Installing DNF Copr plugins ..."
-    dnf -y --best install 'dnf-command(copr)' || dnf -y --nobest install 'dnf-command(copr)'
-    echo "Enabling Cygwin repo ..."
-    dnf -y copr enable yselkowitz/cygwin || dnf -y copr enable yselkowitz/cygwin || dnf-3 -y copr enable yselkowitz/cygwin || dnf-3 -y copr enable yselkowitz/cygwin
-    echo "Installing Cygwin software ..."
-    dnf --best install -y cygport cygwin32-binutils cygwin32-w32api-headers cygwin32-w32api-runtime cygwin32-libltdl cygwin32-cpp cygwin32-gcc cygwin32-libtool cygwin32-filesystem cygwin32 cygwin64-binutils cygwin64-w32api-headers cygwin64-w32api-runtime cygwin64-libltdl cygwin64-cpp cygwin64-gcc cygwin64-libtool cygwin64-filesystem cygwin64 || dnf --nobest install -y cygport cygwin64-binutils cygwin64-w32api-headers cygwin64-w32api-runtime cygwin64-libltdl cygwin64-cpp cygwin64-gcc cygwin64-libtool cygwin64-filesystem cygwin64 cygwin32-binutils cygwin32-w32api-headers cygwin32-w32api-runtime cygwin32-libltdl cygwin32-cpp cygwin32-gcc cygwin32-libtool cygwin32-filesystem cygwin32
-    echo -e "section_end:`date +%s`:coprcygwinstall_section\r\e[0K" || true
 
 ############################################################################
 
@@ -1584,48 +1550,6 @@ Cross-compiled release binaries:
 
 ############################################################################
 
-Windows/x86_64, Cygwin64-GCC:
-  image: fedora:40
-  stage: build
-  tags:
-    - Docker-x64
-    - amd64
-    - Linux
-  script:
-    - export GLCICD_JOB="CYGWIN64GCC" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
-    - echo -e "section_start:`date +%s`:bzip20005setup_section[collapsed=true]\r\e[0K\033[0;36mInstalling bzip2 ...\033[0m" || true
-    - dnf install -y bzip2 || dnf install -y bzip2
-    - echo -e "section_end:`date +%s`:bzip20005setup_section\r\e[0K" || true
-    - *scriptDnfSetup
-    - *scriptInstallDnfCoprCygwin
-    - *scriptBuildlibuvFCygwin64
-    - *scriptSanity
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - cygwin64-make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")
-    - *scriptBuildInfo
-    - cp -f /usr/x86_64-pc-cygwin/sys-root/usr/bin/cygwin1.dll ${CI_PROJECT_DIR:?}
-    - rm -f "${CI_PROJECT_DIR:?}/cygwin1.dll"
-    - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
-    - mkdir -p "src/${DISTDIR:?}"
-    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
-    - cp -f src/dps8/dps8.exe src/prt2pdf/prt2pdf.exe src/punutil/punutil.exe "src/${DISTDIR:?}"
-    - ( cd src && tar cf ../dps8m-git-cygwin-64.tar "./${DISTDIR:?}" )
-    - pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-cygwin-64.tar
-    - *scriptCompressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - dps8m-git-cygwin-64.tar.gz
-      - dps8m.zip
-  retry: 2
-  timeout: 90 minutes
-  interruptible: true
-
-############################################################################
-
 Linux/x86_64, Fedora, Oracle Developer Studio:
   stage: build
   tags:
@@ -2713,7 +2637,6 @@ pages:
     - job: Windows/ARM64, LLVM-MinGW
     - job: Windows/ARMv7, LLVM-MinGW
     - job: Windows/i686, LLVM-MinGW
-    - job: Windows/x86_64, Cygwin64-GCC
     - job: Windows/x86_64, MinGW64-GCC
     - job: PVS-Studio
     - job: NSIS Installer
@@ -2736,7 +2659,6 @@ pages:
     - "Windows/ARM64, LLVM-MinGW"
     - "Windows/ARMv7, LLVM-MinGW"
     - "Windows/i686, LLVM-MinGW"
-    - "Windows/x86_64, Cygwin64-GCC"
     - "Windows/x86_64, MinGW64-GCC"
     - "PVS-Studio"
     - "NSIS Installer"
@@ -2843,7 +2765,6 @@ pages:
   - advzip -z4 public/dps8m-git-mingw-a64.zip
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-mingw-av7.zip public
   - advzip -z4 public/dps8m-git-mingw-av7.zip
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-cygwin-64.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/.nsis/dps8m-git-win-setup.exe public
   - find "public" -type f -regex '.*\.\(png\)$' -exec advpng -z4 -- "{}" \; || true
   - find "public" -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\)$' -exec brotli -f -k -v -Z -- "{}" \; || true
