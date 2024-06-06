@@ -235,12 +235,6 @@ RUN set -x && \
       ucrt64-winpthreads \
       ucrt64-winpthreads-static \
 && \
-  (yes | dnf-3 -y copr enable yselkowitz/cygwin fedora-rawhide-x86_64) && \
-  dnf -y --setopt=install_weak_deps=True --setopt=keepcache=True install \
-      cygwin64 \
-      cygwin64-binutils \
-      cygwin64-gcc-c++ \
-&& \
   dnf -y --setopt=install_weak_deps=True --setopt=keepcache=True install wine && \
   mkdir -p /opt && \
   mkdir -p /tmp/duma-build && \

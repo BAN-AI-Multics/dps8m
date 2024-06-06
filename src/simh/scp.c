@@ -84,6 +84,7 @@
 #endif /* if !defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__) &&
              !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) */
 #include <setjmp.h>
+#include <stdint.h>
 #include <limits.h>
 #if defined(__APPLE__)
 # include <xlocale.h>
@@ -134,6 +135,17 @@
 #   endif
 #  endif
 # endif
+#endif
+
+#if defined(_WIN32) || defined(__MINGW32__) || defined(__MINGW64__) || defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
+# include <windows.h>
+#endif
+
+#if defined(__CYGWIN__)
+# include <windows.h>
+# include <sys/utsname.h>
+# include <sys/cygwin.h>
+# include <cygwin/version.h>
 #endif
 
 #define DBG_CTR 0
@@ -1588,6 +1600,57 @@ dl_iterate_phdr_callback (struct dl_phdr_info *info, size_t size, void *data)
 # endif
 #endif
 
+#if defined(__MINGW32__) || defined(__MINGW64__) || defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
+# if defined(_UCRT)
+#  define MINGW_CRT "UCRT"
+# else
+#  define MINGW_CRT "MSVCRT"
+# endif
+#endif
+
+#if defined(_WIN32) || defined(__MINGW32__) || defined(__MINGW64__) || defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
+struct UCRTVersion
+{
+  uint16_t ProductVersion[4];
+};
+
+int
+GetUCRTVersion (struct UCRTVersion *ucrtversion)
+{
+# ifdef _DEBUG
+  static const wchar_t *DllName = L"ucrtbased.dll";
+# else
+  static const wchar_t *DllName = L"ucrtbase.dll";
+# endif
+
+  HMODULE ucrt = GetModuleHandleW (DllName);
+  if (!ucrt)
+    return GetLastError ();
+
+  wchar_t path[MAX_PATH];
+  if (!GetModuleFileNameW (ucrt, path, MAX_PATH))
+    return GetLastError ();
+
+  DWORD versionInfoSize = GetFileVersionInfoSizeW (path, NULL);
+  if (!versionInfoSize)
+    return GetLastError ();
+
+  uint8_t versionInfo[versionInfoSize];
+
+  if (!GetFileVersionInfoW (path, 0, versionInfoSize, versionInfo))
+    return GetLastError ();
+
+  VS_FIXEDFILEINFO *fixedFileInfo;
+  UINT fixedFileInfoSize;
+  if (!VerQueryValueW (versionInfo, L"\\", (void **)&fixedFileInfo, &fixedFileInfoSize))
+    return GetLastError ();
+
+  memcpy (ucrtversion->ProductVersion, &fixedFileInfo->dwProductVersionMS, sizeof (uint32_t) * 2);
+
+  return 0;
+}
+#endif
+
 /* Main command loop */
 
 #if !defined(PERF_STRIP)
@@ -1671,7 +1734,6 @@ DUMA_SET_FILL(0x2E);
 (void)setlocale(LC_ALL, "");
 
 # if defined(NEED_CONSOLE_SETUP) && defined(_WIN32)
-#  include <windows.h>
 #  if !defined(ENABLE_VIRTUAL_TERMINAL_PROCESSING)
 #   define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
 #  endif /* if !defined(ENABLE_VIRTUAL_TERMINAL_PROCESSING) */
@@ -4575,7 +4637,7 @@ t_stat show_prom (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cp
 
 t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 {
-    (void)fprintf (st, "\r\n\r Build Information:\n");
+    (void)fprintf (st, "\r Build Information:\n");
 #if defined(BUILDINFO_scp) && defined(SYSDEFS_USED)
     (void)fprintf (st, "\r\n      Compilation info: %s\n", BUILDINFO_scp );
 # if !defined(__OPEN64__)
@@ -4707,6 +4769,48 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
 #else
     (void)fprintf (st, "Disabled");
 #endif /* if defined(USE_BACKTRACE) */
+    (void)fprintf (st, "\r\n       Windows support: ");
+#if defined(__MINGW32__) || defined(__MINGW64__) || defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
+# if defined(__MINGW64_VERSION_STR)
+    (void)fprintf (st, "Built with MinGW-w64 %s", __MINGW64_VERSION_STR);
+# elif defined(__MINGW32_MAJOR_VERSION) && defined(__MINGW32_MAJOR_VERSION)
+    (void)fprintf (st, "Built with MinGW %d.%d", __MINGW32_MAJOR_VERSION, __MINGW32_MINOR_VERSION);
+# else
+    (void)fprintf (st, "Built with MinGW");
+# endif
+
+# if defined(MINGW_CRT)
+    (void)fprintf (st, "; %s", MINGW_CRT);
+#  if !defined(_UCRT)
+#   if defined(__MSVCRT_VERSION__)
+#    if __MSVCRT_VERSION__ > 0x00
+    (void)fprintf (st, " %d.%d", (__MSVCRT_VERSION__ >> CHAR_BIT) & UCHAR_MAX, __MSVCRT_VERSION__ & UCHAR_MAX);
+#    endif
+#   endif
+#  else
+
+    struct UCRTVersion ucrtversion;
+    int result = GetUCRTVersion (&ucrtversion);
+
+    if (result == 0)
+      (void)fprintf (st, " %u.%u.%u.%u",
+                     ucrtversion.ProductVersion[1], ucrtversion.ProductVersion[0],
+                     ucrtversion.ProductVersion[3], ucrtversion.ProductVersion[2]);
+#  endif
+    (void)fprintf (st, " in use");
+# endif
+#elif defined(__CYGWIN__)
+    struct utsname utsname;
+    (void)fprintf (st, "Built with Cygwin %d.%d.%d",
+                   CYGWIN_VERSION_DLL_MAJOR / 1000,
+                   CYGWIN_VERSION_DLL_MAJOR % 1000,
+                   CYGWIN_VERSION_DLL_MINOR);
+    if (uname(&utsname) == 0)
+      fprintf (st, "; %s in use", utsname.release);
+#else
+    (void)fprintf (st, "Disabled");
+#endif
+
     (void)fprintf (st, "\r\n");
     return 0;
 }

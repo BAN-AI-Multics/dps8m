@@ -102,15 +102,18 @@ ifeq ($(MINGW_CROSS),1)
   # Cross-compilation with Cygwin host to MinGW target
   ifeq ($(CYGWIN_MINGW_CROSS),1)
     LIBS += -lwinmm -lws2_32 -lssp $(MINGWEX) -lwsock32 -luserenv -liplpapi   \
+            -ldbghelp -lversion -lmincore -lcryptbase                         \
             -L../../../libuv/.libs $(LIBUV)
   endif
   ifeq ($(shell $(UNAME) -o 2> /dev/null || true >/dev/null 2>&1),Cygwin)
     # Standard Cygwin build
-    LIBS += -lwinmm -lws2_32 -lwsock32 -luserenv -liphlpapi $(LIBUV)
+    LIBS += -lwinmm -lws2_32 -lwsock32 -luserenv -liphlpapi -ldbghelp         \
+            -lversion -lmincore -lcryptbase $(LIBUV)
   else
     # Cross-compilation to MinGW
     LIBS += -lwinmm -lws2_32 -lssp $(MINGWEX) -lwsock32 -luserenv -liphlpapi  \
-            -L../../../libuv/.libs $(LIBUV)
+            -ldbghelp -lversion -lmincore -lcryptbase -L../../../libuv/.libs  \
+            $(LIBUV)
   endif
 endif
 

@@ -780,12 +780,12 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 
 ### Recommended compilers
 
-* [**IBM Open XL C/C++ for AIX V17.1.2 Fix Pack 5** (April 2024)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the *minimum* recommended version of the **Open XL C/C++ V17.1.2** compiler on **POWER8**, **POWER9**, and **Power10** systems.
+* [**IBM Open XL C/C++ for AIX V17.1.2 Fix Pack 6** (May 2024)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the *minimum* recommended version of the **Open XL C/C++ V17.1.2** compiler on **POWER8**, **POWER9**, and **Power10** systems.
   * LTO (*link-time optimization*) and native 128-bit integer operations are both fully supported.
 
 []()
 
-* [**Clang 18.1.3**](https://clang.llvm.org/) is the *minimum* recommended version of the **Clang** compiler on **POWER8**, **POWER9**, and **Power10** systems.
+* [**Clang 18.1.5**](https://clang.llvm.org/) is the *minimum* recommended version of the **Clang** compiler on **POWER8**, **POWER9**, and **Power10** systems.
   * LTO *(link-time optimization)* and native 128-bit integer operations are both fully supported.
 
 #### Other supported compilers
@@ -796,7 +796,7 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 
 []()
 
-* [**IBM XL C/C++ for AIX V16.1.0 Fix Pack 17** (April 2024)](https://www.ibm.com/support/pages/ibm-xl-cc-aix-161) is the *minimum* recommended version of the **IBM XL C/C++ V16.1.0** compiler on **POWER8** and **POWER9** systems.
+* [**IBM XL C/C++ for AIX V16.1.0 Fix Pack 18** (May 2024)](https://www.ibm.com/support/pages/ibm-xl-cc-aix-161) is the *minimum* recommended version of the **IBM XL C/C++ V16.1.0** compiler on **POWER8** and **POWER9** systems.
   * LTO (*link-time optimization*) and 128-bit integer operations are both **not supported**.
     * Use of the **`NEED_128=1`** and **`NO_LTO=1`** options are required when building with **IBM XL C/C++ V16.1.0**.
   * **IBM XL C/C++ V16.1.0** is **not** recommended for **Power10** systems.
@@ -1757,7 +1757,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 []()
 
-* Microsoft **Windows** supports various development and runtime environments, including [**MSVCRT**](https://docs.microsoft.com/en-us/cpp/), [**MinGW**](https://www.mingw-w64.org/), [**Cygwin**](https://www.cygwin.com/), [**Midipix**](https://midipix.org/), [**MSYS2**](https://www.msys2.org/), and many others.
+* Microsoft **Windows** supports various development and runtime environments, including [**Universal CRT**](https://learn.microsoft.com/en-us/cpp/porting/upgrade-your-code-to-the-universal-crt), [**MinGW-w64**](https://www.mingw-w64.org/), [**Cygwin**](https://www.cygwin.com/), [**Midipix**](https://midipix.org/), [**MSYS2**](https://www.msys2.org/), and many others.
   * Care must be taken to avoid mixing incompatible libraries and tools.
 
 []()

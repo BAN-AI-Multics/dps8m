@@ -201,9 +201,10 @@ cppcheck:                                                                     \
 cppiscan:                                                                     \
     # cppiscan:    # Verify C preprocessor nesting indents
 	@$(SETV); ( $(PRINTF) '%s\n' "*** Listing files with cppi:";              \
-      $(CPPI) -l $$($(GIT) ls-files | $(GREP) -v 'ci-kit/' 2> /dev/null |     \
+      $(CPPI) -l $$($(GIT) ls-files |                                         \
+       $(GREP) -Ev '(ci-kit/|libsir/|libbacktrace/)' 2> /dev/null |           \
         $(GREP) "\.[ch]$$" 2> /dev/null | $(SORT) -u | $(GREP) -v " ");       \
-          $(PRINTF) '%s\n' "*** End of listing" )
+         $(PRINTF) '%s\n' "*** End of listing" )
 
 ###############################################################################
 # Convenience target: Cppi fix/repair
@@ -212,10 +213,13 @@ cppiscan:                                                                     \
 cppifix:                                                                      \
     # cppifix:    # Repair C preprocessor nesting indents
 	@$(SETV); for i in $$($(CPPI) -l $$($(GIT) ls-files |                     \
-      $(GREP) -v 'ci-kit/' 2> /dev/null| $(GREP) "\.[ch]$$" 2> /dev/null |    \
-       $(SORT) -u | $(GREP) -v " ")); do $(PRINTF) '%s\n' "*** cppi $${i:?}"; \
-        $(CPPI) "$${i:?}" > "$${i:?}.ifx" && $(CP) "$${i:?}.ifx" "$${i:?}" && \
-         $(RMF) "$${i:?}.ifx"; done
+      $(GREP) -Ev '(ci-kit/|libsir/|libbacktrace/)' 2> /dev/null |            \
+       $(GREP) "\.[ch]$$" 2> /dev/null |                                      \
+        $(SORT) -u | $(GREP) -v " ")); do                                     \
+         $(PRINTF) '%s\n' "*** cppi $${i:?}";                                 \
+          $(CPPI) "$${i:?}" > "$${i:?}.ifx" &&                                \
+           $(CP) "$${i:?}.ifx" "$${i:?}" &&                                   \
+            $(RMF) "$${i:?}.ifx"; done
 
 ###############################################################################
 # Convenience target: Runs Oracle Developer Studio 12.6 Lint on Linux/Solaris
