@@ -24,10 +24,6 @@ set -eu 2> /dev/null 2>&1
 CPUS="$(grep -c '^model name' /proc/cpuinfo 2> /dev/null || printf '%s\n' '4')"
 export CPUS
 
-# MinGW PATH for sed rewrite
-MGWP='-w64-mingw32ucrt/sys-root/mingw/'
-export MGWP
-
 # Output filename
 OUTPUT_NSIS="dps8m-setup.exe"
 export OUTPUT_NSIS
@@ -168,7 +164,7 @@ mkdir -p "${HOME:-}/libuv-win32-i686" &&                                   \
     env CFLAGS="${GCFLAGS:-}" LDFLAGS="${GLDFLAGS:-}"                      \
      CI_SKIP_MKREBUILD=1                                                   \
       ./configure --prefix="${HOME:-}/libuv-win32-i686"                    \
-       --enable-static --disable-shared --host="i686-w64-mingw32ucrt" &&   \
+       --enable-static --disable-shared --host="i686-w64-mingw32" &&       \
     "${MAKE:-make}" -j "${CPUS:?}" && "${MAKE:-make}" install )
 }
 
