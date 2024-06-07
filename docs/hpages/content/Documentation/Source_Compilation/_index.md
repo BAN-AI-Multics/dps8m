@@ -1804,7 +1804,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 * Build the simulator from the top-level source directory (using **GNU Make**):
 
   ```sh
-  env CFLAGS="-DUSE_FLOCK=1 -DUSE_FCNTL=1" make
+  make
   ```
 
 #### Cygwin-hosted cross-compilation to MinGW

@@ -105,6 +105,15 @@
 #  define FALSE 0
 # endif /* if !defined(FALSE) */
 
+# if defined(__CYGWIN__)
+#  if !defined(USE_FLOCK)
+#   define USE_FLOCK 1
+#  endif /* if !defined(USE_FLOCK) */
+#  if !defined(USE_FCNTL)
+#   define USE_FCNTL 1
+#  endif /* if !defined(USE_FCNTL) */
+# endif /* if defined(__CYGWIN__) */
+
 /*
  * SCP API shim.
  *

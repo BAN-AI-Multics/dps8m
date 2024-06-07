@@ -17,12 +17,6 @@
 
 /* Shared memory functions */
 
-#if defined(USE_FLOCK) && defined(USE_FCNTL)
-# if !defined(USE_BFLOCK)
-#  define USE_BFLOCK
-# endif /* if !defined(USE_BFLOCK) */
-#endif /* if defined(USE_FLOCK) && defined(USE_FCNTL) */
-
 #include <errno.h>
 #include <fcntl.h> /* For O_* constants, locks */
 #include <limits.h>
@@ -35,7 +29,14 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "simh_defs"
 #include "shm.h"
+
+#if defined(USE_FLOCK) && defined(USE_FCNTL)
+# if !defined(USE_BFLOCK)
+#  define USE_BFLOCK
+# endif /* if !defined(USE_BFLOCK) */
+#endif /* if defined(USE_FLOCK) && defined(USE_FCNTL) */
 
 #if !defined(TRUE)
 # define TRUE 1
