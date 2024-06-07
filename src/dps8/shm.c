@@ -29,7 +29,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "simh_defs"
+#include "../simh/sim_defs.h"
 #include "shm.h"
 
 #if defined(USE_FLOCK) && defined(USE_FCNTL)
