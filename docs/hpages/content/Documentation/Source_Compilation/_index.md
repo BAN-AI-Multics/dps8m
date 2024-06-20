@@ -768,7 +768,7 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 ## AIX
 
 * Ensure you are running a [supported release](https://www.ibm.com/support/pages/aix-support-lifecycle-information) of [**IBM AIX®**](https://www.ibm.com/products/aix) on a [supported platform](https://www.ibm.com/support/pages/system-aix-maps).
-  * **IBM AIX®** **7.2** (*TL5* *SP7*) and **7.3** (*TL2* *SP1*) on [**POWER8®**, **POWER9™**, and **Power10**](https://www.ibm.com/it-infrastructure/power) systems are regularly tested by **The DPS8M Development Team**.
+  * **IBM AIX®** **7.2** (*TL5* *SP8*) and **7.3** (*TL2* *SP2*) on [**POWER8®**, **POWER9™**, and **Power10**](https://www.ibm.com/it-infrastructure/power) systems are regularly tested by **The DPS8M Development Team**.
 
 []()
 
@@ -780,12 +780,12 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 
 ### Recommended compilers
 
-* [**IBM Open XL C/C++ for AIX V17.1.2 Fix Pack 6** (May 2024)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the *minimum* recommended version of the **Open XL C/C++ V17.1.2** compiler on **POWER8**, **POWER9**, and **Power10** systems.
+* [**IBM Open XL C/C++ for AIX V17.1.2 Fix Pack 7** (June 2024)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the *minimum* recommended version of the **Open XL C/C++ V17.1.2** compiler on **POWER8**, **POWER9**, and **Power10** systems.
   * LTO (*link-time optimization*) and native 128-bit integer operations are both fully supported.
 
 []()
 
-* [**Clang 18.1.5**](https://clang.llvm.org/) is the *minimum* recommended version of the **Clang** compiler on **POWER8**, **POWER9**, and **Power10** systems.
+* [**Clang 18.1.7**](https://clang.llvm.org/) is the *minimum* recommended version of the **Clang** compiler on **POWER8**, **POWER9**, and **Power10** systems.
   * LTO *(link-time optimization)* and native 128-bit integer operations are both fully supported.
 
 #### Other supported compilers
