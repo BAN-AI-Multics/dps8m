@@ -1773,7 +1773,7 @@ AIX/powerpc64, IBM AIX, IBM XL C/C++ V16.1:
 
 ############################################################################
 
-Linux/powerpc64el, Ubuntu, IBM XL C/C++:
+.Linux/powerpc64el, Ubuntu, IBM XL C/C++:
   stage: build
   tags:
     - Shell-Linux
@@ -2629,7 +2629,6 @@ pages:
     - job: GNU GLOBAL Hypertext
     - job: Hugo
     - job: Linux/powerpc64el, IBM Advance Toolchain 17
-    - job: Linux/powerpc64el, Ubuntu, IBM XL C/C++
     - job: Linux/powerpc64el, Ubuntu, IBM Open XL C/C++
     - job: Linux/x86_64, Alpine Edge, Clang, GCC
     - job: Oracle Developer Studio Lint
@@ -2651,7 +2650,6 @@ pages:
     - "GNU GLOBAL Hypertext"
     - "Hugo"
     - "Linux/powerpc64el, IBM Advance Toolchain 17"
-    - "Linux/powerpc64el, Ubuntu, IBM XL C/C++"
     - "Linux/powerpc64el, Ubuntu, IBM Open XL C/C++"
     - "Linux/x86_64, Alpine Edge, Clang, GCC"
     - "Oracle Developer Studio Lint"
@@ -2748,7 +2746,6 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-pw8.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-atn.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-att.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-xlc.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-ox8.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-macos-uni.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-s114-641.tar.gz public

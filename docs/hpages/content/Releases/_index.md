@@ -718,7 +718,6 @@ title: DPS8M Releases
 | [**dps8m-git-linux-pw8.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-pw8.tar.gz) | POWER8               |
 | [**dps8m-git-linux-ate.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-ate.tar.gz) | POWER8 (AT&nbsp;17)  |
 | [**dps8m-git-linux-ox8.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-ox8.tar.gz) | POWER8 (OXLC&nbsp;17 + glibc&nbsp;2.38+) |
-| [**dps8m-git-linux-xlc.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-xlc.tar.gz) | POWER8 (XLC&nbsp;16 + glibc&nbsp;2.38+) |
 {{< /expand >}}
 
 {{< expand "Power ISA (64-bit, big-endian)" "…" >}}
