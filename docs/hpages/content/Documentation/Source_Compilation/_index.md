@@ -785,7 +785,7 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 
 []()
 
-* [**Clang 18.1.7**](https://clang.llvm.org/) is the *minimum* recommended version of the **Clang** compiler on **POWER8**, **POWER9**, and **Power10** systems.
+* [**Clang 18.1.8**](https://clang.llvm.org/) is the *minimum* recommended version of the **Clang** compiler on **POWER8**, **POWER9**, and **Power10** systems.
   * LTO *(link-time optimization)* and native 128-bit integer operations are both fully supported.
 
 #### Other supported compilers
@@ -905,7 +905,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 #### Clang
 
-* Using mainline **Clang 18.1.3**:
+* Using mainline **Clang 18.1.8**:
 
   ```sh
   env PATH="/opt/llvm/bin:/opt/freeware/bin:${PATH}"                        \
