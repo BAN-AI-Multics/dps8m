@@ -45,7 +45,6 @@ test -x "hugovars.sh" ||
 
 ${HUGO:-hugo}                         \
   -b "https://dps8m.gitlab.io/dps8m"  \
-  -D                                  \
   --enableGitInfo                     \
   -v
 

@@ -650,6 +650,11 @@ segldr.o: hdbg.h
 segldr.o: segldr.h
 segldr.o: ucache.h
 segldr.o: uvutil.h
+shm.o: ../simh/scp.h
+shm.o: ../simh/sim_console.h
+shm.o: ../simh/sim_defs.h
+shm.o: ../simh/sim_fio.h
+shm.o: ../simh/sim_timer.h
 shm.o: shm.h
 threadz.o: ../simh/sim_timer.h
 threadz.o: dps8.h
