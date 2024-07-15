@@ -1,5 +1,5 @@
 /* pecoff.c -- Get debug data from a PE/COFFF file for backtraces.
-   Copyright (C) 2015-2021 Free Software Foundation, Inc.
+   Copyright (C) 2015-2024 Free Software Foundation, Inc.
    Adapted from elf.c by Tristan Gingold, AdaCore.
 
 Redistribution and use in source and binary forms, with or without
@@ -240,7 +240,7 @@ coff_nodebug (struct backtrace_state *state ATTRIBUTE_UNUSED,
 	      backtrace_full_callback callback ATTRIBUTE_UNUSED,
 	      backtrace_error_callback error_callback, void *data)
 {
-  error_callback (data, "no debug info in PE/COFF executable", -1);
+  error_callback (data, "no debug info in PE/COFF executable (make sure to compile with -g)", -1);
   return 0;
 }
 
