@@ -1350,6 +1350,7 @@ hinstance
 hintlen
 hintmaxlen
 hmax
+hmodule
 hndlquit
 homedrive
 homelbn
@@ -3131,6 +3132,7 @@ ubfromui
 ublock
 ubsan
 ubtoui
+uchar
 ucnt
 udata
 udbl
@@ -3279,6 +3281,7 @@ wasn
 wasodd
 waszero
 watcomc
+wchar
 wday
 werasc
 weren
@@ -6485,8 +6488,10 @@ doesn
 eposit
 fadbe
 figuration
+fixedfileinfo
 ices
 llvmorg
+msvcrt
 odifiers
 overrunat
 rsion
@@ -6494,6 +6499,10 @@ shouldn
 ssign
 strip
 tures
+ucrt
+ucrtbase
+ucrtbased
+ucrtversion
 ueue
 uildinfo
 upcased
@@ -6672,18 +6681,22 @@ infozip
 iomcmd
 isfifo
 kitname
+lcryptbase
+ldbghelp
 lgtm
 libdl
 librt
 liphlpapi
 liplpapi
 listchars
+lmincore
 lmingwex
 lnetwork
 locallibs
 localobjs
 lssp
 luserenv
+lversion
 lwinmm
 lwsock
 makecmdgoals
@@ -6997,10 +7010,12 @@ libalm
 libamd
 libc
 libfaketime
+libjemalloc
 libltdl
 libmem
 libmtsk
 libstatomic
+libstdc
 libtool
 libwinpthread
 liphlpapi
@@ -7107,6 +7122,7 @@ tcsh
 tikzfill
 tsflags
 ucharcat
+ucrt
 ulem
 upquote
 useddef
@@ -8275,14 +8291,18 @@ plog
 pvsreport
 
 FILEID: 0a0e19f0-4894-11ed-8c0a-80ee73e9b8e7
+lcryptbase
 ldbghelp
 liphlpapi
+lmincore
 lole
 lpsapi
 lshell
 luser
 luserenv
 luuid
+lversion
+ucrt
 
 FILEID: 35c9cf5c-ebbf-11ed-8d34-80ee73e9b8e7
 acknr
@@ -8642,6 +8662,11 @@ printf
 FILEID: a947428c-19f4-11ef-8936-80ee73e9b8e7
 aremmell
 
+FILEID: 9bcd83de-4bed-11ef-8000-922037bebb33
+hpages
+kaussow
+thegeeklab
+
 NATURAL:
 abandon
 abandoned
@@ -8839,6 +8864,7 @@ andes
 android
 angle
 annotating
+annotations
 announces
 announcing
 annoyingly
@@ -8890,6 +8916,7 @@ apps
 april
 arabic
 arbitrary
+archetypes
 architecturally
 architecture
 architectures
@@ -10367,6 +10394,7 @@ exempt
 exercises
 exhausted
 exhaustion
+exhaustive
 exhausts
 existed
 existence
@@ -10596,6 +10624,7 @@ fortran
 forum
 forward
 found
+foundation
 four
 fourth
 fraction
@@ -11273,6 +11302,7 @@ launch
 launches
 lawsuit
 layout
+layouts
 lazy
 ldflags
 lead
@@ -11287,6 +11317,7 @@ least
 leave
 leaves
 leaving
+lederman
 left
 legacy
 legal
@@ -12248,6 +12279,7 @@ prefix
 prefixed
 prefixing
 preliminary
+preload
 premature
 prepaging
 preparation
@@ -12833,6 +12865,7 @@ runout
 runs
 runtime
 rust
+ryan
 sadly
 safely
 safety
@@ -13352,6 +13385,7 @@ supervisor
 supnik
 supplemented
 supplied
+supplier
 supplies
 supply
 supported
@@ -13479,6 +13513,7 @@ theatre
 their
 them
 theme
+themes
 themselves
 then
 theorem
