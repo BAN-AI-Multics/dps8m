@@ -117,6 +117,7 @@ get_bld_user()
 
 ##############################################################################
 
+# shellcheck disable=SC2310
 BUILD_USR="$(get_bld_user)" ||
     { # /* BUILD_USR */
         printf >&2 '%s\n' \

@@ -16,6 +16,7 @@ set -u > /dev/null 2>&1
 
 test -z "${SED:-}" &&
   {
+    # shellcheck disable=SC2312
     SED="$(command -v gsed 2> /dev/null || \
             env PATH="$(command -p env getconf PATH)" sh -c "command -v sed")"
     export SED
