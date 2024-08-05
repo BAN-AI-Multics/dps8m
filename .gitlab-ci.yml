@@ -576,7 +576,7 @@ Cross-compiled release binaries:
     - git clean -fdxq -e '*.tar*' -e 'dps8m*'
     - rm -rf /home/jhj/x-tools/x86_64-unknown-haiku/
     - PARALLEL_CI_COUNT=$(( PARALLEL_CI_COUNT + 1 )) ; test ${PARALLEL_CI_COUNT:?} -gt ${CI_NODE_TOTAL:?} && PARALLEL_CI_COUNT=1 || true
-    - wget --quiet "https://github.com/johnsonjh/ndk/releases/download/r26c/android-ndk-r28-1160465.tar.lz" -O /android-ndk.tar.lz
+    - wget --quiet "https://github.com/johnsonjh/ndk/releases/download/r26c/android-ndk-r27-linux.tar.lz" -O /android-ndk.tar.lz
     - ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /android-ndk.tar.lz )
     - *scriptDPS8Mods
     - unset DPS8_CPUTYPE > /dev/null 2>&1 || true
