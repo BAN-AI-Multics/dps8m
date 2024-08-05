@@ -299,7 +299,7 @@ ifndef TESTING
     export DUMALIBS
   endif
 else
-  OPTFLAGS = -O0 -g3 -fno-inline -ggdb -fstack-protector-all
+  OPTFLAGS = -O0 -D_GLIBCXX_ASSERTIONS -g3 -fno-inline -ggdb -fstack-protector-all
   ifdef DUMA
     CFLAGS   += -I../dps8 -I. -include dps8_duma.h
     OPTFLAGS += -DDUMA=1
