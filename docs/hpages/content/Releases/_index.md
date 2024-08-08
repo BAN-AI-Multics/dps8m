@@ -796,12 +796,6 @@ title: DPS8M Releases
 | [**dps8m-git-linux-l64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-l64.tar.gz) | glibc&nbsp;2.12+ |
 {{< /expand >}}
 
-{{< expand "OpenRISC" "…" >}}
-| File                                                                                       | Platform             |
-| :----------------------------------------------------------------------------------------- | :------------------- |
-| [**dps8m-git-linux-ork.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-ork.tar.gz) | OpenRISC&nbsp;OR1200 |
-{{< /expand >}}
-
 {{< expand "RISC-V" "…" >}}
 | File                                                                                       | Platform |
 | :----------------------------------------------------------------------------------------- | :------- |
