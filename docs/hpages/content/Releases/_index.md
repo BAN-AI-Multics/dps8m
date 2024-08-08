@@ -673,12 +673,6 @@ title: DPS8M Releases
 | [**dps8m-git-nbd93-pg4.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-pg4.tar.gz) | G4&nbsp;/&nbsp;PPC7400 |
 | [**dps8m-git-nbd93-740.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-740.tar.gz) | G3&nbsp;/&nbsp;PPC740  |
 {{< /expand >}}
-
-{{< expand "VAX" "…" >}}
-| File                                                                                       |
-|:------------------------------------------------------------------------------------------ |
-| [**dps8m-git-nbd93-vax.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-vax.tar.gz) |
-{{< /expand >}}
 {{< /expand >}}
 {{< /tab >}}
 {{< tab "Haiku" >}}
