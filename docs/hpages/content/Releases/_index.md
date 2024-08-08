@@ -757,13 +757,6 @@ title: DPS8M Releases
 {{< /expand >}}
 {{< /expand >}}
 
-{{< expand "m68k" "…" >}}
-| File                                                                                       | Platform |
-| :----------------------------------------------------------------------------------------- | :------- |
-| [**dps8m-git-linux-040.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-040.tar.gz) | 68040    |
-| [**dps8m-git-linux-030.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-030.tar.gz) | 68030    |
-{{< /expand >}}
-
 {{< expand "SPARC" "…" >}}
 {{< expand "UltraSPARC" "…" >}}
 | File                                                                                       | Platform         |
