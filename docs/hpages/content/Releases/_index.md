@@ -741,12 +741,6 @@ title: DPS8M Releases
 | [**dps8m-git-linux-a8a.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-a8a.tar.gz) | ARMv8‑A   |
 {{< /expand >}}
 
-{{< expand "ARM64 (big-endian)" "…" >}}
-| File                                                                                       | Platform         |
-| :----------------------------------------------------------------------------------------- | :--------------- |
-| [**dps8m-git-linux-a8b.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-a8b.tar.gz) | ARMv8‑A&nbsp;BE8 |
-{{< /expand >}}
-
 {{< expand "ARM (32-bit, little-endian)" "…" >}}
 | File                                                                                       | Platform |
 | :----------------------------------------------------------------------------------------- | :------- |
