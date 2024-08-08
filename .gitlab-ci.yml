@@ -1380,21 +1380,6 @@ Cross-compiled release binaries:
     - chmod -R u+rwx /home/jhj/x-tools/powerpc64-local-linux-musl || true
     - rm -rf /home/jhj/x-tools/powerpc64-local-linux-musl || true
     - PARALLEL_CI_COUNT=$(( PARALLEL_CI_COUNT + 1 )) ; test ${PARALLEL_CI_COUNT:?} -gt ${CI_NODE_TOTAL:?} && PARALLEL_CI_COUNT=1 || true
-    - wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/powerpcle-local-linux-musl.tar.lz" -O /powerpcle-local-linux-musl.tar.lz
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /powerpcle-local-linux-musl.tar.lz ); }; fi
-    - *scriptDPS8Mods
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH="/home/jhj/x-tools/powerpcle-local-linux-musl/bin:${PATH}" CC="/home/jhj/x-tools/powerpcle-local-linux-musl/bin/powerpcle-local-linux-musl-gcc" LOCAL_CONFOPTS="--host=powerpcle-local-linux-musl" LDFLAGS="-static" CFLAGS="-Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko -Dfopen64=fopen -mcpu=powerpc" gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH="/home/jhj/x-tools/powerpcle-local-linux-musl/bin:${PATH}" CC="/home/jhj/x-tools/powerpcle-local-linux-musl/bin/powerpcle-local-linux-musl-gcc" LDFLAGS="-static" CFLAGS="-Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko -Dfopen64=fopen -mcpu=powerpc" gmake NEED_128=1 ATOMICS="GNU" LOCALLIBS="-latomic" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
-    - mkdir -p "src/${DISTDIR:?}"
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-linux-ple.tar "./${DISTDIR:?}"; ); }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-ple.tar; }; fi
-    - rm -rf "src/${DISTDIR:?}"
-    - git clean -fdxq -e '*.tar*' -e 'dps8m*'
-    - chmod -R u+rwx /home/jhj/x-tools/powerpcle-local-linux-musl || true
-    - rm -rf /home/jhj/x-tools/powerpcle-local-linux-musl || true
-    - PARALLEL_CI_COUNT=$(( PARALLEL_CI_COUNT + 1 )) ; test ${PARALLEL_CI_COUNT:?} -gt ${CI_NODE_TOTAL:?} && PARALLEL_CI_COUNT=1 || true
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { wget --quiet "https://gitlab.com/dps8m/dps8m-archive/-/raw/master/CI/toolchains/sparc64-sun-solaris2.11.tar.lz" -O /sparc64-sun-solaris2.11.tar.lz; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && tar axf /sparc64-sun-solaris2.11.tar.lz && rm -f /sparc64-sun-solaris2.11.tar.lz; ); }; fi
     - *scriptDPS8Mods
@@ -1437,7 +1422,6 @@ Cross-compiled release binaries:
     paths:
       - dps8m-git-macos-uni.tar.gz
       - dps8m-git-s114-sv9.tar.gz
-      - dps8m-git-linux-ple.tar.gz
       - dps8m-git-linux-bpt.tar.gz
       - dps8m-git-linux-bp9.tar.gz
       - dps8m-git-linux-bp8.tar.gz
@@ -2713,7 +2697,6 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-s114-641.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-iloi-641.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-bpt.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-ple.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-bp9.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-bp8.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-bp7.tar.gz public
