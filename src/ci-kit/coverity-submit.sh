@@ -97,6 +97,7 @@ curl --version > /dev/null ||
 
 ##############################################################################
 
+# shellcheck disable=SC2312
 test "$(uname -s 2> /dev/null)" = "Linux" ||
   {
     printf '%s\n' \
@@ -162,6 +163,7 @@ cmp -s "${COVERITY_DLDIR:?}/coverity_tool.last.md5" \
 
 ##############################################################################
 
+# shellcheck disable=SC2312
 test "$(2> /dev/null md5sum "${COVERITY_DLDIR:?}/coverity_tool.tgz" | \
         2> /dev/null cut -d ' ' -f 1)" =                              \
           "$(cat "${COVERITY_DLDIR:?}/coverity_tool.md5")" ||
@@ -213,6 +215,7 @@ tar caf dps8m-simulator.xz cov-int
 ##############################################################################
 
 printf '%s\n' '#### Notice: Uploading Coverity submission.'
+# shellcheck disable=SC2312
 curl --form token="${COVERITY_TOKEN:?}"          \
      --form email="${COVERITY_EMAIL:?}"          \
      --form file=@"dps8m-simulator.xz"           \

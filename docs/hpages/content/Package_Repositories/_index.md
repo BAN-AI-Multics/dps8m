@@ -11,14 +11,14 @@
 
 ### Stable Release
 
-* Using DNF:
+* Using DNF (*as root*):
   ```sh
   dnf -y install 'dnf-command(config-manager)'
   dnf config-manager --add-repo https://dps8m.gitlab.io/repo/rpm/dps8m.repo
   dnf install dps8m
   ```
 
-* Using Yum:
+* Using Yum (*as root*):
   ```sh
   yum -y install yum-utils
   yum-config-manager --add-repo https://dps8m.gitlab.io/repo/rpm/dps8m.repo
@@ -30,14 +30,14 @@
 
 ### Bleeding Edge
 
-* Using DNF:
+* Using DNF (*as root*):
   ```sh
   dnf -y install 'dnf-command(config-manager)'
   dnf config-manager --add-repo https://dps8m.gitlab.io/repo/rpm/dps8m-bleeding.repo
   dnf install dps8m
   ```
 
-* Using Yum:
+* Using Yum (*as root*):
   ```sh
   yum -y install yum-utils
   yum-config-manager --add-repo https://dps8m.gitlab.io/repo/rpm/dps8m-bleeding.repo

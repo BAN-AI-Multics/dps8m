@@ -780,7 +780,7 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 
 ### Recommended compilers
 
-* [**IBM Open XL C/C++ for AIX V17.1.2 Fix Pack 7** (June 2024)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the *minimum* recommended version of the **Open XL C/C++ V17.1.2** compiler on **POWER8**, **POWER9**, and **Power10** systems.
+* [**IBM Open XL C/C++ for AIX V17.1.2 Fix Pack 9** (July 2024)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the *minimum* recommended version of the **Open XL C/C++ V17.1.2** compiler on **POWER8**, **POWER9**, and **Power10** systems.
   * LTO (*link-time optimization*) and native 128-bit integer operations are both fully supported.
 
 []()
@@ -1573,7 +1573,7 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
   * [**Intel® C++ Compiler Classic for macOS**](https://www.intel.com/content/www/us/en/developer/articles/tool/oneapi-standalone-components.html#dpcpp-cpp) (**`icc`**) is ***no longer supported*** for building **DPS8M** (*as of* ***R3.0.2***).
     * Intel® has *retired* support for **ICC**.
   * Building the simulator on **macOS** using **GCC** is ***not recommended***.
-* The following instructions were verified using **macOS 14.4** with **Xcode 15.4** (Apple Clang 15.0.0).
+* The following instructions were verified using **macOS 14.6** with **Xcode 16.0** (Apple Clang 16.0.0).
 
 ### macOS prerequisites
 
@@ -1839,7 +1839,6 @@ In the following cross-compilation examples, the *latest* **`libuv`** sources (f
 
     ```sh
     env CFLAGS="-I${HOME}/libuv-win32-i686/include -D__MINGW64__     \
-                -DUSE_FLOCK=1 -DUSE_FCNTL=1"                         \
         CC="i686-w64-mingw32-gcc"                                    \
         LDFLAGS="-L${HOME}/libuv-win32-i686/lib" NEED_128=1          \
       make CROSS="MINGW64"
@@ -1872,7 +1871,6 @@ In the following cross-compilation examples, the *latest* **`libuv`** sources (f
 
     ```sh
     env CFLAGS="-I${HOME}/libuv-win32-x86_64/include -D__MINGW64__     \
-                -DUSE_FLOCK=1 -DUSE_FCNTL=1"                           \
         CC="x86_64-w64-mingw32-gcc"                                    \
         LDFLAGS="-L${HOME}/libuv-win32-x86_64/lib"                     \
       make CROSS="MINGW64"

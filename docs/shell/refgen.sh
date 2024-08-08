@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2015,SC2129
+# shellcheck disable=SC2015,SC2129,SC2292,SC2312
 # vim: filetype=sh:tabstop=4:ai:expandtab
 # SPDX-License-Identifier: MIT-0
 # scspell-id: 3f9cac60-f632-11ec-9ef6-80ee73e9b8e7

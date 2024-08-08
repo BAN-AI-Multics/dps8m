@@ -673,12 +673,6 @@ title: DPS8M Releases
 | [**dps8m-git-nbd93-pg4.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-pg4.tar.gz) | G4&nbsp;/&nbsp;PPC7400 |
 | [**dps8m-git-nbd93-740.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-740.tar.gz) | G3&nbsp;/&nbsp;PPC740  |
 {{< /expand >}}
-
-{{< expand "VAX" "…" >}}
-| File                                                                                       |
-|:------------------------------------------------------------------------------------------ |
-| [**dps8m-git-nbd93-vax.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-vax.tar.gz) |
-{{< /expand >}}
 {{< /expand >}}
 {{< /tab >}}
 {{< tab "Haiku" >}}
@@ -738,12 +732,6 @@ title: DPS8M Releases
 | [**dps8m-git-linux-g4a.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-g4a.tar.gz) | G4&nbsp;/&nbsp;PPC7400  |
 | [**dps8m-git-linux-740.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-740.tar.gz) | G3&nbsp;/&nbsp;PPC740   |
 {{< /expand >}}
-
-{{< expand "PowerPC (32-bit, little-endian)" "…" >}}
-| File                                                                                       |
-| :----------------------------------------------------------------------------------------- |
-| [**dps8m-git-linux-ple.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-ple.tar.gz) |
-{{< /expand >}}
 {{< /expand >}}
 
 {{< expand "ARM" "…" >}}
@@ -751,12 +739,6 @@ title: DPS8M Releases
 | File                                                                                       | Platform  |
 | :----------------------------------------------------------------------------------------- | :-------- |
 | [**dps8m-git-linux-a8a.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-a8a.tar.gz) | ARMv8‑A   |
-{{< /expand >}}
-
-{{< expand "ARM64 (big-endian)" "…" >}}
-| File                                                                                       | Platform         |
-| :----------------------------------------------------------------------------------------- | :--------------- |
-| [**dps8m-git-linux-a8b.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-a8b.tar.gz) | ARMv8‑A&nbsp;BE8 |
 {{< /expand >}}
 
 {{< expand "ARM (32-bit, little-endian)" "…" >}}
@@ -767,13 +749,6 @@ title: DPS8M Releases
 | [**dps8m-git-linux-a6f.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-a6f.tar.gz) | ARMv6+FP |
 | [**dps8m-git-linux-a6s.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-a6s.tar.gz) | ARMv6    |
 {{< /expand >}}
-{{< /expand >}}
-
-{{< expand "m68k" "…" >}}
-| File                                                                                       | Platform |
-| :----------------------------------------------------------------------------------------- | :------- |
-| [**dps8m-git-linux-040.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-040.tar.gz) | 68040    |
-| [**dps8m-git-linux-030.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-030.tar.gz) | 68030    |
 {{< /expand >}}
 
 {{< expand "SPARC" "…" >}}
@@ -796,48 +771,10 @@ title: DPS8M Releases
 | [**dps8m-git-linux-l64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-l64.tar.gz) | glibc&nbsp;2.12+ |
 {{< /expand >}}
 
-{{< expand "OpenRISC" "…" >}}
-| File                                                                                       | Platform             |
-| :----------------------------------------------------------------------------------------- | :------------------- |
-| [**dps8m-git-linux-ork.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-ork.tar.gz) | OpenRISC&nbsp;OR1200 |
-{{< /expand >}}
-
 {{< expand "RISC-V" "…" >}}
 | File                                                                                       | Platform |
 | :----------------------------------------------------------------------------------------- | :------- |
 | [**dps8m-git-linux-r64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-r64.tar.gz) | RV64     |
-{{< /expand >}}
-
-{{< expand "MIPS" "…" >}}
-{{< expand "MIPS64 (little-endian)" "…" >}}
-| File                                                                                       |
-| :----------------------------------------------------------------------------------------- |
-| [**dps8m-git-linux-m6l.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-m6l.tar.gz) |
-{{< /expand >}}
-
-{{< expand "MIPS64 (big-endian)" "…" >}}
-| File                                                                                       |
-| :----------------------------------------------------------------------------------------- |
-| [**dps8m-git-linux-m64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-m64.tar.gz) |
-{{< /expand >}}
-
-{{< expand "MIPS (32-bit, little-endian)" "…" >}}
-| File                                                                                       | Platform                   |
-| :----------------------------------------------------------------------------------------- |:-------------------------- |
-| [**dps8m-git-linux-mpl.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-mpl.tar.gz) | MIPS-I&nbsp;(hard-float)   |
-| [**dps8m-git-linux-m2l.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-m2l.tar.gz) | MIPS32R2&nbsp;(hard-float) |
-<!--| [**dps8m-git-linux-m2s.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-m2s.tar.gz) | MIPS32R2&nbsp;(soft-float) |-->
-<!--| [**dps8m-git-linux-msl.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-msl.tar.gz) | MIPS-I&nbsp;(soft-float)   |-->
-{{< /expand >}}
-
-{{< expand "MIPS (32-bit, big-endian)" "…" >}}
-| File                                                                                       | Platform                   |
-| :----------------------------------------------------------------------------------------- |:-------------------------- |
-| [**dps8m-git-linux-mps.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-mps.tar.gz) | MIPS-I&nbsp;(hard-float)   |
-| [**dps8m-git-linux-mp2.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-mp2.tar.gz) | MIPS32R2&nbsp;(hard-float) |
-<!--| [**dps8m-git-linux-ms2.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-ms2.tar.gz) | MIPS32R2&nbsp;(soft-float) |-->
-<!--| [**dps8m-git-linux-mss.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-mss.tar.gz) | MIPS-I&nbsp;(soft-float)   |-->
-{{< /expand >}}
 {{< /expand >}}
 
 {{< expand "z/Architecture" "…" >}}
