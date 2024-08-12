@@ -3156,6 +3156,7 @@ const char *decNumberClassToString(enum decClass eclass) {
 /* so special values are unchanged and no error is possible.          */
 /* ------------------------------------------------------------------ */
 decNumber * decNumberCopy(decNumber *dest, const decNumber *src) {
+  /* cppcheck-suppress uninitvar */
   if (dest==src) return dest;                // no copy required
 
   // Use explicit assignments here as structure assignment could copy
