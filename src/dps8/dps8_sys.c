@@ -66,7 +66,6 @@
 #include "dps8_mgp.h"
 #include "dps8_utils.h"
 #include "shm.h"
-#include "utlist.h"
 #include "ver.h"
 
 #if defined(THREADZ) || defined(LOCKLESS)

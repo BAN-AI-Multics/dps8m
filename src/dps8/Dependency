@@ -289,8 +289,6 @@ dps8_fnp2.o: fnpuv.h
 dps8_fnp2.o: hdbg.h
 dps8_fnp2.o: libtelnet.h
 dps8_fnp2.o: ucache.h
-dps8_fnp2.o: uthash.h
-dps8_fnp2.o: utlist.h
 dps8_fnp2.o: uvutil.h
 dps8_fnp2_iomcmd.o: ../simh/sim_timer.h
 dps8_fnp2_iomcmd.o: dps8.h
@@ -535,7 +533,6 @@ dps8_sys.o: segldr.h
 dps8_sys.o: shm.h
 dps8_sys.o: tracker.h
 dps8_sys.o: ucache.h
-dps8_sys.o: utlist.h
 dps8_sys.o: uvutil.h
 dps8_sys.o: ver.h
 dps8_urp.o: ../simh/sim_timer.h

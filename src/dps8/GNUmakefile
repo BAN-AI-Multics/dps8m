@@ -312,10 +312,7 @@ H_SRCS += shm.h
 ifneq ($(MINGW_CROSS),1)
   H_SRCS += udplib.h
 endif
-H_SRCS += utarray.h
-H_SRCS += uthash.h
 H_SRCS += utfile.h
-H_SRCS += utlist.h
 ifeq ($(THREADZ),1)
   H_SRCS += threadz.h
 endif
