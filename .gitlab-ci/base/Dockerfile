@@ -140,6 +140,7 @@ RUN set -x && \
       musl-gcc \
       musl-libc \
       musl-libc-static \
+      ncurses-devel \
       nmap \
       openssl \
       pbzip2 \

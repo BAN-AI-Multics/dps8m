@@ -95,8 +95,6 @@
 #include "fnptelnet.h"
 #include "fnpuv.h"
 #include "dps8_utils.h"
-#include "utlist.h"
-#include "uthash.h"
 
 #include "sim_defs.h"
 #include "sim_tmxr.h"
