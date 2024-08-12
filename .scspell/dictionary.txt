@@ -6048,6 +6048,7 @@ gawk
 gcwd
 getconf
 ggdb
+glibcxx
 gtargroup
 gtaruser
 gzcat
@@ -11759,6 +11760,7 @@ natural
 nature
 navigation
 nbsp
+ncurses
 near
 nearest
 nearly
