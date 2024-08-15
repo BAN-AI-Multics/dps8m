@@ -1367,17 +1367,6 @@ char gbuf[CBUFSIZE];
 t_stat r;
 time_t now;
 
-#if defined(__MACH__) && defined(__APPLE__) && \
-  ( defined(__PPC__) || defined(_ARCH_PPC) )
-# include <mach/clock.h>
-# include <mach/mach.h>
-# if defined(MACOSXPPC)
-#  undef MACOSXPPC
-# endif /* if defined(MACOSXPPC) */
-# define MACOSXPPC 1
-#endif /* if defined(__MACH__) && defined(__APPLE__) &&
-           ( defined(__PPC__) || defined(_ARCH_PPC) ) */
-
 sim_deb_switches = sim_switches;                        /* save debug switches */
 if ((cptr == NULL) || (*cptr == 0))                     /* need arg */
     return SCPE_2FARG;
@@ -1390,17 +1379,7 @@ if (r != SCPE_OK)
     return r;
 
 if (sim_deb_switches & SWMASK ('R')) {
-#if defined(MACOSXPPC)
-    clock_serv_t cclock;
-    mach_timespec_t mts;
-    host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-    clock_get_time(cclock, &mts);
-    mach_port_deallocate(mach_task_self(), cclock);
-    sim_deb_basetime.tv_sec = mts.tv_sec;
-    sim_deb_basetime.tv_nsec = mts.tv_nsec;
-#else
     clock_gettime(CLOCK_REALTIME, &sim_deb_basetime);
-#endif /* if defined(MACOSXPPC) */
     if (!(sim_deb_switches & (SWMASK ('A') | SWMASK ('T'))))
         sim_deb_switches |= SWMASK ('T');
     }

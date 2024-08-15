@@ -1,7 +1,7 @@
 /*
  * mcmb.c
  *
- * Version: 2120.5.09-dps (libcmb 3.5.6)
+ * Version: 2120.5.10-dps (libcmb 3.5.6)
  *
  * -----------------------------------------------------------------------------
  *
@@ -86,16 +86,6 @@
 # include <locale.h>
 #endif /* if !defined(NO_LOCALE) */
 
-#if defined(__MACH__) && defined(__APPLE__) && \
-  ( defined(__PPC__) || defined(_ARCH_PPC) )
-# include <mach/clock.h>
-# include <mach/mach.h>
-# if defined(MACOSXPPC)
-#  undef MACOSXPPC
-# endif /* if defined(MACOSXPPC) */
-# define MACOSXPPC 1
-#endif /* if defined(__MACH__) && defined(__APPLE__) &&
-           ( defined(__PPC__) || defined(_ARCH_PPC) ) */
 #if !defined(TRUE)
 # define TRUE 1
 #endif /* if !defined(TRUE) */
@@ -435,7 +425,7 @@ static struct cmb_xitem *cmb_transform_find;
 # define CMB_PARSE_FRAGSIZE 512
 #endif /* if !defined(CMB_PARSE_FRAGSIZE) */
 
-static const char mcmbver[]         = "2120.5.09-dps";
+static const char mcmbver[]         = "2120.5.10-dps";
 static const char libversion[]      = "libcmb 3.5.6";
 
 /*

@@ -66,17 +66,6 @@
 __thread uint current_running_cpu_idx;
 #endif
 
-#if defined(__MACH__) && defined(__APPLE__) && \
-  ( defined(__PPC__) || defined(_ARCH_PPC) )
-# include <mach/clock.h>
-# include <mach/mach.h>
-# if defined(MACOSXPPC)
-#  undef MACOSXPPC
-# endif /* if defined(MACOSXPPC) */
-# define MACOSXPPC 1
-#endif /* if defined(__MACH__) && defined(__APPLE__) &&
-           ( defined(__PPC__) || defined(_ARCH_PPC) ) */
-
 #include "ver.h"
 
 #define DBG_CTR cpu.cycleCnt
@@ -1452,10 +1441,6 @@ static void get_serial_number (void)
   }
 #endif /* if !defined(PERF_STRIP) */
 
-#if defined(MACOSXPPC)
-# undef STATS
-#endif /* if defined(MACOSXPPC) */
-
 #if defined(STATS)
 static void do_stats (void)
   {
@@ -1946,17 +1931,7 @@ t_stat sim_instr (void)
 
 # if defined(IO_ASYNC_PAYLOAD_CHAN_THREAD)
         struct timespec next_time;
-#  if defined(MACOSXPPC)
-        clock_serv_t cclock;
-        mach_timespec_t mts;
-        host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-        clock_get_time(cclock, &mts);
-        mach_port_deallocate(mach_task_self(), cclock);
-        next_time.tv_sec = mts.tv_sec;
-        next_time.tv_nsec = mts.tv_nsec;
-#  else
         clock_gettime (CLOCK_REALTIME, & next_time);
-#  endif /* if defined(MACOSXPPC) */
         next_time.tv_nsec += 1000l * 1000l;
         if (next_time.tv_nsec >= 1000l * 1000l *1000l)
           {
@@ -1979,24 +1954,12 @@ t_stat sim_instr (void)
             unlock_libuv ();
             unlock_iom ();
 
-#  if defined(MACOSXPPC)
-            clock_serv_t cclock;
-            mach_timespec_t mts;
-            host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-            clock_get_time(cclock, &mts);
-            mach_port_deallocate(mach_task_self(), cclock);
-            new_time.tv_sec = mts.tv_sec;
-            new_time.tv_nsec = mts.tv_nsec;
-#  else
             clock_gettime (CLOCK_REALTIME, & new_time);
-#  endif /* if defined(MACOSXPPC) */
           }
         while ((next_time.tv_sec == new_time.tv_sec) ? (next_time.tv_nsec > new_time.tv_nsec) : \
                                                        (next_time.tv_sec  > new_time.tv_sec));
 # else
-//#  if !defined(MACOSXPPC) /* XXX(jhj) */
         sim_usleep (1000); // 1000 us == 1 ms == 1/1000 sec.
-//#  endif /* if !defined(MACOSXPPC) */
 # endif
       }
     while (reason == 0); //-V654
@@ -4501,17 +4464,7 @@ void dps8_sim_debug (uint32 dbits, DEVICE * dptr, unsigned long long cnt, const 
         va_list arglist;
         int32 i, j, len;
         struct timespec t;
-# if defined(MACOSXPPC)
-        clock_serv_t cclock;
-        mach_timespec_t mts;
-        host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-        clock_get_time(cclock, &mts);
-        mach_port_deallocate(mach_task_self(), cclock);
-        t.tv_sec = mts.tv_sec;
-        t.tv_nsec = mts.tv_nsec;
-# else
         clock_gettime(CLOCK_REALTIME, &t);
-# endif /* if defined(MACOSXPPC) */
 
         buf [bufsize-1] = '\0';
 

@@ -78,17 +78,6 @@
 
 #include "segldr.h"
 
-#if defined(__MACH__) && defined(__APPLE__) && \
-  ( defined(__PPC__) || defined(_ARCH_PPC) )
-# include <mach/clock.h>
-# include <mach/mach.h>
-# if defined(MACOSXPPC)
-#  undef MACOSXPPC
-# endif /* if defined(MACOSXPPC) */
-# define MACOSXPPC 1
-#endif /* if defined(__MACH__) && defined(__APPLE__) &&
-           ( defined(__PPC__) || defined(_ARCH_PPC) ) */
-
 #define DBG_CTR cpu.cycleCnt
 
 #define ASSUME0 0
@@ -4047,8 +4036,7 @@ static void usr1_signal_handler (UNUSED int sig)
     setG7fault (ASSUME0, FAULT_EXF, fst_zero);
     return;
   }
-# endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && \
-              !defined(CROSS_MINGW32) && !defined(PERF_STRIP) */
+# endif
 
 static struct symbol_s symbols [] = {
     { "commit_id",              SYM_STATE_OFFSET,  SYM_STRING,    offsetof (struct system_state_s, commit_id)   },
@@ -4385,29 +4373,11 @@ static void dps8_init (void) {
   char   statenme[32];
   (void)memset(statenme, 0, 32);
 
-#if defined(MACOSXPPC)
-  (void)ts;
-# undef USE_MONOTONIC
-#endif /* if defined(MACOSXPPC) */
-
 #if defined(USE_MONOTONIC)
   st1ret = clock_gettime(CLOCK_MONOTONIC, &ts);
 #else
-# if defined(MACOSXPPC)
-  clock_serv_t cclock;
-  mach_timespec_t mts;
-  host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-  clock_get_time(cclock, &mts);
-  mach_port_deallocate(mach_task_self(), cclock);
-  ts.tv_sec = mts.tv_sec;
-  ts.tv_nsec = mts.tv_nsec;
-# else
   st1ret = clock_gettime(CLOCK_REALTIME, &ts);
-# endif /* if defined(MACOSXPPC) */
 #endif /* if defined(USE_MONOTONIC) */
-#if defined(MACOSXPPC)
-  st1ret = 0;
-#endif /* if defined(MACOSXPPC) */
   if (st1ret != 0)
     {
       (void)fprintf (stderr, "\rFATAL: clock_gettime failure! Aborting at %s[%s:%d]\r\n",

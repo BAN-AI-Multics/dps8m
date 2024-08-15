@@ -54,17 +54,6 @@
 #include <ctype.h>
 #include <math.h>
 
-#if defined(__MACH__) && defined(__APPLE__) && \
-  ( defined(__PPC__) || defined(_ARCH_PPC) )
-# include <mach/clock.h>
-# include <mach/mach.h>
-# if defined(MACOSXPPC)
-#  undef MACOSXPPC
-# endif /* if defined(MACOSXPPC) */
-# define MACOSXPPC 1
-#endif /* if defined(__MACH__) && defined(__APPLE__) &&
-           ( defined(__PPC__) || defined(_ARCH_PPC) ) */
-
 #define SIM_INTERNAL_CLK (SIM_NTIMERS+(1<<30))
 #define SIM_INTERNAL_UNIT sim_internal_timer_unit
 
@@ -568,17 +557,7 @@ for (tmr=clocks=0; tmr<=SIM_NTIMERS; ++tmr) {
     if (rtc_clock_catchup_ticks_tot[tmr]+rtc_clock_catchup_ticks[tmr] != rtc_clock_catchup_ticks[tmr]) //-V584
         fprintf (st, "  Total Catchup Ticks Sched: %lu\n",
                  (unsigned long)rtc_clock_catchup_ticks_tot[tmr]+(unsigned long)rtc_clock_catchup_ticks[tmr]);
-#if defined(MACOSXPPC)
-    clock_serv_t cclock;
-    mach_timespec_t mts;
-    host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-    clock_get_time(cclock, &mts);
-    mach_port_deallocate(mach_task_self(), cclock);
-    now.tv_sec = mts.tv_sec;
-    now.tv_nsec = mts.tv_nsec;
-#else
     clock_gettime (CLOCK_REALTIME, &now);
-#endif /* if defined(MACOSXPPC) */
     time_t_now = (time_t)now.tv_sec;
     fprintf (st, "  Wall Clock Time Now:       %8.8s.%03d\n", 11+ctime(&time_t_now), (int)(now.tv_nsec/1000000));
     if (rtc_clock_catchup_eligible[tmr]) {
@@ -695,17 +674,7 @@ if (stat == SCPE_OK) {
         struct timespec now;
         double skew;
 
-#if defined(MACOSXPPC)
-        clock_serv_t cclock;
-        mach_timespec_t mts;
-        host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-        clock_get_time(cclock, &mts);
-        mach_port_deallocate(mach_task_self(), cclock);
-        now.tv_sec = mts.tv_sec;
-        now.tv_nsec = mts.tv_nsec;
-#else
         clock_gettime(CLOCK_REALTIME, &now);
-#endif /* if defined(MACOSXPPC) */
         skew = (_timespec_to_double(&now) - (rtc_calib_tick_time[tmr]+rtc_clock_catchup_base_time[tmr]));
 
         if (fabs(skew) > fabs(rtc_clock_skew_max[tmr]))
@@ -771,14 +740,14 @@ sim_usleep(useconds_t tusleep)
             ( defined(_WIN32) || defined(__MINGW32__) || defined(__MINGW64__) ||
              defined(CROSS_MINGW32) || defined(CROSS_MINGW64) ) */
 #else
-# if defined(__APPLE__) && !defined(MACOSXPPC)
+# if defined(__APPLE__)
   struct timespec rqt;
   rqt.tv_sec  = tusleep / 1000000L;
   rqt.tv_nsec = (tusleep % 1000000L) * 1000L;
   return nanosleep(&rqt, NULL);
 # else
   return usleep(tusleep);
-# endif /* if defined(__APPLE__) && !defined(MACOSXPPC) */
+# endif /* if defined(__APPLE__) */
 #endif /* if ( !defined(__APPLE__) && !defined(__OpenBSD__) ) */
 }
 
