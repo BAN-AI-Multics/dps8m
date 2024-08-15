@@ -132,10 +132,6 @@ void unlock_tst (void);
 bool test_tst_lock (void);
 #endif /* if defined(TESTING) */
 
-#if defined (__APPLE__)
-int rtsched_thread(pthread_t pthread);
-#endif /* if defined(__APPLE__) */
-
 // CPU threads
 struct cpuThreadz_t
   {
