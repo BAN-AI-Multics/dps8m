@@ -101,7 +101,6 @@ void linenoiseMaskModeEnable(void);
 void linenoiseMaskModeDisable(void);
 #  endif /* if defined(LH_MASKMODE) */
 
-# endif /* if !defined (__MINGW32__) && !defined (__MINGW64__) && !defined (CROSS_MINGW32) &&
-              !defined (CROSS_MINGW64) && !defined (_MSC_VER) && !defined (_MSC_BUILD) */
+# endif
 
-#endif /* if __LINENOISE_H */
+#endif

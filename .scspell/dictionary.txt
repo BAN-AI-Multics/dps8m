@@ -3157,6 +3157,7 @@ underflows
 undr
 unescaped
 unimplented
+uninitvar
 unistd
 unitno
 unitonly

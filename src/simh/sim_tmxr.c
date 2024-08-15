@@ -113,17 +113,6 @@
 # define srandom bsd_srandom
 #endif /* if defined(__MINGW64__) || defined(__MINGW32__) */
 
-#if defined(__MACH__) && defined(__APPLE__) && \
-  ( defined(__PPC__) || defined(_ARCH_PPC) )
-# include <mach/clock.h>
-# include <mach/mach.h>
-# if defined(MACOSXPPC)
-#  undef MACOSXPPC
-# endif /* if defined(MACOSXPPC) */
-# define MACOSXPPC 1
-#endif /* if defined(__MACH__) && defined(__APPLE__) &&
-           ( defined(__PPC__) || defined(_ARCH_PPC) ) */
-
 #if defined(TESTING)
 # include "../dps8/dps8_cpu.h"
 #endif /* if defined(TESTING) */
@@ -818,9 +807,6 @@ char msg[512];
 uint32 poll_time = sim_os_msec ();
 struct timespec ts;
 
-#if defined(MACOSXPPC)
-(void)ts;
-#endif /* if defined(MACOSXPPC) */
 (void)lp;
 (void)memset (msg, 0, sizeof (msg));
 if (mp->last_poll_time == 0) {                          /* first poll initializations */
@@ -849,26 +835,10 @@ if (mp->last_poll_time == 0) {                          /* first poll initializa
 if ((poll_time - mp->last_poll_time) < mp->poll_interval*1000)
     return -1;                                          /* too soon to try */
 
-#if defined(MACOSXPPC)
-# if defined(USE_MONOTONIC)
-#  undef USE_MONOTONIC
-# endif /* if defined(USE_MONOTONIC) */
-#endif /* if defined(MACOSXPPC) */
-
 #if defined(USE_MONOTONIC)
   st1ret = clock_gettime(CLOCK_MONOTONIC, &ts);
 #else
-# if defined(MACOSXPPC)
-  clock_serv_t cclock;
-  mach_timespec_t mts;
-  host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-  clock_get_time(cclock, &mts);
-  mach_port_deallocate(mach_task_self(), cclock);
-  ts.tv_sec = mts.tv_sec;
-  ts.tv_nsec = mts.tv_nsec;
-# else
   st1ret = clock_gettime(CLOCK_REALTIME, &ts);
-# endif /* if defined(MACOSXPPC) */
 #endif /*if defined(USE_MONOTONIC) */
   if (st1ret != 0)
     {

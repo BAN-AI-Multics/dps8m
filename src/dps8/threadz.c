@@ -40,17 +40,6 @@
 # define pthread_setname_np(x,y) rename_thread(find_thread(NULL),y)
 #endif /* Haiku */
 
-#if defined(__MACH__) && defined(__APPLE__) && \
-  ( defined(__PPC__) || defined(_ARCH_PPC) )
-# include <mach/clock.h>
-# include <mach/mach.h>
-# if defined(MACOSXPPC)
-#  undef MACOSXPPC
-# endif /* if defined(MACOSXPPC) */
-# define MACOSXPPC 1
-#endif /* if defined(__MACH__) && defined(__APPLE__) &&
-           ( defined(__PPC__) || defined(_ARCH_PPC) ) */
-
 //
 // Resource locks
 //
@@ -342,54 +331,6 @@ bool test_tst_lock (void)
   }
 #endif /* if defined(TESTING) */
 
-#if defined(__APPLE__)
-
-/*
- * Request RT scheduling class and ask the Mach kernel to
- * not preempt our threads when running under Darwin/macOS.
- */
-
-int
-rtsched_thread(pthread_t pthread)
-{
-  int kr;
-
-  mach_timebase_info_data_t timebase_info;
-  mach_timebase_info(&timebase_info);
-
-  const uint64_t NANOS_PER_MSEC = 1000000ULL;
-  double mach_clock2abs =
-      ((double)timebase_info.denom / (double)timebase_info.numer) * NANOS_PER_MSEC;
-
-  thread_time_constraint_policy_data_t tpolicy;
-
-  tpolicy.period      = 0;
-  tpolicy.computation = (uint32_t)( 5 * mach_clock2abs);
-  tpolicy.constraint  = (uint32_t)(10 * mach_clock2abs);
-  tpolicy.preemptible = FALSE;
-
-  mach_port_t target_thread = pthread_mach_thread_np(pthread);
-
-  kr = thread_policy_set(
-          target_thread,
-          THREAD_TIME_CONSTRAINT_POLICY,
-          (thread_policy_t)&tpolicy,
-          THREAD_TIME_CONSTRAINT_POLICY_COUNT);
-
-  if (kr != KERN_SUCCESS)
-    {
-      sim_warn("\rMach thread_policy_set error %d at %s[%s:%d]\r\n",
-               (int)kr, __FILE__, __func__, __LINE__);
-      return 1;
-    }
-
-# if defined(TESTING)
-  sim_warn("\rMach realtime thread scheduling policy request was successful.\r\n");
-# endif /* if defined(TESTING) */
-  return 0;
-}
-#endif /* if defined(__APPLE__) */
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // CPU threads
@@ -420,7 +361,7 @@ struct cpuThreadz_t cpuThreadz [N_CPU_UNITS_MAX];
 
 // Create a thread with Mach CPU policy
 
-#if defined(__APPLE__) && !defined(MACOSXPPC)
+#if defined(__APPLE__)
 int pthread_create_with_cpu_policy(
         pthread_t *restrict thread,
         int policy_group,
@@ -445,7 +386,7 @@ int pthread_create_with_cpu_policy(
   thread_resume(mach_thread);
   return 0;
 }
-#endif /* if defined(__APPLE__) && !defined(MACOSXPPC) */
+#endif /* if defined(__APPLE__) */
 
 // Create CPU thread
 
@@ -492,7 +433,7 @@ void createCPUThread (uint cpuNum)
     if (rc)
       sim_printf ("createCPUThread pthread_cond_init sleepCond %d\n", rc);
 
-#if defined(__APPLE__) && !defined(MACOSXPPC)
+#if defined(__APPLE__)
     rc = pthread_create_with_cpu_policy(
             & p->cpuThread,
             cpuNum,
@@ -505,7 +446,7 @@ void createCPUThread (uint cpuNum)
             NULL,
             cpu_thread_main,
             & p->cpuThreadArg);
-#endif /* if defined(__APPLE__) && !defined(MACOSXPPC) */
+#endif /* if defined(__APPLE__) */
     if (rc)
       sim_printf ("createCPUThread pthread_create %d\n", rc);
 
@@ -516,9 +457,7 @@ void createCPUThread (uint cpuNum)
     pthread_set_name_np (p->cpuThread, nm);
 # else
 #  if defined(__APPLE__)
-#   if !defined(MACOSXPPC)
     pthread_setname_np (nm);
-#   endif /* if !defined(MACOSXPPC) */
 #  else
 #   if !defined(_AIX)
 #    if !defined(__gnu_hurd__)
@@ -541,14 +480,6 @@ void createCPUThread (uint cpuNum)
                       cpus[cpuNum].affinity, cpuNum, s);
       }
 #endif /* if defined(AFFINITY) */
-
-#if defined(__APPLE__)
-# if defined(USE_RTSCHED_THREAD)
-    if (rtsched_thread(p->cpuThread) != 0)
-      sim_printf ("\rrtsched_thread failed %s[%s:%d]!\r\n",
-                  __func__, __FILE__, __LINE__);
-# endif /* if defined(USE_RTSCHED_THREAD) */
-#endif /* if defined(__APPLE__) */
   }
 
 void stopCPUThread(void)
@@ -589,24 +520,10 @@ unsigned long  sleepCPU (unsigned long usec) {
   struct cpuThreadz_t * p = & cpuThreadz[current_running_cpu_idx];
   struct timespec startTime, absTime;
 
-#if defined(MACOSXPPC)
-# undef USE_MONOTONIC
-#endif /* if defined(MACOSXPPC) */
-
 #if defined(USE_MONOTONIC)
   clock_gettime (p->sleepClock, & startTime);
 #else
-# if defined(MACOSXPPC)
-  clock_serv_t cclock;
-  mach_timespec_t mts;
-  host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-  clock_get_time(cclock, &mts);
-  mach_port_deallocate(mach_task_self(), cclock);
-  startTime.tv_sec = mts.tv_sec;
-  startTime.tv_nsec = mts.tv_nsec;
-# else
   clock_gettime (CLOCK_REALTIME, & startTime);
-# endif /* if defined(MACOSXPPC) */
 #endif /* if defined(USE_MONOTONIC) */
   absTime = startTime;
   int64_t nsec = ((int64_t) usec) * 1000L + (int64_t)startTime.tv_nsec;
@@ -630,17 +547,7 @@ unsigned long  sleepCPU (unsigned long usec) {
 #if defined(USE_MONOTONIC)
   clock_gettime (p->sleepClock, & newTime);
 #else
-# if defined(MACOSXPPC)
-  clock_serv_t ncclock;
-  mach_timespec_t nmts;
-  host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &ncclock);
-  clock_get_time(ncclock, &nmts);
-  mach_port_deallocate(mach_task_self(), ncclock);
-  newTime.tv_sec = nmts.tv_sec;
-  newTime.tv_nsec = nmts.tv_nsec;
-# else
   clock_gettime (CLOCK_REALTIME, & newTime);
-# endif /* if defined(MACOSXPPC) */
 #endif /* if defined(USE_MONOTONIC) */
   timespec_diff (& absTime, & newTime, & delta);
 

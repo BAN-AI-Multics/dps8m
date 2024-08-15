@@ -81,8 +81,7 @@
 #include <sys/types.h>
 #if !defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64)
 # include <sys/resource.h>
-#endif /* if !defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__) &&
-             !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) */
+#endif
 #include <setjmp.h>
 #include <stdint.h>
 #include <limits.h>
@@ -1516,8 +1515,7 @@ void allowCores(void)
 # endif /* if defined(RLIMIT_CORE) */
   return;
 }
-#endif /* if !defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__) &&
-             !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) */
+#endif
 
 #if defined(USE_DUMA)
 void CleanDUMA(void)
@@ -1772,8 +1770,7 @@ if (argc == 0) {
 /* Enable unlimited core dumps */
 # if !defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64)
 allowCores();
-# endif /* !defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__) &&
-           !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) */
+# endif
 
 int testEndian = decContextTestEndian();
 if (testEndian != 0) {
@@ -4834,7 +4831,6 @@ if (flag) {
     defined(WITH_SOCKET_DEV)    ||  \
     defined(WITH_ABSI_DEV)      ||  \
     defined(WITH_MGP_DEV)       ||  \
-    defined(MACOSXPPC)          ||  \
     defined(TESTING)            ||  \
     defined(ISOLTS)             ||  \
     defined(USE_DUMA)
@@ -10123,29 +10119,8 @@ char tim_a[32] = "";
 char  pc_s[64] = "";
 struct timespec time_now;
 
-#if defined(__MACH__) && defined(__APPLE__) && \
-  ( defined(__PPC__) || defined(_ARCH_PPC) )
-# include <mach/clock.h>
-# include <mach/mach.h>
-# if defined(MACOSXPPC)
-#  undef MACOSXPPC
-# endif /* if defined(MACOSXPPC) */
-# define MACOSXPPC 1
-#endif /* if defined(__MACH__) && defined(__APPLE__) &&
-           ( defined(__PPC__) || defined(_ARCH_PPC) ) */
-
 if (sim_deb_switches & (SWMASK ('T') | SWMASK ('R') | SWMASK ('A'))) {
-#if defined(MACOSXPPC)
-    clock_serv_t cclock;
-    mach_timespec_t mts;
-    host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-    clock_get_time(cclock, &mts);
-    mach_port_deallocate(mach_task_self(), cclock);
-    time_now.tv_sec = mts.tv_sec;
-    time_now.tv_nsec = mts.tv_nsec;
-#else
     clock_gettime(CLOCK_REALTIME, &time_now);
-#endif /* if defined(MACOSXPPC) */
     if (sim_deb_switches & SWMASK ('R'))
         sim_timespec_diff (&time_now, &time_now, &sim_deb_basetime);
     if (sim_deb_switches & SWMASK ('T')) {
