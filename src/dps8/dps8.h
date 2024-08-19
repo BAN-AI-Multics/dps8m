@@ -20,6 +20,10 @@
 #if !defined(DPS8_H)
 # define DPS8_H
 
+# if defined(__FAST_MATH__)
+#  error __FAST_MATH__ is unsupported
+# endif /* if defined(__FAST_MATH__) */
+
 # include <stdio.h>
 # include <stdbool.h>
 # include <errno.h>
