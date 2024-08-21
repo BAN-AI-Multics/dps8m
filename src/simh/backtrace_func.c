@@ -121,6 +121,22 @@ backtrace_handler(int number)
   sigset_t block; sigset_t block_n;
   sigfillset(&block); sigfillset(&block_n);
   sigprocmask(SIG_SETMASK, &block, &block_n);
+#  if defined(SIGUSR2)
+  if (number != SIGUSR2)
+    {
+      (void)fprintf(stderr,
+        "\r\n****** BUG REPORTING **************************************\r\n\r\n");
+      (void)fprintf(stderr,
+        " URL: https://gitlab.com/dps8m/dps8m/-/wikis/Bug-Reporting");
+    }
+  else
+    {
+      (void)fprintf(stderr,
+        "\r\n****** SIGUSR2 RAISED *************************************\r\n\r\n");
+      (void)fprintf(stderr,
+        " SIGUSR2 manually raised or available memory exhausted.");
+    }
+#  endif /* if defined(SIGUSR2) */
   (void)fprintf(stderr,
     "\r\n\r\n****** FATAL ERROR ****************************************\r\n");
   if (bt_pid > 1)
@@ -164,15 +180,6 @@ backtrace_handler(int number)
             hidden_function_count);
         }
     }
-#  if defined(SIGUSR2)
-  if (number != SIGUSR2)
-    {
-      (void)fprintf(stderr,
-        "\r\n****** BUG REPORTING **************************************\r\n\r\n");
-      (void)fprintf(stderr,
-        " URL: https://gitlab.com/dps8m/dps8m/-/wikis/Bug-Reporting\r\n");
-    }
-#  endif /* if defined(SIGUSR2) */
   (void)fprintf(stderr,
     "\r\n***********************************************************\r\n\r\n");
 #  if defined(USE_DUMA)
