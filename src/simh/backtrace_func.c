@@ -167,18 +167,9 @@ backtrace_handler(int number)
   backtrace_full(state, BACKTRACE_SKIP, full_callback, error_callback, NULL);
   if (backtrace_reported)
     {
-      if (hidden_function_count > 1)
-        {
-          (void)fprintf(stderr,
-            "\r        (%d earlier callers not shown)\r\n",
-            hidden_function_count);
-        }
-      if (hidden_function_count == 1)
-        {
-          (void)fprintf(stderr,
-            "\r        (%d earlier caller not shown)\r\n",
-            hidden_function_count);
-        }
+      (void)fprintf(stderr,
+        "\r        (%d earlier caller%s not shown)\r\n",
+        hidden_function_count, hidden_function_count > 1 ? "s" : "");
     }
   (void)fprintf(stderr,
     "\r\n***********************************************************\r\n\r\n");
