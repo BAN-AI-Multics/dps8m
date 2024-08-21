@@ -61,6 +61,7 @@ GPATH
 # Cores
 *.core
 core
+core-*
 
 # Retired
 zeromq-4.1.0
