@@ -199,21 +199,21 @@ export msys_version
 
 ifeq ($(CROSS),MINGW32)
   ifeq ($(CYGWIN_MINGW_CROSS),1)
-    CC = x86_64-w32-mingw32-gcc
+    CC ?= x86_64-w32-mingw32-gcc
   endif
   EXE = .exe
   ifneq ($(msys_version),0)
-    CC = gcc
+    CC ?= gcc
     EXE = .exe
   endif
 endif
 
 ifeq ($(CROSS),MINGW64)
   ifeq ($(CYGWIN_MINGW_CROSS),1)
-    CC = x86_64-w64-mingw32-gcc
+    CC ?= x86_64-w64-mingw32-gcc
   endif
   ifneq ($(msys_version),0)
-    CC = gcc
+    CC ?= gcc
     EXE = .exe
   else
     AR = ar
@@ -291,7 +291,9 @@ endif
 
 _DEBUGOPTFLAG := -g
 ifndef TESTING
-  OPTFLAGS = -O3 $(_DEBUGOPTFLAG) -U_FORTIFY_SOURCE -fno-stack-protector
+  OPTFLAGS = -O3 $(_DEBUGOPTFLAG) -U_FORTIFY_SOURCE -fno-stack-protector      \
+             -fno-math-errno -fno-signaling-nans -fno-trapping-math           \
+             -fomit-frame-pointer -fno-signed-zeros -ffp-contract=fast
   ifdef DUMA
     CFLAGS   += -I../dps8 -I. -include dps8_duma.h
     OPTFLAGS += -DDUMA=1

@@ -6036,10 +6036,12 @@ dumalibs
 duse
 dver
 endif
+errno
 exthdr
 fcntl
 findstring
 flock
+fomit
 fpermissive
 fpie
 fstack
@@ -6088,6 +6090,7 @@ march
 mcpu
 mkrebuild
 msys
+nans
 nativeflags
 needrebuild
 nios
@@ -13658,6 +13661,7 @@ transmitting
 transparent
 transport
 trapped
+trapping
 traps
 trashed
 traversal

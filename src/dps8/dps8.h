@@ -20,6 +20,10 @@
 #if !defined(DPS8_H)
 # define DPS8_H
 
+# if defined(__FAST_MATH__)
+#  error __FAST_MATH__ is unsupported
+# endif /* if defined(__FAST_MATH__) */
+
 # include <stdio.h>
 # include <stdbool.h>
 # include <errno.h>
@@ -30,6 +34,13 @@
 
 # if (defined(__APPLE__) && defined(__MACH__)) || defined(__ANDROID__)
 #  include <libgen.h>  // needed for macOS and Android
+# endif
+
+# if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || (defined(__APPLE__) && defined(__MACH__)) || defined(__ANDROID__) || defined(_AIX)
+#  undef setjmp
+#  define setjmp _setjmp
+#  undef longjmp
+#  define longjmp _longjmp
 # endif
 
 typedef int64_t __int64_t;
@@ -68,9 +79,7 @@ typedef struct { int64_t h;  uint64_t l; } x__int128_t;
 # endif /* if !defined(OLDAPP) */
 
 // Shift/rotate instruction barrel shifter
-# if !defined(BARREL_SHIFTER)
-#  define BARREL_SHIFTER 0
-# endif /* if !defined(BARREL_SHIFTER) */
+# define BARREL_SHIFTER 1
 
 //
 // Dependencies
@@ -99,9 +108,8 @@ typedef struct { int64_t h;  uint64_t l; } x__int128_t;
 // #define MATRIX
 
 // Run TR on work done, not wall clock.
-// Define one of these; tied to memory access (MEM) or to instruction
-// execution (EXEC)
-
+// Define one of these; tied to memory access (MEM)
+//  or to instruction execution (EXEC)
 //#define TR_WORK_MEM
 # define TR_WORK_EXEC
 
