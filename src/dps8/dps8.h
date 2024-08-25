@@ -36,6 +36,11 @@
 #  include <libgen.h>  // needed for macOS and Android
 # endif
 
+# if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || (defined(__APPLE__) && defined(__MACH__)) || defined(__ANDROID__) || defined(_AIX)
+#  define setjmp _setjmp
+#  define longjmp _longjmp
+# endif
+
 typedef int64_t __int64_t;
 
 # if defined(NEED_128)
