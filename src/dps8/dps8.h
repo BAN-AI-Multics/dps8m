@@ -37,7 +37,9 @@
 # endif
 
 # if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || (defined(__APPLE__) && defined(__MACH__)) || defined(__ANDROID__) || defined(_AIX)
+#  undef setjmp
 #  define setjmp _setjmp
+#  undef longjmp
 #  define longjmp _longjmp
 # endif
 
