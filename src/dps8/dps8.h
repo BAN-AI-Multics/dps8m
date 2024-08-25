@@ -108,9 +108,8 @@ typedef struct { int64_t h;  uint64_t l; } x__int128_t;
 // #define MATRIX
 
 // Run TR on work done, not wall clock.
-// Define one of these; tied to memory access (MEM) or to instruction
-// execution (EXEC)
-
+// Define one of these; tied to memory access (MEM)
+//  or to instruction execution (EXEC)
 //#define TR_WORK_MEM
 # define TR_WORK_EXEC
 
