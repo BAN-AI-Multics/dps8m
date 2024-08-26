@@ -34,7 +34,7 @@ ${MAKE:-make} distclean
 ${MAKE:-make} "${LIBUVVER:?}"
 ${MAKE:-make}
 printf '\n%s\n' "Running baseline benchmark ..."
-SMIPS=$(cd src/perf_test && for i in $(seq 1 "${RUNS}"); do printf '%s' "(${i:?}/${RUNS:?}) " >&2; ../dps8/dps8 -r ./nqueensx.ini | grep MIPS | tee "${STDERR}"; done | avg)
+SMIPS=$(cd src/perf_test && for i in $(seq 1 "${RUNS}"); do printf '%s' "(${i:?}/${RUNS:?}) " >&2; ../dps8/dps8 -r ./nqueensx.ini | grep MIPS | tee "${STDERR}"; done | tr -cd '[\n.0-9]' | awk '{for (i=1;i<=NF;++i) {sum+=$i; ++n}} END {printf "%.4f\n", sum/n}')
 
 # Profile
 printf '\n%s\n' "Generating profile build ..."
@@ -57,7 +57,7 @@ ${MAKE:-make}
 
 # Final
 printf '\n%s\n' "Running final benchmark ..."
-EMIPS=$(cd src/perf_test && for i in $(seq 1 "${RUNS}"); do printf '%s' "(${i:?}/${RUNS:?}) " >&2; ../dps8/dps8 -r ./nqueensx.ini | grep MIPS | tee "${STDERR}"; done | avg)
+EMIPS=$(cd src/perf_test && for i in $(seq 1 "${RUNS}"); do printf '%s' "(${i:?}/${RUNS:?}) " >&2; ../dps8/dps8 -r ./nqueensx.ini | grep MIPS | tee "${STDERR}"; done | tr -cd '[\n.0-9]' | awk '{for (i=1;i<=NF;++i) {sum+=$i; ++n}} END {printf "%.4f\n", sum/n}')
 printf '\nBefore : %s\nAfter  : %s\n' "${SMIPS:?}" "${EMIPS:?}"
 # shellcheck disable=SC2046
 printf 'Change : %s%%\n' $(printf '%s\n' "scale=6;((${EMIPS:?}-${SMIPS:?})/${EMIPS:?})*100" | bc -l | dd bs=1 count=6 2> /dev/null)
