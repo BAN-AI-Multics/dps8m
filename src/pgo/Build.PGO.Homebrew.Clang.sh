@@ -13,7 +13,6 @@ MAKE="$(brew --prefix make)"/bin/gmake
 export MAKE
 
 # Test
-unzip -v
 "${CC:?}" --version
 "${MAKE:?}" --version
 

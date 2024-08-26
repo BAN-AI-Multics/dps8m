@@ -9,9 +9,7 @@ test -z "${CC:-}" && CC="gcc"
 export CC
 
 # Test
-unzip -v
 "${CC:?}" --version
-"${MAKE:?}" --version
 
 # Setup
 RUNS=5
