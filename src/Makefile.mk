@@ -112,9 +112,9 @@ MAKETAR    ?= $(TAR) --owner=$(GTARUSER) --group=$(GTARGROUP) --format=posix  \
                      --pax-option=delete=atime,delete=ctime --sort=name       \
                      --mode=go+u,go-w --transform 's/^/.\/dps8\//g' -$(ZCTV)
 TARXT      ?= tar
-COMPRESS   ?= pigz -f -n -m -11
-GUNZIPT    ?= pigz -d
-GZIPT      ?= pigz
+COMPRESS   ?= gzip -f -9
+GUNZIPT    ?= gzip -d
+GZIPT      ?= gzip
 GZCATT     ?= $(GZIPT) -dc
 COMPRESSXT ?= gz
 KITNAME    ?= sources
