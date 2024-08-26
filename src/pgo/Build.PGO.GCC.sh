@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # scspell-id: fc744980-63e8-11ef-ab99-80ee73e9b8e7
+# SPDX-License-Identifier: MIT-0
+# Copyright (c) 2021-2024 The DPS8M Development Team
 # shellcheck disable=SC2312
 
 set -eu
