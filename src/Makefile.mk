@@ -292,8 +292,8 @@ endif
 _DEBUGOPTFLAG := -g
 ifndef TESTING
   OPTFLAGS = -O3 $(_DEBUGOPTFLAG) -U_FORTIFY_SOURCE -fno-stack-protector      \
-             -fno-math-errno -fno-signaling-nans -fno-trapping-math           \
-             -fomit-frame-pointer -fno-signed-zeros -ffp-contract=fast
+             -fno-math-errno -fno-trapping-math  -fno-signed-zeros            \
+             -fomit-frame-pointer -ffp-contract=fast
   ifdef DUMA
     CFLAGS   += -I../dps8 -I. -include dps8_duma.h
     OPTFLAGS += -DDUMA=1

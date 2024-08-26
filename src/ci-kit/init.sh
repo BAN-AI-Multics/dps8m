@@ -101,7 +101,19 @@ printf '%s\n' "*** Preparing tape files..."
 
 ##############################################################################
 
-MRSITE="https://s3.amazonaws.com/eswenson-multics/public/releases/" &&
+MRHOST="s3.amazonaws.com" &&
+  export MRHOST > /dev/null 2>&1
+
+##############################################################################
+
+# Lookup DNS to prime caches
+host "${MRHOST:?}" > /dev/null 2>&1
+dig "${MRHOST:?}" > /dev/null 2>&1
+nslookup "${MRHOST:?}" > /dev/null 2>&1
+
+##############################################################################
+
+MRSITE="https://${MRHOST:?}/eswenson-multics/public/releases/" &&
   export MRSITE > /dev/null 2>&1
 
 ##############################################################################
