@@ -10508,7 +10508,7 @@ if (sim_deb && (dptr->dctrl & reason)) {
             sim_debug (reason, dptr, "%04lx%-48s %s%s%s\n", i, outbuf, strbuf, ebcdicbuf, rad50buf);
             }
         if (same > 0) {
-            sim_debug (reason, dptr, "%04lx thru %04lx same as above\n", i-(16*same), (unsigned int)(len-1));
+            sim_debug (reason, dptr, "%04lx thru %04lx same as above\n", i-(16*same), (long unsigned int)(len-1));
             }
         }
     }

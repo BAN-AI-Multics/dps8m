@@ -258,6 +258,8 @@ libuv-1.x/
 *.gcno
 *.profdata
 *.profout
+*.profraw
+.profile_data
 
 # Docs
 docs/yaml/docinfo-post.yml

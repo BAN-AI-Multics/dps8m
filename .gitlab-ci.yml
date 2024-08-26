@@ -2072,7 +2072,7 @@ DPS8M Omnibus Documentation:
     - *scriptBuildlibbacktrace
     - *scriptExtraInfo
     - *scriptDPS8Mods
-    - env NATIVE=1 gmake && env NATIVE=1 gmake docspdf
+    - gmake && gmake docspdf
     - test -f ${CI_PROJECT_DIR:?}/docs/dps8-omnibus.pdf
   dependencies: []
   artifacts:
