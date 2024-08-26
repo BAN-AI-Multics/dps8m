@@ -113,9 +113,9 @@ MAKETAR    ?= $(TAR) --owner=$(GTARUSER) --group=$(GTARGROUP) --format=posix  \
                      --mode=go+u,go-w --transform 's/^/.\/dps8\//g' -$(ZCTV)
 TARXT      ?= tar
 COMPRESS   ?= pigz -f -n -m -11
-GUNZIP     ?= pigz -d
-GZIP       ?= pigz
-GZCAT      ?= $(GZIP) -dc
+GUNZIPT    ?= pigz -d
+GZIPT      ?= pigz
+GZCATT     ?= $(GZIPT) -dc
 COMPRESSXT ?= gz
 KITNAME    ?= sources
 SCSPELLCMD ?= scspell

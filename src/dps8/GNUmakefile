@@ -537,7 +537,7 @@ tapes: 88534.tap 88631.tap 88632.tap 88633.tap 88634.tap 88635.tap 88636.tap  \
 %.tap:
 	@$(SETV); $(WEBDL) \
        "https://bitsavers.trailing-edge.com/bits/Honeywell/multics/tape/$@.gz"
-	@$(SETV); $(GUNZIP) "$@.gz"
+	@$(SETV); $(GUNZIPT) "$@.gz"
 
 ###############################################################################
 

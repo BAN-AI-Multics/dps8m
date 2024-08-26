@@ -49,7 +49,7 @@ libuvrel:                                                                     \
         2> /dev/null | $(CUT) -d \  -f 1 | $(HEAD) -n 1 | $(TR) -cd 0-9)" &&  \
             $(TEST) $${CKSUM:?} -eq $(LUVSUM))
 	@$(PRINTF) '%s\n' "Decompress archive ..."
-	@$(SETV); ($(CD) "libuv-local" && $(GZCAT) $(RELNAM) | $(TAR) xvf - )
+	@$(SETV); ($(CD) "libuv-local" && $(GZCATT) $(RELNAM) | $(TAR) xvf - )
 	@$(PRINTF) '%s\n' "Configure and build libuv ..."
 	@$(PRINTF) '%s\n' "# NOTE: Errors may be printed below. These errors are" \
                       "        are expected below and can be safely ignored."
