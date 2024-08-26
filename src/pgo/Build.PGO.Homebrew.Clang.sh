@@ -39,7 +39,7 @@ ${MAKE:-make} distclean HOMEBREW_LIB= HOMEBREW_INC=
 ${MAKE:-make} "${LIBUVVER:?}" HOMEBREW_LIB= HOMEBREW_INC=
 ${MAKE:-make} HOMEBREW_LIB= HOMEBREW_INC=
 printf '\n%s\n' "Running baseline benchmark ..."
-SMIPS=$(cd src/perf_test && for i in $(seq 1 "${RUNS}"); do printf '%s' "(${i:?}/${RUNS:?}) " >&2; ../dps8/dps8 -r ./nqueensx.ini | grep MIPS | tee "${STDERR}"; done | tr -cd '[\n.0-9]' | awk '{for (i=1;i<=NF;++i) {sum+=$i; ++n}} END {printf "%.4f\n", sum/n}')
+SMIPS=$(cd src/perf_test && for i in $(seq 1 "${RUNS}"); do printf '%s' "(${i:?}/${RUNS:?}) " >&2; ../dps8/dps8 -r ./nqueensx.ini | grep MIPS | tee "${STDERR}"; done | tr -cd '\n.0123456789' | awk '{for (i=1;i<=NF;++i) {sum+=$i; ++n}} END {printf "%.4f\n", sum/n}')
 
 # Profile
 printf '\n%s\n' "Generating profile build ..."
@@ -62,7 +62,7 @@ ${MAKE:-make} HOMEBREW_LIB= HOMEBREW_INC=
 
 # Final
 printf '\n%s\n' "Running final benchmark ..."
-EMIPS=$(cd src/perf_test && for i in $(seq 1 "${RUNS}"); do printf '%s' "(${i:?}/${RUNS:?}) " >&2; ../dps8/dps8 -r ./nqueensx.ini | grep MIPS | tee "${STDERR}"; done | tr -cd '[\n.0-9]' | awk '{for (i=1;i<=NF;++i) {sum+=$i; ++n}} END {printf "%.4f\n", sum/n}')
+EMIPS=$(cd src/perf_test && for i in $(seq 1 "${RUNS}"); do printf '%s' "(${i:?}/${RUNS:?}) " >&2; ../dps8/dps8 -r ./nqueensx.ini | grep MIPS | tee "${STDERR}"; done | tr -cd '\n.0123456789' | awk '{for (i=1;i<=NF;++i) {sum+=$i; ++n}} END {printf "%.4f\n", sum/n}')
 printf '\nBefore : %s\nAfter  : %s\n' "${SMIPS:?}" "${EMIPS:?}"
 # shellcheck disable=SC2046
 printf 'Change : %s%%\n' $(printf '%s\n' "scale=6;((${EMIPS:?}-${SMIPS:?})/${EMIPS:?})*100" | bc -l | dd bs=1 count=6 2> /dev/null)
