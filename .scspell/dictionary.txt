@@ -5980,6 +5980,7 @@ endif
 findstring
 gcwd
 gzcat
+gzcatt
 ifdef
 ifeq
 ifndef
@@ -6054,7 +6055,10 @@ ggdb
 glibcxx
 gtargroup
 gtaruser
+gunzipt
 gzcat
+gzcatt
+gzipt
 hist
 ibmaix
 ifdef
@@ -6676,6 +6680,7 @@ gcda
 gnuc
 gpath
 grtags
+gunzipt
 hpkg
 iefp
 ifdef
