@@ -18,7 +18,7 @@
 
 long double EAQToIEEElongdouble(cpu_state_t * cpup);
 #if defined(__MINGW32__) || defined(__MINGW64__)
-double EAQToIEEEdouble(void);
+double EAQToIEEEdouble(cpu_state_t * cpup);
 #endif
 #if !defined(QUIET_UNUSED)
 float72 IEEElongdoubleToFloat72(long double f);
