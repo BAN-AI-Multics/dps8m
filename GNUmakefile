@@ -22,6 +22,7 @@
 #      NO_LOCKLESS=1                       Enable legacy (non-lockless) code
 #           NO_LTO=1                       Disables the use of LTO for build
 #    NO_C_ELLIPSIS=1                       Disables the C ellipsis extension
+#          PANEL68=1                       Enable custom L68 panel interface
 #       PERF_STRIP=1                       Enable CPU-only benchmarking mode
 #      ROUND_ROBIN=1                       Enable non-threaded multiple CPUs
 #          TESTING=1                       Enable developmental testing mode

@@ -72,9 +72,7 @@
 # include "threadz.h"
 #endif /* if defined(THREADZ) || defined(LOCKLESS) */
 
-#if defined(PANEL68)
-# include "panelScraper.h"
-#endif /* if defined(PANEL68) */
+#include "panelScraper.h"
 
 #include "segldr.h"
 

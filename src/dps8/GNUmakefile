@@ -243,6 +243,9 @@ C_SRCS += dps8_utils.c
 C_SRCS += fnpuv.c
 C_SRCS += fnptelnet.c
 C_SRCS += libtelnet.c
+ifeq ($(PANEL68),1)
+  C_SRCS += panelScraper.c
+endif
 C_SRCS += hdbg.c
 C_SRCS += segldr.c
 C_SRCS += ucache.c
@@ -306,6 +309,9 @@ H_SRCS += dps8_utils.h
 H_SRCS += fnpuv.h
 H_SRCS += fnptelnet.h
 H_SRCS += h316_imp.h
+ifeq ($(PANEL68),1)
+  C_SRCS += panelScraper.h
+endif
 H_SRCS += hdbg.h
 H_SRCS += segldr.h
 H_SRCS += shm.h
