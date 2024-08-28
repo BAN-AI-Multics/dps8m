@@ -45,10 +45,10 @@
 #include "dps8_iom.h"
 #include "dps8_crdrdr.h"
 #include "dps8_sys.h"
-#include "dps8_faults.h"
-#include "dps8_scu.h"
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
+#include "dps8_faults.h"
+#include "dps8_scu.h"
 #include "dps8_utils.h"
 
 #define DBG_CTR 1
@@ -461,6 +461,9 @@ static bool empty = false;
 #endif /* if defined(TESTING) */
 
 static int rdrReadRecord (uint iomUnitIdx, uint chan) {
+#if defined(TESTING)
+  cpu_state_t * cpup  = _cpup;
+#endif
   iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
   sim_debug (DBG_NOTIFY, & rdr_dev, "Read binary\n");
   uint ctlr_unit_idx  = get_ctlr_idx (iomUnitIdx, chan);
@@ -906,10 +909,13 @@ void rdrCardReady (int unitNum)
 
 iom_cmd_rc_t rdr_iom_cmd (uint iomUnitIdx, uint chan) {
   iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
+#if defined(TESTING)
   uint dev_code       = p->IDCW_DEV_CODE;
+  cpu_state_t * cpup  = _cpup;
 
   sim_debug (DBG_TRACE, & rdr_dev, "%s: RDR %c%02o_%02o\n",
           __func__, iomChar (iomUnitIdx), chan, dev_code);
+#endif
 
   uint ctlr_unit_idx        = get_ctlr_idx (iomUnitIdx, chan);
   uint unitIdx              = cables->urp_to_urd[ctlr_unit_idx][p->IDCW_DEV_CODE].unit_idx;

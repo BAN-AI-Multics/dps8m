@@ -38,10 +38,10 @@
 #include "dps8_iom.h"
 #include "dps8_disk.h"
 #include "dps8_sys.h"
-#include "dps8_faults.h"
-#include "dps8_scu.h"
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
+#include "dps8_faults.h"
+#include "dps8_scu.h"
 #include "sim_disk.h"
 #include "dps8_utils.h"
 
@@ -1179,6 +1179,9 @@ static int read_configuration (uint dev_unit_idx, uint iom_unit_idx, uint chan)
 
 static int read_and_clear_statistics (uint dev_unit_idx, uint iom_unit_idx, uint chan)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup  = _cpup;
+#endif
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
     UNIT * unitp        = & dsk_unit[dev_unit_idx];
 
@@ -1201,6 +1204,9 @@ static int read_and_clear_statistics (uint dev_unit_idx, uint iom_unit_idx, uint
 iom_cmd_rc_t dsk_iom_cmd (uint iomUnitIdx, uint chan) {
 #if defined(POLTS_DISK_TESTING)
 nCmds ++;
+#endif
+#if defined(TESTING)
+  cpu_state_t * cpup  = _cpup;
 #endif
   iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
   uint ctlr_unit_idx  = get_ctlr_idx (iomUnitIdx, chan);

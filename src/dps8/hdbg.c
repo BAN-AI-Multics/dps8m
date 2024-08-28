@@ -187,8 +187,9 @@ static long hdbg_inc (void) {
 # define RD false
 
 void hdbgTrace (const char * ctx) {
+  cpu_state_t * cpup = _cpup;
   hev (hevtTrace, RD, FILTER);
-  hevents[p].trace.addrMode = get_addr_mode ();
+  hevents[p].trace.addrMode = get_addr_mode (cpup);
   hevents[p].trace.segno    = cpu.PPR.PSR;
   hevents[p].trace.ic       = cpu.PPR.IC;
   hevents[p].trace.ring     = cpu.PPR.PRR;
@@ -197,6 +198,7 @@ done: ;
 }
 
 void hdbgMRead (word24 addr, word36 data, const char * ctx) {
+  cpu_state_t * cpup = _cpup;
   hev (hevtM, RD, FILTER);
   hevents[p].memref.addr = addr;
   hevents[p].memref.data = data;
@@ -204,6 +206,7 @@ done: ;
 }
 
 void hdbgMWrite (word24 addr, word36 data, const char * ctx) {
+  cpu_state_t * cpup = _cpup;
   hev (hevtM, WR, FILTER);
   hevents[p].memref.addr = addr;
   hevents[p].memref.data = data;
@@ -211,6 +214,7 @@ done: ;
 }
 
 void hdbgAPURead (word15 segno, word18 offset, word24 final, word36 data, const char * ctx) {
+  cpu_state_t * cpup = _cpup;
   hev (hevtAPU, RD, FILTER);
   hevents[p].apu.segno  = segno;
   hevents[p].apu.offset = offset;
@@ -220,6 +224,7 @@ done: ;
 }
 
 void hdbgAPUWrite (word15 segno, word18 offset, word24 final, word36 data, const char * ctx) {
+  cpu_state_t * cpup = _cpup;
   hev (hevtAPU, WR, FILTER);
   hevents[p].apu.segno  = segno;
   hevents[p].apu.offset = offset;
@@ -229,6 +234,7 @@ done: ;
 }
 
 void hdbgFault (_fault faultNumber, _fault_subtype subFault, const char * faultMsg, const char * ctx) {
+  cpu_state_t * cpup = _cpup;
   hev (hevtFault, RD, FILTER);
   hevents[p].fault.faultNumber  = faultNumber;
   hevents[p].fault.subFault     = subFault;
@@ -238,6 +244,7 @@ done: ;
 }
 
 void hdbgIntrSet (uint inum, uint cpuUnitIdx, uint scuUnitIdx, const char * ctx) {
+  cpu_state_t * cpup = _cpup;
   hev (hevtIntrSet, RD, FILTER);
   hevents[p].intrSet.inum       = inum;
   hevents[p].intrSet.cpuUnitIdx = cpuUnitIdx;
@@ -246,6 +253,7 @@ done: ;
 }
 
 void hdbgIntr (uint intr_pair_addr, const char * ctx) {
+  cpu_state_t * cpup = _cpup;
   hev (hevtIntr, RD, FILTER);
   hevents[p].cpu_idx             = current_running_cpu_idx;
   hevents[p].time                = cpu.cycleCnt;
@@ -256,6 +264,7 @@ done: ;
 }
 
 void hdbgRegR (enum hregs_t type, word36 data, const char * ctx) {
+  cpu_state_t * cpup = _cpup;
   hev (hevtReg, RD, FILTER);
   hevents[p].reg.type = type;
   hevents[p].reg.data = data;
@@ -263,6 +272,7 @@ done: ;
 }
 
 void hdbgRegW (enum hregs_t type, word36 data, const char * ctx) {
+  cpu_state_t * cpup = _cpup;
   hev (hevtReg, WR, FILTER);
   hevents[p].reg.type = type;
   hevents[p].reg.data = data;
@@ -270,6 +280,7 @@ done: ;
 }
 
 void hdbgPARegR (enum hregs_t type, struct par_s * data, const char * ctx) {
+  cpu_state_t * cpup = _cpup;
   hev (hevtPAReg, RD, FILTER);
   hevents[p].par.type = type;
   hevents[p].par.data = * data;
@@ -277,6 +288,7 @@ done: ;
 }
 
 void hdbgPARegW (enum hregs_t type, struct par_s * data, const char * ctx) {
+  cpu_state_t * cpup = _cpup;
   hev (hevtPAReg, WR, FILTER);
     hevents[p].par.type = type;
     hevents[p].par.data = * data;
@@ -300,6 +312,7 @@ done: ;
 # endif
 
 void hdbgIEFP (enum hdbgIEFP_e type, word15 segno, word18 offset, const char * ctx) {
+  cpu_state_t * cpup = _cpup;
   hev (hevtIEFP, RD, FILTER);
   hevents [p].iefp.type   = type;
   hevents [p].iefp.segno  = segno;
@@ -308,6 +321,7 @@ done: ;
 }
 
 void hdbgNote (const char * ctx, const char * fmt, ...) {
+  cpu_state_t * cpup = _cpup;
   hev (hevtNote, RD, NO_FILTER);
   va_list arglist;
   va_start (arglist, fmt);

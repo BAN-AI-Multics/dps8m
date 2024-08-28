@@ -543,11 +543,11 @@
 #include <sys/time.h>
 #include "dps8.h"
 #include "dps8_sys.h"
-#include "dps8_faults.h"
-#include "dps8_scu.h"
 #include "dps8_iom.h"
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
+#include "dps8_faults.h"
+#include "dps8_scu.h"
 #include "dps8_utils.h"
 #if defined(THREADZ) || defined(LOCKLESS)
 # include "threadz.h"
@@ -624,6 +624,9 @@ static t_stat scu_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value,
 static t_stat scu_show_state (UNUSED FILE * st, UNIT *uptr, UNUSED int val,
                               UNUSED const void * desc)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     long scu_unit_idx = UNIT_NUM (uptr);
     if (scu_unit_idx < 0 || scu_unit_idx >= (int) scu_dev.numunits)
       {
@@ -685,6 +688,9 @@ static t_stat scu_show_state (UNUSED FILE * st, UNIT *uptr, UNUSED int val,
 static t_stat scu_show_config (UNUSED FILE * st, UNUSED UNIT * uptr,
                                UNUSED int val, UNUSED const void * desc)
 {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     static const char * map [N_SCU_PORTS] =
       {
         "0", "1", "2", "3", "4", "5", "6", "7"
@@ -841,6 +847,9 @@ static config_list_t scu_config_list [] =
 static t_stat scu_set_config (UNIT * uptr, UNUSED int32 value,
                               const char * cptr, UNUSED void * desc)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     long scu_unit_idx = UNIT_NUM (uptr);
     if (scu_unit_idx < 0 || scu_unit_idx >= (int) scu_dev.numunits)
       {
@@ -1039,7 +1048,9 @@ DEVICE scu_dev =
 
 static void dump_intr_regs (char * ctx, uint scu_unit_idx)
   {
+#if defined(TESTING)
     scu_t * up = scu + scu_unit_idx;
+    cpu_state_t * cpup = _cpup;
 
     sim_debug (DBG_DEBUG, & scu_dev,
                "%s A: mask %011o enable %o assignment %o\n",
@@ -1049,7 +1060,7 @@ static void dump_intr_regs (char * ctx, uint scu_unit_idx)
                "%s B: mask %011o enable %o assignment %o\n",
                ctx, up -> exec_intr_mask [1], up -> mask_enable [1],
                up -> mask_assignment [1]);
-#if 0
+# if 0
     sim_debug (DBG_DEBUG, & scu_dev, "%s enabled ports:", ctx);
     for (uint p = 0; p < N_SCU_PORTS; p ++)
       if (up -> port_enable [p])
@@ -1065,8 +1076,8 @@ static void dump_intr_regs (char * ctx, uint scu_unit_idx)
           sim_debug (DBG_DEBUG, & scu_dev, " %d", i);
         }
     sim_debug (DBG_DEBUG, & scu_dev, "\n");
-#endif
-#if 0
+# endif
+# if 0
  {
     scu_t * up = scu + scu_unit_idx;
 
@@ -1095,6 +1106,7 @@ static void dump_intr_regs (char * ctx, uint scu_unit_idx)
         }
     sim_printf ("\n");
   }
+# endif
 #endif
    }
 
@@ -1160,7 +1172,7 @@ static pthread_mutex_t clock_lock = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 // The SCU clock is 52 bits long; fits in t_uint64
-static uint64 set_SCU_clock (uint scu_unit_idx)
+static uint64 set_SCU_clock (cpu_state_t * cpup, uint scu_unit_idx)
   {
 #if defined(THREADZ) || defined(LOCKLESS)
     pthread_mutex_lock (& clock_lock);
@@ -1331,7 +1343,10 @@ static char * pcells (uint scu_unit_idx, char * buf)
 
 static void deliver_interrupts (uint scu_unit_idx)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
     sim_debug (DBG_DEBUG, & scu_dev, "deliver_interrupts %o\n", scu_unit_idx);
+#endif
     for (uint cpun = 0; cpun < cpu_dev.numunits; cpun ++)
       {
         cpus[cpun].events.XIP[scu_unit_idx] = false;
@@ -1487,6 +1502,9 @@ sim_debug (DBG_DEBUG, & scu_dev, "interrupt set for CPU %d SCU %d\n", cpu_unit_u
 t_stat scu_smic (uint scu_unit_idx, uint UNUSED cpu_unit_udx,
                  uint UNUSED cpu_port_num, word36 rega)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
 #if defined(THREADZ) || defined(LOCKLESS)
     lock_scu ();
 #endif
@@ -1578,7 +1596,7 @@ t_stat scu_smic (uint scu_unit_idx, uint UNUSED cpu_unit_udx,
 // x = any octal digit
 //
 
-t_stat scu_sscr (uint scu_unit_idx, UNUSED uint cpu_unit_udx,
+t_stat scu_sscr (cpu_state_t * cpup, uint scu_unit_idx, UNUSED uint cpu_unit_udx,
                  UNUSED uint cpu_port_num, word18 addr,
                  word36 rega, word36 regq)
   {
@@ -1826,7 +1844,7 @@ t_stat scu_sscr (uint scu_unit_idx, UNUSED uint cpu_unit_udx,
             lock_scu ();
 #endif
             scu [scu_unit_idx].user_correction =
-              (int64) (new_clk - set_SCU_clock (scu_unit_idx));
+              (int64) (new_clk - set_SCU_clock (cpup, scu_unit_idx));
 #if defined(THREADZ) || defined(LOCKLESS)
             unlock_scu ();
 #endif
@@ -1851,7 +1869,7 @@ t_stat scu_sscr (uint scu_unit_idx, UNUSED uint cpu_unit_udx,
     return SCPE_OK;
   }
 
-t_stat scu_rscr (uint scu_unit_idx, uint cpu_unit_udx, word18 addr,
+t_stat scu_rscr (cpu_state_t * cpup, uint scu_unit_idx, uint cpu_unit_udx, word18 addr,
                  word36 * rega, word36 * regq)
   {
     // Only valid for a 4MW SCU
@@ -2091,7 +2109,7 @@ gotit:;
         case 00004: // Get calendar clock (4MW SCU only)
         case 00005:
           {
-            uint64 clk = set_SCU_clock (scu_unit_idx);
+            uint64 clk = set_SCU_clock (cpup, scu_unit_idx);
             cpu.rQ =  clk  & 0777777777777;    // lower 36-bits of clock
             cpu.rA = (clk >> 36) & 0177777;    // upper 16-bits of clock
 #if defined(TESTING)
@@ -2173,12 +2191,14 @@ int scu_cioc (uint cpu_unit_udx, uint scu_unit_idx, uint scu_port_num,
 #if 0
 clock_gettime (CLOCK_REALTIME, & cioc_t0);
 #endif
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
     sim_debug (DBG_DEBUG, & scu_dev,
                "scu_cioc: Connect from %o sent to "
                "unit %o port %o exp %o mask %03o\n",
                cpu_unit_udx, scu_unit_idx, scu_port_num,
               expander_command, sub_mask);
-
+#endif
 #if defined(THREADZ) || defined(LOCKLESS)
     lock_scu ();
 #endif
@@ -2355,6 +2375,9 @@ done:
 
 int scu_set_interrupt (uint scu_unit_idx, uint inum)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     const char* moi = "SCU::interrupt";
 
     if (inum >= N_CELL_INTERRUPTS)
@@ -2384,6 +2407,9 @@ int scu_set_interrupt (uint scu_unit_idx, uint inum)
 
 uint scu_get_highest_intr (uint scu_unit_idx)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
 #if defined(THREADZ) || defined(LOCKLESS)
     lock_scu ();
 #endif
@@ -2465,6 +2491,9 @@ void scu_init (void)
 t_stat scu_rmcm (uint scu_unit_idx, uint cpu_unit_udx, word36 * rega,
                  word36 * regq)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     scu_t * up = scu + scu_unit_idx;
 
     // Assume no mask register assigned
@@ -2560,6 +2589,9 @@ gotit:;
 
 t_stat scu_smcm (uint scu_unit_idx, uint cpu_unit_udx, word36 rega, word36 regq)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     sim_debug (DBG_TRACE, & scu_dev,
               "SMCM SCU unit %d CPU unit %d A %012"PRIo64" Q %012"PRIo64"\n",
                scu_unit_idx, cpu_unit_udx, rega, regq);

@@ -32,11 +32,11 @@
 
 #include "dps8.h"
 #include "dps8_sys.h"
-#include "dps8_faults.h"
-#include "dps8_scu.h"
 #include "dps8_iom.h"
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
+#include "dps8_faults.h"
+#include "dps8_scu.h"
 #include "dps8_append.h"
 #include "dps8_ins.h"
 #include "dps8_utils.h"
@@ -253,6 +253,7 @@ static char fault_msg [1024];
 
 void emCallReportFault (void)
   {
+           cpu_state_t * cpup = _cpup;
            sim_printf ("fault report:\n");
            sim_printf ("  fault number %d (%o)\n", cpu . faultNumber, cpu . faultNumber);
            sim_printf ("  subfault number %llu (%llo)\n", (unsigned long long) cpu.subFault.bits,
@@ -262,7 +263,7 @@ void emCallReportFault (void)
   }
 #endif /* if defined(TESTING) */
 
-void clearFaultCycle (void)
+void clearFaultCycle (cpu_state_t * cpup)
   {
     cpu . bTroubleFaultCycle = false;
   }
@@ -370,6 +371,8 @@ const _fault_subtype fst_onc_nem   = (_fault_subtype) {.fault_onc_subtype=flt_on
 void doFault (_fault faultNumber, _fault_subtype subFault,
               const char * faultMsg)
   {
+  cpu_state_t * cpup = _cpup;
+
 #if defined(LOOPTRC)
 if (faultNumber == FAULT_TRO)
 {
@@ -669,21 +672,21 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle,
       {
         sim_debug (DBG_CYCLE, & cpu_dev, "Changing fault number to Trouble fault\n");
 
-        cpu.faultNumber = FAULT_TRB;
-        cpu.cu.FI_ADDR  = FAULT_TRB;
+        cpu.faultNumber   = FAULT_TRB;
+        cpu.cu.FI_ADDR    = FAULT_TRB;
         cpu.subFault.bits = 0; // XXX ???
-        if (cpu . bTroubleFaultCycle)
+        if (cpu.bTroubleFaultCycle)
           {
 #if !defined(THREADZ) && !defined(LOCKLESS)
 # if !defined(PANEL68)
 #  if !defined(ROUND_ROBIN)
-            if ((! sample_interrupts ()) &&
+            if ((! sample_interrupts (cpup)) &&
                 (sim_qcount () == 0))  // XXX If clk_svc is implemented it will
-                                     // break this logic
+                                       // break this logic
               {
                 sim_printf \
                     ("Fault cascade @0%06o with no interrupts pending and no events in queue\n",
-                     cpu . PPR.IC);
+                     cpu.PPR.IC);
                 sim_printf("\nCycles = %"PRId64"\n", cpu.cycleCnt);
                 sim_printf("\nInstructions = %"PRId64"\n", cpu.instrCnt);
                 //stop_reason = STOP_FLT_CASCADE;
@@ -718,7 +721,7 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle,
 #endif
 }
 
-void do_FFV_fault (uint fault_number, const char * fault_msg)
+void do_FFV_fault (cpu_state_t * cpup, uint fault_number, const char * fault_msg)
   {
     sim_debug (DBG_FAULT, & cpu_dev,
                "Floating fault %d '%s'\n",
@@ -823,7 +826,7 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
 #if !defined(THREADZ) && !defined(LOCKLESS)
 # if !defined(PANEL68)
 #  if !defined(ROUND_ROBIN)
-            if ((! sample_interrupts ()) &&
+            if ((! sample_interrupts (cpup)) &&
                 (sim_qcount () == 0))  // XXX If clk_svc is implemented it will
                                        // break this logic
               {
@@ -861,6 +864,7 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
 void dlyDoFault (_fault faultNumber, _fault_subtype subFault,
                 const char * faultMsg)
   {
+    cpu_state_t * cpup = _cpup;
     cpu.dlyFlt       = true;
     cpu.dlyFltNum    = faultNumber;
     cpu.dlySubFltNum = subFault;
@@ -874,7 +878,7 @@ void dlyDoFault (_fault faultNumber, _fault_subtype subFault,
 // Note: The DIS code assumes that the only G7 fault is TRO. Adding any
 // other G7 faults will potentially require changing the DIS code.
 
-bool bG7Pending (void)
+bool bG7Pending (cpu_state_t * cpup)
   {
     if (cpu.tweaks.l68_mode)
       return cpu.g7Faults != 0 || cpu.FFV_faults != 0; // L68
@@ -882,7 +886,7 @@ bool bG7Pending (void)
     return cpu.g7Faults != 0; // DPS8M
   }
 
-bool bG7PendingNoTRO (void)
+bool bG7PendingNoTRO (cpu_state_t * cpup)
   {
     if (cpu.tweaks.l68_mode)
       return (cpu.g7Faults & (~ (1u << FAULT_TRO))) != 0 || cpu.FFV_faults != 0; // L68
@@ -892,17 +896,18 @@ bool bG7PendingNoTRO (void)
 
 void setG7fault (uint cpuNo, _fault faultNo, _fault_subtype subFault)
   {
+    cpu_state_t * cpup = &cpus[cpuNo];
     sim_debug (DBG_FAULT, & cpu_dev, "setG7fault CPU %d fault %d (%o) sub %"PRId64" %"PRIo64"\n",
                cpuNo, faultNo, faultNo, subFault.bits, subFault.bits);
-    cpus[cpuNo].g7FaultsPreset |= (1u << faultNo);
+    cpup->g7FaultsPreset |= (1u << faultNo);
     //cpu.g7SubFaultsPreset [faultNo] = subFault;
-    cpus[cpuNo].g7SubFaults [faultNo] = subFault;
+    cpup->g7SubFaults [faultNo] = subFault;
 #if defined(THREADZ) || defined(LOCKLESS)
     wakeCPU(cpuNo);
 #endif
   }
 
-void set_FFV_fault (uint f_fault_no)
+void set_FFV_fault (cpu_state_t * cpup, uint f_fault_no)
   {
     sim_debug (DBG_FAULT, & cpu_dev, "set_FFV_fault CPU f_fault_no %u\n",
                f_fault_no);
@@ -910,12 +915,12 @@ void set_FFV_fault (uint f_fault_no)
     cpu.FFV_faults_preset |= 1u << ((f_fault_no / 2) - 1);
   }
 
-void clearTROFault (void)
+void clearTROFault (cpu_state_t * cpup)
   {
     cpu . g7Faults &= ~(1u << FAULT_TRO);
   }
 
-void doG7Fault (bool allowTR)
+void doG7Fault (cpu_state_t * cpup, bool allowTR)
   {
     // sim_printf ("doG7fault %08o [%"PRId64"]\n", cpu . g7Faults, cpu.cycleCnt);
     // if (cpu . g7Faults)
@@ -968,7 +973,7 @@ void doG7Fault (bool allowTR)
 #if defined(THREADZ) || defined(LOCKLESS)
            unlock_scu ();
 #endif
-           do_FFV_fault (1, "OC TRAP");
+           do_FFV_fault (cpup, 1, "OC TRAP");
          }
        if (cpu.FFV_faults & 2u)  // FFV + 4 CU HISTORY OVERFLOW TRAP
          {
@@ -976,7 +981,7 @@ void doG7Fault (bool allowTR)
 #if defined(THREADZ) || defined(LOCKLESS)
            unlock_scu ();
 #endif
-           do_FFV_fault (2, "CU HIST OVF TRAP");
+           do_FFV_fault (cpup, 2, "CU HIST OVF TRAP");
          }
        if (cpu.FFV_faults & 4u)  // FFV + 6 ADR TRAP
          {
@@ -984,7 +989,7 @@ void doG7Fault (bool allowTR)
 #if defined(THREADZ) || defined(LOCKLESS)
            unlock_scu ();
 #endif
-           do_FFV_fault (3, "ADR TRAP");
+           do_FFV_fault (cpup, 3, "ADR TRAP");
          }
      }
 #if defined(THREADZ) || defined(LOCKLESS)
@@ -993,7 +998,7 @@ void doG7Fault (bool allowTR)
      doFault (FAULT_TRB, (_fault_subtype) {.bits=cpu.g7Faults}, "Dazed and confused in doG7Fault");
   }
 
-void advanceG7Faults (void)
+void advanceG7Faults (cpu_state_t * cpup)
   {
     if (!cpu.g7FaultsPreset && !cpu.FFV_faults_preset)
       return;

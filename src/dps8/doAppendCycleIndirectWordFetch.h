@@ -51,7 +51,7 @@
 //          V
 //        Exit: return final address
 
-word24 doAppendCycleIndirectWordFetch (word36 * data, uint nWords) {
+word24 doAppendCycleIndirectWordFetch (cpu_state_t * cpup, word36 * data, uint nWords) {
   DCDstruct * i = & cpu.currentInstruction;
   DBGAPP ("doAppendCycleIndirectWordFetch(Entry) thisCycle=INDIRECT_WORD_FETCH\n");
   DBGAPP ("doAppendCycleIndirectWordFetch(Entry) lastCycle=%s\n", str_pct (cpu.apu.lastCycle));
@@ -167,23 +167,23 @@ miss_ucache:;
   DBGAPP ("doAppendCycleIndirectWordFetch(A)\n");
 
   // is SDW for C(TPR.TSR) in SDWAM?
-  if (nomatch || ! fetch_sdw_from_sdwam (cpu.TPR.TSR)) {
+  if (nomatch || ! fetch_sdw_from_sdwam (cpup, cpu.TPR.TSR)) {
     // No
     DBGAPP ("doAppendCycleIndirectWordFetch(A):SDW for segment %05o not in SDWAM\n", cpu.TPR.TSR);
     DBGAPP ("doAppendCycleIndirectWordFetch(A):DSBR.U=%o\n", cpu.DSBR.U);
 
     if (cpu.DSBR.U == 0) {
-      fetch_dsptw (cpu.TPR.TSR);
+      fetch_dsptw (cpup, cpu.TPR.TSR);
 
       if (! cpu.PTW0.DF)
         doFault (FAULT_DF0 + cpu.PTW0.FC, fst_zero, "doAppendCycleIndirectWordFetch(A): PTW0.F == 0");
 
       if (! cpu.PTW0.U)
-          modify_dsptw (cpu.TPR.TSR);
+          modify_dsptw (cpup, cpu.TPR.TSR);
 
-      fetch_psdw (cpu.TPR.TSR);
+      fetch_psdw (cpup, cpu.TPR.TSR);
     } else
-      fetch_nsdw (cpu.TPR.TSR); // load SDW0 from descriptor segment table.
+      fetch_nsdw (cpup, cpu.TPR.TSR); // load SDW0 from descriptor segment table.
 
     if (cpu.SDW0.DF == 0) {
       DBGAPP ("doAppendCycleIndirectWordFetch(A): SDW0.F == 0! " "Initiating directed fault\n");
@@ -191,7 +191,7 @@ miss_ucache:;
       doFault (FAULT_DF0 + cpu.SDW0.FC, fst_zero, "SDW0.F == 0");
     }
     // load SDWAM .....
-    load_sdwam (cpu.TPR.TSR, nomatch);
+    load_sdwam (cpup, cpu.TPR.TSR, nomatch);
   }
   DBGAPP ("doAppendCycleIndirectWordFetch(A) R1 %o R2 %o R3 %o E %o\n", cpu.SDW->R1, cpu.SDW->R2, cpu.SDW->R3, cpu.SDW->E);
 
@@ -310,13 +310,13 @@ miss_ucache:;
 
   DBGAPP ("doAppendCycleIndirectWordFetch(G) CA %06o\n", cpu.TPR.CA);
   if (nomatch ||
-      ! fetch_ptw_from_ptwam (cpu.SDW->POINTER, cpu.TPR.CA)) {
-    fetch_ptw (cpu.SDW, cpu.TPR.CA);
+      ! fetch_ptw_from_ptwam (cpup, cpu.SDW->POINTER, cpu.TPR.CA)) {
+    fetch_ptw (cpup, cpu.SDW, cpu.TPR.CA);
     if (! cpu.PTW0.DF) {
       // initiate a directed fault
       doFault (FAULT_DF0 + cpu.PTW0.FC, (_fault_subtype) {.bits=0}, "PTW0.F == 0");
     }
-    loadPTWAM (cpu.SDW->POINTER, cpu.TPR.CA, nomatch); // load PTW0 to PTWAM
+    loadPTWAM (cpup, cpu.SDW->POINTER, cpu.TPR.CA, nomatch); // load PTW0 to PTWAM
   }
 
   // Prepage mode?
@@ -326,7 +326,7 @@ miss_ucache:;
   // DH03 p.8-13: probably also mve,btd,dtb
   if (i->opcodeX && ((i->opcode & 0770)== 0200|| (i->opcode & 0770) == 0220
       || (i->opcode & 0770)== 020|| (i->opcode & 0770) == 0300)) {
-    do_ptw2 (cpu.SDW, cpu.TPR.CA);
+    do_ptw2 (cpup, cpu.SDW, cpu.TPR.CA);
   }
   goto I;
 
@@ -350,7 +350,7 @@ H:;
   else
     ....
 #endif
-  set_apu_status (apuStatus_FANP);
+  set_apu_status (cpup, apuStatus_FANP);
 
   DBGAPP ("doAppendCycleIndirectWordFetch(H): SDW->ADDR=%08o CA=%06o \n", cpu.SDW->ADDR, cpu.TPR.CA);
 
@@ -372,7 +372,7 @@ I:;
   paged = true;
 
   // final address paged
-  set_apu_status (apuStatus_FAP);
+  set_apu_status (cpup, apuStatus_FAP);
   PNL (L68_ (cpu.apu.state |= apu_FAP;))
 
   word24 y2 = cpu.TPR.CA % 1024;
@@ -395,13 +395,13 @@ I:;
 HI:
   DBGAPP ("doAppendCycleIndirectWordFetch(HI)\n");
 
-  ucCacheSave (this, cpu.TPR.TSR, cpu.TPR.CA, bound, p, pageAddress, RSDWH_R1, paged);
+  ucCacheSave (cpup, this, cpu.TPR.TSR, cpu.TPR.CA, bound, p, pageAddress, RSDWH_R1, paged);
 
   // isolts 870
   cpu.cu.XSF = 1;
   sim_debug (DBG_TRACEEXT, & cpu_dev, "loading of cpu.TPR.TSR sets XSF to 1\n");
 
-  core_readN (finalAddress, data, nWords, "INDIRECT_WORD_FETCH");
+  core_readN (cpup, finalAddress, data, nWords, "INDIRECT_WORD_FETCH");
 
 ////////////////////////////////////////
 //

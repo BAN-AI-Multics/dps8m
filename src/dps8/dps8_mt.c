@@ -37,11 +37,11 @@
 
 #include "dps8.h"
 #include "dps8_sys.h"
-#include "dps8_faults.h"
-#include "dps8_scu.h"
 #include "dps8_iom.h"
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
+#include "dps8_faults.h"
+#include "dps8_scu.h"
 #include "dps8_utils.h"
 #include "dps8_mt.h"
 
@@ -728,6 +728,9 @@ static t_stat tape_set_ready (UNIT * uptr, UNUSED int32 value,
                               UNUSED const char * cptr,
                               UNUSED void * desc)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     long tape_unit_idx = MT_UNIT_NUM (uptr);
     if (tape_unit_idx >= N_MT_UNITS_MAX)
       {
@@ -981,6 +984,9 @@ static iom_cmd_rc_t mtReadRecord (uint devUnitIdx, uint iomUnitIdx, uint chan)
   {
 // If a tape read IDCW has multiple DDCWs, are additional records read?
 
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
     UNIT * unitp = & mt_unit[devUnitIdx];
     struct tape_state * tape_statep = & tape_states[devUnitIdx];
@@ -1231,6 +1237,9 @@ static int mtWriteRecord (uint devUnitIdx, uint iomUnitIdx, uint chan)
   {
 // If a tape write IDCW has multiple DDCWs, are additional records written?
 
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
     UNIT * unitp = & mt_unit [devUnitIdx];
     struct tape_state * tape_statep = & tape_states [devUnitIdx];
@@ -1384,6 +1393,9 @@ static int mtWriteRecord (uint devUnitIdx, uint iomUnitIdx, uint chan)
 // -1 problem
 static int surveyDevices (uint iomUnitIdx, uint chan)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
 // According to rcp_tape_survey_.pl1:
 //
@@ -1466,6 +1478,7 @@ static int surveyDevices (uint iomUnitIdx, uint chan)
 iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
   iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
 #if defined(TESTING)
+  cpu_state_t * cpup = _cpup;
   if_sim_debug (DBG_TRACE, & tape_dev) dumpDCW (p->DCW, 0);
 #endif /* if defined(TESTING) */
 // The bootload read command does a read on drive 0; the controller

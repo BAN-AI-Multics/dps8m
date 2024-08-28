@@ -15,7 +15,7 @@
  * ---------------------------------------------------------------------------
  */
 
-word24 doAppendCycleAPUDataStore (word36 * data, uint nWords) {
+word24 doAppendCycleAPUDataStore (cpu_state_t * cpup, word36 * data, uint nWords) {
   DCDstruct * i = & cpu.currentInstruction;
   DBGAPP ("doAppendCycleAPUDataStore(Entry) thisCycle=APU_DATA_STORE\n");
   DBGAPP ("doAppendCycleAPUDataStore(Entry) lastCycle=%s\n", str_pct (cpu.apu.lastCycle));
@@ -74,24 +74,24 @@ word24 doAppendCycleAPUDataStore (word36 * data, uint nWords) {
   DBGAPP ("doAppendCycleAPUDataStore(A)\n");
 
   // is SDW for C(TPR.TSR) in SDWAM?
-  if (nomatch || ! fetch_sdw_from_sdwam (cpu.TPR.TSR)) {
+  if (nomatch || ! fetch_sdw_from_sdwam (cpup, cpu.TPR.TSR)) {
     // No
     DBGAPP ("doAppendCycleAPUDataStore(A):SDW for segment %05o not in SDWAM\n", cpu.TPR.TSR);
 
     DBGAPP ("doAppendCycleAPUDataStore(A):DSBR.U=%o\n", cpu.DSBR.U);
 
     if (cpu.DSBR.U == 0) {
-      fetch_dsptw (cpu.TPR.TSR);
+      fetch_dsptw (cpup, cpu.TPR.TSR);
 
       if (! cpu.PTW0.DF)
         doFault (FAULT_DF0 + cpu.PTW0.FC, fst_zero, "doAppendCycleAPUDataStore(A): PTW0.F == 0");
 
       if (! cpu.PTW0.U)
-          modify_dsptw (cpu.TPR.TSR);
+          modify_dsptw (cpup, cpu.TPR.TSR);
 
-      fetch_psdw (cpu.TPR.TSR);
+      fetch_psdw (cpup, cpu.TPR.TSR);
     } else
-      fetch_nsdw (cpu.TPR.TSR); // load SDW0 from descriptor segment table.
+      fetch_nsdw (cpup, cpu.TPR.TSR); // load SDW0 from descriptor segment table.
 
     if (cpu.SDW0.DF == 0) {
       DBGAPP ("doAppendCycleAPUDataStore(A): SDW0.F == 0! " "Initiating directed fault\n");
@@ -99,7 +99,7 @@ word24 doAppendCycleAPUDataStore (word36 * data, uint nWords) {
       doFault (FAULT_DF0 + cpu.SDW0.FC, fst_zero, "SDW0.F == 0");
     }
     // load SDWAM .....
-    load_sdwam (cpu.TPR.TSR, nomatch);
+    load_sdwam (cpup, cpu.TPR.TSR, nomatch);
   }
   DBGAPP ("doAppendCycleAPUDataStore(A) R1 %o R2 %o R3 %o E %o\n", cpu.SDW->R1, cpu.SDW->R2, cpu.SDW->R3, cpu.SDW->E);
 
@@ -205,13 +205,13 @@ word24 doAppendCycleAPUDataStore (word36 * data, uint nWords) {
   // is PTW for C(TPR.CA) in PTWAM?
 
   DBGAPP ("doAppendCycleAPUDataStore(G) CA %06o\n", cpu.TPR.CA);
-  if (nomatch || ! fetch_ptw_from_ptwam (cpu.SDW->POINTER, cpu.TPR.CA)) {
-    fetch_ptw (cpu.SDW, cpu.TPR.CA);
+  if (nomatch || ! fetch_ptw_from_ptwam (cpup, cpu.SDW->POINTER, cpu.TPR.CA)) {
+    fetch_ptw (cpup, cpu.SDW, cpu.TPR.CA);
     if (! cpu.PTW0.DF) {
       // initiate a directed fault
       doFault (FAULT_DF0 + cpu.PTW0.FC, (_fault_subtype) {.bits=0}, "PTW0.F == 0");
     }
-    loadPTWAM (cpu.SDW->POINTER, cpu.TPR.CA, nomatch); // load PTW0 to PTWAM
+    loadPTWAM (cpup, cpu.SDW->POINTER, cpu.TPR.CA, nomatch); // load PTW0 to PTWAM
   }
 
   // Prepage mode?
@@ -221,7 +221,7 @@ word24 doAppendCycleAPUDataStore (word36 * data, uint nWords) {
   // DH03 p.8-13: probably also mve,btd,dtb
   if (i->opcodeX && ((i->opcode & 0770)== 0200|| (i->opcode & 0770) == 0220
       || (i->opcode & 0770)== 020|| (i->opcode & 0770) == 0300)) {
-    do_ptw2 (cpu.SDW, cpu.TPR.CA);
+    do_ptw2 (cpup, cpu.SDW, cpu.TPR.CA);
   }
   goto I;
 
@@ -243,7 +243,7 @@ H:;
   else
     ....
 #endif
-  set_apu_status (apuStatus_FANP);
+  set_apu_status (cpup, apuStatus_FANP);
 
   DBGAPP ("doAppendCycleAPUDataStore(H): SDW->ADDR=%08o CA=%06o \n", cpu.SDW->ADDR, cpu.TPR.CA);
 
@@ -261,10 +261,10 @@ I:;
 
   DBGAPP ("doAppendCycleAPUDataStore(I): FAP\n");
   if (cpu.PTW->M == 0)  // is this the right way to do this?
-     modify_ptw (cpu.SDW, cpu.TPR.CA);
+     modify_ptw (cpup, cpu.SDW, cpu.TPR.CA);
 
     // final address paged
-  set_apu_status (apuStatus_FAP);
+  set_apu_status (cpup, apuStatus_FAP);
   PNL (L68_ (cpu.apu.state |= apu_FAP;))
 
   word24 y2 = cpu.TPR.CA % 1024;
@@ -290,7 +290,7 @@ HI:
   cpu.cu.XSF = 1;
   sim_debug (DBG_TRACEEXT, & cpu_dev, "loading of cpu.TPR.TSR sets XSF to 1\n");
 
-  core_writeN (finalAddress, data, nWords, "APU_DATA_STORE");
+  core_writeN (cpup, finalAddress, data, nWords, "APU_DATA_STORE");
 
   PNL (cpu.APUDataBusOffset = cpu.TPR.CA;)
   PNL (cpu.APUDataBusAddr = finalAddress;)

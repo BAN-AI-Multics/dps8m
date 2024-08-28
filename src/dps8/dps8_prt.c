@@ -36,10 +36,10 @@
 #include "dps8_iom.h"
 #include "dps8_prt.h"
 #include "dps8_sys.h"
-#include "dps8_faults.h"
-#include "dps8_scu.h"
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
+#include "dps8_faults.h"
+#include "dps8_scu.h"
 #include "dps8_utils.h"
 #include "utfile.h"
 
@@ -1018,6 +1018,9 @@ static int loadVFCImage (uint iom_unit_idx, uint chan)
 
 static iom_cmd_rc_t print_cmd (uint iom_unit_idx, uint chan, int prt_unit_num, bool isBCD, bool is_edited, int slew)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup  = _cpup;
+#endif
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
     p->isRead = false;
 
@@ -1117,6 +1120,9 @@ sim_printf ("\r\n");
   }
 
 iom_cmd_rc_t prt_cmd_202 (uint iomUnitIdx, uint chan) {
+#if defined(TESTING)
+  cpu_state_t * cpup   = _cpup;
+#endif
   iom_chan_data_t * p  = & iom_chan_data[iomUnitIdx][chan];
   uint ctlr_unit_idx   = get_ctlr_idx (iomUnitIdx, chan);
   uint devUnitIdx      = cables->urp_to_urd[ctlr_unit_idx][p->IDCW_DEV_CODE].unit_idx;
@@ -1198,6 +1204,9 @@ iom_cmd_rc_t prt_cmd_202 (uint iomUnitIdx, uint chan) {
 }
 
 iom_cmd_rc_t prt_cmd_300 (uint iomUnitIdx, uint chan) {
+#if defined(TESTING)
+  cpu_state_t * cpup   = _cpup;
+#endif
   iom_chan_data_t * p  = & iom_chan_data[iomUnitIdx][chan];
   uint ctlr_unit_idx   = get_ctlr_idx (iomUnitIdx, chan);
   uint devUnitIdx      = cables->urp_to_urd[ctlr_unit_idx][p->IDCW_DEV_CODE].unit_idx;
@@ -1291,6 +1300,9 @@ iom_cmd_rc_t prt_cmd_300 (uint iomUnitIdx, uint chan) {
 }
 
 iom_cmd_rc_t prt_cmd_300a (uint iomUnitIdx, uint chan) {
+#if defined(TESTING)
+  cpu_state_t * cpup   = _cpup;
+#endif
   iom_chan_data_t * p  = & iom_chan_data[iomUnitIdx][chan];
   uint ctlr_unit_idx   = get_ctlr_idx (iomUnitIdx, chan);
   uint devUnitIdx      = cables->urp_to_urd[ctlr_unit_idx][p->IDCW_DEV_CODE].unit_idx;
@@ -1384,6 +1396,9 @@ iom_cmd_rc_t prt_cmd_300a (uint iomUnitIdx, uint chan) {
 }
 
 iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
+#if defined(TESTING)
+  cpu_state_t * cpup   = _cpup;
+#endif
   iom_chan_data_t * p  = & iom_chan_data[iomUnitIdx][chan];
   uint ctlr_unit_idx   = get_ctlr_idx (iomUnitIdx, chan);
   uint devUnitIdx      = cables->urp_to_urd[ctlr_unit_idx][p->IDCW_DEV_CODE].unit_idx;
@@ -1953,6 +1968,9 @@ static t_stat prt_set_ready (UNIT * uptr, UNUSED int32 value,
                              UNUSED const char * cptr,
                              UNUSED void * desc)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     int n = (int) PRT_UNIT_NUM (uptr);
     if (n < 0 || n >= N_PRT_UNITS_MAX)
       {

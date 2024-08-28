@@ -39,10 +39,10 @@
 #include "dps8_iom.h"
 #include "dps8_crdpun.h"
 #include "dps8_sys.h"
-#include "dps8_faults.h"
-#include "dps8_scu.h"
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
+#include "dps8_scu.h"
+#include "dps8_faults.h"
 #include "dps8_utils.h"
 #include "utfile.h"
 
@@ -1184,9 +1184,12 @@ iom_cmd_rc_t pun_iom_cmd (uint iomUnitIdx, uint chan) {
   iom_cmd_rc_t rc     = IOM_CMD_PROCEED;
   iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
   uint dev_code       = p->IDCW_DEV_CODE;
+#if defined(TESTING)
+  cpu_state_t * cpup  = _cpup;
 
   sim_debug (DBG_TRACE, & pun_dev, "%s: PUN %c%02o_%02o\n",
           __func__, iomChar (iomUnitIdx), chan, dev_code);
+#endif
 
   uint ctlr_unit_idx   = get_ctlr_idx (iomUnitIdx, chan);
   uint devUnitIdx      = cables->urp_to_urd[ctlr_unit_idx][dev_code].unit_idx;

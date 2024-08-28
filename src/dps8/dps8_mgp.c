@@ -47,10 +47,10 @@
 #include "dps8_iom.h"
 #include "dps8_mgp.h"
 #include "dps8_sys.h"
-#include "dps8_faults.h"
-#include "dps8_scu.h"
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
+#include "dps8_faults.h"
+#include "dps8_scu.h"
 #include "dps8_utils.h"
 
 #if defined(FREE)
@@ -343,6 +343,9 @@ static iom_cmd_rc_t
 get_ddcw(iom_chan_data_t *p, uint iom_unit_idx, uint chan, bool *ptro,
          uint expected_tally, uint *tally)
 {
+# if defined(TESTING)
+  cpu_state_t * cpup = _cpup;
+# endif
   bool  send, uff;
   int   rc = iom_list_service(iom_unit_idx, chan, ptro, &send, &uff);
 
@@ -437,6 +440,9 @@ cmd_name(int code)
 static iom_cmd_rc_t
 mgp_cmd(uint iom_unit_idx, uint chan)
 {
+# if defined(TESTING)
+  cpu_state_t * cpup = _cpup;
+# endif
   iom_chan_data_t *p = &iom_chan_data[iom_unit_idx][chan];
 
   sim_debug(DBG_TRACE, &mgp_dev,

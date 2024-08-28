@@ -38,10 +38,10 @@
 
 #include "dps8.h"
 #include "dps8_sys.h"
-#include "dps8_scu.h"
 #include "dps8_iom.h"
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
+#include "dps8_scu.h"
 #include "dps8_fnp2.h"
 #include "dps8_fnp2_iomcmd.h"
 #include "dps8_utils.h"
@@ -160,6 +160,9 @@ static void dmpmbx (uint mailboxAddress)
 
 static int wcd (struct decoded_t *decoded_p)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     struct t_line * linep = & decoded_p->fudp->MState.line[decoded_p->slot_no];
     sim_debug (DBG_TRACE, & fnp_dev, "[%u] wcd op_code %u 0%o\n",
                decoded_p->slot_no, decoded_p->op_code, decoded_p->op_code);
@@ -1160,7 +1163,10 @@ static void tun_write (struct t_line * linep, uint16_t * data, uint tally)
 
 static void fnp_wtx_output (struct decoded_t *decoded_p, uint tally, uint dataAddr)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
     sim_debug (DBG_TRACE, & fnp_dev, "[%u]rcd wtx_output\n", decoded_p->slot_no);
+#endif
     struct t_line * linep = & decoded_p->fudp->MState.line[decoded_p->slot_no];
 
     uint wordOff     = 0;
@@ -1226,7 +1232,10 @@ sim_printf ("']\n");
 
 static int wtx (struct decoded_t *decoded_p)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
     sim_debug (DBG_TRACE, & fnp_dev, "[%u]wtx op_code %u 0%o\n", decoded_p->slot_no, decoded_p->op_code, decoded_p->op_code);
+#endif
 //sim_printf ("wtx op_code %o (%d.) %c.h%03d\n",
 //            decoded_p->op_code, decoded_p->op_code,
 //            decoded_p->devUnitIdx+'a', decoded_p->slot_no);
@@ -1305,6 +1314,9 @@ static void fnp_rtx_input_accepted (struct decoded_t *decoded_p)
 //      request required a wraparound of the circular buffer.
 //
 
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     word36 word2;
     iom_direct_data_service (decoded_p->iom_unit, decoded_p->chan_num, decoded_p->fsmbx+WORD2, & word2, direct_load);
     uint n_chars = getbits36_18 (word2, 0);
@@ -1380,6 +1392,9 @@ sim_printf ("']\n");
 
 static int interruptL66_CS_to_FNP (struct decoded_t *decoded_p)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     uint mbx = decoded_p->cell;
     //ASSURE(mbx < 8);
     if (mbx >= 8)
@@ -1452,6 +1467,9 @@ static int interruptL66_FNP_to_CS (struct decoded_t *decoded_p)
     // The CS has updated the FNP sub mailbox; this acknowledges processing
     // of the FNP->CS command that was in the submailbox
 
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     uint mbx = decoded_p->cell - 8;
     //ASSURE(mbx < 4);
     if (mbx >= 4)
@@ -1625,6 +1643,9 @@ sim_printf ("reject_request_temp\r\n");
 
 static int interruptL66_CS_done (struct decoded_t *decoded_p)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     uint mbx = decoded_p->cell - 12;
     //ASSURE(mbx < 4);
     if (mbx >= 4)
@@ -1660,6 +1681,9 @@ static int interruptL66_CS_done (struct decoded_t *decoded_p)
 
 static int interruptL66 (uint iomUnitIdx, uint chan)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     struct decoded_t decoded;
     struct decoded_t *decoded_p = &decoded;
     decoded_p->iom_unit = iomUnitIdx;
@@ -1729,6 +1753,9 @@ static int interruptL66 (uint iomUnitIdx, uint chan)
 
 static void fnpcmdBootload (uint devUnitIdx)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     sim_printf("\r[FNP emulation: FNP %c received BOOTLOAD command]\r\n", (int)('a' + (int)devUnitIdx));
     fnpData.fnpUnitData[devUnitIdx].MState.accept_calls = false;
     bool have3270 = false;
@@ -1785,6 +1812,9 @@ static word18 getl6core (uint iom_unit_idx, uint chan, word24 l66addr, uint addr
 
 static void processMBX (uint iomUnitIdx, uint chan)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     uint fnp_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
     struct fnpUnitData_s * fudp = & fnpData.fnpUnitData [fnp_unit_idx];
 

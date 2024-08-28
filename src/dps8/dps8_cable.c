@@ -112,11 +112,11 @@
 #include "dps8_iom.h"
 #include "dps8_mt.h"
 #include "dps8_socket_dev.h"
-#include "dps8_scu.h"
 #include "dps8_sys.h"
-#include "dps8_faults.h"
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
+#include "dps8_faults.h"
+#include "dps8_scu.h"
 #include "dps8_state.h"
 #include "dps8_console.h"
 #include "dps8_disk.h"
@@ -404,7 +404,7 @@ static t_stat cable_scu_to_cpu (int uncable, uint scu_unit_idx, uint scu_port_nu
         cpus[cpu_unit_idx].scu_port[scu_unit_idx]                       = scu_port_num;
       }
     // Taking this out breaks the unit test segment loader.
-    setup_scbank_map ();
+    setup_scbank_map (_cpup);
     return SCPE_OK;
   }
 

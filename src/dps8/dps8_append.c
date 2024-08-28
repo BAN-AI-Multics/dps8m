@@ -30,13 +30,13 @@
 #include <stdio.h>
 #include "dps8.h"
 #include "dps8_sys.h"
-#include "dps8_faults.h"
-#include "dps8_scu.h"
 #include "dps8_iom.h"
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
-#include "dps8_append.h"
 #include "dps8_addrmods.h"
+#include "dps8_faults.h"
+#include "dps8_scu.h"
+#include "dps8_append.h"
 #include "dps8_utils.h"
 #if defined(THREADZ) || defined(LOCKLESS)
 # include "threadz.h"
@@ -56,7 +56,7 @@
 #endif /* if defined(TESTING) */
 
 #if 0
-void set_apu_status (apuStatusBits status)
+void set_apu_status (cpu_state_t * cpup, apuStatusBits status)
   {
 # if 1
     word12 FCT = cpu.cu.APUCycleBits & MASK3;
@@ -165,7 +165,7 @@ static void selftest_ptwaw (void)
  * implement ldbr instruction
  */
 
-void do_ldbr (word36 * Ypair)
+void do_ldbr (cpu_state_t * cpup, word36 * Ypair)
   {
     CPTUR (cptUseDSBR);
     if (cpu.tweaks.enable_wam)
@@ -232,7 +232,7 @@ void do_ldbr (word36 * Ypair)
 
 // CANFAULT
 
-static void fetch_dsptw (word15 segno)
+static void fetch_dsptw (cpu_state_t * cpup, word15 segno)
   {
     DBGAPP ("%s segno 0%o\n", __func__, segno);
     PNL (L68_ (cpu.apu.state |= apu_FDPT;))
@@ -246,7 +246,7 @@ static void fetch_dsptw (word15 segno)
         doFault (FAULT_ACV, fst_acv15,
                  "acvFault: fetch_dsptw out of segment bounds fault");
       }
-    set_apu_status (apuStatus_DSPTW);
+    set_apu_status (cpup, apuStatus_DSPTW);
 
     //word24 y1 = (2u * segno) % 1024u;
     word24 x1 = (2u * segno) / 1024u; // floor
@@ -255,7 +255,7 @@ static void fetch_dsptw (word15 segno)
     PNL (cpu.lastPTWIsDS = true;)
 
     word36 PTWx1;
-    core_read ((cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
+    core_read (cpup, (cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
 
     cpu.PTW0.ADDR = GETHI (PTWx1);
     cpu.PTW0.U    = TSTBIT (PTWx1, 9);
@@ -264,7 +264,7 @@ static void fetch_dsptw (word15 segno)
     cpu.PTW0.FC   = PTWx1 & 3;
 
     L68_ (if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
-      add_l68_APU_history (APUH_FDSPTW);)
+      add_l68_APU_history (cpup, APUH_FDSPTW);)
 
     DBGAPP ("%s x1 0%o DSBR.ADDR 0%o PTWx1 0%012"PRIo64" "
             "PTW0: ADDR 0%o U %o M %o F %o FC %o\n",
@@ -278,11 +278,11 @@ static void fetch_dsptw (word15 segno)
 
 // CANFAULT
 
-static void modify_dsptw (word15 segno)
+static void modify_dsptw (cpu_state_t * cpup, word15 segno)
   {
     PNL (L68_ (cpu.apu.state |= apu_MDPT;))
 
-    set_apu_status (apuStatus_MDSPTW);
+    set_apu_status (cpup, apuStatus_MDSPTW);
 
     word24 x1 = (2u * segno) / 1024u; // floor
 
@@ -294,13 +294,13 @@ static void modify_dsptw (word15 segno)
 
     word36 PTWx1;
 #if defined(LOCKLESS)
-    core_read_lock ((cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
+    core_read_lock (cpup, (cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
     PTWx1 = SETBIT (PTWx1, 9);
-    core_write_unlock ((cpu.DSBR.ADDR + x1) & PAMASK, PTWx1, __func__);
+    core_write_unlock (cpup, (cpu.DSBR.ADDR + x1) & PAMASK, PTWx1, __func__);
 #else
-    core_read ((cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
+    core_read (cpup, (cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
     PTWx1 = SETBIT (PTWx1, 9);
-    core_write ((cpu.DSBR.ADDR + x1) & PAMASK, PTWx1, __func__);
+    core_write (cpup, (cpu.DSBR.ADDR + x1) & PAMASK, PTWx1, __func__);
 #endif /* if defined(LOCKLESS) */
 
 #if defined(THREADZ)
@@ -310,11 +310,14 @@ static void modify_dsptw (word15 segno)
 
     cpu.PTW0.U = 1;
     L68_ (if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
-      add_l68_APU_history (APUH_MDSPTW);)
+      add_l68_APU_history (cpup, APUH_MDSPTW);)
   }
 
 static word6 calc_hit_am (word6 LRU, uint hit_level)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     switch (hit_level)
       {
         case 0:  // hit level A
@@ -331,7 +334,7 @@ static word6 calc_hit_am (word6 LRU, uint hit_level)
      }
   }
 
-static sdw_s * fetch_sdw_from_sdwam (word15 segno) {
+static sdw_s * fetch_sdw_from_sdwam (cpu_state_t * cpup, word15 segno) {
   DBGAPP ("%s(0):segno=%05o\n", __func__, segno);
 
   if ((! cpu.tweaks.enable_wam || ! cpu.cu.SD_ON)) {
@@ -413,19 +416,19 @@ static sdw_s * fetch_sdw_from_sdwam (word15 segno) {
  */
 // CANFAULT
 
-static void fetch_psdw (word15 segno)
+static void fetch_psdw (cpu_state_t * cpup, word15 segno)
   {
     DBGAPP ("%s(0):segno=%05o\n",
             __func__, segno);
 
     PNL (L68_ (cpu.apu.state |= apu_FSDP;))
 
-    set_apu_status (apuStatus_SDWP);
+    set_apu_status (cpup, apuStatus_SDWP);
     word24 y1 = (2 * segno) % 1024;
 
     word36 SDWeven, SDWodd;
 
-    core_read2 (((((word24) cpu.PTW0.ADDR & 0777760) << 6) + y1) & PAMASK,
+    core_read2 (cpup, ((((word24) cpu.PTW0.ADDR & 0777760) << 6) + y1) & PAMASK,
                 & SDWeven, & SDWodd, __func__);
 
     // even word
@@ -449,7 +452,7 @@ static void fetch_psdw (word15 segno)
 
     L68_ (
       if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
-        add_l68_APU_history (APUH_FSDWP);
+        add_l68_APU_history (cpup, APUH_FSDWP);
      )
     DBGAPP ("%s y1 0%o p->ADDR 0%o SDW 0%012"PRIo64" 0%012"PRIo64" "
             "ADDR %o R %o%o%o BOUND 0%o REWPUGC %o%o%o%o%o%o%o "
@@ -465,13 +468,13 @@ static void fetch_psdw (word15 segno)
 // Fetches an SDW from an unpaged descriptor segment.
 // CANFAULT
 
-static void fetch_nsdw (word15 segno)
+static void fetch_nsdw (cpu_state_t * cpup, word15 segno)
   {
     DBGAPP ("%s (0):segno=%05o\n", __func__, segno);
 
     PNL (L68_ (cpu.apu.state |= apu_FSDN;))
 
-    set_apu_status (apuStatus_SDWNP);
+    set_apu_status (cpup, apuStatus_SDWNP);
 
     if (2 * segno >= 16 * (cpu.DSBR.BND + 1))
       {
@@ -488,7 +491,7 @@ static void fetch_nsdw (word15 segno)
             __func__, cpu.DSBR.ADDR + 2u * segno);
 
     word36 SDWeven, SDWodd;
-    core_read2 ((cpu.DSBR.ADDR + 2u * segno) & PAMASK,
+    core_read2 (cpup, (cpu.DSBR.ADDR + 2u * segno) & PAMASK,
                 & SDWeven, & SDWodd, __func__);
 
     // even word
@@ -512,7 +515,7 @@ static void fetch_nsdw (word15 segno)
 
     L68_ (
       if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
-        add_l68_APU_history (0 /* No fetch no paged bit */);
+        add_l68_APU_history (cpup, 0 /* No fetch no paged bit */);
     )
 #if !defined(SPEED)
     char buf[256];
@@ -541,7 +544,7 @@ static char *str_sdw (char * buf, sdw_s *SDW)
  * dump SDWAM...
  */
 
-t_stat dump_sdwam (void)
+t_stat dump_sdwam (cpu_state_t * cpup)
   {
     char buf[256];
     (void)buf;
@@ -580,7 +583,7 @@ static uint to_be_discarded_am (word6 LRU)
  * load the current in-core SDW0 into the SDWAM ...
  */
 
-static void load_sdwam (word15 segno, bool nomatch)
+static void load_sdwam (cpu_state_t * cpup, word15 segno, bool nomatch)
   {
     cpu.SDW0.POINTER = segno;
     cpu.SDW0.USE = 0;
@@ -633,7 +636,7 @@ static void load_sdwam (word15 segno, bool nomatch)
 #if defined(TESTING)
       DBGAPP ("%s(3) no USE=0 found for segment=%d\n", __func__, segno);
       sim_printf ("%s(%05o): no USE=0 found!\n", __func__, segno);
-      dump_sdwam ();
+      dump_sdwam (cpup);
 #endif /* if defined(TESTING) */
     }
 
@@ -672,7 +675,7 @@ static void load_sdwam (word15 segno, bool nomatch)
     } // DPS8M
   }
 
-static ptw_s * fetch_ptw_from_ptwam (word15 segno, word18 CA)
+static ptw_s * fetch_ptw_from_ptwam (cpu_state_t * cpup, word15 segno, word18 CA)
   {
     if ((! cpu.tweaks.enable_wam) || (! cpu.cu.PT_ON))
       {
@@ -753,13 +756,13 @@ static ptw_s * fetch_ptw_from_ptwam (word15 segno, word18 CA)
     return NULL;    // page not referenced in PTWAM
   }
 
-static void fetch_ptw (sdw_s *sdw, word18 offset)
+static void fetch_ptw (cpu_state_t * cpup, sdw_s *sdw, word18 offset)
   {
     // AL39 p.5-7
     // Fetches a PTW from a page table other than a descriptor segment page
     // table and sets the page accessed bit (PTW.U)
     PNL (L68_ (cpu.apu.state |= apu_FPTW;))
-    set_apu_status (apuStatus_PTW);
+    set_apu_status (cpup, apuStatus_PTW);
 
     //word24 y2 = offset % 1024;
     word24 x2 = (offset) / 1024; // floor
@@ -777,9 +780,9 @@ static void fetch_ptw (sdw_s *sdw, word18 offset)
       lock_rmw ();
 #endif /* if defined(THREADZ) */
 #if defined(LOCKLESS)
-    core_read_lock ((sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
+    core_read_lock (cpup, (sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
 #else
-    core_read ((sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
+    core_read (cpup, (sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
 #endif /* if defined(LOCKLESS) */
 
     cpu.PTW0.ADDR = GETHI  (PTWx2);
@@ -795,9 +798,9 @@ static void fetch_ptw (sdw_s *sdw, word18 offset)
       {
         PTWx2 = SETBIT (PTWx2, 9);
 #if defined(LOCKLESS)
-        core_write_unlock ((sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
+        core_write_unlock (cpup, (sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
 #else
-        core_write ((sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
+        core_write (cpup, (sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
 #endif /* if defined(LOCKLESS) */
         cpu.PTW0.U = 1;
       }
@@ -808,7 +811,7 @@ static void fetch_ptw (sdw_s *sdw, word18 offset)
 #endif /* if defined(THREADZ) */
 
     L68_ (if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
-      add_l68_APU_history (APUH_FPTW);)
+      add_l68_APU_history (cpup, APUH_FPTW);)
 
     DBGAPP ("%s x2 0%o sdw->ADDR 0%o PTWx2 0%012"PRIo64" "
             "PTW0: ADDR 0%o U %o M %o F %o FC %o\n",
@@ -816,7 +819,7 @@ static void fetch_ptw (sdw_s *sdw, word18 offset)
             cpu.PTW0.M, cpu.PTW0.DF, cpu.PTW0.FC);
   }
 
-static void loadPTWAM (word15 segno, word18 offset, UNUSED bool nomatch)
+static void loadPTWAM (cpu_state_t * cpup, word15 segno, word18 offset, UNUSED bool nomatch)
   {
     cpu.PTW0.PAGENO  = (offset >> 6) & 07760;
     cpu.PTW0.POINTER = segno;
@@ -917,7 +920,7 @@ static void loadPTWAM (word15 segno, word18 offset, UNUSED bool nomatch)
  * modify target segment PTW (Set M=1) ...
  */
 
-static void modify_ptw (sdw_s *sdw, word18 offset)
+static void modify_ptw (cpu_state_t * cpup, sdw_s *sdw, word18 offset)
   {
     PNL (L68_ (cpu.apu.state |= apu_MPTW;))
     //word24 y2 = offset % 1024;
@@ -925,7 +928,7 @@ static void modify_ptw (sdw_s *sdw, word18 offset)
 
     word36 PTWx2;
 
-    set_apu_status (apuStatus_MPTW);
+    set_apu_status (cpup, apuStatus_MPTW);
 
 #if defined(THREADZ)
     bool lck = get_rmw_lock ();
@@ -933,13 +936,13 @@ static void modify_ptw (sdw_s *sdw, word18 offset)
       lock_rmw ();
 #endif /* if defined(THREADZ) */
 #if defined(LOCKLESS)
-    core_read_lock ((sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
+    core_read_lock (cpup, (sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
     PTWx2 = SETBIT (PTWx2, 6);
-    core_write_unlock ((sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
+    core_write_unlock (cpup, (sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
 #else
-    core_read ((sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
+    core_read (cpup, (sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
     PTWx2 = SETBIT (PTWx2, 6);
-    core_write ((sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
+    core_write (cpup, (sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
 #endif /* if defined(LOCKLESS) */
 #if defined(THREADZ)
     if (! lck)
@@ -947,13 +950,13 @@ static void modify_ptw (sdw_s *sdw, word18 offset)
 #endif /* if defined(THREADZ) */
     cpu.PTW->M = 1;
     L68_ (if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
-      add_l68_APU_history (APUH_MPTW);)
+      add_l68_APU_history (cpup, APUH_MPTW);)
   }
 
-static void do_ptw2 (sdw_s *sdw, word18 offset)
+static void do_ptw2 (cpu_state_t * cpup, sdw_s *sdw, word18 offset)
   {
     PNL (L68_ (cpu.apu.state |= apu_FPTW2;))
-    set_apu_status (apuStatus_PTW2);
+    set_apu_status (cpup, apuStatus_PTW2);
 
     //word24 y2 = offset % 1024;
     word24 x2 = (offset) / 1024; // floor
@@ -962,7 +965,7 @@ static void do_ptw2 (sdw_s *sdw, word18 offset)
 
     DBGAPP ("%s address %08o\n", __func__, sdw->ADDR + x2 + 1);
 
-    core_read ((sdw->ADDR + x2 + 1) & PAMASK, & PTWx2n, __func__);
+    core_read (cpup, (sdw->ADDR + x2 + 1) & PAMASK, & PTWx2n, __func__);
 
     ptw_s PTW2;
     PTW2.ADDR = GETHI (PTWx2n);
@@ -972,7 +975,7 @@ static void do_ptw2 (sdw_s *sdw, word18 offset)
     PTW2.FC   = PTWx2n & 3;
 
     L68_ (if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
-      add_l68_APU_history (APUH_FPTW2);)
+      add_l68_APU_history (cpup, APUH_FPTW2);)
 
     DBGAPP ("%s x2 0%o sdw->ADDR 0%o PTW2 0%012"PRIo64" "
             "PTW2: ADDR 0%o U %o M %o F %o FC %o\n",
@@ -1055,29 +1058,29 @@ static char *str_pct (processor_cycle_type t)
 #endif
 
 #if !defined(OLDAPP)
-word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data, uint nWords) {
+word24 do_append_cycle (cpu_state_t * cpup, processor_cycle_type thisCycle, word36 * data, uint nWords) {
   switch (thisCycle) {
     case OPERAND_STORE:
-      return doAppendCycleOperandStore (data, nWords);
+      return doAppendCycleOperandStore (cpup, data, nWords);
     case OPERAND_READ:
-      return doAppendCycleOperandRead (data, nWords);
+      return doAppendCycleOperandRead (cpup, data, nWords);
     case INDIRECT_WORD_FETCH:
-      return doAppendCycleIndirectWordFetch (data, nWords);
+      return doAppendCycleIndirectWordFetch (cpup, data, nWords);
     case RTCD_OPERAND_FETCH:
-      return doAppendCycleRTCDOperandFetch (data, nWords);
+      return doAppendCycleRTCDOperandFetch (cpup, data, nWords);
     case INSTRUCTION_FETCH:
-      return doAppendCycleInstructionFetch (data, nWords);
+      return doAppendCycleInstructionFetch (cpup, data, nWords);
     case APU_DATA_READ:
-      return doAppendCycleAPUDataRead (data, nWords);
+      return doAppendCycleAPUDataRead (cpup, data, nWords);
     case APU_DATA_STORE:
-      return doAppendCycleAPUDataStore (data, nWords);
+      return doAppendCycleAPUDataStore (cpup, data, nWords);
     case ABSA_CYCLE:
-      return doAppendCycleABSA (data, nWords);
+      return doAppendCycleABSA (cpup, data, nWords);
 # if defined(LOCKLESS)
     case OPERAND_RMW:
-      return doAppendCycleOperandRMW (data, nWords);
+      return doAppendCycleOperandRMW (cpup, data, nWords);
     case APU_DATA_RMW:
-      return doAppendCycleAPUDataRMW (data, nWords);
+      return doAppendCycleAPUDataRMW (cpup, data, nWords);
 # endif /* if defined(LOCKLESS) */
     case UNKNOWN_CYCLE:
     default:
@@ -2221,6 +2224,7 @@ Exit:;
 int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
                       char * * msg)
   {
+    cpu_state_t * cpup = _cpup;
     // Local copies so we don't disturb machine state
 
     ptw_s PTW1;
@@ -2241,7 +2245,7 @@ int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
         word24 x1 = (2 * segno) / 1024; // floor
 
         word36 PTWx1;
-        core_read ((cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
+        core_read (cpup, (cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
 
         PTW1.ADDR = GETHI (PTWx1);
         PTW1.U = TSTBIT (PTWx1, 9);
@@ -2262,7 +2266,7 @@ int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
 
         word36 SDWeven, SDWodd;
 
-        core_read2 (((((word24)PTW1. ADDR & 0777760) << 6) + y1) & PAMASK,
+        core_read2 (cpup, ((((word24)PTW1. ADDR & 0777760) << 6) + y1) & PAMASK,
                     & SDWeven, & SDWodd, __func__);
 
         // even word
@@ -2290,7 +2294,7 @@ int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
 
         word36 SDWeven, SDWodd;
 
-        core_read2 ((cpu.DSBR.ADDR + 2 * segno) & PAMASK,
+        core_read2 (cpup, (cpu.DSBR.ADDR + 2 * segno) & PAMASK,
                     & SDWeven, & SDWodd, __func__);
 
         // even word
@@ -2341,7 +2345,7 @@ int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
 
         word36 PTWx2;
 
-        core_read ((SDW1.ADDR + x2) & PAMASK, & PTWx2, __func__);
+        core_read (cpup, (SDW1.ADDR + x2) & PAMASK, & PTWx2, __func__);
 
         PTW1.ADDR = GETHI (PTWx2);
         PTW1.U    = TSTBIT (PTWx2, 9);

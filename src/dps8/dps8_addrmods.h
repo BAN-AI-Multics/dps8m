@@ -14,5 +14,5 @@
  * ---------------------------------------------------------------------------
  */
 
-void do_caf    (void);
-void updateIWB (word18 addr, word6 tag);
+void do_caf    (cpu_state_t * cpup);
+void updateIWB (cpu_state_t * cpup, word18 addr, word6 tag);

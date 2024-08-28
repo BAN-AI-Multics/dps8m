@@ -16,18 +16,18 @@
  * ---------------------------------------------------------------------------
  */
 
-void tidy_cu (void);
-void cu_safe_store(void);
+void tidy_cu (cpu_state_t * cpup);
+void cu_safe_store(cpu_state_t * cpup);
 #if defined(MATRIX)
 void initializeTheMatrix (void);
 void addToTheMatrix (uint32 opcode, bool opcodeX, bool a, word6 tag);
 t_stat display_the_matrix (int32 arg, const char * buf);
 #endif /* if defined(MATRIX) */
 t_stat prepareComputedAddress (void);   // new
-void cu_safe_restore(void);
-void fetchInstruction(word18 addr);
-t_stat executeInstruction (void);
-void doRCU (void) NO_RETURN;
+void cu_safe_restore(cpu_state_t * cpup);
+void fetchInstruction(cpu_state_t * cpup, word18 addr);
+t_stat executeInstruction (cpu_state_t * cpup);
+void doRCU (cpu_state_t * cpup) NO_RETURN;
 void traceInstruction (uint flag);
-bool tstOVFfault (void);
-bool chkOVF (void);
+bool tstOVFfault (cpu_state_t * cpup);
+bool chkOVF (cpu_state_t * cpup);

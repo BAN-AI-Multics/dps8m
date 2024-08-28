@@ -113,9 +113,9 @@
 # define srandom bsd_srandom
 #endif /* if defined(__MINGW64__) || defined(__MINGW32__) */
 
-#if defined(TESTING)
-# include "../dps8/dps8_cpu.h"
-#endif /* if defined(TESTING) */
+// #if defined(TESTING)
+// # include "../dps8/dps8_cpu.h"
+// #endif /* if defined(TESTING) */
 
 #define FREE(p) do  \
   {                 \
@@ -202,15 +202,15 @@
 #define TNOS_DONT       001                             /* Don't has been sent */
 #define TNOS_WONT       002                             /* Won't has been sent */
 
-static BITFIELD tmxr_modem_bits[] = {
-  BIT(DTR),                                 /* Data Terminal Ready */
-  BIT(RTS),                                 /* Request To Send     */
-  BIT(DCD),                                 /* Data Carrier Detect */
-  BIT(RNG),                                 /* Ring Indicator      */
-  BIT(CTS),                                 /* Clear To Send       */
-  BIT(DSR),                                 /* Data Set Ready      */
-  ENDBITS
-};
+// static BITFIELD tmxr_modem_bits[] = {
+//   BIT(DTR),                                 /* Data Terminal Ready */
+//   BIT(RTS),                                 /* Request To Send     */
+//   BIT(DCD),                                 /* Data Carrier Detect */
+//   BIT(RNG),                                 /* Ring Indicator      */
+//   BIT(CTS),                                 /* Clear To Send       */
+//   BIT(DSR),                                 /* Data Set Ready      */
+//   ENDBITS
+// };
 
 static u_char mantra[] = {                  /* Telnet Option Negotiation Mantra */
     TN_IAC, TN_WILL, TN_LINE,
@@ -1242,6 +1242,7 @@ t_stat tmxr_set_get_modem_bits (TMLN *lp, int32 bits_to_set, int32 bits_to_clear
 {
 int32 before_modem_bits, incoming_state;
 DEVICE *dptr;
+(void)dptr;
 
 if ((bits_to_set & ~(TMXR_MDM_OUTGOING)) ||         /* Assure only settable bits */
     (bits_to_clear & ~(TMXR_MDM_OUTGOING)) ||
@@ -1321,10 +1322,10 @@ else {
     }
 lp->modembits |= incoming_state;
 dptr = (lp->dptr ? lp->dptr : (lp->mp ? lp->mp->dptr : NULL));
-if ((lp->modembits != before_modem_bits) && (sim_deb && lp->mp && dptr)) {
-    sim_debug_bits (TMXR_DBG_MDM, dptr, tmxr_modem_bits, before_modem_bits, lp->modembits, FALSE);
-    sim_debug (TMXR_DBG_MDM, dptr, " - Line %d - %p\n", (int)(lp-lp->mp->ldsc), lp->txb);
-    }
+// if ((lp->modembits != before_modem_bits) && (sim_deb && lp->mp && dptr)) {
+   // sim_debug_bits (TMXR_DBG_MDM, dptr, tmxr_modem_bits, before_modem_bits, lp->modembits, FALSE);
+   // sim_debug (TMXR_DBG_MDM, dptr, " - Line %d - %p\n", (int)(lp-lp->mp->ldsc), lp->txb);
+    // }
 if (incoming_bits)
     *incoming_bits = lp->modembits;
 if (lp->mp && lp->modem_control) {                  /* This API ONLY works on modem_control enabled multiplexer lines */

@@ -113,29 +113,29 @@ typedef enum apuStatusBits
     apuStatus_MPTW   = 1u << (35 - 28)  //  Fetch PTW
   } apuStatusBits;
 
-static inline void set_apu_status (apuStatusBits status)
+static inline void set_apu_status (cpu_state_t * cpup, apuStatusBits status)
   {
     word12 FCT = cpu.cu.APUCycleBits & MASK3;
     cpu.cu.APUCycleBits = (status & 07770) | FCT;
   }
 
 #if defined(TESTING)
-t_stat dump_sdwam (void);
+t_stat dump_sdwam (cpu_state_t * cpup);
 #endif
-word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data, uint nWords);
+word24 do_append_cycle (cpu_state_t * cpup, processor_cycle_type thisCycle, word36 * data, uint nWords);
 #if !defined(OLDAPP)
-word24 doAppendCycleUnknown (word36 * data, uint nWords);
-word24 doAppendCycleOperandStore (word36 * data, uint nWords);
-word24 doAppendCycleOperandRead (word36 * data, uint nWords);
-word24 doAppendCycleIndirectWordFetch (word36 * data, uint nWords);
-word24 doAppendCycleRTCDOperandFetch (word36 * data, uint nWords);
-word24 doAppendCycleInstructionFetch (word36 * data, uint nWords);
-word24 doAppendCycleAPUDataRead (word36 * data, uint nWords);
-word24 doAppendCycleAPUDataStore (word36 * data, uint nWords);
-word24 doAppendCycleABSA (word36 * data, uint nWords);
+word24 doAppendCycleUnknown (cpu_state_t * cpup, word36 * data, uint nWords);
+word24 doAppendCycleOperandStore (cpu_state_t * cpup, word36 * data, uint nWords);
+word24 doAppendCycleOperandRead (cpu_state_t * cpup, word36 * data, uint nWords);
+word24 doAppendCycleIndirectWordFetch (cpu_state_t * cpup, word36 * data, uint nWords);
+word24 doAppendCycleRTCDOperandFetch (cpu_state_t * cpup, word36 * data, uint nWords);
+word24 doAppendCycleInstructionFetch (cpu_state_t * cpup, word36 * data, uint nWords);
+word24 doAppendCycleAPUDataRead (cpu_state_t * cpup, word36 * data, uint nWords);
+word24 doAppendCycleAPUDataStore (cpu_state_t * cpup, word36 * data, uint nWords);
+word24 doAppendCycleABSA (cpu_state_t * cpup, word36 * data, uint nWords);
 # if defined(LOCKLESS)
-word24 doAppendCycleOperandRMW (word36 * data, uint nWords);
-word24 doAppendCycleAPUDataRMW (word36 * data, uint nWords);
+word24 doAppendCycleOperandRMW (cpu_state_t * cpup, word36 * data, uint nWords);
+word24 doAppendCycleAPUDataRMW (cpu_state_t * cpup, word36 * data, uint nWords);
 # endif // LOCKLESS
 #else // OLDAPP
 # define doAppendCycleUnknown(data, nWords) do_append_cycle (UNKNOWN_CYCLE, data, nWords)
@@ -153,7 +153,7 @@ word24 doAppendCycleAPUDataRMW (word36 * data, uint nWords);
 # endif // LOCKLESS
 #endif // OLDAPP
 
-void do_ldbr (word36 * Ypair);
+void do_ldbr (cpu_state_t * cpup, word36 * Ypair);
 void do_sdbr (word36 * Ypair);
 void do_camp (word36 Y);
 void do_cams (word36 Y);
@@ -163,7 +163,7 @@ int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
 #endif
 sdw0_s * getSDW (word15 segno);
 
-static inline void fauxDoAppendCycle (processor_cycle_type thisCycle)
+static inline void fauxDoAppendCycle (cpu_state_t * cpup, processor_cycle_type thisCycle)
   {
     cpu.apu.lastCycle = thisCycle;
   }
