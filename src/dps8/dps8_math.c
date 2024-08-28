@@ -123,7 +123,7 @@ long double EAQToIEEElongdouble(cpu_state_t * cpup)
 #if defined(__MINGW32__) || defined(__MINGW64__)
 
 // MINGW doesn't have long double support, convert to IEEE double instead
-double EAQToIEEEdouble(void)
+double EAQToIEEEdouble(cpu_state_t * cpup)
 {
     // mantissa
     word72 Mant = convert_to_word72 (cpu.rA, cpu.rQ);
