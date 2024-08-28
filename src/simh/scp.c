@@ -150,9 +150,6 @@
 #define DBG_CTR 0
 
 #include "../dps8/dps8.h"
-
-#define CPU_IN_SCP 1
-
 #include "../dps8/dps8_cpu.h"
 #include "../dps8/ver.h"
 #include "../dps8/sysdefs.h"

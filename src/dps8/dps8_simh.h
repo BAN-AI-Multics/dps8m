@@ -18,7 +18,7 @@
 
 extern DEVICE scu_dev;
 
-#if defined(SPEED) || defined(CPU_IN_SCP)
+#if defined(SPEED)
 # define if_sim_debug(dbits, dptr) if ((0))
 #else
 # define if_sim_debug(dbits, dptr)                                                                     \
