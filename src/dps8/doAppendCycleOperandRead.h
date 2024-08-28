@@ -131,7 +131,8 @@ static int evcnt = 0;
   word14 cachedBound;
   word1 cachedP;
   bool cachedPaged;
-  cacheHit = ucCacheCheck (cpup, this, cpu.TPR.TSR, cpu.TPR.CA, & cachedBound, & cachedP, & cachedAddress, & cachedR1, & cachedPaged);
+  cacheHit =
+      ucCacheCheck (cpup, this, cpu.TPR.TSR, cpu.TPR.CA, & cachedBound, & cachedP, & cachedAddress, & cachedR1, & cachedPaged);
 # if defined(HDBG)
   hdbgNote ("doAppendCycleOperandRead.h", "test cache check %s %d %u %05o:%06o %05o %o %08o %o %o",
             cacheHit ? "hit" : "miss", evcnt, this, cpu.TPR.TSR, cpu.TPR.CA, cachedBound,

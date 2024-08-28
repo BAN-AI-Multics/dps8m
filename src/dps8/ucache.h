@@ -60,8 +60,12 @@ typedef struct uCache_s uCache_t;
 struct cpu_state_s;
 
 void ucInvalidate (struct cpu_state_s * cpup);
-void ucCacheSave  (struct cpu_state_s * cpup, uint ucNum, word15 segno, word18 offset, word14   bound, word1   p, word24   address, word3   r1, bool   paged);
-bool ucCacheCheck (struct cpu_state_s * cpup, uint ucNum, word15 segno, word18 offset, word14 * bound, word1 * p, word24 * address, word3 * r1, bool * paged);
+void ucCacheSave  \
+ (struct cpu_state_s * cpup, uint ucNum, word15 segno,
+  word18 offset, word14   bound, word1   p, word24   address, word3   r1, bool   paged);
+bool ucCacheCheck \
+ (struct cpu_state_s * cpup, uint ucNum, word15 segno,
+  word18 offset, word14 * bound, word1 * p, word24 * address, word3 * r1, bool * paged);
 #if defined(UCACHE_STATS)
 void ucacheStats (int cpuNo);
 #endif /* if defined(UCACHE_STATS) */
