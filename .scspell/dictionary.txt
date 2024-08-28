@@ -14024,8 +14024,6 @@ visit
 visited
 visual
 visually
-vmpctool
-vmtouch
 void
 volatile
 volker
