@@ -32,7 +32,6 @@ serial.txt
 src/mcmb/mcmb.dSYM/
 src/prt2pdf/prt2pdf.dSYM/
 src/punutil/punutil.dSYM/
-src/vmpctool/vmpctool.dSYM/
 src/empty/empty.dSYM/
 .Dependency
 typescript
@@ -90,8 +89,6 @@ src/punutil/punutil
 src/punutil/punutil.exe
 src/mcmb/mcmb
 src/mcmb/mcmb.exe
-src/vmpctool/vmpctool
-src/vmpctool/vmpctool.exe
 src/empty/empty
 src/empty/empty.exe
 src/dps8/dps8
@@ -167,7 +164,6 @@ unifdef.xml
 dps8.xml
 dps8m.xml
 prt2pdf.xml
-vmpctool.xml
 cppcheck.xml
 log.pvs
 pvsreport/
@@ -184,7 +180,6 @@ src/mcmb/mcmb.analyze
 src/prt2pdf/prt2pdf.analyze
 src/punutil/punutil.analyze
 src/unifdef/unifdef.analyze
-src/vmpctool/vmpctool.analyze
 
 # Vim
 *.*.swp
