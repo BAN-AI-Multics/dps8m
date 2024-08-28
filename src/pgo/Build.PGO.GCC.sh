@@ -43,7 +43,6 @@ ${MAKE:-make} "${LIBUVVER:?}"
 ${MAKE:-make}
 printf '\n%s\n' "Generating profile ..."
 (cd src/perf_test && ../dps8/dps8 -r ./nqueensx.ini)
-./src/novdso/novdso || true
 ./src/empty/empty || true
 ./src/prt2pdf/prt2pdf -h || true
 ./src/punutil/punutil -v < /dev/null || true

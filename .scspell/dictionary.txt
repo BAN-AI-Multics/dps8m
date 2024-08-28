@@ -2007,7 +2007,6 @@ notstar
 nouc
 nout
 novalue
-novdso
 novector
 noverbose
 noverify
@@ -5909,7 +5908,6 @@ makedep
 makedepend
 mkdep
 notparallel
-novdso
 opts
 orstlint
 pipefail
@@ -6717,7 +6715,6 @@ memcpy
 mingwex
 msys
 notparallel
-novdso
 objs
 opcodetable
 ostype
@@ -6752,7 +6749,6 @@ wconversion
 webdl
 whitesource
 wsign
-xovdso
 zipdist
 zipkit
 
@@ -7190,7 +7186,6 @@ needrebuild
 nocp
 noet
 notparallel
-novdso
 orstlint
 permille
 pgobuild
@@ -7201,7 +7196,6 @@ realclean
 reallyclean
 rendering
 setv
-xovdso
 xxcflags
 xxldflags
 xxxx
@@ -7232,7 +7226,6 @@ hpages
 iomcon
 neato
 needrebuild
-novdso
 nvimlog
 nvimsession
 nvimundo
@@ -7563,7 +7556,6 @@ libcmb
 libedit
 musl
 nolist
-novdso
 printf
 readline
 sprintf
@@ -8288,7 +8280,6 @@ ifneq
 listchars
 makecmdgoals
 notparallel
-novdso
 printf
 setv
 
@@ -8709,7 +8700,6 @@ ftello
 fweb
 libuvrel
 libuvver
-novdso
 smips
 
 FILEID: f585612c-63e8-11ef-9fc2-80ee73e9b8e7
