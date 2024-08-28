@@ -327,6 +327,7 @@ lmscspell:                                                                    \
      $(GREP) -Ev '(\.env$$)'                                                | \
      $(GREP) -Ev '(errnos\.h$$)'                                            | \
      $(GREP) -Ev '(\.exe$$)'                                                | \
+     $(GREP) -Ev '(\.odt$$)'                                                | \
      $(GREP) -Ev '(\.git/.)'                                                | \
      $(GREP) -Ev '(GPATH$$)'                                                | \
      $(GREP) -Ev '(GRTAGS$$)'                                               | \
