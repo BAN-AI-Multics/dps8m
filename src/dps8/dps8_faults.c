@@ -995,6 +995,9 @@ void doG7Fault (bool allowTR)
 
 void advanceG7Faults (void)
   {
+    if (!cpu.g7FaultsPreset && !cpu.FFV_faults_preset)
+      return;
+
 #if defined(THREADZ) || defined(LOCKLESS)
     lock_scu ();
 #endif
