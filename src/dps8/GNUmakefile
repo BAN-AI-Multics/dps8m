@@ -576,6 +576,7 @@ distclean: clean
 	@$(RMF) ../../dps8m*.state               2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../dps8m*.state                  2> /dev/null  ||  $(TRUE)
 	@$(RMF) dps8m*.state                     2> /dev/null  ||  $(TRUE)
+	@$(RMF) panelScraper.o                   2> /dev/null  ||  $(TRUE)
 	@$(RMF) "../../dps8m.state"                            ||  $(TRUE)
 	@$(RMF) "../dps8m.state"                               ||  $(TRUE)
 	@$(RMF) "dps8m.state"                                  ||  $(TRUE)
