@@ -841,6 +841,9 @@ void iom_core_read2 (UNUSED uint iom_unit_idx, word24 addr, word36 *even, word36
 void iom_core_write (UNUSED uint iom_unit_idx, word24 addr, word36 data, UNUSED const char * ctx)
   {
 #if defined(LOCKLESS)
+    cpu_state_t * cpup = _cpup;
+#endif
+#if defined(LOCKLESS)
     LOCK_CORE_WORD(addr);
 # if !defined(SUNLINT)
     STORE_REL_CORE_WORD(addr, data);
@@ -852,6 +855,9 @@ void iom_core_write (UNUSED uint iom_unit_idx, word24 addr, word36 data, UNUSED 
 
 void iom_core_write2 (UNUSED uint iom_unit_idx, word24 addr, word36 even, word36 odd, UNUSED const char * ctx)
   {
+#if defined(LOCKLESS)
+    cpu_state_t * cpup = _cpup;
+#endif
 #if defined(LOCKLESS)
     LOCK_CORE_WORD(addr);
 # if !defined(SUNLINT)
@@ -870,6 +876,9 @@ void iom_core_write2 (UNUSED uint iom_unit_idx, word24 addr, word36 even, word36
 
 void iom_core_read_lock (UNUSED uint iom_unit_idx, word24 addr, word36 *data, UNUSED const char * ctx)
   {
+#if defined(LOCKLESS)
+    cpu_state_t * cpup = _cpup;
+#endif
 #if defined(LOCKLESS)
     LOCK_CORE_WORD(addr);
 # if !defined(SUNLINT)
@@ -1711,6 +1720,9 @@ static uint mbxLoc (uint iom_unit_idx, uint chan)
 
 static int status_service (uint iom_unit_idx, uint chan, bool marker)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
     // See page 33 and AN87 for format of y-pair of status info
 
@@ -2345,6 +2357,9 @@ static void dumpLPW (uint iom_unit_idx, uint chan) {
 
 static void fetch_and_parse_LPW (uint iom_unit_idx, uint chan)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
     uint chanLoc        = mbxLoc (iom_unit_idx, chan);
 
@@ -2378,6 +2393,9 @@ static void fetch_and_parse_LPW (uint iom_unit_idx, uint chan)
 
 static void unpack_DCW (uint iom_unit_idx, uint chan)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
     p -> DCW_18_20_CP =      getbits36_3 (p -> DCW, 18);
 
@@ -2484,6 +2502,9 @@ static void fetch_and_parse_PCW (uint iom_unit_idx, uint chan)
 
 static void fetch_and_parse_DCW (uint iom_unit_idx, uint chan, UNUSED bool read_only)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
     word24 addr         = p -> LPW_DCW_PTR & MASK18;
 
@@ -2556,6 +2577,9 @@ static void fetch_and_parse_DCW (uint iom_unit_idx, uint chan, UNUSED bool read_
 
 int send_general_interrupt (uint iom_unit_idx, uint chan, enum iomImwPics pic)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     uint imw_addr;
     uint chan_group    = chan < 32 ? 1 : 0;
     uint chan_in_group = chan & 037;
@@ -2597,6 +2621,9 @@ static void iom_fault (uint iom_unit_idx, uint chan, UNUSED const char * who,
                       iomFaultServiceRequest req,
                       iomSysFaults_t signal)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     sim_warn ("iom_fault %s\n", who);
 
     // iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
@@ -3034,7 +3061,10 @@ D:;
 // 0 ok
 // -1 uff
 static int doPayloadChannel (uint iomUnitIdx, uint chan) {
+#if defined(TESTING)
+  cpu_state_t * cpup = _cpup;
   sim_debug (DBG_DEBUG, & iom_dev, "%s: Payload channel %c%02o\n", __func__, iomChar (iomUnitIdx), chan);
+#endif
 // A dubious assumption being made is that the device code will always
 // be in bits 6-12 of the DCw. Normally, the controller would
 // decipher the device code and route to the device, but we
@@ -3291,6 +3321,9 @@ static int doConnectChan (uint iom_unit_idx) {
   //
   // The DCW and SCW mailboxes for the connect channel are not used by
   // the IOM.
+#if defined(TESTING)
+  cpu_state_t * cpup = _cpup;
+#endif
   sim_debug (DBG_DEBUG, & iom_dev, "%s: Connect channel\n", __func__);
   iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][IOM_CONNECT_CHAN];
   p -> lsFirst = true;
@@ -3474,6 +3507,7 @@ int send_terminate_interrupt (uint iom_unit_idx, uint chan)
 
 void iom_interrupt (uint scu_unit_idx, uint iom_unit_idx)
   {
+    cpu_state_t * cpup = _cpup;
     sim_debug (DBG_DEBUG, & iom_dev,
                "%s: IOM %c starting. [%"PRId64"] %05o:%08o\n",
                __func__, iomChar (iom_unit_idx), cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC);

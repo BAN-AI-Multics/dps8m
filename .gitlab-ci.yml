@@ -66,9 +66,6 @@
     test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil && file ${CI_PROJECT_DIR:?}/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil && ldd ${CI_PROJECT_DIR:?}/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil.exe && file ${CI_PROJECT_DIR:?}/src/punutil/punutil.exe 2> /dev/null || true > /dev/null 2>&1
-    test -f ${CI_PROJECT_DIR:?}/src/vmpctool/vmpctool && file ${CI_PROJECT_DIR:?}/src/vmpctool/vmpctool 2> /dev/null || true > /dev/null 2>&1
-    test -f ${CI_PROJECT_DIR:?}/src/vmpctool/vmpctool && ldd ${CI_PROJECT_DIR:?}/src/vmpctool/vmpctool 2> /dev/null || true > /dev/null 2>&1
-    test -f ${CI_PROJECT_DIR:?}/src/vmpctool/vmpctool.exe && file ${CI_PROJECT_DIR:?}/src/vmpctool/vmpctool.exe 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/unifdef/unifdef && file ${CI_PROJECT_DIR:?}/src/unifdef/unifdef 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/unifdef/unifdef && ldd ${CI_PROJECT_DIR:?}/src/unifdef/unifdef 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/unifdef/unifdef.exe && file ${CI_PROJECT_DIR:?}/src/unifdef/unifdef.exe 2> /dev/null || true > /dev/null 2>&1
@@ -204,12 +201,10 @@
     test -f ${CI_PROJECT_DIR:?}/src/dps8/dps8 && lzip -9v ${CI_PROJECT_DIR:?}/src/dps8/dps8 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf && lzip -9v ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil && lzip -9v ${CI_PROJECT_DIR:?}/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
-    test -f ${CI_PROJECT_DIR:?}/src/vmpctool/vmpctool && lzip -9v ${CI_PROJECT_DIR:?}/src/vmpctool/vmpctool 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/unifdef/unifdef && lzip -9v ${CI_PROJECT_DIR:?}/src/unifdef/unifdef 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt && lzip -9v ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/dps8/dps8.exe && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/dps8/dps8.exe  2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.exe && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.exe 2> /dev/null || true > /dev/null 2>&1
-    test -f ${CI_PROJECT_DIR:?}/src/vmpctool/vmpctool.exe && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/vmpctool/vmpctool.exe 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/unifdef/unifdef.exe && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/unifdef/unifdef.exe 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil.exe && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/punutil/punutil.exe 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt 2> /dev/null || true > /dev/null 2>&1
@@ -291,6 +286,8 @@
 workflow:
   rules:
     - if: $CI_COMMIT_BRANCH =~ /-noci$/
+      when: never
+    - if: $CI_COMMIT_BRANCH =~ /-no_ci$/
       when: never
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       when: never

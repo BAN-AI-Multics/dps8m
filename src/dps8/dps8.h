@@ -147,8 +147,8 @@ typedef struct { int64_t h;  uint64_t l; } x__int128_t;
 #  endif /* if !defined(PRIo64) */
 # endif /* if !defined(NEED_128) */
 
-# include "sim_defs.h"                                   /* simulator defns */
-# include "sim_tape.h"
+# include "../simh/sim_defs.h"           /* simulator defns */
+# include "../simh/sim_tape.h"
 
 # if defined(__MINGW32__)
 #  include <stdint.h>

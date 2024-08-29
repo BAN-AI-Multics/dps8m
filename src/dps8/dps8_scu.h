@@ -91,10 +91,10 @@ extern DEVICE scu_dev;
 
 int scu_set_interrupt(uint scu_unit_idx, uint inum);
 void scu_init (void);
-t_stat scu_sscr (uint scu_unit_idx, UNUSED uint cpu_unit_idx, uint cpu_port_num, word18 addr,
+t_stat scu_sscr (cpu_state_t * cpup, uint scu_unit_idx, UNUSED uint cpu_unit_idx, uint cpu_port_num, word18 addr,
                  word36 rega, word36 regq);
 t_stat scu_smic (uint scu_unit_idx, uint UNUSED cpu_unit_idx, uint cpu_port_num, word36 rega);
-t_stat scu_rscr (uint scu_unit_idx, uint cpu_unit_idx, word18 addr, word36 * rega, word36 * regq);
+t_stat scu_rscr (cpu_state_t * cpup, uint scu_unit_idx, uint cpu_unit_idx, word18 addr, word36 * rega, word36 * regq);
 int scu_cioc (uint cpu_unit_idx, uint scu_unit_idx, uint scu_port_num, uint expander_command, uint sub_mask);
 t_stat scu_rmcm (uint scu_unit_idx, uint cpu_unit_idx, word36 * rega, word36 * regq);
 t_stat scu_smcm (uint scu_unit_idx, uint cpu_unit_idx, word36 rega, word36 regq);

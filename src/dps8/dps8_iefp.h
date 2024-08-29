@@ -44,34 +44,34 @@ void Write2 (word18 address, word36 * data, processor_cycle_type cyctyp);
 # define WriteOperandStore(addr,data) Write (addr, data, OPERAND_STORE)
 # define Write2OperandStore(addr,data) Write2 (addr, data, OPERAND_STORE)
 #else
-void ReadAPUDataRead (word18 addr, word36 *dat);
-void ReadOperandRead (word18 addr, word36 *dat);
+void ReadAPUDataRead (cpu_state_t * cpup, word18 addr, word36 *dat);
+void ReadOperandRead (cpu_state_t * cpup, word18 addr, word36 *dat);
 # if defined(LOCKLESS)
-void ReadOperandRMW (word18 addr, word36 *dat);
-void ReadAPUDataRMW (word18 addr, word36 *dat);
+void ReadOperandRMW (cpu_state_t * cpup, word18 addr, word36 *dat);
+void ReadAPUDataRMW (cpu_state_t * cpup, word18 addr, word36 *dat);
 # else
 #  define ReadOperandRMW ReadOperandRead
 #  define ReadAPUDataRMW ReadAPUDataRead
 # endif /* if defined(LOCKLESS) */
-void ReadInstructionFetch (word18 addr, word36 *dat);
-void ReadIndirectWordFetch (word18 address, word36 * result);
-void Read2OperandRead (word18 address, word36 * result);
+void ReadInstructionFetch (cpu_state_t * cpup, word18 addr, word36 *dat);
+void ReadIndirectWordFetch (cpu_state_t * cpup, word18 address, word36 * result);
+void Read2OperandRead (cpu_state_t * cpup, word18 address, word36 * result);
 # if defined(LOCKLESS)
-void Read2OperandRMW (word18 address, word36 * result);
+void Read2OperandRMW (cpu_state_t * cpup, word18 address, word36 * result);
 # endif /* if defined(LOCKLESS) */
-void Read2InstructionFetch (word18 address, word36 * result);
-void Read2RTCDOperandFetch (word18 address, word36 * result);
-void Read2IndirectWordFetch (word18 address, word36 * result);
-void WriteAPUDataStore (word18 addr, word36 dat);
-void WriteOperandStore (word18 addr, word36 dat);
-void Write2OperandStore (word18 address, word36 * data);
+void Read2InstructionFetch (cpu_state_t * cpup, word18 address, word36 * result);
+void Read2RTCDOperandFetch (cpu_state_t * cpup, word18 address, word36 * result);
+void Read2IndirectWordFetch (cpu_state_t * cpup, word18 address, word36 * result);
+void WriteAPUDataStore (cpu_state_t * cpup, word18 addr, word36 dat);
+void WriteOperandStore (cpu_state_t * cpup, word18 addr, word36 dat);
+void Write2OperandStore (cpu_state_t * cpup, word18 address, word36 * data);
 #endif /* if defined(OLDAPP) */
-void Write1 (word18 address, word36 data, bool isAR);
-void Write8 (word18 address, word36 * data, bool isAR);
-void Write16 (word18 address, word36 * data);
-void Write32 (word18 address, word36 * data);
-void Read8 (word18 address, word36 * result, bool isAR);
-void Read16 (word18 address, word36 * result);
-void WritePage (word18 address, word36 * data, bool isAR);
-void ReadPage (word18 address, word36 * result, bool isAR);
-void ReadIndirect (void);
+void Write1 (cpu_state_t * cpup, word18 address, word36 data, bool isAR);
+void Write8 (cpu_state_t * cpup, word18 address, word36 * data, bool isAR);
+void Write16 (cpu_state_t * cpup, word18 address, word36 * data);
+void Write32 (cpu_state_t * cpup, word18 address, word36 * data);
+void Read8 (cpu_state_t * cpup, word18 address, word36 * result, bool isAR);
+void Read16 (cpu_state_t * cpup, word18 address, word36 * result);
+void WritePage (cpu_state_t * cpup, word18 address, word36 * data, bool isAR);
+void ReadPage (cpu_state_t * cpup, word18 address, word36 * result, bool isAR);
+void ReadIndirect (cpu_state_t * cpup);

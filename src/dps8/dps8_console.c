@@ -39,10 +39,10 @@
 #include "dps8_iom.h"
 #include "dps8_sys.h"
 #include "dps8_console.h"
-#include "dps8_faults.h"
-#include "dps8_scu.h"
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
+#include "dps8_faults.h"
+#include "dps8_scu.h"
 #include "dps8_mt.h"  // attachTape
 #include "dps8_disk.h"  // attachDisk
 #include "dps8_utils.h"
@@ -1286,6 +1286,9 @@ void consoleProcess (void)
 
 iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
   iom_cmd_rc_t rc = IOM_CMD_PROCEED;
+#if defined(TESTING)
+  cpu_state_t * cpup = _cpup;
+#endif
 
 #if defined(LOCKLESS)
   lock_libuv ();

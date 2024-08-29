@@ -100,8 +100,6 @@ dep depend: predepend                                                         \
       ( $(CD) "src/simh"      && $(DO_MAKEDEP) )
 	@$(PRINTF) 'DEPEND: %s' "unifdef" ;                                       \
       ( $(CD) "src/unifdef"   && $(DO_MAKEDEP) )
-	@$(PRINTF) 'DEPEND: %s' "novdso" ;                                        \
-      ( $(CD) "src/novdso"    && $(DO_MAKEDEP) )
 
 ###############################################################################
 # Remove dependencies for untracked C files
@@ -147,8 +145,6 @@ dependclean depclean cleandepend cleandep:                                    \
       ( $(CD) "src/simh"      && $(DO_CLEANDEP) )
 	@$(PRINTF) 'DEPEND: %s' "unifdef" ;                                       \
       ( $(CD) "src/unifdef"   && $(DO_CLEANDEP) )
-	@$(PRINTF) 'DEPEND: %s' "novdso" ;                                        \
-      ( $(CD) "src/novdso"    && $(DO_CLEANDEP) )
 
 ###############################################################################
 # Displays preprocessor definitions
@@ -331,6 +327,7 @@ lmscspell:                                                                    \
      $(GREP) -Ev '(\.env$$)'                                                | \
      $(GREP) -Ev '(errnos\.h$$)'                                            | \
      $(GREP) -Ev '(\.exe$$)'                                                | \
+     $(GREP) -Ev '(\.odt$$)'                                                | \
      $(GREP) -Ev '(\.git/.)'                                                | \
      $(GREP) -Ev '(GPATH$$)'                                                | \
      $(GREP) -Ev '(GRTAGS$$)'                                               | \
@@ -367,7 +364,6 @@ lmscspell:                                                                    \
      $(GREP) -Ev '(/unifdef$$)'                                             | \
      $(GREP) -Ev '(ver\.h$$)'                                               | \
      $(GREP) -Ev '(\.vim$$)'                                                | \
-     $(GREP) -Ev '(/novdso$$)'                                              | \
      $(GREP) -Ev '(\.yml$$)'                                                | \
      $(GREP) -Ev '(\.yml\.in$$)'                                            | \
      $(GREP) -Ev '(\.zip$$)'                                                | \

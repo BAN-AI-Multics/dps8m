@@ -19,12 +19,12 @@
 #include "dps8.h"
 #include "dps8_cpu.h"
 
-void ucInvalidate (void) {
+void ucInvalidate (cpu_state_t * cpup) {
   (void)memset (cpu.uCache.caches, 0, sizeof (cpu.uCache.caches));
 }
 
 void ucCacheSave \
-         (uint ucNum, word15 segno, word18 offset, word14 bound,
+         (cpu_state_t * cpup, uint ucNum, word15 segno, word18 offset, word14 bound,
           word1 p, word24 address, word3 r1, bool paged) {
   if (segno >= UC_CACHE_SZ) {
     return;
@@ -46,7 +46,7 @@ void ucCacheSave \
 }
 
 bool ucCacheCheck \
-         (uint ucNum, word15 segno, word18 offset, word14 * bound,
+         (cpu_state_t * cpup, uint ucNum, word15 segno, word18 offset, word14 * bound,
           word1 * p, word24 * address, word3 * r1, bool * paged) {
   if (segno >= UC_CACHE_SZ) {
 #if defined(UCACHE_STATS)

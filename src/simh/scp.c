@@ -8653,6 +8653,9 @@ t_stat sim_process_event (void)
 {
 UNIT *uptr;
 t_stat reason;
+#if defined(TESTING)
+cpu_state_t * cpup = _cpup;
+#endif
 
 if (stop_cpu)                                           /* stop CPU? */
   {
@@ -8736,6 +8739,9 @@ t_stat _sim_activate (UNIT *uptr, int32 event_time)
 {
 UNIT *cptr, *prvptr;
 int32 accum;
+#if defined(TESTING)
+cpu_state_t * cpup = _cpup;
+#endif
 
 if (sim_is_active (uptr))                               /* already active? */
     return SCPE_OK;
@@ -8814,6 +8820,9 @@ return sim_timer_activate_after (uptr, usec_delay);
 t_stat sim_cancel (UNIT *uptr)
 {
 UNIT *cptr, *nptr;
+#if defined(TESTING)
+cpu_state_t * cpup = _cpup;
+#endif
 
 if (sim_clock_queue == QUEUE_LIST_END)
     return SCPE_OK;
@@ -9826,6 +9835,9 @@ t_stat sim_exp_check (EXPECT *exp, uint8 data)
 size_t i;
 EXPTAB *ep = NULL;
 char *tstr = NULL;
+#if defined(TESTING)
+cpu_state_t * cpup = _cpup;
+#endif
 
 if ((!exp) || (!exp->rules))                            /* Anything to check? */
     return SCPE_OK;
@@ -10016,6 +10028,9 @@ return SCPE_OK;
 
 t_bool sim_send_poll_data (SEND *snd, t_stat *stat)
 {
+#if defined(TESTING)
+cpu_state_t * cpup = _cpup;
+#endif
 if ((NULL != snd) && (snd->extoff < snd->insoff)) {     /* pending input characters available? */
     if (sim_gtime() < snd->next_time) {                 /* too soon? */
         *stat = SCPE_OK;
@@ -10412,6 +10427,9 @@ return;
 
 void sim_data_trace(DEVICE *dptr, UNIT *uptr, const uint8 *data, const char *position, size_t len, const char *txt, uint32 reason)
 {
+#if defined(TESTING)
+cpu_state_t * cpup = _cpup;
+#endif
 if (sim_deb && (dptr->dctrl & reason)) {
     sim_debug (reason, dptr, "%s %s %slen: %08X\n", sim_uname(uptr), txt, position, (unsigned int)len);
     if (data && len) {

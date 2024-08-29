@@ -31,6 +31,14 @@ ifdef ATOMICS
 endif
 
 ###############################################################################
+# 6180 panel interface
+
+ifdef PANEL68
+  PANEL68=1
+  CFLAGS += -DPANEL68=1
+endif
+
+###############################################################################
 # Disable the APU micro-cache
 
 ifdef NO_UCACHE

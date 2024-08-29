@@ -468,12 +468,6 @@ typedef struct mode_register_s
 
 extern DEVICE cpu_dev;
 
-typedef struct MOP_struct_s
-  {
-    char * mopName;     // name of microoperation
-    int (* f) (void);   // pointer to mop() [returns character to be stored]
-  } MOP_struct;
-
 // address of an EIS operand
 typedef struct EISaddr_s
   {
@@ -606,7 +600,7 @@ typedef struct EISstruct_s
     word9   editInsertionTable [8];     // 8 9-bit chars
 
     int     mopIF;          // current micro-operation IF field
-    MOP_struct *m;          // pointer to current MOP struct
+    struct MOP_struct_s *m;          // pointer to current MOP struct
 
     word9   inBuffer [64];  // decimal unit input buffer
     word9   *in;            // pointer to current read position in inBuffer
@@ -1530,7 +1524,7 @@ enum
 
 #include "ucache.h"
 
-typedef struct
+typedef struct cpu_state_s
   {
     EISstruct currentEISinstruction;
 
@@ -1919,6 +1913,12 @@ typedef struct
 #define cptUseIR   16
   } cpu_state_t;
 
+typedef struct MOP_struct_s
+  {
+    char * mopName;     // name of microoperation
+    int (* f) (cpu_state_t *);   // pointer to mop() [returns character to be stored]
+  } MOP_struct;
+
 #if defined(M_SHARED)
 extern cpu_state_t * cpus;
 #else
@@ -1926,10 +1926,11 @@ extern cpu_state_t cpus [N_CPU_UNITS_MAX];
 #endif /* if defined(M_SHARED) */
 
 #if defined(THREADZ) || defined(LOCKLESS)
-extern __thread cpu_state_t * restrict cpup;
+extern __thread cpu_state_t * restrict _cpup;
 #else
-extern cpu_state_t * restrict cpup;
+extern cpu_state_t * restrict _cpup;
 #endif /* if defined(THREADZ) || defined(LOCKLESS) */
+
 #define cpu (* cpup)
 
 #define N_STALL_POINTS 16
@@ -1959,30 +1960,33 @@ extern uint current_running_cpu_idx;
 #define GET_PR_BITNO(n) (cpu.PAR[n].PR_BITNO)
 #define GET_AR_BITNO(n) (cpu.PAR[n].AR_BITNO)
 #define GET_AR_CHAR(n)  (cpu.PAR[n].AR_CHAR)
-static inline void SET_PR_BITNO (uint n, word6 b)
+static inline void SET_PR_BITNO (cpu_state_t * restrict cpup, uint n, word6 b)
   {
      cpu.PAR[n].PR_BITNO = b;
      cpu.PAR[n].AR_BITNO = (b % 9) & MASK4;
      cpu.PAR[n].AR_CHAR = (b / 9) & MASK2;
   }
-static inline void SET_AR_CHAR_BITNO (uint n, word2 c, word4 b)
+#define SET_PR_BITNO(n, b) SET_PR_BITNO(cpup, n, b)
+static inline void SET_AR_CHAR_BITNO (cpu_state_t * restrict cpup, uint n, word2 c, word4 b)
   {
      cpu.PAR[n].PR_BITNO = c * 9 + b;
      cpu.PAR[n].AR_BITNO = b & MASK4;
      cpu.PAR[n].AR_CHAR = c & MASK2;
   }
+#define SET_AR_CHAR_BITNO(n, c, b) SET_AR_CHAR_BITNO(cpup, n, c, b)
 
-bool sample_interrupts (void);
-t_stat simh_hooks (void);
-int operand_size (void);
+bool sample_interrupts (cpu_state_t * cpup);
+t_stat simh_hooks (cpu_state_t * cpup);
+int operand_size (cpu_state_t * cpup);
 //void read_operand (word18 addr, processor_cycle_type cyctyp);
-void readOperandRead (word18 addr);
-void readOperandRMW (word18 addr);
-t_stat write_operand (word18 addr, processor_cycle_type acctyp);
+void readOperandRead (cpu_state_t * cpup, word18 addr);
+void readOperandRMW (cpu_state_t * cpup, word18 addr);
+t_stat write_operand (cpu_state_t * cpup, word18 addr, processor_cycle_type acctyp);
 
 #if defined(PANEL68)
 static inline void trackport (word24 a, word36 d)
   {
+    cpu_state_t * cpup = _cpup;
     // Simplifying assumption: 4 * 4MW SCUs
     word2 port = (a >> 22) & MASK2;
     cpu.portSelect = port;
@@ -2106,11 +2110,11 @@ static inline int core_write2 (word24 addr, word36 even, word36 odd,
     return 0;
   }
 #else
-int core_read (word24 addr, word36 *data, const char * ctx);
-int core_write (word24 addr, word36 data, const char * ctx);
-int core_write_zone (word24 addr, word36 data, const char * ctx);
-int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx);
-int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx);
+int core_read (cpu_state_t * cpup, word24 addr, word36 *data, const char * ctx);
+int core_write (cpu_state_t * cpup, word24 addr, word36 data, const char * ctx);
+int core_write_zone (cpu_state_t * cpup, word24 addr, word36 data, const char * ctx);
+int core_read2 (cpu_state_t * cpup, word24 addr, word36 *even, word36 *odd, const char * ctx);
+int core_write2 (cpu_state_t * cpup, word24 addr, word36 even, word36 odd, const char * ctx);
 #endif /* if defined(SPEED) && defined(INLINE_CORE) */
 
 #if defined(LOCKLESS)
@@ -2174,9 +2178,9 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx);
 #  define GNU_ATOMICS 1
 # endif
 
-int core_read_lock (word24 addr, word36 *data, const char * ctx);
-int core_write_unlock (word24 addr, word36 data, const char * ctx);
-int core_unlock_all(void);
+int core_read_lock (cpu_state_t * cpup, word24 addr, word36 *data, const char * ctx);
+int core_write_unlock (cpu_state_t * cpup, word24 addr, word36 data, const char * ctx);
+int core_unlock_all(cpu_state_t * cpup);
 
 # define DEADLOCK_DETECT   0x40000000U
 # define MEM_LOCKED_BIT    61
@@ -2342,52 +2346,52 @@ int core_unlock_all(void);
 # endif  // SYNC_ATOMICS
 #endif  // LOCKLESS
 
-static inline void core_readN (word24 addr, word36 * data, uint n,
+static inline void core_readN (cpu_state_t * cpup, word24 addr, word36 * data, uint n,
                                UNUSED const char * ctx)
   {
     for (uint i = 0; i < n; i ++)
       {
-        core_read (addr + i, data + i, ctx);
+        core_read (cpup, addr + i, data + i, ctx);
         //HDBGMRead (addr + i, * (data + i), __func__);
       }
   }
 
-static inline void core_writeN (word24 addr, word36 * data, uint n,
+static inline void core_writeN (cpu_state_t * cpup, word24 addr, word36 * data, uint n,
                                 UNUSED const char * ctx)
   {
     for (uint i = 0; i < n; i ++)
       {
-        core_write (addr + i, data [i], ctx);
+        core_write (cpup, addr + i, data [i], ctx);
         //HDBGMWrite (addr + i, * (data + i), __func__);
       }
   }
 
-int is_priv_mode (void);
+int is_priv_mode (cpu_state_t * cpup);
 //void set_went_appending (void);
 //void clr_went_appending (void);
 //bool get_went_appending (void);
-bool get_bar_mode (void);
-addr_modes_e get_addr_mode (void);
-void set_addr_mode (addr_modes_e mode);
-void decode_instruction (word36 inst, DCDstruct * p);
+bool get_bar_mode (cpu_state_t * cpup);
+addr_modes_e get_addr_mode (cpu_state_t * cpup);
+void set_addr_mode (cpu_state_t * cpup, addr_modes_e mode);
+void decode_instruction (cpu_state_t * cpup, word36 inst, DCDstruct * p);
 #if !defined(SPEED)
 t_stat set_mem_watch (int32 arg, const char * buf);
 #endif /* if !defined(SPEED) */
 char *str_SDW0 (char * buf, sdw_s *SDW);
-int lookup_cpu_mem_map (word24 addr);
+int lookup_cpu_mem_map (cpu_state_t * cpup, word24 addr);
 void cpu_init (void);
-void setup_scbank_map (void);
-void add_dps8m_CU_history (void);
+void setup_scbank_map (cpu_state_t * cpup);
+void add_dps8m_CU_history (cpu_state_t * cpup);
 void add_dps8m_DUOU_history (word36 flags, word18 ICT, word9 RS_REG, word9 flags2);
 void add_dps8m_APU_history (word15 ESN, word21 flags, word24 RMA, word3 RTRR, word9 flags2);
 void add_dps8m_EAPU_history (word18 ZCA, word18 opcode);
-void add_l68_CU_history (void);
-void add_l68_OU_history (void);
-void add_l68_DU_history (void);
-void add_l68_APU_history (enum APUH_e op);
-void add_history_force (uint hset, word36 w0, word36 w1);
+void add_l68_CU_history (cpu_state_t * cpup);
+void add_l68_OU_history (cpu_state_t * cpup);
+void add_l68_DU_history (cpu_state_t * cpup);
+void add_l68_APU_history (cpu_state_t * cpup, enum APUH_e op);
+void add_history_force (cpu_state_t * cpup, uint hset, word36 w0, word36 w1);
 void printPtid(pthread_t pt);
-word18 get_BAR_address(word18 addr);
+word18 get_BAR_address(cpu_state_t * cpup, word18 addr);
 #if defined(THREADZ) || defined(LOCKLESS)
 t_stat threadz_sim_instr (void);
 void * cpu_thread_main (void * arg);

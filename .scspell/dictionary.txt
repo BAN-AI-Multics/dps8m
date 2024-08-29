@@ -875,6 +875,7 @@ dotchar
 doublecircle
 doubleoctagon
 downcounter
+dpanel
 dpar
 dpse
 dpsopt
@@ -2007,7 +2008,6 @@ notstar
 nouc
 nout
 novalue
-novdso
 novector
 noverbose
 noverify
@@ -5909,7 +5909,6 @@ makedep
 makedepend
 mkdep
 notparallel
-novdso
 opts
 orstlint
 pipefail
@@ -5980,6 +5979,7 @@ endif
 findstring
 gcwd
 gzcat
+gzcatt
 ifdef
 ifeq
 ifndef
@@ -6054,7 +6054,10 @@ ggdb
 glibcxx
 gtargroup
 gtaruser
+gunzipt
 gzcat
+gzcatt
+gzipt
 hist
 ibmaix
 ifdef
@@ -6154,6 +6157,7 @@ dgnu
 dhdbg
 disolts
 dneed
+dpanel
 dperf
 dround
 dspeed
@@ -6676,6 +6680,7 @@ gcda
 gnuc
 gpath
 grtags
+gunzipt
 hpkg
 iefp
 ifdef
@@ -6712,7 +6717,6 @@ memcpy
 mingwex
 msys
 notparallel
-novdso
 objs
 opcodetable
 ostype
@@ -6747,7 +6751,6 @@ wconversion
 webdl
 whitesource
 wsign
-xovdso
 zipdist
 zipkit
 
@@ -7185,7 +7188,6 @@ needrebuild
 nocp
 noet
 notparallel
-novdso
 orstlint
 permille
 pgobuild
@@ -7196,7 +7198,6 @@ realclean
 reallyclean
 rendering
 setv
-xovdso
 xxcflags
 xxldflags
 xxxx
@@ -7227,7 +7228,6 @@ hpages
 iomcon
 neato
 needrebuild
-novdso
 nvimlog
 nvimsession
 nvimundo
@@ -7558,7 +7558,6 @@ libcmb
 libedit
 musl
 nolist
-novdso
 printf
 readline
 sprintf
@@ -8283,7 +8282,6 @@ ifneq
 listchars
 makecmdgoals
 notparallel
-novdso
 printf
 setv
 
@@ -8704,7 +8702,6 @@ ftello
 fweb
 libuvrel
 libuvver
-novdso
 smips
 
 FILEID: f585612c-63e8-11ef-9fc2-80ee73e9b8e7
@@ -8722,6 +8719,82 @@ libuvver
 profdata
 profraw
 smips
+
+FILEID: 2395ba22-655a-11ef-85db-80ee73e9b8e7
+acsd
+anpk
+astr
+blnk
+briefly
+cfsetispeed
+cfsetospeed
+cpts
+csize
+dacv
+defg
+dwam
+echonl
+fdpt
+fltg
+flts
+fontbits
+fsdw
+gadd
+gclz
+gcmp
+gdld
+geam
+gedc
+gedj
+gldp
+gmsy
+gqdf
+gqpa
+grnd
+gsdr
+ibict
+ignbrk
+inlcr
+locallibs
+localobjs
+lpthread
+lwrite
+madr
+mdpt
+ncols
+ndelay
+nrows
+nstr
+ocrnl
+ofill
+olcuc
+onlcr
+onlret
+onocr
+onoeot
+parenb
+parmrk
+pollfd
+printw
+ptmf
+ract
+raln
+sdmf
+sdud
+setl
+setla
+syncfs
+uess
+unpg
+whichbit
+xmop
+zaln
+zbln
+zpks
+zupk
+
+FILEID: 285cf5fa-655c-11ef-b30c-80ee73e9b8e7
+diagonal
 
 NATURAL:
 abandon
@@ -8857,6 +8930,7 @@ agner
 agree
 agreed
 ahead
+aigu
 alarm
 albeit
 albert
@@ -9263,6 +9337,7 @@ boundaries
 boundary
 bounded
 bounds
+boxes
 brace
 bracket
 bracketed
@@ -9409,6 +9484,7 @@ causing
 caution
 cbridge
 cctree
+cedille
 ceiling
 cells
 center
@@ -9473,6 +9549,7 @@ cipher
 circuiting
 circuitry
 circular
+circumflex
 circumstances
 ckermit
 cksum
@@ -9953,6 +10030,7 @@ defoobarize
 defs
 degenerate
 degradation
+degree
 delay
 delayed
 delays
@@ -10055,6 +10133,7 @@ devices
 devil
 devin
 devoted
+diaeresis
 diagnostic
 diagnostics
 diagrams
@@ -10154,6 +10233,7 @@ distinguishing
 distkit
 distracted
 distributed
+distributes
 distribution
 distributions
 distributors
@@ -10183,6 +10263,7 @@ does
 doesn
 doing
 dollar
+dollarcents
 domain
 domains
 dominate
@@ -10236,6 +10317,7 @@ duplicate
 duplicated
 duration
 during
+dutch
 dwheeler
 dynamically
 each
@@ -10353,6 +10435,7 @@ environmental
 environments
 envrc
 ephemeral
+epsilon
 epub
 equal
 equalize
@@ -10635,6 +10718,7 @@ flipped
 floating
 flock
 floor
+florijn
 flow
 flowchart
 flowcharts
@@ -10725,6 +10809,7 @@ further
 fused
 future
 fuzzy
+gamma
 gaps
 garbage
 gary
@@ -10787,6 +10872,7 @@ granted
 granularity
 graphics
 graphviz
+grave
 gray
 grayscale
 greater
@@ -10894,6 +10980,7 @@ helping
 helps
 helvetica
 hence
+hepper
 herald
 hercules
 hereby
@@ -10915,6 +11002,7 @@ highs
 hinted
 hints
 hipster
+hiragana
 historical
 histories
 history
@@ -11246,6 +11334,7 @@ involved
 involves
 involving
 inward
+iota
 iron
 irrelevant
 irrevocable
@@ -11297,6 +11386,7 @@ justification
 justified
 justify
 justifying
+kappa
 karatsuba
 keep
 keeping
@@ -11339,6 +11429,8 @@ laboratory
 lace
 lacks
 laid
+lambda
+lamp
 land
 landscape
 language
@@ -11539,6 +11631,7 @@ machines
 macintosh
 macos
 macro
+macron
 macros
 made
 magazine
@@ -11590,6 +11683,7 @@ many
 mapped
 mapping
 maps
+marcel
 march
 margins
 marine
@@ -11749,6 +11843,7 @@ monitored
 monitoring
 monitors
 monkey
+monochrome
 monospace
 monotonic
 month
@@ -11786,6 +11881,7 @@ multiplexer
 multiplexor
 multiplication
 multiplications
+multiplicative
 multiplied
 multiplier
 multipliers
@@ -11981,6 +12077,8 @@ older
 oldest
 olin
 olinsibert
+omega
+omikron
 omissions
 omitted
 omitting
@@ -12208,6 +12306,7 @@ personalities
 persons
 perspective
 pertaining
+pesetas
 pessimistic
 peter
 pharmaceutical
@@ -12224,6 +12323,7 @@ picture
 pierce
 pieter
 pigz
+pilcrow
 pine
 pings
 pinning
@@ -12249,6 +12349,7 @@ plot
 plug
 plugins
 plus
+plusminus
 pobox
 pointed
 pointer
@@ -12302,6 +12403,7 @@ postprocessing
 posts
 postscript
 potentially
+pound
 power
 powered
 powering
@@ -13024,6 +13126,7 @@ sells
 semantics
 semaphore
 semicolon
+semivoiced
 send
 sending
 sends
@@ -13111,6 +13214,7 @@ show
 showbuildinfohere
 showclockshere
 showdeviceshere
+showing
 shown
 showpromhere
 shows
@@ -13121,6 +13225,7 @@ shutdown
 shutting
 sided
 sides
+sigma
 signal
 signaled
 signaling
@@ -13205,6 +13310,7 @@ snapshots
 snarl
 snobol
 snow
+socat
 sock
 socket
 sockets
@@ -13222,6 +13328,7 @@ something
 sometimes
 somewhat
 somewhere
+sondaar
 soon
 sophisticated
 sorry
@@ -13236,6 +13343,7 @@ space
 spaces
 spacing
 span
+spanish
 spans
 sparc
 spare
@@ -13323,6 +13431,7 @@ step
 stepped
 stepping
 steps
+sterling
 sticky
 still
 stimulate
@@ -13440,6 +13549,7 @@ sundry
 sunos
 sunpro
 superclean
+superscript
 supervisor
 supnik
 supplemented
@@ -13585,6 +13695,7 @@ thereby
 therefore
 thereof
 these
+theta
 they
 thickness
 things
@@ -13593,6 +13704,7 @@ thinks
 third
 this
 thord
+thorn
 those
 though
 thought
@@ -13653,6 +13765,7 @@ tomek
 toml
 tonen
 tongue
+tonos
 tony
 took
 toolbox
@@ -13784,6 +13897,7 @@ ulimit
 ultimately
 ultra
 umakefile
+umlaut
 unable
 unadjusted
 unaffected
@@ -13830,6 +13944,7 @@ underestimate
 underflow
 underflowed
 underline
+underlined
 underlying
 underscore
 understand
@@ -13942,6 +14057,7 @@ upon
 upper
 uppercase
 upright
+upsilon
 upstream
 uptime
 upward
@@ -14029,8 +14145,7 @@ visit
 visited
 visual
 visually
-vmpctool
-vmtouch
+voiced
 void
 volatile
 volker
@@ -14169,6 +14284,7 @@ xelatex
 xetex
 xfer
 xilinx
+xoff
 xopen
 xxxxxxxxxxx
 yacc
@@ -14197,6 +14313,7 @@ zeroed
 zeroes
 zeroing
 zeros
+zeta
 zlib
 zone
 zones

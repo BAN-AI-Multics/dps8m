@@ -35,11 +35,11 @@
 
 #include "dps8.h"
 #include "dps8_sys.h"
-#include "dps8_faults.h"
-#include "dps8_scu.h"
 #include "dps8_iom.h"
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
+#include "dps8_faults.h"
+#include "dps8_scu.h"
 #include "dps8_ins.h"
 #include "dps8_math.h"
 #include "dps8_utils.h"
@@ -71,7 +71,7 @@ long double exp2l (long double e) {
 /*
  * convert floating point quantity in C(EAQ) to a IEEE long double ...
  */
-long double EAQToIEEElongdouble(void)
+long double EAQToIEEElongdouble(cpu_state_t * cpup)
 {
     // mantissa
     word72 Mant = convert_to_word72 (cpu.rA, cpu.rQ);
@@ -123,7 +123,7 @@ long double EAQToIEEElongdouble(void)
 #if defined(__MINGW32__) || defined(__MINGW64__)
 
 // MINGW doesn't have long double support, convert to IEEE double instead
-double EAQToIEEEdouble(void)
+double EAQToIEEEdouble(cpu_state_t * cpup)
 {
     // mantissa
     word72 Mant = convert_to_word72 (cpu.rA, cpu.rQ);
@@ -451,7 +451,7 @@ float36 IEEEdoubleTofloat36(double f0)
 #  define HEX_NORM (         BIT71 | BIT70 | BIT69 | BIT68)
 # endif
 
-static inline bool isHex (void) {
+static inline bool isHex (cpu_state_t * cpup) {
     return (! cpu.tweaks.l68_mode) && (!! cpu.options.hex_mode_installed) &&  (!! cpu.MR.hexfp) && (!! TST_I_HEX);
 }
 #endif
@@ -459,7 +459,7 @@ static inline bool isHex (void) {
 /*!
  * Unnormalized floating single-precision add
  */
-void ufa (bool sub, bool normalize) {
+void ufa (cpu_state_t * cpup, bool sub, bool normalize) {
   // C(EAQ) + C(Y) → C(EAQ)
   // The ufa instruction is executed as follows:
   //
@@ -478,7 +478,7 @@ void ufa (bool sub, bool normalize) {
 
   CPTUR (cptUseE);
 #if defined(HEX_MODE)
-  uint shift_amt = isHex () ? 4 : 1;
+  uint shift_amt = isHex (cpup) ? 4 : 1;
 #else
   uint shift_amt = 1;
 #endif
@@ -603,7 +603,7 @@ void ufa (bool sub, bool normalize) {
 
   bool ovf;
   word72 m3;
-  m3 = Add72b (m1, m2, 0, I_CARRY, & cpu.cu.IR, & ovf);
+  m3 = Add72b (cpup, m1, m2, 0, I_CARRY, & cpu.cu.IR, & ovf);
   // ISOLTS-735 08g
   // if 2's complement carried, OR it in now.
   if (m2zero)
@@ -618,7 +618,7 @@ void ufa (bool sub, bool normalize) {
 //    m3 ^= SIGN72; // C(AQ)0 is inverted to restore the sign
 //    e3 += 1;
     word72 s = and_128 (m3, SIGN72); // save the sign bit
-    if (isHex ()) {
+    if (isHex (cpup)) {
       m3 = rshift_128 (m3, shift_amt); // renormalize the mantissa
       if (isnonzero_128 (s))
         // Sign is set, number should be positive; clear the sign bit and the 3 MSBs
@@ -650,7 +650,7 @@ void ufa (bool sub, bool normalize) {
 //    m3 ^= SIGN72; // C(AQ)0 is inverted to restore the sign
 //    e3 += 1;
     word72 s = m3 & SIGN72; // save the sign bit
-    if (isHex ()) {
+    if (isHex (cpup)) {
       m3 >>= shift_amt; // renormalize the mantissa
       if (s)
         // Sign is set, number should be positive; clear the sign bit and the 3 MSBs
@@ -691,20 +691,20 @@ void ufa (bool sub, bool normalize) {
   }
 
   if (normalize) {
-    fno_ext (& e3, & cpu.rE, & cpu.rA, & cpu.rQ);
+    fno_ext (cpup, & e3, & cpu.rE, & cpu.rA, & cpu.rQ);
   }
 
   // EOFL: If exponent is greater than +127, then ON
   if (e3 > 127) {
     SET_I_EOFL;
-    if (tstOVFfault ())
+    if (tstOVFfault (cpup))
       dlyDoFault (FAULT_OFL, fst_zero, "ufa exp overflow fault");
   }
 
   // EUFL: If exponent is less than -128, then ON
   if (e3 < -128) {
     SET_I_EUFL;
-    if (tstOVFfault ())
+    if (tstOVFfault (cpup))
       dlyDoFault (FAULT_OFL, fst_zero, "ufa exp underflow fault");
   }
 } // ufa
@@ -713,12 +713,12 @@ void ufa (bool sub, bool normalize) {
  * floating normalize ...
  */
 
-void fno (word8 * E, word36 * A, word36 * Q) {
+void fno (cpu_state_t * cpup, word8 * E, word36 * A, word36 * Q) {
   int e0 = SIGNEXT8_int ((* E) & MASK8);
-  fno_ext (& e0, E, A, Q);
+  fno_ext (cpup, & e0, E, A, Q);
 }
 
-void fno_ext (int * e0, word8 * E, word36 * A, word36 * Q) {
+void fno_ext (cpu_state_t * cpup, int * e0, word8 * E, word36 * A, word36 * Q) {
   // The fno instruction normalizes the number in C(EAQ) if C(AQ) ≠ 0 and the
   // overflow indicator is OFF.
   //
@@ -739,7 +739,7 @@ void fno_ext (int * e0, word8 * E, word36 * A, word36 * Q) {
 
   L68_ (cpu.ou.cycle |= ou_GON;)
 #if defined(HEX_MODE)
-  uint shift_amt = isHex() ? 4 : 1;
+  uint shift_amt = isHex(cpup) ? 4 : 1;
 #endif
   * A &= DMASK;
   * Q &= DMASK;
@@ -749,7 +749,7 @@ void fno_ext (int * e0, word8 * E, word36 * A, word36 * Q) {
 #if defined(NEED_128)
     word72 s = and_128 (m, SIGN72); // save the sign bit
 # if defined(HEX_MODE)
-    if (isHex ()) {
+    if (isHex (cpup)) {
       m = rshift_128 (m, shift_amt); // renormalize the mantissa
       if (isnonzero_128 (s)) // sign of mantissa
         // Sign is set, number should be positive; clear the sign bit and the 3 MSBs
@@ -777,7 +777,7 @@ void fno_ext (int * e0, word8 * E, word36 * A, word36 * Q) {
     if (* E == 127) {
 //sim_printf ("overflow 1 E %o \r\n", * E);
       SET_I_EOFL;
-      if (tstOVFfault ())
+      if (tstOVFfault (cpup))
         dlyDoFault (FAULT_OFL, fst_zero, "fno exp overflow fault");
     }
     (* E) ++;
@@ -786,7 +786,7 @@ void fno_ext (int * e0, word8 * E, word36 * A, word36 * Q) {
 #else // ! NEED_128
   word72 s = m & SIGN72; // save the sign bit
 # if defined(HEX_MODE)
-  if (isHex ()) {
+  if (isHex (cpup)) {
     m >>= shift_amt; // renormalize the mantissa
     if (s)
       // Sign is set, number should be positive; clear the sign bit and the 3 MSBs
@@ -813,7 +813,7 @@ void fno_ext (int * e0, word8 * E, word36 * A, word36 * Q) {
       CLR_I_ZERO;
       if (* E == 127) {
         SET_I_EOFL;
-        if (tstOVFfault ())
+        if (tstOVFfault (cpup))
           dlyDoFault (FAULT_OFL, fst_zero, "fno exp overflow fault");
       }
       (* E) ++;
@@ -858,7 +858,7 @@ void fno_ext (int * e0, word8 * E, word36 * A, word36 * Q) {
 #if defined(HEX_MODE)
 // Normalized in Hex Mode: If sign is 0, bits 1-4 != 0; if sign is 1,
 // bits 1-4 != 017.
-  if (isHex ()) {
+  if (isHex (cpup)) {
     if (s) {
       // Negative
       // Until bits 1-4 != 014
@@ -952,7 +952,7 @@ void fno_ext (int * e0, word8 * E, word36 * A, word36 * Q) {
 
   if (e < -128) {
     SET_I_EUFL;
-    if (tstOVFfault ())
+    if (tstOVFfault (cpup))
       dlyDoFault (FAULT_OFL, fst_zero, "fno exp underflow fault");
   }
 
@@ -1067,7 +1067,7 @@ void fnoEAQ(word8 *E, word36 *A, word36 *Q)
 /*
  * floating negate ...
  */
-void fneg (void) {
+void fneg (cpu_state_t * cpup) {
   // This instruction changes the number in C(EAQ) to its normalized negative
   // (if C(AQ) ≠ 0). The operation is executed by first forming the twos
   // complement of C(AQ), and then normalizing C(EAQ).
@@ -1096,7 +1096,7 @@ void fneg (void) {
     // Increment the exp, checking for overflow.
     if (cpu.rE == 127) {
       SET_I_EOFL;
-      if (tstOVFfault ())
+      if (tstOVFfault (cpup))
         dlyDoFault (FAULT_OFL, fst_zero, "fneg exp overflow fault");
     }
     cpu.rE ++;
@@ -1112,7 +1112,7 @@ void fneg (void) {
 #endif
   }
   convert_to_word36 (m, & cpu.rA, & cpu.rQ);
-  fno (& cpu.rE, & cpu.rA, & cpu.rQ);  // normalize
+  fno (cpup, & cpu.rE, & cpu.rA, & cpu.rQ);  // normalize
 #if defined(TESTING)
   HDBGRegAW ("fneg");
 #endif
@@ -1121,7 +1121,7 @@ void fneg (void) {
 /*
  * Unnormalized Floating Multiply ...
  */
-void ufm (bool normalize) {
+void ufm (cpu_state_t * cpup, bool normalize) {
   // The ufm instruction is executed as follows:
   //      C(E) + C(Y)0,7 → C(E)
   //      ( C(AQ) × C(Y)8,35 )0,71 → C(AQ)
@@ -1160,12 +1160,12 @@ void ufm (bool normalize) {
 #if 0
   if (e3 >  127) {
     SET_I_EOFL;
-    if (tstOVFfault ())
+    if (tstOVFfault (cpup))
       dlyDoFault (FAULT_OFL, fst_zero, "ufm exp overflow fault");
   }
   if (e3 < -128) {
     SET_I_EUFL;
-    if (tstOVFfault ())
+    if (tstOVFfault (cpup))
       dlyDoFault (FAULT_OFL, fst_zero, "ufm exp underflow fault");
   }
 #endif
@@ -1199,7 +1199,7 @@ void ufm (bool normalize) {
   if (ISEQ_128 (m1, SIGN72) && ISEQ_128 (m2, SIGN72)) {
     if (e3 == 127) {
       SET_I_EOFL;
-      if (tstOVFfault ())
+      if (tstOVFfault (cpup))
         dlyDoFault (FAULT_OFL, fst_zero, "ufm exp overflow fault");
     }
 #if defined(NEED_128)
@@ -1226,17 +1226,17 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fmp A %012"PRIo64" Q %012"PRIo64" E %03o\n"
   }
 
   if (normalize) {
-    fno_ext (& e3, & cpu.rE, & cpu.rA, & cpu.rQ);
+    fno_ext (cpup, & e3, & cpu.rE, & cpu.rA, & cpu.rQ);
   }
 
   if (e3 >  127) {
     SET_I_EOFL;
-    if (tstOVFfault ())
+    if (tstOVFfault (cpup))
       dlyDoFault (FAULT_OFL, fst_zero, "ufm exp overflow fault");
   }
   if (e3 < -128) {
     SET_I_EUFL;
-    if (tstOVFfault ())
+    if (tstOVFfault (cpup))
       dlyDoFault (FAULT_OFL, fst_zero, "ufm exp underflow fault");
   }
 }
@@ -1245,7 +1245,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fmp A %012"PRIo64" Q %012"PRIo64" E %03o\n"
  * floating divide ...
  */
 // CANFAULT
-static void fdvX (bool bInvert) {
+static void fdvX (cpu_state_t * cpup, bool bInvert) {
   // C(EAQ) / C (Y) → C(EA)
   // C(Y) / C(EAQ) → C(EA) (Inverted)
 
@@ -1260,7 +1260,7 @@ static void fdvX (bool bInvert) {
 
   CPTUR (cptUseE);
 #if defined(HEX_MODE)
-  uint shift_amt = isHex() ? 4 : 1;
+  uint shift_amt = isHex(cpup) ? 4 : 1;
 #else
   uint shift_amt = 1;
 #endif
@@ -1423,12 +1423,12 @@ static void fdvX (bool bInvert) {
 
   if (e3 > 127) {
     SET_I_EOFL;
-    if (tstOVFfault ())
+    if (tstOVFfault (cpup))
       dlyDoFault (FAULT_OFL, fst_zero, "fdvX exp overflow fault");
   }
   if (e3 < -128) {
     SET_I_EUFL;
-    if (tstOVFfault ())
+    if (tstOVFfault (cpup))
       dlyDoFault (FAULT_OFL, fst_zero, "fdvX exp underflow fault");
   }
 
@@ -1474,18 +1474,18 @@ static void fdvX (bool bInvert) {
     cpu.rE = 0200U; /*-128*/
 } // fdvX
 
-void fdv (void) {
-  fdvX (false);    // no inversion
+void fdv (cpu_state_t * cpup) {
+  fdvX (cpup, false);    // no inversion
 }
 
-void fdi (void) {
-  fdvX (true);      // invert
+void fdi (cpu_state_t * cpup) {
+  fdvX (cpup, true);      // invert
 }
 
 /*
  * single precision floating round ...
  */
-void frd (void) {
+void frd (cpu_state_t * cpup) {
   // If C(AQ) != 0, the frd instruction performs a true round to a precision
   // of 28 bits and a normalization on C(EAQ).
   // A true round is a rounding operation such that the sum of the result of
@@ -1572,9 +1572,9 @@ void frd (void) {
     carry = 1;
   }
 #if defined(NEED_128)
-  m = Add72b (m, construct_128 (0, 0177777777777777LL), carry, I_OFLOW, & flags1, & ovf);
+  m = Add72b (cpup, m, construct_128 (0, 0177777777777777LL), carry, I_OFLOW, & flags1, & ovf);
 #else
-  m = Add72b (m, 0177777777777777LL, carry, I_OFLOW, & flags1, & ovf);
+  m = Add72b (cpup, m, 0177777777777777LL, carry, I_OFLOW, & flags1, & ovf);
 #endif
 
   // 0 -> C(AQ)28,71  (per. RJ78)
@@ -1593,14 +1593,14 @@ void frd (void) {
   SC_I_OFLOW(ovf);
   convert_to_word36 (m, & cpu.rA, & cpu.rQ);
 
-  fno (& cpu.rE, & cpu.rA, & cpu.rQ);
+  fno (cpup, & cpu.rE, & cpu.rA, & cpu.rQ);
 #if defined(TESTING)
   HDBGRegAW ("frd");
 #endif
   SC_I_OFLOW(savedovf);
 }
 
-void fstr (word36 *Y)
+void fstr (cpu_state_t * cpup, word36 *Y)
   {
     // The fstr instruction performs a true round and normalization on C(EAQ)
     // as it is stored.  The definition of true round is located under the
@@ -1644,9 +1644,9 @@ void fstr (word36 *Y)
         carry = 1;
       }
 #if defined(NEED_128)
-    m = Add72b (m, construct_128 (0, 0177777777777777LL), carry, I_OFLOW, & flags1, & ovf);
+    m = Add72b (cpup, m, construct_128 (0, 0177777777777777LL), carry, I_OFLOW, & flags1, & ovf);
 #else
-    m = Add72b (m, 0177777777777777LL, carry, I_OFLOW, & flags1, & ovf);
+    m = Add72b (cpup, m, 0177777777777777LL, carry, I_OFLOW, & flags1, & ovf);
 #endif
 
     // 0 -> C(AQ)28,71  (per. RJ78)
@@ -1664,7 +1664,7 @@ void fstr (word36 *Y)
     bool savedovf = TST_I_OFLOW;
     SC_I_OFLOW(ovf);
     convert_to_word36 (m, & A, & Q);
-    fno (& E, & A, & Q);
+    fno (cpup, & E, & A, & Q);
     SC_I_OFLOW(savedovf);
 
     * Y = setbits36_8 (A >> 8, 0, (word8) E);
@@ -1673,7 +1673,7 @@ void fstr (word36 *Y)
 /*
  * single precision Floating Compare ...
  */
-void fcmp (void) {
+void fcmp (cpu_state_t * cpup) {
   // C(E) :: C(Y)0,7
   // C(AQ)0,27 :: C(Y)8,35
 
@@ -1706,7 +1706,7 @@ void fcmp (void) {
 
   L68_ (cpu.ou.cycle = ou_GOE;)
 #if defined(HEX_MODE)
-  uint shift_amt = isHex() ? 4 : 1;
+  uint shift_amt = isHex(cpup) ? 4 : 1;
 #else
   uint shift_amt = 1;
 #endif
@@ -1798,7 +1798,7 @@ void fcmp (void) {
 /*
  * single precision Floating Compare magnitude ...
  */
-void fcmg (void) {
+void fcmg (cpu_state_t * cpup) {
   // C(E) :: C(Y)0,7
   // | C(AQ)0,27 | :: | C(Y)8,35 |
   // * Zero: If | C(EAQ)| = | C(Y) |, then ON; otherwise OFF
@@ -1821,7 +1821,7 @@ void fcmg (void) {
   CPTUR (cptUseE);
   L68_ (cpu.ou.cycle = ou_GOS;)
 #if defined(HEX_MODE)
-  uint shift_amt = isHex() ? 4 : 1;
+  uint shift_amt = isHex(cpup) ? 4 : 1;
 #else
   uint shift_amt = 1;
 #endif
@@ -1964,7 +1964,7 @@ static void ExpMantToYpair(word72 mant, int exp, word36 *yPair)
 /*!
  * unnormalized floating double-precision add
  */
-void dufa (bool subtract, bool normalize) {
+void dufa (cpu_state_t * cpup, bool subtract, bool normalize) {
   // Except for the precision of the mantissa of the operand from main
   // memory, the dufa instruction is identical to the ufa instruction.
 
@@ -1988,7 +1988,7 @@ void dufa (bool subtract, bool normalize) {
   CPTUR (cptUseE);
   L68_ (cpu.ou.cycle = ou_GOS;)
 #if defined(HEX_MODE)
-  uint shift_amt = isHex() ? 4 : 1;
+  uint shift_amt = isHex(cpup) ? 4 : 1;
 #else
   uint shift_amt = 1;
 #endif
@@ -2124,7 +2124,7 @@ void dufa (bool subtract, bool normalize) {
   }
 
   bool ovf;
-  word72 m3 = Add72b (m1, m2, 0, I_CARRY, & cpu.cu.IR, & ovf);
+  word72 m3 = Add72b (cpup, m1, m2, 0, I_CARRY, & cpu.cu.IR, & ovf);
   if (m2zero)
     SET_I_CARRY;
 
@@ -2141,7 +2141,7 @@ void dufa (bool subtract, bool normalize) {
 # else
     bool s = (m3 & SIGN72) != (word72)0;
 # endif
-    if (isHex ()) {
+    if (isHex (cpup)) {
 # if defined(NEED_128)
       m3 = rshift_128 (m3, shift_amt); // renormalize the mantissa
       if (s)
@@ -2205,20 +2205,20 @@ void dufa (bool subtract, bool normalize) {
   }
 
   if (normalize) {
-    fno_ext (& e3, & cpu.rE, & cpu.rA, & cpu.rQ);
+    fno_ext (cpup, & e3, & cpu.rE, & cpu.rA, & cpu.rQ);
   }
 
   // EOFL: If exponent is greater than +127, then ON
   if (e3 > 127) {
     SET_I_EOFL;
-    if (tstOVFfault ())
+    if (tstOVFfault (cpup))
       dlyDoFault (FAULT_OFL, fst_zero, "dufa exp overflow fault");
   }
 
   // EUFL: If exponent is less than -128, then ON
   if (e3 < -128) {
     SET_I_EUFL;
-    if (tstOVFfault ())
+    if (tstOVFfault (cpup))
         dlyDoFault (FAULT_OFL, fst_zero, "dufa exp underflow fault");
   }
 } // dufa
@@ -2261,7 +2261,7 @@ void dufs (void)
         if (e2 == 127)
         {
             SET_I_EOFL;
-            if (tstOVFfault ())
+            if (tstOVFfault (cpup))
                 doFault (FAULT_OFL, fst_zero, "dufs exp overflow fault");
         }
         e2 += 1;
@@ -2288,7 +2288,7 @@ void dufs (void)
 /*
  * double-precision Unnormalized Floating Multiply ...
  */
-void dufm (bool normalize) {
+void dufm (cpu_state_t * cpup, bool normalize) {
   // Except for the precision of the mantissa of the operand from main memory,
   //the dufm instruction is identical to the ufm instruction.
 
@@ -2346,12 +2346,12 @@ void dufm (bool normalize) {
 #if 0
   if (e3 >  127) {
     SET_I_EOFL;
-    if (tstOVFfault ())
+    if (tstOVFfault (cpup))
       dlyDoFault (FAULT_OFL, fst_zero, "dufm exp overflow fault");
   }
   if (e3 < -128) {
     SET_I_EUFL;
-    if (tstOVFfault ())
+    if (tstOVFfault (cpup))
       dlyDoFault (FAULT_OFL, fst_zero, "dufm exp underflow fault");
   }
 #endif
@@ -2403,7 +2403,7 @@ void dufm (bool normalize) {
   if (ISEQ_128 (m1, SIGN72) && ISEQ_128 (m2, SIGN72)) {
     if (e3 == 127) {
       SET_I_EOFL;
-      if (tstOVFfault ())
+      if (tstOVFfault (cpup))
           dlyDoFault (FAULT_OFL, fst_zero, "dufm exp overflow fault");
     }
 #if defined(NEED_128)
@@ -2430,17 +2430,17 @@ void dufm (bool normalize) {
   }
 
   if (normalize) {
-    fno_ext (& e3, & cpu.rE, & cpu.rA, & cpu.rQ);
+    fno_ext (cpup, & e3, & cpu.rE, & cpu.rA, & cpu.rQ);
   }
 
   if (e3 >  127) {
     SET_I_EOFL;
-    if (tstOVFfault ())
+    if (tstOVFfault (cpup))
       dlyDoFault (FAULT_OFL, fst_zero, "dufm exp overflow fault");
   }
   if (e3 < -128) {
     SET_I_EUFL;
-    if (tstOVFfault ())
+    if (tstOVFfault (cpup))
       dlyDoFault (FAULT_OFL, fst_zero, "dufm exp underflow fault");
   }
 }
@@ -2449,7 +2449,7 @@ void dufm (bool normalize) {
  * floating divide ...
  */
 // CANFAULT
-static void dfdvX (bool bInvert) {
+static void dfdvX (cpu_state_t * cpup, bool bInvert) {
   // C(EAQ) / C (Y) → C(EA)
   // C(Y) / C(EAQ) → C(EA) (Inverted)
 
@@ -2465,7 +2465,7 @@ static void dfdvX (bool bInvert) {
   CPTUR (cptUseE);
   L68_ (cpu.ou.cycle |= ou_GOS;)
 #if defined(HEX_MODE)
-  uint shift_amt = isHex() ? 4 : 1;
+  uint shift_amt = isHex(cpup) ? 4 : 1;
 #else
   uint shift_amt = 1;
 #endif
@@ -2632,12 +2632,12 @@ static void dfdvX (bool bInvert) {
   int e3 = e1 - e2;
   if (e3 > 127) {
     SET_I_EOFL;
-    if (tstOVFfault ())
+    if (tstOVFfault (cpup))
       dlyDoFault (FAULT_OFL, fst_zero, "dfdvX exp overflow fault");
    }
   if (e3 < -128) {
     SET_I_EUFL;
-    if (tstOVFfault ())
+    if (tstOVFfault (cpup))
       dlyDoFault (FAULT_OFL, fst_zero, "dfdvX exp underflow fault");
   }
 
@@ -2677,20 +2677,20 @@ static void dfdvX (bool bInvert) {
 } // dfdvX
 
 // CANFAULT
-void dfdv (void) {
-  dfdvX (false);    // no inversion
+void dfdv (cpu_state_t * cpup) {
+  dfdvX (cpup, false);    // no inversion
 }
 
 // CANFAULT
-void dfdi (void) {
-  dfdvX (true); // invert
+void dfdi (cpu_state_t * cpup) {
+  dfdvX (cpup, true); // invert
 }
 
 //#define DVF_HWR
 //#define DVF_FRACTIONAL
 #define DVF_CAC
 // CANFAULT
-void dvf (void)
+void dvf (cpu_state_t * cpup)
 {
 //#if defined(DBGCAC)
 //sim_printf ("DVF %"PRId64" %06o:%06o\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC);
@@ -3142,7 +3142,7 @@ void dvf (void)
 /*!
  * double precision floating round ...
  */
-void dfrd (void) {
+void dfrd (cpu_state_t * cpup) {
   // The dfrd instruction is identical to the frd instruction except that the
   // rounding constant used is (11...1)65,71 instead of (11...1)29,71.
 
@@ -3183,9 +3183,9 @@ void dfrd (void) {
     carry = 1;
   }
 #if defined(NEED_128)
-  m = Add72b (m, construct_128 (0, 0177), carry, I_OFLOW, & flags1, & ovf);
+  m = Add72b (cpup, m, construct_128 (0, 0177), carry, I_OFLOW, & flags1, & ovf);
 #else
-  m = Add72b (m, 0177, carry, I_OFLOW, & flags1, & ovf);
+  m = Add72b (cpup, m, 0177, carry, I_OFLOW, & flags1, & ovf);
 #endif
 
   // 0 -> C(AQ)64,71
@@ -3204,14 +3204,14 @@ void dfrd (void) {
   SC_I_OFLOW (ovf);
   convert_to_word36 (m, & cpu.rA, & cpu.rQ);
 
-  fno (& cpu.rE, & cpu.rA, & cpu.rQ);
+  fno (cpup, & cpu.rE, & cpu.rA, & cpu.rQ);
 #if defined(TESTING)
   HDBGRegAW ("dfrd");
 #endif
   SC_I_OFLOW (savedovf);
 }
 
-void dfstr (word36 *Ypair)
+void dfstr (cpu_state_t * cpup, word36 *Ypair)
 {
     // The dfstr instruction performs a double-precision true round and normalization on C(EAQ) as it is stored.
     // The definition of true round is located under the description of the frd instruction.
@@ -3271,9 +3271,9 @@ void dfstr (word36 *Ypair)
         carry = 1;
       }
 #if defined(NEED_128)
-    m = Add72b (m, construct_128 (0, 0177), carry, I_OFLOW, & flags1, & ovf);
+    m = Add72b (cpup, m, construct_128 (0, 0177), carry, I_OFLOW, & flags1, & ovf);
 #else
-    m = Add72b (m, 0177, carry, I_OFLOW, & flags1, & ovf);
+    m = Add72b (cpup, m, 0177, carry, I_OFLOW, & flags1, & ovf);
 #endif
 
     // 0 -> C(AQ)65,71  (per. RJ78)
@@ -3293,7 +3293,7 @@ void dfstr (word36 *Ypair)
     SC_I_OFLOW(ovf);
     convert_to_word36 (m, & A, & Q);
 
-    fno (& E, & A, & Q);
+    fno (cpup, & E, & A, & Q);
     SC_I_OFLOW(savedovf);
 
     Ypair[0] = (((word36)E & MASK8) << 28) | ((A & 0777777777400LL) >> 8);
@@ -3303,7 +3303,7 @@ void dfstr (word36 *Ypair)
 /*
  * double precision Floating Compare ...
  */
-void dfcmp (void) {
+void dfcmp (cpu_state_t * cpup) {
   // C(E) :: C(Y)0,7
   // C(AQ)0,63 :: C(Y-pair)8,71
   // * Zero: If | C(EAQ)| = | C(Y-pair) |, then ON; otherwise OFF
@@ -3321,7 +3321,7 @@ void dfcmp (void) {
   // C(AQ)0,63
   CPTUR (cptUseE);
 #if defined(HEX_MODE)
-  uint shift_amt = isHex() ? 4 : 1;
+  uint shift_amt = isHex(cpup) ? 4 : 1;
 #else
   uint shift_amt = 1;
 #endif
@@ -3437,7 +3437,7 @@ void dfcmp (void) {
 /*
  * double precision Floating Compare magnitude ...
  */
-void dfcmg (void) {
+void dfcmg (cpu_state_t * cpup) {
   // C(E) :: C(Y)0,7
   // | C(AQ)0,27 | :: | C(Y)8,35 |
   // * Zero: If | C(EAQ)| = | C(Y) |, then ON; otherwise OFF
@@ -3455,7 +3455,7 @@ void dfcmg (void) {
 
   CPTUR (cptUseE);
 #if defined(HEX_MODE)
-  uint shift_amt = isHex () ? 4 : 1;
+  uint shift_amt = isHex (cpup) ? 4 : 1;
 #else
   uint shift_amt = 1;
 #endif

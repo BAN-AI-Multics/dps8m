@@ -24,10 +24,10 @@
 #include "dps8_iom.h"
 #include "dps8_absi.h"
 #include "dps8_sys.h"
-#include "dps8_faults.h"
-#include "dps8_scu.h"
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
+#include "dps8_faults.h"
+#include "dps8_scu.h"
 #include "dps8_utils.h"
 
 #include "udplib.h"
@@ -259,6 +259,9 @@ void absi_init (void)
 
 static iom_cmd_rc_t absi_cmd (uint iomUnitIdx, uint chan)
   {
+# if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+# endif
     iom_chan_data_t * p = &iom_chan_data[iomUnitIdx][chan];
 // sim_printf ("absi_cmd CHAN_CMD %o DEV_CODE %o DEV_CMD %o COUNT %o\n",
 //p->IDCW_CHAN_CMD, p->IDCW_DEV_CODE, p->IDCW_DEV_CMD, p->IDCW_COUNT);

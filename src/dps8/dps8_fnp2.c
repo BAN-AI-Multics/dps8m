@@ -86,11 +86,11 @@
 #include <ctype.h>
 #include "dps8.h"
 #include "dps8_sys.h"
-#include "dps8_faults.h"
-#include "dps8_scu.h"
 #include "dps8_iom.h"
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
+#include "dps8_scu.h"
+#include "dps8_faults.h"
 #include "dps8_fnp2.h"
 #include "fnptelnet.h"
 #include "fnpuv.h"
@@ -400,6 +400,9 @@ static int findMbx (uint fnpUnitIdx)
 
 static void notifyCS (uint mbx, int fnp_unit_idx, int lineno)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     struct fnpUnitData_s * fudp = & fnpData.fnpUnitData [fnp_unit_idx];
     word24 fsmbx                = fudp->mailboxAddress + FNP_SUB_MBXES + mbx*FNP_SUB_MBX_SIZE;
 
@@ -429,7 +432,10 @@ static void notifyCS (uint mbx, int fnp_unit_idx, int lineno)
 
 static void fnp_rcd_ack_echnego_init (uint mbx, int fnp_unit_idx, int lineno)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
     sim_debug (DBG_TRACE, & fnp_dev, "[%d]rcd ack_echnego_init\n", lineno);
+#endif
     struct fnpUnitData_s * fudp = & fnpData.fnpUnitData [fnp_unit_idx];
     word24 fsmbx                = fudp->mailboxAddress + FNP_SUB_MBXES + mbx*FNP_SUB_MBX_SIZE;
 
@@ -448,7 +454,10 @@ static void fnp_rcd_ack_echnego_init (uint mbx, int fnp_unit_idx, int lineno)
 
 static void fnp_rcd_ack_echnego_stop (uint mbx, int fnp_unit_idx, int lineno)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
     sim_debug (DBG_TRACE, & fnp_dev, "[%d]rcd ack_echnego_stop\n", lineno);
+#endif
     struct fnpUnitData_s * fudp = & fnpData.fnpUnitData [fnp_unit_idx];
     word24 fsmbx                = fudp->mailboxAddress + FNP_SUB_MBXES + mbx*FNP_SUB_MBX_SIZE;
 
@@ -467,7 +476,10 @@ static void fnp_rcd_ack_echnego_stop (uint mbx, int fnp_unit_idx, int lineno)
 
 static void fnp_rcd_line_disconnected (uint mbx, int fnp_unit_idx, int lineno)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
     sim_debug (DBG_TRACE, & fnp_dev, "[%d]rcd line_disconnected\n", lineno);
+#endif
     struct fnpUnitData_s * fudp = & fnpData.fnpUnitData [fnp_unit_idx];
     word24 fsmbx                = fudp->mailboxAddress + FNP_SUB_MBXES + mbx*FNP_SUB_MBX_SIZE;
 
@@ -486,7 +498,10 @@ static void fnp_rcd_line_disconnected (uint mbx, int fnp_unit_idx, int lineno)
 
 static void fnp_rcd_input_in_mailbox (uint mbx, int fnp_unit_idx, int lineno)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
     sim_debug (DBG_TRACE, & fnp_dev, "[%d]rcd input_in_mailbox\n", lineno);
+#endif
     struct fnpUnitData_s * fudp = & fnpData.fnpUnitData [fnp_unit_idx];
     struct t_line * linep       = & fudp->MState.line[lineno];
     word24 fsmbx                = fudp->mailboxAddress + FNP_SUB_MBXES + mbx*FNP_SUB_MBX_SIZE;
@@ -593,7 +608,10 @@ static void fnp_rcd_line_status  (uint mbx, int fnp_unit_idx, int lineno)
 
 static void fnp_rcd_accept_input (uint mbx, int fnp_unit_idx, int lineno)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
     sim_debug (DBG_TRACE, & fnp_dev, "[%d]rcd accept_input\n", lineno);
+#endif
     struct fnpUnitData_s * fudp = & fnpData.fnpUnitData [fnp_unit_idx];
     struct t_line * linep       = & fudp->MState.line[lineno];
     word24 fsmbx                = fudp->mailboxAddress + FNP_SUB_MBXES + mbx*FNP_SUB_MBX_SIZE;
@@ -636,7 +654,10 @@ static void fnp_rcd_accept_input (uint mbx, int fnp_unit_idx, int lineno)
 
 static void fnp_rcd_line_break (uint mbx, int fnp_unit_idx, int lineno)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
     sim_debug (DBG_TRACE, & fnp_dev, "[%d]rcd line_break\n", lineno);
+#endif
     struct fnpUnitData_s * fudp = & fnpData.fnpUnitData [fnp_unit_idx];
     word24 fsmbx                = fudp->mailboxAddress + FNP_SUB_MBXES + mbx*FNP_SUB_MBX_SIZE;
 
@@ -655,7 +676,10 @@ static void fnp_rcd_line_break (uint mbx, int fnp_unit_idx, int lineno)
 
 static void fnp_rcd_send_output (uint mbx, int fnp_unit_idx, int lineno)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
     sim_debug (DBG_TRACE, & fnp_dev, "[%d]rcd send_output\n", lineno);
+#endif
     struct fnpUnitData_s * fudp = & fnpData.fnpUnitData [fnp_unit_idx];
     word24 fsmbx                = fudp->mailboxAddress + FNP_SUB_MBXES + mbx*FNP_SUB_MBX_SIZE;
 
@@ -674,8 +698,11 @@ static void fnp_rcd_send_output (uint mbx, int fnp_unit_idx, int lineno)
 
 static void fnp_rcd_acu_dial_failure (uint mbx, int fnp_unit_idx, int lineno)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
     sim_debug (DBG_TRACE, & fnp_dev, "[%d]rcd acu_dial_failure\n", lineno);
     //sim_printf ("acu_dial_failure %d %d %d\n", mbx, fnp_unit_idx, lineno);
+#endif
     struct fnpUnitData_s * fudp = & fnpData.fnpUnitData [fnp_unit_idx];
     word24 fsmbx                = fudp->mailboxAddress + FNP_SUB_MBXES + mbx*FNP_SUB_MBX_SIZE;
 
@@ -694,8 +721,11 @@ static void fnp_rcd_acu_dial_failure (uint mbx, int fnp_unit_idx, int lineno)
 
 static void fnp_rcd_accept_new_terminal (uint mbx, int fnp_unit_idx, int lineno)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
     sim_debug (DBG_TRACE, & fnp_dev, "[%d]rcd accept_new_terminal\n", lineno);
     //sim_printf ("accept_new_terminal %d %d %d\n", mbx, fnp_unit_idx, lineno);
+#endif
     struct fnpUnitData_s * fudp = & fnpData.fnpUnitData [fnp_unit_idx];
     struct t_line * linep       = & fudp->MState.line[lineno];
     word24 fsmbx                = fudp->mailboxAddress + FNP_SUB_MBXES + mbx*FNP_SUB_MBX_SIZE;
@@ -759,8 +789,11 @@ static void fnp_rcd_accept_new_terminal (uint mbx, int fnp_unit_idx, int lineno)
 
 static void fnp_rcd_wru_timeout (uint mbx, int fnp_unit_idx, int lineno)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
     sim_debug (DBG_TRACE, & fnp_dev, "[%d]rcd wru_timeout\n", lineno);
     //sim_printf ("wru_timeout %d %d %d\n", mbx, fnp_unit_idx, lineno);
+#endif
     struct fnpUnitData_s * fudp = & fnpData.fnpUnitData [fnp_unit_idx];
     word24 fsmbx                = fudp->mailboxAddress + FNP_SUB_MBXES + mbx*FNP_SUB_MBX_SIZE;
 
@@ -1289,6 +1322,9 @@ static void fnpProcessBuffers (void)
 
 void set_3270_write_complete (UNUSED uv_tcp_t * client)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     //uvClientData * p = client->data;
 //sim_printf ("set_3270_write_complete %p stn_no %d\r\n", p, p->stationNo);
     sim_debug (DBG_TRACE, & fnp_dev, "set_3270_write_complete\n");
@@ -1338,7 +1374,10 @@ const unsigned char addr_map [ADDR_MAP_ENTRIES] =
 
 static void send_stn_in_buffer (void)
   {
+#if defined(TESTING)
+      cpu_state_t * cpup = _cpup;
       sim_debug (DBG_TRACE, & fnp_dev, "fnp2 send_stn_in_buffer\r\n");
+#endif
 
 //dcl  1 text_msg unal based (textp),                         /* Format of normal text start */
 //       2 stx char (1),
@@ -1429,6 +1468,9 @@ static void send_stn_in_buffer (void)
 
 static void fnp_process_3270_event (void)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup    = _cpup;
+#endif
     uint fnpno            = fnpData.ibm3270ctlr[ASSUME0].fnpno;
     uint lineno           = fnpData.ibm3270ctlr[ASSUME0].lineno;
     struct t_line * linep = & fnpData.fnpUnitData[fnpno].MState.line[lineno];
@@ -1503,6 +1545,9 @@ static void fnp_process_3270_event (void)
 
 void fnpProcessEvent (void)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     // Run the libuv event loop once.
     // Handles tcp connections, drops, read data, write data done.
     fnpuvProcessEvent ();
@@ -1879,6 +1924,9 @@ static t_stat fnpSetService (UNIT * uptr, UNUSED int32 value,
 static t_stat fnpShowConfig (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
                              UNUSED const void * desc)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     long fnpUnitIdx = FNP_UNIT_IDX (uptr);
     if (fnpUnitIdx >= (long) N_FNP_UNITS_MAX)
       {
@@ -2112,6 +2160,9 @@ static t_stat fnpSetFW (UNIT * uptr, UNUSED int32 value,
 static t_stat fnpShowFW (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
                          UNUSED const void * desc)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     long fnpUnitIdx = FNP_UNIT_IDX (uptr);
     if (fnpUnitIdx >= (long) N_FNP_UNITS_MAX)
       {
@@ -2135,6 +2186,9 @@ static t_stat fnpShowFW (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
 static t_stat fnpShowStatus (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
                              UNUSED const void * desc)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     long fnpUnitIdx = FNP_UNIT_IDX (uptr);
     if (fnpUnitIdx >= (long) fnp_dev.numunits)
       {
@@ -2256,6 +2310,9 @@ static config_list_t fnp_config_list [] =
 
 static t_stat fnpSetConfig (UNIT * uptr, UNUSED int value, const char * cptr, UNUSED void * desc)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     uint fnpUnitIdx = (uint) FNP_UNIT_IDX (uptr);
     //if (fnpUnitIdx >= fnp_dev . numunits)
     if (fnpUnitIdx >= N_FNP_UNITS_MAX)
@@ -2681,6 +2738,9 @@ done:;
 
 void process3270Input (uv_tcp_t * client, unsigned char * buf, ssize_t nread)
   {
+#if defined(TESTING)
+    cpu_state_t * cpup = _cpup;
+#endif
     if (! client || ! client->data)
       {
         sim_warn ("process3270Input bad client data\r\n");

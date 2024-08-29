@@ -14,7 +14,7 @@ export CC
 "${CC:?}" --version
 
 # Setup
-RUNS=2
+RUNS=3
 printf '\n%s\n' "Setting up PGO build ..."
 PROFILE_PATH="$(pwd -P)/.profile_data"
 export PROFILE_PATH
@@ -31,7 +31,7 @@ export LDFLAGS="${BASE_LDFLAGS:-} ${CFLAGS:?}"
 ${MAKE:-make} distclean
 ${MAKE:-make} "${LIBUVVER:?}"
 ${MAKE:-make}
-printf '\n%s\n' "Running baseline benchmark ..."
+printf '\n%s' "Running baseline benchmarks ... "
 SMIPS=$(cd src/perf_test && for i in $(seq 1 "${RUNS}"); do printf '%s' "(${i:?}/${RUNS:?}) " >&2; ../dps8/dps8 -r ./nqueensx.ini | grep MIPS; done | tr -cd '\n.0123456789' | awk '{for (i=1;i<=NF;++i) {sum+=$i; ++n}} END {printf "%.4f\n", sum/n}')
 
 # Profile
@@ -43,7 +43,6 @@ ${MAKE:-make} "${LIBUVVER:?}"
 ${MAKE:-make}
 printf '\n%s\n' "Generating profile ..."
 (cd src/perf_test && ../dps8/dps8 -r ./nqueensx.ini)
-./src/novdso/novdso || true
 ./src/empty/empty || true
 ./src/prt2pdf/prt2pdf -h || true
 ./src/punutil/punutil -v < /dev/null || true
@@ -58,8 +57,6 @@ ${MAKE:-make} "${LIBUVVER:?}"
 ${MAKE:-make}
 
 # Final
-printf '\n%s\n' "Running final benchmark ..."
+printf '\n%s' "Running final benchmarks ... "
 EMIPS=$(cd src/perf_test && for i in $(seq 1 "${RUNS}"); do printf '%s' "(${i:?}/${RUNS:?}) " >&2; ../dps8/dps8 -r ./nqueensx.ini | grep MIPS; done | tr -cd '\n.0123456789' | awk '{for (i=1;i<=NF;++i) {sum+=$i; ++n}} END {printf "%.4f\n", sum/n}')
 printf '\nBefore : %s\nAfter  : %s\n' "${SMIPS:?}" "${EMIPS:?}"
-# shellcheck disable=SC2046
-printf 'Change : %s%%\n' $(printf '%s\n' "scale=6;((${EMIPS:?}-${SMIPS:?})/${EMIPS:?})*100" | bc -l | dd bs=1 count=6 2> /dev/null)

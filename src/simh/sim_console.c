@@ -655,6 +655,9 @@ CONST char *cptr;
 CTAB *cmdp = NULL;
 CTAB *basecmdp = NULL;
 uint32 read_start_time = 0;
+#if defined(TESTING)
+cpu_state_t * cpup = _cpup;
+#endif
 
 tmxr_poll_rx (&sim_rem_con_tmxr);                      /* poll input */
 for (i=(was_active_command ? sim_rem_cmd_active_line : 0);

@@ -22,6 +22,7 @@
 #      NO_LOCKLESS=1                       Enable legacy (non-lockless) code
 #           NO_LTO=1                       Disables the use of LTO for build
 #    NO_C_ELLIPSIS=1                       Disables the C ellipsis extension
+#          PANEL68=1                       Enable custom L68 panel interface
 #       PERF_STRIP=1                       Enable CPU-only benchmarking mode
 #      ROUND_ROBIN=1                       Enable non-threaded multiple CPUs
 #          TESTING=1                       Enable developmental testing mode
@@ -173,20 +174,6 @@ libsir: .rebuild.env                                                         \
       $(TEST) -f ".needrebuild" && $(MAKE) -C "." "clean" || $(TRUE);        \
         $(MAKE) -C "src/dps8" "libsir" &&                                    \
           $(PRINTF) '%s\n' "BUILD: Successful libsir build"                  \
-            2> /dev/null || $(TRUE)
-
-##############################################################################
-# Builds novdso utility
-
-.PHONY: xovdso novdso .rebuild.env
-novdso xovdso: .rebuild.env                                                  \
-    # xovdso:    # Builds the novdso vDSO bypass utility
-	-@$(PRINTF) '%s\n' "BUILD: Starting novdso build" 2> /dev/null ||        \
-        $(TRUE)
-	-@$(MAKE) -s -C "." ".rebuild.env";                                      \
-      $(TEST) -f ".needrebuild" && $(MAKE) -C "." "clean" || $(TRUE);        \
-        $(MAKE) -C "src/novdso" "all" &&                                     \
-          $(PRINTF) '%s\n' "BUILD: Successful novdso build"                  \
             2> /dev/null || $(TRUE)
 
 ##############################################################################

@@ -243,6 +243,9 @@ C_SRCS += dps8_utils.c
 C_SRCS += fnpuv.c
 C_SRCS += fnptelnet.c
 C_SRCS += libtelnet.c
+ifeq ($(PANEL68),1)
+  C_SRCS += panelScraper.c
+endif
 C_SRCS += hdbg.c
 C_SRCS += segldr.c
 C_SRCS += ucache.c
@@ -306,6 +309,9 @@ H_SRCS += dps8_utils.h
 H_SRCS += fnpuv.h
 H_SRCS += fnptelnet.h
 H_SRCS += h316_imp.h
+ifeq ($(PANEL68),1)
+  C_SRCS += panelScraper.h
+endif
 H_SRCS += hdbg.h
 H_SRCS += segldr.h
 H_SRCS += shm.h
@@ -339,9 +345,7 @@ DECN_OBJS = ../decNumber/decContext.o  ../decNumber/decNumber.o
 
 .PHONY: all
 all:  sysdefs.h ver.h                                                         \
-      libsir unifdef prt2pdf punutil mcmb empty xovdso novdso                 \
-      locallibs_then_dps8                                                     \
-      $(TAGS)
+      libsir unifdef prt2pdf punutil mcmb empty locallibs_then_dps8 $(TAGS)
 	-@$(TRUE)
 
 ###############################################################################
@@ -492,12 +496,6 @@ empty:
 
 ###############################################################################
 
-.PHONY: xovdso novdso
-xovdso novdso:
-	-@$(SETV); $(MAKE) -C "../novdso" "all"
-
-###############################################################################
-
 udplib$(EXE): udplib.c udplib.h
 	@$(SETV); $(CC) udplib.c -o udplib -DTEST=1
 
@@ -566,7 +564,6 @@ distclean: clean
 	@$(RMF) ../simh/*.gc??                   2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../unifdef/*.gc??                2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../empty/*.gc??                  2> /dev/null  ||  $(TRUE)
-	@$(RMF) ../novdso/*.gc??                 2> /dev/null  ||  $(TRUE)
 	@$(RMF) *.prof*                          2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../blinkenLights2/*.prof*        2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../decNumber/*.prof*             2> /dev/null  ||  $(TRUE)
@@ -576,10 +573,10 @@ distclean: clean
 	@$(RMF) ../unifdef/*.prof*               2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../empty/*.prof*                 2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../punutil/*.prof*               2> /dev/null  ||  $(TRUE)
-	@$(RMF) ../novdso/*.prof*                2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../../dps8m*.state               2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../dps8m*.state                  2> /dev/null  ||  $(TRUE)
 	@$(RMF) dps8m*.state                     2> /dev/null  ||  $(TRUE)
+	@$(RMF) panelScraper.o                   2> /dev/null  ||  $(TRUE)
 	@$(RMF) "../../dps8m.state"                            ||  $(TRUE)
 	@$(RMF) "../dps8m.state"                               ||  $(TRUE)
 	@$(RMF) "dps8m.state"                                  ||  $(TRUE)
@@ -629,7 +626,6 @@ clean:
 	@$(SETV); $(MAKE) -C "../mcmb"           -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../empty"          -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../unifdef"        -f "GNUmakefile"  "clean"
-	@$(SETV); $(MAKE) -C "../novdso"         -f "GNUmakefile"  "clean"
 	@$(SETV); ( cd ../blinkenLights2 && $(RMF) blinkenLights2 || $(TRUE) )
 	@$(SETV); $(MAKE) -C "."                 -f "GNUmakefile"  "clean_dps8"
 	@$(SETV); $(MAKE) -C "../libsir"       "clean"               ||  $(TRUE)

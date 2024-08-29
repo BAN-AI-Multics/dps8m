@@ -24,10 +24,10 @@
 #include "dps8_iom.h"
 #include "dps8_urp.h"
 #include "dps8_sys.h"
-#include "dps8_faults.h"
-#include "dps8_scu.h"
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
+#include "dps8_faults.h"
+#include "dps8_scu.h"
 #include "dps8_utils.h"
 
 #define DBG_CTR 1
@@ -210,6 +210,7 @@ void urp_init (void)
 static iom_cmd_rc_t urpCmd (uint iomUnitIdx, uint chan) {
   iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
 #if defined(TESTING)
+  cpu_state_t * cpup = _cpup;
   if_sim_debug (DBG_TRACE, & urp_dev) dumpDCW (p->DCW, 0);
 #endif /* if defined(TESTING) */
  uint ctlrUnitIdx = get_ctlr_idx (iomUnitIdx, chan);

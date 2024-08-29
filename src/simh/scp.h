@@ -111,7 +111,6 @@ t_stat echo_cmd (int32 flag, CONST char *ptr);
 # endif
 
 /* Utility routines */
-
 t_stat sim_process_event (void);
 t_stat sim_activate (UNIT *uptr, int32 interval);
 t_stat _sim_activate (UNIT *uptr, int32 interval);

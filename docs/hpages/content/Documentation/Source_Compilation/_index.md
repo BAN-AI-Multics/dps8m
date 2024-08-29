@@ -361,7 +361,7 @@ Install the required prerequisites (using NetBSD Packages or [pkgsrc](https://ww
 * Build the simulator from the top-level source directory (using **GNU Make**):
 
   ```sh
-  env CC="/usr/pkg/gcc13/bin/gcc" LDFLAGS="Wl,-rpath=/usr/pkg/gcc13/lib" gmake
+  env CC="/usr/pkg/gcc13/bin/gcc" LDFLAGS="-Wl,-rpath=/usr/pkg/gcc13/lib" gmake
   ```
 
 ### Compilation using Clang

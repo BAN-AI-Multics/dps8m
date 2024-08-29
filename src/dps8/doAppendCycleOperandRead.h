@@ -55,7 +55,7 @@
 //                V
 //              Exit
 
-word24 doAppendCycleOperandRead (word36 * data, uint nWords) {
+word24 doAppendCycleOperandRead (cpu_state_t * cpup, word36 * data, uint nWords) {
 static int evcnt = 0;
   DCDstruct * i = & cpu.currentInstruction;
   (void)evcnt;
@@ -131,7 +131,8 @@ static int evcnt = 0;
   word14 cachedBound;
   word1 cachedP;
   bool cachedPaged;
-  cacheHit = ucCacheCheck (this, cpu.TPR.TSR, cpu.TPR.CA, & cachedBound, & cachedP, & cachedAddress, & cachedR1, & cachedPaged);
+  cacheHit =
+      ucCacheCheck (cpup, this, cpu.TPR.TSR, cpu.TPR.CA, & cachedBound, & cachedP, & cachedAddress, & cachedR1, & cachedPaged);
 # if defined(HDBG)
   hdbgNote ("doAppendCycleOperandRead.h", "test cache check %s %d %u %05o:%06o %05o %o %08o %o %o",
             cacheHit ? "hit" : "miss", evcnt, this, cpu.TPR.TSR, cpu.TPR.CA, cachedBound,
@@ -139,7 +140,7 @@ static int evcnt = 0;
 # endif /* if defined(HDBG) */
   goto miss;
 #else
-  if (! ucCacheCheck (this, cpu.TPR.TSR, cpu.TPR.CA, & bound, & p, & pageAddress, & RSDWH_R1, & paged)) {
+  if (! ucCacheCheck (cpup, this, cpu.TPR.TSR, cpu.TPR.CA, & bound, & p, & pageAddress, & RSDWH_R1, & paged)) {
 # if defined(HDBG)
     hdbgNote ("doAppendCycleOperandRead.h", "miss %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
 # endif /* if defined(HDBG) */
@@ -230,23 +231,23 @@ miss:;
   DBGAPP ("doAppendCycleOperandRead(A)\n");
 
   // is SDW for C(TPR.TSR) in SDWAM?
-  if (nomatch || ! fetch_sdw_from_sdwam (cpu.TPR.TSR)) {
+  if (nomatch || ! fetch_sdw_from_sdwam (cpup, cpu.TPR.TSR)) {
     // No
     DBGAPP ("doAppendCycleOperandRead(A):SDW for segment %05o not in SDWAM\n", cpu.TPR.TSR);
     DBGAPP ("doAppendCycleOperandRead(A):DSBR.U=%o\n", cpu.DSBR.U);
 
     if (cpu.DSBR.U == 0) {
-      fetch_dsptw (cpu.TPR.TSR);
+      fetch_dsptw (cpup, cpu.TPR.TSR);
 
       if (! cpu.PTW0.DF)
         doFault (FAULT_DF0 + cpu.PTW0.FC, fst_zero, "doAppendCycleOperandRead(A): PTW0.F == 0");
 
       if (! cpu.PTW0.U)
-        modify_dsptw (cpu.TPR.TSR);
+        modify_dsptw (cpup, cpu.TPR.TSR);
 
-      fetch_psdw (cpu.TPR.TSR);
+      fetch_psdw (cpup, cpu.TPR.TSR);
     } else
-      fetch_nsdw (cpu.TPR.TSR); // load SDW0 from descriptor segment table.
+      fetch_nsdw (cpup, cpu.TPR.TSR); // load SDW0 from descriptor segment table.
 
     if (cpu.SDW0.DF == 0) {
       DBGAPP ("doAppendCycleOperandRead(A): SDW0.F == 0! " "Initiating directed fault\n");
@@ -254,7 +255,7 @@ miss:;
       doFault (FAULT_DF0 + cpu.SDW0.FC, fst_zero, "SDW0.F == 0");
     }
     // load SDWAM .....
-    load_sdwam (cpu.TPR.TSR, nomatch);
+    load_sdwam (cpup, cpu.TPR.TSR, nomatch);
   }
   DBGAPP ("doAppendCycleOperandRead(A) R1 %o R2 %o R3 %o E %o\n", cpu.SDW->R1, cpu.SDW->R2, cpu.SDW->R3, cpu.SDW->E);
 
@@ -548,14 +549,14 @@ G:;
 
   DBGAPP ("doAppendCycleOperandRead(G) CA %06o\n", cpu.TPR.CA);
   if (nomatch ||
-      ! fetch_ptw_from_ptwam (cpu.SDW->POINTER, cpu.TPR.CA)) {
-    fetch_ptw (cpu.SDW, cpu.TPR.CA);
+      ! fetch_ptw_from_ptwam (cpup, cpu.SDW->POINTER, cpu.TPR.CA)) {
+    fetch_ptw (cpup, cpu.SDW, cpu.TPR.CA);
     if (! cpu.PTW0.DF) {
       // initiate a directed fault
       doFault (FAULT_DF0 + cpu.PTW0.FC, (_fault_subtype) {.bits=0},
               "PTW0.F == 0");
     }
-    loadPTWAM (cpu.SDW->POINTER, cpu.TPR.CA, nomatch); // load PTW0 to PTWAM
+    loadPTWAM (cpup, cpu.SDW->POINTER, cpu.TPR.CA, nomatch); // load PTW0 to PTWAM
   }
 
   // Prepage mode?
@@ -565,7 +566,7 @@ G:;
   // DH03 p.8-13: probably also mve,btd,dtb
   if (i->opcodeX && ((i->opcode & 0770)== 0200|| (i->opcode & 0770) == 0220
       || (i->opcode & 0770)== 020|| (i->opcode & 0770) == 0300)) {
-    do_ptw2 (cpu.SDW, cpu.TPR.CA);
+    do_ptw2 (cpup, cpu.SDW, cpu.TPR.CA);
   }
   goto I;
 
@@ -588,7 +589,7 @@ H:;
   } else
     ....
 #endif
-  set_apu_status (apuStatus_FANP);
+  set_apu_status (cpup, apuStatus_FANP);
 #if defined(HDBG)
   hdbgNote ("doAppendCycleOperandRead", "FANP");
 #endif /* if defined(HDBG) */
@@ -617,7 +618,7 @@ I:;
   hdbgNote ("doAppendCycleOperandRead", "FAP");
 #endif /* if defined(HDBG) */
   // final address paged
-  set_apu_status (apuStatus_FAP);
+  set_apu_status (cpup, apuStatus_FAP);
   PNL (L68_ (cpu.apu.state |= apu_FAP;))
 
   word24 y2 = cpu.TPR.CA % 1024;
@@ -686,7 +687,7 @@ HI:
   }
 #endif
 
-  ucCacheSave (this, cpu.TPR.TSR, cpu.TPR.CA, bound, p, pageAddress, RSDWH_R1, paged);
+  ucCacheSave (cpup, this, cpu.TPR.TSR, cpu.TPR.CA, bound, p, pageAddress, RSDWH_R1, paged);
 #if defined(TEST_UCACHE)
 # if defined(HDBG)
   hdbgNote ("doAppendCycleOperandRead.h", "cache %d %u %05o:%06o %05o %o %08o %o %o",
@@ -699,7 +700,7 @@ evcnt ++;
   cpu.cu.XSF = 1;
   sim_debug (DBG_TRACEEXT, & cpu_dev, "loading of cpu.TPR.TSR sets XSF to 1\n");
 
-  core_readN (finalAddress, data, nWords, "OPERAND_READ");
+  core_readN (cpup, finalAddress, data, nWords, "OPERAND_READ");
 
   if (i->info->flags & CALL6_INS)
     goto N;
@@ -736,7 +737,7 @@ L:; // Transfer or instruction fetch
     cpu.PR[n].RNR = cpu.PPR.PRR;
 // According the AL39, the PSR is 'undefined' in absolute mode.
 // ISOLTS thinks means don't change the operand
-    if (get_addr_mode () == APPEND_mode)
+    if (get_addr_mode (cpup) == APPEND_mode)
       cpu.PR[n].SNR = cpu.PPR.PSR;
     cpu.PR[n].WORDNO = (cpu.PPR.IC + 1) & MASK18;
     SET_PR_BITNO (n, 0);

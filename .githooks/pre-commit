@@ -150,7 +150,7 @@ printf "%s\n" "${TLIST:-}" | grep -v '^$' 2> /dev/null | grep . >&2 &&
 
 ${DEBUG_CALL:?} Checking for trailing whitespace ...
 TLIST="$(${HOOK_CALL:?} | \
- grep -Ev '(src/libsir/|src/libbacktrace/|mcmb$|unifdef$|tags$|vmpctool$|prt2pdf$|GRTAGS$|GTAGS$)' |
+ grep -Ev '(src/libsir/|src/libbacktrace/|mcmb$|unifdef$|tags$|prt2pdf$|GRTAGS$|GTAGS$)' |
   grep -Ev '(punutil$|dps8$|l68$|empty$|\.out$|\.tmp$|~$|\.exe$|\.dll$|\.o$|core$|\.git/.)' |
    grep -Ev '(strip\.mem$|bound_library_wired_$|ci_full\.log\.ref$|\.woff$|\.woff2$|\.png$|\.jpg$)' |
    xargs -I{} grep -ial ' \+$' "{}" 2> /dev/null)";

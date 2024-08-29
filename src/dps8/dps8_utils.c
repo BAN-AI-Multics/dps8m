@@ -23,11 +23,11 @@
 
 #include "dps8.h"
 #include "dps8_sys.h"
-#include "dps8_faults.h"
-#include "dps8_scu.h"
 #include "dps8_iom.h"
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
+#include "dps8_faults.h"
+#include "dps8_scu.h"
 #include "dps8_ins.h"
 #include "dps8_opcodetable.h"
 #include "dps8_utils.h"
@@ -169,7 +169,7 @@ char *get_mod_string(char * msg, word6 tag)
  */
 /* Single word integer routines */
 
-word36 Add36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf)
+word36 Add36b (cpu_state_t * cpup, word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf)
   {
     CPT (cpt2L, 17); // Add36b
     sim_debug (DBG_TRACEEXT, & cpu_dev,
@@ -223,7 +223,7 @@ word36 Add36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 
           CLRF (* flags, I_CARRY);
       }
 
-    if (chkOVF () && (flagsToSet & I_OFLOW))
+    if (chkOVF (cpup) && (flagsToSet & I_OFLOW))
       {
         if (* ovf)
           SETF (* flags, I_OFLOW);      // overflow
@@ -249,7 +249,7 @@ word36 Add36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 
     return res;
   }
 
-word36 Sub36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf)
+word36 Sub36b (cpu_state_t * cpup, word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf)
   {
     CPT (cpt2L, 18); // Sub36b
 
@@ -308,7 +308,7 @@ word36 Sub36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 
           SETF (* flags, I_CARRY);
       }
 
-    if (chkOVF () && (flagsToSet & I_OFLOW))
+    if (chkOVF (cpup) && (flagsToSet & I_OFLOW))
       {
         if (* ovf)
           SETF (* flags, I_OFLOW);      // overflow
@@ -333,7 +333,7 @@ word36 Sub36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 
     return res;
   }
 
-word18 Add18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf)
+word18 Add18b (cpu_state_t * cpup, word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf)
   {
     CPT (cpt2L, 19); // Add18b
 
@@ -384,7 +384,7 @@ word18 Add18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 
           CLRF (* flags, I_CARRY);
       }
 
-    if (chkOVF () && (flagsToSet & I_OFLOW))
+    if (chkOVF (cpup) && (flagsToSet & I_OFLOW))
       {
         if (* ovf)
           SETF (* flags, I_OFLOW);      // overflow
@@ -409,7 +409,7 @@ word18 Add18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 
     return (word18) res;
   }
 
-word18 Sub18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf)
+word18 Sub18b (cpu_state_t * cpup, word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf)
   {
     CPT (cpt2L, 20); // Sub18b
 
@@ -468,7 +468,7 @@ word18 Sub18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 
           SETF (* flags, I_CARRY);
       }
 
-    if (chkOVF () && (flagsToSet & I_OFLOW))
+    if (chkOVF (cpup) && (flagsToSet & I_OFLOW))
       {
         if (* ovf)
           SETF (* flags, I_OFLOW);      // overflow
@@ -493,7 +493,7 @@ word18 Sub18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 
     return res;
   }
 
-word72 Add72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf)
+word72 Add72b (cpu_state_t * cpup, word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf)
   {
     CPT (cpt2L, 21); // Add72b
 
@@ -574,7 +574,7 @@ word72 Add72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
           CLRF (* flags, I_CARRY);
       }
 
-    if (chkOVF () && (flagsToSet & I_OFLOW))
+    if (chkOVF (cpup) && (flagsToSet & I_OFLOW))
       {
         if (* ovf)
           SETF (* flags, I_OFLOW);      // overflow
@@ -607,7 +607,7 @@ word72 Add72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
     return res;
   }
 
-word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf)
+word72 Sub72b (cpu_state_t * cpup, word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf)
   {
     CPT (cpt2L, 22); // Sub72b
 #if defined(NEED_128)
@@ -740,7 +740,7 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
           SETF (* flags, I_CARRY);
       }
 
-    if (chkOVF () && (flagsToSet & I_OFLOW))
+    if (chkOVF (cpup) && (flagsToSet & I_OFLOW))
       {
         if (* ovf)
           SETF (* flags, I_OFLOW);      // overflow
@@ -781,7 +781,7 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
   }
 
 // CANFAULT
-word36 compl36(word36 op1, word18 *flags, bool * ovf)
+word36 compl36(cpu_state_t * cpup, word36 op1, word18 *flags, bool * ovf)
 {
     CPT (cpt2L, 23); // compl36
     //(void)printf("op1 = %"PRIo64" %"PRIo64"\n", op1, (-op1) & DMASK);
@@ -800,7 +800,7 @@ word36 compl36(word36 op1, word18 *flags, bool * ovf)
     if (res & SIGN36) CPT (cpt2L, 31); // neg
 #endif
 
-    if (chkOVF () && * ovf)
+    if (chkOVF (cpup) && * ovf)
         SETF(*flags, I_OFLOW);
 
     if (res & SIGN36)
@@ -817,7 +817,7 @@ word36 compl36(word36 op1, word18 *flags, bool * ovf)
 }
 
 // CANFAULT
-word18 compl18(word18 op1, word18 *flags, bool * ovf)
+word18 compl18(cpu_state_t * cpup, word18 op1, word18 *flags, bool * ovf)
 {
     CPT (cpt2L, 24); // compl18
     //(void)printf("op1 = %"PRIo64" %"PRIo64"\n", op1, (-op1) & DMASK);
@@ -835,7 +835,7 @@ word18 compl18(word18 op1, word18 *flags, bool * ovf)
     if (res & SIGN18) CPT (cpt2L, 31); // neg
 #endif
 
-    if (chkOVF () && * ovf)
+    if (chkOVF (cpup) && * ovf)
         SETF(*flags, I_OFLOW);
     if (res & SIGN18)
         SETF(*flags, I_NEG);
@@ -981,7 +981,7 @@ void convert_to_word36 (word72 src, word36 *even, word36 *odd)
 #endif
 }
 
-void cmp36(word36 oP1, word36 oP2, word18 *flags)
+void cmp36(cpu_state_t * cpup, word36 oP1, word36 oP2, word18 *flags)
   {
     CPT (cpt2L, 25); // cmp36
     L68_ (cpu.ou.cycle |= ou_GOS;)
@@ -1025,7 +1025,7 @@ void cmp36(word36 oP1, word36 oP2, word18 *flags)
       }
   }
 
-void cmp18(word18 oP1, word18 oP2, word18 *flags)
+void cmp18(cpu_state_t * cpup, word18 oP1, word18 oP2, word18 *flags)
   {
     CPT (cpt2L, 26); // cmp18
     L68_ (cpu.ou.cycle |= ou_GOS;)
@@ -1069,7 +1069,7 @@ void cmp18(word18 oP1, word18 oP2, word18 *flags)
       }
   }
 
-void cmp36wl(word36 A, word36 Y, word36 Q, word18 *flags)
+void cmp36wl(cpu_state_t * cpup, word36 A, word36 Y, word36 Q, word18 *flags)
 {
     CPT (cpt2L, 26); // cmp36wl
     // This is wrong; signed math is needed.
@@ -1104,7 +1104,7 @@ void cmp36wl(word36 A, word36 Y, word36 Q, word18 *flags)
     }
 }
 
-void cmp72(word72 op1, word72 op2, word18 *flags)
+void cmp72(cpu_state_t * cpup, word72 op1, word72 op2, word18 *flags)
 {
     CPT (cpt2L, 27); // cmp72
    // The case of op1 == 400000000000000000000000 and op2 == 0 falls through

@@ -47,8 +47,8 @@ char *get_mod_string(char * msg, word6 tag);
 word72 convert_to_word72 (word36 even, word36 odd);
 void convert_to_word36 (word72 src, word36 *even, word36 *odd);
 
-word36 compl36(word36 op1, word18 *flags, bool * ovf);
-word18 compl18(word18 op1, word18 *flags, bool * ovf);
+word36 compl36(cpu_state_t * cpup, word36 op1, word18 *flags, bool * ovf);
+word18 compl18(cpu_state_t * cpup, word18 op1, word18 *flags, bool * ovf);
 
 void copyBytes(int posn, word36 src, word36 *dst);
 void copyChars(int posn, word36 src, word36 *dst);
@@ -56,10 +56,10 @@ void copyChars(int posn, word36 src, word36 *dst);
 void putByte(word36 *dst, word9 data, int posn);
 void putChar(word36 *dst, word6 data, int posn);
 
-void cmp36(word36 op1, word36 op2, word18 *flags);
-void cmp36wl(word36 A, word36 Y, word36 Q, word18 *flags);
-void cmp18(word18 op1, word18 op2, word18 *flags);
-void cmp72(word72 op1, word72 op2, word18 *flags);
+void cmp36(cpu_state_t * cpup, word36 op1, word36 op2, word18 *flags);
+void cmp36wl(cpu_state_t * cpup, word36 A, word36 Y, word36 Q, word18 *flags);
+void cmp18(cpu_state_t * cpup, word18 op1, word18 op2, word18 *flags);
+void cmp72(cpu_state_t * cpup, word72 op1, word72 op2, word18 *flags);
 
 char *strlower(char *q);
 int strmask(char *str, char *mask);
@@ -886,12 +886,12 @@ int insertASCII36toBuffer (uint8 * bufp, t_mtrlnt tbc, uint * words_processed, w
 int insertWord36toBuffer (uint8 * bufp, t_mtrlnt tbc, uint * words_processed, word36 word);
 void print_int128 (int128 n, char * p);
 char * print_int128o (int128 n, char * p);
-word36 Add36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf);
-word36 Sub36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf);
-word18 Add18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf);
-word18 Sub18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf);
-word72 Add72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf);
-word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf);
+word36 Add36b (cpu_state_t * cpup, word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf);
+word36 Sub36b (cpu_state_t * cpup, word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf);
+word18 Add18b (cpu_state_t * cpup, word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf);
+word18 Sub18b (cpu_state_t * cpup, word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf);
+word72 Add72b (cpu_state_t * cpup, word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf);
+word72 Sub72b (cpu_state_t * cpup, word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf);
 
 void timespec_diff(struct timespec *start, struct timespec *stop,
                    struct timespec *result);

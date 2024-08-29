@@ -44,12 +44,12 @@
 
 #include "dps8.h"
 #include "dps8_sys.h"
-#include "dps8_faults.h"
-#include "dps8_scu.h"
 #include "dps8_iom.h"
 #include "dps8_console.h"
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
+#include "dps8_faults.h"
+#include "dps8_scu.h"
 #include "dps8_state.h"
 #include "dps8_ins.h"
 #include "dps8_math.h"
@@ -72,9 +72,7 @@
 # include "threadz.h"
 #endif /* if defined(THREADZ) || defined(LOCKLESS) */
 
-#if defined(PANEL68)
-# include "panelScraper.h"
-#endif /* if defined(PANEL68) */
+#include "panelScraper.h"
 
 #include "segldr.h"
 
@@ -1823,6 +1821,8 @@ static t_stat do_restart (UNUSED int32 arg,  UNUSED const char * buf)
       }
     sim_printf ("Restart entry 0%o\n", n);
 
+    cpu_state_t * cpup = _cpup;
+
 # if 0
     // Assume bootload CPU
     cpu.cu.IWB = M [n] & MASK36;
@@ -2509,6 +2509,7 @@ static char * source_search_path = NULL;
 
 void list_source (char * compname, word18 offset, uint dflag)
   {
+    cpu_state_t * cpup = _cpup;
     const int offset_str_len = 10;
     //char offset_str[offset_str_len + 1];
     char offset_str[17];
@@ -2718,6 +2719,7 @@ fileDone:
 
 static t_stat stack_trace (UNUSED int32 arg,  UNUSED const char * buf)
   {
+    cpu_state_t * cpup = _cpup;
     char * msg;
 
     word15 icSegno = cpu.PPR.PSR;
@@ -3157,9 +3159,10 @@ static t_stat lookup_system_book (UNUSED int32  arg, const char * buf)
 
 static sdw0_s *fetchSDW (word15 segno)
   {
+    cpu_state_t * cpup = _cpup;
     word36 SDWeven, SDWodd;
 
-    core_read2 ((cpu.DSBR.ADDR + 2u * segno) & PAMASK, & SDWeven, & SDWodd,
+    core_read2 (cpup, (cpu.DSBR.ADDR + 2u * segno) & PAMASK, & SDWeven, & SDWodd,
                  __func__);
 
     // even word
@@ -3190,6 +3193,7 @@ static sdw0_s *fetchSDW (word15 segno)
 
 static t_stat virtAddrN (uint address)
   {
+    cpu_state_t * cpup = _cpup;
     if (cpu.DSBR.U) {
         for(word15 segno = 0; 2u * segno < 16u * (cpu.DSBR.BND + 1u); segno += 1)
         {
@@ -3205,7 +3209,7 @@ static t_stat virtAddrN (uint address)
             word24 y1 = (2u * segno) % 1024u;
             word24 x1 = (2u * segno - y1) / 1024u;
             word36 PTWx1;
-            core_read ((cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
+            core_read (cpup, (cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
 
             ptw_s PTW1;
             PTW1.ADDR = GETHI(PTWx1);
@@ -3222,7 +3226,7 @@ static t_stat virtAddrN (uint address)
             for (word15 tspt = 0; tspt < 512u; tspt ++)
             {
                 word36 SDWeven, SDWodd;
-                core_read2(((PTW1.ADDR << 6) + tspt * 2u) & PAMASK, & SDWeven,
+                core_read2(cpup, ((PTW1.ADDR << 6) + tspt * 2u) & PAMASK, & SDWeven,
                            & SDWodd, __func__);
                 sdw0_s SDW0;
                 // even word
@@ -3265,7 +3269,7 @@ static t_stat virtAddrN (uint address)
                         //     SDW(segno).ADDR + x2.
 
                         word36 PTWx2;
-                        core_read ((SDW0.ADDR + x2) & PAMASK, & PTWx2, __func__);
+                        core_read (cpup, (SDW0.ADDR + x2) & PAMASK, & PTWx2, __func__);
 
                         ptw_s PTW2;
                         PTW2.ADDR = GETHI(PTWx2);
@@ -4614,6 +4618,7 @@ static int getAddress(int segno, int offset)
 static t_addr parse_addr (UNUSED DEVICE * dptr, const char *cptr,
                           const char **optr)
   {
+    cpu_state_t * cpup = _cpup;
     // a segment reference?
     if (strchr(cptr, '|'))
     {
@@ -4730,6 +4735,8 @@ t_stat fprint_sym (UNUSED FILE * ofile, UNUSED t_addr addr,
 // address of the UNIT? Would it be better to use sim_unit.u3 (or some such
 // as a word width?
 
+    cpu_state_t * cpup = _cpup;
+
     if (!((uint) sw & SWMASK ('M')))
         return SCPE_ARG;
 
@@ -4745,7 +4752,7 @@ t_stat fprint_sym (UNUSED FILE * ofile, UNUSED t_addr addr,
         // decode instruction
         DCDstruct ci;
         DCDstruct * p = & ci;
-        decode_instruction (word1, p);
+        decode_instruction (cpup, word1, p);
 
         // MW EIS?
         if (p->info->ndes > 1)
