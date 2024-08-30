@@ -989,11 +989,11 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 * Ensure you are running a recent release of [**Haiku**](https://www.haiku-os.org/) on a [supported **64-bit** platform](https://www.haiku-os.org/guides/building/port_status).
   * Use the '**SoftwareUpdater**' application to ensure your **Haiku** installation is up-to-date.
 * **The DPS8M Development Team** regularly tests the simulator using the [nightly **Haiku** **x86_64** snapshots](https://download.haiku-os.org/nightly-images/x86_64/).
-  * **Haiku** **x86_64** (**`hrev57700`**) was used to verify the following instructions.
+  * **Haiku** **x86_64** (**`hrev58033`**) was used to verify the following instructions.
 
 ### Haiku prerequisites
 
-The default **Haiku** installation includes the required header files, the recommended compiler (at the time of writing, **GCC 13.2**), and most of the necessary development utilities (*i.e.* **GNU Make**) required to build **DPS8M**. The remaining prerequisites are available via the standard package management tools.
+The default **Haiku** installation includes the required header files, an acceptable compiler (at the time of writing, **GCC 13.3**), and most of the necessary development utilities (*i.e.* **GNU Make**) required to build **DPS8M**. The remaining prerequisites are available via the standard package management tools.
 
 * Install the required prerequisites (from *HaikuPorts* using `pkgman` or the '**HaikuDepot**' application):
    * `libuv`
@@ -1010,13 +1010,12 @@ The default **Haiku** installation includes the required header files, the recom
 
 ### Compiling using Clang
 
-* Building with **GCC** is strongly recommended for optimal performance, but compilation using **Clang** is also supported (*although not recommended, due to the lack of support for LTO optimization*).
-  * At the time of writing, **Clang 17** is available from *HaikuPorts* (as the '**`llvm17_clang`**' and '**`llvm17_lld`**' packages), installable using `pkgman` or the '**HaikuDepot**' application.
+* At the time of writing, **Clang 18** is available from *HaikuPorts* (as the '**`llvm18_clang`**' and '**`llvm18_lld`**' packages), installable using `pkgman` or the '**HaikuDepot**' application.
 
 * Build the simulator from the top-level source directory (using **GNU Make**):
 
   ```sh
-  env CSTD="c11" CC="clang" CFLAGS="-fPIC" NO_LTO=1 make
+  env CC="clang" make
   ```
 
 ### Additional Haiku Notes
