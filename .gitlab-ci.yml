@@ -1185,7 +1185,7 @@ Hugo:
 
 ############################################################################
 
-AIX/powerpc64, IBM AIX, GCC:
+.AIX/powerpc64, IBM AIX, GCC:
   stage: build
   tags:
     - AIX
@@ -1214,44 +1214,6 @@ AIX/powerpc64, IBM AIX, GCC:
     expire_in: 1 day
     paths:
       - dps8m-git-aixv7-gcc.tar.gz
-      - src/dps8/dps8.lz
-      - src/prt2pdf/prt2pdf.lz
-      - src/punutil/punutil.lz
-      - src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-AIX/powerpc64, IBM AIX, IBM XL C/C++ V16.1:
-  stage: build
-  tags:
-    - AIX
-    - IBM
-    - ppc64
-  script:
-    - *scriptSanity
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - export LOCAL_CLONEOPTS=""
-    - export XLCXLC="xlc_r" && export XLCVER="16.1.0" && gmake -j $(lparstat -i | grep '^Desired Virtual CPUs' | cut -d ':' -f 2 | tr -cd '0-9\n' || printf '%s\n' "6") NO_LTO=1 CC="/opt/IBM/xlC/${XLCVER:?}/bin/${XLCXLC:?} -O3 -qhot -qarch=pwr8 -qchars=signed -q64 -qalign=natural -qtls" CFLAGS="-DUSE_POPT=1 -DUSE_FLOCK=1 -DUSE_FCNTL=1 -DAIX_ATOMICS=1 -DNEED_128=1 -DLOCKLESS=1 -I/opt/freeware/include -I../simh -I../decNumber -D_GNU_SOURCE -U__STRICT_POSIX__" USE_POPT=1 NEED_128=1 PULIBS="-lpopt" LDFLAGS="-L/opt/freeware/lib -b64" LIBS="-luv -lbsd -lm"
-    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 -t
-    - *scriptBuildInfo
-    - *scriptVerifyVersion
-    - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
-    - mkdir -p "src/${DISTDIR:?}"
-    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
-    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
-    - ( cd src && tar cf ../dps8m-git-aixv7-xlc.tar "./${DISTDIR:?}" )
-    - pigz -9 -f -m -n dps8m-git-aixv7-xlc.tar
-    - *scriptCompressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - dps8m-git-aixv7-xlc.tar.gz
       - src/dps8/dps8.lz
       - src/prt2pdf/prt2pdf.lz
       - src/punutil/punutil.lz
@@ -2028,8 +1990,6 @@ pages:
     - Linux
     - amd64
   needs:
-    - job: AIX/powerpc64, IBM AIX, GCC
-    - job: AIX/powerpc64, IBM AIX, IBM XL C/C++ V16.1
     - job: Cross-compiled release binaries
     - job: Clang Analyzer
     - job: Cppcheck
@@ -2047,8 +2007,6 @@ pages:
     - job: PVS-Studio
     - job: NSIS Installer
   dependencies:
-    - "AIX/powerpc64, IBM AIX, GCC"
-    - "AIX/powerpc64, IBM AIX, IBM XL C/C++ V16.1"
     - "Cross-compiled release binaries"
     - "Clang Analyzer"
     - "Cppcheck"
