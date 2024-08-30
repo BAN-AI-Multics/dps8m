@@ -11,12 +11,9 @@ PATH="$(brew --prefix llvm)"/bin:"${PATH:-}"
 export PATH
 CC="$(brew --prefix llvm)"/bin/clang
 export CC
-MAKE="$(brew --prefix make)"/bin/gmake
-export MAKE
 
 # Test
 "${CC:?}" --version
-"${MAKE:?}" --version
 
 # Setup
 RUNS=3
@@ -26,7 +23,7 @@ export PROFILE_PATH
 test -d "${PROFILE_PATH}" && rm -rf "${PROFILE_PATH}"
 mkdir -p "${PROFILE_PATH}"
 export BASE_LDFLAGS="${LDFLAGS:-}"
-export BASE_CFLAGS="-Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko -Dfopen64=fopen ${CFLAGS:-}"
+export BASE_CFLAGS="-Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko -Dfopen64=fopen -fno-profile-sample-accurate ${CFLAGS:-}"
 export LIBUVVER="libuvrel"
 export LLVM_PROFILE_FILE="${PROFILE_PATH:?}/profile.%p.profraw"
 
@@ -49,7 +46,7 @@ ${MAKE:-make} "${LIBUVVER:?}" HOMEBREW_LIB= HOMEBREW_INC=
 ${MAKE:-make} HOMEBREW_LIB= HOMEBREW_INC=
 printf '\n%s\n' "Generating profile ..."
 (cd src/perf_test && ../dps8/dps8 -r ./nqueensx.ini)
-"$(brew --prefix llvm)/bin/llvm-profdata" merge -output="${PROFILE_PATH:?}/final.profdata" "${PROFILE_PATH:?}"/profile.*.profraw
+"$(brew --prefix llvm)/bin/llvm-profdata" merge --sparse=true --gen-partial-profile=true -output="${PROFILE_PATH:?}/final.profdata" "${PROFILE_PATH:?}"/profile.*.profraw
 
 # Build
 printf '\n%s\n' "Generating final build ..."
