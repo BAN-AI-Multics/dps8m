@@ -29,9 +29,9 @@ export LLVM_PROFILE_FILE="${PROFILE_PATH:?}/profile.%p.profraw"
 printf '\n%s\n' "Generating baseline build ..."
 export CFLAGS="${BASE_CFLAGS:?}"
 export LDFLAGS="${BASE_LDFLAGS:-} ${CFLAGS:?} -fuse-ld=lld"
-${MAKE:-make} distclean
-${MAKE:-make} "${LIBUVVER:?}"
-${MAKE:-make}
+${MAKE:-make} distclean "${@}"
+${MAKE:-make} "${LIBUVVER:?}" "${@}"
+${MAKE:-make} "${@}"
 printf '\n%s' "Running baseline benchmarks ... "
 SMIPS=$(cd src/perf_test && for i in $(seq 1 "${RUNS}"); do printf '%s' "(${i:?}/${RUNS:?}) " >&2; ../dps8/dps8 -r ./nqueensx.ini | grep MIPS; done | tr -cd '\n.0123456789' | awk '{for (i=1;i<=NF;++i) {sum+=$i; ++n}} END {printf "%.4f\n", sum/n}')
 
@@ -39,9 +39,9 @@ SMIPS=$(cd src/perf_test && for i in $(seq 1 "${RUNS}"); do printf '%s' "(${i:?}
 printf '\n%s\n' "Generating profile build ..."
 export CFLAGS="-fprofile-generate=${PROFILE_PATH:?}/profile.%p.profraw ${BASE_CFLAGS:?}"
 export LDFLAGS="${BASE_LDFLAGS:-} ${CFLAGS:?} -fuse-ld=lld"
-${MAKE:-make} distclean
-${MAKE:-make} "${LIBUVVER:?}"
-${MAKE:-make}
+${MAKE:-make} distclean "${@}"
+${MAKE:-make} "${LIBUVVER:?}" "${@}"
+${MAKE:-make} "${@}"
 printf '\n%s\n' "Generating profile ..."
 (cd src/perf_test && ../dps8/dps8 -r ./nqueensx.ini)
 llvm-profdata merge --sparse=true --gen-partial-profile=true -output="${PROFILE_PATH:?}/final.profdata" "${PROFILE_PATH:?}"/profile.*.profraw
@@ -50,9 +50,9 @@ llvm-profdata merge --sparse=true --gen-partial-profile=true -output="${PROFILE_
 printf '\n%s\n' "Generating final build ..."
 export CFLAGS="-fprofile-use=${PROFILE_PATH:?}/final.profdata ${BASE_CFLAGS:?}"
 export LDFLAGS="${BASE_LDFLAGS:-} ${CFLAGS:?} -fuse-ld=lld"
-${MAKE:-make} distclean
-${MAKE:-make} "${LIBUVVER:?}"
-${MAKE:-make}
+${MAKE:-make} distclean "${@}"
+${MAKE:-make} "${LIBUVVER:?}" "${@}"
+${MAKE:-make} "${@}"
 
 # Final
 printf '\n%s' "Running final benchmarks ... "
