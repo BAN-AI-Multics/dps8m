@@ -667,11 +667,9 @@ title: DPS8M Releases
 {{< /expand >}}
 
 {{< expand "PowerPC (32-bit, big-endian)" "…" >}}
-| File                                                                                       | Platform   |
-|:------------------------------------------------------------------------------------------ |:---------- |
-| [**dps8m-git-nbd93-970.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-970.tar.gz) | G5&nbsp;/&nbsp;PPC970  |
-| [**dps8m-git-nbd93-pg4.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-pg4.tar.gz) | G4&nbsp;/&nbsp;PPC7400 |
-| [**dps8m-git-nbd93-740.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-740.tar.gz) | G3&nbsp;/&nbsp;PPC740  |
+| File                                                                                       | Platform               |
+|:------------------------------------------------------------------------------------------ |:---------------------- |
+| [**dps8m-git-nbd93-740.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-740.tar.gz) | G3&nbsp;/&nbsp;PPC740+ |
 {{< /expand >}}
 {{< /expand >}}
 {{< /tab >}}
@@ -713,14 +711,14 @@ title: DPS8M Releases
 {{< /expand >}}
 
 {{< expand "Power ISA (64-bit, big-endian)" "…" >}}
-| File                                                                                       | Platform  |
-| :----------------------------------------------------------------------------------------- | :-------- |
+| File                                                                                       | Platform               |
+| :----------------------------------------------------------------------------------------- | :--------------------- |
 | [**dps8m-git-linux-970.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-970.tar.gz) | G5&nbsp;/&nbsp;PPC970+ |
 {{< /expand >}}
 
 {{< expand "PowerPC (32-bit, big-endian)" "…" >}}
-| File                                                                                       | Platform    |
-| :----------------------------------------------------------------------------------------- | :---------- |
+| File                                                                                       | Platform               |
+| :----------------------------------------------------------------------------------------- | :--------------------- |
 | [**dps8m-git-linux-740.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-740.tar.gz) | G3&nbsp;/&nbsp;PPC740+ |
 {{< /expand >}}
 {{< /expand >}}
