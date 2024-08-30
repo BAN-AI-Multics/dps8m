@@ -28,9 +28,9 @@ export LIBUVVER="libuvrel"
 printf '\n%s\n' "Generating baseline build ..."
 export CFLAGS="${BASE_CFLAGS:?}"
 export LDFLAGS="${BASE_LDFLAGS:-} ${CFLAGS:?}"
-${MAKE:-make} distclean
-${MAKE:-make} "${LIBUVVER:?}"
-${MAKE:-make}
+${MAKE:-make} distclean "${@}"
+${MAKE:-make} "${LIBUVVER:?}" "${@}"
+${MAKE:-make} "${@}"
 printf '\n%s' "Running baseline benchmarks ... "
 SMIPS=$(cd src/perf_test && for i in $(seq 1 "${RUNS}"); do printf '%s' "(${i:?}/${RUNS:?}) " >&2; ../dps8/dps8 -r ./nqueensx.ini | grep MIPS; done | tr -cd '\n.0123456789' | awk '{for (i=1;i<=NF;++i) {sum+=$i; ++n}} END {printf "%.4f\n", sum/n}')
 
@@ -38,9 +38,9 @@ SMIPS=$(cd src/perf_test && for i in $(seq 1 "${RUNS}"); do printf '%s' "(${i:?}
 printf '\n%s\n' "Generating profile build ..."
 export CFLAGS="-fprofile-generate ${BASE_CFLAGS:?}"
 export LDFLAGS="${BASE_LDFLAGS:-} ${CFLAGS:?}"
-${MAKE:-make} distclean
-${MAKE:-make} "${LIBUVVER:?}"
-${MAKE:-make}
+${MAKE:-make} distclean "${@}"
+${MAKE:-make} "${LIBUVVER:?}" "${@}"
+${MAKE:-make} "${@}"
 printf '\n%s\n' "Generating profile ..."
 (cd src/perf_test && ../dps8/dps8 -r ./nqueensx.ini)
 ./src/empty/empty || true
@@ -52,9 +52,9 @@ printf '\n%s\n' "Generating profile ..."
 printf '\n%s\n' "Generating final build ..."
 export CFLAGS="-fprofile-use -Wno-missing-profile ${BASE_CFLAGS:?}"
 export LDFLAGS="${BASE_LDFLAGS:-} ${CFLAGS:?}"
-${MAKE:-make} distclean
-${MAKE:-make} "${LIBUVVER:?}"
-${MAKE:-make}
+${MAKE:-make} distclean "${@}"
+${MAKE:-make} "${LIBUVVER:?}" "${@}"
+${MAKE:-make} "${@}"
 
 # Final
 printf '\n%s' "Running final benchmarks ... "
