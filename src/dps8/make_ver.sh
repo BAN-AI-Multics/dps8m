@@ -308,7 +308,7 @@ get_git_vers()
 
     GIT_SOURCE_INFO="${GIT_OUT:-0.0.0}"
     GIT_SOURCE_XFRM=$(printf '%s\n' "${GIT_SOURCE_INFO:?}" |
-        tr -d ' ' 2> /dev/null | \
+        ${TR:-tr} -d ' ' 2> /dev/null | \
             sed -e 's/_/-/g' 2> /dev/null) ||
                 { # /* sed */
                     printf >&2 '%s\n' \
@@ -449,12 +449,12 @@ get_bld_user()
     PREPAREDBY="${WHOAMIOUTP:-${WHOAMIOUTG:-}}"
     # shellcheck disable=SC2002
     BUILDERTXT="$(cat ../../.builder.txt 2> /dev/null | \
-        tr -d '\"' 2> /dev/null || \
+        ${TR:-tr} -d '\"' 2> /dev/null || \
             true > /dev/null 2>&1)"
 
     printf '%s\n' \
         "${BUILDERTXT:-${PREPAREDBY:-Unknown}@${MYNODENAME:-Unknown}}"  | \
-            tr -s ' ' 2> /dev/null | sed -e 's/@Unknown//' 2> /dev/null | \
+            ${TR:-tr} -s ' ' 2> /dev/null | sed -e 's/@Unknown//' 2> /dev/null | \
                 sed -e 's/\"//' \
                     -e 's/\%//' \
                     -e 's/\\//' \
@@ -493,19 +493,19 @@ get_bld_osys()
     else
         BLD_OSYS="$( (command -p env uname -mrs        2> /dev/null       || \
         true                                           1> /dev/null 2>&1)  | \
-               tr -d '*'                               2> /dev/null       || \
+               ${TR:-tr} -d '*'                        2> /dev/null       || \
                    true                                1> /dev/null 2>&1)"
     fi
     if [ -f "../../.buildos.txt" ]; then
         # shellcheck disable=SC2002
         BLD_OSYS="$(cat ../../.buildos.txt             2> /dev/null        | \
-            tr -d '\"'                                 2> /dev/null        | \
-            tr -d '*'                                  2> /dev/null       || \
+            ${TR:-tr} -d '\"'                          2> /dev/null        | \
+            ${TR:-tr} -d '*'                           2> /dev/null       || \
              true                                      1> /dev/null 2>&1)"
     fi
     printf '%s\n' \
         "${BLD_OSYS:-Unknown}" | \
-            tr -s ' '                                  2> /dev/null        ||
+            ${TR:-tr} -s ' '                           2> /dev/null       ||
                 { # /* BLD_OSYS */
                     printf >&2 '%s\n' \
                         "Error: tr failed."
@@ -521,11 +521,11 @@ get_bld_osnm()
     debug_print "Start of get_bld_osnm()"
     BLD_OSNM="$( (command -p env uname -s 2> /dev/null ||
         true > /dev/null 2>&1) | \
-            tr -d '*' 2> /dev/null || \
+            ${TR:-tr} -d '*' 2> /dev/null || \
                 true   > /dev/null 2>&1)"
     printf '%s\n' \
         "${BLD_OSNM:-Unknown}" | \
-            tr -s ' ' 2> /dev/null ||
+            ${TR:-tr} -s ' ' 2> /dev/null ||
                 { # /* BLD_OSNM */
                     printf >&2 '%s\n' \
                         "Error: tr failed."
@@ -546,19 +546,19 @@ get_bld_osar()
                   printf '%s\n' 'Unknown') | \
                       sed -e 's/^AIX //' 2> /dev/null | \
                           sed -e 's/ (emulated by .....)//' 2> /dev/null | \
-                              tr -d '*' 2> /dev/null || \
+                              ${TR:-tr} -d '*' 2> /dev/null || \
                                   true  1> /dev/null 2>&1)"
     fi
     test "${BLD_OSAR:-}" = "unknown" 2> /dev/null && BLD_OSAR=""
     if [ -z "${BLD_OSAR:-}" ]; then
       BLD_OSAR="$( (command -p env uname -m 2> /dev/null ||
           true > /dev/null 2>&1) | \
-              tr -d '*' 2> /dev/null || \
+              ${TR:-tr} -d '*' 2> /dev/null || \
                 true    1> /dev/null 2>&1)"
     fi
     printf '%s\n' \
         "${BLD_OSAR:-Unknown}" | \
-            tr -s ' ' 2> /dev/null ||
+            ${TR:-tr} -s ' ' 2> /dev/null ||
                 { # /* BLD_OSAR */
                     printf >&2 '%s\n' \
                         "Error: tr failed."
@@ -574,11 +574,11 @@ get_bld_osvr()
     debug_print "Start of get_bld_osvr()"
     BLD_OSVR="$( (command -p env uname -r 2> /dev/null ||
         true > /dev/null 2>&1) | \
-            tr -d '*' 2> /dev/null || \
+            ${TR:-tr} -d '*' 2> /dev/null || \
                 true   > /dev/null 2>&1)"
     printf '%s\n' \
         "${BLD_OSVR:-Unknown}" | \
-            tr -s ' ' 2> /dev/null ||
+            ${TR:-tr} -s ' ' 2> /dev/null ||
                 { # /* BLD_OSVR */
                     printf >&2 '%s\n' \
                         "Error: tr failed."
@@ -710,16 +710,16 @@ debug_print "BUILD_TMP_RLT is ${BUILD_TMP_RLT:-}"
 
 debug_print "Setting BUILD_TMP_RLT_FIRST"
 BUILD_TMP_RLT_FIRST="$(printf '%s' "${BUILD_TMP_RLT:-Z}" |
-    tr -cd '[:alpha:]' 2> /dev/null |
+    ${TR:-tr} -cd '[:alpha:]' 2> /dev/null |
         sed -e 's/^\(.\).*/\1/' 2> /dev/null |
-            tr '[:lower:]' '[:upper:]' 2> /dev/null)"
+            ${TR:-tr} '[:lower:]' '[:upper:]' 2> /dev/null)"
 debug_print "BUILD_TMP_RLT_FIRST is ${BUILD_TMP_RLT_FIRST:-}"
 
 debug_print "Setting BUILD_TMP_RLT_LAST2"
 BUILD_TMP_RLT_LAST2="$(git describe --abbrev=0 --dirty='' --tags --always \
-    2> /dev/null | tr -cd '[:alpha:]' 2> /dev/null |
+    2> /dev/null | ${TR:-tr} -cd '[:alpha:]' 2> /dev/null |
         sed -e 's/.*\(..\)/\1/' 2> /dev/null |
-            tr '[:upper:]' '[:lower:]' 2> /dev/null)"
+            ${TR:-tr} '[:upper:]' '[:lower:]' 2> /dev/null)"
 debug_print "BUILD_TMP_RLT_LAST2 is ${BUILD_TMP_RLT_LAST2:-}"
 
 # /* ... Start Rules ... */
@@ -832,12 +832,12 @@ debug_print "Setting BUILD_TMP_VER_SPLIT"
 # shellcheck disable=SC2086
 BUILD_TMP_VER_SPLIT="$(printf '%s\n' \
     ${BUILD_TMP_VER_SPLIT_INIT:-999.999.999.999} | \
-        tr -d '/[:alpha:]*'       2> /dev/null | \
-            tr -s ' '             2> /dev/null | \
+        ${TR:-tr} -d '/[:alpha:]*'       2> /dev/null | \
+            ${TR:-tr} -s ' '             2> /dev/null | \
                 cut -d '-' -f 1-2 2> /dev/null | \
-                    tr '-' '.'    2> /dev/null | \
-                    tr '_' '.'    2> /dev/null | \
-                    tr '.' '\n'   2> /dev/null )"
+                    ${TR:-tr} '-' '.'    2> /dev/null | \
+                    ${TR:-tr} '_' '.'    2> /dev/null | \
+                    ${TR:-tr} '.' '\n'   2> /dev/null )"
 # shellcheck disable=SC2086
 debug_print "BUILD_TMP_VER_SPLIT is" "[" ${BUILD_TMP_VER_SPLIT:-} "]"
 
@@ -969,7 +969,7 @@ debug_print "Start ver fixup and exceptions"
 #  *    If so, we go back to default of "X"
 #  */
 BUILD_PAT="$(printf '%s\n' "${BUILD_PAT:-0}" | \
-    tr -cd '[:digit:]' 2> /dev/null || \
+    ${TR:-tr} -cd '[:digit:]' 2> /dev/null || \
         true > /dev/null 2>&1)"
 
 # /* TODO(johnsonjh): Add additional branch-name heuristic here */
@@ -1009,7 +1009,7 @@ debug_print "End VER_H_PROM_OSV_TEXT processing"
 debug_print "Start VER_H_PROM_SHIP processing"
 PROM_SHIP="$(printf '%s\n' "${BUILD_DTE:?Error: BUILD_DTE unset.}" |
     cut -d ' ' -f 1 2> /dev/null |
-        tr -d '\ \-' 2> /dev/null |
+        ${TR:-tr} -d '\ \-' 2> /dev/null |
           cut -c 3- 2> /dev/null)"
 debug_print "End VER_H_PROM_SHIP processing"
 
