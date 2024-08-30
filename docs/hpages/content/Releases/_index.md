@@ -717,13 +717,7 @@ title: DPS8M Releases
 {{< expand "Power ISA (64-bit, big-endian)" "…" >}}
 | File                                                                                       | Platform  |
 | :----------------------------------------------------------------------------------------- | :-------- |
-| [**dps8m-git-linux-bpt.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-bpt.tar.gz) | Power10   |
-| [**dps8m-git-linux-bp9.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-bp9.tar.gz) | POWER9    |
-| [**dps8m-git-linux-bp8.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-bp8.tar.gz) | POWER8    |
-| [**dps8m-git-linux-bp7.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-bp7.tar.gz) | POWER7    |
-| [**dps8m-git-linux-bp6.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-bp6.tar.gz) | POWER6    |
-| [**dps8m-git-linux-bp5.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-bp5.tar.gz) | POWER5    |
-| [**dps8m-git-linux-970.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-970.tar.gz) | G5&nbsp;/&nbsp;PPC970 |
+| [**dps8m-git-linux-970.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-970.tar.gz) | G5&nbsp;/&nbsp;PPC970+ |
 {{< /expand >}}
 
 {{< expand "PowerPC (32-bit, big-endian)" "…" >}}
