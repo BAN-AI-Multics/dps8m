@@ -687,11 +687,9 @@ title: DPS8M Releases
 
 {{< expand "Intel x86" "…" >}}
 {{< expand "Intel x86_64 (AMD64)" "…" >}}
-| File                                                                                       | Platform                           |
-| :----------------------------------------------------------------------------------------  | :--------------------------------- |
-| [**dps8m-git-linux-643.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-643.tar.gz) | x86_64‑v3 (AVX2&nbsp;+&nbsp;FMA)   |
-| [**dps8m-git-linux-642.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-642.tar.gz) | x86_64‑v2 (SSE4&nbsp;+&nbsp;SSSE3) |
-| [**dps8m-git-linux-641.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-641.tar.gz) | x86_64                             |
+| File                                                                                       | Platform  |
+| :----------------------------------------------------------------------------------------  | :-------- |
+| [**dps8m-git-linux-641.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-641.tar.gz) | x86_64    |
 {{< /expand >}}
 
 {{< expand "Intel ix86 (32-bit)" "…" >}}
