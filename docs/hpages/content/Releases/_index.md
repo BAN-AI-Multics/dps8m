@@ -639,7 +639,6 @@ title: DPS8M Releases
 | File                                                                                       | Platform |
 |:------------------------------------------------------------------------------------------ |:-------- |
 | [**dps8m-git-nbd93-686.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-686.tar.gz) | i686     |
-| [**dps8m-git-nbd93-586.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-586.tar.gz) | i586     |
 {{< /expand >}}
 {{< /expand >}}
 
