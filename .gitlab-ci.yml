@@ -2306,7 +2306,6 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-mingw-av7.zip public
   - advzip -z4 public/dps8m-git-mingw-av7.zip
   - mv -f ${CI_PROJECT_DIR:?}/.nsis/dps8m-git-win-setup.exe public
-  - find "public" -type f -regex '.*\.\(png\)$' -exec advpng -z4 -- "{}" \; || true
   - find "public" -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\)$' -exec brotli -f -k -v -Z -- "{}" \; || true
   - find "public" -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\)$' -exec pigz -9 -f -k -m -v -- "{}" \; || true
   - ls -laR -- "public" || true
