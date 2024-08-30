@@ -729,8 +729,7 @@ title: DPS8M Releases
 {{< expand "PowerPC (32-bit, big-endian)" "…" >}}
 | File                                                                                       | Platform    |
 | :----------------------------------------------------------------------------------------- | :---------- |
-| [**dps8m-git-linux-g4a.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-g4a.tar.gz) | G4&nbsp;/&nbsp;PPC7400  |
-| [**dps8m-git-linux-740.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-740.tar.gz) | G3&nbsp;/&nbsp;PPC740   |
+| [**dps8m-git-linux-740.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-740.tar.gz) | G3&nbsp;/&nbsp;PPC740+ |
 {{< /expand >}}
 {{< /expand >}}
 
