@@ -1284,7 +1284,7 @@ If your site uses modules (*i.e.* `module avail`), loading the appropriate modul
   env CFLAGS="-mcpu=native -armpl"                          \
       LDFLAGS="-armpl"                                      \
       CC="armclang"                                         \
-    make OPTFLAGS="-Ofast"
+    make
   ```
 
 * Build the simulator using the [**Arm HPC C/C++ Compiler for Linux** (**ARMClang**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Compiler%20for%20Linux) with the integrated [**Arm Performance Libraries** (**ArmPL**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Performance%20Libraries), version 24.04, for Linux/**ARMv8-A+SVE2** (*Scalable Vector Extensions*):
@@ -1298,7 +1298,7 @@ If your site uses modules (*i.e.* `module avail`), loading the appropriate modul
   env CFLAGS="-march=armv8-a+sve2 -mcpu=native -armpl=sve"  \
       LDFLAGS="-armpl=sve"                                  \
       CC="armclang"                                         \
-    make OPTFLAGS="-Ofast"
+    make
   ```
 
 ### Linux cross-compilation
