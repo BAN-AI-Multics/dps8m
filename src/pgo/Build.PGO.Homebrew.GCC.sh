@@ -6,16 +6,22 @@
 
 set -eu
 
+# Sanity test
+printf '%s\n' "Checking for PGO script ..."
+test -x "./src/pgo/Build.PGO.Homebrew.GCC.sh" \
+  || { printf '%s\n' "ERROR: Unable to find PGO script!"; exit 1; }
+
 # Homebrew
 brew info gcc 2> /dev/null | grep -q '^Installed' \
-  || { printf '%s\n' "Error: Homebrew GCC not installed."; exit 1; }
+  || { printf '%s\n' "ERROR: Homebrew GCC not installed."; exit 1; }
 
 # Compiler
 PATH="$(brew --prefix gcc)"/bin:"${PATH:-}"
 export PATH
 
 CC_PREFIX="$(brew --prefix gcc)"
-CC="$(ls -1 ${CC_PREFIX:?}/bin/gcc-[0-9][0-9] | head -1)"
+# shellcheck disable=SC2012
+CC="$(ls -1 "${CC_PREFIX:?}"/bin/gcc-[0-9][0-9] | head -1)"
 export CC
 
 # Test

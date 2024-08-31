@@ -6,9 +6,14 @@
 
 set -eu
 
+# Sanity test
+printf '%s\n' "Checking for PGO script ..."
+test -x "./src/pgo/Build.PGO.Homebrew.Clang.sh" \
+  || { printf '%s\n' "ERROR: Unable to find PGO script!"; exit 1; }
+
 # Homebrew
 brew info llvm 2> /dev/null | grep -q '^Installed' \
-  || { printf '%s\n' "Error: Homebrew LLVM not installed."; exit 1; }
+  || { printf '%s\n' "ERROR: Homebrew LLVM not installed."; exit 1; }
 
 # Compiler
 PATH="$(brew --prefix llvm)"/bin:"${PATH:-}"
