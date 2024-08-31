@@ -8796,6 +8796,22 @@ zupk
 FILEID: 285cf5fa-655c-11ef-b30c-80ee73e9b8e7
 diagonal
 
+FILEID: 03710116-6767-11ef-a8a4-80ee73e9b8e7
+dfopen
+dfseeko
+dftello
+doff
+emips
+fipa
+fopen
+fprofile
+fseeko
+ftello
+fweb
+libuvrel
+libuvver
+smips
+
 NATURAL:
 abandon
 abandoned

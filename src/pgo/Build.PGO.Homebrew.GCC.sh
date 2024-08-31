@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# scspell-id: 02f2e258-63e9-11ef-8480-80ee73e9b8e7
+# scspell-id: 03710116-6767-11ef-a8a4-80ee73e9b8e7
 # SPDX-License-Identifier: MIT-0
 # Copyright (c) 2021-2024 The DPS8M Development Team
 # shellcheck disable=SC2312
@@ -7,13 +7,15 @@
 set -eu
 
 # Homebrew
-brew info llvm 2> /dev/null | grep -q '^Installed' \
-  || { printf '%s\n' "Error: Homebrew LLVM not installed."; exit 1; }
+brew info gcc 2> /dev/null | grep -q '^Installed' \
+  || { printf '%s\n' "Error: Homebrew GCC not installed."; exit 1; }
 
 # Compiler
-PATH="$(brew --prefix llvm)"/bin:"${PATH:-}"
+PATH="$(brew --prefix gcc)"/bin:"${PATH:-}"
 export PATH
-CC="$(brew --prefix llvm)"/bin/clang
+
+CC_PREFIX="$(brew --prefix gcc)"
+CC="$(ls -1 ${CC_PREFIX:?}/bin/gcc-[0-9][0-9] | head -1)"
 export CC
 
 # Test
@@ -28,14 +30,14 @@ test -d "${PROFILE_PATH}" && rm -rf "${PROFILE_PATH}"
 mkdir -p "${PROFILE_PATH}"
 export BASE_LDFLAGS="${LDFLAGS:-}"
 export BASE_CFLAGS="-Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko \
-  -Dfopen64=fopen -fno-profile-sample-accurate ${CFLAGS:-}"
+  -Dfopen64=fopen -fipa-pta -fweb -fprofile-partial-training \
+  -fprofile-correction -fprofile-dir=\"${PROFILE_PATH:?}\" ${CFLAGS:-}"
 export LIBUVVER="libuvrel"
-export LLVM_PROFILE_FILE="${PROFILE_PATH:?}/profile.%p.profraw"
 
 # Base
 printf '\n%s\n' "Generating baseline build ..."
-export CFLAGS="${BASE_CFLAGS:?} -Wno-ignored-optimization-argument"
-export LDFLAGS="${BASE_LDFLAGS:-} ${CFLAGS:?} -fuse-ld=lld"
+export CFLAGS="${BASE_CFLAGS:?}"
+export LDFLAGS="${BASE_LDFLAGS:-} ${CFLAGS:?}"
 ${MAKE:-make} distclean "${@}" HOMEBREW_LIB= HOMEBREW_INC=
 ${MAKE:-make} "${LIBUVVER:?}" "${@}" HOMEBREW_LIB= HOMEBREW_INC=
 ${MAKE:-make} "${@}" HOMEBREW_LIB= HOMEBREW_INC=
@@ -48,23 +50,22 @@ done | tr -cd '\n.0123456789' \
 
 # Profile
 printf '\n%s\n' "Generating profile build ..."
-export CFLAGS="-fprofile-generate=${PROFILE_PATH:?}/profile.%p.profraw \
-  ${BASE_CFLAGS:?} -Wno-ignored-optimization-argument"
-export LDFLAGS="${BASE_LDFLAGS:-} ${CFLAGS:?} -fuse-ld=lld"
+export CFLAGS="-fprofile-generate ${BASE_CFLAGS:?}"
+export LDFLAGS="${BASE_LDFLAGS:-} ${CFLAGS:?}"
 ${MAKE:-make} distclean "${@}" HOMEBREW_LIB= HOMEBREW_INC=
 ${MAKE:-make} "${LIBUVVER:?}" "${@}" HOMEBREW_LIB= HOMEBREW_INC=
 ${MAKE:-make} "${@}" HOMEBREW_LIB= HOMEBREW_INC=
 printf '\n%s\n' "Generating profile ..."
 (cd src/perf_test && ../dps8/dps8 -r ./nqueensx.ini)
-"$(brew --prefix llvm)/bin/llvm-profdata" merge --sparse=true \
-  --gen-partial-profile=true -output="${PROFILE_PATH:?}/final.profdata" \
-  "${PROFILE_PATH:?}"/profile.*.profraw
+./src/empty/empty || true
+./src/prt2pdf/prt2pdf -h || true
+./src/punutil/punutil -v < /dev/null || true
+./src/mcmb/mcmb -X mul 7 11 37 41 43 47 53 59 61 67 71 73 79 83 89 97 || true
 
 # Build
 printf '\n%s\n' "Generating final build ..."
-export CFLAGS="-fprofile-use=${PROFILE_PATH:?}/final.profdata \
-  ${BASE_CFLAGS:?} -Wno-ignored-optimization-argument"
-export LDFLAGS="${BASE_LDFLAGS:-} ${CFLAGS:?} -fuse-ld=lld"
+export CFLAGS="-fprofile-use -Wno-missing-profile ${BASE_CFLAGS:?}"
+export LDFLAGS="${BASE_LDFLAGS:-} ${CFLAGS:?}"
 ${MAKE:-make} distclean "${@}" HOMEBREW_LIB= HOMEBREW_INC=
 ${MAKE:-make} "${LIBUVVER:?}" "${@}" HOMEBREW_LIB= HOMEBREW_INC=
 ${MAKE:-make} "${@}" HOMEBREW_LIB= HOMEBREW_INC=

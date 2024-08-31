@@ -33,6 +33,7 @@ src/mcmb/mcmb.dSYM/
 src/prt2pdf/prt2pdf.dSYM/
 src/punutil/punutil.dSYM/
 src/empty/empty.dSYM/
+src/unifdef/unifdef.dSYM/
 .Dependency
 typescript
 *.bak
