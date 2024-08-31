@@ -182,11 +182,6 @@ create_shm(char *key, size_t shm_size)
         }
     }
 
-# if !defined(__APPLE__) && !defined(__HAIKU__) && !defined(__serenity__)
-  if ( !(sim_nostate) )
-    (void)fdatasync(lck_fd);
-# endif /* if !defined(__APPLE__) && !defined(__HAIKU__) && !defined(__serenity__) */
-
   (void)snprintf(spid, SPIDLEN, "%ld ", (long)getpid());
 
   (void)memset(&sthostname, 0, sizeof ( sthostname ));
@@ -268,19 +263,17 @@ create_shm(char *key, size_t shm_size)
     }
 #endif /* elif USE_FCNTL */
 
-  if (ftruncate(fd, (off_t)shm_size) == -1)
+  if (posix_fallocate(fd, 0, (off_t)shm_size) != 0)
     {
-      (void)fprintf(stderr, "%s(): Failed to size \"%s\": %s (Error %d)\r\n",
-                    __func__, buf, xstrerror_l(errno), errno);
+      (void)fprintf(stderr, "%s(): Failed to zero \"%s\"\r\n",
+                    __func__, buf);
       return NULL;
     }
-
-#if !defined(__APPLE__) && !defined(__HAIKU__) && !defined(__serenity__)
-  if ( !(sim_nostate) )
-    (void)fdatasync(fd);
-#endif /* if !defined(__APPLE__) && !defined(__HAIKU__) && !defined(__serenity__) */
-
-  p = mmap(NULL, shm_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+  p = mmap(NULL, shm_size, PROT_READ | PROT_WRITE,
+#if defined(MAP_NOSYNC)
+           MAP_NOSYNC |
+#endif
+           MAP_SHARED, fd, 0);
   if (p == MAP_FAILED)
     {
       (void)fprintf(stderr, "%s(): Failed to memory map \"%s\": %s (Error %d)\r\n",
@@ -380,7 +373,11 @@ open_shm(char *key, size_t shm_size)
     }
 # endif
 
-  p = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+  p = mmap(NULL, size, PROT_READ | PROT_WRITE,
+# if defined(MAP_NOSYNC)
+           MAP_NOSYNC |
+# endif
+           MAP_SHARED, fd, 0);
   if (p == MAP_FAILED)
     {
 # if defined(USE_FCNTL)
