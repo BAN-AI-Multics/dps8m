@@ -263,7 +263,7 @@ create_shm(char *key, size_t shm_size)
     }
 #endif /* elif USE_FCNTL */
 
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(__HAIKU__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__illumos__) || defined(__sun) || (defined(__APPLE__) && defined(__MACH__))
   if (ftruncate(fd, (off_t)shm_size) == -1)
     {
       (void)fprintf(stderr, "%s(): Failed to size \"%s\": %s (Error %d)\r\n",
