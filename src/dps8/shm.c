@@ -288,14 +288,6 @@ create_shm(char *key, size_t shm_size)
       return NULL;
     }
 
-  if ( !(sim_nostate) )
-    if (msync(p, shm_size, MS_SYNC) == -1)
-      {
-        (void)fprintf(stderr, "%s(): Failed to synchronize \"%s\": %s (Error %d)\r\n",
-                      __func__, buf, xstrerror_l(errno), errno);
-        return NULL;
-      }
-
   return p;
 }
 
@@ -419,9 +411,6 @@ open_shm(char *key, size_t shm_size)
                     __func__, buf, xstrerror_l(errno), errno);
       return NULL;
     }
-
-  if ( !(sim_nostate) )
-    (void)msync(p, shm_size, MS_SYNC);
 
   return p;
 }
