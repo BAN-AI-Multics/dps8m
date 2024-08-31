@@ -20,7 +20,8 @@ PATH="$(brew --prefix gcc)"/bin:"${PATH:-}"
 export PATH
 
 CC_PREFIX="$(brew --prefix gcc)"
-CC="$(ls -1 ${CC_PREFIX:?}/bin/gcc-[0-9][0-9] | head -1)"
+# shellcheck disable=SC2012
+CC="$(ls -1 "${CC_PREFIX:?}"/bin/gcc-[0-9][0-9] | head -1)"
 export CC
 
 # Test
