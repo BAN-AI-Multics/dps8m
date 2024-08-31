@@ -6,6 +6,10 @@
 
 set -eu
 
+# Homebrew
+brew info clang 2> /dev/null | grep -q '^Installed' \
+  || { printf '%s\n' "Error: Homebrew Clang not installed."; exit 1; }
+
 # Compiler
 PATH="$(brew --prefix llvm)"/bin:"${PATH:-}"
 export PATH
