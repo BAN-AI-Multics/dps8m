@@ -6,6 +6,11 @@
 
 set -eu
 
+# Sanity test
+printf '%s\n' "Checking for PGO script ..."
+test -x "./src/pgo/Build.PGO.Clang.sh" \
+  || { printf '%s\n' "ERROR: Unable to find PGO script!"; exit 1; }
+
 # Compiler
 test -z "${CC:-}" && CC="clang"
 export CC
