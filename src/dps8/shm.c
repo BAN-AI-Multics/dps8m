@@ -263,12 +263,22 @@ create_shm(char *key, size_t shm_size)
     }
 #endif /* elif USE_FCNTL */
 
+#if defined(__APPLE__) && defined(__MACH__)
+  if (ftruncate(fd, (off_t)shm_size) == -1)
+    {
+      (void)fprintf(stderr, "%s(): Failed to size \"%s\": %s (Error %d)\r\n",
+                    __func__, buf, xstrerror_l(errno), errno);
+      return NULL;
+    }
+#else
   if (posix_fallocate(fd, 0, (off_t)shm_size) != 0)
     {
       (void)fprintf(stderr, "%s(): Failed to zero \"%s\"\r\n",
                     __func__, buf);
       return NULL;
     }
+#endif
+
   p = mmap(NULL, shm_size, PROT_READ | PROT_WRITE,
 #if defined(MAP_NOSYNC)
            MAP_NOSYNC |
