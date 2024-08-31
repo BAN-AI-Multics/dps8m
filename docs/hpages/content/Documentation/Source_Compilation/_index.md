@@ -1049,7 +1049,7 @@ The default **Haiku** installation includes the required header files, an accept
 
 ## Linux
 
-* Most major **Linux** distributions using the [**GNU C Library**](https://www.gnu.org/software/libc/), and [**musl-libc**](https://musl.libc.org/) are supported.
+* Most major **Linux** distributions using the [**GNU C Library**](https://www.gnu.org/software/libc/) and [**musl-libc**](https://musl.libc.org/) are supported.
   * [**Debian GNU/Linux**](https://www.debian.org/) and derivatives ([**Raspberry Pi OS**](https://www.raspberrypi.com/software/)), **Red Hat** variants ([**Fedora**](https://fedoraproject.org/), [**CentOS Stream**](https://www.centos.org/centos-stream/), [**RHEL**](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux)) and compatibles ([**AlmaLinux**](https://almalinux.org/), [**Amazon Linux**](https://aws.amazon.com/amazon-linux-2/), [**Oracle Linux**](https://www.oracle.com/linux/)),  [**Alpine**](https://www.alpinelinux.org/), **SUSE** ([**SLES**](https://www.suse.com/products/server/), [**OpenSUSE**](https://www.opensuse.org/)), [**Void**](https://voidlinux.org/), and [**Ubuntu**](https://ubuntu.com/) are regularly tested on **Intel**, **ARM**, **RISC-V**, and **POWER** systems.
   * [**uClibc-ng**](https://uclibc-ng.org/) is ***no longer supported*** for building **DPS8M** (*as of* ***R3.0.2***) due to some unimplemented POSIX.1-2008 functionality.
 

@@ -76,7 +76,7 @@ main:
   - name: ""
   - name: "License Information"
     sub:
-      - name: "DPS8M License"
+      - name: "DPS8M Licenses"
         icon: "gdoc_shield"
         ref: "/License_Information"
         anchor: "icu-license"
