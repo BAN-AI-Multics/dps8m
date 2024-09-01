@@ -263,7 +263,7 @@ create_shm(char *key, size_t shm_size)
     }
 #endif /* elif USE_FCNTL */
 
-#if !defined(__OpenBSD__) || !(defined(__APPLE__) && defined(__MACH__))
+#if !defined(__OpenBSD__) && !(defined(__APPLE__) && defined(__MACH__))
   if (posix_fallocate(fd, 0, (off_t)shm_size) != 0)
     {
 #endif
@@ -273,7 +273,7 @@ create_shm(char *key, size_t shm_size)
                         __func__, buf, xstrerror_l(errno), errno);
           return NULL;
         }
-#if !defined(__OpenBSD__) || !(defined(__APPLE__) && defined(__MACH__))
+#if !defined(__OpenBSD__) && !(defined(__APPLE__) && defined(__MACH__))
     }
 #endif
 
