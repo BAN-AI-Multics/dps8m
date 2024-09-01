@@ -263,19 +263,17 @@ create_shm(char *key, size_t shm_size)
     }
 #endif /* elif USE_FCNTL */
 
-#if defined(__HAIKU__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__illumos__) || defined(__sun) || (defined(__APPLE__) && defined(__MACH__))
-  if (ftruncate(fd, (off_t)shm_size) == -1)
-    {
-      (void)fprintf(stderr, "%s(): Failed to size \"%s\": %s (Error %d)\r\n",
-                    __func__, buf, xstrerror_l(errno), errno);
-      return NULL;
-    }
-#else
+#if !(defined(__APPLE__) && defined(__MACH__))
   if (posix_fallocate(fd, 0, (off_t)shm_size) != 0)
     {
-      (void)fprintf(stderr, "%s(): Failed to zero \"%s\"\r\n",
-                    __func__, buf);
-      return NULL;
+#endif
+      if (ftruncate(fd, (off_t)shm_size) == -1)
+        {
+          (void)fprintf(stderr, "%s(): Failed to initialize \"%s\": %s (Error %d)\r\n",
+                        __func__, buf, xstrerror_l(errno), errno);
+          return NULL;
+        }
+#if !(defined(__APPLE__) && defined(__MACH__))
     }
 #endif
 
