@@ -13,14 +13,6 @@ insert_final_newline = true
 max_line_length = 132
 trim_trailing_whitespace = true
 
-[src/dps8/shm.c]
-charset = utf-8
-end_of_line = lf
-indent_style = space
-insert_final_newline = true
-max_line_length = 200
-trim_trailing_whitespace = true
-
 [src/dps8/dps8.h]
 charset = utf-8
 end_of_line = lf
