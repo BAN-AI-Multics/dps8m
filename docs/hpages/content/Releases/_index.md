@@ -648,20 +648,6 @@ title: DPS8M Releases
 | [**dps8m-git-nbd93-a64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-a64.tar.gz) | ARMv8‑A  |
 {{< /expand >}}
 
-{{< expand "SPARC" "…" >}}
-{{< expand "UltraSPARC" "…" >}}
-| File                                                                                       |
-|:------------------------------------------------------------------------------------------ |
-| [**dps8m-git-nbd93-s64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-s64.tar.gz) |
-{{< /expand >}}
-
-{{< expand "SPARC (32-bit)" "…" >}}
-| File                                                                                       |
-|:------------------------------------------------------------------------------------------ |
-| [**dps8m-git-nbd93-s32.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-s32.tar.gz) |
-{{< /expand >}}
-{{< /expand >}}
-
 {{< /expand >}}
 {{< /tab >}}
 {{< tab "Haiku" >}}
