@@ -662,11 +662,6 @@ title: DPS8M Releases
 {{< /expand >}}
 {{< /expand >}}
 
-{{< expand "PowerPC (32-bit, big-endian)" "…" >}}
-| File                                                                                       | Platform               |
-|:------------------------------------------------------------------------------------------ |:---------------------- |
-| [**dps8m-git-nbd93-740.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-740.tar.gz) | G3&nbsp;/&nbsp;PPC740+ |
-{{< /expand >}}
 {{< /expand >}}
 {{< /tab >}}
 {{< tab "Haiku" >}}
