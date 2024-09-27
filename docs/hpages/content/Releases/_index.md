@@ -627,28 +627,6 @@ title: DPS8M Releases
 {{< /expand >}}
 {{< /expand >}}
 
-{{< expand "NetBSD 9.3" "…" >}}
-{{< expand "Intel x86" "…" >}}
-{{< expand "Intel x86_64 (AMD64)" "…" >}}
-| File                                                                                       | Platform                           |
-|:------------------------------------------------------------------------------------------ |:---------------------------------- |
-| [**dps8m-git-nbd93-x61.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-x61.tar.gz) | x86_64                             |
-{{< /expand >}}
-
-{{< expand "Intel ix86 (32-bit)" "…" >}}
-| File                                                                                       | Platform |
-|:------------------------------------------------------------------------------------------ |:-------- |
-| [**dps8m-git-nbd93-686.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-686.tar.gz) | i686     |
-{{< /expand >}}
-{{< /expand >}}
-
-{{< expand "ARM64 (little-endian)" "…" >}}
-| File                                                                                       | Platform |
-| :----------------------------------------------------------------------------------------- | :------- |
-| [**dps8m-git-nbd93-a64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-a64.tar.gz) | ARMv8‑A  |
-{{< /expand >}}
-
-{{< /expand >}}
 {{< /tab >}}
 {{< tab "Haiku" >}}
 
