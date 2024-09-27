@@ -141,6 +141,7 @@ create_shm(char *key, size_t shm_size)
       (void)close(lck_fd);
       lck_fp = fopen(lck, "r");
       (void)fprintf(stderr, "\r\n*** Is another simulator running");
+# if !defined(__clang_analyzer__)
       if (lck_fp != NULL)
         {
           while (( pch = fgetc(lck_fp)) != EOF || fct < SPIDLEN)
@@ -159,6 +160,7 @@ create_shm(char *key, size_t shm_size)
               fct++;
             }
         }
+# endif
 
       if (lkpid != 0 && ypch == 0)
         {

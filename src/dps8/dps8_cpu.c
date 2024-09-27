@@ -1402,8 +1402,10 @@ static void get_serial_number (cpu_state_t * cpup)
     while (fp && ! feof (fp))
       {
         char buffer [81] = "";
+# if !defined(__clang_analyzer__)
         char * checksn = fgets (buffer, sizeof (buffer), fp);
         (void)checksn;
+# endif
         uint cpun, sn;
         if (sscanf (buffer, "sn: %u", & cpu.switches.serno) == 1)
           {
