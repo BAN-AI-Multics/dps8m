@@ -1712,6 +1712,7 @@ PVS-Studio:
     - *scriptSanity
     - *scriptCommon
     - *scriptExtraInfo
+    - dnf install -y python3-dnf || dnf install -y python3-dnf
     - dnf-3 install -4 -y wget curl bear bzip2 || dnf-3 install -4 -y wget curl bear bzip2
     - wget -O /etc/yum.repos.d/viva64.repo https://dps8m.gitlab.io/dps8m-archive/CI/viva64.repo
     - dnf-3 --setopt sslverify=0 --refresh -y install -4 pvs-studio || dnf-3 --setopt sslverify=0 --refresh -y install -4 pvs-studio
