@@ -536,9 +536,9 @@ title: DPS8M Releases
 {{< tab "AIX" >}}
 
 {{< expand "Power ISA (64-bit)" "…" >}}
-| File                                                                                       | Platform |
-|:------------------------------------------------------------------------------------------ |:---------|
-| [**dps8m-git-aixv7-pw7.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-pw7.tar.gz) | POWER7+  |
+| File                                                                                       | Platform                   |
+|:------------------------------------------------------------------------------------------ |:---------------------------|
+| [**dps8m-git-aixv7-pw7.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-pw7.tar.gz) | AIX&nbsp;7.2,&nbsp;POWER7+ |
 {{< /expand >}}
 {{< /tab >}}
 {{< tab "Android" >}}
@@ -605,76 +605,35 @@ title: DPS8M Releases
 {{< /tab >}}
 {{< tab "BSD" >}}
 
-{{< expand "FreeBSD 13.1" "…" >}}
+{{< expand "FreeBSD" "…" >}}
 {{< expand "Intel x86" "…" >}}
 {{< expand "Intel x86_64 (AMD64)" "…" >}}
-| File                                                                                       | Platform                           |
-|:------------------------------------------------------------------------------------------ |:---------------------------------- |
-| [**dps8m-git-fbd13-x61.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-fbd13-x61.tar.gz) | x86_64                             |
+| File                                                                                       | Platform                        |
+|:------------------------------------------------------------------------------------------ |:------------------------------- |
+| [**dps8m-git-fbd13-x61.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-fbd13-x61.tar.gz) | FreeBSD&nbsp;13.1,&nbsp;x86_64  |
 {{< /expand >}}
 
 {{< expand "Intel ix86 (32-bit)" "…" >}}
-| File                                                                                       | Platform |
-| :----------------------------------------------------------------------------------------- | :------- |
-| [**dps8m-git-fbd13-x32.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-fbd13-x32.tar.gz) | i686     |
+| File                                                                                       | Platform                     |
+| :----------------------------------------------------------------------------------------- | :--------------------------- |
+| [**dps8m-git-fbd13-x32.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-fbd13-x32.tar.gz) | FreeBSD&nbsp;13.1,&nbsp;i686 |
 {{< /expand >}}
 {{< /expand >}}
 
 {{< expand "ARM64 (little-endian)" "…" >}}
-| File                                                                                       | Platform |
-| :----------------------------------------------------------------------------------------- | :------- |
-| [**dps8m-git-fbd13-a64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-fbd13-a64.tar.gz) | ARMv8‑A  |
+| File                                                                                       | Platform                        |
+| :----------------------------------------------------------------------------------------- | :------------------------------ |
+| [**dps8m-git-fbd13-a64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-fbd13-a64.tar.gz) | FreeBSD&nbsp;13.1,&nbsp;ARMv8‑A |
 {{< /expand >}}
 {{< /expand >}}
 
-{{< expand "NetBSD 9.3" "…" >}}
-{{< expand "Intel x86" "…" >}}
-{{< expand "Intel x86_64 (AMD64)" "…" >}}
-| File                                                                                       | Platform                           |
-|:------------------------------------------------------------------------------------------ |:---------------------------------- |
-| [**dps8m-git-nbd93-x61.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-x61.tar.gz) | x86_64                             |
-{{< /expand >}}
-
-{{< expand "Intel ix86 (32-bit)" "…" >}}
-| File                                                                                       | Platform |
-|:------------------------------------------------------------------------------------------ |:-------- |
-| [**dps8m-git-nbd93-686.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-686.tar.gz) | i686     |
-{{< /expand >}}
-{{< /expand >}}
-
-{{< expand "ARM64 (little-endian)" "…" >}}
-| File                                                                                       | Platform |
-| :----------------------------------------------------------------------------------------- | :------- |
-| [**dps8m-git-nbd93-a64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-a64.tar.gz) | ARMv8‑A  |
-{{< /expand >}}
-
-{{< expand "SPARC" "…" >}}
-{{< expand "UltraSPARC" "…" >}}
-| File                                                                                       |
-|:------------------------------------------------------------------------------------------ |
-| [**dps8m-git-nbd93-s64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-s64.tar.gz) |
-{{< /expand >}}
-
-{{< expand "SPARC (32-bit)" "…" >}}
-| File                                                                                       |
-|:------------------------------------------------------------------------------------------ |
-| [**dps8m-git-nbd93-s32.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-s32.tar.gz) |
-{{< /expand >}}
-{{< /expand >}}
-
-{{< expand "PowerPC (32-bit, big-endian)" "…" >}}
-| File                                                                                       | Platform               |
-|:------------------------------------------------------------------------------------------ |:---------------------- |
-| [**dps8m-git-nbd93-740.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-nbd93-740.tar.gz) | G3&nbsp;/&nbsp;PPC740+ |
-{{< /expand >}}
-{{< /expand >}}
 {{< /tab >}}
 {{< tab "Haiku" >}}
 
 {{< expand "Intel x86_64 (AMD64)" "…" >}}
-| File                                                                                       | Platform |
-|:------------------------------------------------------------------------------------------ |:-------- |
-| [**dps8m-git-haiku-x64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-haiku-x64.tar.gz) | x86_64   |
+| File                                                                                       | Platform                      |
+|:------------------------------------------------------------------------------------------ |:----------------------------- |
+| [**dps8m-git-haiku-x64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-haiku-x64.tar.gz) | Haiku&nbsp;R1/b5,&nbsp;x86_64 |
 {{< /expand >}}
 {{< /tab >}}
 {{< tab "Linux" >}}

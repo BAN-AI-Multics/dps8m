@@ -11005,6 +11005,9 @@ if (topic->title) {
               }
   }
 rewind (tmp);
+if (errno) {
+    (void)fprintf (st, "rewind: error %d\r\n", errno);
+}
 
 /* Discard leading blank lines/redundant titles */
 

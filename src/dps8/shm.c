@@ -138,6 +138,7 @@ create_shm(char *key, size_t shm_size)
             }
         }
 
+# if !defined(__clang_analyzer__)
       (void)close(lck_fd);
       lck_fp = fopen(lck, "r");
       (void)fprintf(stderr, "\r\n*** Is another simulator running");
@@ -159,6 +160,7 @@ create_shm(char *key, size_t shm_size)
               fct++;
             }
         }
+# endif
 
       if (lkpid != 0 && ypch == 0)
         {
