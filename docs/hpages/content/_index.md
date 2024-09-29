@@ -10,11 +10,14 @@
 |:--:|:--:|
 | <img src="6180.jpg" size=50% alt="MIT-MULTICS: Honeywell 6180 - 1972"> | <img src="dps8.jpg" alt="Bull System X: DPS-8/M & Level 68 - 1982"> |
 ### Project News
-{{< hint type="warning" icon="gdoc_fire" title=" Hardware DPS-8/M ∕ FNP Project (2024-06-22)" >}}
-* [**DPS8M-HW**](https://gitlab.com/n0en/dps8m-hw): **FPGA DPS-8/M ∕ FNP Project** is underway. <small>\[[Announcement](https://dps8m.gitlab.io/blog/posts/20240622_FPGA/)\]</small>
+{{< hint type="warning" icon="gdoc_fire" title=" DPS8M R3.0.2 is coming soon… (2024-09-28)" >}}
+* [**DPS8M R3.0.2**](https://dps8m.gitlab.io/blog/posts/20240928_Update/) is coming soon, with bug fixes and performance enhancements. <small>\[[Announcement](https://dps8m.gitlab.io/blog/posts/20240928_Update/)\]</small>
 {{< /hint >}}
 #### Old News
-{{< hint type="note" icon="gdoc_fire" title=" DPS8M Release 3.0.1 (2023-08-10)" >}}
+{{< hint type="info" icon="gdoc_fire" title=" Hardware DPS-8/M ∕ FNP Project (2024-06-22)" >}}
+* [**DPS8M-HW**](https://gitlab.com/n0en/dps8m-hw): **FPGA DPS-8/M ∕ FNP Project** is underway. <small>\[[Announcement](https://dps8m.gitlab.io/blog/posts/20240622_FPGA/)\]</small>
+{{< /hint >}}
+{{< hint type="info" icon="gdoc_fire" title=" DPS8M Release 3.0.1 (2023-08-10)" >}}
 * [**DPS8M R3.0.1**](https://dps8m.gitlab.io/dps8m/Releases/#stable-release) released, featuring improved performance and functionality. <small>\[[Announcement](https://dps8m.gitlab.io/blog/posts/20230810_DPS8M_R3.0.1/)\]</small>
 {{< /hint >}}
 {{< hint type="info" icon="gdoc_info_outline" title=" DPS8M Release 3.0.0 (2022-11-23)" >}}
