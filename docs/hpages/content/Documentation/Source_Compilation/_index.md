@@ -989,7 +989,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 * Ensure you are running a recent release of [**Haiku**](https://www.haiku-os.org/) on a [supported **64-bit** platform](https://www.haiku-os.org/guides/building/port_status).
   * Use the '**SoftwareUpdater**' application to ensure your **Haiku** installation is up-to-date.
 * **The DPS8M Development Team** regularly tests the simulator using the [nightly **Haiku** **x86_64** snapshots](https://download.haiku-os.org/nightly-images/x86_64/).
-  * **Haiku** **x86_64** (**`hrev58033`**) was used to verify the following instructions.
+  * **Haiku** **x86_64** (**`hrev58181`**) was used to verify the following instructions.
 
 ### Haiku prerequisites
 
@@ -1010,6 +1010,7 @@ The default **Haiku** installation includes the required header files, an accept
 
 ### Compiling using Clang
 
+* Compiling with Clang on Haiku is **highly recommended**; the resulting binary runs approximately **35%** **faster**.
 * At the time of writing, **Clang 18** is available from *HaikuPorts* (as the '**`llvm18_clang`**' and '**`llvm18_lld`**' packages), installable using `pkgman` or the '**HaikuDepot**' application.
 
 * Build the simulator from the top-level source directory (using **GNU Make**):
