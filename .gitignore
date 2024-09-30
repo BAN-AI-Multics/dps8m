@@ -302,3 +302,13 @@ src/README.txt
 
 # Understand
 *.und/
+
+# libbacktrace
+src/libbacktrace/.libs/
+src/libbacktrace/Makefile
+src/libbacktrace/backtrace-supported.h
+src/libbacktrace/config.h
+src/libbacktrace/config.status
+src/libbacktrace/install-debuginfo-for-buildid.sh
+src/libbacktrace/libtool
+src/libbacktrace/stamp-h1
