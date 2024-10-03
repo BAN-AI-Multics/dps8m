@@ -721,12 +721,12 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 ## OpenIndiana
 
 * Ensure your [**OpenIndiana**](https://www.openindiana.org/) installation is up-to-date.
-  * **OpenIndiana** *Hipster* **April 2024** was used to verify these instructions.
+  * **OpenIndiana** *Hipster* **September 2024** was used to verify these instructions.
 
 []()
 
-* **GCC 13.2** is currently the recommended compiler for optimal performance.
-  * **GCC 13.2** can be installed from the standard IPS repository via '**`pkg install developer/gcc-13`**'.
+* **GCC 14.2** is currently the recommended compiler for optimal performance.
+  * **GCC 14.2** can be installed from the standard IPS repository via '**`pkg install developer/gcc-14`**'.
   * Link-time optimization (*LTO*) is supported ***only*** when building with **GCC** version 10 or later.
   * The `NO_LTO=1` build option should be specified when using earlier versions of the **GCC** compiler.
 
@@ -745,10 +745,10 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 
 ### Standard OpenIndiana compilation
 
-* Build the simulator from the top-level source directory (using **GNU Make** and **GCC 13**):
+* Build the simulator from the top-level source directory (using **GNU Make** and **GCC 14**):
 
   ```sh
-  env CC="gcc-13" gmake
+  env CC="gcc-14" gmake
   ```
 
 ### Compiling using Clang
