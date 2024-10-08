@@ -721,12 +721,12 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 ## OpenIndiana
 
 * Ensure your [**OpenIndiana**](https://www.openindiana.org/) installation is up-to-date.
-  * **OpenIndiana** *Hipster* **April 2024** was used to verify these instructions.
+  * **OpenIndiana** *Hipster* **September 2024** was used to verify these instructions.
 
 []()
 
-* **GCC 13.2** is currently the recommended compiler for optimal performance.
-  * **GCC 13.2** can be installed from the standard IPS repository via '**`pkg install developer/gcc-13`**'.
+* **GCC 14.2** is currently the recommended compiler for optimal performance.
+  * **GCC 14.2** can be installed from the standard IPS repository via '**`pkg install developer/gcc-14`**'.
   * Link-time optimization (*LTO*) is supported ***only*** when building with **GCC** version 10 or later.
   * The `NO_LTO=1` build option should be specified when using earlier versions of the **GCC** compiler.
 
@@ -745,10 +745,10 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 
 ### Standard OpenIndiana compilation
 
-* Build the simulator from the top-level source directory (using **GNU Make** and **GCC 13**):
+* Build the simulator from the top-level source directory (using **GNU Make** and **GCC 14**):
 
   ```sh
-  env CC="gcc-13" gmake
+  env CC="gcc-14" gmake
   ```
 
 ### Compiling using Clang
@@ -989,7 +989,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 * Ensure you are running a recent release of [**Haiku**](https://www.haiku-os.org/) on a [supported **64-bit** platform](https://www.haiku-os.org/guides/building/port_status).
   * Use the '**SoftwareUpdater**' application to ensure your **Haiku** installation is up-to-date.
 * **The DPS8M Development Team** regularly tests the simulator using the [nightly **Haiku** **x86_64** snapshots](https://download.haiku-os.org/nightly-images/x86_64/).
-  * **Haiku** **x86_64** (**`hrev58033`**) was used to verify the following instructions.
+  * **Haiku** **x86_64** (**`hrev58181`**) was used to verify the following instructions.
 
 ### Haiku prerequisites
 
@@ -1010,6 +1010,7 @@ The default **Haiku** installation includes the required header files, an accept
 
 ### Compiling using Clang
 
+* Compiling with Clang on Haiku is **highly recommended**; the resulting binary runs approximately **35%** **faster**.
 * At the time of writing, **Clang 18** is available from *HaikuPorts* (as the '**`llvm18_clang`**' and '**`llvm18_lld`**' packages), installable using `pkgman` or the '**HaikuDepot**' application.
 
 * Build the simulator from the top-level source directory (using **GNU Make**):

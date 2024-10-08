@@ -265,19 +265,12 @@ create_shm(char *key, size_t shm_size)
     }
 #endif /* elif USE_FCNTL */
 
-#if !defined(__OpenBSD__) && !(defined(__APPLE__) && defined(__MACH__))
-  if (posix_fallocate(fd, 0, (off_t)shm_size) != 0)
+  if (ftruncate(fd, (off_t)shm_size) == -1)
     {
-#endif
-      if (ftruncate(fd, (off_t)shm_size) == -1)
-        {
-          (void)fprintf(stderr, "%s(): Failed to initialize \"%s\": %s (Error %d)\r\n",
-                        __func__, buf, xstrerror_l(errno), errno);
-          return NULL;
-        }
-#if !defined(__OpenBSD__) && !(defined(__APPLE__) && defined(__MACH__))
+      (void)fprintf(stderr, "%s(): Failed to initialize \"%s\": %s (Error %d)\r\n",
+                    __func__, buf, xstrerror_l(errno), errno);
+      return NULL;
     }
-#endif
 
   p = mmap(NULL, shm_size, PROT_READ | PROT_WRITE,
 #if defined(MAP_NOSYNC)
