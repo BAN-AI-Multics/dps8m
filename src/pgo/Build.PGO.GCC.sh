@@ -11,12 +11,32 @@ printf '%s\n' "Checking for PGO script ..."
 test -x "./src/pgo/Build.PGO.GCC.sh" \
   || { printf '%s\n' "ERROR: Unable to find PGO script!"; exit 1; }
 
+# Show TOOLSUFFIX
+test -z "${TOOLSUFFIX:-}" \
+  || printf 'TOOLSUFFIX: "%s"\n' "${TOOLSUFFIX:?}"
+
 # Compiler
-test -z "${CC:-}" && CC="gcc"
+test -z "${CC:-}" && CC="gcc${TOOLSUFFIX:-}"
 export CC
 
-# Test
-"${CC:?}" --version
+# Test CC
+${CC:?} --version
+
+# AR (TOOLSUFFIX)
+test -z "${TOOLSUFFIX:-}" \
+  || { AR="gcc-ar${TOOLSUFFIX:-}"; export AR; }
+test -z "${AR:-}" || printf 'AR: %s\n' "${AR:-}"
+
+# Test AR
+test -z "${AR:-}" || ${AR:?} --version
+
+# RANLIB (TOOLSUFFIX)
+test -z "${TOOLSUFFIX:-}" \
+  || { RANLIB="gcc-ranlib${TOOLSUFFIX:-}"; export RANLIB; }
+test -z "${RANLIB:-}" || printf 'RANLIB: %s\n' "${RANLIB:-}"
+
+# Test RANLIB
+test -z "${RANLIB:-}" || ${RANLIB:?} --version
 
 # Setup
 RUNS=3
