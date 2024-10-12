@@ -11,32 +11,33 @@ printf '%s\n' "Checking for PGO script ..."
 test -x "./src/pgo/Build.PGO.GCC.sh" \
   || { printf '%s\n' "ERROR: Unable to find PGO script!"; exit 1; }
 
-# Show TOOLSUFFIX
+# TOOLSUFFIX
 test -z "${TOOLSUFFIX:-}" \
-  || printf 'TOOLSUFFIX: "%s"\n' "${TOOLSUFFIX:?}"
+  || printf '\nTOOLSUFFIX: "%s"\n' "${TOOLSUFFIX:?}"
 
-# Compiler
+# CC
 test -z "${CC:-}" && CC="gcc${TOOLSUFFIX:-}"
 export CC
 
 # Test CC
+printf '\nCC: %s\n' "${CC:?}"
 ${CC:?} --version
 
-# AR (TOOLSUFFIX)
-test -z "${TOOLSUFFIX:-}" \
-  || { AR="gcc-ar${TOOLSUFFIX:-}"; export AR; }
-test -z "${AR:-}" || printf 'AR: %s\n' "${AR:-}"
+# AR
+test -z "${AR:-}" && AR="gcc-ar${TOOLSUFFIX:-}"
+export AR
 
 # Test AR
-test -z "${AR:-}" || ${AR:?} --version
+printf '\nAR: %s\n' "${AR:?}"
+${AR:?} --version
 
-# RANLIB (TOOLSUFFIX)
-test -z "${TOOLSUFFIX:-}" \
-  || { RANLIB="gcc-ranlib${TOOLSUFFIX:-}"; export RANLIB; }
-test -z "${RANLIB:-}" || printf 'RANLIB: %s\n' "${RANLIB:-}"
+# RANLIB
+test -z "${RANLIB:-}" && RANLIB="gcc-ranlib${TOOLSUFFIX:-}"
+export RANLIB
 
 # Test RANLIB
-test -z "${RANLIB:-}" || ${RANLIB:?} --version
+printf '\nRANLIB: %s\n' "${RANLIB:?}"
+${RANLIB:?} --version
 
 # Setup
 RUNS=3
