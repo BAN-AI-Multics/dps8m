@@ -4,6 +4,8 @@
 # Copyright (c) 2021-2024 The DPS8M Development Team
 # shellcheck disable=SC2312
 
+# PGO for LLVM on AIX: Mainline Clang & IBM Open XL C/C++ V17
+
 # Example: IBM Open XL C/C++ 17.1.2:
 #          env CFLAGS="-DHAVE_POPT=1 -D_ALL_SOURCE -mcpu=power8"     \
 #          PULIBS="-lpopt" ATOMICS="AIX" AWK="gawk" OBJECT_MODE="64" \
@@ -43,7 +45,8 @@ printf '\nCC: %s\n' "${CC:?}"
 ${CC:?} --version
 
 # PROFDATA
-test -z "${PROFDATA:-}" && PROFDATA="${TOOLPREFIX:-}llvm-profdata${TOOLSUFFIX:-}"
+test -z "${PROFDATA:-}" \
+  && PROFDATA="${TOOLPREFIX:-}llvm-profdata${TOOLSUFFIX:-}"
 export PROFDATA
 
 # Test PROFDATA
