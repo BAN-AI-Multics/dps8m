@@ -68,7 +68,9 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <unistd.h>
-#include <getopt.h>
+#if !defined(_AIX)
+# include <getopt.h>
+#endif
 #if defined(__APPLE__)
 # include <xlocale.h>
 #endif
