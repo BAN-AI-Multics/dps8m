@@ -26,7 +26,10 @@ set -eu
 # Sanity test
 printf '%s\n' "Checking for PGO script ..."
 test -x "./src/pgo/Build.PGO.AIX.LLVM.sh" \
-  || { printf '%s\n' "ERROR: Unable to find PGO script!"; exit 1; }
+  || {
+    printf '%s\n' "ERROR: Unable to find PGO script!"
+    exit 1
+  }
 
 # TOOLPREFIX
 test -z "${TOOLPREFIX:-}" \

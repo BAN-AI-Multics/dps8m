@@ -9,11 +9,17 @@ set -eu
 # Sanity test
 printf '%s\n' "Checking for PGO script ..."
 test -x "./src/pgo/Build.PGO.Homebrew.GCC.sh" \
-  || { printf '%s\n' "ERROR: Unable to find PGO script!"; exit 1; }
+  || {
+    printf '%s\n' "ERROR: Unable to find PGO script!"
+    exit 1
+  }
 
 # Homebrew
 brew info gcc 2> /dev/null | grep -q '^Installed' \
-  || { printf '%s\n' "ERROR: Homebrew GCC not installed."; exit 1; }
+  || {
+    printf '%s\n' "ERROR: Homebrew GCC not installed."
+    exit 1
+  }
 
 # Compiler
 PATH="$(brew --prefix gcc)"/bin:"${PATH:-}"
