@@ -12,20 +12,20 @@
 #          PATH="/opt/freeware/bin:${PATH:?}"                        \
 #          TOOLPREFIX="/opt/IBM/openxlC/17.1.2/bin/ibm-"             \
 #          CC="/opt/IBM/openxlC/17.1.2/bin/ibm-clang_r"              \
-#          ./src/pgo/Build.PGO.AIX.OXLC.sh
+#          ./src/pgo/Build.PGO.AIX.LLVM.sh
 #
 # Example: Mainline LLVM Clang 19.1.0:
 #          env CFLAGS="-DHAVE_POPT=1 -D_ALL_SOURCE -mcpu=power8"     \
 #          PULIBS="-lpopt" ATOMICS="AIX" AWK="gawk" OBJECT_MODE="64" \
 #          PATH="/opt/freeware/bin:/opt/llvm/bin:${PATH:?}"          \
 #          CC="/opt/llvm/bin/clang"                                  \
-#          ./src/pgo/Build.PGO.AIX.OXLC.sh
+#          ./src/pgo/Build.PGO.AIX.LLVM.sh
 
 set -eu
 
 # Sanity test
 printf '%s\n' "Checking for PGO script ..."
-test -x "./src/pgo/Build.PGO.AIX.OXLC.sh" \
+test -x "./src/pgo/Build.PGO.AIX.LLVM.sh" \
   || { printf '%s\n' "ERROR: Unable to find PGO script!"; exit 1; }
 
 # TOOLPREFIX
