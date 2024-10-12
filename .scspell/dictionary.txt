@@ -7204,6 +7204,7 @@ xxxx
 
 FILEID: 678f9a77-f778-11ec-ae0f-80ee73e9b8e7
 autoenv
+buildid
 buildos
 cctree
 cmdout
@@ -7212,6 +7213,7 @@ cppbdir
 cpplint
 cproject
 czmq
+debuginfo
 distclean
 docinfo
 docsdocker
@@ -7226,6 +7228,7 @@ grtags
 gvsubset
 hpages
 iomcon
+libtool
 neato
 needrebuild
 nvimlog
@@ -8702,13 +8705,16 @@ ftello
 fweb
 libuvrel
 libuvver
+ranlib
 smips
+toolsuffix
 
 FILEID: f585612c-63e8-11ef-9fc2-80ee73e9b8e7
 dfopen
 dfseeko
 dftello
 doff
+elease
 emips
 fopen
 fprofile
@@ -8718,7 +8724,10 @@ libuvrel
 libuvver
 profdata
 profraw
+ranlib
+rsuffix
 smips
+toolsuffix
 
 FILEID: 2395ba22-655a-11ef-85db-80ee73e9b8e7
 acsd
@@ -8811,6 +8820,25 @@ fweb
 libuvrel
 libuvver
 smips
+
+FILEID: db14885d-f62f-11ec-9741-80ee73e9b8e7
+nosync
+
+FILEID: 0a925678-8811-11ef-8000-922037bebb33
+dhave
+emips
+fprofile
+libuvrel
+libuvver
+lpopt
+mcpu
+popt
+profdata
+profraw
+pulibs
+smips
+toolprefix
+toolsuffix
 
 NATURAL:
 abandon
@@ -11662,6 +11690,7 @@ mailto
 main
 mainframe
 mainframes
+mainline
 mainly
 mains
 maintain
