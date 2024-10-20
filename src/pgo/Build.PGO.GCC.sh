@@ -42,6 +42,10 @@ export RANLIB
 printf '\nRANLIB: %s\n' "${RANLIB:?}"
 ${RANLIB:?} --version
 
+# LIBUVVER
+test -z "${LIBUVVER:-}" && LIBUVVER="libuvrel"
+export LIBUVVER
+
 # Setup
 RUNS=3
 printf '\n%s\n' "Setting up PGO build ..."
@@ -53,7 +57,6 @@ export BASE_LDFLAGS="${LDFLAGS:-}"
 export BASE_CFLAGS="-Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko \
   -Dfopen64=fopen -fipa-pta -fweb -fprofile-partial-training \
   -fprofile-correction -fprofile-dir=\"${PROFILE_PATH:?}\" ${CFLAGS:-}"
-export LIBUVVER="libuvrel"
 
 # Base
 printf '\n%s\n' "Generating baseline build ..."

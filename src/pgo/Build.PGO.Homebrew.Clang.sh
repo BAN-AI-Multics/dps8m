@@ -30,6 +30,10 @@ export CC
 # Test
 "${CC:?}" --version
 
+# LIBUVVER
+test -z "${LIBUVVER:-}" && LIBUVVER="libuvrel"
+export LIBUVVER
+
 # Setup
 RUNS=3
 printf '\n%s\n' "Setting up PGO build ..."
@@ -40,7 +44,6 @@ mkdir -p "${PROFILE_PATH}"
 export BASE_LDFLAGS="${LDFLAGS:-}"
 export BASE_CFLAGS="-Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko \
   -Dfopen64=fopen -fno-profile-sample-accurate ${CFLAGS:-}"
-export LIBUVVER="libuvrel"
 export LLVM_PROFILE_FILE="${PROFILE_PATH:?}/profile.%p.profraw"
 
 # Base

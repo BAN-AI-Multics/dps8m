@@ -72,7 +72,11 @@ export PROFDATA
 
 # Test PROFDATA
 printf '\nPROFDATA: %s\n' "${PROFDATA:?}"
-${PROFDATA:?} --version
+${PROFDATA:?} "${PROFDATA_TEST:---version}"
+
+# LIBUVVER
+test -z "${LIBUVVER:-}" && LIBUVVER="libuvrel"
+export LIBUVVER
 
 # Setup
 RUNS=3
@@ -85,7 +89,6 @@ mkdir -p "${PROFILE_PATH}"
 export BASE_LDFLAGS="${LDFLAGS:-} -fuse-ld=$(command -v "${LLD:?}")"
 export BASE_CFLAGS="-Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko \
   -Dfopen64=fopen -fno-profile-sample-accurate ${CFLAGS:-}"
-export LIBUVVER="libuvrel"
 export LLVM_PROFILE_FILE="${PROFILE_PATH:?}/profile.%p.profraw"
 
 # Base

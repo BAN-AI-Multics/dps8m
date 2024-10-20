@@ -94,10 +94,6 @@ Review the complete [**DPS8M Omnibus Documentation**](https://dps8m.gitlab.io/dp
 
 []()
 
-- [GNU/Hurd](#gnuhurd)
-
-[]()
-
 - [Linux](#linux)
   * [Linux compilers](#linux-compilers)
   * [Linux prerequisites](#linux-prerequisites)
@@ -1022,25 +1018,6 @@ The default **Haiku** installation includes the required header files, an accept
 ### Additional Haiku Notes
 
 * **DPS8M** on **32-bit** **Haiku** platforms (*i.e.* **x86**, **x86_gcc2**) is **not** supported at this time.
-
-<br>
-
----
-
-<br>
-
-## GNU/Hurd
-
-* **DPS8M** is supported on [**GNU/Hurd**](https://www.gnu.org/software/hurd/) when using [**Debian GNU/Hurd 2021**](https://www.debian.org/ports/hurd/) (or later).
-
-[]()
-
-* **GCC 11** (or later) is the recommended compiler for optimal performance.
-  * Compilation is also supported using **Clang 11** or later.
-
-[]()
-
-* Building on **GNU/Hurd** should be essentially the same as building on [**Debian GNU/Linux**](#linux).
 
 <br>
 
