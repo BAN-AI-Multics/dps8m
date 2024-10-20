@@ -13,8 +13,17 @@
 #          TOOLPREFIX="/opt/IBM/openxlC/17.1.2/bin/ibm-"             \
 #          CC="/opt/IBM/openxlC/17.1.2/bin/ibm-clang_r"              \
 #          ./src/pgo/Build.PGO.AIX.LLVM.sh
-#
-# Example: Mainline LLVM Clang 19.1.0:
+
+# Example: IBM Open XL C/C++ 17.1.1:
+#          env CFLAGS="-DHAVE_POPT=1 -D_ALL_SOURCE -mcpu=power8"     \
+#          PULIBS="-lpopt" ATOMICS="AIX" AWK="gawk" OBJECT_MODE="64" \
+#          PATH="/opt/freeware/bin:${PATH:?}"                        \
+#          TOOLPREFIX="/opt/IBM/openxlC/17.1.1/bin/ibm-"             \
+#          CC="/opt/IBM/openxlC/17.1.1/bin/ibm-clang_r"              \
+#          PROFDATA_TEST="-h" NEED_128=1                             \
+#          ./src/pgo/Build.PGO.AIX.LLVM.sh
+
+# Example: Mainline LLVM Clang 19.1.1:
 #          env CFLAGS="-DHAVE_POPT=1 -D_ALL_SOURCE -mcpu=power8"     \
 #          PULIBS="-lpopt" ATOMICS="AIX" AWK="gawk" OBJECT_MODE="64" \
 #          PATH="/opt/freeware/bin:/opt/llvm/bin:${PATH:?}"          \
@@ -54,7 +63,11 @@ export PROFDATA
 
 # Test PROFDATA
 printf '\nPROFDATA: %s\n' "${PROFDATA:?}"
-${PROFDATA:?} --version
+${PROFDATA:?} "${PROFDATA_TEST:---version}"
+
+# LIBUVVER
+test -z "${LIBUVVER:-}" && LIBUVVER="libuvrel"
+export LIBUVVER
 
 # Setup
 RUNS=3
@@ -66,7 +79,6 @@ mkdir -p "${PROFILE_PATH}"
 # shellcheck disable=SC2155
 export BASE_LDFLAGS="${LDFLAGS:-}"
 export BASE_CFLAGS="-fno-profile-sample-accurate ${CFLAGS:-}"
-export LIBUVVER="libuvrel"
 export LLVM_PROFILE_FILE="${PROFILE_PATH:?}/profile.%p.profraw"
 
 # Base
