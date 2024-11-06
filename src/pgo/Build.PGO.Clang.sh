@@ -79,7 +79,8 @@ test -z "${LIBUVVER:-}" && LIBUVVER="libuvrel"
 export LIBUVVER
 
 # Setup
-RUNS=3
+test -z "${RUNS:-}" \
+  && RUNS=3
 printf '\n%s\n' "Setting up PGO build ..."
 PROFILE_PATH="$(pwd -P)/.profile_data"
 export PROFILE_PATH
