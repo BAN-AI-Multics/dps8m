@@ -3298,7 +3298,7 @@ leave:
 // was created. Update the placeholder so the IC can be seen via scp
 // and restarting sim_instr won't lose the place.
 
-    set_cpu_idx (0);
+    set_cpu_idx (0); //-V779
     dummy_IC = cpu.PPR.IC;
 #endif
 

@@ -1529,9 +1529,9 @@ typedef struct coreLockState_s {
     uint64_t lockImmediate;
     uint64_t lockWait;
     uint64_t lockWaitMax;
-# if !defined(SCHED_NEVER_YIELD)
+#if !defined(SCHED_NEVER_YIELD)
     uint64_t lockYield;
-# endif /* if !defined(SCHED_NEVER_YIELD) */
+#endif /* if !defined(SCHED_NEVER_YIELD) */
     word24 locked_addr;
 } coreLockState_t;
 
