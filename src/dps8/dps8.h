@@ -584,11 +584,29 @@ typedef enum
     defined (__MINGW32__)  || \
     defined (__GNUC__)     || \
     defined (__clang_version__)
-#  define NO_RETURN __attribute__ ((noreturn))
 #  define UNUSED    __attribute__ ((unused))
 # else
-#  define NO_RETURN
 #  define UNUSED
+# endif
+
+/* Detect proper "does not return" annotation */
+# if !defined(NO_RETURN)
+#  if defined(__STDC_VERSION__)
+#   if __STDC_VERSION__ >= 202311L
+#    define NO_RETURN [[noreturn]] /* C23-style */
+#   elif __STDC_VERSION__ >= 201112L
+#    define NO_RETURN _Noreturn /* C11-style */
+#   endif
+#  endif
+# endif
+# if !defined(NO_RETURN)
+#  if defined(__GNUC__) || defined(__SUNPRO_C) || defined(__SUNPRO_CC) || \
+      defined(__xlc__) || defined(__ibmxl__)
+#   define NO_RETURN __attribute__((noreturn)) /* IBM/Sun/GNU-style */
+#  endif
+# endif
+# if !defined(NO_RETURN)
+#  define NO_RETURN /* Fallback */
 # endif
 
 # define MAX_DEV_NAME_LEN 64
