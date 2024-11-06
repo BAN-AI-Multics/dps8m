@@ -88,7 +88,7 @@ void emCallReportFault (void);
 
 void cu_safe_restore (cpu_state_t * cpup);
 
-void doG7Fault(cpu_state_t * cpup, bool allowTR) NO_RETURN;
+NO_RETURN void doG7Fault(cpu_state_t * cpup, bool allowTR);
 
 #if defined(NEED_128)
 # define fst_zero (_fault_subtype) {.bits=0}
@@ -120,8 +120,8 @@ extern const _fault_subtype fst_cmd_ctl;
 extern const _fault_subtype fst_onc_nem;
 #endif /* if defined(NEED_128) */
 
-void doFault (_fault faultNumber, _fault_subtype faultSubtype,
-              const char * faultMsg) NO_RETURN;
+NO_RETURN void doFault (_fault faultNumber, _fault_subtype faultSubtype,
+              const char * faultMsg);
 void dlyDoFault (_fault faultNumber, _fault_subtype subFault,
                 const char * faultMsg);
 bool bG7PendingNoTRO (cpu_state_t * cpup);

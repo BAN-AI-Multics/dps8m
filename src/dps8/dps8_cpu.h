@@ -2004,8 +2004,8 @@ static inline void trackport (word24 a, word36 d)
 #if defined(SPEED) && defined(INLINE_CORE)
 # error INLINE_CORE has known issues.
 // Ugh. Circular dependencies XXX
-void doFault (_fault faultNumber, _fault_subtype faultSubtype,
-              const char * faultMsg) NO_RETURN;
+NO_RETURN void doFault (_fault faultNumber, _fault_subtype faultSubtype,
+              const char * faultMsg);
 extern const _fault_subtype fst_str_nea;
 
 static inline int core_read (word24 addr, word36 *data, \
