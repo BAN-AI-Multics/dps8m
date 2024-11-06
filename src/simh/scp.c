@@ -4770,7 +4770,7 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
 #if defined(__MINGW32__) || defined(__MINGW64__) || defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
 # if defined(__MINGW64_VERSION_STR)
     (void)fprintf (st, "Built with MinGW-w64 %s", __MINGW64_VERSION_STR);
-# elif defined(__MINGW32_MAJOR_VERSION) && defined(__MINGW32_MAJOR_VERSION)
+# elif defined(__MINGW32_MAJOR_VERSION) && defined(__MINGW32_MINOR_VERSION)
     (void)fprintf (st, "Built with MinGW %d.%d", __MINGW32_MAJOR_VERSION, __MINGW32_MINOR_VERSION);
 # else
     (void)fprintf (st, "Built with MinGW");
