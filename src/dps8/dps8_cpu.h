@@ -1524,6 +1524,17 @@ enum
 
 #include "ucache.h"
 
+typedef struct coreLockState_s {
+    uint64_t lockCnt;
+    uint64_t lockImmediate;
+    uint64_t lockWait;
+    uint64_t lockWaitMax;
+# if !defined(SCHED_NEVER_YIELD)
+    uint64_t lockYield;
+# endif /* if !defined(SCHED_NEVER_YIELD) */
+    word24 locked_addr;
+} coreLockState_t;
+
 typedef struct cpu_state_s
   {
     EISstruct currentEISinstruction;
@@ -1534,13 +1545,8 @@ typedef struct cpu_state_s
     unsigned long long instrCnt;
     unsigned long long instrCntT0;
     unsigned long long instrCntT1;
-    unsigned long long lockCnt;
-    unsigned long long lockImmediate;
-    unsigned long long lockWait;
-    unsigned long long lockWaitMax;
-#if !defined(SCHED_NEVER_YIELD)
-    unsigned long long lockYield;
-#endif /* if !defined(SCHED_NEVER_YIELD) */
+
+    coreLockState_t coreLockState;
 
     // From the control unit history register:
     _fault_subtype subFault; // saved by doFault
@@ -1636,7 +1642,6 @@ typedef struct cpu_state_s
     word18 last_write;
 
 #if defined(LOCKLESS)
-    word24 locked_addr;
     word24 char_word_address;
 #endif /* if defined(LOCKLESS) */
 
@@ -2188,19 +2193,19 @@ int core_unlock_all(cpu_state_t * cpup);
 
 # if !defined(SCHED_NEVER_YIELD)
 #  undef SCHED_YIELD
-#  define SCHED_YIELD                                                    \
+#  define SCHED_YIELD(lockStatePtr)                                      \
   do                                                                     \
     {                                                                    \
       if ((i & 0xff) == 0)                                               \
         {                                                                \
           sched_yield();                                                 \
-          cpu.lockYield++;                                               \
+          (lockStatePtr)->lockYield++;                                   \
         }                                                                \
     }                                                                    \
   while(0)
 # else
 #  undef SCHED_YIELD
-#  define SCHED_YIELD                                                    \
+#  define SCHED_YIELD(lockStatePtr)                                      \
   do                                                                     \
     {                                                                    \
     }                                                                    \
@@ -2210,7 +2215,7 @@ int core_unlock_all(cpu_state_t * cpup);
 # if defined (BSD_ATOMICS)
 #  include <machine/atomic.h>
 
-#  define LOCK_CORE_WORD(addr)                                           \
+#  define LOCK_CORE_WORD(addr,lockStatePtr)                                           \
   do                                                                     \
     {                                                                    \
       unsigned int i = DEADLOCK_DETECT;                                  \
@@ -2218,19 +2223,20 @@ int core_unlock_all(cpu_state_t * cpup);
             MEM_LOCKED_BIT) == 1 && i > 0)                               \
         {                                                                \
           i--;                                                           \
-          SCHED_YIELD;                                                   \
+          SCHED_YIELD(lockStatePtr);                                     \
         }                                                                \
       if (i == 0)                                                        \
         {                                                                \
           sim_warn ("%s: locked %x addr %x deadlock\n", __func__,        \
-              cpu.locked_addr, addr);                                    \
+              (lockStatePtr)->locked_addr, addr);                        \
         }                                                                \
-      cpu.lockCnt++;                                                     \
+      (lockStatePtr)->lockCnt++;                                         \
       if (i == DEADLOCK_DETECT)                                          \
-        cpu.lockImmediate++;                                             \
-      cpu.lockWait += (DEADLOCK_DETECT-i);                               \
-      cpu.lockWaitMax = ((DEADLOCK_DETECT-i) > cpu.lockWaitMax) ?        \
-          (DEADLOCK_DETECT-i) : cpu.lockWaitMax;                         \
+        (lockStatePtr)->lockImmediate++;                                 \
+      (lockStatePtr)->lockWait += (DEADLOCK_DETECT-i);                   \
+      (lockStatePtr)->lockWaitMax = ((DEADLOCK_DETECT-i) >               \
+          (lockStatePtr)->lockWaitMax) ?                                 \
+              (DEADLOCK_DETECT-i) : (lockStatePtr)->lockWaitMax;         \
     }                                                                    \
   while (0)
 
@@ -2252,7 +2258,7 @@ int core_unlock_all(cpu_state_t * cpup);
 
 # if defined(GNU_ATOMICS)
 
-#  define LOCK_CORE_WORD(addr)                                           \
+#  define LOCK_CORE_WORD(addr,lockStatePtr)                              \
   do                                                                     \
     {                                                                    \
       unsigned int i = DEADLOCK_DETECT;                                  \
@@ -2261,20 +2267,20 @@ int core_unlock_all(cpu_state_t * cpup);
                 && i > 0)                                                \
     {                                                                    \
       i--;                                                               \
-      SCHED_YIELD;                                                       \
+      SCHED_YIELD(lockStatePtr);                                         \
     }                                                                    \
       if (i == 0)                                                        \
         {                                                                \
           sim_warn ("%s: locked %x addr %x deadlock\n",                  \
-            __func__, cpu.locked_addr, addr);                            \
+            __func__, (lockStatePtr)->locked_addr, addr);                \
         }                                                                \
-      cpu.lockCnt++;                                                     \
+      (lockStatePtr)->lockCnt++;                                         \
       if (i == DEADLOCK_DETECT)                                          \
-          cpu.lockImmediate++;                                           \
-      cpu.lockWait += (DEADLOCK_DETECT-i);                               \
-      cpu.lockWaitMax = ((DEADLOCK_DETECT-i) >                           \
-          cpu.lockWaitMax) ? (DEADLOCK_DETECT-i) :                       \
-              cpu.lockWaitMax;                                           \
+          (lockStatePtr)->lockImmediate++;                               \
+      (lockStatePtr)->lockWait += (DEADLOCK_DETECT-i);                   \
+      (lockStatePtr)->lockWaitMax = ((DEADLOCK_DETECT-i) >               \
+          (lockStatePtr)->lockWaitMax) ? (DEADLOCK_DETECT-i) :           \
+              (lockStatePtr)->lockWaitMax;                               \
     }                                                                    \
   while (0)
 
@@ -2303,7 +2309,7 @@ int core_unlock_all(cpu_state_t * cpup);
 #   define MEM_BARRIER()   do {} while (0)
 #  endif
 
-#  define LOCK_CORE_WORD(addr)                                           \
+#  define LOCK_CORE_WORD(addr,lockStatePtr)                                           \
      do                                                                  \
        {                                                                 \
          unsigned int i = DEADLOCK_DETECT;                               \
@@ -2311,19 +2317,20 @@ int core_unlock_all(cpu_state_t * cpup);
              MEM_LOCKED) & MEM_LOCKED) && i > 0)                         \
            {                                                             \
             i--;                                                         \
-            SCHED_YIELD;                                                 \
+            SCHED_YIELD(lockStatePtr);                                   \
            }                                                             \
          if (i == 0)                                                     \
            {                                                             \
             sim_warn ("%s: locked %x addr %x deadlock\n", __func__,      \
-                cpu.locked_addr, addr);                                  \
+                (lockStatePtr)->locked_addr, addr);                      \
             }                                                            \
-         cpu.lockCnt++;                                                  \
+         (lockStatePtr)->lockCnt++;                                      \
          if (i == DEADLOCK_DETECT)                                       \
-           cpu.lockImmediate++;                                          \
-         cpu.lockWait += (DEADLOCK_DETECT-i);                            \
-         cpu.lockWaitMax = ((DEADLOCK_DETECT-i) > cpu.lockWaitMax) ?     \
-             (DEADLOCK_DETECT-i) : cpu.lockWaitMax;                      \
+           (lockStatePtr)->lockImmediate++;                              \
+         (lockStatePtr)->lockWait += (DEADLOCK_DETECT-i);                \
+         (lockStatePtr)->lockWaitMax = ((DEADLOCK_DETECT-i) >            \
+             (lockStatePtr)->lockWaitMax) ?                              \
+                 (DEADLOCK_DETECT-i) : (lockStatePtr)->lockWaitMax;      \
        }                                                                 \
      while (0)
 

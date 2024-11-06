@@ -675,6 +675,9 @@ typedef struct
     iom_status_t iomStatus;
 
     uint invokingScuUnitIdx; // the unit number of the SCU that did the connect.
+
+    coreLockState_t  iomCoreLockState;
+
   } iom_unit_data_t;
 
 static iom_unit_data_t iom_unit_data[N_IOM_UNITS_MAX];
@@ -838,13 +841,10 @@ void iom_core_read2 (UNUSED uint iom_unit_idx, word24 addr, word36 *even, word36
 #endif
   }
 
-void iom_core_write (UNUSED uint iom_unit_idx, word24 addr, word36 data, UNUSED const char * ctx)
+void iom_core_write (uint iom_unit_idx, word24 addr, word36 data, UNUSED const char * ctx)
   {
 #if defined(LOCKLESS)
-    cpu_state_t * cpup = _cpup;
-#endif
-#if defined(LOCKLESS)
-    LOCK_CORE_WORD(addr);
+    LOCK_CORE_WORD(addr, & iom_unit_data[iom_unit_idx].iomCoreLockState);
 # if !defined(SUNLINT)
     STORE_REL_CORE_WORD(addr, data);
 # endif /* if !defined(SUNLINT) */
@@ -856,15 +856,12 @@ void iom_core_write (UNUSED uint iom_unit_idx, word24 addr, word36 data, UNUSED 
 void iom_core_write2 (UNUSED uint iom_unit_idx, word24 addr, word36 even, word36 odd, UNUSED const char * ctx)
   {
 #if defined(LOCKLESS)
-    cpu_state_t * cpup = _cpup;
-#endif
-#if defined(LOCKLESS)
-    LOCK_CORE_WORD(addr);
+    LOCK_CORE_WORD(addr, & iom_unit_data[iom_unit_idx].iomCoreLockState);
 # if !defined(SUNLINT)
     STORE_REL_CORE_WORD(addr, even);
 # endif /* if !defined(SUNLINT) */
     addr++;
-    LOCK_CORE_WORD(addr);
+    LOCK_CORE_WORD(addr, & iom_unit_data[iom_unit_idx].iomCoreLockState);
 # if !defined(SUNLINT)
     STORE_REL_CORE_WORD(addr, odd);
 # endif /* if !defined(SUNLINT) */
@@ -877,10 +874,7 @@ void iom_core_write2 (UNUSED uint iom_unit_idx, word24 addr, word36 even, word36
 void iom_core_read_lock (UNUSED uint iom_unit_idx, word24 addr, word36 *data, UNUSED const char * ctx)
   {
 #if defined(LOCKLESS)
-    cpu_state_t * cpup = _cpup;
-#endif
-#if defined(LOCKLESS)
-    LOCK_CORE_WORD(addr);
+    LOCK_CORE_WORD(addr, & iom_unit_data[iom_unit_idx].iomCoreLockState);
 # if !defined(SUNLINT)
     word36 v;
     LOAD_ACQ_CORE_WORD(v, addr);
@@ -3620,3 +3614,4 @@ char iomChar (uint iomUnitIdx)
   {
     return (iom_unit_data[iomUnitIdx].configSwMultiplexBaseAddress & 3) + 'A';
   }
+
