@@ -1597,10 +1597,9 @@ Multics CI-Kit Test:
     - dnf install -y curl telnet tmux mksh expect tcsh wget lzip dos2unix diffutils moreutils libfaketime nmap ansifilter || dnf install -y curl telnet tmux mksh expect tcsh wget lzip dos2unix diffutils moreutils libfaketime nmap ansifilter
     - *scriptSanity
     - *scriptCommon
-    - *scriptBuildlibbacktrace
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - bash -x -c '( set -x ; cd src/ci-kit && export WITH_BACKTRACE=1 && env NO_CI_SYMLINK_TAPES=1 ./init.sh ; ./ci.sh ; make -f ci.makefile diff ; mv -f new.log new.txt )'
+    - bash -x -c '( set -x ; cd src/ci-kit && env NO_CI_SYMLINK_TAPES=1 ./init.sh ; ./ci.sh ; make -f ci.makefile diff ; mv -f new.log new.txt )'
   cache:
     key: tape-cache
     paths:
