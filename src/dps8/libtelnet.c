@@ -59,14 +59,6 @@
 #include <string.h>
 #include <stdarg.h>
 
-#if defined(__GNUC__)
-# define NO_RETURN   __attribute__ ((noreturn))
-# define UNUSED      __attribute__ ((unused))
-#else
-# define NO_RETURN
-# define UNUSED
-#endif /* if defined(__GNUC__) */
-
 /* Win32 compatibility */
 #if defined(_WIN32)
 # define __func__ __FUNCTION__

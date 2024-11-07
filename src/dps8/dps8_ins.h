@@ -27,7 +27,7 @@ t_stat prepareComputedAddress (void);   // new
 void cu_safe_restore(cpu_state_t * cpup);
 void fetchInstruction(cpu_state_t * cpup, word18 addr);
 t_stat executeInstruction (cpu_state_t * cpup);
-void doRCU (cpu_state_t * cpup) NO_RETURN;
+NO_RETURN void doRCU (cpu_state_t * cpup);
 void traceInstruction (uint flag);
 bool tstOVFfault (cpu_state_t * cpup);
 bool chkOVF (cpu_state_t * cpup);

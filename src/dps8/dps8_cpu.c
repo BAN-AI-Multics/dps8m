@@ -3203,12 +3203,12 @@ leave:
     for (unsigned short n = 0; n < N_CPU_UNITS_MAX; n++)
       {
 #if !defined(SCHED_NEVER_YIELD)
-        lockYieldAll     = lockYieldAll     + (unsigned long long)cpus[n].lockYield;
+        lockYieldAll     = lockYieldAll     + (unsigned long long)cpus[n].coreLockState.lockYield;
 #endif /* if !defined(SCHED_NEVER_YIELD) */
-        lockWaitMaxAll   = lockWaitMaxAll   + (unsigned long long)cpus[n].lockWaitMax;
-        lockWaitAll      = lockWaitAll      + (unsigned long long)cpus[n].lockWait;
-        lockImmediateAll = lockImmediateAll + (unsigned long long)cpus[n].lockImmediate;
-        lockCntAll       = lockCntAll       + (unsigned long long)cpus[n].lockCnt;
+        lockWaitMaxAll   = lockWaitMaxAll   + (unsigned long long)cpus[n].coreLockState.lockWaitMax;
+        lockWaitAll      = lockWaitAll      + (unsigned long long)cpus[n].coreLockState.lockWait;
+        lockImmediateAll = lockImmediateAll + (unsigned long long)cpus[n].coreLockState.lockImmediate;
+        lockCntAll       = lockCntAll       + (unsigned long long)cpus[n].coreLockState.lockCnt;
         instrCntAll      = instrCntAll      + (unsigned long long)cpus[n].instrCnt;
         cycleCntAll      = cycleCntAll      + (unsigned long long)cpus[n].cycleCnt;
       }
@@ -3298,7 +3298,7 @@ leave:
 // was created. Update the placeholder so the IC can be seen via scp
 // and restarting sim_instr won't lose the place.
 
-    set_cpu_idx (0);
+    set_cpu_idx (0); //-V779
     dummy_IC = cpu.PPR.IC;
 #endif
 
@@ -3552,14 +3552,14 @@ int core_read (cpu_state_t * cpup, word24 addr, word36 *data, const char * ctx)
 int core_read_lock (cpu_state_t * cpup, word24 addr, word36 *data, UNUSED const char * ctx)
 {
     SC_MAP_ADDR (addr, addr);
-    LOCK_CORE_WORD(addr);
-    if (cpu.locked_addr != 0) {
+    LOCK_CORE_WORD(addr, & cpu.coreLockState);
+    if (cpu.coreLockState.locked_addr != 0) {
       sim_warn ("core_read_lock: locked %08o locked_addr %08o %c %05o:%06o\n",
-                addr, cpu.locked_addr, current_running_cpu_idx + 'A',
+                addr, cpu.coreLockState.locked_addr, current_running_cpu_idx + 'A',
                 cpu.PPR.PSR, cpu.PPR.IC);
       core_unlock_all (cpup);
     }
-    cpu.locked_addr = addr;
+    cpu.coreLockState.locked_addr = addr;
 # if !defined(SUNLINT)
     word36 v;
     LOAD_ACQ_CORE_WORD(v, addr);
@@ -3588,7 +3588,7 @@ int core_write (cpu_state_t * cpup, word24 addr, word36 data, const char * ctx)
           }
       }
 # if defined(LOCKLESS)
-    LOCK_CORE_WORD(addr);
+    LOCK_CORE_WORD(addr, & cpu.coreLockState);
 #  if !defined(SUNLINT)
     STORE_REL_CORE_WORD(addr, data);
 #  endif /* if !defined(SUNLINT) */
@@ -3619,10 +3619,10 @@ int core_write (cpu_state_t * cpup, word24 addr, word36 data, const char * ctx)
 int core_write_unlock (cpu_state_t * cpup, word24 addr, word36 data, UNUSED const char * ctx)
 {
     SC_MAP_ADDR (addr, addr);
-    if (cpu.locked_addr != addr)
+    if (cpu.coreLockState.locked_addr != addr)
       {
         sim_warn ("core_write_unlock: locked %08o locked_addr %08o %c %05o:%06o\n",
-                  addr,        cpu.locked_addr, current_running_cpu_idx + 'A',
+                  addr,        cpu.coreLockState.locked_addr, current_running_cpu_idx + 'A',
                   cpu.PPR.PSR, cpu.PPR.IC);
        core_unlock_all (cpup);
       }
@@ -3630,20 +3630,20 @@ int core_write_unlock (cpu_state_t * cpup, word24 addr, word36 data, UNUSED cons
 # if !defined(SUNLINT)
     STORE_REL_CORE_WORD(addr, data);
 # endif /* if !defined(SUNLINT) */
-    cpu.locked_addr = 0;
+    cpu.coreLockState.locked_addr = 0;
     return 0;
 }
 
 int core_unlock_all (cpu_state_t * cpup)
 {
-  if (cpu.locked_addr != 0) {
+  if (cpu.coreLockState.locked_addr != 0) {
       sim_warn ("core_unlock_all: locked %08o %c %05o:%06o\n",
-                cpu.locked_addr, current_running_cpu_idx + 'A',
+                cpu.coreLockState.locked_addr, current_running_cpu_idx + 'A',
                 cpu.PPR.PSR,     cpu.PPR.IC);
 # if !defined(SUNLINT)
-      STORE_REL_CORE_WORD(cpu.locked_addr, M[cpu.locked_addr]);
+      STORE_REL_CORE_WORD(cpu.coreLockState.locked_addr, M[cpu.coreLockState.locked_addr]);
 # endif /* if !defined(SUNLINT) */
-      cpu.locked_addr = 0;
+      cpu.coreLockState.locked_addr = 0;
   }
   return 0;
 }
@@ -3736,7 +3736,7 @@ int core_read2 (cpu_state_t * cpup, word24 addr, word36 *even, word36 *odd, cons
     LOAD_ACQ_CORE_WORD(v, addr);
     if (v & MEM_LOCKED)
       sim_warn ("core_read2: even locked %08o locked_addr %08o %c %05o:%06o\n",
-                addr,        cpu.locked_addr, current_running_cpu_idx + 'A',
+                addr,        cpu.coreLockState.locked_addr, current_running_cpu_idx + 'A',
                 cpu.PPR.PSR, cpu.PPR.IC);
     *even = v & DMASK;
     addr++;
@@ -3773,7 +3773,7 @@ int core_read2 (cpu_state_t * cpup, word24 addr, word36 *even, word36 *odd, cons
     LOAD_ACQ_CORE_WORD(v, addr);
     if (v & MEM_LOCKED)
       sim_warn ("core_read2: odd locked %08o locked_addr %08o %c %05o:%06o\n",
-                addr,        cpu.locked_addr, current_running_cpu_idx + 'A',
+                addr,        cpu.coreLockState.locked_addr, current_running_cpu_idx + 'A',
                 cpu.PPR.PSR, cpu.PPR.IC);
     *odd = v & DMASK;
 #  endif /* if !defined(SUNLINT) */
@@ -3821,7 +3821,7 @@ int core_write2 (cpu_state_t * cpup, word24 addr, word36 even, word36 odd, const
   }
 # endif
 # if defined(LOCKLESS)
-  LOCK_CORE_WORD(addr);
+  LOCK_CORE_WORD(addr, & cpu.coreLockState);
 #  if !defined(SUNLINT)
   STORE_REL_CORE_WORD(addr, even);
 #  endif /* if !defined(SUNLINT) */
@@ -3844,7 +3844,7 @@ int core_write2 (cpu_state_t * cpup, word24 addr, word36 even, word36 odd, const
   }
 # endif
 # if defined(LOCKLESS)
-  LOCK_CORE_WORD(addr);
+  LOCK_CORE_WORD(addr, & cpu.coreLockState);
 #  if !defined(SUNLINT)
   STORE_REL_CORE_WORD(addr, odd);
 #  endif /* if !defined(SUNLINT) */
@@ -4912,17 +4912,17 @@ void cpuStats (uint cpuNo) {
   (void)fflush(stdout);
   (void)fflush(stderr);
   sim_msg ("\r+---------------------------------+\r\n");
-  sim_msg ("\r|  lockCnt       %15llu  |\r\n", (unsigned long long)cpus[cpuNo].lockCnt);
-  sim_msg ("\r|  lockImmediate %15llu  |\r\n", (unsigned long long)cpus[cpuNo].lockImmediate);
+  sim_msg ("\r|  lockCnt       %15llu  |\r\n", (unsigned long long)cpus[cpuNo].coreLockState.lockCnt);
+  sim_msg ("\r|  lockImmediate %15llu  |\r\n", (unsigned long long)cpus[cpuNo].coreLockState.lockImmediate);
   (void)fflush(stdout);
   (void)fflush(stderr);
   sim_msg ("\r+---------------------------------+\r\n");
-  sim_msg ("\r|  lockWait      %15llu  |\r\n", (unsigned long long)cpus[cpuNo].lockWait);
-  sim_msg ("\r|  lockWaitMax   %15llu  |\r\n", (unsigned long long)cpus[cpuNo].lockWaitMax);
+  sim_msg ("\r|  lockWait      %15llu  |\r\n", (unsigned long long)cpus[cpuNo].coreLockState.lockWait);
+  sim_msg ("\r|  lockWaitMax   %15llu  |\r\n", (unsigned long long)cpus[cpuNo].coreLockState.lockWaitMax);
   (void)fflush(stdout);
   (void)fflush(stderr);
 # if !defined(SCHED_NEVER_YIELD)
-  sim_msg ("\r|  lockYield     %15llu  |\r\n", (unsigned long long)cpus[cpuNo].lockYield);
+  sim_msg ("\r|  lockYield     %15llu  |\r\n", (unsigned long long)cpus[cpuNo].coreLockState.lockYield);
   (void)fflush(stdout);
   (void)fflush(stderr);
 # else
@@ -4946,17 +4946,17 @@ void cpuStats (uint cpuNo) {
   (void)fflush(stdout);
   (void)fflush(stderr);
   sim_msg ("\r+---------------------------------+\r\n");
-  sim_msg ("\r|  lockCnt       %'15llu  |\r\n", (unsigned long long)cpus[cpuNo].lockCnt);
-  sim_msg ("\r|  lockImmediate %'15llu  |\r\n", (unsigned long long)cpus[cpuNo].lockImmediate);
+  sim_msg ("\r|  lockCnt       %'15llu  |\r\n", (unsigned long long)cpus[cpuNo].coreLockState.lockCnt);
+  sim_msg ("\r|  lockImmediate %'15llu  |\r\n", (unsigned long long)cpus[cpuNo].coreLockState.lockImmediate);
   (void)fflush(stdout);
   (void)fflush(stderr);
   sim_msg ("\r+---------------------------------+\r\n");
-  sim_msg ("\r|  lockWait      %'15llu  |\r\n", (unsigned long long)cpus[cpuNo].lockWait);
-  sim_msg ("\r|  lockWaitMax   %'15llu  |\r\n", (unsigned long long)cpus[cpuNo].lockWaitMax);
+  sim_msg ("\r|  lockWait      %'15llu  |\r\n", (unsigned long long)cpus[cpuNo].coreLockState.lockWait);
+  sim_msg ("\r|  lockWaitMax   %'15llu  |\r\n", (unsigned long long)cpus[cpuNo].coreLockState.lockWaitMax);
   (void)fflush(stdout);
   (void)fflush(stderr);
 # if !defined(SCHED_NEVER_YIELD)
-  sim_msg ("\r|  lockYield     %'15llu  |\r\n", (unsigned long long)cpus[cpuNo].lockYield);
+  sim_msg ("\r|  lockYield     %'15llu  |\r\n", (unsigned long long)cpus[cpuNo].coreLockState.lockYield);
   (void)fflush(stdout);
   (void)fflush(stderr);
 # else
