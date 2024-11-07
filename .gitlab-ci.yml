@@ -1600,7 +1600,7 @@ Multics CI-Kit Test:
     - *scriptBuildlibbacktrace
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - bash -x -c '( set -x ; cd src/ci-kit && export WITH_BACKTRACE=1 && env NO_CI_SYMLINK_TAPES=1 sh -x ./init.sh ; ./ci.sh ; make -f ci.makefile diff ; mv -f new.log new.txt )'
+    - bash -x -c '( set -x ; cd src/ci-kit && export WITH_BACKTRACE=1 && env NO_CI_SYMLINK_TAPES=1 ./init.sh ; ./ci.sh ; make -f ci.makefile diff ; mv -f new.log new.txt )'
   cache:
     key: tape-cache
     paths:
