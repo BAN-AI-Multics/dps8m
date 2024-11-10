@@ -16,17 +16,17 @@ then select "Privacy & Security" and ensure "Allow applications from"
 is set to "Anywhere". From a Terminal window, use the "codesign"
 tool distributed with Xcode or Xcode Command-Line Tools, by running:
 
-    codesign -f -s "-" dps8
-    codesign -f -s "-" prt2pdf
-    codesign -f -s "-" punutil
+  xattr -d com.apple.quarantine dps8; codesign -f -s "-" dps8
+  xattr -d com.apple.quarantine prt2pdf; codesign -f -s "-" prt2pdf
+  xattr -d com.apple.quarantine punutil; codesign -f -s "-" punutil
 
 Depending on your system architecture, your version of macOS, and
 your system settings, even after signing the binaries, you might
 still receive a notice such as:
 
-    "dps8" can't be opened because Apple cannot check it
-    for malicious software. This software needs to be updated.
-    Contact the developer for more information.
+  "dps8" can't be opened because Apple cannot check it for
+  malicious software. This software needs to be updated.
+  Contact the developer for more information.
 
 In this case, click on "Show in Finder" button, Control-click the
 icon, choose "Open" from the shortcut menu, and then click "Open".
