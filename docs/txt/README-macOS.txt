@@ -11,10 +11,10 @@ hashes and by validating their OpenPGP-compatible digital signatures.
 Many newer Macintosh systems, including all Apple Silicon-based Macs
 require the binaries to be code signed before they can be executed.
 
-From the Apple menu, start the "System Settings" application, select
-"Privacy & Security" and ensure "Allow applications from" is set to
-"Anywhere".  From a Terminal window, using the "codesign" tool,
-distributed with Xcode or the Apple Xcode Command-Line Tools, run:
+From the Apple menu, start "System Settings" or "System Preferences",
+then select "Privacy & Security" and ensure "Allow applications from"
+is set to "Anywhere". From a Terminal window, use the "codesign"
+tool distributed with Xcode or Xcode Command-Line Tools, by running:
 
     codesign -f -s "-" dps8
     codesign -f -s "-" prt2pdf
