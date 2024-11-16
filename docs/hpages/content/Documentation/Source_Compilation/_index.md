@@ -1134,10 +1134,10 @@ Examples of building the simulator on **Linux** using various popular compilers 
 
 #### AMD Optimizing C/C++
 
-* Build the simulator using **AMD Optimizing C/C++** (**AOCC**), version 4.2.0, (with **AOCC**-provided **AMD LibM**):
+* Build the simulator using **AMD Optimizing C/C++** (**AOCC**), version 5.0.0, (with **AOCC**-provided **AMD LibM**):
 
   ```sh
-  export AOCCVER="4.2.0" &&                               \
+  export AOCCVER="5.0.0" &&                               \
   export AOCLPATH="/opt/AMD/aocc-compiler-${AOCCVER}" &&  \
   source ${AOCCPATH}/setenv_AOCC.sh &&                    \
   env CC="clang" CFLAGS="-mllvm -vector-library=AMDLIBM"  \
@@ -1148,18 +1148,18 @@ Examples of building the simulator on **Linux** using various popular compilers 
 
 ##### AOCC with AMD Optimized CPU Libraries
 
-* Build the simulator using **AMD Optimizing C/C++** (**AOCC**), version 4.2.0, with **AMD Optimized CPU Libraries** (**AOCL**) (**AMD AOCL-LibM** and **AMD AOCL-LibMem**), version 4.2.0:
+* Build the simulator using **AMD Optimizing C/C++** (**AOCC**), version 5.0.0, with **AMD Optimized CPU Libraries** (**AOCL**) (**AMD AOCL-LibM** and **AMD AOCL-LibMem**), version 5.0.0:
 
   ```sh
-  export AOCCVER="4.2.0" &&                                               \
+  export AOCCVER="5.0.0" &&                                               \
   export AOCCPATH="/opt/AMD/aocc-compiler-${AOCCVER}" &&                  \
-  export AOCLVER="4.2.0" &&                                               \
+  export AOCLVER="5.0.0" &&                                               \
   export AOCLPATH="/opt/AMD/aocl/aocl-linux-aocc-${AOCLVER}" &&           \
   export LD_LIBRARY_PATH="${AOCLPATH}/aocc/lib:${LD_LIBRARY_PATH}" &&     \
   source ${AOCCPATH}/setenv_AOCC.sh &&                                    \
   env CC="clang" CFLAGS="-mllvm -vector-library=AMDLIBM"                  \
       LDFLAGS="-Wno-unused-command-line-argument -L${AOCLPATH}/aocc/lib"  \
-      LOCALLIBS="-lalm -laocl-libmem"                                     \
+      LOCALLIBS="-lalm -laocl -libmem"                                    \
     make
   ```
 
