@@ -813,7 +813,7 @@ Cross-compiled release binaries:
     - ( cd / && tar axf /x86_64-pc-illumos.tar.lz )
     - *scriptDPS8Mods
     - export DPS8_CPUTYPE=x86-64
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/OI-AMD64-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=x86_64-pc-solaris2.11" CC=/home/jhj/src/OI-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake libuvdev -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/OI-AMD64-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" LOCAL_CONFOPTS="--host=x86_64-pc-solaris2.11" CC=/home/jhj/src/OI-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake libuvrel -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4"); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/OI-AMD64-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/src/OI-AMD64-crossgcc/out/bin/x86_64-pc-solaris2.11-gcc gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") LOCALLIBS="-lmtmalloc -lmp -lmd -lsocket -lnsl -lm -lpthread"; }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
