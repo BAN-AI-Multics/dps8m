@@ -580,6 +580,22 @@ typedef enum
     (p) = NULL;      \
   } while(0)
 
+# if defined(__GNUC__) || defined(__clang_version__)
+#  if !defined(LIKELY)
+#   define LIKELY(x) __builtin_expect(!!(x), 1)
+#  endif
+#  if !defined(UNLIKELY)
+#   define UNLIKELY(x) __builtin_expect(!!(x), 0)
+#  endif
+# else
+#  if !defined(LIKELY)
+#   define LIKELY(x) (x)
+#  endif
+#  if !defined(UNLIKELY)
+#   define UNLIKELY(x) (x)
+#  endif
+# endif
+
 # if defined (__MINGW64__) || \
     defined (__MINGW32__)  || \
     defined (__GNUC__)     || \

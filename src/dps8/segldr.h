@@ -15,3 +15,4 @@
  */
 
 t_stat segment_loader (int32 arg, const char * buf);
+t_stat mrestore (char * p2);

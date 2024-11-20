@@ -2402,6 +2402,7 @@ word18 get_BAR_address(cpu_state_t * cpup, word18 addr);
 #if defined(THREADZ) || defined(LOCKLESS)
 t_stat threadz_sim_instr (void);
 void * cpu_thread_main (void * arg);
+void perfTest (char * testName);
 #endif
 void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem);
 void setupPROM (uint cpuNo, unsigned char * PROM);

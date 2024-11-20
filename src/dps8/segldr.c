@@ -366,7 +366,7 @@ static t_stat msave (char * p2, word24 sz)
     return SCPE_OK;
   }
 
-static t_stat mrestore (char * p2)
+t_stat mrestore (char * p2)
   {
     int fd = open (p2, O_RDONLY);
     if (fd < 0)
