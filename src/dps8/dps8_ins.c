@@ -1455,17 +1455,12 @@ t_stat executeInstruction (cpu_state_t * cpup) {
   }
 #endif
 
-//#define likely(x) (x)
-//#define unlikely(x) (x)
-#define likely(x) __builtin_expect ((x), 1)
-#define unlikely(x) __builtin_expect ((x), 0)
-
   if (ci->b29)
     ci->address = SIGNEXT15_18 (ci->address & MASK15);
 
   L68_ (
     CPTUR (cptUseMR);
-    if (unlikely (cpu.MR.emr && cpu.MR.OC_TRAP)) {
+    if (UNLIKELY (cpu.MR.emr && cpu.MR.OC_TRAP)) {
       if (cpu.MR.OPCODE == opcode && cpu.MR.OPCODEX == opcodeX) {
         if (cpu.MR.ihrrs) {
           cpu.MR.ihr = 0;
@@ -1481,7 +1476,7 @@ t_stat executeInstruction (cpu_state_t * cpup) {
 /// executeInstruction: Non-restart processing
 ///
 
-  if (likely (!restart) || unlikely (ndes > 0)) { // until we implement EIS restart
+  if (LIKELY (!restart) || UNLIKELY (ndes > 0)) { // until we implement EIS restart
     cpu.cu.TSN_VALID[0] = 0;
     cpu.cu.TSN_VALID[1] = 0;
     cpu.cu.TSN_VALID[2] = 0;
@@ -1490,7 +1485,7 @@ t_stat executeInstruction (cpu_state_t * cpup) {
     cpu.cu.TSN_PRNO[2]  = 0;
   }
 
-  if (unlikely (restart))
+  if (UNLIKELY (restart))
     goto restart_1;
 
 //
@@ -1515,7 +1510,7 @@ t_stat executeInstruction (cpu_state_t * cpup) {
   //cpu.cu.TSN_VALID[2] = 0;
 
   // If executing the target of XEC/XED, check the instruction is allowed
-  if (unlikely (cpu.isXED)) {
+  if (UNLIKELY (cpu.isXED)) {
     if (flags & NO_XED)
       doFault (FAULT_IPR, fst_ill_proc,
                "Instruction not allowed in XEC/XED");
@@ -1537,7 +1532,7 @@ t_stat executeInstruction (cpu_state_t * cpup) {
         doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC},
                  "XED of RPD on odd word, even IC");
     }
-  } else if (unlikely (cpu.isExec)) {
+  } else if (UNLIKELY (cpu.isExec)) {
     // To execute a rpd instruction, the xec instruction must be in an odd location.
     // ISOLTS 768 01w
     if (opcode == 0560 && !opcodeX && cpu.cu.xde && !(cpu.PPR.IC & 1))
@@ -1551,7 +1546,7 @@ t_stat executeInstruction (cpu_state_t * cpup) {
 
   // RPT/RPD illegal modifiers
   // a:AL39/rpd3
-  if (unlikely (cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl)) {
+  if (UNLIKELY (cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl)) {
     if (! (flags & NO_TAG)) {
       // check for illegal modifiers:
       //    only R & RI are allowed
@@ -1585,12 +1580,12 @@ t_stat executeInstruction (cpu_state_t * cpup) {
 
     // Instruction not allowed in RPx?
 
-    if (unlikely (cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl)) {
+    if (UNLIKELY (cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl)) {
       if (flags & NO_RPT)
         RPx_fault |= FR_ILL_PROC;
     }
 
-    if (unlikely (cpu.cu.rl)) {
+    if (UNLIKELY (cpu.cu.rl)) {
       if (flags & NO_RPL)
         RPx_fault |= FR_ILL_PROC;
     }
@@ -1605,7 +1600,7 @@ t_stat executeInstruction (cpu_state_t * cpup) {
   }
 
   // PVS-Studio says: Expression 'RPx_fault != 0' is always false.
-  if (unlikely (RPx_fault != 0)) //-V547
+  if (UNLIKELY (RPx_fault != 0)) //-V547
     doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=RPx_fault},
              "RPx test fail");
 
@@ -1648,7 +1643,7 @@ t_stat executeInstruction (cpu_state_t * cpup) {
 
   // check for priv ins - Attempted execution in normal or BAR modes causes a
   // illegal procedure fault.
-  if (unlikely (flags & PRIV_INS)) {
+  if (UNLIKELY (flags & PRIV_INS)) {
     DPS8M_ (
       // DPS8M illegal instructions lptp,lptr,lsdp,lsdr
       // ISOLTS 890 05abc
@@ -1687,7 +1682,7 @@ t_stat executeInstruction (cpu_state_t * cpup) {
     }
   }
 
-  if (unlikely (flags & NO_BAR)) {
+  if (UNLIKELY (flags & NO_BAR)) {
     if (get_bar_mode(cpup)) {
       // lbar
       // ISOLTS 890 06a
@@ -1703,7 +1698,7 @@ t_stat executeInstruction (cpu_state_t * cpup) {
 
   DPS8M_ (
     // DPS8M raises it delayed
-    if (unlikely (mod_fault != 0))
+    if (UNLIKELY (mod_fault != 0))
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=mod_fault},
                "Illegal modifier");
   )
@@ -1773,7 +1768,7 @@ restart_1:
 /// executeInstruction: RPT/RPD/RPL special processing for 'first time'
 ///
 
-  if (unlikely (cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl)) {
+  if (UNLIKELY (cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl)) {
     CPT (cpt2U, 15); // RPx processing
 
 //
@@ -1888,7 +1883,7 @@ restart_1:
 /// executeInstruction: EIS operand processing
 ///
 
-  if (unlikely (ndes > 0)) {
+  if (UNLIKELY (ndes > 0)) {
     CPT (cpt2U, 27); // EIS operand processing
     sim_debug (DBG_APPENDING, &cpu_dev, "initialize EIS descriptors\n");
     // This must not happen on instruction restart
@@ -2100,7 +2095,7 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
   if (rf && cpu.cu.rd && icEven)
     rf = false;
 
-  if (unlikely ((! rf) && (cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl))) {
+  if (UNLIKELY ((! rf) && (cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl))) {
     CPT (cpt2L, 7); // Post execution RPx
     // If we get here, the instruction just executed was a
     // RPT, RPD or RPL target instruction, and not the RPT or RPD
@@ -2286,7 +2281,7 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
     } // rl
   } // (! rf) && (cpu.cu.rpt || cpu.cu.rd)
 
-  if (unlikely (cpu.dlyFlt)) {
+  if (UNLIKELY (cpu.dlyFlt)) {
     CPT (cpt2L, 14); // Delayed fault
     doFault (cpu.dlyFltNum, cpu.dlySubFltNum, cpu.dlyCtx);
   }

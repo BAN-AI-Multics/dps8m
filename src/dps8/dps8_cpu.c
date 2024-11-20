@@ -4987,3 +4987,51 @@ void cpuStats (uint cpuNo) {
   }
 #endif
 }
+
+#if defined(THREADZ) || defined(LOCKLESS)
+# include <locale.h>
+# include "segldr.h"
+
+void perfTest (char * testName) {
+  if (testName == NULL)
+    testName = "strip.mem";
+
+  (void) setlocale(LC_NUMERIC, "");
+
+  // dps8m_init_strip
+  system_state = malloc (sizeof (struct system_state_s));
+  if (!system_state)
+    {
+      (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
+                     __func__, __FILE__, __LINE__);
+# if defined(USE_BACKTRACE)
+#  if defined(SIGUSR2)
+      (void)raise(SIGUSR2);
+      /*NOTREACHED*/ /* unreachable */
+#  endif /* if defined(SIGUSR2) */
+# endif /* if defined(USE_BACKTRACE) */
+      abort();
+    }
+  M = system_state->M;
+# if defined(M_SHARED)
+  cpus = system_state->cpus;
+# endif /* if defined(M_SHARED) */
+  (void) memset (cpus, 0, sizeof (cpu_state_t) * N_CPU_UNITS_MAX);
+  for (int i = 0; i < N_CPU_UNITS_MAX; i ++) {
+    cpus[i].switches.FLT_BASE = 2; // Some of the UnitTests assume this
+    cpus[i].instrCnt = 0;
+    cpus[i].cycleCnt = 0;
+    for (int j = 0; j < N_FAULTS; j ++)
+      cpus[i].faultCnt [j] = 0;
+  }
+
+  cpus[0].tweaks.enable_emcall = 1;
+  opc_dev.numunits = 1;
+  cpu_reset_unit_idx (0, false);
+  set_cpu_cycle (& cpus[0], FETCH_cycle);
+  mrestore (testName);
+  _cpup = & cpus[0];
+  threadz_sim_instr ();
+}
+#endif
+

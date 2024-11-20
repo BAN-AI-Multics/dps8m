@@ -1822,6 +1822,18 @@ for (i = 1; i < argc; i++) {                            /* loop thru args */
     if (argv[i] == NULL)                                /* paranoia */
         continue;
 
+# if defined(THREADZ) || defined(LOCKLESS)
+/* performance test */
+    int perftestflag  = strcmp(argv[i], "--perftest");
+    if (perftestflag == 0) {
+      char * testName = NULL;
+      if (i + 1 < argc)
+        testName = argv[i + 1];
+      perfTest (testName);
+      return 0;
+    }
+# endif
+
 /* requested only version? */
     int onlyvers  = strcmp(argv[i], "--version");
     if (onlyvers == 0) {
