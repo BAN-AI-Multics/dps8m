@@ -2280,10 +2280,6 @@ setCPU:;
         core_unlock_all(cpup);
 #endif // LOCKLESS
 
-        int con_unit_idx = check_attn_key ();
-        if (con_unit_idx != -1)
-          console_attn_idx (con_unit_idx);
-
 #if !defined(THREADZ) && !defined(LOCKLESS)
         if (cpu.tweaks.isolts_mode)
           {
