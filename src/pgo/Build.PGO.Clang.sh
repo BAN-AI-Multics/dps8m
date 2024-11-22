@@ -72,7 +72,8 @@ export PROFDATA
 
 # Test PROFDATA
 printf '\nPROFDATA: %s\n' "${PROFDATA:?}"
-${PROFDATA:?} "${PROFDATA_TEST:---version}"
+command -v "${PROFDATA:?}" \
+  || { printf '%s\n' "${PROFDATA:?} not found!"; exit 1; }
 
 # LIBUVVER
 test -z "${LIBUVVER:-}" && LIBUVVER="libuvrel"
