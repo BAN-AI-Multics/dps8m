@@ -30,7 +30,7 @@
 #          CC="/opt/llvm/bin/clang"                                  \
 #          ./src/pgo/Build.PGO.AIX.LLVM.sh
 
-set -eu
+set -e
 
 # Sanity test
 printf '%s\n' "Checking for PGO script ..."

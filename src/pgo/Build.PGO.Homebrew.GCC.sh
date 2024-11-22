@@ -4,7 +4,7 @@
 # Copyright (c) 2021-2024 The DPS8M Development Team
 # shellcheck disable=SC2312
 
-set -eu
+set -e
 
 # Sanity test
 printf '%s\n' "Checking for PGO script ..."

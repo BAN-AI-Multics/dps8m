@@ -36,7 +36,7 @@ test -z "${TOOLSUFFIX:-}" && {
   }
 }
 
-set -eu
+set -e
 
 # Test CC
 printf '\nCC: %s\n' "${CC:?}"
