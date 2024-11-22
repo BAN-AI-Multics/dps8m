@@ -14,10 +14,17 @@ test -x "./src/pgo/Build.PGO.Homebrew.Clang.sh" \
     exit 1
   }
 
-# Homebrew
+# Homebrew LLVM
 brew info llvm 2> /dev/null | grep -q '^Installed' \
   || {
     printf '%s\n' "ERROR: Homebrew LLVM not installed."
+    exit 1
+  }
+
+# Homebrew LLD
+brew info lld 2> /dev/null | grep -q '^Installed' \
+  || {
+    printf '%s\n' "ERROR: Homebrew LLD not installed."
     exit 1
   }
 
