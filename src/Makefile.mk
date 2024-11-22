@@ -47,7 +47,7 @@ CPPI       ?= cppi
 COMM       ?= comm
 ECHO       ?= echo
 BREW       ?= brew
-GREP       ?= $(ENV) PATH="$$($(COMMAND) -p $(ENV) $(GETCONF) PATH)" grep
+GREP       ?= $(ENV) PATH="$$($(COMMAND) -p $(GETCONF) PATH 2> /dev/null):$${PATH:-/bin/usr/bin}" grep
 SORT       ?= sort
 CPPCPP     ?= $(CC) -E
 CPPCPP2    ?= $(CC) -qshowmacros=pre -E /dev/null < /dev/null 2> /dev/null
@@ -69,9 +69,9 @@ EXPAND     ?= expand
 GPG        ?= gpg --batch --status-fd --with-colons
 REUSETOOL  ?= reuse
 WC         ?= wc
-SED        ?= $(ENV) PATH="$$($(COMMAND) -p $(ENV) $(GETCONF) PATH)" sed
-AWK        ?= $(shell $(COMMAND) -v gawk 2> /dev/null ||                      \
-                $(ENV) PATH="$$($(COMMAND) -p $(ENV) $(GETCONF) PATH)"        \
+SED        ?= $(ENV) PATH="$$($(COMMAND) -p $(GETCONF) PATH 2> /dev/null):$${PATH:-/bin:/usr/bin}" sed
+AWK        ?= $(shell $(COMMAND) -v gawk 2> /dev/null || \
+                $(ENV) PATH="$$($(COMMAND) -p $(GETCONF) PATH 2> /dev/null):$${PATH:-/bin:/usr/bin}" \
                   sh -c "$(COMMAND) -v awk" || $(PRINTF) %s\\n awk)
 CMP        ?= cmp
 CKSUM      ?= cksum
