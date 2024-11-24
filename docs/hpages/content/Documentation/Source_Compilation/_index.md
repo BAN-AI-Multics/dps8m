@@ -1236,10 +1236,10 @@ Note the following examples *do not* make use of [**Environment Modules**](https
 
 If your site uses modules (*i.e.* `module avail`), loading the appropriate module is usually preferred to setting paths manually.  Contact your system administrator for site-specific configuration details and recommended local compiler flags.
 
-* Build the simulator using the [**Arm HPC C/C++ Compiler for Linux** (**ARMClang**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Compiler%20for%20Linux), version 24.04, for Linux/**ARM64**:
+* Build the simulator using the [**Arm HPC C/C++ Compiler for Linux** (**ARMClang**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Compiler%20for%20Linux), version 24.10.1, for Linux/**ARM64**:
 
   ```sh
-  export ACFLVER="24.04" &&                                 \
+  export ACFLVER="24.10.1" &&                               \
   export ACFLCMP="arm-linux-compiler-${ACFLVER}" &&         \
   export ACFLTYP="Generic-AArch64_RHEL-9_aarch64-linux" &&  \
   export ACFLPATH="/opt/arm/${ACFLCMP}_${ACFLTYP}" &&       \
@@ -1251,10 +1251,10 @@ If your site uses modules (*i.e.* `module avail`), loading the appropriate modul
 
 ##### ACFL with Arm Performance Libraries
 
-* Build the simulator using the [**Arm HPC C/C++ Compiler for Linux** (**ARMClang**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Compiler%20for%20Linux) with the integrated [**Arm Performance Libraries** (**ArmPL**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Performance%20Libraries), version 24.04, for Linux/**ARM64**:
+* Build the simulator using the [**Arm HPC C/C++ Compiler for Linux** (**ARMClang**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Compiler%20for%20Linux) with the integrated [**Arm Performance Libraries** (**ArmPL**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Performance%20Libraries), version 24.10.1, for Linux/**ARM64**:
 
   ```sh
-  export ACFLVER="24.04" &&                                 \
+  export ACFLVER="24.10.1" &&                               \
   export ACFLCMP="arm-linux-compiler-${ACFLVER}" &&         \
   export ACFLTYP="Generic-AArch64_RHEL-9_aarch64-linux" &&  \
   export ACFLPATH="/opt/arm/${ACFLCMP}_${ACFLTYP}" &&       \
@@ -1265,10 +1265,10 @@ If your site uses modules (*i.e.* `module avail`), loading the appropriate modul
     make
   ```
 
-* Build the simulator using the [**Arm HPC C/C++ Compiler for Linux** (**ARMClang**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Compiler%20for%20Linux) with the integrated [**Arm Performance Libraries** (**ArmPL**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Performance%20Libraries), version 24.04, for Linux/**ARMv8-A+SVE2** (*Scalable Vector Extensions*):
+* Build the simulator using the [**Arm HPC C/C++ Compiler for Linux** (**ARMClang**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Compiler%20for%20Linux) with the integrated [**Arm Performance Libraries** (**ArmPL**)](https://developer.arm.com/Tools%20and%20Software/Arm%20Performance%20Libraries), version 24.10.1, for Linux/**ARMv8-A+SVE2** (*Scalable Vector Extensions*):
 
   ```sh
-  export ACFLVER="24.04" &&                                 \
+  export ACFLVER="24.10.1" &&                               \
   export ACFLCMP="arm-linux-compiler-${ACFLVER}" &&         \
   export ACFLTYP="Generic-AArch64_RHEL-9_aarch64-linux" &&  \
   export ACFLPATH="/opt/arm/${ACFLCMP}_${ACFLTYP}" &&       \
