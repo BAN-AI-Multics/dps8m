@@ -1013,7 +1013,7 @@ The default **Haiku** installation includes the required header files, an accept
 ### Compiling using Clang
 
 * Compiling with Clang on Haiku is **highly recommended**; the resulting binary runs approximately **35%** **faster**.
-* At the time of writing, **Clang 18** is available from *HaikuPorts* (as the '**`llvm18_clang`**' and '**`llvm18_lld`**' packages), installable using `pkgman` or the '**HaikuDepot**' application.
+* At the time of writing, **Clang 19** is available from *HaikuPorts* (as the '**`llvm19_clang`**' and '**`llvm19_lld`**' packages), installable using `pkgman` or the '**HaikuDepot**' application.
 
 * Build the simulator from the top-level source directory (using **GNU Make**):
 
