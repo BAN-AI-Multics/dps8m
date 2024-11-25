@@ -30,7 +30,6 @@ ${HUGO:-hugo} server           \
   --enableGitInfo              \
   --ignoreCache                \
   --noHTTPCache                \
-  -p 31313                     \
-  -v
+  -p 31313
 
 ##########################################################################
