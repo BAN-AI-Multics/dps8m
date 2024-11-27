@@ -787,6 +787,9 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 []()
 
 * [**Clang 18.1.8**](https://clang.llvm.org/) is the *minimum* recommended version of the **Clang** compiler for **POWER8**, **POWER9**, and **Power10** systems.
+
+[]()
+
 * [**Clang 19.1.4**](https://clang.llvm.org/) is the *minimum* recommended version of the **Clang** compiler for **Power11** systems.
   * LTO *(link-time optimization)* and native 128-bit integer operations are both fully supported.
 
