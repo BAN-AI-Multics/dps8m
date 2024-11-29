@@ -1816,7 +1816,7 @@ In the following cross-compilation examples, the *latest* **`libuv`** sources (f
       unzip -xa "v1.x.zip" && cd "libuv-1.x" &&                      \
       mkdir -p "build" && cd "build" &&                              \
       cmake .. -DCMAKE_SYSTEM_NAME="Windows"                         \
-               -DCMAKE_SYSTEM_VERSION="6.1"                          \
+               -DCMAKE_SYSTEM_VERSION="10"                           \
                -DCMAKE_C_COMPILER="i686-w64-mingw32-gcc"             \
                -DCMAKE_INSTALL_PREFIX="${HOME}/libuv-win32-i686" &&  \
       cmake --build . && cmake --install . )
@@ -1848,7 +1848,7 @@ In the following cross-compilation examples, the *latest* **`libuv`** sources (f
       unzip -xa "v1.x.zip" && cd "libuv-1.x" &&                        \
       mkdir -p "build" && cd "build" &&                                \
       cmake .. -DCMAKE_SYSTEM_NAME="Windows"                           \
-               -DCMAKE_SYSTEM_VERSION="6.1"                            \
+               -DCMAKE_SYSTEM_VERSION="10"                             \
                -DCMAKE_C_COMPILER="x86_64-w64-mingw32-gcc"             \
                -DCMAKE_INSTALL_PREFIX="${HOME}/libuv-win32-x86_64" &&  \
       cmake --build . && cmake --install . )
