@@ -59,7 +59,7 @@
 // Forward declarations
 
 static int doABSA (cpu_state_t * cpup, word36 * result);
-static t_stat doInstruction (cpu_state_t * cpup);
+HOT static t_stat doInstruction (cpu_state_t * cpup);
 static int emCall (cpu_state_t * cpup);
 
 #if BARREL_SHIFTER
@@ -2372,7 +2372,7 @@ static inline void overflow (cpu_state_t * cpup, bool ovf, bool dly, const char 
 //
 
 // CANFAULT
-static t_stat doInstruction (cpu_state_t * cpup)
+HOT static t_stat doInstruction (cpu_state_t * cpup)
 {
     DCDstruct * i = & cpu.currentInstruction;
     // AL39 says it is always cleared, but that makes no sense (what good

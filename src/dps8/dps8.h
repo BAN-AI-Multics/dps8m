@@ -36,6 +36,21 @@
 #  include <libgen.h>  // needed for macOS and Android
 # endif
 
+# undef HAS_ATTRIBUTE
+# if defined __has_attribute && (defined(__clang__) || defined(__GNUC__))
+#  define HAS_ATTRIBUTE(atr) __has_attribute(atr)
+# else
+#  define HAS_ATTRIBUTE(atr) 0
+# endif
+
+# undef HOT
+# if HAS_ATTRIBUTE(hot)
+#  define HOT __attribute__((hot))
+# endif
+# if !defined(HOT)
+#  define HOT
+# endif
+
 # if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || (defined(__APPLE__) && defined(__MACH__)) || defined(__ANDROID__) || defined(_AIX)
 #  undef setjmp
 #  define setjmp _setjmp
