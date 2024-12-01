@@ -454,6 +454,7 @@ static config_list_t cpu_config_list [] =
     { "isolts_mode",           0,  1,               cfg_on_off             },
     { "nodis",                 0,  1,               cfg_on_off             },
     { "l68_mode",              0,  1,               cfg_l68_mode           },
+    { "nosync",                0,  1,               cfg_on_off             },
     { NULL,                    0,  0,               NULL                   }
   };
 
@@ -606,87 +607,109 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
 #endif
         else if (strcmp (p, "isolts_mode") == 0)
           {
+            bool was = cpus[cpu_unit_idx].tweaks.isolts_mode;
             cpus[cpu_unit_idx].tweaks.isolts_mode = v;
-            if (v)
-              {
-                uint store_sz;
-                if (cpus[cpu_unit_idx].tweaks.l68_mode) // L68
-                  store_sz = 3;
-                else // DPS8M
-                  store_sz = 2;
-                cpus[cpu_unit_idx].isolts_switches_save     = cpus[cpu_unit_idx].switches;
-                cpus[cpu_unit_idx].isolts_switches_saved    = true;
+            if (v && ! was) {
+              uint store_sz;
+              if (cpus[cpu_unit_idx].tweaks.l68_mode) // L68
+                store_sz = 3;
+              else // DPS8M
+                store_sz = 2;
+              cpus[cpu_unit_idx].isolts_switches_save     = cpus[cpu_unit_idx].switches;
 
-                cpus[cpu_unit_idx].switches.data_switches   = 00000030714000;
-                cpus[cpu_unit_idx].switches.addr_switches   = 0100150;
-                cpus[cpu_unit_idx].tweaks.useMap            = true;
-                cpus[cpu_unit_idx].tweaks.enable_wam        = true;
-                cpus[cpu_unit_idx].switches.assignment  [0] = 0;
-                cpus[cpu_unit_idx].switches.interlace   [0] = false;
-                cpus[cpu_unit_idx].switches.enable      [0] = false;
-                cpus[cpu_unit_idx].switches.init_enable [0] = false;
-                cpus[cpu_unit_idx].switches.store_size  [0] = store_sz;
+              cpus[cpu_unit_idx].switches.data_switches   = 00000030714000;
+              cpus[cpu_unit_idx].switches.addr_switches   = 0100150;
+              cpus[cpu_unit_idx].tweaks.useMap            = true;
+              cpus[cpu_unit_idx].tweaks.enable_wam        = true;
+              cpus[cpu_unit_idx].switches.assignment  [0] = 0;
+              cpus[cpu_unit_idx].switches.interlace   [0] = false;
+              cpus[cpu_unit_idx].switches.enable      [0] = false;
+              cpus[cpu_unit_idx].switches.init_enable [0] = false;
+              cpus[cpu_unit_idx].switches.store_size  [0] = store_sz;
 
-                cpus[cpu_unit_idx].switches.assignment  [1] = 0;
-                cpus[cpu_unit_idx].switches.interlace   [1] = false;
-                cpus[cpu_unit_idx].switches.enable      [1] = true;
-                cpus[cpu_unit_idx].switches.init_enable [1] = false;
-                cpus[cpu_unit_idx].switches.store_size  [1] = store_sz;
+              cpus[cpu_unit_idx].switches.assignment  [1] = 0;
+              cpus[cpu_unit_idx].switches.interlace   [1] = false;
+              cpus[cpu_unit_idx].switches.enable      [1] = true;
+              cpus[cpu_unit_idx].switches.init_enable [1] = false;
+              cpus[cpu_unit_idx].switches.store_size  [1] = store_sz;
 
-                cpus[cpu_unit_idx].switches.assignment  [2] = 0;
-                cpus[cpu_unit_idx].switches.interlace   [2] = false;
-                cpus[cpu_unit_idx].switches.enable      [2] = false;
-                cpus[cpu_unit_idx].switches.init_enable [2] = false;
-                cpus[cpu_unit_idx].switches.store_size  [2] = store_sz;
+              cpus[cpu_unit_idx].switches.assignment  [2] = 0;
+              cpus[cpu_unit_idx].switches.interlace   [2] = false;
+              cpus[cpu_unit_idx].switches.enable      [2] = false;
+              cpus[cpu_unit_idx].switches.init_enable [2] = false;
+              cpus[cpu_unit_idx].switches.store_size  [2] = store_sz;
 
-                cpus[cpu_unit_idx].switches.assignment  [3] = 0;
-                cpus[cpu_unit_idx].switches.interlace   [3] = false;
-                cpus[cpu_unit_idx].switches.enable      [3] = false;
-                cpus[cpu_unit_idx].switches.init_enable [3] = false;
-                cpus[cpu_unit_idx].switches.store_size  [3] = store_sz;
+              cpus[cpu_unit_idx].switches.assignment  [3] = 0;
+              cpus[cpu_unit_idx].switches.interlace   [3] = false;
+              cpus[cpu_unit_idx].switches.enable      [3] = false;
+              cpus[cpu_unit_idx].switches.init_enable [3] = false;
+              cpus[cpu_unit_idx].switches.store_size  [3] = store_sz;
 
-                if (cpus[cpu_unit_idx].tweaks.l68_mode) { // L68
-                  cpus[cpu_unit_idx].switches.assignment  [4] = 0;
-                  cpus[cpu_unit_idx].switches.interlace   [4] = false;
-                  cpus[cpu_unit_idx].switches.enable      [4] = false;
-                  cpus[cpu_unit_idx].switches.init_enable [4] = false;
-                  cpus[cpu_unit_idx].switches.store_size  [4] = 3;
+              if (cpus[cpu_unit_idx].tweaks.l68_mode) { // L68
+                cpus[cpu_unit_idx].switches.assignment  [4] = 0;
+                cpus[cpu_unit_idx].switches.interlace   [4] = false;
+                cpus[cpu_unit_idx].switches.enable      [4] = false;
+                cpus[cpu_unit_idx].switches.init_enable [4] = false;
+                cpus[cpu_unit_idx].switches.store_size  [4] = 3;
 
-                  cpus[cpu_unit_idx].switches.assignment  [5] = 0;
-                  cpus[cpu_unit_idx].switches.interlace   [5] = false;
-                  cpus[cpu_unit_idx].switches.enable      [5] = false;
-                  cpus[cpu_unit_idx].switches.init_enable [5] = false;
-                  cpus[cpu_unit_idx].switches.store_size  [5] = 3;
+                cpus[cpu_unit_idx].switches.assignment  [5] = 0;
+                cpus[cpu_unit_idx].switches.interlace   [5] = false;
+                cpus[cpu_unit_idx].switches.enable      [5] = false;
+                cpus[cpu_unit_idx].switches.init_enable [5] = false;
+                cpus[cpu_unit_idx].switches.store_size  [5] = 3;
 
-                  cpus[cpu_unit_idx].switches.assignment  [6] = 0;
-                  cpus[cpu_unit_idx].switches.interlace   [6] = false;
-                  cpus[cpu_unit_idx].switches.enable      [6] = false;
-                  cpus[cpu_unit_idx].switches.init_enable [6] = false;
-                  cpus[cpu_unit_idx].switches.store_size  [6] = 3;
+                cpus[cpu_unit_idx].switches.assignment  [6] = 0;
+                cpus[cpu_unit_idx].switches.interlace   [6] = false;
+                cpus[cpu_unit_idx].switches.enable      [6] = false;
+                cpus[cpu_unit_idx].switches.init_enable [6] = false;
+                cpus[cpu_unit_idx].switches.store_size  [6] = 3;
 
-                  cpus[cpu_unit_idx].switches.assignment  [7] = 0;
-                  cpus[cpu_unit_idx].switches.interlace   [7] = false;
-                  cpus[cpu_unit_idx].switches.enable      [7] = false;
-                  cpus[cpu_unit_idx].switches.init_enable [7] = false;
-                  cpus[cpu_unit_idx].switches.store_size  [7] = 3;
-                }
-                cpu_reset_unit_idx ((uint) cpu_unit_idx, false);
-                simh_cpu_reset_and_clear_unit (cpu_unit + cpu_unit_idx, 0, NULL, NULL);
-                cpus[cpu_unit_idx].switches.enable      [1] = true;
+                cpus[cpu_unit_idx].switches.assignment  [7] = 0;
+                cpus[cpu_unit_idx].switches.interlace   [7] = false;
+                cpus[cpu_unit_idx].switches.enable      [7] = false;
+                cpus[cpu_unit_idx].switches.init_enable [7] = false;
+                cpus[cpu_unit_idx].switches.store_size  [7] = 3;
               }
-            else
-              {
-                cpus[cpu_unit_idx].switches = cpus[cpu_unit_idx].isolts_switches_save;
-                cpus[cpu_unit_idx].isolts_switches_saved    = false;
+              cpus[cpu_unit_idx].switches.enable      [1] = true;
 
+
+#if defined(THREADZ) || defined(LOCKLESS)
+              if (cpus[cpu_unit_idx].executing) {
+                cpus[cpu_unit_idx].forceRestart = true;
+                wakeCPU (cpu_unit_idx);
+              } else {
                 cpu_reset_unit_idx ((uint) cpu_unit_idx, false);
-                simh_cpu_reset_and_clear_unit (cpu_unit + cpu_unit_idx, 0, NULL, NULL);
+                //simh_cpu_reset_and_clear_unit (cpuUnits + cpu_unit_idx, 0, NULL, NULL);
               }
+#else
+              cpu_reset_unit_idx ((uint) cpu_unit_idx, false);
+              simh_cpu_reset_and_clear_unit (cpu_unit + cpu_unit_idx, 0, NULL, NULL);
+#endif
+
+            } else if (was && !v) {
+              cpus[cpu_unit_idx].switches = cpus[cpu_unit_idx].isolts_switches_save;
+
+#if defined(THREADZ) || defined(LOCKLESS)
+              if (cpus[cpu_unit_idx].executing) {
+                cpus[cpu_unit_idx].forceRestart = true;
+                wakeCPU (cpu_unit_idx);
+              } else {
+                cpu_reset_unit_idx ((uint) cpu_unit_idx, false);
+                //simh_cpu_reset_and_clear_unit (cpuUnits + cpu_unit_idx, 0, NULL, NULL);
+              }
+#else
+            cpu_reset_unit_idx ((uint) cpu_unit_idx, false);
+            simh_cpu_reset_and_clear_unit (cpu_unit + cpu_unit_idx, 0, NULL, NULL);
+#endif
+
+            }
           }
         else if (strcmp (p, "nodis") == 0)
           cpus[cpu_unit_idx].tweaks.nodis = v;
         else if (strcmp (p, "l68_mode") == 0)
-          cpus[cpu_unit_idx].tweaks.l68_mode= v;
+          cpus[cpu_unit_idx].tweaks.l68_mode = v;
+        else if (strcmp (p, "nosync") == 0)
+          cpus[cpu_unit_idx].tweaks.nosync = v;
         else
           {
             sim_warn ("error: cpu_set_config: Invalid cfg_parse rc <%ld>\n",
@@ -963,7 +986,7 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
       set_cpu_cycle (cpup, FETCH_cycle);
     } else {
       set_cpu_cycle (cpup, EXEC_cycle);
-      cpu.cu.IWB = 0000000616000; //-V536  // Stuff DIS instruction in instruction buffer
+      cpu.cu.IWB = 0000000616200; //-V536  // Stuff DIS w/interrupt inhibit  in instruction buffer
     }
 #if defined(PERF_STRIP)
     set_cpu_cycle (cpup, FETCH_cycle);
@@ -979,6 +1002,10 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
 
 #if defined(RAPRx)
     cpu.apu.lastCycle = UNKNOWN_CYCLE;
+#endif
+
+#if defined(THREADZ) || defined(LOCKLESS)
+    cpu.rcfDelete = false;
 #endif
 
     (void)memset (& cpu.PPR, 0, sizeof (struct ppr_s));
@@ -2128,8 +2155,35 @@ static bool clear_temporary_absolute_mode (cpu_state_t * cpup)
     //return cpu.went_appending;
   }
 
+#if defined(THREADZ) || defined(LOCKLESS)
+enum { workAllocationQuantum = 1024 };
+enum { syncClockModePollRate = 128 };
+
+static void becomeClockMaster (cpu_state_t * cpup) {
+
+  lockSync ();  // Only one CPU can manage the sync at a time; if more then one CPU is started
+  // at once, the second will hang here until the first is finished. If this proves to be
+  // a problem, then we need a mechanism for the second one to join the sync parade.
+
+  syncClockModeMasterIdx = current_running_cpu_idx;
+  cpu.syncClockModeMaster = true; // This CPU is the clock master
+  for (int i = 0; i < N_CPU_UNITS_MAX; i ++)
+    cpus[i].workAllocation = 0;
+  syncClockMode = true;
+}
+
+void giveupClockMaster (cpu_state_t * cpup) {
+  cpu.syncClockModeMaster = false;
+  syncClockMode = false; // Free the other processors
+  unlockSync (); // And let someone else grab sync mode
+}
+#endif
+
 t_stat threadz_sim_instr (void)
   {
+#if !defined(ROUND_ROBIN)
+    cpu_state_t * cpup = _cpup;
+#endif
   //cpu.have_tst_lock = false;
 
 #if !defined(SCHED_NEVER_YIELD)
@@ -2141,6 +2195,12 @@ t_stat threadz_sim_instr (void)
     unsigned long long lockCntAll       = 0;
     unsigned long long instrCntAll      = 0;
     unsigned long long cycleCntAll      = 0;
+
+#if defined(THREADZ) || defined(LOCKLESS)
+    // New CPUs start sets synchronous clock mode until start_cpu is done with race conditions.
+    if (cpu.tweaks.nosync == 0)
+      becomeClockMaster (cpup);
+#endif
 
     t_stat reason = 0;
 
@@ -2179,10 +2239,11 @@ setCPU:;
 # endif
 #endif
 
-    // This allows long jumping to the top of the state machine
-#if !defined(ROUND_ROBIN)
-    cpu_state_t * cpup = _cpup;
+#if defined(THREADZ) || defined(LOCKLESS)
+    cpu.executing = true;
 #endif
+
+    // This allows long jumping to the top of the state machine
     int val = setjmp (cpu.jmpMain);
 
     switch (val)
@@ -2212,6 +2273,20 @@ setCPU:;
         case JMP_RESTART:
             set_cpu_cycle (cpup, EXEC_cycle);
             break;
+        case JMP_FORCE_RESTART:
+          // The configuration has been changed on a CPU that
+          // has been started and in DIS idle. DIS sees the
+          // forceRestart flag and longjmps here.
+          // cpu_reset_unit_idx will update the CPU state to
+          // match the new configiguration and set the
+          // state to enter DIS.
+          cpu_reset_unit_idx (current_running_cpu_idx, false);
+#if defined(THREADZ) || defined(LOCKLESS)
+          // Were we a clock master?
+          if (syncClockMode && syncClockModeMasterIdx == current_running_cpu_idx)
+            giveupClockMaster (cpup);
+#endif
+          break;
         default:
           sim_warn ("longjmp value of %d unhandled\n", val);
             goto leave;
@@ -2228,6 +2303,101 @@ setCPU:;
 
     do
       {
+
+#if defined(THREADZ) || defined(LOCKLESS)
+        // RCF ADD restarts the CPU by doing a connect fault to a CPU
+        // doing the pxss stop cpu DIS.
+        // If we are not in sync clock mode,
+        // And the CPU did the pxss stop DIS
+        // And we processing a FAULT,
+        // then we undergoing an RCF ADD.
+        if (cpu.cycle == FAULT_cycle && cpu.rcfDelete) {
+          if (! syncClockMode) {
+            cpu.rcfDelete = false; // Forget about the RCF DELETE
+            becomeClockMaster (cpup); // Start synchronizing
+          }
+        }
+
+        // Ready to check sync clock mode?
+        if (cpu.syncClockModeCache || cpu.syncClockModePoll++ > syncClockModePollRate) {
+          cpu.syncClockModePoll = 0;
+
+          // Are the clocks synchronized?
+          if (syncClockMode) {
+
+            // Remember that this thread is synchronized
+            cpu.syncClockModeCache = true;
+
+            // Are we the master?
+            if (syncClockModeMasterIdx == current_running_cpu_idx) {
+
+              // Master
+
+              // Have we used up out allocation?
+              if (cpu.workAllocation <= 0) {
+                // If usleep(1) actually takes only 1 us, then this
+                // will be at least 2 seconds.
+                //int64_t waitTimeout = 2000000;
+                // Quick testing shows it is closer to 2 minutes...
+                int64_t waitTimeout = 100000;
+                // Has everyone used up their allocation?
+                while (1) {
+                  bool alldone = true;
+                  for (int i = 0; i < N_CPU_UNITS_MAX; i ++) {
+                    if (cpus[i].executing && cpus[i].workAllocation > 0) {
+                      alldone = false;
+                      break;
+                    } // executing and working
+                  } // cpus
+                  if (alldone) {
+                    // Everyone has used up there allocations; dole out some more work
+                    for (int i = 0; i < N_CPU_UNITS_MAX; i ++) {
+                      cpus[i].workAllocation += workAllocationQuantum;
+                      wakeCPU (i);
+                    }
+                    break;
+                  } // alldone
+                  if (waitTimeout-- < 0) {
+                    // timed out waiting for everyone to finish their
+                    // work allocation; assume something is fouled.
+                    sim_printf ("Clock master CPU %c timed out\r\n", "ABCDEFGH"[current_running_cpu_idx]);
+                    for (int i = 0; i < N_CPU_UNITS_MAX; i ++) {
+                      if (cpus[i].executing && cpus[i].workAllocation > 0) {
+                        sim_printf ("CPU %c remaining allocation: %lld\r\n", "ABCDEFGH"[i], cpus[i].workAllocation);
+                      }
+                    }
+                    sim_printf ("Conceding clock mastery...\r\n");
+                    cpu.syncClockModeCache = false;
+                    giveupClockMaster (cpup);
+                    goto bail;
+                  }
+                  sim_usleep (1);
+                } // while others still have work to do
+              } // have we used up our allocation
+              // We are master and have work allocated; fall through
+              // and do some work
+
+            } else { // Master/slave?
+
+              // Slave
+
+              // Wait for allocation
+              while (syncClockMode && cpu.workAllocation <= 0)
+                sim_usleep (1);
+
+              // We are slave and have work allocated; fall through
+              // and do some work
+
+            } // master/slave
+
+          } else { // ! syncClockMode
+            // Forget that this thread is synchronized
+            cpu.syncClockModeCache = false;
+          } // ! syncClockMode
+        } // poll
+bail:
+#endif
+
         reason = 0;
 
 #if !defined(THREADZ) && !defined(LOCKLESS)
@@ -2696,9 +2866,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                 cpu.wasInhibited = true;
 
               t_stat ret = executeInstruction (cpup);
-#if defined(TR_WORK_EXEC)
-              cpu.rTRticks ++;
-#endif
+              DO_WORK_EXEC;
               CPT (cpt1U, 23); // execution complete
 
               if (cpu.tweaks.l68_mode)
@@ -2788,6 +2956,12 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
               if (ret == CONT_DIS)
                 {
                   CPT (cpt1U, 25); // DIS instruction
+
+#if defined(THREADZ) || defined(LOCKLESS)
+                  // If we do a DIS, throw away our work allocaiton so that other
+                  // CPUs can get real work done
+                  cpu.workAllocation = 0;
+#endif
 
 // If we get here, we have encountered a DIS instruction in EXEC_cycle.
 //
@@ -3192,6 +3366,9 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 #endif
 
 leave:
+#if defined(THREADZ) || defined(LOCKLESS)
+    cpu.executing = false;
+#endif
 #if defined(TESTING)
     HDBGPrint ();
 #endif
@@ -3533,9 +3710,7 @@ int core_read (cpu_state_t * cpup, word24 addr, word36 *data, const char * ctx)
     *data = M[addr] & DMASK;
 # endif /* if defined(LOCKLESS) */
 
-# if defined(TR_WORK_MEM)
-    cpu.rTRticks ++;
-# endif
+    DO_WORK_MEM;
     sim_debug (DBG_CORE, & cpu_dev,
                "core_read  %08o %012"PRIo64" (%s)\n",
                 addr, * data, ctx);
@@ -3600,9 +3775,7 @@ int core_write (cpu_state_t * cpup, word24 addr, word36 data, const char * ctx)
         traceInstruction (0);
       }
 # endif /* if !defined(SPEED) */
-# if defined(TR_WORK_MEM)
-    cpu.rTRticks ++;
-# endif /* if defined(TR_WORK_MEM) */
+    DO_WORK_MEM;
     sim_debug (DBG_CORE, & cpu_dev,
                "core_write %08o %012"PRIo64" (%s)\n",
                 addr, data, ctx);
@@ -3682,9 +3855,7 @@ int core_write_zone (cpu_state_t * cpup, word24 addr, word36 data, const char * 
         traceInstruction (0);
       }
 # endif
-# if defined(TR_WORK_MEM)
-    cpu.rTRticks ++;
-# endif
+    DO_WORK_MEM;
     sim_debug (DBG_CORE, & cpu_dev,
                "core_write_zone %08o %012"PRIo64" (%s)\n",
                 mapAddr, data, ctx);
@@ -3779,9 +3950,7 @@ int core_read2 (cpu_state_t * cpup, word24 addr, word36 *even, word36 *odd, cons
     sim_debug (DBG_CORE, & cpu_dev,
                "core_read2 %08o %012"PRIo64" (%s)\n",
                 addr, * odd, ctx);
-# if defined(TR_WORK_MEM)
-    cpu.rTRticks ++;
-# endif
+    DO_WORK_MEM;
     PNL (trackport (addr - 1, * even));
     return 0;
   }
@@ -3847,9 +4016,7 @@ int core_write2 (cpu_state_t * cpup, word24 addr, word36 even, word36 odd, const
 # else
   M[addr] = odd & DMASK;
 # endif
-# if defined(TR_WORK_MEM)
-  cpu.rTRticks ++;
-# endif
+  DO_WORK_MEM;
   PNL (trackport (addr - 1, even));
   sim_debug (DBG_CORE, & cpu_dev, "core_write2 %08o %012"PRIo64" (%s)\n", addr, odd, ctx);
   return 0;

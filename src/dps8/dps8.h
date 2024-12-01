@@ -26,6 +26,7 @@
 
 # include <stdio.h>
 # include <stdbool.h>
+# include <stdatomic.h>
 # include <errno.h>
 # include <inttypes.h>
 # include <sys/stat.h>
@@ -94,7 +95,7 @@ typedef struct { int64_t h;  uint64_t l; } x__int128_t;
 # endif /* if !defined(OLDAPP) */
 
 // Shift/rotate instruction barrel shifter
-# define BARREL_SHIFTER 0
+# define BARREL_SHIFTER 1
 
 //
 // Dependencies
@@ -125,7 +126,7 @@ typedef struct { int64_t h;  uint64_t l; } x__int128_t;
 // Run TR on work done, not wall clock.
 // Define one of these; tied to memory access (MEM)
 //  or to instruction execution (EXEC)
-//#define TR_WORK_MEM
+//# define TR_WORK_MEM
 # define TR_WORK_EXEC
 
 // Multi-threading may require 'volatile' in some places

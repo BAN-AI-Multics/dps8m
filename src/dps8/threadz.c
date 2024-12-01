@@ -267,6 +267,25 @@ void unlock_scu (void)
     if (rc)
       sim_printf ("unlock_scu pthread_spin_lock scu %d\n", rc);
   }
+// synchronous clock serializer
+
+static pthread_mutex_t syncLock;
+
+void lockSync (void)
+  {
+    int rc;
+    rc = pthread_mutex_lock (& syncLock);
+    if (rc)
+      sim_printf ("lockSync pthread_spin_lock syncLock %d\n", rc);
+  }
+
+void unlockSync (void)
+  {
+    int rc;
+    rc = pthread_mutex_unlock (& syncLock);
+    if (rc)
+      sim_printf ("unlockSync pthread_spin_lock syncLock %d\n", rc);
+  }
 
 // IOM serializer
 
@@ -480,6 +499,10 @@ void createCPUThread (uint cpuNum)
                       cpus[cpuNum].affinity, cpuNum, s);
       }
 #endif /* if defined(AFFINITY) */
+    // Spin waiting for new thread to start executing code
+    while (! cpus[cpuNum].executing) {
+      sim_usleep (1);
+    }
   }
 
 void stopCPUThread(void)

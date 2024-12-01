@@ -45,6 +45,37 @@ typedef struct
     uint sys_poll_check_rate; // Check for pooling interval rate in CPU cycles
 } sysinfo_t;
 
+# if defined(THREADZ) || defined(LOCKLESS)
+extern atomic_bool syncClockMode;
+extern atomic_uint syncClockModeMasterIdx; // The CPU sync master
+# endif
+
+# if defined(THREADZ) || defined(LOCKLESS)
+#  define DO_WORK                          \
+  do {                                     \
+    cpu.rTRticks ++;                       \
+    if (cpu.syncClockModeCache)            \
+      cpu.workAllocation --;               \
+  } while (0)
+# else
+#  define DO_WORK                          \
+  do {                                     \
+    cpu.rTRticks ++;                       \
+  } while (0)
+# endif
+
+# if defined(TR_WORK_EXEC)
+#  define DO_WORK_EXEC DO_WORK
+# else
+#  define DO_WORK_EXEC
+# endif
+
+# if defined(TR_WORK_MEM)
+#  define DO_WORK_MEM DO_WORK
+# else
+#  define DO_WORK_MEM
+# endif
+
 # if defined(DBGEVENT)
 #  define max_dbgevents 128u
 #  define dbgevent_tagsize 128
