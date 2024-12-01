@@ -6,6 +6,14 @@
 
 # PGO for LLVM on AIX: Mainline Clang & IBM Open XL C/C++ V17
 
+# Example: IBM Open XL C/C++ 17.1.3:
+#          env CFLAGS="-DHAVE_POPT=1 -D_ALL_SOURCE -mcpu=power8"     \
+#          PULIBS="-lpopt" ATOMICS="AIX" AWK="gawk" OBJECT_MODE="64" \
+#          PATH="/opt/freeware/bin:${PATH:?}"                        \
+#          TOOLPREFIX="/opt/IBM/openxlC/17.1.3/bin/ibm-"             \
+#          CC="/opt/IBM/openxlC/17.1.3/bin/ibm-clang_r"              \
+#          ./src/pgo/Build.PGO.AIX.LLVM.sh
+
 # Example: IBM Open XL C/C++ 17.1.2:
 #          env CFLAGS="-DHAVE_POPT=1 -D_ALL_SOURCE -mcpu=power8"     \
 #          PULIBS="-lpopt" ATOMICS="AIX" AWK="gawk" OBJECT_MODE="64" \
@@ -23,7 +31,7 @@
 #          PROFDATA_TEST="-h" NEED_128=1                             \
 #          ./src/pgo/Build.PGO.AIX.LLVM.sh
 
-# Example: Mainline LLVM Clang 19.1.1:
+# Example: Mainline LLVM Clang 19:
 #          env CFLAGS="-DHAVE_POPT=1 -D_ALL_SOURCE -mcpu=power8"     \
 #          PULIBS="-lpopt" ATOMICS="AIX" AWK="gawk" OBJECT_MODE="64" \
 #          PATH="/opt/freeware/bin:/opt/llvm/bin:${PATH:?}"          \
@@ -71,8 +79,6 @@ test -z "${LIBUVVER:-}" && LIBUVVER="libuvrel"
 export LIBUVVER
 
 # Setup
-test -z "${RUNS:-}" \
-  && RUNS=3
 printf '\n%s\n' "Setting up PGO build ..."
 PROFILE_PATH="$(pwd -P)/.profile_data"
 export PROFILE_PATH
@@ -83,20 +89,6 @@ export BASE_LDFLAGS="${LDFLAGS:-}"
 export BASE_CFLAGS="-fno-profile-sample-accurate \
   -fno-semantic-interposition ${CFLAGS:-}"
 export LLVM_PROFILE_FILE="${PROFILE_PATH:?}/profile.%p.profraw"
-
-# Base
-printf '\n%s\n' "Generating baseline build ..."
-export CFLAGS="${BASE_CFLAGS:?}"
-export LDFLAGS="${BASE_LDFLAGS:-} ${CFLAGS:?}"
-${MAKE:-gmake} distclean "${@}"
-${MAKE:-gmake} "${LIBUVVER:?}" "${@}"
-${MAKE:-gmake} "${@}"
-printf '\n%s' "Running baseline benchmarks ... "
-SMIPS=$(cd src/perf_test && for i in $(seq 1 "${RUNS}"); do
-  printf '%s' "(${i:?}/${RUNS:?}) " >&2
-  ../dps8/dps8 -r ./nqueensx.ini | grep MIPS
-done | tr -cd '\n.0123456789' \
-  | awk '{for (i=1;i<=NF;++i) {sum+=$i; ++n}} END {printf "%.4f\n", sum/n}')
 
 # Profile
 printf '\n%s\n' "Generating profile build ..."
@@ -120,12 +112,3 @@ export LDFLAGS="${BASE_LDFLAGS:-} ${CFLAGS:?}"
 ${MAKE:-gmake} distclean "${@}"
 ${MAKE:-gmake} "${LIBUVVER:?}" "${@}"
 ${MAKE:-gmake} "${@}"
-
-# Final
-printf '\n%s' "Running final benchmarks ... "
-EMIPS=$(cd src/perf_test && for i in $(seq 1 "${RUNS}"); do
-  printf '%s' "(${i:?}/${RUNS:?}) " >&2
-  ../dps8/dps8 -r ./nqueensx.ini | grep MIPS
-done | tr -cd '\n.0123456789' \
-  | awk '{for (i=1;i<=NF;++i) {sum+=$i; ++n}} END {printf "%.4f\n", sum/n}')
-printf '\nBefore : %s\nAfter  : %s\n' "${SMIPS:?}" "${EMIPS:?}"
