@@ -46,6 +46,7 @@
 #define JMP_SYNC_FAULT_RETURN 3
 #define JMP_REFETCH           4
 #define JMP_RESTART           5
+#define JMP_FORCE_RESTART     6
 
 // The CPU supports 3 addressing modes
 // [CAC] I tell a lie: 4 modes...
@@ -739,6 +740,7 @@ typedef struct {
     bool enable_emcall;   // If set, the instruction set is extended with simulator debugging instructions
     bool nodis;           // If true, start CPU in FETCH cycle; else start in DIS instruction
     bool l68_mode;        // False: DPS8/M; True: 6180
+    bool nosync;          // If true, diasble clock sync.
 } tweaksType;
 
 enum ou_cycle_e
@@ -1537,6 +1539,23 @@ typedef struct coreLockState_s {
 
 typedef struct cpu_state_s
   {
+
+#if defined(THREADZ) || defined(LOCKLESS)
+    // Set when sim_instr starts fetching and executing; used to improve
+    // thread creation lag time issues.
+    volatile atomic_bool executing;
+    volatile atomic_bool forceRestart;
+
+    bool syncClockModeMaster; // It set, this CPU is the master
+    volatile atomic_llong workAllocation; // If in sync clock mode, this is
+                                          // the amount of work we have
+                                          // been allocated
+
+    bool rcfDelete;  // Set if the CPU was halted by a RCF DELETE
+    bool syncClockModeCache; // Thread copy of syncClockMode
+    uint syncClockModePoll; // Poll syncClockMode
+#endif
+
     EISstruct currentEISinstruction;
 
     uCache_t uCache;
@@ -1728,8 +1747,6 @@ typedef struct cpu_state_s
                   // an XEC or XED instruction
     bool isXED;   // The instruction being executed is the target of an
                   // XEC instruction
-
-    bool  isolts_switches_saved;
 
     word8    rE;       // exponent [map: rE, 28 0's]
 
@@ -2014,9 +2031,7 @@ static inline int core_read (word24 addr, word36 *data, \
     PNL (cpu.portBusy = true;)
     SC_MAP_ADDR (addr, addr);
     * data = M[addr] & DMASK;
-# if defined(TR_WORK_MEM)
-    cpu.rTRticks ++;
-# endif /* if defined(TR_WORK_MEM) */
+    DO_WORK_MEM;
     PNL (trackport (addr, * data);)
     return 0;
   }
@@ -2040,9 +2055,7 @@ static inline int core_write (word24 addr, word36 data, \
           }
      }
     M[addr] = data & DMASK;
-# if defined(TR_WORK_MEM)
-    cpu.rTRticks ++;
-# endif /* if defined(TR_WORK_MEM) */
+    DO_WORK_MEM;
     PNL (trackport (addr, data);)
     return 0;
   }
@@ -2067,9 +2080,7 @@ static inline int core_write_zone (word24 addr, word36 data, \
       }
     M[addr] = (M[addr] & ~cpu.zone) | (data & cpu.zone);
     cpu.useZone = false; // Safety
-# if defined(TR_WORK_MEM)
-    cpu.rTRticks ++;
-# endif /* if defined(TR_WORK_MEM) */
+    DO_WORK_MEM;
     PNL (trackport (addr, data);)
     return 0;
   }
@@ -2081,9 +2092,7 @@ static inline int core_read2 (word24 addr, word36 *even, word36 *odd,
     SC_MAP_ADDR (addr, addr);
     *even = M[addr++] & DMASK;
     *odd = M[addr] & DMASK;
-# if defined(TR_WORK_MEM)
-    cpu.rTRticks ++;
-# endif /* if defined(TR_WORK_MEM) */
+    DO_WORK_MEM;
     PNL (trackport (addr - 1, * even);)
     return 0;
   }
@@ -2109,9 +2118,7 @@ static inline int core_write2 (word24 addr, word36 even, word36 odd,
     M[addr++] = even;
     M[addr] = odd;
     PNL (trackport (addr - 1, even);)
-# if defined(TR_WORK_MEM)
-    cpu.rTRticks ++;
-# endif /* if defined(TR_WORK_MEM) */
+    DO_WORK_MEM;
     return 0;
   }
 #else
@@ -2407,3 +2414,6 @@ void perfTest (char * testName);
 void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem);
 void setupPROM (uint cpuNo, unsigned char * PROM);
 void cpuStats (uint cpuNo);
+#if defined(THREADZ) || defined(LOCKLESS)
+void giveupClockMaster (cpu_state_t * cpup);
+#endif

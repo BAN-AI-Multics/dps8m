@@ -8515,6 +8515,17 @@ elapsedtime ();
 
         case x0 (0015):  // cioc
           {
+
+#if defined(THREADZ) || defined(LOCKLESS)
+            // XXX This is an ugly hack. When init_processor issues a CIOC,
+            // we can stop the clock sync dance.
+            // Are we the master? (being master implies we are in init_processor).
+            if (cpu.syncClockModeMaster) {
+              giveupClockMaster (cpup);
+            }
+#endif
+
+
             // cioc The system controller addressed by Y (i.e., contains
             // the word at Y) sends a connect signal to the port specified
             // by C(Y) 33,35.
@@ -8659,6 +8670,13 @@ elapsedtime ();
 
         case x0 (0616):  // dis
 
+#if defined(THREADZ) || defined(LOCKLESS)
+          if (cpu.forceRestart) {
+            cpu.forceRestart = 0;
+            longjmp (cpu.jmpMain, JMP_FORCE_RESTART);
+          }
+#endif
+
           if (! cpu.tweaks.dis_enable)
             {
               return STOP_STOP;
@@ -8703,6 +8721,50 @@ elapsedtime ();
 #endif // LOCKLESS
                 longjmp (cpu.jmpMain, JMP_STOP);
               }
+
+#if defined(THREADZ) || defined(LOCKLESS)
+// RCF halt
+          // XXX pxss uses a disticntive DIS operation
+          // for RCF DELETE. If we see it, remember that
+          // we did.
+          if (IWB_IRODD == 0000777616207) {
+            cpu.rcfDelete = true;
+          }
+
+// ISOLTS start:
+//     CPU B thread created.
+//     DBG(1)> CPU 1 TRACE:  000000 0 000000616000 (DIS 000000)
+//     DBG(3)> CPU 1 INTR:  Interrupt pair address 0
+//     DBG(3)> CPU 1 FINAL: intr even read  00000000 000000755200
+//     DBG(3)> CPU 1 FINAL: intr odd read  00000001 000000616200
+//     DBG(4)> CPU 1 TRACE:  000001 0 000000755200 (STA 000000)
+//     DBG(4)> CPU 1 REG: sta read   A   000000000000
+//     DBG(4)> CPU 1 IEFP ABS     WRITE: :000000
+//     DBG(4)> CPU 1 FINAL: WriteOperandStore AB write 00000000 000000000000
+//     DBG(5)> CPU 1 TRACE:  000001 0 000000616200 (DIS 000000)
+// There are different behaviors for various configuration errors.
+//   If ISOLTS mode is not set, we see an IWB_IRODD of 0000000616200
+//   If set, 0000001616200
+
+# if 0
+          // It is very unlikely to have a DIS in a interrupt pair; I believe
+          // only ISOLTS is so silly.
+          if (UNLIKELY (cpu.cycle == INTERRUPT_EXEC_cycle) &&
+              (UNLIKELY (cpu.cu.IWB == 0000001616200) || // correct or error DIS
+               UNLIKELY (cpu.cu.IWB == 0000000616200)) && // in odd
+              UNLIKELY (cpu.syncClockModeMaster)) {
+            giveupClockMaster (cpup);
+          }
+# else
+
+// Simpler:  If we do a DIS while sync clock master, cancel sync clock...
+
+          if (UNLIKELY (cpu.syncClockModeMaster)) {
+            giveupClockMaster (cpup);
+          }
+
+# endif
+#endif
 
 #if 0
 # if defined(LOCKLESS)

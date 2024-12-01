@@ -121,6 +121,10 @@ void unlock_mem_force (void);
 void lock_scu (void);
 void unlock_scu (void);
 
+// synchronous clock lock
+void lockSync (void);
+void unlockSync (void);
+
 // iom lock
 void lock_iom (void);
 void unlock_iom (void);

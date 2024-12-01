@@ -1559,9 +1559,9 @@ static void * scraperThreadMain (void * arg)
           goto die;
         time_handler (fd);
         update_port (fd);
-        //sleep (1);
-        //usleep (42000);  // 114 bytes, 11 bit serial data 38400 baud
-        usleep (80000);
+        //sim_sleep (1);
+        //sim_usleep (42000);  // 114 bytes, 11 bit serial data 38400 baud
+        sim_usleep (80000);
       }
 
 die:;
