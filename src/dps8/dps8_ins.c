@@ -8758,8 +8758,10 @@ elapsedtime ();
 # else
 
 // Simpler:  If we do a DIS while sync clock master, cancel sync clock...
+// But not the processor startup DIS
 
-          if (UNLIKELY (cpu.syncClockModeMaster)) {
+          if (UNLIKELY (cpu.syncClockModeMaster) &&
+              (cpu.PPR.PSR != 0 || cpu.PPR.IC != 0)) {
             giveupClockMaster (cpup);
           }
 
