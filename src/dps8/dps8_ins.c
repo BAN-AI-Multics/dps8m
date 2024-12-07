@@ -9558,19 +9558,20 @@ static int emCall (cpu_state_t * cpup)
 #define ns_usec (1000000000L / 1000L / 1000L)
            uv_rusage_t now;
            uv_getrusage (& now);
-           uint64_t start            = (uint64_t)(startTime.ru_utime.tv_usec * 1000 +
-                                                  startTime.ru_utime.tv_sec * ns_sec);
-           uint64_t stop             = (uint64_t)(now.ru_utime.tv_usec * 1000 +
-                                                  now.ru_utime.tv_sec * ns_sec);
+           uint64_t start            = (uint64_t)((uint64_t)startTime.ru_utime.tv_usec * 1000ULL +
+                                                  (uint64_t)startTime.ru_utime.tv_sec * (uint64_t)ns_sec);
+           uint64_t stop             = (uint64_t)((uint64_t)now.ru_utime.tv_usec * 1000ULL +
+                                                  (uint64_t)now.ru_utime.tv_sec * (uint64_t)ns_sec);
            uint64_t delta            = stop - start;
            uint64_t seconds          = delta / ns_sec;
-           uint64_t milliseconds     = (delta / ns_msec) % 1000;
-           uint64_t microseconds     = (delta / ns_usec) % 1000;
-           uint64_t nanoseconds      = delta  % 1000;
-           unsigned long long nInsts = cpu.instrCnt - startInstrCnt;
+           uint64_t milliseconds     = (delta / ns_msec) % 1000ULL;
+           uint64_t microseconds     = (delta / ns_usec) % 1000ULL;
+           uint64_t nanoseconds      = delta % 1000ULL;
+           unsigned long long nInsts = (unsigned long long)((unsigned long long)cpu.instrCnt -
+                                                            (unsigned long long)startInstrCnt);
            double secs               = (double)(((long double) delta) / ((long double) ns_sec));
            long double ips           = (long double)(((long double) nInsts) / ((long double) secs));
-           long double mips          = ips / 1000000.0L;
+           long double mips          = (long double)(ips / 1000000.0L);
 
 #if defined(WIN_STDIO)
            sim_printf ("CPU time %llu.%03llu,%03llu,%03llu\n",
