@@ -152,7 +152,6 @@
 #include "../dps8/dps8.h"
 #include "../dps8/dps8_cpu.h"
 #include "../dps8/ver.h"
-#include "../dps8/sysdefs.h"
 
 #include "../dps8/dps8_iom.h"
 #include "../dps8/dps8_fnp2.h"
@@ -4647,12 +4646,7 @@ t_stat show_prom (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cp
 t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 {
     (void)fprintf (st, "\r Build Information:\n");
-#if defined(BUILDINFO_scp) && defined(SYSDEFS_USED)
-    (void)fprintf (st, "\r\n      Compilation info: %s\n", BUILDINFO_scp );
-# if !defined(__OPEN64__)
-    (void)fprintf (st, "\r\n  Relevant definitions: %s\n", SYSDEFS_USED );
-# endif
-#elif defined(BUILDINFO_scp)
+#if defined(BUILDINFO_scp)
     (void)fprintf (st, "\r\n      Compilation info: %s\n", BUILDINFO_scp );
 #else
     (void)fprintf (st, "\r\n      Compilation info: Not available\n" );

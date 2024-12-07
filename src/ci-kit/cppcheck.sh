@@ -85,7 +85,6 @@ CPPDEFINE='-DBUILDINFO_scp="CPPCHECK"
            -USIM_COMPILER
            -USO_EXCLUSIVEADDRUSE
            -U__STRICT_POSIX__
-           -USYSDEFS_USED
            -UTCP_NODELAYACK
            -U__USE_POSIX199309
            -UVDSUSP
@@ -304,8 +303,8 @@ do_cppcheck()
   set +e
   cd src/dps8 &&
   ${MAKE:?} clean -j "$(count_cpus)" > /dev/null 2>&1 &&
-    ${MAKE:?} "ver.h" "errnos.h" "sysdefs.h"  \
-      -j "$(count_cpus)"                      \
+    ${MAKE:?} "ver.h" "errnos.h"  \
+      -j "$(count_cpus)"          \
         > /dev/null 2>&1
 ) || {
     printf '%s\n' "Error: Unable to prep source tree."
@@ -325,13 +324,6 @@ printf '%s\n' ""
 title_line "$(printf '%s' 'empty')" >&2
 printf '%s\n' "" >&2
 do_cppcheck "empty" "./src/empty"
-printf '%s\n' "" >&2
-
-###############################################################################
-
-title_line "$(printf '%s' 'unifdef')" >&2
-printf '%s\n' "" >&2
-do_cppcheck "unifdef" "./src/unifdef"
 printf '%s\n' "" >&2
 
 ###############################################################################

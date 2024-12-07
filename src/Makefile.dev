@@ -73,8 +73,6 @@ predep predepend:
           }
 	@$(PRINTF) 'DEPEND: %s\n' "ver.h" ;                                       \
       ( $(CD) "src/dps8" && $(MAKE) -j 1 -s "ver.h" )
-	@$(PRINTF) 'DEPEND: %s\n' "sysdefs.h" ;                                   \
-      ( $(CD) "src/dps8" && $(MAKE) -j 1 -s "sysdefs.h" )
 	@$(PRINTF) 'DEPEND: %s\n' "errnos.h" ;                                    \
       ( $(CD) "src/dps8" && $(MAKE) -j 1 -s "errnos.h" )
 
@@ -98,8 +96,6 @@ dep depend: predepend                                                         \
       ( $(CD) "src/punutil"   && $(DO_MAKEDEP) )
 	@$(PRINTF) 'DEPEND: %s' "simh" ;                                          \
       ( $(CD) "src/simh"      && $(DO_MAKEDEP) )
-	@$(PRINTF) 'DEPEND: %s' "unifdef" ;                                       \
-      ( $(CD) "src/unifdef"   && $(DO_MAKEDEP) )
 
 ###############################################################################
 # Remove dependencies for untracked C files
@@ -143,31 +139,6 @@ dependclean depclean cleandepend cleandep:                                    \
       ( $(CD) "src/punutil"   && $(DO_CLEANDEP) )
 	@$(PRINTF) 'DEPEND: %s' "simh" ;                                          \
       ( $(CD) "src/simh"      && $(DO_CLEANDEP) )
-	@$(PRINTF) 'DEPEND: %s' "unifdef" ;                                       \
-      ( $(CD) "src/unifdef"   && $(DO_CLEANDEP) )
-
-###############################################################################
-# Displays preprocessor definitions
-
-.PHONY: printdefs
-printdefs:                                                                    \
-    # printdefs:    # Display selected preprocessor defines
-	@( $(CD) "$$($(GIT) rev-parse --show-toplevel)/./src/unifdef" &&          \
-     $(MAKE) --no-print-directory -C "." "silently" )
-	@( ( $(FIND) . -name '*.[ch]' -exec $(SH) -c "export n2=\"{}\";           \
-     $(PRINTF) '%s ' \"\$${n2:?}\";                                           \
-      "$$($(GIT) rev-parse --show-toplevel)/./src/unifdef/unifdef" "-Stn"     \
-       \"\$${n2:?}\"" \; | grep -Ev '(/libsir/|/libbacktrace/)'            |  \
-        while read -r n; do $(PRINTF) '%s  %s \n'                             \
-         $$($(PRINTF) '%s ' "$${n:?}" | $(WC) -w) "$${n:?}"; done          |  \
-          $(SORT) -urn | $(EXPAND) | $(CUT) -d ' ' -f 2-                   |  \
-           $(SED) -e 's/ S.._.*H_ / /g' -e 's/ DEC.* / /g' | $(TR) -s ' '  |  \
-            $(SED) -e 's/^\ //g' | $(SED) -e 's/^\.\/.*\.[ch] \./\./g'        \
-             -e 's/^\.\/.*[ch] $$//g' | $(GREP) -v '^$$') ) | while read      \
-              line; do $(PRINTF) '%s\n' "$${line:?} "                      |  \
-               $(AWK) '{ for (i=1; i<=NF; i++) if (!a[$$i]++)                 \
-                printf("%s%s", $$i, FS); } { printf("\n"); }'; done        |  \
-                 $(SED) 's/ /: /'
 
 ###############################################################################
 # Convenience target: Runs Cppcheck
@@ -240,7 +211,7 @@ E_EMPTY_TRANSLATION_UNIT" SUNPRO=1 SUNLINT=1 NEED_128=1 CSTD="gnu11" ) 2>&1 | \
  stdbuf -o L $(GREP) -v -E '(^lint:.*o input source files.*generated$$)' |    \
  stdbuf -o L $(GREP) -v -E '(^lint: pass2 not run - errors in $$)' |          \
  stdbuf -o L $(SED) 's/^CC: /LINT: /' | stdbuf -o L $(GREP) -v -E             \
- '(^PROC.*:|^UNIFDEF:|^COMM:|^USEDDEF:|^SYSDEFS:|^.TAGS:|^CSCOPE:|^LD:)' |    \
+ '(^PROC.*:|^COMM:|^.TAGS:|^CSCOPE:|^LD:)' |                                  \
    stdbuf -o L $(TEE) orstlint.txt; $(CAT) orstlint.txt |                     \
     $(GREP) -E '(^E_)' | $(CUT) -d ',' -f 1 | $(SORT) | $(UNIQ) -c |          \
      $(SORT) -rn | stdbuf -o L $(TEE) -a orstlint.txt;                        \
@@ -353,7 +324,6 @@ lmscspell:                                                                    \
      $(GREP) -Ev '(segldr_bootx$$)'                                         | \
      $(GREP) -Ev '(\.state$$)'                                              | \
      $(GREP) -Ev '(\.svg$$)'                                                | \
-     $(GREP) -Ev '(sysdefs\.h$$)'                                           | \
      $(GREP) -Ev '(/tags$$)'                                                | \
      $(GREP) -Ev '(/TAGS$$)'                                                | \
      $(GREP) -Ev '(\.tap$$)'                                                | \
@@ -361,7 +331,6 @@ lmscspell:                                                                    \
      $(GREP) -Ev '(trivial$$)'                                              | \
      $(GREP) -Ev '(\.trivial\.pl1$$)'                                       | \
      $(GREP) -Ev '(\.txt$$)'                                                | \
-     $(GREP) -Ev '(/unifdef$$)'                                             | \
      $(GREP) -Ev '(ver\.h$$)'                                               | \
      $(GREP) -Ev '(\.vim$$)'                                                | \
      $(GREP) -Ev '(\.yml$$)'                                                | \
