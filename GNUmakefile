@@ -136,20 +136,6 @@ prt2pdf: .rebuild.env                                                        \
             $(TRUE)
 
 ##############################################################################
-# Builds unifdef tool
-
-.PHONY: unifdef .rebuild.env
-unifdef: .rebuild.env                                                        \
-    # unifdef:    # Builds the unifdef pre-processor tool
-	-@$(PRINTF) '%s\n' "BUILD: Starting unifdef build" 2> /dev/null ||       \
-        $(TRUE)
-	@$(MAKE) -s -C "." ".rebuild.env";                                       \
-      $(TEST) -f ".needrebuild" && $(MAKE) -C "." "clean" || $(TRUE);        \
-        $(MAKE) -C "src/unifdef" "all" &&                                    \
-          $(PRINTF) '%s\n' "BUILD: successful unifdef build" 2> /dev/null || \
-            $(TRUE)
-
-##############################################################################
 # Builds mcmb tool
 
 .PHONY: mcmb .rebuild.env

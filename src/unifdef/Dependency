@@ -1,2 +1,0 @@
-unifdef.o: unifdef.h
-unifdef.o: version.h

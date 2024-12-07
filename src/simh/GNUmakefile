@@ -74,13 +74,8 @@ OBJS = scp.o       sim_console.o  sim_disk.o   sim_fio.o                      \
 ###############################################################################
 
 .PHONY: all simh.a
-simh.a all: ../dps8/ver.h ../dps8/sysdefs.h $(OBJS)
+simh.a all: ../dps8/ver.h $(OBJS)
 	-@$(TRUE)
-
-###############################################################################
-
-../dps8/sysdefs.h:
-	@($(SETV); $(CD) "../dps8" && $(MAKE) "sysdefs.h")
 
 ###############################################################################
 
@@ -108,7 +103,6 @@ clean distclean:
 	-@$(RMF) .l68*.state                   ||  $(TRUE) > /dev/null 2>&1
 	-@$(RMF) ./*.gcda 2> /dev/null         ||  $(TRUE) > /dev/null 2>&1
 	-@$(RMF) ./*.ln   2> /dev/null         ||  $(TRUE) > /dev/null 2>&1
-	-@$(SETV); $(RMF) "../dps8/sysdefs.n"  ||  $(TRUE) > /dev/null 2>&1
 
 ###############################################################################
 

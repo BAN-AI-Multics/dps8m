@@ -119,9 +119,6 @@ unset FLOCK_COMMAND > "/dev/null" 2>&1 || true
  test -x "../src/punutil/punutil" ||
    { printf '%s\n' "Error: punutil not found."; exit 1; }
 
- test -x "../src/unifdef/unifdef" ||
-   { printf '%s\n' "Error: unifdef not found."; exit 1; }
-
  test -x "../src/prt2pdf/prt2pdf" ||
    { printf '%s\n' "Error: prt2pdf not found."; exit 1; }
 
@@ -190,10 +187,6 @@ unset FLOCK_COMMAND > "/dev/null" 2>&1 || true
              awk '/^Version/ { print $2 }' | tr -d ' */')"
    printf '    PunUtil version          : %s\n' "${PUNUTILV:?}"
 
- UNIFDEFV="$(../src/unifdef/unifdef -v 2>&1 |
-             awk '/Version: / { print $2 }' | tr -d ' */')"
-   printf '    Unifdef version          : %s\n' "${UNIFDEFV:?}"
-
  MCMBVERS="$(../src/mcmb/mcmb -v 2>&1 | cut -d ' ' -f 5- | tr -d '*/')"
    printf '    mcmb version             : %s\n' "${MCMBVERS:?}"
 
@@ -242,7 +235,6 @@ unset FLOCK_COMMAND > "/dev/null" 2>&1 || true
      -e "s/##BUILDUTC##/${BUILDUTC:?}/"  \
      -e "s/##BUILDVER##/${BUILDVER:?}/"  \
      -e "s/##LASTMODV##/${LASTMODV:?}/"  \
-     -e "s/##UNIFDEFV##/${UNIFDEFV:?}/"  \
      -e "s/##PUNUTILV##/${PUNUTILV:?}/"  \
      -e "s/##PRT2PDFV##/${PRT2PDFV:?}/"  \
      -e "s/##MCMBVERS##/${MCMBVERS:?}/"  \

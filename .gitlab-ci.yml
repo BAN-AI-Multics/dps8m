@@ -66,9 +66,6 @@
     test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil && file ${CI_PROJECT_DIR:?}/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil && ldd ${CI_PROJECT_DIR:?}/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil.exe && file ${CI_PROJECT_DIR:?}/src/punutil/punutil.exe 2> /dev/null || true > /dev/null 2>&1
-    test -f ${CI_PROJECT_DIR:?}/src/unifdef/unifdef && file ${CI_PROJECT_DIR:?}/src/unifdef/unifdef 2> /dev/null || true > /dev/null 2>&1
-    test -f ${CI_PROJECT_DIR:?}/src/unifdef/unifdef && ldd ${CI_PROJECT_DIR:?}/src/unifdef/unifdef 2> /dev/null || true > /dev/null 2>&1
-    test -f ${CI_PROJECT_DIR:?}/src/unifdef/unifdef.exe && file ${CI_PROJECT_DIR:?}/src/unifdef/unifdef.exe 2> /dev/null || true > /dev/null 2>&1
     echo -e "section_end:`date +%s`:buildinfo_section\r\e[0K" || true
 
 ############################################################################
@@ -201,11 +198,9 @@
     test -f ${CI_PROJECT_DIR:?}/src/dps8/dps8 && lzip -9v ${CI_PROJECT_DIR:?}/src/dps8/dps8 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf && lzip -9v ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil && lzip -9v ${CI_PROJECT_DIR:?}/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
-    test -f ${CI_PROJECT_DIR:?}/src/unifdef/unifdef && lzip -9v ${CI_PROJECT_DIR:?}/src/unifdef/unifdef 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt && lzip -9v ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/dps8/dps8.exe && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/dps8/dps8.exe  2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.exe && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.exe 2> /dev/null || true > /dev/null 2>&1
-    test -f ${CI_PROJECT_DIR:?}/src/unifdef/unifdef.exe && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/unifdef/unifdef.exe 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil.exe && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/punutil/punutil.exe 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/libwinpthread-1.dll && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/libwinpthread-1.dll 2> /dev/null || true > /dev/null 2>&1
@@ -1028,7 +1023,7 @@ GNU GLOBAL Hypertext:
     - Linux
   script:
     - export GLCICD_JOB="GlobalX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
-    - dnf install -y global bzip2 || dnf install -y global bzip2
+    - dnf install -y global bzip2 unifdef || dnf install -y global bzip2 unifdef
     - *scriptDnfSetup
     - *scriptInstallNfpm
     - *scriptSanity
@@ -1037,7 +1032,10 @@ GNU GLOBAL Hypertext:
     - make distclean
     - cp -f ./.gtags.conf /etc/gtags.conf
     - *scriptDPS8Mods
-    - env CC=gcc make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && sh -c 'OUT=$(find ./src -name "*.[ch]" -exec ./src/unifdef/unifdef -U0 -b -k -m {} \; 2>&1); test -z "${OUT:-}" && exit 0; echo "${OUT:?}"; exit 1'
+    - make
+    - mv -f src/libsir .
+    - sh -c 'OUT=$(find ./src -name "*.[ch]" -exec unifdef -U0 -b -k -m {} \; 2>&1); test -z "${OUT:-}" && exit 0; echo "${OUT:?}"; exit 1'
+    - mv -f libsir src
     - htags --map-file --auto-completion --colorize-warned-line -h -I --tabs 4 -v -n -o -s --tabs 4 --table-flist --statistics
     - sed -e "s/http:\/\/www.gnu.org\/software\/global\//https:\/\/gitlab.com\/dps8m\/dps8m/" -e "s/ title='Go to the GLOBAL project page.'//" -e "s/ alt='\[Powered by GLOBAL-.*\]'//" -e "s/^<a href='http/<br \/><a href='http/" "HTML/index.html" > "HTML/index.html.tmp" && mv -f "HTML/index.html.tmp" "HTML/index.html" && cp -f "HTML/index.html" "HTML/mains.html"
     - cp -f ./.gtags-style.css HTML/style.css

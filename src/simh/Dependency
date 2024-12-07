@@ -25,7 +25,6 @@ scp.o: ../dps8/dps8_simh.h
 scp.o: ../dps8/dps8_sys.h
 scp.o: ../dps8/hdbg.h
 scp.o: ../dps8/libtelnet.h
-scp.o: ../dps8/sysdefs.h
 scp.o: ../dps8/ucache.h
 scp.o: ../dps8/uvutil.h
 scp.o: ../dps8/ver.h

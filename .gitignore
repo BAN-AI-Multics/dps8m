@@ -33,7 +33,6 @@ src/mcmb/mcmb.dSYM/
 src/prt2pdf/prt2pdf.dSYM/
 src/punutil/punutil.dSYM/
 src/empty/empty.dSYM/
-src/unifdef/unifdef.dSYM/
 .Dependency
 typescript
 *.bak
@@ -75,17 +74,12 @@ src/dps8/UnitTests/*.pp
 cflags.L
 .builder.txt
 .buildos.txt
-useddef.txt
-sysdefs.txt
-sysdefs.h
 M.dump
 hdbg.list
 src/blinkenLights2/blinkenLights2
 src/blinkenLights2/blinkenLights2.exe
 src/prt2pdf/prt2pdf
 src/prt2pdf/prt2pdf.exe
-src/unifdef/unifdef
-src/unifdef/unifdef.exe
 src/punutil/punutil
 src/punutil/punutil.exe
 src/mcmb/mcmb
@@ -161,7 +155,6 @@ empty.xml
 mcmb.xml
 simh.xml
 decNumber.xml
-unifdef.xml
 dps8.xml
 dps8m.xml
 prt2pdf.xml
@@ -180,7 +173,6 @@ src/empty/empty.analyze
 src/mcmb/mcmb.analyze
 src/prt2pdf/prt2pdf.analyze
 src/punutil/punutil.analyze
-src/unifdef/unifdef.analyze
 
 # Vim
 *.*.swp

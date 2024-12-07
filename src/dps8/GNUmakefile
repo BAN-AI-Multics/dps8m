@@ -344,8 +344,7 @@ DECN_OBJS = ../decNumber/decContext.o  ../decNumber/decNumber.o
 ###############################################################################
 
 .PHONY: all
-all:  sysdefs.h ver.h                                                         \
-      libsir unifdef prt2pdf punutil mcmb empty locallibs_then_dps8 $(TAGS)
+all:  ver.h libsir prt2pdf punutil mcmb empty locallibs_then_dps8 $(TAGS)
 	-@$(TRUE)
 
 ###############################################################################
@@ -384,7 +383,7 @@ printmod:
 ###############################################################################
 
 .PHONY: all ctags
-dps8$(EXE): sysdefs.h $(OBJS) $(LOCALOBJS) $(DECN_OBJS) $(SIMH_OBJS) ctags
+dps8$(EXE): $(OBJS) $(LOCALOBJS) $(DECN_OBJS) $(SIMH_OBJS) ctags
 	@$(PRINTF) '%s\n' "LD: dps8$(EXE)"
 ifeq ($(TESTING),1)
 	@$(PRINTF) '%s\n' "LD: $(OBJS)"
@@ -459,7 +458,7 @@ libsir:
 ###############################################################################
 
 .PHONY: locallibs_then_dps8
-locallibs_then_dps8: ver.h sysdefs.h errnos.h libsir
+locallibs_then_dps8: ver.h errnos.h libsir
 	@($(SETV); $(CD) "../decNumber" && $(MAKE) -C "." -f "GNUmakefile" "all")
 	@($(SETV); $(CD) "$(SIMHx)" && $(MAKE) -C "." -f "GNUmakefile" "all")
 	@$(SETV); $(MAKE) -C "." -f "GNUmakefile" "dps8$(EXE)"
@@ -467,14 +466,8 @@ locallibs_then_dps8: ver.h sysdefs.h errnos.h libsir
 ###############################################################################
 
 .PHONY: prt2pdf
-prt2pdf: sysdefs.h
+prt2pdf:
 	@$(SETV); $(MAKE) -C "../prt2pdf" "all"
-
-###############################################################################
-
-.PHONY: unifdef
-unifdef: ver.h
-	-@$(SETV); $(MAKE) -C "../unifdef" "all"
 
 ###############################################################################
 
@@ -562,7 +555,6 @@ distclean: clean
 	@$(RMF) ../prt2pdf/*.gc??                2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../punutil/*.gc??                2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../simh/*.gc??                   2> /dev/null  ||  $(TRUE)
-	@$(RMF) ../unifdef/*.gc??                2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../empty/*.gc??                  2> /dev/null  ||  $(TRUE)
 	@$(RMF) *.prof*                          2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../blinkenLights2/*.prof*        2> /dev/null  ||  $(TRUE)
@@ -570,7 +562,6 @@ distclean: clean
 	@$(RMF) ../mcmb/*.prof*                  2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../prt2pdf/*.prof*               2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../simh/*.prof*                  2> /dev/null  ||  $(TRUE)
-	@$(RMF) ../unifdef/*.prof*               2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../empty/*.prof*                 2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../punutil/*.prof*               2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../../dps8m*.state               2> /dev/null  ||  $(TRUE)
@@ -625,7 +616,6 @@ clean:
 	@$(SETV); $(MAKE) -C "../punutil"        -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../mcmb"           -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../empty"          -f "GNUmakefile"  "clean"
-	@$(SETV); $(MAKE) -C "../unifdef"        -f "GNUmakefile"  "clean"
 	@$(SETV); ( cd ../blinkenLights2 && $(RMF) blinkenLights2 || $(TRUE) )
 	@$(SETV); $(MAKE) -C "."                 -f "GNUmakefile"  "clean_dps8"
 	@$(SETV); $(MAKE) -C "../libsir"       "clean"               ||  $(TRUE)
@@ -641,12 +631,6 @@ clean:
 	@$(SETV); $(RMF)  "ver.h"                          ||  $(TRUE)
 	@$(SETV); $(RMF)  ./ver.h.* > /dev/null 2>&1       ||  $(TRUE)
 	@$(SETV); $(RMF)  "dump.i"                         ||  $(TRUE)
-	@$(SETV); $(RMF)  "compdef.out"                    ||  $(TRUE)
-	@$(SETV); $(RMF)  "procdef.out"                    ||  $(TRUE)
-	@$(SETV); $(RMF)  "procsrt.out"                    ||  $(TRUE)
-	@$(SETV); $(RMF)  "unifdef.out"                    ||  $(TRUE)
-	@$(SETV); $(RMF)  "sysdefs.h"                      ||  $(TRUE)
-	@$(SETV); $(RMF)  "useddef.txt"                    ||  $(TRUE)
 	@$(SETV); $(RMF)  "amd_memcpy.o"                   ||  $(TRUE)
 	@$(SETV); $(RMF)  "../amd_memcpy.o"                ||  $(TRUE)
 	@$(SETV); $(RMF)  "../../amd_memcopy.o"            ||  $(TRUE)
@@ -742,58 +726,6 @@ zipkit zipdist:
 
 ###############################################################################
 
-unifdef.out: unifdef
-	@$(PRINTF) '%s\n' "UNIFDEF: *.[ch]"
-	@($(SETV); $(CD) ".." 2> /dev/null && $(FIND) $$($(GIT) ls-files          \
-     2> /dev/null | $(GREP) -v 'ci-kit/' 2> /dev/null                         \
-       | $(GREP) ".*\.[ch]" 2> /dev/null )                                    \
-         -exec "./unifdef/unifdef.wrapper.sh" "-s" "{}" 2> /dev/null \; |     \
-           $(SORT) -u 2> /dev/null) > "./unifdef.out" ||                      \
-             $(TOUCH) "./unifdef.out" > /dev/null 2>&1
-
-###############################################################################
-
-procdef.out:
-	@$(PRINTF) '%s\n' "PROCDEF: $(CPPCPP)"
-	@($(SETV); ($(CPPCPP) -include stdio.h -include stdlib.h -include time.h  \
-     -include math.h -include sys/stat.h -include sys/types.h                 \
-      -include limits.h -include locale.h -dM - < /dev/null 2> /dev/null;     \
-       $(CPPCPP) -dD - < /dev/null 2> /dev/null; $(CPPCPP2); $(CPPCPP3);      \
-        $(CPPCPP4)) | $(GREP) "^#define " 2> /dev/null | $(GREP) -v "^$$"     \
-         2> /dev/null | $(SORT) -u 2> /dev/null) | $(SED) 's/^#define //g' |  \
-          $(SORT) -u > "./procdef.out" || $(TOUCH) "./procdef.out"            \
-           > /dev/null 2>&1
-
-###############################################################################
-
-procsrt.out: procdef.out
-	@$(PRINTF) '%s\n' "PROCSRT: procdef.out"
-	@$(SETV); $(CUT) -d ' ' -f 1 < "./procdef.out" 2> /dev/null |             \
-      $(SORT) > "./procsrt.out" 2> /dev/null ||                               \
-        $(TOUCH) "./procsrt.out" > /dev/null 2>&1
-
-###############################################################################
-
-compdef.out: procsrt.out unifdef.out
-	@$(PRINTF) '%s\n' "COMM: procsrt.out unifdef.out"
-	@$(SETV); $(COMM) -12 "procsrt.out" "unifdef.out" > "./compdef.out"       \
-      2> /dev/null || $(TOUCH) "./compdef.out" 2> /dev/null
-
-###############################################################################
-
-useddef.txt: compdef.out
-	@$(PRINTF) '%s\n' "USEDDEF: compdef.out"
-	@$(SETV); $(SH) -c 'while read -r line; do $(GREP) -i "$${line:-}"        \
-     "./procdef.out" 2> /dev/null; done < "compdef.out" 2> /dev/null |        \
-      $(SORT) -u | $(GREP) -v -e "^__VERSION__"  -e "^__clang_version__"      \
-       -e "^__GCC_HAVE_SYNC_COMPARE_AND_SWAP_." -e "BIG_ENDIAN"               \
-        -e "LITTLE_ENDIAN" -e "S_ISFIFO" -e "S_IFIFO" -e "__GNUC_PREREQ"      \
-         -e "WORD_ORDER" -e "BYTE_ORDER" -e "_sun_attr"                       \
-          2> /dev/null > "useddef.txt"' ||                                    \
-           $(TRUE) > /dev/null 2>&1; $(TOUCH) "./useddef.txt" > /dev/null 2>&1
-
-###############################################################################
-
 errnos.h:
 	@$(PRINTF) '%s\n' '#include <errno.h>' > "./dump.c" 2> /dev/null
 	@$(SETV); ($(CC) -E -dD ./dump.c 2> /dev/null;                            \
@@ -801,22 +733,6 @@ errnos.h:
         $(AWK) '/^#define E/ { printf "{\"%s\",%s},\n", $$2, $$2 } END        \
                                { print "" }' > "./errnos.h"
 	@$(SETV); $(RMF) "./dump.c"
-
-###############################################################################
-
-sysdefs.h: useddef.txt
-	@$(PRINTF) '%s\n' "SYSDEFS: useddef.txt"
-	@$(SETV); $(TR) -d '=' < "./useddef.txt" 2> /dev/null              |      \
-      $(SED) 's/ /=/' 2> /dev/null | $(SED) -e 's/^/-D/g' 2> /dev/null |      \
-        $(TR) '\n' ' ' 2> /dev/null | $(SED) -e 's/ $$//' -e 's/\"//g'        \
-          -e 's/^-D$$//g' | $(SED) -e 's/^/#define\ SYSDEFS_USED\ \"/'        \
-            -e 's/$$/\"/' 2> /dev/null > "./sysdefs.n"                 ||     \
-              $(TOUCH) "./sysdefs.n" > /dev/null 2>&1
-	@$(PRINTF) '%s\n' "" >> "./sysdefs.n" 2> /dev/null
-	@$(SETV); $(CMP) "./sysdefs.n" "./sysdefs.h" > /dev/null 2>&1      ||     \
-        $(CP) "./sysdefs.n" "./sysdefs.h" 2> /dev/null                 ||     \
-            $(TOUCH) "sysdefs.h"
-	@$(SETV); $(RMF) "sysdefs.n"
 
 ###############################################################################
 
