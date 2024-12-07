@@ -672,7 +672,6 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
               }
               cpus[cpu_unit_idx].switches.enable      [1] = true;
 
-
 #if defined(THREADZ) || defined(LOCKLESS)
               if (cpus[cpu_unit_idx].executing) {
                 cpus[cpu_unit_idx].forceRestart = true;
@@ -2444,11 +2443,13 @@ bail:
 #endif // THREADZ
 #if defined(LOCKLESS)
         core_unlock_all (cpup);
-#endif
-
-#if defined(LOCKLESS)
-        core_unlock_all(cpup);
 #endif // LOCKLESS
+
+#if defined(ROUND_ROBIN) || !defined(LOCKLESS)
+        int con_unit_idx = check_attn_key ();
+        if (con_unit_idx != -1)
+          console_attn_idx (con_unit_idx);
+#endif
 
 #if !defined(THREADZ) && !defined(LOCKLESS)
         if (cpu.tweaks.isolts_mode)
