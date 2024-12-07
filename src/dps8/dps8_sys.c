@@ -4785,7 +4785,6 @@ t_stat parse_sym (UNUSED const char * cptr, UNUSED t_addr addr,
     return SCPE_ARG;
   }
 
-
 #if defined(THREADZ) || defined(LOCKLESS)
 atomic_bool syncClockMode;
 atomic_uint syncClockModeMasterIdx; // The CPU sync master

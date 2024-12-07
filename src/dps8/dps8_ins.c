@@ -8525,7 +8525,6 @@ elapsedtime ();
             }
 #endif
 
-
             // cioc The system controller addressed by Y (i.e., contains
             // the word at Y) sends a connect signal to the port specified
             // by C(Y) 33,35.
