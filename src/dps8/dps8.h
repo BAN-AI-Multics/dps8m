@@ -650,4 +650,6 @@ typedef enum
 #  endif /* if defined(__MINGW32__) || defined(__MINGW64__) || defined(CROSS_MINGW32) || defined(CROSS_MINGW64) */
 # endif /* if !defined(__CYGWIN__) */
 
+//#define SYNCTEST
+
 #endif // if defined(DPS8_H)

@@ -8517,12 +8517,17 @@ elapsedtime ();
           {
 
 #if defined(THREADZ) || defined(LOCKLESS)
+# if 0
             // XXX This is an ugly hack. When init_processor issues a CIOC,
             // we can stop the clock sync dance.
             // Are we the master? (being master implies we are in init_processor).
             if (cpu.syncClockModeMaster) {
+#  if SYNCTEST
+              sim_printf ("giveup CIOC\r\n");
+#  endif
               giveupClockMaster (cpup);
             }
+# endif
 #endif
 
             // cioc The system controller addressed by Y (i.e., contains
@@ -8669,6 +8674,16 @@ elapsedtime ();
 
         case x0 (0616):  // dis
 
+#ifdef SYNCTEST
+          // Trap the call to sys$trouble
+          if (cpu.PPR.PSR == 034 && cpu.PPR.IC == 03535) {
+# ifdef HDBG
+            hdbgPrint ();
+# endif
+            exit (1);
+          }
+#endif
+
 #if defined(THREADZ) || defined(LOCKLESS)
           if (cpu.forceRestart) {
             cpu.forceRestart = 0;
@@ -8728,6 +8743,7 @@ elapsedtime ();
           // we did.
           if (IWB_IRODD == 0000777616207) {
             cpu.rcfDelete = true;
+            cpu.up = false;
           }
 
 // ISOLTS start:
@@ -8752,6 +8768,9 @@ elapsedtime ();
               (UNLIKELY (cpu.cu.IWB == 0000001616200) || // correct or error DIS
                UNLIKELY (cpu.cu.IWB == 0000000616200)) && // in odd
               UNLIKELY (cpu.syncClockModeMaster)) {
+#  ifdef SYNCTEST
+            sim_printf ("giveup DIS %o:%o\r\n", cpu.PPR.PSR, cpu.PPR.IC);
+#  endif
             giveupClockMaster (cpup);
           }
 # else
@@ -8761,6 +8780,9 @@ elapsedtime ();
 
           if (UNLIKELY (cpu.syncClockModeMaster) &&
               (cpu.PPR.PSR != 0 || cpu.PPR.IC != 0)) {
+#  ifdef SYNCTEST
+            sim_printf ("giveup DIS %o:%o\r\n", cpu.PPR.PSR, cpu.PPR.IC);
+#  endif
             giveupClockMaster (cpup);
           }
 

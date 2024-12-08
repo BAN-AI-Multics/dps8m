@@ -1544,6 +1544,8 @@ typedef struct cpu_state_s
     // Set when sim_instr starts fetching and executing; used to improve
     // thread creation lag time issues.
     volatile atomic_bool executing;
+    // CPU is running Multics: it has been booted or added, and not deleted.
+    volatile atomic_bool up;
     volatile atomic_bool forceRestart;
 
     bool syncClockModeMaster; // It set, this CPU is the master

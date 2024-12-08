@@ -2155,11 +2155,19 @@ static bool clear_temporary_absolute_mode (cpu_state_t * cpup)
   }
 
 #if defined(THREADZ) || defined(LOCKLESS)
+# ifdef SYNCTEST
+enum { workAllocationQuantum = 1 };
+enum { syncClockModePollRate = 1 };
+static int allocCount;
+# else
 enum { workAllocationQuantum = 1024 };
 enum { syncClockModePollRate = 128 };
+# endif
 
 static void becomeClockMaster (cpu_state_t * cpup) {
-
+# ifdef SYNCTEST
+  allocCount = 0;
+# endif
   lockSync ();  // Only one CPU can manage the sync at a time; if more then one CPU is started
   // at once, the second will hang here until the first is finished. If this proves to be
   // a problem, then we need a mechanism for the second one to join the sync parade.
@@ -2172,6 +2180,9 @@ static void becomeClockMaster (cpu_state_t * cpup) {
 }
 
 void giveupClockMaster (cpu_state_t * cpup) {
+# ifdef SYNCTEST
+  sim_printf ("alloc count %d\r\n", allocCount);
+# endif
   cpu.syncClockModeMaster = false;
   syncClockMode = false; // Free the other processors
   unlockSync (); // And let someone else grab sync mode
@@ -2197,8 +2208,20 @@ t_stat threadz_sim_instr (void)
 
 #if defined(THREADZ) || defined(LOCKLESS)
     // New CPUs start sets synchronous clock mode until start_cpu is done with race conditions.
-    if (cpu.tweaks.nosync == 0)
-      becomeClockMaster (cpup);
+    if (cpu.tweaks.nosync == 0) {
+      // If we are the only CPU, no need to become master
+      int nUp = 0;
+      for (int i = 0; i < N_CPU_UNITS_MAX; i ++) {
+        if (cpus[i].up)
+          nUp ++;
+      }
+      if (nUp > 0) {
+        becomeClockMaster (cpup);
+# ifdef SYNCTEST
+        sim_printf ("new master\r\n");
+# endif
+      }
+    }
 #endif
 
     t_stat reason = 0;
@@ -2236,10 +2259,6 @@ setCPU:;
     if (! _cpup-> isRunning)
       goto setCPU;
 # endif
-#endif
-
-#if defined(THREADZ) || defined(LOCKLESS)
-    cpu.executing = true;
 #endif
 
     // This allows long jumping to the top of the state machine
@@ -2300,6 +2319,11 @@ setCPU:;
         set_cpu_cycle (cpup, FAULT_cycle);
       }
 
+#if defined(THREADZ) || defined(LOCKLESS)
+    cpu.executing = true;
+    cpu.up = true;
+#endif
+
     do
       {
 
@@ -2313,6 +2337,9 @@ setCPU:;
         if (cpu.cycle == FAULT_cycle && cpu.rcfDelete) {
           if (! syncClockMode) {
             cpu.rcfDelete = false; // Forget about the RCF DELETE
+# ifdef SYNCTEST
+            sim_printf ("rcf delete master\r\n");
+# endif
             becomeClockMaster (cpup); // Start synchronizing
           }
         }
@@ -2334,6 +2361,9 @@ setCPU:;
 
               // Have we used up out allocation?
               if (cpu.workAllocation <= 0) {
+# ifdef SYNCTEST
+                allocCount ++;
+# endif
                 // If usleep(1) actually takes only 1 us, then this
                 // will be at least 2 seconds.
                 //int64_t waitTimeout = 2000000;
@@ -2343,10 +2373,10 @@ setCPU:;
                 while (1) {
                   bool alldone = true;
                   for (int i = 0; i < N_CPU_UNITS_MAX; i ++) {
-                    if (cpus[i].executing && cpus[i].workAllocation > 0) {
+                    if (cpus[i].up && cpus[i].workAllocation > 0) {
                       alldone = false;
                       break;
-                    } // executing and working
+                    } // up and working
                   } // cpus
                   if (alldone) {
                     // Everyone has used up there allocations; dole out some more work
@@ -2361,7 +2391,7 @@ setCPU:;
                     // work allocation; assume something is fouled.
                     sim_printf ("Clock master CPU %c timed out\r\n", "ABCDEFGH"[current_running_cpu_idx]);
                     for (int i = 0; i < N_CPU_UNITS_MAX; i ++) {
-                      if (cpus[i].executing && cpus[i].workAllocation > 0) {
+                      if (cpus[i].up && cpus[i].workAllocation > 0) {
                         sim_printf ("CPU %c remaining allocation: %lld\r\n", "ABCDEFGH"[i], cpus[i].workAllocation);
                       }
                     }
@@ -3369,6 +3399,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 leave:
 #if defined(THREADZ) || defined(LOCKLESS)
     cpu.executing = false;
+    cpu.up = false;
 #endif
 #if defined(TESTING)
     HDBGPrint ();
