@@ -1155,22 +1155,23 @@ void fetchInstruction (cpu_state_t * cpup, word18 addr)
         //cpu.PPR.P = 1; // XXX this should be already set by set_addr_mode, so no worry here
       }
 
-    if (cpu.cu.rd && ((cpu.PPR.IC & 1) != 0))
+    if (cpu.cu.repeat_first)
       {
-        if (cpu.cu.repeat_first)
+        if (cpu.cu.rd && (cpu.PPR.IC & 1))
           {
             CPT (cpt2U, 10); // fetch rpt odd
             //Read (addr, & cpu.cu.IRODD, INSTRUCTION_FETCH);
+            return;
           }
-      }
-    else if (cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl)
-      {
-        if (cpu.cu.repeat_first)
+
+        if (cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl)
           {
             CPT (cpt2U, 11); // fetch rpt even
             if (addr & 1)
-              ReadInstructionFetch (cpup, addr, & cpu.cu.IWB);
-            else
+              {
+                ReadInstructionFetch (cpup, addr, & cpu.cu.IWB);
+              }
+                else
               {
                 word36 tmp[2];
                 /* Read2 (addr, tmp, INSTRUCTION_FETCH); */
@@ -1179,32 +1180,30 @@ void fetchInstruction (cpu_state_t * cpup, word18 addr)
                 cpu.cu.IWB = tmp[0];
                 cpu.cu.IRODD = tmp[1];
               }
-          }
-      }
-    else
-      {
-        CPT (cpt2U, 12); // fetch
+            return;
+        }
+    }
 
-        // ISOLTS test pa870 expects IRODD to be set up.
-        // If we are fetching an even instruction, also fetch the odd.
-        // If we are fetching an odd instruction, copy it to IRODD as
-        // if that was where we got it from.
+    CPT (cpt2U, 12); // fetch
 
-        //Read (addr, & cpu.cu.IWB, INSTRUCTION_FETCH);
-        if ((cpu.PPR.IC & 1) == 0) // Even
-          {
-            word36 tmp[2];
-            /* Read2 (addr, tmp, INSTRUCTION_FETCH); */
-            /* cpu.cu.IWB   = tmp[0]; */
-            Read2InstructionFetch (cpup, addr, tmp);
-            cpu.cu.IWB = tmp[0];
-            cpu.cu.IRODD = tmp[1];
-          }
-        else // Odd
-          {
-            ReadInstructionFetch (cpup, addr, & cpu.cu.IWB);
-            cpu.cu.IRODD = cpu.cu.IWB;
-          }
+    // ISOLTS test pa870 expects IRODD to be set up.
+    // If we are fetching an even instruction, also fetch the odd.
+    // If we are fetching an odd instruction, copy it to IRODD as
+    // if that was where we got it from.
+
+    //Read (addr, & cpu.cu.IWB, INSTRUCTION_FETCH);
+    if ((cpu.PPR.IC & 1) == 0)
+      { // Even
+        word36 tmp[2];
+        /* Read2 (addr, tmp, INSTRUCTION_FETCH); */
+        /* cpu.cu.IWB  = tmp[0]; */
+        Read2InstructionFetch (cpup, addr, tmp);
+        cpu.cu.IWB   = tmp[0];
+        cpu.cu.IRODD = tmp[1];
+      } else
+      { // Odd
+        ReadInstructionFetch (cpup, addr, &cpu.cu.IWB);
+        cpu.cu.IRODD = cpu.cu.IWB;
       }
 }
 
