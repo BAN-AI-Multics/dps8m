@@ -2210,16 +2210,14 @@ t_stat threadz_sim_instr (void)
     // New CPUs start sets synchronous clock mode until start_cpu is done with race conditions.
     if (cpu.tweaks.nosync == 0) {
       // If we are the only CPU, no need to become master
-      int nUp = 0;
       for (int i = 0; i < N_CPU_UNITS_MAX; i ++) {
-        if (cpus[i].up)
-          nUp ++;
-      }
-      if (nUp > 0) {
-        becomeClockMaster (cpup);
+        if (cpus[i].up) {
+          becomeClockMaster (cpup);
 # ifdef SYNCTEST
-        sim_printf ("new master\r\n");
+          sim_printf ("new master\r\n");
 # endif
+          break;
+        }
       }
     }
 #endif
@@ -2320,8 +2318,10 @@ setCPU:;
       }
 
 #if defined(THREADZ) || defined(LOCKLESS)
-    cpu.executing = true;
-    cpu.up = true;
+    if (!cpu.executing)
+      cpu.executing = true;
+    if (!cpu.up)
+      cpu.up = true;
 #endif
 
     do
