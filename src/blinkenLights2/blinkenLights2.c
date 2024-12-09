@@ -468,18 +468,18 @@ int main (int argc, char * argv []) {
   sigaction (SIGQUIT, & quit_action, NULL);
 
   if (argc == 0) {
-    fprintf(stderr, "FATAL: abort(argc == 0)!\n");
+    (void)fprintf(stderr, "FATAL: abort(argc == 0)!\n");
     return EXIT_FAILURE;
   }
 
   if (argv[0] == NULL) {
-    fprintf(stderr, "FATAL: abort(argv[0] == NULL)!\n");
+    (void)fprintf(stderr, "FATAL: abort(argv[0] == NULL)!\n");
     return EXIT_FAILURE;
   }
 
 
   if (argc < 2) {
-    fprintf(stderr, "%s: No CPU specified; watching CPU A.\n", argv[0]);
+    (void)fprintf(stderr, "%s: No CPU specified; watching CPU A.\n", argv[0]);
     cpunum = 0;
   }
     else
@@ -487,7 +487,7 @@ int main (int argc, char * argv []) {
 
     char input = argv[1][0];
     if (!((input >= '0' && input <= '7') || (toupper(input) >= 'A' && toupper(input) <= 'H'))) {
-      fprintf(stderr, "Usage: %s <{0..7} or {A..H}>\n", argv[0]);
+      (void)fprintf(stderr, "Usage: %s <{0..7} or {A..H}>\n", argv[0]);
       return EXIT_FAILURE;
     }
 
