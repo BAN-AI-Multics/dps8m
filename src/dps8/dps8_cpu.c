@@ -2318,10 +2318,9 @@ setCPU:;
       }
 
 #if defined(THREADZ) || defined(LOCKLESS)
-    if (!cpu.executing)
-      cpu.executing = true;
-    if (!cpu.up)
-      cpu.up = true;
+    static bool atm_expected = false;
+    atomic_compare_exchange_strong(&cpu.executing, &atm_expected, true);
+    atomic_compare_exchange_strong(&cpu.up, &atm_expected, true);
 #endif
 
     do
