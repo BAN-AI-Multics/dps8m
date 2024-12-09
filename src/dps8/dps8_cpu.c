@@ -2378,7 +2378,7 @@ setCPU:;
                     } // up and working
                   } // cpus
                   if (alldone) {
-                    // Everyone has used up there allocations; dole out some more work
+                    // Everyone has used up their allocations; dole out some more work
                     for (int i = 0; i < N_CPU_UNITS_MAX; i ++) {
                       cpus[i].workAllocation += workAllocationQuantum;
                       wakeCPU (i);
