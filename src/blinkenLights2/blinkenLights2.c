@@ -14,6 +14,7 @@
  * ---------------------------------------------------------------------------
  */
 
+//-V::526
 #if !defined(_GNU_SOURCE)
 # define _GNU_SOURCE
 #endif
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <limits.h>
 #include <sys/stat.h>
 #include <stdint.h>
 #include <sys/mman.h>
@@ -300,7 +302,7 @@ static gboolean time_handler (GtkWidget * widget) {
 
   PROBE (PRR, { for (int i = 0; i <  3; i ++) PRR_state  [ 2 - i] = BIT (PRR); });
   PROBE (PSR, { for (int i = 0; i < 15; i ++) PSR_state  [14 - i] = BIT (PSR); });
-  PROBE (P,   { for (int i = 0; i <  1; i ++) P_state    [ 0 - i] = BIT (P);   });
+  PROBE (P,   { for (int i = 0; i <  1; i ++) P_state    [ 0 - i] = BIT (P);   }); //-V1008
   PROBE (IC,  { for (int i = 0; i < 18; i ++) IC_state   [17 - i] = BIT (IC);  });
   PROBE (IWB, { for (int i = 0; i < 36; i ++) inst_state [35 - i] = BIT (IWB); });
   PROBE (rA,  { for (int i = 0; i < 36; i ++) A_state    [35 - i] = BIT (rA);  });
@@ -321,7 +323,8 @@ static gboolean time_handler (GtkWidget * widget) {
   }
   PROBE (TRR, { for (int i = 0; i < 3; i ++) TRR_state [2 - i] = BIT (TRR); });
   PROBE (TSR, {for (int i = 0; i < 15; i ++) TSR_state [14 - i] = BIT (TSR); });
-  PROBE (TBR, {for (int i = 0; i < 6; i ++) TBR_state [3 - i] = BIT (TBR); });
+  PROBE (TBR, {for (int i = 0; i < 6; i ++) TBR_state [3 - i] = BIT (TBR); }); //-V557
+  // ^- XXX: "V557: Array underrun is possible. The value of '3 - i' index could reach -2."
   PROBE (CA, {for (int i = 0; i < 18; i ++) CA_state [17 - i] = BIT (CA); });
 
 //  if (memcmp (& cpun->BAR, & previous.BAR, sizeof (previous.BAR))) {
@@ -335,7 +338,7 @@ static gboolean time_handler (GtkWidget * widget) {
 
   PROBE (ADDR, { for (int i = 0; i < 24; i ++) ADDR_state [23 - i] = BIT (ADDR); });
   PROBE (BND, { for (int i = 0; i < 14; i ++) BND_state [13 - i] = BIT (BND); });
-  PROBE (U, { for (int i = 0; i < 1; i ++) U_state [0 - i] = BIT (U); });
+  PROBE (U, { for (int i = 0; i < 1; i ++) U_state [0 - i] = BIT (U); }); //-V1008
   PROBE (STACK, { for (int i = 0; i < 12; i ++) STACK_state [11 - i] = BIT (STACK); });
   PROBE (faultNumber, {
     FAULT_SDF_state = (FAULT_SDF == previous.faultNumber) ? 1 : 0;
@@ -430,14 +433,34 @@ static const char
   return ret;
 }
 
+#if !defined(PATH_MAX)
+# define PATH_MAX 256
+#endif
+
+#if !defined(_POSIX_PATH_MAX)
+# define _POSIX_PATH_MAX PATH_MAX
+#endif
+
+#if !defined(_XOPEN_PATH_MAX)
+# define _XOPEN_PATH_MAX PATH_MAX
+#endif
+
+#define MAX3(a, b, c) ((a) > (b) ? ((a) > (c) ? (a) : (c)) : ((b) > (c) ? (b) : (c)))
+
+char filebuf [MAX3(PATH_MAX, _POSIX_PATH_MAX, _XOPEN_PATH_MAX)];
+
 static void * openShm (char * key) {
   void * p;
-  char buf [256];
-  (void)sprintf (buf, "dps8m.%s", key);
-  int fd = open (buf, O_RDWR /*| O_CREAT*/, S_IRUSR | S_IWUSR);
+
+  if (strcmp("", key) == 0) {
+    (void)fprintf(stderr, "FATAL: Invalid statefile name specified!\r\n");
+    exit(EXIT_FAILURE);
+  }
+
+  int fd = open (filebuf, O_RDWR /*| O_CREAT*/, S_IRUSR | S_IWUSR);
   if (fd == -1) {
     (void)fprintf(stderr, "FATAL: Opening '%s' failed: %s (Error %d); is dps8 running?\r\n",
-                  buf, xstrerror_l(errno), errno);
+                  filebuf, xstrerror_l(errno), errno);
     exit(EXIT_FAILURE);
   }
 
@@ -468,18 +491,18 @@ int main (int argc, char * argv []) {
   sigaction (SIGQUIT, & quit_action, NULL);
 
   if (argc == 0) {
-    (void)fprintf(stderr, "FATAL: abort(argc == 0)!\n");
+    (void)fprintf(stderr, "FATAL: abort(argc == 0)!\r\n");
     return EXIT_FAILURE;
   }
 
   if (argv[0] == NULL) {
-    (void)fprintf(stderr, "FATAL: abort(argv[0] == NULL)!\n");
+    (void)fprintf(stderr, "FATAL: abort(argv[0] == NULL)!\r\n");
     return EXIT_FAILURE;
   }
 
 
   if (argc < 2) {
-    (void)fprintf(stderr, "%s: No CPU specified; watching CPU A.\n", argv[0]);
+    (void)fprintf(stderr, "%s: No CPU specified; watching CPU A.\r\n", argv[0]);
     cpunum = 0;
   }
     else
@@ -487,7 +510,7 @@ int main (int argc, char * argv []) {
 
     char input = argv[1][0];
     if (!((input >= '0' && input <= '7') || (toupper(input) >= 'A' && toupper(input) <= 'H'))) {
-      (void)fprintf(stderr, "Usage: %s <{0..7} or {A..H}>\n", argv[0]);
+      (void)fprintf(stderr, "Usage: %s [ <{0..7} or {A..H}> [statefile] ]\r\n", argv[0]);
       return EXIT_FAILURE;
     }
 
@@ -496,7 +519,13 @@ int main (int argc, char * argv []) {
       cpunum -= 17;
   }
 
-  system_state = (struct system_state_s *) openShm ("state");
+  if (argc > 2) {
+    (void)snprintf (filebuf, sizeof(filebuf), "%s", argv[2]);
+  } else {
+    (void)snprintf (filebuf, sizeof(filebuf), "dps8m.state");
+  }
+
+  system_state = (struct system_state_s *) openShm (filebuf);
   if (! system_state) {
     (void)fprintf (stderr, "FATAL: system state open_shm failed: %s (Error %d)\r\n", xstrerror_l(errno), errno);
     return EXIT_FAILURE;
@@ -967,7 +996,7 @@ int main (int argc, char * argv []) {
   g_timeout_add (10, (GSourceFunc) time_handler, (gpointer) window);
 
   static char window_title[6];
-  (void)snprintf(window_title, sizeof(window_title), "CPU %c", cpunum + 65);
+  (void)snprintf(window_title, sizeof(window_title), "CPU %c", (char)(cpunum + 65));
   gtk_window_set_title (GTK_WINDOW(window), window_title);
   g_signal_connect (window, "delete-event", G_CALLBACK (window_delete), NULL);
   gtk_widget_show_all  (window);
