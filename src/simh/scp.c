@@ -4740,17 +4740,17 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
 #if defined(LOCKLESS)
     (void)fprintf (st, "\r\n     Atomic operations: ");
 # if defined(AIX_ATOMICS)
-    (void)fprintf (st, "IBM AIX-style");
+    (void)fprintf (st, "C11 and IBM AIX-style");
 # elif defined(BSD_ATOMICS)
-    (void)fprintf (st, "FreeBSD-style");
+    (void)fprintf (st, "C11 and FreeBSD-style");
 # elif defined(GNU_ATOMICS)
-    (void)fprintf (st, "GNU-style");
+    (void)fprintf (st, "C11 and GNU-style");
 # elif defined(SYNC_ATOMICS)
-    (void)fprintf (st, "GNU sync-style");
+    (void)fprintf (st, "C11 and GNU sync-style");
 # elif defined(ISO_ATOMICS)
     (void)fprintf (st, "ISO/IEC 9899:2011 (C11) standard");
 # elif defined(NT_ATOMICS)
-    (void)fprintf (st, "Windows NT interlocked operations");
+    (void)fprintf (st, "C11 and Windows NT interlocked operations");
 # endif
 #endif /* if defined(LOCKLESS) */
     (void)fprintf (st, "\r\n          File locking: ");
