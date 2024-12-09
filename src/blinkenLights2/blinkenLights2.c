@@ -20,6 +20,7 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <ctype.h>
 #include <sys/stat.h>
 #include <stdint.h>
 #include <sys/mman.h>
@@ -433,9 +434,10 @@ static void * openShm (char * key) {
   void * p;
   char buf [256];
   (void)sprintf (buf, "dps8m.%s", key);
-  int fd = open (buf, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+  int fd = open (buf, O_RDWR /*| O_CREAT*/, S_IRUSR | S_IWUSR);
   if (fd == -1) {
-    (void)fprintf(stderr, "FATAL: open failed: %s (Error %d)\r\n", xstrerror_l(errno), errno);
+    (void)fprintf(stderr, "FATAL: Opening '%s' failed: %s (Error %d); is dps8 running?\r\n",
+                  buf, xstrerror_l(errno), errno);
     exit(EXIT_FAILURE);
   }
 
@@ -458,28 +460,40 @@ static void * openShm (char * key) {
 int main (int argc, char * argv []) {
   (void)setlocale(LC_ALL, "");
 
+  long cpunum;
+
   struct sigaction quit_action;
   quit_action.sa_handler = SIG_IGN;
   quit_action.sa_flags = SA_RESTART;
   sigaction (SIGQUIT, & quit_action, NULL);
 
-  int cpunum = 0;
-  if (argc > 1 && strlen (argv [1])) {
-    char * end;
-    long p = strtol (argv [1], & end, 0);
-    if (* end == 0) {
-      cpunum = (int)p;
-      argv [1] [0] = 0;
-    }
+  if (argc == 0) {
+    fprintf(stderr, "FATAL: abort(argc == 0)!\n");
+    return EXIT_FAILURE;
   }
 
-#if !defined(N_CPU_UNITS_MAX)
-# define N_CPU_UNITS_MAX 8
-#endif
-
-  if (cpunum < 0 || cpunum > N_CPU_UNITS_MAX - 1) {
-    (void)fprintf (stderr, "FATAL: Invalid CPU number %ld: expected 0..%ld\r\n", (long)cpunum, (long)N_CPU_UNITS_MAX);
+  if (argv[0] == NULL) {
+    fprintf(stderr, "FATAL: abort(argv[0] == NULL)!\n");
     return EXIT_FAILURE;
+  }
+
+
+  if (argc < 2) {
+    fprintf(stderr, "%s: No CPU specified; watching CPU A.\n", argv[0]);
+    cpunum = 0;
+  }
+    else
+  {
+
+    char input = argv[1][0];
+    if (!((input >= '0' && input <= '7') || (toupper(input) >= 'A' && toupper(input) <= 'H'))) {
+      fprintf(stderr, "Usage: %s <{0..7} or {A..H}>\n", argv[0]);
+      return EXIT_FAILURE;
+    }
+
+    cpunum = toupper(input) - '0';
+    if (cpunum > 7)
+      cpunum -= 17;
   }
 
   system_state = (struct system_state_s *) openShm ("state");
@@ -952,6 +966,9 @@ int main (int argc, char * argv []) {
   // 10 = 100Hz
   g_timeout_add (10, (GSourceFunc) time_handler, (gpointer) window);
 
+  static char window_title[6];
+  (void)snprintf(window_title, sizeof(window_title), "CPU %c", cpunum + 65);
+  gtk_window_set_title (GTK_WINDOW(window), window_title);
   g_signal_connect (window, "delete-event", G_CALLBACK (window_delete), NULL);
   gtk_widget_show_all  (window);
 
