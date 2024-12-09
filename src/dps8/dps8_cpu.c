@@ -2987,7 +2987,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   CPT (cpt1U, 25); // DIS instruction
 
 #if defined(THREADZ) || defined(LOCKLESS)
-                  // If we do a DIS, throw away our work allocaiton so that other
+                  // If we do a DIS, throw away our work allocation so that other
                   // CPUs can get real work done
                   cpu.workAllocation = 0;
 #endif

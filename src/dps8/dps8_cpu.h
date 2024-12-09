@@ -740,7 +740,7 @@ typedef struct {
     bool enable_emcall;   // If set, the instruction set is extended with simulator debugging instructions
     bool nodis;           // If true, start CPU in FETCH cycle; else start in DIS instruction
     bool l68_mode;        // False: DPS8/M; True: 6180
-    bool nosync;          // If true, diasble clock sync.
+    bool nosync;          // If true, disable clock sync.
 } tweaksType;
 
 enum ou_cycle_e
