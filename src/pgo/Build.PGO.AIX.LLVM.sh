@@ -86,8 +86,7 @@ test -d "${PROFILE_PATH}" && rm -rf "${PROFILE_PATH}"
 mkdir -p "${PROFILE_PATH}"
 # shellcheck disable=SC2155
 export BASE_LDFLAGS="${LDFLAGS:-}"
-export BASE_CFLAGS="-fno-profile-sample-accurate \
-  -fno-semantic-interposition ${CFLAGS:-}"
+export BASE_CFLAGS="-fno-profile-sample-accurate ${CFLAGS:-}"
 export LLVM_PROFILE_FILE="${PROFILE_PATH:?}/profile.%p.profraw"
 
 # Profile
