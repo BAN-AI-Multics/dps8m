@@ -65,9 +65,6 @@ unset FLOCK_COMMAND > "/dev/null" 2>&1 || true
  command -v "ansifilter" > "/dev/null" 2>&1 ||
    { printf '%s\n' "Error: ansifilter not found."; exit 1; }
 
- command -v "php" > "/dev/null" 2>&1 ||
-   { printf '%s\n' "Error: php not found."; exit 1; }
-
  command -v "git" > "/dev/null" 2>&1 ||
    { printf '%s\n' "Error: git not found."; exit 1; }
 
@@ -258,8 +255,8 @@ unset FLOCK_COMMAND > "/dev/null" 2>&1 || true
    '{ printf("\r   Generating command reference: %s                 \r",$0); }'
  printf '\r%s\r' "                                                            "
 
- # Converted indented code blocks to fenced blocks
- ./php/i2f.php "md/commandref.md"
+ # Convert indented code blocks to fenced blocks
+ ./perl/i2f.pl "md/commandref.md"
 
  # Abuse GNU cat to compress consecutive empty lines
  cat -s "md/commandref.md" > "md/commandref.out" &&  \

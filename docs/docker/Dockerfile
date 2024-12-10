@@ -61,8 +61,6 @@ pandoc \
 pbzip2 \
 pdftk-java \
 perl-core \
-php \
-php-cli \
 pigz \
 poppler-utils \
 psmisc \
