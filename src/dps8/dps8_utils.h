@@ -463,7 +463,7 @@ static inline void putbits36 (word36 * x, uint p, uint n, word36 val)
         sim_printf ("putbits36: bad args (%012llu,pos=%d,n=%d)\n", (unsigned long long)*x, p, n);
         return;
       }
-    word36 mask = ~ (~0U << n);  // n low bits on
+    word36 mask = ~ ((word36)~0U << n);  // n low bits on
     mask <<= (unsigned) shift;  // shift 1s to proper position; result 0*1{n}0*
     // caller may provide val that is too big, e.g., a word with all bits
     // set to one, so we mask val
