@@ -207,6 +207,7 @@ create_shm(char *key, size_t shm_size)
       if (!sim_iglock)
         {
           (void)close(fd);
+          (void)close(lck_fd);
           return NULL;
         }
     }
