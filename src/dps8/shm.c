@@ -206,6 +206,7 @@ create_shm(char *key, size_t shm_size)
                     __func__, lck, xstrerror_l(errno), errno);
       if (!sim_iglock)
         {
+          (void)close(fd);
           return NULL;
         }
     }
