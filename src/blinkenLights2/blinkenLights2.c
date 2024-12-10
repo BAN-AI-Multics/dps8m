@@ -485,7 +485,7 @@ int main (int argc, char * argv []) {
 
   long cpunum;
 
-  struct sigaction quit_action;
+  struct sigaction quit_action = {{0}};
   quit_action.sa_handler = SIG_IGN;
   quit_action.sa_flags = SA_RESTART;
   sigaction (SIGQUIT, & quit_action, NULL);
