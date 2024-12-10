@@ -287,7 +287,6 @@ create_shm(char *key, size_t shm_size)
       return NULL;
     }
 
-
   return p;
 }
 
