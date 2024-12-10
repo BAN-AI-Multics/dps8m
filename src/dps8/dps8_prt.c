@@ -1886,7 +1886,8 @@ static t_stat prt_set_path (UNUSED UNIT * uptr, UNUSED int32 value,
 
     if (len >= sizeof(prt_path))
       return SCPE_ARG;
-    strncpy(prt_path, cptr, sizeof(prt_path));
+    strncpy(prt_path, cptr, sizeof(prt_path) - 1);
+    prt_path[sizeof(prt_path) - 1] = '\0';
     if (len > 0)
       {
         if (prt_path[len - 1] != '/')
