@@ -477,6 +477,7 @@ static void * openShm (char * key) {
     exit(EXIT_FAILURE);
   }
 
+  close (fd);
   return p;
 }
 
