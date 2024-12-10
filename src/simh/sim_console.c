@@ -820,7 +820,7 @@ for (i=(was_active_command ? sim_rem_cmd_active_line : 0);
                 case '\n':
                     if (sim_rem_buf_ptr[i] == 0)
                         break;
-                /*FALLTHRU*/ /* fallthrough */ /* fall through */
+                /*FALLTHRU*/ /* fall through */ /* fallthrough */
                 case '\r':
                     tmxr_linemsg (lp, "\r\n");
                     if (sim_rem_buf_ptr[i]+1 >= sim_rem_buf_size[i]) {
@@ -1980,7 +1980,7 @@ ControlHandler(DWORD dwCtrlType)
         case CTRL_LOGOFF_EVENT:     // User is logging off
             if (!GetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), &Mode))
                 return TRUE;        // Not our User, so ignore
-            /* fall through */ /* fallthrough */
+            /*FALLTHRU*/ /* fall through */ /* fallthrough */
         case CTRL_SHUTDOWN_EVENT:   // System is shutting down
             int_handler(0);
             return TRUE;

@@ -1153,7 +1153,7 @@ switch (DK_GET_FMT (uptr)) {                            /* case on format */
     case DKUF_F_STD:                                    /* SIMH format */
         perror (msg);
         sim_printf ("%s %s: %s (Error %d)\r\n", sim_uname(uptr), msg, xstrerror_l(saved_errno), saved_errno);
-    /*FALLTHRU*/
+    /*FALLTHRU*/ /* fall through */ /* fallthrough */
     default:
         ;
     }

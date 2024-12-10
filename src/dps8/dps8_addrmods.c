@@ -693,7 +693,7 @@ startCA:;
                           cpu.TPR.CA = saveCA;
                           doFault (FAULT_F2, fst_zero, "TM_IT: IT_F2 (1)");
 
-                        /*FALLTHRU*/
+                        /*FALLTHRU*/ /* fall through */ /* fallthrough */
                         case IT_F3:
                           cpu.TPR.CA = saveCA;
                           doFault (FAULT_F3, fst_zero, "TM_IT: IT_F3");
@@ -701,12 +701,11 @@ startCA:;
                   }
                 // fall through to TM_R
 #if !defined(__SUNPRO_C) && !defined(__SUNPRO_CC) && !defined(__SUNPRO_CC_COMPAT)
-                /*FALLTHRU*/
-                /* fall through */
+                /*FALLTHRU*/ /* fall through */ /* fallthrough */
 # if defined(__GNUC__) && __GNUC__ > 6
                 __attribute__ ((fallthrough));
 # endif /* if defined(__GNUC__) && __GNUC__ > 6 */
-                /*FALLTHRU*/
+                /*FALLTHRU*/ /* fall through */ /* fallthrough */
 # if defined(__clang__)
                 (void)0;
 # endif /* if defined(__clang__) */
@@ -780,13 +779,13 @@ startCA:;
           {
             // XXX this is probably wrong. ITS/ITP are not standard addr mods
             case SPEC_ITP:
-            /*FALLTHRU*/
+            /*FALLTHRU*/ /* fall through */ /* fallthrough */
             case SPEC_ITS:
               {
                 doFault(FAULT_IPR, fst_ill_mod, "ITx in IT_MOD)");
               }
 
-            /*FALLTHRU*/
+            /*FALLTHRU*/ /* fall through */ /* fallthrough */
             case 2:
               {
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
@@ -797,29 +796,29 @@ startCA:;
                          "fault");
               }
 
-            /*FALLTHRU*/
+            /*FALLTHRU*/ /* fall through */ /* fallthrough */
             case IT_F1:
               {
                 doFault(FAULT_F1, fst_zero, "IT_MOD: IT_F1");
               }
 
-            /*FALLTHRU*/
+            /*FALLTHRU*/ /* fall through */ /* fallthrough */
             case IT_F2:
               {
                 doFault(FAULT_F2, fst_zero, "IT_MOD: IT_F2 (2)");
               }
 
-            /*FALLTHRU*/
+            /*FALLTHRU*/ /* fall through */ /* fallthrough */
             case IT_F3:
               {
                 doFault(FAULT_F3, fst_zero, "IT_MOD: IT_F3");
               }
 
-            /*FALLTHRU*/
+            /*FALLTHRU*/ /* fall through */ /* fallthrough */
             case IT_CI:  // Character indirect (Td = 10)
-            /*FALLTHRU*/
+            /*FALLTHRU*/ /* fall through */ /* fallthrough */
             case IT_SC:  // Sequence character (Td = 12)
-            /*FALLTHRU*/
+            /*FALLTHRU*/ /* fall through */ /* fallthrough */
             case IT_SCR: // Sequence character reverse (Td = 5)
               {
                 // There is complexity with managing page faults and tracking

@@ -7154,7 +7154,7 @@ HOT static t_stat doInstruction (cpu_state_t * cpup)
             }
           doFault (FAULT_DRL, fst_zero, "drl");
 
-        /*FALLTHRU*/
+        /*FALLTHRU*/ /* fall through */ /* fallthrough */
         case x0 (0716):  // xec
           cpu.cu.xde = 1;
           cpu.cu.xdo = 0;
@@ -7220,7 +7220,7 @@ HOT static t_stat doInstruction (cpu_state_t * cpup)
           // configuration panel.
           doFault (FAULT_MME, fst_zero, "Master Mode Entry (mme)");
 
-        /*FALLTHRU*/
+        /*FALLTHRU*/ /* fall through */ /* fallthrough */
         case x0 (0004):   // mme2
           // Causes a fault that fetches and executes, in absolute mode, the
           // instruction pair at main memory location C+(52)8. The value of C
@@ -7228,7 +7228,7 @@ HOT static t_stat doInstruction (cpu_state_t * cpup)
           // configuration panel.
           doFault (FAULT_MME2, fst_zero, "Master Mode Entry 2 (mme2)");
 
-        /*FALLTHRU*/
+        /*FALLTHRU*/ /* fall through */ /* fallthrough */
         case x0 (0005):   // mme3
           // Causes a fault that fetches and executes, in absolute mode, the
           // instruction pair at main memory location C+(54)8. The value of C
@@ -7236,7 +7236,7 @@ HOT static t_stat doInstruction (cpu_state_t * cpup)
           // configuration panel.
           doFault (FAULT_MME3, fst_zero, "Master Mode Entry 3 (mme3)");
 
-        /*FALLTHRU*/
+        /*FALLTHRU*/ /* fall through */ /* fallthrough */
         case x0 (0007):   // mme4
           // Causes a fault that fetches and executes, in absolute mode, the
           // instruction pair at main memory location C+(56)8. The value of C
@@ -7244,7 +7244,7 @@ HOT static t_stat doInstruction (cpu_state_t * cpup)
           // configuration panel.
           doFault (FAULT_MME4, fst_zero, "Master Mode Entry 4 (mme4)");
 
-        /*FALLTHRU*/
+        /*FALLTHRU*/ /* fall through */ /* fallthrough */
         case x0 (0011):   // nop
           break;
 

@@ -2769,7 +2769,7 @@ bail:
 // limit, the fault is recognized before any instruction in the new mode is
 // executed."
 
-          /*FALLTHRU*/ /* fall through */
+          /*FALLTHRU*/ /* fall through */ /* fallthrough */
           case PSEUDO_FETCH_cycle:
 
             tmp_priv_mode = is_priv_mode (cpup);
