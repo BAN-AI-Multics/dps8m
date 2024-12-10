@@ -3844,7 +3844,7 @@ usage:
   }
 
 t_stat ready_media (int32 arg, const char * buf) {
-  char name[strlen (buf)];
+  char name[strlen (buf) + 1];
   int rc = sscanf (buf, "%s", name);
   if (rc != 1)
     return SCPE_ARG;
