@@ -176,6 +176,7 @@ create_shm(char *key, size_t shm_size)
       (void)fprintf(stderr, "? ***\r\n\r\n");
       if (!sim_iglock)
         {
+          (void)close(fd);
           return NULL;
         }
     }
