@@ -712,16 +712,16 @@ static iom_cmd_rc_t diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
         return IOM_CMD_ERROR;
       }
 
-    word36 seekData;
+    word36 seekData[1];
     uint count;
-    iom_indirect_data_service (iomUnitIdx, chan, & seekData, &count, false);
+    iom_indirect_data_service (iomUnitIdx, chan, seekData, &count, false);
     // POLTS claims that seek data doesn't count as an I/O xfer
     p->initiate = true;
     if (count != 1)
       sim_warn ("%s: count %d not 1\n", __func__, count);
 
 #if defined(POLTS_DISK_TESTING)
-    if_sim_debug (DBG_TRACE, & dsk_dev) { sim_printf ("// Seek address %012"PRIo64"\n", seekData); }
+    if_sim_debug (DBG_TRACE, & dsk_dev) { sim_printf ("// Seek address %012"PRIo64"\n", seekData[0]); }
 #endif
 
 // disk_control.pl1:
@@ -729,15 +729,15 @@ static iom_cmd_rc_t diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
 // suggests seeks are 21 bits. The largest sector number is D501 1077759; 4040777 in base 8;
 // 21 bits.
 
-    seekData &= MASK21;
-    if (seekData >= diskTypes[typeIdx].capac)
+    seekData[0] &= MASK21;
+    if (seekData[0] >= diskTypes[typeIdx].capac)
       {
         disk_statep->seekValid = false;
         p->stati               = 04304; // Invalid seek address
         return IOM_CMD_ERROR;
       }
     disk_statep->seekValid    = true;
-    disk_statep->seekPosition = (uint) seekData;
+    disk_statep->seekPosition = (uint) seekData[0];
     p->stati = 04000; // Channel ready
     return IOM_CMD_PROCEED;
   }
