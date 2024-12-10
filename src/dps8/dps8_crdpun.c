@@ -938,7 +938,8 @@ static enum parse_event do_state_end_of_header(enum parse_event event,
         remove_spaces(punch_file_name);
       }
 
-    strncpy(state -> raw_file_name, punch_file_name, sizeof(state -> raw_file_name));
+    strncpy(state -> raw_file_name, punch_file_name, sizeof(state -> raw_file_name) - 1);
+    state->raw_file_name[sizeof(state->raw_file_name) - 1] = '\0';
 
     create_punch_file(state);                           // Create spool file
 
