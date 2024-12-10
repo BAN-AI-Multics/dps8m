@@ -101,7 +101,7 @@ static UNIT cpu_unit [N_CPU_UNITS_MAX] = {
 
 // Assume CPU clock ~ 1MIPS. lockup time is 32 ms
 #define LOCKUP_KIPS 1000
-static uint kips = LOCKUP_KIPS;
+static uint64 kips = LOCKUP_KIPS;
 static uint64 luf_limits[] =
   {
      2000*LOCKUP_KIPS/1000,
@@ -744,7 +744,7 @@ static t_stat cpu_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value,
 static t_stat cpu_show_kips (UNUSED FILE * st, UNUSED UNIT * uptr,
                              UNUSED int val, UNUSED const void * desc)
   {
-    sim_msg ("CPU KIPS %u\n", kips);
+    sim_msg ("CPU KIPS %lu\n", (unsigned long)kips);
     return SCPE_OK;
   }
 
@@ -753,10 +753,10 @@ static t_stat cpu_set_kips (UNUSED UNIT * uptr, UNUSED int32 value,
   {
     if (! cptr)
       return SCPE_ARG;
-    int n = atoi (cptr);
+    long n = atol (cptr);
     if (n < 1 || n > 4000000)
       return SCPE_ARG;
-    kips = (uint) n;
+    kips = (uint64) n;
     luf_limits[0] =  2000*kips/1000;
     luf_limits[1] =  4000*kips/1000;
     luf_limits[2] =  8000*kips/1000;
@@ -4292,7 +4292,7 @@ void add_dps8m_CU_history (cpu_state_t * cpup)
     word36 w0      = 0, w1 = 0;
     w0            |= flags & 0777777000000;
     w0            |= IWB_IRODD & MASK18;
-    w1            |= (cpu.iefpFinalAddress & MASK24) << 12;
+    w1            |= ((word36)(cpu.iefpFinalAddress & MASK24) << 12);
     w1            |= (proccmd & MASK5) << 7;
     w1            |= flags2 & 0176;
     add_history (cpup, CU_HIST_REG, w0, w1);
