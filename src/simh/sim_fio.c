@@ -281,7 +281,10 @@ if (writable && !sim_nolock) {
                    (unsigned long)lock.l_pid);
       sim_printf ("\r\n");
     }
-    if (!sim_iglock) return NULL;
+    if (!sim_iglock) {
+      fclose(fsc);
+      return NULL;
+    }
   }
 }
 #elif defined(USE_FLOCK) /* if defined(USE_FCNTL) */
