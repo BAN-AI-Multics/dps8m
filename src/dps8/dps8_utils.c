@@ -104,7 +104,7 @@ char *disassemble(char * result, word36 instruction)
 
     // XXX need to reconstruct multi-word EIS instruction.
 
-    char buff[64];
+    char buff[256];
 
     if (a)
     {
