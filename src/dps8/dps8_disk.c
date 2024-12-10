@@ -806,9 +806,9 @@ static iom_cmd_rc_t diskSeekSpecial (uint devUnitIdx, uint iomUnitIdx, uint chan
         tally = 1;
       }
 
-    word36 seekData;
+    word36 seekData[1];
     uint count;
-    iom_indirect_data_service (iomUnitIdx, chan, & seekData, &count, false);
+    iom_indirect_data_service (iomUnitIdx, chan, seekData, &count, false);
     // POLTS claims that seek data doesn't count as an I/O xfer
     p->initiate  = true;
     if (count   != 1)
@@ -817,12 +817,12 @@ static iom_cmd_rc_t diskSeekSpecial (uint devUnitIdx, uint iomUnitIdx, uint chan
 #if defined(POLTS_DISK_TESTING)
     if_sim_debug (DBG_TRACE, & dsk_dev)
       {
-        sim_printf ("// Seek address %012"PRIo64"\n", seekData);
+        sim_printf ("// Seek address %012"PRIo64"\n", seekData[0]);
       }
 #endif
 
-    seekData &= MASK21;
-    if (seekData >= dsk_states[typeIdx].tAndDCapac)
+    seekData[0] &= MASK21;
+    if (seekData[0] >= dsk_states[typeIdx].tAndDCapac)
       {
         p->stati               = 04304; // Invalid seek address
         disk_statep->seekValid = false;
@@ -830,7 +830,7 @@ static iom_cmd_rc_t diskSeekSpecial (uint devUnitIdx, uint iomUnitIdx, uint chan
         return IOM_CMD_ERROR;
       }
     disk_statep->seekValid    = true;
-    disk_statep->seekPosition = (uint) seekData;
+    disk_statep->seekPosition = (uint) seekData[0];
     p->stati                  = 04000; // Channel ready
     return IOM_CMD_PROCEED;
   }
