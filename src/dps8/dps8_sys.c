@@ -3765,7 +3765,7 @@ static t_stat set_dbgevent (int32 arg, const char * buf)
 //
 
 t_stat rewind_media (int32 arg, const char * buf) {
-  char name[strlen (buf)];
+  char name[strlen (buf) + 1];
 
   int rc = sscanf (buf, "%s", name);
   if (rc != 1)
