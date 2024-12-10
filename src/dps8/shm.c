@@ -89,6 +89,9 @@ create_shm(char *key, size_t shm_size)
     {
       (void)fprintf(stderr, "%s(): Failed to open \"%s\": %s (Error %d)\r\n",
                     __func__, buf, xstrerror_l(errno), errno);
+#if defined(USE_BFLOCK)
+      (void)close(lck_fd);
+#endif /* if defined(USE_BFLOCK) */
       return NULL;
     }
 
