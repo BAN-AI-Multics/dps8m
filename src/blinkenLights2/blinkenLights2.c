@@ -66,7 +66,7 @@ static uint32_t lookup (struct system_state_s * p, uint32_t stype, char * name,
                         uint32_t * symbolType, uint32_t * valueType, uint32_t * value) {
   struct symbol_s * s;
   for (int i = 0; s = p->symbolTable.symbols + i, s->symbolType != SYM_EMPTY; i ++) {
-    if (strcmp (name, s->name) == 0 &&  (stype ==SYM_UNDEF || stype == s->symbolType)) {
+    if (strcmp (name, s->name) == 0 &&  (stype == SYM_UNDEF || stype == s->symbolType)) {
       * symbolType = s->symbolType;
       * valueType = s->valueType;
       * value = s->value;
@@ -477,6 +477,7 @@ static void * openShm (char * key) {
     exit(EXIT_FAILURE);
   }
 
+  close (fd);
   return p;
 }
 
@@ -485,7 +486,7 @@ int main (int argc, char * argv []) {
 
   long cpunum;
 
-  struct sigaction quit_action;
+  struct sigaction quit_action = {{0}};
   quit_action.sa_handler = SIG_IGN;
   quit_action.sa_flags = SA_RESTART;
   sigaction (SIGQUIT, & quit_action, NULL);

@@ -515,7 +515,7 @@ empty:;
   sim_printf ("eof1Sent: sending ++UID\r\n");
 #endif
       (void)sprintf ((char *) cardImage, "++UID %d", jobNo);
-      l = strlen ((char *) cardImage);
+      l = strlen (((char *) cardImage) + 1);
       thisCard = cardDeck; //-V1048
       rdr_state [unitIdx].deckState = uid1Sent;
     }
@@ -710,7 +710,7 @@ empty:;
         //cardImage [l] = 0;
       }
 
-      uint hbuf [l];
+      uint hbuf [l + 1];
       asciiToH ((char *) cardImage, hbuf, l);
 
       // 12 bits / char

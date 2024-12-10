@@ -89,6 +89,9 @@ create_shm(char *key, size_t shm_size)
     {
       (void)fprintf(stderr, "%s(): Failed to open \"%s\": %s (Error %d)\r\n",
                     __func__, buf, xstrerror_l(errno), errno);
+#if defined(USE_BFLOCK)
+      (void)close(lck_fd);
+#endif /* if defined(USE_BFLOCK) */
       return NULL;
     }
 
@@ -125,6 +128,7 @@ create_shm(char *key, size_t shm_size)
   /* cppcheck-suppress unreadVariable */
   int pch = 0;
   int ypch = 0;
+  int lck_ftr = 0;
   FILE *lck_fp;
   if (brc < 0)
     {
@@ -140,6 +144,7 @@ create_shm(char *key, size_t shm_size)
 
 # if !defined(__clang_analyzer__)
       (void)close(lck_fd);
+      lck_ftr = 1;
       lck_fp = fopen(lck, "r");
       (void)fprintf(stderr, "\r\n*** Is another simulator running");
       if (lck_fp != NULL)
@@ -159,6 +164,7 @@ create_shm(char *key, size_t shm_size)
 
               fct++;
             }
+          (void)fclose(lck_fp);
         }
 # endif
 
@@ -174,7 +180,7 @@ create_shm(char *key, size_t shm_size)
         }
     }
 
-  if (ftruncate(lck_fd, (off_t)0) == -1)
+  if (!lck_ftr && (ftruncate(lck_fd, (off_t)0) == -1))
     {
       (void)fprintf(stderr, "%s(): Failed to clear \"%s\": %s (Error %d)\r\n",
                     __func__, lck, xstrerror_l(errno), errno);
@@ -194,20 +200,21 @@ create_shm(char *key, size_t shm_size)
     }
 
   (void)sprintf (shostname, "on %s\n", sthostname);
-  if (write(lck_fd, spid, strlen(spid)) != strlen(spid))
+  if (!lck_ftr && (write(lck_fd, spid, strlen(spid)) != strlen(spid)))
     {
       (void)fprintf(stderr, "%s(): Failed to save PID to \"%s\": %s (Error %d)\r\n",
                     __func__, lck, xstrerror_l(errno), errno);
       if (!sim_iglock)
         {
+          (void)close(fd);
           return NULL;
         }
     }
 
-  if ( !(sim_nostate) )
+  if (!lck_ftr && !(sim_nostate))
     (void)fsync(lck_fd);
 
-  if (write(lck_fd, shostname, strlen(shostname)) != strlen(shostname))
+  if (!lck_ftr && (write(lck_fd, shostname, strlen(shostname)) != strlen(shostname)))
     {
       (void)fprintf(stderr, "%s(): Failed to save host to \"%s\": %s (Error %d)\r\n",
                     __func__, lck, xstrerror_l(errno), errno);
@@ -217,7 +224,7 @@ create_shm(char *key, size_t shm_size)
         }
     }
 
-  if ( !(sim_nostate) )
+  if (!lck_ftr && !(sim_nostate))
     (void)fsync(lck_fd);
 #endif /* if defined(USE_BFLOCK) */
 

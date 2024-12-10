@@ -3175,6 +3175,7 @@ HOT static t_stat doInstruction (cpu_state_t * cpup)
             } else {
               capture = cpu.rA;
               cpu.rA = 0;
+              cnt = 35;
             }
 
             if (capture == 0 || capture == (MASK36 & barrelLeftMaskTable[cnt + 1]))

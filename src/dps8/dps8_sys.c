@@ -3765,7 +3765,7 @@ static t_stat set_dbgevent (int32 arg, const char * buf)
 //
 
 t_stat rewind_media (int32 arg, const char * buf) {
-  char name[strlen (buf)];
+  char name[strlen (buf) + 1];
 
   int rc = sscanf (buf, "%s", name);
   if (rc != 1)
@@ -3795,9 +3795,9 @@ t_stat load_media (int32 arg, const char * buf)
     // arg 1: load
     //     0: unload
 
-    char  name[strlen (buf)];
-    char fname[strlen (buf)];
-    char  perm[strlen (buf)];
+    char  name[strlen (buf) + 1];
+    char fname[strlen (buf) + 1];
+    char  perm[strlen (buf) + 1];
     bool ro = false;
     if (arg)
       {
@@ -3844,7 +3844,7 @@ usage:
   }
 
 t_stat ready_media (int32 arg, const char * buf) {
-  char name[strlen (buf)];
+  char name[strlen (buf) + 1];
   int rc = sscanf (buf, "%s", name);
   if (rc != 1)
     return SCPE_ARG;

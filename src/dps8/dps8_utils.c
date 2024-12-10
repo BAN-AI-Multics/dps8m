@@ -104,7 +104,7 @@ char *disassemble(char * result, word36 instruction)
 
     // XXX need to reconstruct multi-word EIS instruction.
 
-    char buff[64];
+    char buff[256];
 
     if (a)
     {
@@ -124,7 +124,8 @@ char *disassemble(char * result, word36 instruction)
         if (extMods[n].mod)
             if(n == tag)
             {
-                strcpy(buff, extMods[n].mod);
+                strncpy(buff, extMods[n].mod, sizeof(buff) - 1);
+                buff[sizeof(buff) - 1] = '\0';
                 break;
             }
 
