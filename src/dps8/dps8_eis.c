@@ -5879,7 +5879,15 @@ static int mopLTE (cpu_state_t * cpup)
 #endif
     e->mopTally -= 1;
 
-    e->editInsertionTable[e->mopIF - 1] = next;
+    //e->editInsertionTable[e->mopIF - 1] = next;
+    if (e->mopIF - 1 >= 0 &&
+        e->mopIF - 1 < sizeof(e->editInsertionTable) / sizeof(e->editInsertionTable[0])) {
+          e->editInsertionTable[e->mopIF - 1] = next;
+    } else {
+        e->_faults |= FAULT_IPR;
+        sim_warn("mopIF %d OOB in %s!\r\n", e->mopIF, __func__);
+        return 0;
+    }
     sim_debug (DBG_TRACEEXT, & cpu_dev, "LTE IT[%d]<=%d\n", e -> mopIF - 1, next);
     return 0;
 }
