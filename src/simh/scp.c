@@ -4426,10 +4426,11 @@ for (j = ucnt = udbl = 0; j < dptr->numunits; j++) {    /* count units */
     }
 //show_all_mods (st, dptr, dptr->units, MTAB_VDV, &toks); /* show dev mods */
 if (dptr->numunits == 0) {
-    if (toks) //-V547
-        (void)fprintf (st, "\n");
-    }
-else {
+    // if (toks) //-V547
+    //     (void)fprintf (st, "\n");
+}
+ else
+{
     if (ucnt == 0) {
         fprint_sep (st, &toks);
         (void)fprintf (st, "all units disabled\n");
@@ -4446,7 +4447,7 @@ else {
         if ((flag != 2) || !dptr->description || toks)
             (void)fprintf (st, "\n");
     toks = 0;
-    }
+}
 if (flag)                                               /* dev only? */
     return SCPE_OK;
 for (j = 0; j < dptr->numunits; j++) {                  /* loop thru units */
