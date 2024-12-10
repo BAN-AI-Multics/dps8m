@@ -1223,13 +1223,13 @@ static void mtMTPWr (uint devUnitIdx, uint iomUnitIdx, uint chan)
     iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
     struct tape_state * tape_statep = & tape_states [devUnitIdx];
 
-    word36 control;
+    word36 control[1];
     uint count;
-    iom_indirect_data_service (iomUnitIdx, chan, & control, &count, false);
+    iom_indirect_data_service (iomUnitIdx, chan, control, &count, false);
     if (count != 1)
       sim_warn ("%s: count %d not 1\n", __func__, count);
-    tape_statep -> cntlrAddress = getbits36_16 (control, 0);
-    tape_statep -> cntlrTally = getbits36_16 (control, 16);
+    tape_statep -> cntlrAddress = getbits36_16 (control[0], 0);
+    tape_statep -> cntlrTally = getbits36_16 (control[0], 16);
     p -> stati = 04000;
   }
 
