@@ -1825,7 +1825,7 @@ In the following cross-compilation examples, the *latest* **`libuv`** sources (f
   * Build the simulator:
 
     ```sh
-    env CFLAGS="-I${HOME}/libuv-win32-i686/include -D__MINGW64__     \
+    env CFLAGS="-I${HOME}/libuv-win32-i686/include -D__MINGW64__"    \
         CC="i686-w64-mingw32-gcc"                                    \
         LDFLAGS="-L${HOME}/libuv-win32-i686/lib" NEED_128=1          \
       make CROSS="MINGW64"
@@ -1857,7 +1857,7 @@ In the following cross-compilation examples, the *latest* **`libuv`** sources (f
   * Build the simulator:
 
     ```sh
-    env CFLAGS="-I${HOME}/libuv-win32-x86_64/include -D__MINGW64__     \
+    env CFLAGS="-I${HOME}/libuv-win32-x86_64/include -D__MINGW64__"    \
         CC="x86_64-w64-mingw32-gcc"                                    \
         LDFLAGS="-L${HOME}/libuv-win32-x86_64/lib"                     \
       make CROSS="MINGW64"
