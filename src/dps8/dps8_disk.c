@@ -763,23 +763,23 @@ static int diskSeek512 (uint devUnitIdx, uint iomUnitIdx, uint chan)
         tally = 1;
       }
 
-    word36 seekData;
+    word36 seekData[1];
     uint count;
-    iom_indirect_data_service (iomUnitIdx, chan, & seekData, &count, false);
+    iom_indirect_data_service (iomUnitIdx, chan, seekData, &count, false);
     // POLTS claims that seek data doesn't count as an I/O xfer
     p->initiate = true;
     if (count != 1)
       sim_warn ("%s: count %d not 1\n", __func__, count);
 
-    seekData &= MASK21;
-    if (seekData >= diskTypes[typeIdx].capac)
+    seekData[0] &= MASK21;
+    if (seekData[0] >= diskTypes[typeIdx].capac)
       {
         disk_statep->seekValid = false;
         p->stati = 04304; // Invalid seek address
         return -1;
       }
     disk_statep->seekValid    = true;
-    disk_statep->seekPosition = (uint)seekData;
+    disk_statep->seekPosition = (uint)seekData[0];
     p->stati                  = 04000; // Channel ready
     return 0;
   }
