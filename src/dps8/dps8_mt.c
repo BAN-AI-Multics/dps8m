@@ -731,7 +731,7 @@ static t_stat tape_set_ready (UNIT * uptr, UNUSED int32 value,
 #if defined(TESTING)
     cpu_state_t * cpup = _cpup;
 #endif
-    long tape_unit_idx = MT_UNIT_NUM (uptr);
+    uint32_t tape_unit_idx = MT_UNIT_NUM (uptr);
     if (tape_unit_idx >= N_MT_UNITS_MAX)
       {
         sim_debug (DBG_ERR, & tape_dev,
