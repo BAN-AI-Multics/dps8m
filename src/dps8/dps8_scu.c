@@ -1476,6 +1476,9 @@ sim_debug (DBG_DEBUG, & scu_dev, "interrupt set for CPU %d SCU %d\n", cpu_unit_u
 #  if defined(TESTING)
                 HDBGIntrSet (inum, cpu_unit_udx, scu_unit_idx, __func__);
 #  endif
+#  ifdef SYNCTEST
+if (cpus[cpu_unit_udx].rcfDelete) sim_printf ("Poking CPU %c in rcfDelete\n", 'A' + cpu_unit_udx);
+#  endif
                 createCPUThread((uint) cpu_unit_udx);
 #  if !defined(NO_TIMEWAIT)
                 wakeCPU ((uint) cpu_unit_udx);

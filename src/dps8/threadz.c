@@ -500,7 +500,7 @@ void createCPUThread (uint cpuNum)
       }
 #endif /* if defined(AFFINITY) */
     // Spin waiting for new thread to start executing code
-    while (! cpus[cpuNum].executing) {
+    while (! cpus[cpuNum].up) {
       sim_usleep (1);
     }
   }

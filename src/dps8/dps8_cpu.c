@@ -2160,7 +2160,7 @@ enum { workAllocationQuantum = 1 };
 enum { syncClockModePollRate = 1 };
 static int allocCount;
 # else
-enum { workAllocationQuantum = 1024 };
+enum { workAllocationQuantum = 64 };
 enum { syncClockModePollRate = 128 };
 # endif
 
@@ -2168,10 +2168,14 @@ static void becomeClockMaster (cpu_state_t * cpup) {
 # ifdef SYNCTEST
   allocCount = 0;
 # endif
-  lockSync ();  // Only one CPU can manage the sync at a time; if more then one CPU is started
+  //lockSync ();  // Only one CPU can manage the sync at a time; if more then one CPU is started
   // at once, the second will hang here until the first is finished. If this proves to be
   // a problem, then we need a mechanism for the second one to join the sync parade.
-
+  if (syncClockMode) {
+    // Someone else is already clock master; let them rule
+    sim_warn ("%s: someone else beat us here.\r\n", __func__);
+    return;
+  }
   syncClockModeMasterIdx = current_running_cpu_idx;
   cpu.syncClockModeMaster = true; // This CPU is the clock master
   for (int i = 0; i < N_CPU_UNITS_MAX; i ++)
@@ -2185,7 +2189,7 @@ void giveupClockMaster (cpu_state_t * cpup) {
 # endif
   cpu.syncClockModeMaster = false;
   syncClockMode = false; // Free the other processors
-  unlockSync (); // And let someone else grab sync mode
+  //unlockSync (); // And let someone else grab sync mode
 }
 #endif
 
@@ -2332,14 +2336,13 @@ setCPU:;
         // And the CPU did the pxss stop DIS
         // And we processing a FAULT,
         // then we undergoing an RCF ADD.
-        if (cpu.cycle == FAULT_cycle && cpu.rcfDelete) {
-          if (! syncClockMode) {
-            cpu.rcfDelete = false; // Forget about the RCF DELETE
+        if (UNLIKELY (cpu.cycle == INTERRUPT_cycle) && UNLIKELY (cpu.rcfDelete) && LIKELY ((! syncClockMode))) {
+          cpu.rcfDelete = false; // Forget about the RCF DELETE
 # ifdef SYNCTEST
-            sim_printf ("rcf delete master\r\n");
+          sim_printf ("rcf delete master\r\n");
 # endif
-            becomeClockMaster (cpup); // Start synchronizing
-          }
+          becomeClockMaster (cpup); // Start synchronizing
+          cpu.up = true;
         }
 
         // Ready to check sync clock mode?
@@ -2372,17 +2375,20 @@ setCPU:;
                   bool alldone = true;
                   for (int i = 0; i < N_CPU_UNITS_MAX; i ++) {
                     if (cpus[i].up && cpus[i].workAllocation > 0) {
+                      wakeCPU (i);
                       alldone = false;
-                      break;
+                      //break;
                     } // up and working
                   } // cpus
                   if (alldone) {
                     // Everyone has used up their allocations; dole out some more work
                     for (int i = 0; i < N_CPU_UNITS_MAX; i ++) {
-                      cpus[i].workAllocation += workAllocationQuantum;
-                      wakeCPU (i);
+                      if (cpus[i].up) {
+                        cpus[i].workAllocation += workAllocationQuantum;
+                        wakeCPU (i);
+                     }
                     }
-                    break;
+                    break; // while (1)
                   } // alldone
                   if (waitTimeout-- < 0) {
                     // timed out waiting for everyone to finish their
