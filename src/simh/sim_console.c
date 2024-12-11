@@ -1643,7 +1643,7 @@ return sim_exp_show (st, &sim_con_expect, cptr);
 
 t_stat sim_open_logfile (const char *filename, t_bool binary, FILE **pf, FILEREF **pref)
 {
-char gbuf[CBUFSIZE];
+char gbuf[CBUFSIZE - 1];
 const char *tptr;
 
 if ((filename == NULL) || (*filename == 0))             /* too few arguments? */
@@ -1682,7 +1682,7 @@ else {
     if (!*pref)
         return SCPE_MEM;
     (void)get_glyph_nc (filename, gbuf, 0);             /* reparse */
-    strncpy ((*pref)->name, gbuf, sizeof((*pref)->name) - 1);
+    (void)strncpy ((*pref)->name, gbuf, sizeof((*pref)->name) - 1);
     (*pref)->name[sizeof((*pref)->name) - 1] = '\0';
     if (sim_switches & SWMASK ('N'))                    /* if a new log file is requested */
         *pf = sim_fopen (gbuf, (binary ? "w+b" : "w+"));/*   then open an empty file */

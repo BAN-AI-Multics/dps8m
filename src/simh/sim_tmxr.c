@@ -1240,7 +1240,7 @@ return tmxr_reset_ln_ex (lp, FALSE);
 */
 t_stat tmxr_set_get_modem_bits (TMLN *lp, int32 bits_to_set, int32 bits_to_clear, int32 *incoming_bits)
 {
-int32 before_modem_bits, incoming_state;
+int32 before_modem_bits, incoming_state = 0;
 DEVICE *dptr;
 
 if ((bits_to_set & ~(TMXR_MDM_OUTGOING)) ||         /* Assure only settable bits */
