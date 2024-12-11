@@ -8739,7 +8739,7 @@ elapsedtime ();
 
 #if defined(THREADZ) || defined(LOCKLESS)
 // RCF halt
-          // XXX pxss uses a disticntive DIS operation
+          // XXX pxss uses a distinctive DIS operation
           // for RCF DELETE. If we see it, remember that
           // we did.
           if (IWB_IRODD == 0000777616207) {

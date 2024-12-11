@@ -2294,7 +2294,7 @@ setCPU:;
           // has been started and in DIS idle. DIS sees the
           // forceRestart flag and longjmps here.
           // cpu_reset_unit_idx will update the CPU state to
-          // match the new configiguration and set the
+          // match the new configuration and set the
           // state to enter DIS.
           cpu_reset_unit_idx (current_running_cpu_idx, false);
 #if defined(THREADZ) || defined(LOCKLESS)
