@@ -360,6 +360,7 @@ static t_stat msave (char * p2, word24 sz)
         exit(1);
         /*NOTREACHED*/ /* unreachable */
 #endif /* if defined(PERF_STRIP) */
+        (void) close (fd);
         return SCPE_ARG;
       }
     (void) close (fd);

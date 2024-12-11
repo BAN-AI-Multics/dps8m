@@ -1250,8 +1250,7 @@ if ((bits_to_set & ~(TMXR_MDM_OUTGOING)) ||         /* Assure only settable bits
 before_modem_bits = lp->modembits;
 lp->modembits |= bits_to_set;
 lp->modembits &= ~(bits_to_clear | TMXR_MDM_INCOMING);
-if ((lp->sock)
-   || (lp->loopback)) {
+if ((lp->sock) || (lp->loopback)) {
     if (lp->modembits & TMXR_MDM_DTR) {
         incoming_state = TMXR_MDM_DSR;
         if (lp->modembits & TMXR_MDM_RTS)
@@ -1263,8 +1262,9 @@ if ((lp->sock)
         else
             incoming_state |= TMXR_MDM_DCD;
         }
-    else
-        incoming_state = TMXR_MDM_DCD | TMXR_MDM_DSR | ((lp->modembits & TMXR_MDM_DTR) ? 0 : TMXR_MDM_RNG);
+    //else
+        //XXX: Coverity warns as unreachable / this code NOT in use by DPS8M
+        //incoming_state = TMXR_MDM_DCD | TMXR_MDM_DSR | ((lp->modembits & TMXR_MDM_DTR) ? 0 : TMXR_MDM_RNG);
     }
 else {
     if (((before_modem_bits & TMXR_MDM_DTR) == 0) &&    /* Upward transition of DTR? */

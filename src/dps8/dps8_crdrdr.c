@@ -774,7 +774,8 @@ static void submit (enum deckFormat fmt, char * fname, uint16 readerIndex)
 #if defined(TESTING)
     sim_printf ("submit %s\r\n", fname);
 #endif
-    strcpy (rdr_state [readerIndex].fname, fname);
+    strncpy (rdr_state [readerIndex].fname, fname, sizeof(rdr_state [readerIndex].fname) - 1);
+    rdr_state [readerIndex].fname [sizeof(rdr_state [readerIndex].fname) - 1] = '\0';
     rdr_state [readerIndex].deckfd     = deckfd;
     rdr_state [readerIndex].deckState  = deckStart;
     rdr_state [readerIndex].deckFormat = fmt;
@@ -1074,7 +1075,8 @@ static t_stat rdr_set_path (UNUSED UNIT * uptr, UNUSED int32 value,
     if (len >= (sizeof(rdr_path_prefix) - (strlen(rdr_name) + 3)))
       return SCPE_ARG;
 
-    strncpy(rdr_path_prefix, cptr, sizeof(rdr_path_prefix));
+    strncpy(rdr_path_prefix, cptr, sizeof(rdr_path_prefix) -1);
+    rdr_path_prefix[sizeof(rdr_path_prefix) - 1] = '\0';
     if (len > 0)
       {
         if (rdr_path_prefix[len - 1] != '/')

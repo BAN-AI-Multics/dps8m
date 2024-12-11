@@ -172,6 +172,7 @@ s6: ./run/disks/yoyodyne.dsk ../dps8/dps8 ./.yoyodyne.s4
 s7: ../dps8/dps8
 	@printf '\n%s\n' "### Start Stage 7: Run performance test ###############"
 	time env CPUPROFILE=perf.prof.out ./perf.sh 0 2>&1
+	time env CPUPROFILE=perf2.prof.out ./perf2.sh 0 2>&1
 	@printf '\n%s\n' "### End Stage 7 #######################################"
 	@sleep 2 > /dev/null 2>&1 || true
 
@@ -179,7 +180,7 @@ s7: ../dps8/dps8
 
 .PHONY: diff tidy
 .NOTPARALLEL: diff tidy
-diff: ci.log ci_t2.log ci_t3.log isolts.log perf.log
+diff: ci.log ci_t2.log ci_t3.log isolts.log perf.log perf2.log
 	@printf '%s\n'  "####################################"   >  ci_full.log
 	@printf '%s\n'  "#########  CI Log: Part 1  #########"  >>  ci_full.log
 	@printf '%s\n'  "####################################"  >>  ci_full.log
@@ -200,6 +201,7 @@ diff: ci.log ci_t2.log ci_t3.log isolts.log perf.log
 	@printf '%s\n'  "########  Performance Test  ########"  >>  ci_full.log
 	@printf '%s\n'  "####################################"  >>  ci_full.log
 	@$(CAT) perf.log                                        >>  ci_full.log
+	@$(CAT) perf2.log                                       >>  ci_full.log
 	@printf '%s\n'  "####################################"  >>  ci_full.log
 	@printf '%s\n'  "##############  EOF  ###############"  >>  ci_full.log
 	@printf '%s\n'  "####################################"  >>  ci_full.log

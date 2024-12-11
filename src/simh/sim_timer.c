@@ -334,7 +334,6 @@ UNIT sim_timer_units[SIM_NTIMERS+1];                     /* one for each timer a
 UNIT sim_internal_timer_unit;                            /* Internal calibration timer */
 UNIT sim_throttle_unit;                                  /* one for throttle */
 
-t_stat sim_throt_svc (UNIT *uptr);
 t_stat sim_timer_tick_svc (UNIT *uptr);
 
 #define DBG_TRC       0x008                 /* tracing */

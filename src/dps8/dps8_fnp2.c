@@ -1887,7 +1887,7 @@ static t_stat fnpSetService (UNIT * uptr, UNUSED int32 value,
     // set fnp3 service=30=autocall
     // set fnp3 service=31=slave
     uint linenum;
-    char sn [strlen (cptr)];
+    char sn [strlen (cptr) + 1];
     int nr = sscanf (cptr, "%u=%s", & linenum, sn);
     if (nr != 2)
       return SCPE_ARG;
@@ -2630,9 +2630,10 @@ static void fnp3270Msg (uv_tcp_t * client, unsigned char * msg)
   {
 //sim_printf ("%s", msg);
     size_t l = strlen ((char *) msg);
-    unsigned char buf [l];
+    unsigned char buf [l + 1];
     for (uint i = 0; i < l; i ++)
       buf[i] = a2e[msg[i]];
+    buf[l] = '\0';
 // command  Erase write 245  (xf5)
 // WCC      66 x42 0100 0010   Reset, KB restore
 //  SBA     17 x11

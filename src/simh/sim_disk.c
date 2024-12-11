@@ -461,11 +461,11 @@ else { /* Unaligned and/or partial sector transfers */
             r = SCPE_NOFNC;
             break;
         }
-    if ((r == SCPE_OK) && sectswritten) { //-V560
-        *sectswritten -= (lba - tlba);
-        if (*sectswritten > sects)
-            *sectswritten = sects;
-        }
+    // if ((r == SCPE_OK) && sectswritten) { //-V560
+    //     *sectswritten -= (lba - tlba);
+    //     if (*sectswritten > sects)
+    //         *sectswritten = sects;
+    //     }
     }
 FREE (tbuf);
 return r;

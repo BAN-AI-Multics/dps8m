@@ -5499,7 +5499,7 @@ static int mopINSA (cpu_state_t * cpup)
 {
     EISstruct * e = & cpu.currentEISinstruction;
     // If C(IF) = 9-15, an IPR fault occurs.
-    if (e->mopIF >= 9 && e->mopIF <= 15)
+    if (e->mopIF >= 9 /* && e->mopIF <= 15 */)
     {
         e->_faults |= FAULT_IPR;
         return 0;
@@ -5630,7 +5630,7 @@ static int mopINSB (cpu_state_t * cpup)
 {
     EISstruct * e = & cpu.currentEISinstruction;
     // If C(IF) = 9-15, an IPR fault occurs.
-    if (e->mopIF >= 9 && e->mopIF <= 15)
+    if (e->mopIF >= 9 /* && e->mopIF <= 15 */)
     {
         e->_faults |= FAULT_IPR;
         return 0;
@@ -5736,7 +5736,7 @@ static int mopINSN (cpu_state_t * cpup)
 {
     EISstruct * e = & cpu.currentEISinstruction;
     // If C(IF) = 9-15, an IPR fault occurs.
-    if (e->mopIF >= 9 && e->mopIF <= 15)
+    if (e->mopIF >= 9 /* && e->mopIF <= 15 */)
     {
         e->_faults |= FAULT_IPR;
         return 0;
@@ -5805,7 +5805,7 @@ static int mopINSP (cpu_state_t * cpup)
 {
     EISstruct * e = & cpu.currentEISinstruction;
     // If C(IF) = 9-15, an IPR fault occurs.
-    if (e->mopIF >= 9 && e->mopIF <= 15)
+    if (e->mopIF >= 9 /* && e->mopIF <= 15 */)
     {
         e->_faults |= FAULT_IPR;
         return 0;
@@ -5879,7 +5879,15 @@ static int mopLTE (cpu_state_t * cpup)
 #endif
     e->mopTally -= 1;
 
-    e->editInsertionTable[e->mopIF - 1] = next;
+    //e->editInsertionTable[e->mopIF - 1] = next;
+    if (e->mopIF - 1 >= 0 &&
+        e->mopIF - 1 < sizeof(e->editInsertionTable) / sizeof(e->editInsertionTable[0])) {
+          e->editInsertionTable[e->mopIF - 1] = next;
+    } else {
+        e->_faults |= FAULT_IPR;
+        sim_warn("mopIF %d OOB in %s!\r\n", e->mopIF, __func__);
+        return 0;
+    }
     sim_debug (DBG_TRACEEXT, & cpu_dev, "LTE IT[%d]<=%d\n", e -> mopIF - 1, next);
     return 0;
 }

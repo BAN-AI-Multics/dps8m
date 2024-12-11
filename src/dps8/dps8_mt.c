@@ -731,7 +731,7 @@ static t_stat tape_set_ready (UNIT * uptr, UNUSED int32 value,
 #if defined(TESTING)
     cpu_state_t * cpup = _cpup;
 #endif
-    long tape_unit_idx = MT_UNIT_NUM (uptr);
+    uint32_t tape_unit_idx = MT_UNIT_NUM (uptr);
     if (tape_unit_idx >= N_MT_UNITS_MAX)
       {
         sim_debug (DBG_ERR, & tape_dev,
@@ -1124,13 +1124,13 @@ static iom_cmd_rc_t mtReadRecord (uint devUnitIdx, uint iomUnitIdx, uint chan)
 static void mtReadCtrlMainMem (uint devUnitIdx, uint iomUnitIdx, uint chan)
   {
     struct tape_state * tape_statep = & tape_states[devUnitIdx];
-    word36 control;
+    word36 control[1];
     uint count;
-    iom_indirect_data_service (iomUnitIdx, chan, & control, &count, false);
+    iom_indirect_data_service (iomUnitIdx, chan, control, &count, false);
     if (count != 1)
       sim_warn ("%s: count %d not 1\n", __func__, count);
-    tape_statep -> cntlrAddress = getbits36_16 (control, 0);
-    tape_statep -> cntlrTally   = getbits36_16 (control, 16);
+    tape_statep -> cntlrAddress = getbits36_16 (control[0], 0);
+    tape_statep -> cntlrTally   = getbits36_16 (control[0], 16);
   }
 
 static void mtInitRdMem (uint devUnitIdx, uint iomUnitIdx, uint chan)
@@ -1223,13 +1223,13 @@ static void mtMTPWr (uint devUnitIdx, uint iomUnitIdx, uint chan)
     iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
     struct tape_state * tape_statep = & tape_states [devUnitIdx];
 
-    word36 control;
+    word36 control[1];
     uint count;
-    iom_indirect_data_service (iomUnitIdx, chan, & control, &count, false);
+    iom_indirect_data_service (iomUnitIdx, chan, control, &count, false);
     if (count != 1)
       sim_warn ("%s: count %d not 1\n", __func__, count);
-    tape_statep -> cntlrAddress = getbits36_16 (control, 0);
-    tape_statep -> cntlrTally = getbits36_16 (control, 16);
+    tape_statep -> cntlrAddress = getbits36_16 (control[0], 0);
+    tape_statep -> cntlrTally = getbits36_16 (control[0], 16);
     p -> stati = 04000;
   }
 

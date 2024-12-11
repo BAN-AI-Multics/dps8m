@@ -650,25 +650,28 @@ sim_printf ("fnpuv: detected EOT\r\n");
     unsigned char * actual_data_start = data;
     unsigned long actual_datalen = (unsigned long) datalen;
     //bool send_eor = false;
-    if (data [datalen - 1] == 0x03) // ETX
+    if (datalen > 0 && data [datalen - 1] == 0x03) // ETX
       {
         actual_datalen --;
         //send_eor = true;
       }
-    if (data [0] == 0x02) // STX
+    if (datalen > 0 && data [0] == 0x02) // STX
       {
         actual_data_start ++;
         actual_datalen --;
-        if (data [1] == 0x27) // ESC
+        if (actual_datalen > 0 && data [1] == 0x27) // ESC
           {
             actual_data_start ++;
             actual_datalen --;
           }
       }
 
-    telnet_send (p->telnetp, (char *) actual_data_start, (size_t) actual_datalen);
-    //if (send_eor)
-      //fnpuv_send_eor (client);
+    //telnet_send (p->telnetp, (char *) actual_data_start, (size_t) actual_datalen);
+    //if (send_eor) fnpuv_send_eor (client);
+    if (actual_datalen > 0)
+      {
+        telnet_send (p->telnetp, (char *) actual_data_start, (size_t) actual_datalen);
+      }
   }
 
 // C-string wrapper for fnpuv_start_write
