@@ -294,9 +294,6 @@ create_shm(char *key, size_t shm_size)
       return NULL;
     }
 
-#if defined(USE_BFLOCK)
-  (void)close(lck_fd);
-#endif /* if defined(USE_BFLOCK) */
   return p;
 }
 

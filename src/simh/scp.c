@@ -3600,7 +3600,7 @@ else {
     else {                                              /* not reg, check for memory */
         if (sim_dfdev && sim_vm_parse_addr)             /* get addr */
             addr = sim_vm_parse_addr (sim_dfdev, gbuf, &gptr);
-        else
+        else if (sim_dfdev)
             addr = (t_addr) strtotv (gbuf, &gptr, sim_dfdev ? sim_dfdev->dradix : sim_dflt_dev->dradix);
         if (gbuf == gptr)                               /* error? */
             return SCPE_NXREG;
@@ -3645,7 +3645,8 @@ else {
 #if defined(__NVCOMPILER) || defined(__NVCOMPILER_LLVM__) || defined(__PGI) || defined(__PGLLVM__)
 # pragma diagnostic pop
 #endif
-        reason = get_aval (addr, sim_dfdev, sim_dfunit);/* get data */
+        if (sim_dfdev)
+            reason = get_aval (addr, sim_dfdev, sim_dfunit); /* get data */
         if (reason != SCPE_OK)                          /* return if error */
             return reason;
         result = test_search (sim_eval, &sim_staba);    /* test condition */
