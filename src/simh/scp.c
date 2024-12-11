@@ -10396,6 +10396,8 @@ if (sim_deb && dptr && (dbits == 0 || (dptr->dctrl & dbits))) {
         if ((len < 0) || (len >= bufsize-1)) {
             if (buf != stackbuf)
                 FREE (buf);
+            if (bufsize >= (INT_MAX / 2))
+                return;                                 /* too big */
             bufsize = bufsize * 2;
             if (bufsize < len + 2)
                 bufsize = len + 2;
