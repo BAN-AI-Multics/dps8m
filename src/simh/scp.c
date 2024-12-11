@@ -11212,7 +11212,8 @@ while (cptr && *cptr) {
         }
     match =  matchHelpTopicName (topic, gbuf);
     if (match == HLP_MATCH_WILDCARD) {
-        displayFlatHelp (st, dptr, uptr, flag, topic, ap);
+        if (dptr)
+            displayFlatHelp (st, dptr, uptr, flag, topic, ap);
         cleanHelp (&top);
         return SCPE_OK;
         }
