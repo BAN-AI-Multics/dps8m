@@ -7220,8 +7220,11 @@ void mvt (cpu_state_t * cpup)
     if (lastpageidx>0)
         EISReadIdx(cpup, &e->ADDR1, (uint)lastpageidx);
     // prepage xlate table
-    EISReadIdx(cpup, &e->ADDR3, 0);
-    EISReadIdx(cpup, &e->ADDR3, xlatSize-1);
+    if (xlatSize > 0)
+    {
+        EISReadIdx(cpup, &e->ADDR3, 0);
+        EISReadIdx(cpup, &e->ADDR3, xlatSize-1);
+    }
 
     word1 T = getbits36_1 (cpu.cu.IWB, 9);
 

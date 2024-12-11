@@ -4699,6 +4699,8 @@ void dps8_sim_debug (uint32 dbits, DEVICE * dptr, unsigned long long cnt, const 
               {
                 if (buf != stackbuf)
                   FREE (buf);
+                if (bufsize >= INT_MAX)
+                  return;                                   /* too big */
                 bufsize = bufsize * 2;
                 if (bufsize < len + 2)
                   bufsize = len + 2;
