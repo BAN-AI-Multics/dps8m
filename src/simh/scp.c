@@ -9467,7 +9467,7 @@ if (spc < SIM_BKPT_N_SPC) {
 const char *sim_brk_message(void)
 {
 static char msg[256];
-char addr[65];
+char addr[65] = "";
 char buf[32];
 
 msg[0] = '\0';
