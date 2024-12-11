@@ -12440,6 +12440,7 @@ pointer
 pointers
 pointing
 points
+poking
 policies
 policy
 polite
