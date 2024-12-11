@@ -9228,7 +9228,7 @@ t_stat sim_brk_show (FILE *st, t_addr loc, int32 sw)
 {
 BRKTAB *bp = sim_brk_fnd_ex (loc, sw & (~SWMASK ('C')), FALSE, 0);
 DEVICE *dptr;
-int32 i, any;
+uint32 i, any;
 
 if ((sw == 0) || (sw == SWMASK ('C'))) {
     sw = SIM_BRK_ALLTYP | ((sw == SWMASK ('C')) ? SWMASK ('C') : 0); }
@@ -10265,6 +10265,8 @@ while (1) {                                         /* format passed string, arg
     if ((len < 0) || (len >= bufsize-1)) {
         if (buf != stackbuf)
             FREE (buf);
+        if (bufsize >= (INT_MAX / 2))
+            return;                                 /* too big */
         bufsize = bufsize * 2;
         if (bufsize < len + 2)
             bufsize = len + 2;
