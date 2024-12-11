@@ -501,7 +501,6 @@ int main (int argc, char * argv []) {
     return EXIT_FAILURE;
   }
 
-
   if (argc < 2) {
     (void)fprintf(stderr, "%s: No CPU specified; watching CPU A.\r\n", argv[0]);
     cpunum = 0;
