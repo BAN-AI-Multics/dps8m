@@ -2091,7 +2091,8 @@ static t_stat fnpSetFW (UNIT * uptr, UNUSED int32 value,
         unsigned long cidr = strtoul (tok, & end, 10);
         if (tok == end || * end != 0 || cidr > 32)
           return SCPE_OK;
-        uint32_t cidr_mask = ((uint32_t)-1) << (32-cidr) & MASK32;
+        uint32_t cidr_mask = (cidr == 0) ? 0 :
+          ((uint32_t)-1 << (32 - cidr)) & MASK32;
 
 // parse accept/deny
 
