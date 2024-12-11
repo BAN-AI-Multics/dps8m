@@ -5499,7 +5499,7 @@ static int mopINSA (cpu_state_t * cpup)
 {
     EISstruct * e = & cpu.currentEISinstruction;
     // If C(IF) = 9-15, an IPR fault occurs.
-    if (e->mopIF >= 9 && e->mopIF <= 15)
+    if (e->mopIF >= 9 /* && e->mopIF <= 15 */)
     {
         e->_faults |= FAULT_IPR;
         return 0;
@@ -5630,7 +5630,7 @@ static int mopINSB (cpu_state_t * cpup)
 {
     EISstruct * e = & cpu.currentEISinstruction;
     // If C(IF) = 9-15, an IPR fault occurs.
-    if (e->mopIF >= 9 && e->mopIF <= 15)
+    if (e->mopIF >= 9 /* && e->mopIF <= 15 */)
     {
         e->_faults |= FAULT_IPR;
         return 0;
@@ -5736,7 +5736,7 @@ static int mopINSN (cpu_state_t * cpup)
 {
     EISstruct * e = & cpu.currentEISinstruction;
     // If C(IF) = 9-15, an IPR fault occurs.
-    if (e->mopIF >= 9 && e->mopIF <= 15)
+    if (e->mopIF >= 9 /* && e->mopIF <= 15 */)
     {
         e->_faults |= FAULT_IPR;
         return 0;
@@ -5805,7 +5805,7 @@ static int mopINSP (cpu_state_t * cpup)
 {
     EISstruct * e = & cpu.currentEISinstruction;
     // If C(IF) = 9-15, an IPR fault occurs.
-    if (e->mopIF >= 9 && e->mopIF <= 15)
+    if (e->mopIF >= 9 /* && e->mopIF <= 15 */)
     {
         e->_faults |= FAULT_IPR;
         return 0;
