@@ -269,7 +269,7 @@ void unlock_scu (void)
   }
 // synchronous clock serializer
 
-static pthread_mutex_t syncLock;
+// static pthread_mutex_t syncLock;
 
 // void lockSync (void)
 //   {
