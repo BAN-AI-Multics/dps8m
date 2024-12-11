@@ -55,7 +55,7 @@ static cpu_state_t * volatile panel_cpup;
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-#ifdef __MINGW64__
+#if defined(__MINGW64__) || defined(__MINGW32__)
 # define FD HANDLE
 #else
 # include <poll.h>
@@ -1120,7 +1120,7 @@ static void update_display (void)
 
 static void lwrite (FD fd, const void * buf, size_t count)
   {
-#ifdef __MINGW64__
+#if defined(__MINGW64__) || defined(__MINGW32__)
     DWORD bytes_written;
     if(!WriteFile(fd, buf, count, &bytes_written, NULL))
     {
@@ -1168,7 +1168,7 @@ static void send_lamp_data (FD fd)
     lwrite (fd, buf, 10);
     sprintf (buf, "?%c%c%c%c%c%c%c%c\n", nibbles (bank_p));
     lwrite (fd, buf, 10);
-#ifdef __MINGW64__
+#if defined(__MINGW64__) || defined(__MINGW32__)
 #else
     syncfs (fd);
 #endif
@@ -1279,12 +1279,14 @@ static int port_state = 0;
 static void update_port (FD port_fd)
   {
 more:;
-#ifndef __MINGW64__
+#if !defined(__MINGW64__)
+# if !defined(__MINGW32__)
     if (poll (& (struct pollfd) { .fd = port_fd, .events = POLLIN }, 1, 0) == 1)
+# endif
 #endif
       {
         unsigned char ch;
-#ifdef __MINGW64__
+#if defined(__MINGW64__) || defined(__MINGW32__)
         DWORD bytes_read;
         ReadFile(port_fd, &ch, 1, &bytes_read, NULL);
         ssize_t nr = bytes_read;
