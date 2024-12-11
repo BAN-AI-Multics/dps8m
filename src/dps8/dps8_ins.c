@@ -8681,6 +8681,7 @@ elapsedtime ();
 # ifdef HDBG
             hdbgPrint ();
 # endif
+sim_printf ("sys$trouble\r\n");
             exit (1);
           }
 #endif

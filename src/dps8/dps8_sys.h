@@ -46,8 +46,8 @@ typedef struct
 } sysinfo_t;
 
 # if defined(THREADZ) || defined(LOCKLESS)
-extern atomic_bool syncClockMode;
-extern atomic_uint syncClockModeMasterIdx; // The CPU sync master
+extern volatile atomic_bool syncClockMode;
+extern volatile atomic_uint syncClockModeMasterIdx; // The CPU sync master
 # endif
 
 # if defined(THREADZ) || defined(LOCKLESS)
