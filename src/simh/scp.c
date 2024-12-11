@@ -3507,7 +3507,7 @@ t_stat r;
 t_bool Not = FALSE;
 t_bool result;
 t_addr addr = 0;
-t_stat reason;
+t_stat reason = SCPE_AFAIL; /* default fail reason */
 
 cptr = (CONST char *)get_sim_opt (CMD_OPT_SW|CMD_OPT_DFT, (CONST char *)cptr, &r);
                                                         /* get sw, default */
