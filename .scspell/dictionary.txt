@@ -64,6 +64,7 @@ exporting
 facilities
 faketime
 flocker
+flto
 fnpserver
 fnpserveraddress
 fnpserverport
@@ -214,6 +215,7 @@ zipdist
 FILETYPE: C; .c
 aarch
 aarn
+abcdefgh
 abrham
 absa
 absi
@@ -263,6 +265,7 @@ alen
 alength
 alhomelbn
 alhomevbn
+alldone
 allnines
 allocacc
 allocbufa
@@ -329,6 +332,7 @@ asynch
 atexit
 atime
 atoi
+atol
 attable
 attmult
 attn
@@ -1304,6 +1308,7 @@ gettimeofday
 getuid
 getval
 gicb
+giveup
 glbr
 gmtime
 gnpr
@@ -1674,6 +1679,7 @@ logval
 long
 longargv
 longjmp
+longjmps
 longword
 lookswitch
 loopbacked
@@ -1999,6 +2005,7 @@ noshow
 nospace
 nostate
 nosub
+nosync
 notallzeros
 notatt
 notelnet
@@ -2179,6 +2186,7 @@ pelse
 pendif
 peration
 perc
+perftestflag
 perr
 perror
 perrx
@@ -2808,6 +2816,7 @@ staq
 startc
 stat
 statb
+statefile
 statenme
 statep
 stba
@@ -2921,6 +2930,7 @@ symname
 symtab
 symval
 synchronous
+synctest
 sysconf
 sysctl
 sysctlbyname
@@ -3935,6 +3945,7 @@ getpid
 getsign
 getwcoeff
 getwecon
+giveup
 gldp
 gnuc
 grdata
@@ -3967,6 +3978,7 @@ hwmark
 hwre
 iachn
 iaim
+ibmxl
 idcw
 idwf
 iefp
@@ -4058,6 +4070,7 @@ linemsg
 linemsgf
 linemsgvf
 linep
+llong
 lloop
 lname
 lnorder
@@ -4121,6 +4134,7 @@ modmask
 modulo
 mptr
 mptw
+mrestore
 msec
 mses
 msize
@@ -4192,6 +4206,7 @@ noseqf
 noserial
 noshow
 nostate
+nosync
 notatt
 notelnet
 notmask
@@ -4508,6 +4523,7 @@ stca
 stcd
 stcq
 stdarg
+stdatomic
 stdbool
 stdc
 stddef
@@ -4546,6 +4562,7 @@ swmask
 swwam
 sxbd
 symtab
+synctest
 sysinfo
 sznc
 sztl
@@ -4843,6 +4860,7 @@ noluf
 noquota
 nosetlvid
 nostartup
+nosync
 nowatch
 nprocs
 nprocsok
@@ -5785,6 +5803,11 @@ unicon
 uninstall
 uninstaller
 unutil
+
+FILETYPE: Perl; .pl
+argv
+elsif
+foreach
 
 FILEID: a704c048-f631-11ec-88ba-80ee73e9b8e7
 cleandep
@@ -8840,6 +8863,11 @@ smips
 toolprefix
 toolsuffix
 
+FILEID: scspell-id
+potocek
+tobias
+tobiaspotocek
+
 NATURAL:
 abandon
 abandoned
@@ -9640,6 +9668,7 @@ cloning
 close
 closed
 closely
+closer
 closest
 closing
 closure
@@ -9759,6 +9788,7 @@ computes
 concatenate
 concatenating
 concatenation
+conceding
 conceived
 concentric
 conceptually
@@ -9983,6 +10013,7 @@ daemons
 daily
 dalias
 damages
+dance
 dang
 dangling
 daniel
@@ -10306,6 +10337,7 @@ dodgy
 does
 doesn
 doing
+dole
 dollar
 dollarcents
 domain
@@ -10531,6 +10563,7 @@ events
 eventually
 every
 everybody
+everyone
 everything
 everywhere
 evict
@@ -10792,6 +10825,7 @@ foreign
 forever
 forfeiting
 forge
+forget
 forked
 format
 formation
@@ -10808,6 +10842,7 @@ fortify
 fortran
 forum
 forward
+fouled
 found
 foundation
 four
@@ -11749,6 +11784,7 @@ masks
 mason
 massachusetts
 master
+mastery
 matched
 matches
 matching
@@ -12088,6 +12124,7 @@ oblique
 observed
 observing
 obsolete
+obsoleted
 obtain
 obtained
 obtaining
@@ -12256,6 +12293,7 @@ pandoc
 panel
 panels
 paper
+parade
 paradigm
 paragraph
 paragraphs
@@ -12329,6 +12367,7 @@ performance
 performed
 performing
 performs
+perftest
 perhaps
 period
 periodic
@@ -12592,6 +12631,7 @@ protocol
 prototypes
 protrusion
 proved
+proves
 provided
 provider
 provides
@@ -12955,6 +12995,7 @@ responsible
 restart
 restarted
 restarting
+restarts
 restore
 restored
 restores
@@ -13284,6 +13325,7 @@ significant
 signless
 signs
 silently
+silly
 simh
 similar
 similarity
@@ -13645,6 +13687,8 @@ synced
 synchronization
 synchronize
 synchronized
+synchronizing
+synchronous
 syndrome
 synonyms
 synopsis
@@ -13988,9 +14032,11 @@ under
 underestimate
 underflow
 underflowed
+undergoing
 underline
 underlined
 underlying
+underrun
 underscore
 understand
 understanding
@@ -14215,6 +14261,7 @@ warm
 warned
 warning
 warnings
+warns
 warranties
 warranty
 warwick
@@ -14222,6 +14269,7 @@ wash
 wasm
 watch
 watchdog
+watching
 watcom
 water
 wave
