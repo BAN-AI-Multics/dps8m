@@ -271,21 +271,21 @@ void unlock_scu (void)
 
 static pthread_mutex_t syncLock;
 
-void lockSync (void)
-  {
-    int rc;
-    rc = pthread_mutex_lock (& syncLock);
-    if (rc)
-      sim_printf ("lockSync pthread_spin_lock syncLock %d\n", rc);
-  }
+// void lockSync (void)
+//   {
+//     int rc;
+//     rc = pthread_mutex_lock (& syncLock);
+//     if (rc)
+//       sim_printf ("lockSync pthread_spin_lock syncLock %d\n", rc);
+//   }
 
-void unlockSync (void)
-  {
-    int rc;
-    rc = pthread_mutex_unlock (& syncLock);
-    if (rc)
-      sim_printf ("unlockSync pthread_spin_lock syncLock %d\n", rc);
-  }
+// void unlockSync (void)
+//   {
+//     int rc;
+//     rc = pthread_mutex_unlock (& syncLock);
+//     if (rc)
+//       sim_printf ("unlockSync pthread_spin_lock syncLock %d\n", rc);
+//   }
 
 // IOM serializer
 
