@@ -2943,6 +2943,9 @@ do {
         sim_do_ocptr[sim_do_depth] = cptr = read_line (cbuf, sizeof(cbuf), fpin);/* get cmd line */
         sim_goto_line[sim_do_depth] += 1;
         }
+    if (cptr != NULL && strlen(cptr) < sizeof(cbuf)) {  /* validate */
+        sim_sub_args(cbuf, sizeof(cbuf), do_arg);       /* substitute args */
+        }
     sim_sub_args (cbuf, sizeof(cbuf), do_arg);          /* substitute args */
     if (cptr == NULL) {                                 /* EOF? */
         stat = SCPE_OK;                                 /* set good return */
