@@ -1080,13 +1080,13 @@ uptr->dynflags &= ~(UNIT_NO_FIO | UNIT_DISK_CHK);
 FREE (uptr->filename);
 uptr->filename = NULL;
 uptr->fileref = NULL;
+if (ctx && ctx -> auto_format)
+    sim_disk_set_fmt (uptr, 0, "SIMH", NULL);           /* restore file format */
 if (uptr->disk_ctx) {
   FREE (uptr->disk_ctx);
   uptr->disk_ctx = NULL;
 }
 uptr->io_flush = NULL;
-if (ctx && ctx -> auto_format)
-    sim_disk_set_fmt (uptr, 0, "SIMH", NULL);           /* restore file format */
 if (close_function (fileref) == EOF)
     return SCPE_IOERR;
 return SCPE_OK;
