@@ -321,7 +321,7 @@ t_stat sim_brk_set (t_addr loc, int32 sw, int32 ncnt, CONST char *act);
 t_stat sim_brk_clr (t_addr loc, int32 sw);
 t_stat sim_brk_clrall (int32 sw);
 t_stat sim_brk_show (FILE *st, t_addr loc, int32 sw);
-t_stat sim_brk_showall (FILE *st, int32 sw);
+t_stat sim_brk_showall (FILE *st, uint32 sw);
 CONST char *sim_brk_getact (char *buf, int32 size);
 BRKTAB *sim_brk_new (t_addr loc, uint32 btyp);
 char *sim_brk_clract (void);
@@ -5607,7 +5607,7 @@ t_stat r;
 if (cptr && (*cptr != 0))
     r = ssh_break (st, cptr, 1);  /* more? */
 else
-    r = sim_brk_showall (st, sim_switches);
+    r = sim_brk_showall (st, (uint32)sim_switches);
 return r;
 }
 
@@ -5814,7 +5814,7 @@ while (*cptr) {
             sim_brk_clrall (sim_switches);
         else
             if (flg == SSH_SH)
-                sim_brk_showall (st, sim_switches);
+                sim_brk_showall (st, (uint32)sim_switches);
             else
                 return SCPE_ARG;
         }
@@ -9287,7 +9287,7 @@ return SCPE_OK;
 
 /* Show all breakpoints */
 
-t_stat sim_brk_showall (FILE *st, int32 sw)
+t_stat sim_brk_showall (FILE *st, uint32 sw)
 {
 int32 bit, mask, types;
 BRKTAB **bpt;
