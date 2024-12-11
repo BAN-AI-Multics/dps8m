@@ -3754,13 +3754,18 @@ GET_SWITCHES (cptr);                                    /* get switches */
 tptr = get_glyph (cptr, gbuf, ',');
 if (sim_isalpha(gbuf[0]) && (strchr (gbuf, ':'))) {
     cptr = tptr;
-    }
-else
+} else {
     exp = sim_cons_get_expect ();
-if (flag)
+}
+
+if (flag) {
     return sim_set_expect (exp, cptr);
-else
+} else {
+    if (exp == NULL) {
+        exp = sim_cons_get_expect();
+    }
     return sim_set_noexpect (exp, cptr);
+}
 }
 
 t_stat sim_show_expect (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
