@@ -3604,7 +3604,7 @@ else {
         if (sim_dfdev && sim_vm_parse_addr)             /* get addr */
             addr = sim_vm_parse_addr (sim_dfdev, gbuf, &gptr);
         else if (sim_dfdev) //-V547
-            addr = (t_addr) strtotv (gbuf, &gptr, sim_dfdev ? sim_dfdev->dradix : sim_dflt_dev->dradix);
+            addr = (t_addr) strtotv (gbuf, &gptr, sim_dfdev ? sim_dfdev->dradix : sim_dflt_dev->dradix); //-V547
         if (gbuf == gptr)                               /* error? */
             return SCPE_NXREG;
         }
