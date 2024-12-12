@@ -36,7 +36,9 @@
 # include <xlocale.h>
 #endif
 #include <locale.h>
+#include <math.h>
 #include <gtk/gtk.h>
+#include <gdk/gdk.h>
 
 #define API
 #include "dps8_state.h"
@@ -166,8 +168,12 @@ static GtkWidget * createLight (bool * state, int index, int offset) {
   if (index == 0 && offset == 0) {
       tooltip_content[0] = '\0';
   } else {
+      char *temp_str = (offset != 0) ? g_strdup_printf("/%d", index) : "";
       (void)snprintf(tooltip_content, sizeof(tooltip_content), "Bit %d%s",
-          index + offset, (offset != 0) ? g_strdup_printf("/%d", index) : "");
+          index + offset, temp_str);
+      if (strcmp(temp_str, "") != 0) {
+          g_free(temp_str);
+      }
   }
   gtk_widget_set_tooltip_text(drawing_area, tooltip_content);
   return drawing_area;
@@ -1130,9 +1136,18 @@ int main (int argc, char * argv []) {
 
   gtk_container_add (GTK_CONTAINER (window), window_rows);
 
-  // 100 = 10Hz
-  // 10 = 100Hz
-  g_timeout_add (10, (GSourceFunc) time_handler, (gpointer) window);
+  // 100 = 10 Hz, 10 = 100 Hz, etc.
+  GdkDisplay *display = gdk_display_get_default();
+  guint n_monitors = gdk_display_get_n_monitors(display);
+  guint use_rate = 50; // Default to 50 Hz (24 ms adj. delay)
+  for (guint m = 0; m < n_monitors; m++) {
+      GdkMonitor *monitor = gdk_display_get_monitor(display, m);
+      guint refresh_rate = (guint)ceil(gdk_monitor_get_refresh_rate(monitor) / 1000.0);
+      if (refresh_rate > use_rate) use_rate = refresh_rate;
+  } // 240 Hz max (5 ms adj. delay)
+  if (use_rate > 240) use_rate = 240; // Update at 85% of display refresh
+  guint delay_ms = (guint)ceil((1.0L / (float)(use_rate * 0.85)) * 1000.0L);
+  g_timeout_add (delay_ms, (GSourceFunc) time_handler, (gpointer) window);
 
   static char window_title[6];
   (void)snprintf(window_title, sizeof(window_title), "CPU %c", (char)(cpunum + 65));
@@ -1140,7 +1155,7 @@ int main (int argc, char * argv []) {
   gtk_container_set_border_width(GTK_CONTAINER(window), 10);
   gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
   g_signal_connect (window, "delete-event", G_CALLBACK (window_delete), NULL);
-  gtk_widget_show_all  (window);
+  gtk_widget_show_all (window);
 
   time_handler (window);
 

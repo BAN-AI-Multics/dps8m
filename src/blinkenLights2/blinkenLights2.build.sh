@@ -24,8 +24,8 @@ env "${MAKE:-make}" -C "../dps8" "shm.o" || \
 ###############################################################################
 
 # shellcheck disable=SC2086,SC2046,SC2312
-${CC:-cc} blinkenLights2.c $(pkg-config gtk+-3.0 --cflags --libs)  \
-  ${MATHLIB:--lm} -I"../simh" -I"../dps8" -DLOCKLESS -DM_SHARED    \
+${CC:-cc} blinkenLights2.c $(pkg-config gtk+-3.0 gdk-3.0 --cflags --libs)  \
+  ${MATHLIB:--lm} -I"../simh" -I"../dps8" -DLOCKLESS -DM_SHARED            \
     "../dps8/shm.o" -o blinkenLights2
 
 ###############################################################################
