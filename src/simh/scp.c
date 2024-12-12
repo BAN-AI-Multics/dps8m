@@ -11243,7 +11243,8 @@ while (cptr && *cptr) {
 cptr = NULL;
 
 if (flat_help) {
-    displayFlatHelp (st, dptr, uptr, flag, topic, ap);
+    if (dptr)
+        displayFlatHelp (st, dptr, uptr, flag, topic, ap);
     cleanHelp (&top);
     return SCPE_OK;
     }
