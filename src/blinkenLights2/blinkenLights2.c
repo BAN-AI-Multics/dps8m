@@ -168,10 +168,13 @@ static GtkWidget * createLight (bool * state, int index, int offset) {
   if (index == 0 && offset == 0) {
       tooltip_content[0] = '\0';
   } else {
-      char *temp_str = (offset != 0) ? g_strdup_printf("/%d", index) : "";
+      char *temp_str = NULL;
+      if (offset != 0) {
+          temp_str = g_strdup_printf("/%d", index);
+      }
       (void)snprintf(tooltip_content, sizeof(tooltip_content), "Bit %d%s",
-          index + offset, temp_str);
-      if (strcmp(temp_str, "") != 0) {
+          index + offset, temp_str ? temp_str : "");
+      if (temp_str) {
           g_free(temp_str);
       }
   }
