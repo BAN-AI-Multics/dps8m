@@ -3603,7 +3603,7 @@ else {
     else {                                              /* not reg, check for memory */
         if (sim_dfdev && sim_vm_parse_addr)             /* get addr */
             addr = sim_vm_parse_addr (sim_dfdev, gbuf, &gptr);
-        else if (sim_dfdev)
+        else if (sim_dfdev) //-V547
             addr = (t_addr) strtotv (gbuf, &gptr, sim_dfdev ? sim_dfdev->dradix : sim_dflt_dev->dradix);
         if (gbuf == gptr)                               /* error? */
             return SCPE_NXREG;
@@ -3642,9 +3642,10 @@ else {
 # pragma diagnostic push
 # pragma diag_suppress = integer_sign_change
 #endif
-        if (!get_asearch (gbuf, sim_dfdev->dradix, &sim_staba) ||  /* parse condition */
-            (sim_staba.boolop == -1))                    /* relational op reqd */
-            return SCPE_MISVAL;
+        if (sim_dfdev)
+            if (!get_asearch (gbuf, sim_dfdev->dradix, &sim_staba) ||  /* parse condition */
+                (sim_staba.boolop == -1))                    /* relational op reqd */
+                return SCPE_MISVAL;
 #if defined(__NVCOMPILER) || defined(__NVCOMPILER_LLVM__) || defined(__PGI) || defined(__PGLLVM__)
 # pragma diagnostic pop
 #endif
