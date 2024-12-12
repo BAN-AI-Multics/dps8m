@@ -6,6 +6,7 @@
  * ---------------------------------------------------------------------------
  *
  * Copyright (c) 2014-2016 Charles Anthony
+ * Copyright (c) 2021-2024 Jeffrey H. Johnson <trnsz@pobox.com>
  * Copyright (c) 2021-2024 The DPS8M Development Team
  *
  * This software is made available under the terms of the ICU License.
@@ -119,18 +120,63 @@ gboolean draw_callback (GtkWidget * widget, cairo_t * cr, gpointer data) {
   return FALSE;
 }
 
-static GtkWidget * createLight (bool * state) {
+static void apply_debug_css(void) {
+  GtkCssProvider *provider = gtk_css_provider_new();
+  gtk_css_provider_load_from_data(provider,
+    "* { border: 1px solid red; }", -1, NULL);
+  gtk_style_context_add_provider_for_screen(gdk_screen_get_default(),
+                                            GTK_STYLE_PROVIDER(provider),
+                                            GTK_STYLE_PROVIDER_PRIORITY_USER);
+  g_object_unref(provider);
+}
+
+static void apply_css(void) {
+  GtkCssProvider *provider = gtk_css_provider_new();
+  gtk_css_provider_load_from_data(provider,
+    "label { font-family: 'Monospace'; font-size: 14px; }", -1, NULL);
+  gtk_style_context_add_provider_for_screen(gdk_screen_get_default(),
+                                            GTK_STYLE_PROVIDER(provider),
+                                            GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+  g_object_unref(provider);
+}
+
+static gboolean dark_mode_enabled = TRUE;
+
+static void toggle_dark_mode(void) {
+    GtkSettings *settings = gtk_settings_get_default();
+
+    dark_mode_enabled = !dark_mode_enabled;
+    g_object_set(settings, "gtk-application-prefer-dark-theme", dark_mode_enabled, NULL);
+}
+
+static gboolean on_key_press(GtkWidget *widget, GdkEventKey *event, gpointer data) {
+    if (event->keyval == GDK_KEY_d)
+        toggle_dark_mode();
+    if (event->keyval == GDK_KEY_q)
+        gtk_main_quit();
+    return FALSE;
+}
+
+static GtkWidget * createLight (bool * state, int index, int offset) {
   GtkWidget * drawing_area = gtk_drawing_area_new ();
-  gtk_widget_set_size_request (drawing_area, 10, 10);
+  gtk_widget_set_size_request (drawing_area, 12, 12);
   g_signal_connect (G_OBJECT (drawing_area), "draw",
                     G_CALLBACK (draw_callback), state);
+  static char tooltip_content[25];
+  if (index == 0 && offset == 0) {
+      tooltip_content[0] = '\0';
+  } else {
+      (void)snprintf(tooltip_content, sizeof(tooltip_content), "Bit %d%s",
+          index + offset, (offset != 0) ? g_strdup_printf("/%d", index) : "");
+  }
+  gtk_widget_set_tooltip_text(drawing_area, tooltip_content);
   return drawing_area;
 }
 
-static GtkWidget * createLightArray (int n, bool state []) {
+static GtkWidget * createLightArray (int n, bool state [], int offset) {
   GtkWidget * grid = gtk_grid_new (); // (1, n, TRUE);
   for (int i = 0; i < n; i ++) {
-    GtkWidget * l = createLight (& state [i]);
+    GtkWidget * l = createLight (& state [i], i, offset);
     gtk_grid_attach (GTK_GRID (grid), l, i, 0, 1, 1);
   }
   return grid;
@@ -264,6 +310,7 @@ static GtkWidget * PAR_display[8];
 //static GtkWidget * BAR_STRfault_display;
 //static GtkWidget * TPR_display;
 //static GtkWidget * DSBR_display;
+static GtkWidget * spacer[6];
 static GtkWidget * fault_display[2];
 //static GtkWidget * IPRfault_display;
 //static GtkWidget * ONCfault_display;
@@ -341,33 +388,33 @@ static gboolean time_handler (GtkWidget * widget) {
   PROBE (U, { for (int i = 0; i < 1; i ++) U_state [0 - i] = BIT (U); }); //-V1008
   PROBE (STACK, { for (int i = 0; i < 12; i ++) STACK_state [11 - i] = BIT (STACK); });
   PROBE (faultNumber, {
-    FAULT_SDF_state = (FAULT_SDF == previous.faultNumber) ? 1 : 0;
-    FAULT_STR_state = (FAULT_STR == previous.faultNumber) ? 1 : 0;
-    FAULT_MME_state = (FAULT_MME == previous.faultNumber) ? 1 : 0;
-    FAULT_F1_state = (FAULT_F1 == previous.faultNumber) ? 1 : 0;
-    FAULT_TRO_state = (FAULT_TRO == previous.faultNumber) ? 1 : 0;
-    FAULT_CMD_state = (FAULT_CMD == previous.faultNumber) ? 1 : 0;
-    FAULT_DRL_state = (FAULT_DRL == previous.faultNumber) ? 1 : 0;
-    FAULT_LUF_state = (FAULT_LUF == previous.faultNumber) ? 1 : 0;
-    FAULT_CON_state = (FAULT_CON == previous.faultNumber) ? 1 : 0;
-    FAULT_PAR_state = (FAULT_PAR == previous.faultNumber) ? 1 : 0;
-    FAULT_IPR_state = (FAULT_IPR == previous.faultNumber) ? 1 : 0;
-    FAULT_ONC_state = (FAULT_ONC == previous.faultNumber) ? 1 : 0;
-    FAULT_SUF_state = (FAULT_SUF == previous.faultNumber) ? 1 : 0;
-    FAULT_OFL_state = (FAULT_OFL == previous.faultNumber) ? 1 : 0;
-    FAULT_DIV_state = (FAULT_DIV == previous.faultNumber) ? 1 : 0;
-    FAULT_EXF_state = (FAULT_EXF == previous.faultNumber) ? 1 : 0;
-    FAULT_DF0_state = (FAULT_DF0 == previous.faultNumber) ? 1 : 0;
-    FAULT_DF1_state = (FAULT_DF1 == previous.faultNumber) ? 1 : 0;
-    FAULT_DF2_state = (FAULT_DF2 == previous.faultNumber) ? 1 : 0;
-    FAULT_DF3_state = (FAULT_DF3 == previous.faultNumber) ? 1 : 0;
-    FAULT_ACV_state = (FAULT_ACV == previous.faultNumber) ? 1 : 0;
+    FAULT_SDF_state  = (FAULT_SDF  == previous.faultNumber) ? 1 : 0;
+    FAULT_STR_state  = (FAULT_STR  == previous.faultNumber) ? 1 : 0;
+    FAULT_MME_state  = (FAULT_MME  == previous.faultNumber) ? 1 : 0;
+    FAULT_F1_state   = (FAULT_F1   == previous.faultNumber) ? 1 : 0;
+    FAULT_TRO_state  = (FAULT_TRO  == previous.faultNumber) ? 1 : 0;
+    FAULT_CMD_state  = (FAULT_CMD  == previous.faultNumber) ? 1 : 0;
+    FAULT_DRL_state  = (FAULT_DRL  == previous.faultNumber) ? 1 : 0;
+    FAULT_LUF_state  = (FAULT_LUF  == previous.faultNumber) ? 1 : 0;
+    FAULT_CON_state  = (FAULT_CON  == previous.faultNumber) ? 1 : 0;
+    FAULT_PAR_state  = (FAULT_PAR  == previous.faultNumber) ? 1 : 0;
+    FAULT_IPR_state  = (FAULT_IPR  == previous.faultNumber) ? 1 : 0;
+    FAULT_ONC_state  = (FAULT_ONC  == previous.faultNumber) ? 1 : 0;
+    FAULT_SUF_state  = (FAULT_SUF  == previous.faultNumber) ? 1 : 0;
+    FAULT_OFL_state  = (FAULT_OFL  == previous.faultNumber) ? 1 : 0;
+    FAULT_DIV_state  = (FAULT_DIV  == previous.faultNumber) ? 1 : 0;
+    FAULT_EXF_state  = (FAULT_EXF  == previous.faultNumber) ? 1 : 0;
+    FAULT_DF0_state  = (FAULT_DF0  == previous.faultNumber) ? 1 : 0;
+    FAULT_DF1_state  = (FAULT_DF1  == previous.faultNumber) ? 1 : 0;
+    FAULT_DF2_state  = (FAULT_DF2  == previous.faultNumber) ? 1 : 0;
+    FAULT_DF3_state  = (FAULT_DF3  == previous.faultNumber) ? 1 : 0;
+    FAULT_ACV_state  = (FAULT_ACV  == previous.faultNumber) ? 1 : 0;
     FAULT_MME2_state = (FAULT_MME2 == previous.faultNumber) ? 1 : 0;
     FAULT_MME3_state = (FAULT_MME3 == previous.faultNumber) ? 1 : 0;
     FAULT_MME4_state = (FAULT_MME4 == previous.faultNumber) ? 1 : 0;
-    FAULT_F2_state = (FAULT_F2 == previous.faultNumber) ? 1 : 0;
-    FAULT_F3_state = (FAULT_F3 == previous.faultNumber) ? 1 : 0;
-    FAULT_TRB_state = (FAULT_TRB == previous.faultNumber) ? 1 : 0;
+    FAULT_F2_state   = (FAULT_F2   == previous.faultNumber) ? 1 : 0;
+    FAULT_F3_state   = (FAULT_F3   == previous.faultNumber) ? 1 : 0;
+    FAULT_TRB_state  = (FAULT_TRB  == previous.faultNumber) ? 1 : 0;
   });
 #if 0
 
@@ -508,14 +555,24 @@ int main (int argc, char * argv []) {
     else
   {
 
-    char input = argv[1][0];
-    if (!((input >= '0' && input <= '7') || (toupper(input) >= 'A' && toupper(input) <= 'H'))) {
-      (void)fprintf(stderr, "Usage: %s [ <{0..7} or {A..H}> [statefile] ]\r\n", argv[0]);
-      return EXIT_FAILURE;
-    }
+  if (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0) {
+    (void)fprintf(stdout, "Usage: %s [ [ <{0..7} or {A..H}> [statefile] ] --help ]\r\n\r\n", argv[0]);
+    (void)fprintf(stdout, "  Options:\r\n");
+    (void)fprintf(stdout, "      --help   Show this message\r\n\r\n");
+    (void)fprintf(stdout, "  Keystrokes:\r\n");
+    (void)fprintf(stdout, "      'd'      Toggle dark mode\r\n");
+    (void)fprintf(stdout, "      'q'      Quit\r\n");
+    return EXIT_SUCCESS;
+  }
 
-    cpunum = toupper(input) - '0';
-    if (cpunum > 7)
+  char input = argv[1][0];
+  if (!((input >= '0' && input <= '7') || (toupper(input) >= 'A' && toupper(input) <= 'H'))) {
+    (void)fprintf(stderr, "Usage: %s [ [ <{0..7} or {A..H}> [statefile] ] --help ]\r\n", argv[0]);
+    return EXIT_FAILURE;
+  }
+
+  cpunum = toupper(input) - '0';
+  if (cpunum > 7)
       cpunum -= 17;
   }
 
@@ -638,9 +695,14 @@ int main (int argc, char * argv []) {
   GtkWidget * window;
 
   gtk_init (& argc, & argv);
+  toggle_dark_mode();
+  apply_css();
+  if (getenv("BLINKENLIGHTS2_DEBUG"))
+    apply_debug_css();
 
   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   GtkWidget * window_rows = gtk_grid_new ();
+  GtkCssProvider *cssProvider = gtk_css_provider_new();
 
 // PPR
 
@@ -651,16 +713,25 @@ int main (int argc, char * argv []) {
   (void)memset (P_state, 0, sizeof (P_state));
   (void)memset (IC_state, 0, sizeof (IC_state));
 
-  GtkWidget * PRR_lights = createLightArray (3, PRR_state);
-  GtkWidget * PSR_lights = createLightArray (15, PSR_state);
-  GtkWidget * P_lights = createLightArray (1, P_state);
-  GtkWidget * IC_lights = createLightArray (18, IC_state);
+  GtkWidget * PRR_lights = createLightArray (3, PRR_state, 0);
+  GtkWidget * PSR_lights = createLightArray (15, PSR_state, 3);
+  GtkWidget * P_lights = createLightArray (1, P_state, 18);
+  GtkWidget * IC_lights = createLightArray (18, IC_state, 19);
 
-  GtkWidget * PPR_label = gtk_label_new ("PPR ");
+  GtkWidget * PPR_label = gtk_label_new (" PPR");
+  gtk_widget_set_tooltip_text(PPR_label, "Procedure Pointer Register (37-bit)");
+
   GtkWidget * PRR_label = gtk_label_new (" PRR ");
+  gtk_widget_set_tooltip_text(PRR_label, "Procedure Ring Register (3-bit)");
+
   GtkWidget * PSR_label = gtk_label_new (" PSR ");
+  gtk_widget_set_tooltip_text(PSR_label, "Procedure Segment Register (15-bit)");
+
   GtkWidget * P_label = gtk_label_new (" P ");
+  gtk_widget_set_tooltip_text(P_label, "Privileged Bit");
+
   GtkWidget * IC_label = gtk_label_new (" IC ");
+  gtk_widget_set_tooltip_text(IC_label, "Instruction Counter (18-bit)");
 
   gtk_grid_attach (GTK_GRID (PPR_display), PPR_label,  0, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (PPR_display), PRR_label,  1, 0, 1, 1);
@@ -676,8 +747,9 @@ int main (int argc, char * argv []) {
 
   inst_display = gtk_grid_new ();
   (void)memset (inst_state, 0, sizeof (inst_state));
-  GtkWidget * inst_lights = createLightArray (36, inst_state);
-  GtkWidget * inst_label = gtk_label_new ("INSTRUCTION ");
+  GtkWidget * inst_lights = createLightArray (36, inst_state, 0);
+  GtkWidget * inst_label = gtk_label_new ("INST ");
+  gtk_widget_set_tooltip_text(inst_label, "Instruction (36-bit)");
   gtk_grid_attach (GTK_GRID (inst_display), inst_label,  0, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (inst_display), inst_lights, 1, 0, 1, 1);
 
@@ -685,8 +757,9 @@ int main (int argc, char * argv []) {
 
   A_display = gtk_grid_new ();
   (void)memset (A_state, 0, sizeof (A_state));
-  GtkWidget * A_lights = createLightArray (36, A_state);
-  GtkWidget * A_label = gtk_label_new ("A ");
+  GtkWidget * A_lights = createLightArray (36, A_state, 0);
+  GtkWidget * A_label = gtk_label_new ("   A ");
+  gtk_widget_set_tooltip_text(A_label, "Accumulator Register (36-bit)");
   gtk_grid_attach (GTK_GRID (A_display), A_label,  0, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (A_display), A_lights, 1, 0, 1, 1);
 
@@ -694,8 +767,9 @@ int main (int argc, char * argv []) {
 
   Q_display = gtk_grid_new ();
   (void)memset (Q_state, 0, sizeof (Q_state));
-  GtkWidget * Q_lights = createLightArray (36, Q_state);
-  GtkWidget * Q_label = gtk_label_new ("Q ");
+  GtkWidget * Q_lights = createLightArray (36, Q_state, 0);
+  GtkWidget * Q_label = gtk_label_new ("   Q ");
+  gtk_widget_set_tooltip_text(Q_label, "Quotient Register (36-bit)");
   gtk_grid_attach (GTK_GRID (Q_display), Q_label,  0, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (Q_display), Q_lights, 1, 0, 1, 1);
 
@@ -703,8 +777,9 @@ int main (int argc, char * argv []) {
 
   E_display = gtk_grid_new ();
   (void)memset (E_state, 0, sizeof (E_state));
-  GtkWidget * E_lights = createLightArray (8, E_state);
-  GtkWidget * E_label = gtk_label_new ("E ");
+  GtkWidget * E_lights = createLightArray (8, E_state, 0);
+  GtkWidget * E_label = gtk_label_new ("   E ");
+  gtk_widget_set_tooltip_text(E_label, "Exponent Register (8-bit)");
   gtk_grid_attach (GTK_GRID (E_display), E_label,  0, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (E_display), E_lights, 1, 0, 1, 1);
 
@@ -712,27 +787,36 @@ int main (int argc, char * argv []) {
 
   GtkWidget * X_lights[8];
   GtkWidget * X_label[8];
+  GtkWidget * X_display_box = gtk_grid_new();
+  gtk_grid_set_column_spacing(GTK_GRID(X_display_box), 10);
   for(int nreg = 0; nreg < 8; nreg ++) {
-    char X_text[4] = "Xn ";
+    char X_text[6] = "Xn ";
     X_display[nreg] = gtk_grid_new ();
 
     (void)memset (X_state[nreg], 0, sizeof (X_state[nreg]));
 
-    X_lights[nreg] = createLightArray (18, X_state[nreg]);
+    X_lights[nreg] = createLightArray (18, X_state[nreg], 0);
 
-    (void)snprintf(X_text, sizeof(X_text), "X%d ", nreg);
+    (void)snprintf(X_text, sizeof(X_text), "  X%d ", nreg);
     X_label[nreg] = gtk_label_new (X_text);
+    char index_tooltip[27];
+    (void)snprintf(index_tooltip, sizeof(index_tooltip), "Index Register %d (18-bit)", nreg);
+    gtk_widget_set_tooltip_text(X_label[nreg], index_tooltip);
 
     gtk_grid_attach (GTK_GRID (X_display[nreg]), X_label[nreg],  0, 0, 1, 1);
     gtk_grid_attach (GTK_GRID (X_display[nreg]), X_lights[nreg], 1, 0, 1, 1);
+
+    int row = nreg / 2; int col = nreg % 2;
+    gtk_grid_attach(GTK_GRID(X_display_box), X_display[nreg], col, row, 1, 1);
   }
 
 // IR
 
   IR_display = gtk_grid_new ();
   (void)memset (IR_state, 0, sizeof (IR_state));
-  GtkWidget * IR_lights = createLightArray (18, IR_state);
-  GtkWidget * IR_label = gtk_label_new ("IR ");
+  GtkWidget * IR_lights = createLightArray (18, IR_state, 0);
+  GtkWidget * IR_label = gtk_label_new ("  IR ");
+  gtk_widget_set_tooltip_text(IR_label, "Indicator Register (18-bit)");
   gtk_grid_attach (GTK_GRID (IR_display), IR_label,  0, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (IR_display), IR_lights, 1, 0, 1, 1);
 
@@ -740,8 +824,9 @@ int main (int argc, char * argv []) {
 
   TR_display = gtk_grid_new ();
   (void)memset (TR_state, 0, sizeof (TR_state));
-  GtkWidget * TR_lights = createLightArray (27, TR_state);
-  GtkWidget * TR_label = gtk_label_new ("TR ");
+  GtkWidget * TR_lights = createLightArray (27, TR_state, 0);
+  GtkWidget * TR_label = gtk_label_new ("  TR ");
+  gtk_widget_set_tooltip_text(TR_label, "Timer Register (27-bit)");
   gtk_grid_attach (GTK_GRID (TR_display), TR_label,  0, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (TR_display), TR_lights, 1, 0, 1, 1);
 
@@ -749,8 +834,9 @@ int main (int argc, char * argv []) {
 
   RALR_display = gtk_grid_new ();
   (void)memset (RALR_state, 0, sizeof (RALR_state));
-  GtkWidget * RALR_lights = createLightArray (3, RALR_state);
+  GtkWidget * RALR_lights = createLightArray (3, RALR_state, 0);
   GtkWidget * RALR_label = gtk_label_new ("RALR ");
+  gtk_widget_set_tooltip_text(RALR_label, "Ring Alarm Register (3-bit)");
   gtk_grid_attach (GTK_GRID (RALR_display), RALR_label,  0, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (RALR_display), RALR_lights, 1, 0, 1, 1);
 
@@ -776,23 +862,34 @@ int main (int argc, char * argv []) {
     (void)memset (BITNO_state[nreg], 0, sizeof (BITNO_state[nreg]));
     (void)memset (WORDNO_state[nreg], 0, sizeof (WORDNO_state[nreg]));
 
-    SNR_lights[nreg] = createLightArray (15, SNR_state[nreg]);
-    RNR_lights[nreg] = createLightArray (3, RNR_state[nreg]);
-    BITNO_lights[nreg] = createLightArray (6, BITNO_state[nreg]);
-    WORDNO_lights[nreg] = createLightArray (18, WORDNO_state[nreg]);
+    SNR_lights[nreg] = createLightArray (15, SNR_state[nreg], 0);
+    RNR_lights[nreg] = createLightArray (3, RNR_state[nreg], 0);
+    BITNO_lights[nreg] = createLightArray (6, BITNO_state[nreg], 0);
+    WORDNO_lights[nreg] = createLightArray (18, WORDNO_state[nreg], 0);
 
     (void)snprintf(PAR_text, sizeof(PAR_text), "PAR%d ", nreg);
     PAR_label[nreg] = gtk_label_new (PAR_text);
+    char par_tooltip[37];
+    (void)snprintf(par_tooltip, sizeof(par_tooltip), "Pointer/Address Register %d (42-bit)", nreg);
+    gtk_widget_set_tooltip_text(PAR_label[nreg], par_tooltip);
     SNR_label[nreg] = gtk_label_new (" SNR ");
+    (void)snprintf(par_tooltip, sizeof(par_tooltip), "Segment Number Register %d (15-bit)", nreg);
+    gtk_widget_set_tooltip_text(SNR_label[nreg], par_tooltip);
     RNR_label[nreg] = gtk_label_new (" RNR ");
+    (void)snprintf(par_tooltip, sizeof(par_tooltip), "Ring Number Register %d (3-bit)", nreg);
+    gtk_widget_set_tooltip_text(RNR_label[nreg], par_tooltip);
     BITNO_label[nreg] = gtk_label_new (" BITNO ");
+    (void)snprintf(par_tooltip, sizeof(par_tooltip), "Bit Number Register %d (6-bit)", nreg);
+    gtk_widget_set_tooltip_text(BITNO_label[nreg], par_tooltip);
     WORDNO_label[nreg] = gtk_label_new (" WORDNO ");
+    (void)snprintf(par_tooltip, sizeof(par_tooltip), "Word Number Register %d (18-bit)", nreg);
+    gtk_widget_set_tooltip_text(WORDNO_label[nreg], par_tooltip);
 
-    gtk_grid_attach (GTK_GRID (PAR_display[nreg]), PAR_label[nreg],  0, 0, 1, 1);
-    gtk_grid_attach (GTK_GRID (PAR_display[nreg]), SNR_label[nreg],  1, 0, 1, 1);
-    gtk_grid_attach (GTK_GRID (PAR_display[nreg]), SNR_lights[nreg], 2, 0, 1, 1);
-    gtk_grid_attach (GTK_GRID (PAR_display[nreg]), RNR_label[nreg],  3, 0, 1, 1);
-    gtk_grid_attach (GTK_GRID (PAR_display[nreg]), RNR_lights[nreg], 4, 0, 1, 1);
+    gtk_grid_attach (GTK_GRID (PAR_display[nreg]), PAR_label[nreg],      0, 0, 1, 1);
+    gtk_grid_attach (GTK_GRID (PAR_display[nreg]), SNR_label[nreg],      1, 0, 1, 1);
+    gtk_grid_attach (GTK_GRID (PAR_display[nreg]), SNR_lights[nreg],     2, 0, 1, 1);
+    gtk_grid_attach (GTK_GRID (PAR_display[nreg]), RNR_label[nreg],      3, 0, 1, 1);
+    gtk_grid_attach (GTK_GRID (PAR_display[nreg]), RNR_lights[nreg],     4, 0, 1, 1);
     gtk_grid_attach (GTK_GRID (PAR_display[nreg]), BITNO_label[nreg],    5, 0, 1, 1);
     gtk_grid_attach (GTK_GRID (PAR_display[nreg]), BITNO_lights[nreg],   6, 0, 1, 1);
     gtk_grid_attach (GTK_GRID (PAR_display[nreg]), WORDNO_label[nreg],   7, 0, 1, 1);
@@ -803,191 +900,233 @@ int main (int argc, char * argv []) {
   fault_display[1] = gtk_grid_new ();
 
   (void)memset (&FAULT_SDF_state, 0, sizeof (FAULT_SDF_state));
-  GtkWidget * FAULT_SDF_lights = createLightArray (1, &FAULT_SDF_state);
-  GtkWidget * FAULT_SDF_label = gtk_label_new ("SDF ");
-  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_SDF_label, 0, 0, 1, 1);
+  GtkWidget * FAULT_SDF_lights = createLightArray (1, &FAULT_SDF_state, 0);
+  GtkWidget * FAULT_SDF_label = gtk_label_new (" SDF");
+  gtk_widget_set_tooltip_text(FAULT_SDF_label, "Shutdown Fault Indicator");
+  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_SDF_label,  0, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_SDF_lights, 1, 0, 1, 1);
 
   (void)memset (&FAULT_STR_state, 0, sizeof (FAULT_STR_state));
-  GtkWidget * FAULT_STR_lights = createLightArray (1, &FAULT_STR_state);
-  GtkWidget * FAULT_STR_label = gtk_label_new ("STR ");
-  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_STR_label, 2, 0, 1, 1);
+  GtkWidget * FAULT_STR_lights = createLightArray (1, &FAULT_STR_state, 0);
+  GtkWidget * FAULT_STR_label = gtk_label_new ("  STR");
+  gtk_widget_set_tooltip_text(FAULT_STR_label, "Store Fault Indicator");
+  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_STR_label,  2, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_STR_lights, 3, 0, 1, 1);
 
   (void)memset (&FAULT_MME_state, 0, sizeof (FAULT_MME_state));
-  GtkWidget * FAULT_MME_lights = createLightArray (1, &FAULT_MME_state);
-  GtkWidget * FAULT_MME_label = gtk_label_new ("MME ");
-  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_MME_label, 4, 0, 1, 1);
+  GtkWidget * FAULT_MME_lights = createLightArray (1, &FAULT_MME_state, 0);
+  GtkWidget * FAULT_MME_label = gtk_label_new ("  MME");
+  gtk_widget_set_tooltip_text(FAULT_MME_label, "Master Mode Entry 1 Fault Indicator");
+  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_MME_label,  4, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_MME_lights, 5, 0, 1, 1);
 
   (void)memset (&FAULT_F1_state, 0, sizeof (FAULT_F1_state));
-  GtkWidget * FAULT_F1_lights = createLightArray (1, &FAULT_F1_state);
-  GtkWidget * FAULT_F1_label = gtk_label_new ("F1 ");
-  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_F1_label, 6, 0, 1, 1);
+  GtkWidget * FAULT_F1_lights = createLightArray (1, &FAULT_F1_state, 0);
+  GtkWidget * FAULT_F1_label = gtk_label_new ("   F1");
+  gtk_widget_set_tooltip_text(FAULT_F1_label, "Fault Tag 1 Fault Indicator");
+  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_F1_label,  6, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_F1_lights, 7, 0, 1, 1);
 
   (void)memset (&FAULT_TRO_state, 0, sizeof (FAULT_TRO_state));
-  GtkWidget * FAULT_TRO_lights = createLightArray (1, &FAULT_TRO_state);
-  GtkWidget * FAULT_TRO_label = gtk_label_new ("TRO ");
-  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_TRO_label, 8, 0, 1, 1);
+  GtkWidget * FAULT_TRO_lights = createLightArray (1, &FAULT_TRO_state, 0);
+  GtkWidget * FAULT_TRO_label = gtk_label_new ("  TRO");
+  gtk_widget_set_tooltip_text(FAULT_TRO_label, "Timer Runout Fault Indicator");
+  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_TRO_label , 8, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_TRO_lights, 9, 0, 1, 1);
 
   (void)memset (&FAULT_CMD_state, 0, sizeof (FAULT_CMD_state));
-  GtkWidget * FAULT_CMD_lights = createLightArray (1, &FAULT_CMD_state);
-  GtkWidget * FAULT_CMD_label = gtk_label_new ("CMD ");
-  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_CMD_label, 10, 0, 1, 1);
+  GtkWidget * FAULT_CMD_lights = createLightArray (1, &FAULT_CMD_state, 0);
+  GtkWidget * FAULT_CMD_label = gtk_label_new ("  CMD");
+  gtk_widget_set_tooltip_text(FAULT_CMD_label, "Command Fault Indicator");
+  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_CMD_label,  10, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_CMD_lights, 11, 0, 1, 1);
 
   (void)memset (&FAULT_DRL_state, 0, sizeof (FAULT_DRL_state));
-  GtkWidget * FAULT_DRL_lights = createLightArray (1, &FAULT_DRL_state);
-  GtkWidget * FAULT_DRL_label = gtk_label_new ("DRL ");
-  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_DRL_label, 12, 0, 1, 1);
+  GtkWidget * FAULT_DRL_lights = createLightArray (1, &FAULT_DRL_state, 0);
+  GtkWidget * FAULT_DRL_label = gtk_label_new ("  DRL");
+  gtk_widget_set_tooltip_text(FAULT_DRL_label, "Derail Fault Indicator");
+  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_DRL_label,  12, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_DRL_lights, 13, 0, 1, 1);
 
   (void)memset (&FAULT_LUF_state, 0, sizeof (FAULT_LUF_state));
-  GtkWidget * FAULT_LUF_lights = createLightArray (1, &FAULT_LUF_state);
-  GtkWidget * FAULT_LUF_label = gtk_label_new ("LUF ");
-  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_LUF_label, 14, 0, 1, 1);
+  GtkWidget * FAULT_LUF_lights = createLightArray (1, &FAULT_LUF_state, 0);
+  GtkWidget * FAULT_LUF_label = gtk_label_new ("  LUF");
+  gtk_widget_set_tooltip_text(FAULT_LUF_label, "Lockup Fault Indicator");
+  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_LUF_label,  14, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_LUF_lights, 15, 0, 1, 1);
 
   (void)memset (&FAULT_CON_state, 0, sizeof (FAULT_CON_state));
-  GtkWidget * FAULT_CON_lights = createLightArray (1, &FAULT_CON_state);
-  GtkWidget * FAULT_CON_label = gtk_label_new ("CON ");
-  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_CON_label, 16, 0, 1, 1);
+  GtkWidget * FAULT_CON_lights = createLightArray (1, &FAULT_CON_state, 0);
+  GtkWidget * FAULT_CON_label = gtk_label_new ("  CON");
+  gtk_widget_set_tooltip_text(FAULT_CON_label, "Connect Fault Indicator");
+  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_CON_label,  16, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_CON_lights, 17, 0, 1, 1);
 
   (void)memset (&FAULT_PAR_state, 0, sizeof (FAULT_PAR_state));
-  GtkWidget * FAULT_PAR_lights = createLightArray (1, &FAULT_PAR_state);
-  GtkWidget * FAULT_PAR_label = gtk_label_new ("PAR ");
-  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_PAR_label, 18, 0, 1, 1);
+  GtkWidget * FAULT_PAR_lights = createLightArray (1, &FAULT_PAR_state, 0);
+  GtkWidget * FAULT_PAR_label = gtk_label_new ("  PAR");
+  gtk_widget_set_tooltip_text(FAULT_PAR_label, "Parity Fault Indicator");
+  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_PAR_label,  18, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_PAR_lights, 19, 0, 1, 1);
 
   (void)memset (&FAULT_IPR_state, 0, sizeof (FAULT_IPR_state));
-  GtkWidget * FAULT_IPR_lights = createLightArray (1, &FAULT_IPR_state);
-  GtkWidget * FAULT_IPR_label = gtk_label_new ("IPR ");
-  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_IPR_label, 20, 0, 1, 1);
+  GtkWidget * FAULT_IPR_lights = createLightArray (1, &FAULT_IPR_state, 0);
+  GtkWidget * FAULT_IPR_label = gtk_label_new ("  IPR");
+  gtk_widget_set_tooltip_text(FAULT_IPR_label, "Illegal Procedure Fault Indicator");
+  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_IPR_label,  20, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_IPR_lights, 21, 0, 1, 1);
 
   (void)memset (&FAULT_ONC_state, 0, sizeof (FAULT_ONC_state));
-  GtkWidget * FAULT_ONC_lights = createLightArray (1, &FAULT_ONC_state);
-  GtkWidget * FAULT_ONC_label = gtk_label_new ("ONC ");
-  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_ONC_label, 22, 0, 1, 1);
+  GtkWidget * FAULT_ONC_lights = createLightArray (1, &FAULT_ONC_state, 0);
+  GtkWidget * FAULT_ONC_label = gtk_label_new ("  ONC");
+  gtk_widget_set_tooltip_text(FAULT_ONC_label, "Operation Not Complete Fault Indicator");
+  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_ONC_label,  22, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_ONC_lights, 23, 0, 1, 1);
 
   (void)memset (&FAULT_SUF_state, 0, sizeof (FAULT_SUF_state));
-  GtkWidget * FAULT_SUF_lights = createLightArray (1, &FAULT_SUF_state);
-  GtkWidget * FAULT_SUF_label = gtk_label_new ("SUF ");
-  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_SUF_label, 24, 0, 1, 1);
+  GtkWidget * FAULT_SUF_lights = createLightArray (1, &FAULT_SUF_state, 0);
+  GtkWidget * FAULT_SUF_label = gtk_label_new ("  SUF");
+  gtk_widget_set_tooltip_text(FAULT_SUF_label, "Starup Fault Indicator");
+  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_SUF_label,  24, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_SUF_lights, 25, 0, 1, 1);
 
   (void)memset (&FAULT_OFL_state, 0, sizeof (FAULT_OFL_state));
-  GtkWidget * FAULT_OFL_lights = createLightArray (1, &FAULT_OFL_state);
-  GtkWidget * FAULT_OFL_label = gtk_label_new ("OFL ");
-  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_OFL_label, 26, 0, 1, 1);
+  GtkWidget * FAULT_OFL_lights = createLightArray (1, &FAULT_OFL_state, 0);
+  GtkWidget * FAULT_OFL_label = gtk_label_new ("  OFL");
+  gtk_widget_set_tooltip_text(FAULT_OFL_label, "Overflow Fault Indicator");
+  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_OFL_label,  26, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_OFL_lights, 27, 0, 1, 1);
 
   (void)memset (&FAULT_DIV_state, 0, sizeof (FAULT_DIV_state));
-  GtkWidget * FAULT_DIV_lights = createLightArray (1, &FAULT_DIV_state);
-  GtkWidget * FAULT_DIV_label = gtk_label_new ("DIV ");
-  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_DIV_label, 28, 0, 1, 1);
-  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_DIV_lights, 29, 0, 1, 1);
+  GtkWidget * FAULT_DIV_lights = createLightArray (1, &FAULT_DIV_state, 0);
+  GtkWidget * FAULT_DIV_label = gtk_label_new (" DIV");
+  gtk_widget_set_tooltip_text(FAULT_DIV_label, "Divide Check Fault Indicator");
+  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_DIV_label,  1, 0, 1, 1);
+  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_DIV_lights, 2, 0, 1, 1);
 
   (void)memset (&FAULT_EXF_state, 0, sizeof (FAULT_EXF_state));
-  GtkWidget * FAULT_EXF_lights = createLightArray (1, &FAULT_EXF_state);
-  GtkWidget * FAULT_EXF_label = gtk_label_new ("EXF ");
-  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_EXF_label, 30, 0, 1, 1);
-  gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_EXF_lights, 31, 0, 1, 1);
+  GtkWidget * FAULT_EXF_lights = createLightArray (1, &FAULT_EXF_state, 0);
+  GtkWidget * FAULT_EXF_label = gtk_label_new ("  EXF");
+  gtk_widget_set_tooltip_text(FAULT_EXF_label, "Execute Fault Indicator");
+  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_EXF_label,  3, 0, 1, 1);
+  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_EXF_lights, 4, 0, 1, 1);
 
   (void)memset (&FAULT_DF0_state, 0, sizeof (FAULT_DF0_state));
-  GtkWidget * FAULT_DF0_lights = createLightArray (1, &FAULT_DF0_state);
-  GtkWidget * FAULT_DF0_label = gtk_label_new ("DF0 ");
-  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_DF0_label, 0, 0, 1, 1);
-  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_DF0_lights, 1, 0, 1, 1);
+  GtkWidget * FAULT_DF0_lights = createLightArray (1, &FAULT_DF0_state, 0);
+  GtkWidget * FAULT_DF0_label = gtk_label_new ("  DF0");
+  gtk_widget_set_tooltip_text(FAULT_DF0_label, "Directed Fault 0 Indicator");
+  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_DF0_label,  5, 0, 1, 1);
+  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_DF0_lights, 6, 0, 1, 1);
 
   (void)memset (&FAULT_DF1_state, 0, sizeof (FAULT_DF1_state));
-  GtkWidget * FAULT_DF1_lights = createLightArray (1, &FAULT_DF1_state);
-  GtkWidget * FAULT_DF1_label = gtk_label_new ("DF1 ");
-  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_DF1_label, 2, 0, 1, 1);
-  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_DF1_lights, 3, 0, 1, 1);
+  GtkWidget * FAULT_DF1_lights = createLightArray (1, &FAULT_DF1_state, 0);
+  GtkWidget * FAULT_DF1_label = gtk_label_new ("  DF1");
+  gtk_widget_set_tooltip_text(FAULT_DF1_label, "Directed Fault 1 Indicator");
+  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_DF1_label,  7, 0, 1, 1);
+  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_DF1_lights, 8, 0, 1, 1);
 
   (void)memset (&FAULT_DF2_state, 0, sizeof (FAULT_DF2_state));
-  GtkWidget * FAULT_DF2_lights = createLightArray (1, &FAULT_DF2_state);
-  GtkWidget * FAULT_DF2_label = gtk_label_new ("DF2 ");
-  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_DF2_label, 4, 0, 1, 1);
-  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_DF2_lights, 5, 0, 1, 1);
+  GtkWidget * FAULT_DF2_lights = createLightArray (1, &FAULT_DF2_state, 0);
+  GtkWidget * FAULT_DF2_label = gtk_label_new ("  DF2");
+  gtk_widget_set_tooltip_text(FAULT_DF2_label, "Directed Fault 2 Indicator");
+  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_DF2_label,   9, 0, 1, 1);
+  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_DF2_lights, 10, 0, 1, 1);
 
   (void)memset (&FAULT_DF3_state, 0, sizeof (FAULT_DF3_state));
-  GtkWidget * FAULT_DF3_lights = createLightArray (1, &FAULT_DF3_state);
-  GtkWidget * FAULT_DF3_label = gtk_label_new ("DF3 ");
-  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_DF3_label, 6, 0, 1, 1);
-  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_DF3_lights, 7, 0, 1, 1);
+  GtkWidget * FAULT_DF3_lights = createLightArray (1, &FAULT_DF3_state, 0);
+  GtkWidget * FAULT_DF3_label = gtk_label_new ("  DF3");
+  gtk_widget_set_tooltip_text(FAULT_DF3_label, "Directed Fault 3 Indicator");
+  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_DF3_label,  11, 0, 1, 1);
+  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_DF3_lights, 12, 0, 1, 1);
 
   (void)memset (&FAULT_ACV_state, 0, sizeof (FAULT_ACV_state));
-  GtkWidget * FAULT_ACV_lights = createLightArray (1, &FAULT_ACV_state);
-  GtkWidget * FAULT_ACV_label = gtk_label_new ("ACV ");
-  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_ACV_label, 8, 0, 1, 1);
-  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_ACV_lights, 9, 0, 1, 1);
+  GtkWidget * FAULT_ACV_lights = createLightArray (1, &FAULT_ACV_state, 0);
+  GtkWidget * FAULT_ACV_label = gtk_label_new ("  ACV");
+  gtk_widget_set_tooltip_text(FAULT_ACV_label, "Access Violation Fault Indicator");
+  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_ACV_label,  13, 0, 1, 1);
+  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_ACV_lights, 14, 0, 1, 1);
 
   (void)memset (&FAULT_MME2_state, 0, sizeof (FAULT_MME2_state));
-  GtkWidget * FAULT_MME2_lights = createLightArray (1, &FAULT_MME2_state);
-  GtkWidget * FAULT_MME2_label = gtk_label_new ("MME2 ");
-  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_MME2_label, 10, 0, 1, 1);
-  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_MME2_lights, 11, 0, 1, 1);
+  GtkWidget * FAULT_MME2_lights = createLightArray (1, &FAULT_MME2_state, 0);
+  GtkWidget * FAULT_MME2_label = gtk_label_new (" MME2");
+  gtk_widget_set_tooltip_text(FAULT_MME2_label, "Master Mode Entry 2 Fault Indicator");
+  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_MME2_label,  15, 0, 1, 1);
+  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_MME2_lights, 16, 0, 1, 1);
 
   (void)memset (&FAULT_MME3_state, 0, sizeof (FAULT_MME3_state));
-  GtkWidget * FAULT_MME3_lights = createLightArray (1, &FAULT_MME3_state);
-  GtkWidget * FAULT_MME3_label = gtk_label_new ("MME3 ");
-  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_MME3_label, 12, 0, 1, 1);
-  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_MME3_lights, 13, 0, 1, 1);
+  GtkWidget * FAULT_MME3_lights = createLightArray (1, &FAULT_MME3_state, 0);
+  GtkWidget * FAULT_MME3_label = gtk_label_new (" MME3");
+  gtk_widget_set_tooltip_text(FAULT_MME3_label, "Master Mode Entry 3 Fault Indicator");
+  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_MME3_label,  17, 0, 1, 1);
+  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_MME3_lights, 18, 0, 1, 1);
 
   (void)memset (&FAULT_MME4_state, 0, sizeof (FAULT_MME4_state));
-  GtkWidget * FAULT_MME4_lights = createLightArray (1, &FAULT_MME4_state);
-  GtkWidget * FAULT_MME4_label = gtk_label_new ("MME4 ");
-  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_MME4_label, 14, 0, 1, 1);
-  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_MME4_lights, 15, 0, 1, 1);
+  GtkWidget * FAULT_MME4_lights = createLightArray (1, &FAULT_MME4_state, 0);
+  GtkWidget * FAULT_MME4_label = gtk_label_new (" MME4");
+  gtk_widget_set_tooltip_text(FAULT_MME4_label, "Master Mode Entry 3 Fault Indicator");
+  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_MME4_label,  19, 0, 1, 1);
+  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_MME4_lights, 20, 0, 1, 1);
 
   (void)memset (&FAULT_F2_state, 0, sizeof (FAULT_F2_state));
-  GtkWidget * FAULT_F2_lights = createLightArray (1, &FAULT_F2_state);
-  GtkWidget * FAULT_F2_label = gtk_label_new ("F2 ");
-  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_F2_label, 16, 0, 1, 1);
-  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_F2_lights, 17, 0, 1, 1);
+  GtkWidget * FAULT_F2_lights = createLightArray (1, &FAULT_F2_state, 0);
+  GtkWidget * FAULT_F2_label = gtk_label_new ("   F2");
+  gtk_widget_set_tooltip_text(FAULT_F2_label, "Fault Tag 2 Fault Indicator");
+  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_F2_label,  21, 0, 1, 1);
+  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_F2_lights, 22, 0, 1, 1);
 
   (void)memset (&FAULT_F3_state, 0, sizeof (FAULT_F3_state));
-  GtkWidget * FAULT_F3_lights = createLightArray (1, &FAULT_F3_state);
-  GtkWidget * FAULT_F3_label = gtk_label_new ("F3 ");
-  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_F3_label, 18, 0, 1, 1);
-  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_F3_lights, 19, 0, 1, 1);
+  GtkWidget * FAULT_F3_lights = createLightArray (1, &FAULT_F3_state, 0);
+  GtkWidget * FAULT_F3_label = gtk_label_new ("   F3");
+  gtk_widget_set_tooltip_text(FAULT_F3_label, "Fault Tag 3 Fault Indicator");
+  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_F3_label,  23, 0, 1, 1);
+  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_F3_lights, 24, 0, 1, 1);
 
   (void)memset (&FAULT_TRB_state, 0, sizeof (FAULT_TRB_state));
-  GtkWidget * FAULT_TRB_lights = createLightArray (1, &FAULT_TRB_state);
-  GtkWidget * FAULT_TRB_label = gtk_label_new ("TRB ");
-  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_TRB_label, 20, 0, 1, 1);
-  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_TRB_lights, 21, 0, 1, 1);
+  GtkWidget * FAULT_TRB_lights = createLightArray (1, &FAULT_TRB_state, 0);
+  GtkWidget * FAULT_TRB_label = gtk_label_new ("  TRB");
+  gtk_widget_set_tooltip_text(FAULT_TRB_label, "Trouble Fault Indicator");
+  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_TRB_label,  25, 0, 1, 1);
+  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_TRB_lights, 26, 0, 1, 1);
 
 //  (void)memset (&FAULT_oob_state, 0, sizeof (FAULT_oob_state));
-//  GtkWidget * FAULT_oob_lights = createLightArray (1, &FAULT_oob_state);
+//  GtkWidget * FAULT_oob_lights = createLightArray (1, &FAULT_oob_state, 0);
 //  GtkWidget * FAULT_oob_label = gtk_label_new ("oob ");
-//  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_oob_label, 22, 0, 1, 1);
-//  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_oob_lights, 23, 0, 1, 1);
+//  gtk_widget_set_tooltip_text(FAULT_oob_label, "OOB Fault Indicator");
+//  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_oob_label,  27, 0, 1, 1);
+//  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_oob_lights, 28, 0, 1, 1);
 
 // window_rows
 
-  gtk_grid_attach (GTK_GRID (window_rows), PPR_display,  0, 0, 1, 1);
-  gtk_grid_attach (GTK_GRID (window_rows), inst_display, 0, 1, 1, 1);
-  gtk_grid_attach (GTK_GRID (window_rows), A_display,    0, 2, 1, 1);
-  gtk_grid_attach (GTK_GRID (window_rows), Q_display,    0, 3, 1, 1);
-  gtk_grid_attach (GTK_GRID (window_rows), E_display,    0, 4, 1, 1);
+  gtk_grid_attach (GTK_GRID (window_rows), PPR_display,         0, 0, 1, 1);
+  spacer[0] = gtk_label_new("");
+  gtk_grid_attach(GTK_GRID(window_rows), spacer[0],             0, 1, 1, 1);
+  gtk_grid_attach (GTK_GRID (window_rows), inst_display,        0, 2, 1, 1);
+  spacer[1] = gtk_label_new("");
+  gtk_grid_attach(GTK_GRID(window_rows), spacer[1],             0, 3, 1, 1);
+  gtk_grid_attach (GTK_GRID (window_rows), A_display,           0, 4, 1, 1);
+  gtk_grid_attach (GTK_GRID (window_rows), Q_display,           0, 5, 1, 1);
+  gtk_grid_attach (GTK_GRID (window_rows), E_display,           0, 6, 1, 1);
+  spacer[2] = gtk_label_new("");
+  gtk_grid_attach(GTK_GRID(window_rows), spacer[2],             0, 7, 1, 1);
+  gtk_grid_attach(GTK_GRID(window_rows), X_display_box,         0, 8, 1, 8);
+  gtk_grid_attach (GTK_GRID (window_rows), IR_display,          0, 16, 1, 1);
+  spacer[3] = gtk_label_new("");
+  gtk_grid_attach(GTK_GRID(window_rows), spacer[3],             0, 17, 1, 1);
+  // gtk_grid_attach (GTK_GRID (window_rows), TR_display,          0, 18, 1, 1);
+  // gtk_grid_attach (GTK_GRID (window_rows), RALR_display,        0, 19, 1, 1);
+  GtkWidget *tr_ralr_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
+  gtk_box_pack_start(GTK_BOX(tr_ralr_box), TR_display, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(tr_ralr_box), RALR_display, FALSE, FALSE, 0);
+  gtk_grid_attach(GTK_GRID(window_rows), tr_ralr_box,           0, 18, 2, 1);
+  spacer[4] = gtk_label_new("");
+  gtk_grid_attach(GTK_GRID(window_rows), spacer[4],             0, 19, 1, 1);
   for(int nreg = 0; nreg < 8; nreg ++) {
-    gtk_grid_attach (GTK_GRID (window_rows), X_display[nreg],    0, 5 + nreg, 1, 1);
+    gtk_grid_attach (GTK_GRID (window_rows), PAR_display[nreg], 0, 20 + nreg, 1, 1);
   }
-  gtk_grid_attach (GTK_GRID (window_rows), IR_display,    0, 13, 1, 1);
-  gtk_grid_attach (GTK_GRID (window_rows), TR_display,    0, 14, 1, 1);
-  gtk_grid_attach (GTK_GRID (window_rows), RALR_display,  0, 15, 1, 1);
-  for(int nreg = 0; nreg < 8; nreg ++) {
-    gtk_grid_attach (GTK_GRID (window_rows), PAR_display[nreg],    0, 16 + nreg, 1, 1);
-  }
-  gtk_grid_attach (GTK_GRID (window_rows), fault_display[0], 0, 24, 1, 1);
-  gtk_grid_attach (GTK_GRID (window_rows), fault_display[1], 0, 25, 1, 1);
+  spacer[5] = gtk_label_new("");
+  gtk_grid_attach (GTK_GRID(window_rows), spacer[5],             0, 28, 1, 1);
+  gtk_grid_attach (GTK_GRID (window_rows), fault_display[0],    0, 29, 1, 1);
+  gtk_grid_attach (GTK_GRID (window_rows), fault_display[1],    0, 30, 1, 1);
 
   gtk_container_add (GTK_CONTAINER (window), window_rows);
 
@@ -998,10 +1137,14 @@ int main (int argc, char * argv []) {
   static char window_title[6];
   (void)snprintf(window_title, sizeof(window_title), "CPU %c", (char)(cpunum + 65));
   gtk_window_set_title (GTK_WINDOW(window), window_title);
+  gtk_container_set_border_width(GTK_CONTAINER(window), 10);
+  gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
   g_signal_connect (window, "delete-event", G_CALLBACK (window_delete), NULL);
   gtk_widget_show_all  (window);
 
   time_handler (window);
+
+  g_signal_connect(window, "key-press-event", G_CALLBACK(on_key_press), NULL);
 
   gtk_main ();
 
