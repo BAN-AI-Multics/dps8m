@@ -986,7 +986,7 @@ int main (int argc, char * argv []) {
   (void)memset (&FAULT_SUF_state, 0, sizeof (FAULT_SUF_state));
   GtkWidget * FAULT_SUF_lights = createLightArray (1, &FAULT_SUF_state, 0);
   GtkWidget * FAULT_SUF_label = gtk_label_new ("  SUF");
-  gtk_widget_set_tooltip_text(FAULT_SUF_label, "Starup Fault Indicator");
+  gtk_widget_set_tooltip_text(FAULT_SUF_label, "Startup Fault Indicator");
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_SUF_label,  24, 0, 1, 1);
   gtk_grid_attach (GTK_GRID (fault_display[0]), FAULT_SUF_lights, 25, 0, 1, 1);
 

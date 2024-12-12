@@ -1572,6 +1572,7 @@ keepalive
 kenc
 kencc
 keyphrase
+keyval
 keywordedit
 kflag
 kflg
@@ -3176,6 +3177,7 @@ unixu
 unlck
 unlockpt
 unotused
+unref
 unsetenv
 unstring
 untrimmed
@@ -9369,6 +9371,7 @@ bleeding
 bless
 bling
 blinken
+blinkenlights
 blitz
 blob
 block
@@ -10017,6 +10020,7 @@ dance
 dang
 dangling
 daniel
+dark
 dart
 darwin
 dash
@@ -11477,6 +11481,7 @@ kerning
 kevin
 keyboard
 keys
+keystrokes
 keyword
 keywords
 kids
@@ -12216,6 +12221,7 @@ ordering
 ordinary
 organic
 organized
+orientation
 oriented
 original
 originally
@@ -12977,6 +12983,7 @@ residency
 resident
 residual
 residues
+resizable
 resize
 resolution
 resoluton
@@ -13428,6 +13435,7 @@ source
 sourcemud
 sources
 space
+spacer
 spaces
 spacing
 span
@@ -13864,6 +13872,7 @@ toolchains
 toolinfo
 tooling
 tools
+tooltip
 topic
 topics
 toplevel
