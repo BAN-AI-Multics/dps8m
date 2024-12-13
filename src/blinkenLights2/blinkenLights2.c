@@ -151,11 +151,48 @@ static void toggle_dark_mode(void) {
     g_object_set(settings, "gtk-application-prefer-dark-theme", dark_mode_enabled, NULL);
 }
 
+gboolean close_notification(gpointer widget) {
+    gtk_widget_destroy(GTK_WIDGET(widget));
+    return FALSE;
+}
+
 static gboolean on_key_press(GtkWidget *widget, GdkEventKey *event, gpointer data) {
-    if (event->keyval == GDK_KEY_d)
+    if (event->keyval == GDK_KEY_h || event->keyval == GDK_KEY_H ||
+            event->keyval == GDK_KEY_question) {
+        GtkWidget *twindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+        gtk_window_set_decorated(GTK_WINDOW(twindow), FALSE);
+        gtk_window_set_default_size(GTK_WINDOW(twindow), 1, 1);
+        gtk_window_set_transient_for(GTK_WINDOW(twindow), GTK_WINDOW(widget));
+        gtk_window_set_position(GTK_WINDOW(twindow), GTK_WIN_POS_CENTER);
+        gtk_widget_set_app_paintable(twindow, FALSE);
+        GtkWidget *label = gtk_label_new(NULL);
+        gtk_label_set_markup(GTK_LABEL(label), "\n"
+                "                                    \n"
+                "    [<b>D</b>] .... Toggle <i>Dark Mode</i>       \n"
+                "    [<b>H</b>] .... Show keystroke help    \n"
+                "    [<b>Q</b>] .... Quit <i>blinkenLights2</i>    \n"
+                "                                    \n");
+        gtk_container_add(GTK_CONTAINER(twindow), label);
+        gtk_widget_show_all(twindow);
+        g_timeout_add(2000, close_notification, twindow);
+    }
+    if (event->keyval == GDK_KEY_d || event->keyval == GDK_KEY_D) {
+        GtkWidget *dwindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+        gtk_window_set_decorated(GTK_WINDOW(dwindow), FALSE);
+        gtk_window_set_default_size(GTK_WINDOW(dwindow), 1, 1);
+        gtk_window_set_transient_for(GTK_WINDOW(dwindow), GTK_WINDOW(widget));
+        gtk_window_set_position(GTK_WINDOW(dwindow), GTK_WIN_POS_CENTER);
+        gtk_widget_set_app_paintable(dwindow, FALSE);
+        GtkWidget *label = gtk_label_new(NULL);
+        gtk_label_set_markup(GTK_LABEL(label), "<b>Toggle Dark Mode</b>");
+        gtk_container_add(GTK_CONTAINER(dwindow), label);
+        gtk_widget_show_all(dwindow);
+        g_timeout_add(500, close_notification, dwindow);
         toggle_dark_mode();
-    if (event->keyval == GDK_KEY_q)
+    }
+    if (event->keyval == GDK_KEY_q || event->keyval == GDK_KEY_Q) {
         gtk_main_quit();
+    }
     return FALSE;
 }
 
@@ -166,7 +203,7 @@ static GtkWidget * createLight (bool * state, int index, int offset) {
                     G_CALLBACK (draw_callback), state);
   static char tooltip_content[25];
   if (index == 0 && offset == 0) {
-      tooltip_content[0] = '\0';
+      (void)snprintf(tooltip_content, sizeof(tooltip_content), "Bit 0");
   } else {
       char *temp_str = NULL;
       if (offset != 0) {
@@ -569,8 +606,9 @@ int main (int argc, char * argv []) {
     (void)fprintf(stdout, "  Options:\r\n");
     (void)fprintf(stdout, "      --help   Show this message\r\n\r\n");
     (void)fprintf(stdout, "  Keystrokes:\r\n");
-    (void)fprintf(stdout, "      'd'      Toggle dark mode\r\n");
-    (void)fprintf(stdout, "      'q'      Quit\r\n");
+    (void)fprintf(stdout, "      'D'      Toggle Dark Mode\r\n");
+    (void)fprintf(stdout, "      'H'      Show keystroke help\r\n");
+    (void)fprintf(stdout, "      'Q'      Quit blinkenLights2\r\n");
     return EXIT_SUCCESS;
   }
 
