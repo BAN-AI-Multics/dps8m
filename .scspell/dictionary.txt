@@ -8870,6 +8870,10 @@ potocek
 tobias
 tobiaspotocek
 
+FILEID: 4d1552ca-f62b-11ec-9d14-80ee73e9b8e7
+dwindow
+twindow
+
 NATURAL:
 abandon
 abandoned
@@ -10072,6 +10076,7 @@ decoder
 decompress
 decompressing
 decorate
+decorated
 decoration
 decrease
 decreased
@@ -11780,6 +11785,7 @@ markers
 marketing
 marking
 marks
+markup
 marocchino
 maroon
 mars
@@ -12293,6 +12299,7 @@ paged
 pages
 pagestyle
 paging
+paintable
 pair
 pairs
 pandoc
