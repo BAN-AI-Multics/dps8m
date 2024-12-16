@@ -533,14 +533,13 @@ title: DPS8M Releases
 | [**dps8m-git-src.zpaq**](https://dps8m.gitlab.io/dps8m/dps8m-git-src.zpaq)     | ZPAQ7                |
 {{< /expand >}}
 {{< /tab >}}
-{{< tab "AIX" >}}
-
-{{< expand "Power ISA (64-bit)" "…" >}}
-| File                                                                                       | Platform                   |
-|:------------------------------------------------------------------------------------------ |:---------------------------|
-| [**dps8m-git-aixv7-pw7.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-pw7.tar.gz) | AIX&nbsp;7.2,&nbsp;POWER7+ |
-{{< /expand >}}
-{{< /tab >}}
+<!-- \{\{< tab "AIX" >\}\} -->
+<!-- \{\{< expand "Power ISA (64-bit)" "…" >\}\} -->
+<!-- | File                                                                                       | Platform                   | -->
+<!-- |:------------------------------------------------------------------------------------------ |:---------------------------| -->
+<!-- | [**dps8m-git-aixv7-pw7.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-pw7.tar.gz) | AIX&nbsp;7.2,&nbsp;POWER7+ | -->
+<!-- \{\{< /expand >\}\} -->
+<!-- \{\{< /tab >\}\} -->
 {{< tab "Android" >}}
 
 {{< expand "Android 10.0 (API Level 29)" "…" >}}
