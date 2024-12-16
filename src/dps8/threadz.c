@@ -34,11 +34,8 @@
 # include <pthread_np.h>
 #endif /* FreeBSD || OpenBSD */
 
-#if defined(__HAIKU__)
-# include <OS.h>
-# undef pthread_setname_np
-# define pthread_setname_np(x,y) rename_thread(find_thread(NULL),y)
-#endif /* Haiku */
+#include "sir.h"
+#include "sir/internal.h"
 
 //
 // Resource locks
@@ -471,21 +468,7 @@ void createCPUThread (uint cpuNum)
 
     char nm [17];
     (void)sprintf (nm, "CPU %c", 'a' + cpuNum);
-#if !defined(__NetBSD__)
-# if ( defined(__FreeBSD__) || defined(__OpenBSD__) )
-    pthread_set_name_np (p->cpuThread, nm);
-# else
-#  if defined(__APPLE__)
-    pthread_setname_np (nm);
-#  else
-#   if !defined(_AIX)
-#    if !defined(__gnu_hurd__)
-    pthread_setname_np (p->cpuThread, nm);
-#    endif /* if !defined(__gnu_hurd__) */
-#   endif /* if !defined(_AIX) */
-#  endif /* if defined(__APPLE__) */
-# endif /* if defined(__FreeBSD__) || defined(__OpenBSD__) */
-#endif /* if !defined(__NetBSD__) */
+    _sir_setthreadname(nm);
 
 #if defined(AFFINITY)
     if (cpus[cpuNum].set_affinity)
