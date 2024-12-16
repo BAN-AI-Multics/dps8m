@@ -37,7 +37,7 @@
 #include "../simh/sim_timer.h"
 #include "hdbg.h"
 
-extern int nprocs;
+extern unsigned int nprocs;
 
 #define N_CPU_UNITS 1 // Default
 

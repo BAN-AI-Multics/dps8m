@@ -280,7 +280,7 @@ t_addr (*sim_vm_parse_addr) (DEVICE *dptr, CONST char *cptr, CONST char **tptr) 
 t_value (*sim_vm_pc_value) (void) = NULL;
 t_bool (*sim_vm_is_subroutine_call) (t_addr **ret_addrs) = NULL;
 t_bool (*sim_vm_fprint_stopped) (FILE *st, t_stat reason) = NULL;
-int nprocs;
+unsigned int nprocs;
 
 /* Prototypes */
 
@@ -1803,9 +1803,9 @@ test_math128();
 // This will return a value less than the actual number of CPUs if, for example,
 // the CPU affinity mask has been pinned to specific CPUs.  On all other systems,
 // prefer the _sir_nprocs routine to query the number of actual CPUs available.
-nprocs = uv_available_parallelism();
+nprocs = (unsigned int)uv_available_parallelism();
 # else
-nprocs = _sir_nprocs();
+nprocs = (unsigned int)_sir_nprocs();
 # endif
 
 /* Make sure that argv has at least 10 elements and that it ends in a NULL pointer */
@@ -3470,7 +3470,7 @@ for (; *ip && (op < oend); ) {
                         }
                     else if ( (!strcmp("CPUS", gbuf)) \
                       || (!strcmp("SIM_PROCESSORS", gbuf) ) ) {
-                        (void)sprintf(rbuf, "%ld", (long)nprocs);
+                        (void)sprintf(rbuf, "%u", nprocs);
                         ap = rbuf;
                         }
                     }
