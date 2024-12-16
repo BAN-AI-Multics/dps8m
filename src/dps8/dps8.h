@@ -39,8 +39,11 @@
 
 # include "sir/platform.h"
 
-# if HAS_INCLUDE(<immintrin.h>)
-#  include <immintrin.h>
+# if defined(_M_X64) || defined(_M_AMD64) || defined(__amd64__) || defined(__x86_64__) || defined(__AMD64) || \
+     defined(_M_IX86) || defined(__i386) || defined(__i486) || defined(__i586) || defined(__i686) || defined(__ix86)
+#  if HAS_INCLUDE(<immintrin.h>)
+#   include <immintrin.h>
+#  endif
 # endif
 
 # undef HAS_ATTRIBUTE
