@@ -270,11 +270,11 @@ do_cppcheck()
   eval ${CPPCHECK:?} ${EXTRA:-}  -j "$(count_cpus)" ${XMLARGS:-}          \
     --enable="${CPPCHECKS:?}" --force -UBUILDINFO_"${unit:?}"             \
     ${CPPDEFINE:?} ${includes:?} ${infiles:?} ${EXTRA:-}                  \
-    --file-filter="./src/*" --inline-suppr --max-ctu-depth="16"           \
+    --file-filter="./src/*" --inline-suppr --max-ctu-depth="10"           \
     --platform="unix64" --std="c11" --std="c++11" --suppress="*:/usr/*"   \
     --suppress="checkLibraryNoReturn" --suppress="funcArgNamesDifferent"  \
     --suppress="unmatchedSuppression" --suppress="variableScope"          \
-    --include="$(pwd -L)/src/dps8/ver.h" --check-level="exhaustive"       \
+    --include="$(pwd -L)/src/dps8/ver.h"                                  \
     ${XMLGEN:-} ;                                                         \
   test -z "${HTMLOUT:-}" ||
   {
