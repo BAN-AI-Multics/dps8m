@@ -2208,7 +2208,7 @@ int core_unlock_all(cpu_state_t * cpup);
 #  define BUILTIN_CPU_SUPPORTS(cpu) 0
 # endif /* if HAS_BUILTIN(__builtin_cpu_supports) */
 
-# if HAS_BUILTIN(_mm_pause)
+# if HAS_BUILTIN(_mm_pause) || defined(_mm_pause) // Check first for macro or builtin _mm_pause ...
 #  define MM_PAUSE          \
     do                      \
       {                     \
@@ -2218,7 +2218,7 @@ int core_unlock_all(cpu_state_t * cpup);
           _mm_pause();      \
         }                   \
       } while(0)
-# elif HAS_BUILTIN(__builtin_ia32_pause)
+# elif HAS_BUILTIN(__builtin_ia32_pause) // ... then for __builtin_ia32_pause ...
 #  define MM_PAUSE                 \
     do                             \
       {                            \
@@ -2230,7 +2230,7 @@ int core_unlock_all(cpu_state_t * cpup);
       } while(0)
 
 # else
-#  if defined(__GNUC__) || defined(__clang_version__)
+#  if defined(__GNUC__) || defined(__clang_version__) // ... then `pause` or `nop` on GNU or Clang ...
 #   define MM_PAUSE                                  \
      do                                              \
        {                                             \
@@ -2246,14 +2246,14 @@ int core_unlock_all(cpu_state_t * cpup);
        } while(0)
 #  endif
 # endif
-# if !defined(MM_PAUSE)
-#  define MM_PAUSE           \
-     do                      \
-       {                     \
-         if (nprocs == 1) {  \
-           sched_yield();    \
-         }                   \
-       } while(0)
+# if !defined(MM_PAUSE) // ... fallback: use sched_yield or just do nothing.
+#  define MM_PAUSE          \
+    do                      \
+      {                     \
+        if (nprocs == 1) {  \
+          sched_yield();    \
+        }                   \
+      } while(0)
 # endif
 
 # if !defined(SCHED_NEVER_YIELD)
