@@ -336,7 +336,7 @@ Install the required prerequisites (using NetBSD Packages or [pkgsrc](https://ww
   While *sufficient* to build the simulator, we recommend that version 12 or later of the **GNU C** (`gcc`) compiler
   be used for optimal performance.
 
-* At the time of writing, **GCC 13.2** is available for **NetBSD 9** systems and is the version of GCC currently
+* At the time of writing, **GCC 14.2** is available for **NetBSD 10** systems and is the version of GCC currently
   recommended by **The DPS8M Development Team**.
   \
   \
@@ -345,19 +345,19 @@ Install the required prerequisites (using NetBSD Packages or [pkgsrc](https://ww
   * Using NetBSD Packages (as *root*):
 
     ```sh
-    pkgin in gcc13
+    pkgin in gcc14
     ```
 
   * Using pkgsrc (as *root*):
 
     ```sh
-    cd /usr/pkgsrc/lang/gcc13/ && make install clean
+    cd /usr/pkgsrc/lang/gcc14/ && make install clean
     ```
 
 * Build the simulator from the top-level source directory (using **GNU Make**):
 
   ```sh
-  env CC="/usr/pkg/gcc13/bin/gcc" LDFLAGS="-Wl,-rpath=/usr/pkg/gcc13/lib" gmake
+  env CC="/usr/pkg/gcc14/bin/gcc" LDFLAGS="-Wl,-rpath=/usr/pkg/gcc14/lib" gmake
   ```
 
 ### Compilation using Clang
