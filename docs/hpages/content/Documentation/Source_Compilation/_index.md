@@ -575,7 +575,7 @@ Install the required prerequisites (using OpenBSD Packages or Ports):
 * Build the simulator from the top-level source directory (using **GNU Make**):
 
   ```sh
-  env CC="gcc12" CFLAGS="-I/usr/local/include"                    \
+  env CC="gcc13" CFLAGS="-I/usr/local/include"                    \
       LDFLAGS="-L/usr/local/lib -Wl,-rpath=/usr/local/lib/gcc13"  \
       ATOMICS="GNU"                                               \
     gmake
@@ -584,19 +584,19 @@ Install the required prerequisites (using OpenBSD Packages or Ports):
 ### Compiling using Clang
 
 * **GCC** is recommended for optimal performance, but compilation using **Clang** is supported.
-* At the time of writing, **Clang 16** is available for DragonFly BSD and recommended by **The DPS8M Development Team**.
+* At the time of writing, **Clang 17** is available for DragonFly BSD and recommended by **The DPS8M Development Team**.
 * While some optional utilities *may* fail to build using **Clang** on DragonFly, the simulator (`src/dps8/dps8`) is fully tested with each DragonFly release.
 
-  * **Clang 16** may be installed using DragonFly BSD DPorts (as *root*):
+  * **Clang 17** may be installed using DragonFly BSD DPorts (as *root*):
 
     ```sh
-    pkg install llvm16
+    pkg install llvm17
     ```
 
 * Build the simulator from the top-level source directory (using **GNU Make**):
 
   ```sh
-  env CC="clang16" CFLAGS="-I/usr/include -I/usr/local/include"  \
+  env CC="clang17" CFLAGS="-I/usr/include -I/usr/local/include"  \
       LDFLAGS="-L/usr/lib -L/usr/local/lib -fuse-ld=lld"         \
       ATOMICS="GNU"                                              \
     gmake
