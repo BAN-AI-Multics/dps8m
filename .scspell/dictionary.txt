@@ -2662,6 +2662,7 @@ setsid
 setsock
 setsockopt
 setstate
+setthreadname
 settype
 setval
 setvbuf
