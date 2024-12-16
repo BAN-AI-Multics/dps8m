@@ -37,7 +37,9 @@
 #  include <libgen.h>  // needed for macOS and Android
 # endif
 
+# include "sir.h"
 # include "sir/platform.h"
+# include "sir/internal.h"
 
 # if defined(_M_X64) || defined(_M_AMD64) || defined(__amd64__) || defined(__x86_64__) || defined(__AMD64) || \
      defined(_M_IX86) || defined(__i386) || defined(__i486) || defined(__i586) || defined(__i686) || defined(__ix86)

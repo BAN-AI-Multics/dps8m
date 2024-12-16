@@ -34,9 +34,6 @@
 # include <pthread_np.h>
 #endif /* FreeBSD || OpenBSD */
 
-#include "sir.h"
-#include "sir/internal.h"
-
 //
 // Resource locks
 //
