@@ -54,7 +54,7 @@ enum { N_CELL_INTERRUPTS = 32 };
 
 # define VASIZE            18                     // virtual addr width
 # define AMASK           ((1U << VASIZE) - 1U)    // virtual addr mask
-# define SEGSIZE          (1U << VASIZE)          // size of segment in words
+# define DPS8_SEGSIZE     (1U << VASIZE)          // size of segment in words
 
 /////////////////////////////////////
 //
