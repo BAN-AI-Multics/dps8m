@@ -2202,12 +2202,6 @@ int core_unlock_all(cpu_state_t * cpup);
 # define MEM_LOCKED_BIT    61
 # define MEM_LOCKED        (1LLU<<MEM_LOCKED_BIT)
 
-# if HAS_BUILTIN(__builtin_cpu_supports)
-#  define BUILTIN_CPU_SUPPORTS(cpu) __builtin_cpu_supports(cpu)
-# else
-#  define BUILTIN_CPU_SUPPORTS(cpu) 0
-# endif /* if HAS_BUILTIN(__builtin_cpu_supports) */
-
 # if HAS_BUILTIN(_mm_pause) || defined(_mm_pause) // Check first for macro or builtin _mm_pause ...
 #  define MM_PAUSE          \
     do                      \
@@ -2230,23 +2224,19 @@ int core_unlock_all(cpu_state_t * cpup);
       } while(0)
 
 # else
-#  if defined(__GNUC__) || defined(__clang_version__) // ... then `pause` or `nop` on GNU or Clang ...
+#  if defined(__GNUC__) || defined(__clang_version__) // ... then `nop` on GNU C or Clang ...
 #   define MM_PAUSE                                  \
      do                                              \
        {                                             \
          if (nprocs == 1) {                          \
            sched_yield();                            \
          } else {                                    \
-           if (BUILTIN_CPU_SUPPORTS("sse2")) {       \
-             __asm volatile ("pause" ::: "memory");  \
-           } else {                                  \
-             __asm volatile ("nop" ::: "memory");    \
-           }                                         \
+           __asm volatile ("nop" ::: "memory");      \
          }                                           \
        } while(0)
 #  endif
 # endif
-# if !defined(MM_PAUSE) // ... fallback: use sched_yield or just do nothing.
+# if !defined(MM_PAUSE) // ... fallback: use sched_yield as before.
 #  define MM_PAUSE          \
     do                      \
       {                     \
