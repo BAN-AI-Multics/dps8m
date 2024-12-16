@@ -37,6 +37,12 @@
 #  include <libgen.h>  // needed for macOS and Android
 # endif
 
+# include "sir/platform.h"
+
+# if HAS_INCLUDE(<immintrin.h>)
+#  include <immintrin.h>
+# endif
+
 # undef HAS_ATTRIBUTE
 # if defined __has_attribute && (defined(__clang__) || defined(__GNUC__))
 #  define HAS_ATTRIBUTE(atr) __has_attribute(atr)
@@ -50,6 +56,13 @@
 # endif
 # if !defined(HOT)
 #  define HOT
+# endif
+
+# undef HAS_BUILTIN
+# if defined __has_builtin
+#  define HAS_BUILTIN(builtin) __has_builtin(builtin)
+# else
+#  define HAS_BUILTIN(builtin) 0
 # endif
 
 # if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || (defined(__APPLE__) && defined(__MACH__)) || defined(__ANDROID__) || defined(_AIX)

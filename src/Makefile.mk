@@ -120,6 +120,7 @@ COMPRESSXT ?= gz
 KITNAME    ?= sources
 SCSPELLCMD ?= scspell
 SIMHx       = ../simh
+LIBSIRx     = ../libsir/include
 
 ###############################################################################
 
@@ -669,16 +670,10 @@ endif
 
 ###############################################################################
 
-CFLAGS += -I../decNumber -I$(SIMHx)
+CFLAGS += -I../decNumber -I$(SIMHx) -I$(LIBSIRx)
 CFLAGS += -std=$(CSTD)
 CFLAGS += -U__STRICT_ANSI__
 CFLAGS += -D_GNU_SOURCE
-
-###############################################################################
-
-ifneq ($(W),)
-  CFLAGS +=-Wno-array-bounds
-endif
 
 ###############################################################################
 

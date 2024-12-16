@@ -37,6 +37,8 @@
 #include "../simh/sim_timer.h"
 #include "hdbg.h"
 
+extern int nprocs;
+
 #define N_CPU_UNITS 1 // Default
 
 // JMP_ENTRY must be 0, which is the return value of the setjmp initial entry
@@ -2200,6 +2202,60 @@ int core_unlock_all(cpu_state_t * cpup);
 # define MEM_LOCKED_BIT    61
 # define MEM_LOCKED        (1LLU<<MEM_LOCKED_BIT)
 
+# if HAS_BUILTIN(__builtin_cpu_supports)
+#  define BUILTIN_CPU_SUPPORTS(cpu) __builtin_cpu_supports(cpu)
+# else
+#  define BUILTIN_CPU_SUPPORTS(cpu) 0
+# endif /* if HAS_BUILTIN(__builtin_cpu_supports) */
+
+# if HAS_BUILTIN(_mm_pause)
+#  define MM_PAUSE          \
+    do                      \
+      {                     \
+        if (nprocs == 1) {  \
+          sched_yield();    \
+        } else {            \
+          _mm_pause();      \
+        }                   \
+      } while(0)
+# elif HAS_BUILTIN(__builtin_ia32_pause)
+#  define MM_PAUSE                 \
+    do                             \
+      {                            \
+        if (nprocs == 1) {         \
+          sched_yield();           \
+        } else {                   \
+          __builtin_ia32_pause();  \
+        }                          \
+      } while(0)
+
+# else
+#  if defined(__GNUC__) || defined(__clang_version__)
+#   define MM_PAUSE                                  \
+     do                                              \
+       {                                             \
+         if (nprocs == 1) {                          \
+           sched_yield();                            \
+         } else {                                    \
+           if (BUILTIN_CPU_SUPPORTS("sse2")) {       \
+             __asm volatile ("pause" ::: "memory");  \
+           } else {                                  \
+             __asm volatile ("nop" ::: "memory");    \
+           }                                         \
+         }                                           \
+       } while(0)
+#  endif
+# endif
+# if !defined(MM_PAUSE)
+#  define MM_PAUSE           \
+     do                      \
+       {                     \
+         if (nprocs == 1) {  \
+           sched_yield();    \
+         }                   \
+       } while(0)
+# endif
+
 # if !defined(SCHED_NEVER_YIELD)
 #  undef SCHED_YIELD
 #  define SCHED_YIELD(lockStatePtr)                                      \
@@ -2207,7 +2263,7 @@ int core_unlock_all(cpu_state_t * cpup);
     {                                                                    \
       if ((i & 0xff) == 0)                                               \
         {                                                                \
-          sched_yield();                                                 \
+          MM_PAUSE;                                                      \
           (lockStatePtr)->lockYield++;                                   \
         }                                                                \
     }                                                                    \
@@ -2224,7 +2280,7 @@ int core_unlock_all(cpu_state_t * cpup);
 # if defined (BSD_ATOMICS)
 #  include <machine/atomic.h>
 
-#  define LOCK_CORE_WORD(addr,lockStatePtr)                                           \
+#  define LOCK_CORE_WORD(addr,lockStatePtr)                              \
   do                                                                     \
     {                                                                    \
       unsigned int i = DEADLOCK_DETECT;                                  \
@@ -2318,7 +2374,7 @@ int core_unlock_all(cpu_state_t * cpup);
 #   define MEM_BARRIER()   do {} while (0)
 #  endif
 
-#  define LOCK_CORE_WORD(addr,lockStatePtr)                                           \
+#  define LOCK_CORE_WORD(addr,lockStatePtr)                              \
      do                                                                  \
        {                                                                 \
          unsigned int i = DEADLOCK_DETECT;                               \
