@@ -717,7 +717,7 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 ## OpenIndiana
 
 * Ensure your [**OpenIndiana**](https://www.openindiana.org/) installation is up-to-date.
-  * **OpenIndiana** *Hipster* **September 2024** was used to verify these instructions.
+  * **OpenIndiana** *Hipster* **December 2024** was used to verify these instructions.
 
 []()
 
@@ -729,7 +729,7 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 []()
 
 * Building with **Clang** (version 13 or later) is also supported (*but not recommended due to lack of LTO support*).
-  * **Clang 18** can be installed from the standard IPS repository via '**`pkg install developer/clang-18`**'.
+  * **Clang 19** can be installed from the standard IPS repository via '**`pkg install developer/clang-19`**'.
 
 ### OpenIndiana prerequisites
 
@@ -749,10 +749,10 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 
 ### Compiling using Clang
 
-* Build the simulator from the top-level source directory (using **GNU Make** and **Clang 18**):
+* Build the simulator from the top-level source directory (using **GNU Make** and **Clang 19**):
 
   ```sh
-  env NO_LTO=1 CC="clang-18" gmake
+  env NO_LTO=1 CC="clang-19" gmake
   ```
 
 <br>
