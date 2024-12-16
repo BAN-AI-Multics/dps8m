@@ -232,7 +232,7 @@ Install the required prerequisites (using FreeBSD Packages or Ports):
 * **FreeBSD** provides the **Clang** compiler as part of the base system.  While *sufficient* to build
   the simulator, we recommend that version 12 or later of the **GNU C** (`gcc`) compiler be used for
   optimal performance.
-* At the time of writing, **GCC 13.2** is available for **FreeBSD** systems and is the version of GCC
+* At the time of writing, **GCC 14.2** is available for **FreeBSD** systems and is the version of GCC
   currently recommended by **The DPS8M Development Team**.
   \
   \
@@ -242,19 +242,19 @@ Install the required prerequisites (using FreeBSD Packages or Ports):
   * Using FreeBSD Packages (as *root*):
 
     ```sh
-    pkg install gcc13
+    pkg install gcc14
     ```
 
   * Using FreeBSD Ports (as *root*):
 
     ```sh
-    cd /usr/ports/lang/gcc13/ && make install clean
+    cd /usr/ports/lang/gcc14/ && make install clean
     ```
 
 * Build the simulator from the top-level source directory (using **GNU Make**):
 
   ```sh
-  env CC="gcc13" LDFLAGS="-Wl,-rpath=/usr/local/lib/gcc13" gmake
+  env CC="gcc14" LDFLAGS="-Wl,-rpath=/usr/local/lib/gcc14" gmake
   ```
 
 ### blinkenLights2 on FreeBSD
@@ -863,7 +863,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 #### IBM Open XL C/C++ for AIX
 
-* Using **IBM Open XL C/C++ for AIX V17.1.2**:
+* Using **IBM Open XL C/C++ for AIX V17.1.2** (*and later*):
 
   ```sh
   env PATH="/opt/freeware/bin:${PATH}"                                      \
@@ -876,7 +876,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
           LIBS="-lpthread -luv -lbsd -lm"                                   \
           CFLAGS="-flto=auto -I/opt/freeware/include -I/usr/local/include   \
                   -I../simh -I../decNumber -DUSE_FLOCK=1 -DUSE_FCNTL=1      \
-                  -DHAVE_POPT=1 -DAIX_ATOMICS=1 -m64                        \
+                  -I../libsir/include -DHAVE_POPT=1 -DAIX_ATOMICS=1 -m64    \
                   -DLOCKLESS=1 -D_ALL_SOURCE -D_GNU_SOURCE -O3              \
                   -U__STRICT_POSIX__ -fno-strict-aliasing -mcpu=power8"
   ```
@@ -899,9 +899,10 @@ Build the simulator from the top-level source directory (using **GNU Make**):
           LIBS="-lpthread -luv -lbsd -lm"                                   \
           CFLAGS="-flto=auto -I/opt/freeware/include -I/usr/local/include   \
                   -I../simh -I../decNumber -DUSE_FLOCK=1 -DUSE_FCNTL=1      \
-                  -DHAVE_POPT=1 -DNEED_128=1 -DAIX_ATOMICS=1 -m64           \
-                  -DLOCKLESS=1 -D_ALL_SOURCE -D_GNU_SOURCE -O3              \
-                  -U__STRICT_POSIX__ -fno-strict-aliasing -mcpu=power8"
+                  -I../libsir/include -DHAVE_POPT=1 -DNEED_128=1            \
+                  -DAIX_ATOMICS=1 -m64 -DLOCKLESS=1 -D_ALL_SOURCE           \
+                  -D_GNU_SOURCE -O3 -U__STRICT_POSIX__                      \
+                  -fno-strict-aliasing -mcpu=power8"
   ```
 
   * When building on IBM **POWER9** (or **Power10**) systems, ‘`-mcpu=power9`’ (*or* ‘`-mcpu=power10`’) should replace ‘`-mcpu=power8`’ in the above compiler invocation.
@@ -923,7 +924,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
           LIBS="-lpthread -luv -lbsd -lm"                                   \
           CFLAGS="-flto=auto -I/opt/freeware/include -I/usr/local/include   \
                   -I../simh -I../decNumber -DUSE_FLOCK=1 -DUSE_FCNTL=1      \
-                  -DHAVE_POPT=1 -DAIX_ATOMICS=1 -m64                        \
+                  -I../libsir/include -DHAVE_POPT=1 -DAIX_ATOMICS=1 -m64    \
                   -DLOCKLESS=1 -D_ALL_SOURCE -D_GNU_SOURCE -O3              \
                   -U__STRICT_POSIX__ -fno-strict-aliasing -mcpu=power8"
   ```
@@ -953,7 +954,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
                   -DUSE_FLOCK=1 -DUSE_FCNTL=1 -DAIX_ATOMICS=1 -DNEED_128=1  \
                   -DLOCKLESS=1 -I/opt/freeware/include -I../simh            \
                   -I../decNumber -I/usr/local/include -D_GNU_SOURCE         \
-                  -D_ALL_SOURCE -U__STRICT_POSIX__"
+                  -I../libsir/include -D_ALL_SOURCE -U__STRICT_POSIX__"
   ```
 
   * When building on **POWER9** systems, '`-qarch=pwr9`' should replace '`-qarch=pwr8`' in the above compiler invocation.
