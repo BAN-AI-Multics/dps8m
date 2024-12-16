@@ -61,6 +61,13 @@
 # if defined(__sun) && defined(__SVR4)
 #  include <sys/termiox.h>
 # endif /* if defined(__sun) && defined(__SVR4) */
+# if defined(__FreeBSD__) || defined(__DragonFly__)
+#  if !defined(__BSD_VISIBLE)
+#   define __BSD_VISIBLE 1
+#  endif
+#  include <sys/types.h>
+#  include <sys/sysctl.h>
+# endif
 # include "linehistory.h"
 # if !defined(__NetBSD__)
 #  include "../dps8/dps8.h"
