@@ -104,6 +104,7 @@ vol word36 * M = NULL;  //-V707   // memory
 // These are part of the scp interface
 //
 
+const char* appname = "dps8";
 char sim_name[] = "DPS8/M";
 int32 sim_emax = 4;  // some EIS can take up to 4-words
 static void dps8_init(void);

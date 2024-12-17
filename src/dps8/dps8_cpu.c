@@ -2070,11 +2070,15 @@ void * cpu_thread_main (void * arg)
     int myid = * (int *) arg;
     set_cpu_idx ((uint) myid);
     unsigned char umyid = (unsigned char)toupper('a' + (int)myid);
+    char thread_name[SIR_MAXPID] = {0};
 
     sim_msg ("\rCPU %c thread created.\r\n", (unsigned int)umyid);
+
 # if defined(TESTING)
     printPtid(pthread_self());
 # endif /* if defined(TESTING) */
+    _sir_snprintf_trunc(thread_name, SIR_MAXPID, "%s: CPU %c", appname, (unsigned int)umyid);
+    _sir_setthreadname(thread_name);
 
     sim_os_set_thread_priority (PRIORITY_ABOVE_NORMAL);
     setSignals ();

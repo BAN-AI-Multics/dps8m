@@ -463,10 +463,6 @@ void createCPUThread (uint cpuNum)
     if (rc)
       sim_printf ("createCPUThread pthread_create %d\n", rc);
 
-    char nm [17];
-    (void)sprintf (nm, "CPU %c", 'a' + cpuNum);
-    _sir_setthreadname(nm);
-
 #if defined(AFFINITY)
     if (cpus[cpuNum].set_affinity)
       {

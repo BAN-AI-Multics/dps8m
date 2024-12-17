@@ -1653,6 +1653,16 @@ GetUCRTVersion (struct UCRTVersion *ucrtversion)
 }
 #endif
 
+/* libsir support */
+
+static int dps8_sir_report_error(void)
+{
+  char message[SIR_MAXERROR] = {0};
+  (void)sir_geterror(message);
+  (void)fprintf(stderr, SIR_BREDB("libsir error: ") SIR_RED("%s%s"), message, SIR_EOL);
+  return EXIT_FAILURE;
+}
+
 /* Main command loop */
 
 #if !defined(PERF_STRIP)
@@ -1758,6 +1768,42 @@ puts ("\e[0m");
 # if defined(__HAIKU__)
 (void)disable_debugger(1);
 # endif /* if defined(__HAIKU__) */
+
+/* libsir init */
+
+sirinit si;
+if (!sir_makeinit(&si))
+    return dps8_sir_report_error();
+
+/* Levels for stdout: send debug, information, warning, and notice there. */
+si.d_stdout.levels = SIRL_DEBUG | SIRL_INFO | SIRL_WARN | SIRL_NOTICE;
+
+/* Options for stdout: don't show the timestamp, hostname, or thread ID. */
+si.d_stdout.opts = SIRO_NOTIME | SIRO_NOHOST | SIRO_NOTID;
+
+/* Levels for stderr: send error and above there. */
+si.d_stderr.levels = SIRL_ERROR | SIRL_CRIT | SIRL_ALERT | SIRL_EMERG;
+
+/* Options for stderr: don't show the timestamp, hostname, or thread ID. */
+si.d_stderr.opts = SIRO_NOTIME | SIRO_NOHOST | SIRO_NOTID;
+
+/* Levels for the system logger: don't send any output there. */
+si.d_syslog.levels = SIRL_NONE;
+
+/* Options for the system logger: use the default value. */
+si.d_syslog.opts = SIRO_DEFAULT;
+
+/* Configure a name to associate with our output. */
+(void)_sir_strncpy(si.name, SIR_MAXNAME, appname, strnlen(appname, SIR_MAXNAME));
+
+/* Initialize libsir. */
+if (!sir_init(&si))
+    return dps8_sir_report_error();
+
+/* Set a friendly name for the current thread. */
+char thread_name[SIR_MAXPID] = {0};
+_sir_snprintf_trunc(thread_name, SIR_MAXPID, "%s: SCP", appname);
+(void)_sir_setthreadname(thread_name);
 
 /* sanity checks */
 
@@ -2080,7 +2126,7 @@ FREE (sim_staba.comp);
 FREE (sim_staba.mask);
 FREE (sim_stabr.comp);
 FREE (sim_stabr.mask);
-return 0;
+return sir_cleanup() ? EXIT_SUCCESS : dps8_sir_report_error();
 }
 #endif
 
