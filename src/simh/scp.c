@@ -1655,6 +1655,7 @@ GetUCRTVersion (struct UCRTVersion *ucrtversion)
 
 /* libsir support */
 
+#if !defined(PERF_STRIP)
 static int dps8_sir_report_error(void)
 {
   char message[SIR_MAXERROR] = {0};
@@ -1665,7 +1666,6 @@ static int dps8_sir_report_error(void)
 
 /* Main command loop */
 
-#if !defined(PERF_STRIP)
 int main (int argc, char *argv[])
 {
 char *cptr, *cptr2;
