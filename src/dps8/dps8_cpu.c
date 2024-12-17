@@ -4689,11 +4689,7 @@ void dps8_sim_debug (uint32 dbits, DEVICE * dptr, unsigned long long cnt, const 
         while (1)
           {                 /* format passed string, args */
             va_start (arglist, fmt);
-# if defined(NO_vsnprintf)
-            len = vsprintf  (buf, fmt, arglist);
-# else                                                   /* !defined(NO_vsnprintf) */
             len = vsnprintf (buf, (int)((unsigned long)(bufsize)-1), fmt, arglist);
-# endif                                                  /* NO_vsnprintf */
             va_end (arglist);
 
 /* If the formatted result didn't fit into the buffer, then grow the buffer and try again */
