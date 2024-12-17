@@ -2222,7 +2222,6 @@ int core_unlock_all(cpu_state_t * cpup);
           __builtin_ia32_pause();  \
         }                          \
       } while(0)
-
 # else
 #  if defined(__GNUC__) || defined(__clang_version__) // ... then `nop` on GNU C or Clang ...
 #   define MM_PAUSE                                  \
@@ -2245,7 +2244,6 @@ int core_unlock_all(cpu_state_t * cpup);
         }                   \
       } while(0)
 # endif
-
 # if !defined(SCHED_NEVER_YIELD)
 #  undef SCHED_YIELD
 #  define SCHED_YIELD(lockStatePtr)                                      \

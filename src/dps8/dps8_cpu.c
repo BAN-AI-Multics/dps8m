@@ -2073,7 +2073,6 @@ void * cpu_thread_main (void * arg)
     char thread_name[SIR_MAXPID] = {0};
 
     sim_msg ("\rCPU %c thread created.\r\n", (unsigned int)umyid);
-
 # if defined(TESTING)
     printPtid(pthread_self());
 # endif /* if defined(TESTING) */

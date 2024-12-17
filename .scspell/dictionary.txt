@@ -298,6 +298,7 @@ ansx
 ansxn
 anxn
 apad
+appname
 approxaddhalf
 approxset
 approxsubhalf
@@ -405,6 +406,7 @@ bpos
 bptr
 breakall
 breakchar
+bredb
 brkbrk
 brkc
 brkint
@@ -1275,6 +1277,7 @@ getcwd
 getdelim
 getegid
 getenv
+geterror
 geteuid
 getexp
 getfl
@@ -1731,6 +1734,7 @@ macosxppc
 madlength
 mailslot
 mainpath
+makeinit
 makeword
 malloc
 mallocptr
@@ -1749,6 +1753,7 @@ maxdata
 maxdepth
 maxdigits
 maxdrop
+maxerror
 maxexp
 maxexponent
 maxfd
@@ -1758,6 +1763,7 @@ maxlen
 maxlever
 maxline
 maxlinks
+maxname
 maxneg
 maxnum
 maxp
@@ -1978,6 +1984,7 @@ noexpect
 nofile
 nofnc
 nohalt
+nohost
 noinherit
 nolink
 nolocalopc
@@ -2012,6 +2019,8 @@ nosync
 notallzeros
 notatt
 notelnet
+notid
+notime
 notreached
 notrounding
 notstar
@@ -2716,6 +2725,9 @@ sigusr
 sims
 singlefilesystem
 sinstruction
+sirinit
+sirl
+siro
 sizec
 sizeof
 skca
@@ -2875,6 +2887,7 @@ strncasecmp
 strncat
 strncmp
 strncpy
+strnlen
 stropts
 strp
 strpbrk
@@ -3440,6 +3453,7 @@ ansa
 ansq
 anstr
 ansx
+appname
 apuh
 aradix
 aram
@@ -10882,6 +10896,7 @@ freeware
 frequency
 frequently
 friday
+friendly
 from
 front
 fsfap
@@ -11673,6 +11688,7 @@ locks
 lockup
 logarithm
 logged
+logger
 logging
 logic
 logical
