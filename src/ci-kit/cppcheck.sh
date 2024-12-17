@@ -274,6 +274,7 @@ do_cppcheck()
     --platform="unix64" --std="c11" --std="c++11" --suppress="*:/usr/*"   \
     --suppress="checkLibraryNoReturn" --suppress="funcArgNamesDifferent"  \
     --suppress="unmatchedSuppression" --suppress="variableScope"          \
+    --suppress="normalCheckLevelMaxBranches"                              \
     --include="$(pwd -L)/src/dps8/ver.h"                                  \
     ${XMLGEN:-} ;                                                         \
   test -z "${HTMLOUT:-}" ||
