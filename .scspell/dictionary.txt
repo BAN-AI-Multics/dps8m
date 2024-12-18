@@ -1796,6 +1796,7 @@ memmoved
 memref
 memset
 memsize
+menuitem
 mermsup
 messagef
 meterp
@@ -12494,6 +12495,7 @@ popular
 populate
 populated
 populates
+popup
 pork
 porkchop
 port
