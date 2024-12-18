@@ -316,7 +316,7 @@ ifndef SUNPRO
   CFLAGS  += -Wall $(OPTFLAGS) $(STRICT_ALIASING)
 endif
 
-CFLAGS  += $(X_FLAGS)
+CFLAGS  += -D_LARGE_FILES -D_FILE_OFFSET_BITS=64 $(X_FLAGS)
 LDFLAGS += $(X_FLAGS)
 
 ###############################################################################
