@@ -574,6 +574,42 @@ static void * openShm (char * key) {
   return p;
 }
 
+static void on_menu_item_activate(GtkMenuItem *menuitem, gpointer user_data) {
+    if (strcmp(user_data, "toggle_dark_mode") == 0) {
+      toggle_dark_mode();
+    } else if (strcmp(user_data, "quit_program") == 0) {
+      gtk_main_quit();
+    }
+}
+
+static GtkWidget* create_popup_menu(void) {
+    GtkWidget *menu;
+    GtkWidget *menu_item;
+
+    menu = gtk_menu_new();
+
+    menu_item = gtk_menu_item_new_with_label("Toggle Dark Mode");
+    g_signal_connect(menu_item, "activate", G_CALLBACK(on_menu_item_activate), "toggle_dark_mode");
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+
+    menu_item = gtk_menu_item_new_with_label("Quit");
+    g_signal_connect(menu_item, "activate", G_CALLBACK(on_menu_item_activate), "quit_program");
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+
+    gtk_widget_show_all(menu);
+
+    return menu;
+}
+
+static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
+    if (event->button == GDK_BUTTON_SECONDARY) { // Right-click
+        GtkWidget *menu = create_popup_menu();
+        gtk_menu_popup_at_pointer(GTK_MENU(menu), (GdkEvent*) event);
+        return TRUE; // Event handled
+    }
+    return FALSE; // Event not handled
+}
+
 int main (int argc, char * argv []) {
   (void)setlocale(LC_ALL, "");
 
@@ -1196,6 +1232,9 @@ int main (int argc, char * argv []) {
   gtk_container_set_border_width(GTK_CONTAINER(window), 10);
   gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
   g_signal_connect (window, "delete-event", G_CALLBACK (window_delete), NULL);
+  g_signal_connect(window, "button-press-event", G_CALLBACK(on_button_press_event), NULL);
+  gtk_widget_add_events(window, GDK_BUTTON_PRESS_MASK);
+
   gtk_widget_show_all (window);
 
   time_handler (window);
