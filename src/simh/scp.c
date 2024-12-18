@@ -161,6 +161,10 @@
 
 #include "../dps8/dps8_math128.h"
 
+#include "sir.h"
+#include "sir/internal.h"
+#include "sir/version.h"
+
 #if !defined(__CYGWIN__)
 # if !defined(__APPLE__)
 #  if !defined(_AIX)
@@ -276,6 +280,7 @@ t_addr (*sim_vm_parse_addr) (DEVICE *dptr, CONST char *cptr, CONST char **tptr) 
 t_value (*sim_vm_pc_value) (void) = NULL;
 t_bool (*sim_vm_is_subroutine_call) (t_addr **ret_addrs) = NULL;
 t_bool (*sim_vm_fprint_stopped) (FILE *st, t_stat reason) = NULL;
+unsigned int nprocs;
 
 /* Prototypes */
 
@@ -1648,9 +1653,19 @@ GetUCRTVersion (struct UCRTVersion *ucrtversion)
 }
 #endif
 
-/* Main command loop */
+/* libsir support */
 
 #if !defined(PERF_STRIP)
+static int dps8_sir_report_error(void)
+{
+  char message[SIR_MAXERROR] = {0};
+  (void)sir_geterror(message);
+  (void)fprintf(stderr, SIR_BREDB("libsir error: ") SIR_RED("%s%s"), message, SIR_EOL);
+  return EXIT_FAILURE;
+}
+
+/* Main command loop */
+
 int main (int argc, char *argv[])
 {
 char *cptr, *cptr2;
@@ -1754,6 +1769,42 @@ puts ("\e[0m");
 (void)disable_debugger(1);
 # endif /* if defined(__HAIKU__) */
 
+/* libsir init */
+
+sirinit si;
+if (!sir_makeinit(&si))
+    return dps8_sir_report_error();
+
+/* Levels for stdout: send debug, information, warning, and notice there. */
+si.d_stdout.levels = SIRL_DEBUG | SIRL_INFO | SIRL_WARN | SIRL_NOTICE;
+
+/* Options for stdout: don't show the timestamp, hostname, or thread ID. */
+si.d_stdout.opts = SIRO_NOTIME | SIRO_NOHOST | SIRO_NOTID;
+
+/* Levels for stderr: send error and above there. */
+si.d_stderr.levels = SIRL_ERROR | SIRL_CRIT | SIRL_ALERT | SIRL_EMERG;
+
+/* Options for stderr: don't show the timestamp, hostname, or thread ID. */
+si.d_stderr.opts = SIRO_NOTIME | SIRO_NOHOST | SIRO_NOTID;
+
+/* Levels for the system logger: don't send any output there. */
+si.d_syslog.levels = SIRL_NONE;
+
+/* Options for the system logger: use the default value. */
+si.d_syslog.opts = SIRO_DEFAULT;
+
+/* Configure a name to associate with our output. */
+(void)_sir_strncpy(si.name, SIR_MAXNAME, appname, strnlen(appname, SIR_MAXNAME));
+
+/* Initialize libsir. */
+if (!sir_init(&si))
+    return dps8_sir_report_error();
+
+/* Set a friendly name for the current thread. */
+char thread_name[SIR_MAXPID] = {0};
+_sir_snprintf_trunc(thread_name, SIR_MAXPID, "%s: SCP", appname);
+(void)_sir_setthreadname(thread_name);
+
 /* sanity checks */
 
 # if defined(__clang_analyzer__)
@@ -1790,6 +1841,18 @@ if (testEndian != 0) {
 # if defined(NEED_128)
 test_math128();
 # endif /* if defined(NEED_128) */
+
+# define UV_VERSION(major, minor, patch) ((major << 16) | (minor << 8) | (patch))
+
+# if defined(LINUX_OS) && UV_VERSION_HEX >= UV_VERSION(1, 44, 0)
+// Only use uv_available_parallelism on Linux and only on libuv 1.44.0 or higher.
+// This will return a value less than the actual number of CPUs if, for example,
+// the CPU affinity mask has been pinned to specific CPUs.  On all other systems,
+// prefer the _sir_nprocs routine to query the number of actual CPUs available.
+nprocs = (unsigned int)uv_available_parallelism();
+# else
+nprocs = (unsigned int)_sir_nprocs();
+# endif
 
 /* Make sure that argv has at least 10 elements and that it ends in a NULL pointer */
 targv = (char **)calloc (1+MAX(10, argc), sizeof(*targv));
@@ -2040,6 +2103,8 @@ else if (*argv[0]) {                                    /* sim name arg? */
         }
     }
 
+argv = uv_setup_args(argc, argv);
+
 stat = process_stdin_commands (SCPE_BARE_STATUS(stat), argv);
 
 if (sim_vm_exit != NULL)                                /* call once only */
@@ -2061,7 +2126,7 @@ FREE (sim_staba.comp);
 FREE (sim_staba.mask);
 FREE (sim_stabr.comp);
 FREE (sim_stabr.mask);
-return 0;
+return sir_cleanup() ? EXIT_SUCCESS : dps8_sir_report_error();
 }
 #endif
 
@@ -3450,17 +3515,8 @@ for (; *ip && (op < oend); ) {
                         ap = rbuf;
                         }
                     else if ( (!strcmp("CPUS", gbuf)) \
-                      || (!strcmp("PROCESSORS", gbuf) ) ) {
-#if defined(LINUX_OS) && !defined(__ANDROID__)
-                        (void)sprintf(rbuf, "%ld", (long)get_nprocs());
-#elif defined(__HAIKU__)
-                        system_info hinfo;
-                        get_system_info(&hinfo);
-                        (void)sprintf (rbuf, "%llu",
-                                       (long long unsigned int)hinfo.cpu_count);
-#else
-                        (void)sprintf(rbuf, "1");
-#endif /* if defined(LINUX_OS) && !defined(__ANDROID__) */
+                      || (!strcmp("SIM_PROCESSORS", gbuf) ) ) {
+                        (void)sprintf(rbuf, "%u", nprocs);
                         ap = rbuf;
                         }
                     }
@@ -4674,6 +4730,7 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
     (void)dl_iterate_phdr (dl_iterate_phdr_callback, NULL);
     if (dl_iterate_phdr_callback_called)
         (void)fprintf (st, "\n");
+    dl_iterate_phdr_callback_called = 0;
 #        endif
 #       endif
 #      endif
@@ -4733,6 +4790,10 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
         *    defined(UV_VERSION_MINOR) &&  \
         *    defined(UV_VERSION_PATCH)     \
         */
+    (void)fprintf (st, "\r\n   Log support library: Built with libsir %d.%d.%d%s%s; %s%s in use",
+                   SIR_VERSION_MAJOR, SIR_VERSION_MINOR, SIR_VERSION_PATCH,
+                   SIR_VERSION_SUFFIX, SIR_VERSION_IS_RELEASE ? " (release)" : "",
+                   sir_getversionstring(), SIR_VERSION_IS_RELEASE ? "" : sir_isprerelease() ? "" : " (release)");
 #if defined(DECNUMBERLOC)
 # if defined(DECVERSION)
 #  if defined(DECVERSEXT)

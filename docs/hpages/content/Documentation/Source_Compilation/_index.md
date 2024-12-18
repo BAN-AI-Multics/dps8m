@@ -232,7 +232,7 @@ Install the required prerequisites (using FreeBSD Packages or Ports):
 * **FreeBSD** provides the **Clang** compiler as part of the base system.  While *sufficient* to build
   the simulator, we recommend that version 12 or later of the **GNU C** (`gcc`) compiler be used for
   optimal performance.
-* At the time of writing, **GCC 13.2** is available for **FreeBSD** systems and is the version of GCC
+* At the time of writing, **GCC 14.2** is available for **FreeBSD** systems and is the version of GCC
   currently recommended by **The DPS8M Development Team**.
   \
   \
@@ -242,19 +242,19 @@ Install the required prerequisites (using FreeBSD Packages or Ports):
   * Using FreeBSD Packages (as *root*):
 
     ```sh
-    pkg install gcc13
+    pkg install gcc14
     ```
 
   * Using FreeBSD Ports (as *root*):
 
     ```sh
-    cd /usr/ports/lang/gcc13/ && make install clean
+    cd /usr/ports/lang/gcc14/ && make install clean
     ```
 
 * Build the simulator from the top-level source directory (using **GNU Make**):
 
   ```sh
-  env CC="gcc13" LDFLAGS="-Wl,-rpath=/usr/local/lib/gcc13" gmake
+  env CC="gcc14" LDFLAGS="-Wl,-rpath=/usr/local/lib/gcc14" gmake
   ```
 
 ### blinkenLights2 on FreeBSD
@@ -336,7 +336,7 @@ Install the required prerequisites (using NetBSD Packages or [pkgsrc](https://ww
   While *sufficient* to build the simulator, we recommend that version 12 or later of the **GNU C** (`gcc`) compiler
   be used for optimal performance.
 
-* At the time of writing, **GCC 13.2** is available for **NetBSD 9** systems and is the version of GCC currently
+* At the time of writing, **GCC 14.2** is available for **NetBSD 10** systems and is the version of GCC currently
   recommended by **The DPS8M Development Team**.
   \
   \
@@ -345,19 +345,19 @@ Install the required prerequisites (using NetBSD Packages or [pkgsrc](https://ww
   * Using NetBSD Packages (as *root*):
 
     ```sh
-    pkgin in gcc13
+    pkgin in gcc14
     ```
 
   * Using pkgsrc (as *root*):
 
     ```sh
-    cd /usr/pkgsrc/lang/gcc13/ && make install clean
+    cd /usr/pkgsrc/lang/gcc14/ && make install clean
     ```
 
 * Build the simulator from the top-level source directory (using **GNU Make**):
 
   ```sh
-  env CC="/usr/pkg/gcc13/bin/gcc" LDFLAGS="-Wl,-rpath=/usr/pkg/gcc13/lib" gmake
+  env CC="/usr/pkg/gcc14/bin/gcc" LDFLAGS="-Wl,-rpath=/usr/pkg/gcc14/lib" gmake
   ```
 
 ### Compilation using Clang
@@ -575,7 +575,7 @@ Install the required prerequisites (using OpenBSD Packages or Ports):
 * Build the simulator from the top-level source directory (using **GNU Make**):
 
   ```sh
-  env CC="gcc12" CFLAGS="-I/usr/local/include"                    \
+  env CC="gcc13" CFLAGS="-I/usr/local/include"                    \
       LDFLAGS="-L/usr/local/lib -Wl,-rpath=/usr/local/lib/gcc13"  \
       ATOMICS="GNU"                                               \
     gmake
@@ -584,19 +584,19 @@ Install the required prerequisites (using OpenBSD Packages or Ports):
 ### Compiling using Clang
 
 * **GCC** is recommended for optimal performance, but compilation using **Clang** is supported.
-* At the time of writing, **Clang 16** is available for DragonFly BSD and recommended by **The DPS8M Development Team**.
+* At the time of writing, **Clang 17** is available for DragonFly BSD and recommended by **The DPS8M Development Team**.
 * While some optional utilities *may* fail to build using **Clang** on DragonFly, the simulator (`src/dps8/dps8`) is fully tested with each DragonFly release.
 
-  * **Clang 16** may be installed using DragonFly BSD DPorts (as *root*):
+  * **Clang 17** may be installed using DragonFly BSD DPorts (as *root*):
 
     ```sh
-    pkg install llvm16
+    pkg install llvm17
     ```
 
 * Build the simulator from the top-level source directory (using **GNU Make**):
 
   ```sh
-  env CC="clang16" CFLAGS="-I/usr/include -I/usr/local/include"  \
+  env CC="clang17" CFLAGS="-I/usr/include -I/usr/local/include"  \
       LDFLAGS="-L/usr/lib -L/usr/local/lib -fuse-ld=lld"         \
       ATOMICS="GNU"                                              \
     gmake
@@ -717,7 +717,7 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 ## OpenIndiana
 
 * Ensure your [**OpenIndiana**](https://www.openindiana.org/) installation is up-to-date.
-  * **OpenIndiana** *Hipster* **September 2024** was used to verify these instructions.
+  * **OpenIndiana** *Hipster* **December 2024** was used to verify these instructions.
 
 []()
 
@@ -729,7 +729,7 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 []()
 
 * Building with **Clang** (version 13 or later) is also supported (*but not recommended due to lack of LTO support*).
-  * **Clang 18** can be installed from the standard IPS repository via '**`pkg install developer/clang-18`**'.
+  * **Clang 19** can be installed from the standard IPS repository via '**`pkg install developer/clang-19`**'.
 
 ### OpenIndiana prerequisites
 
@@ -749,10 +749,10 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 
 ### Compiling using Clang
 
-* Build the simulator from the top-level source directory (using **GNU Make** and **Clang 18**):
+* Build the simulator from the top-level source directory (using **GNU Make** and **Clang 19**):
 
   ```sh
-  env NO_LTO=1 CC="clang-18" gmake
+  env NO_LTO=1 CC="clang-19" gmake
   ```
 
 <br>
@@ -863,7 +863,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 #### IBM Open XL C/C++ for AIX
 
-* Using **IBM Open XL C/C++ for AIX V17.1.2**:
+* Using **IBM Open XL C/C++ for AIX V17.1.2** (*and later*):
 
   ```sh
   env PATH="/opt/freeware/bin:${PATH}"                                      \
@@ -876,7 +876,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
           LIBS="-lpthread -luv -lbsd -lm"                                   \
           CFLAGS="-flto=auto -I/opt/freeware/include -I/usr/local/include   \
                   -I../simh -I../decNumber -DUSE_FLOCK=1 -DUSE_FCNTL=1      \
-                  -DHAVE_POPT=1 -DAIX_ATOMICS=1 -m64                        \
+                  -I../libsir/include -DHAVE_POPT=1 -DAIX_ATOMICS=1 -m64    \
                   -DLOCKLESS=1 -D_ALL_SOURCE -D_GNU_SOURCE -O3              \
                   -U__STRICT_POSIX__ -fno-strict-aliasing -mcpu=power8"
   ```
@@ -899,9 +899,10 @@ Build the simulator from the top-level source directory (using **GNU Make**):
           LIBS="-lpthread -luv -lbsd -lm"                                   \
           CFLAGS="-flto=auto -I/opt/freeware/include -I/usr/local/include   \
                   -I../simh -I../decNumber -DUSE_FLOCK=1 -DUSE_FCNTL=1      \
-                  -DHAVE_POPT=1 -DNEED_128=1 -DAIX_ATOMICS=1 -m64           \
-                  -DLOCKLESS=1 -D_ALL_SOURCE -D_GNU_SOURCE -O3              \
-                  -U__STRICT_POSIX__ -fno-strict-aliasing -mcpu=power8"
+                  -I../libsir/include -DHAVE_POPT=1 -DNEED_128=1            \
+                  -DAIX_ATOMICS=1 -m64 -DLOCKLESS=1 -D_ALL_SOURCE           \
+                  -D_GNU_SOURCE -O3 -U__STRICT_POSIX__                      \
+                  -fno-strict-aliasing -mcpu=power8"
   ```
 
   * When building on IBM **POWER9** (or **Power10**) systems, ‘`-mcpu=power9`’ (*or* ‘`-mcpu=power10`’) should replace ‘`-mcpu=power8`’ in the above compiler invocation.
@@ -923,7 +924,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
           LIBS="-lpthread -luv -lbsd -lm"                                   \
           CFLAGS="-flto=auto -I/opt/freeware/include -I/usr/local/include   \
                   -I../simh -I../decNumber -DUSE_FLOCK=1 -DUSE_FCNTL=1      \
-                  -DHAVE_POPT=1 -DAIX_ATOMICS=1 -m64                        \
+                  -I../libsir/include -DHAVE_POPT=1 -DAIX_ATOMICS=1 -m64    \
                   -DLOCKLESS=1 -D_ALL_SOURCE -D_GNU_SOURCE -O3              \
                   -U__STRICT_POSIX__ -fno-strict-aliasing -mcpu=power8"
   ```
@@ -953,7 +954,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
                   -DUSE_FLOCK=1 -DUSE_FCNTL=1 -DAIX_ATOMICS=1 -DNEED_128=1  \
                   -DLOCKLESS=1 -I/opt/freeware/include -I../simh            \
                   -I../decNumber -I/usr/local/include -D_GNU_SOURCE         \
-                  -D_ALL_SOURCE -U__STRICT_POSIX__"
+                  -I../libsir/include -D_ALL_SOURCE -U__STRICT_POSIX__"
   ```
 
   * When building on **POWER9** systems, '`-qarch=pwr9`' should replace '`-qarch=pwr8`' in the above compiler invocation.

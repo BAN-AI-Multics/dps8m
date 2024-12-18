@@ -262,6 +262,7 @@ extern t_bool sim_asynch_enabled;
 
 /* VM interface */
 
+extern const char* appname;
 extern char sim_name[];
 extern DEVICE *sim_devices[];
 extern REG *sim_PC;

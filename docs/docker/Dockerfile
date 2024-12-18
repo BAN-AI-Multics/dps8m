@@ -56,6 +56,7 @@ lzip \
 make \
 mksh \
 moreutils \
+ncurses-devel \
 nmap \
 pandoc \
 pbzip2 \

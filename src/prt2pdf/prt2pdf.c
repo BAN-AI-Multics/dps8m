@@ -184,13 +184,6 @@
               abort();
            }
 
-           if(GLOBAL_XREFS == NULL) {
-              (void)fprintf(stderr, "\r\nERROR: GLOBAL_XREFS == NULL!\r\n");
-              (void)fprintf(stderr, "\rFATAL: Bugcheck! Aborting at %s[%s:%d]\r\n",
-                            __func__, __FILE__, __LINE__);
-              abort();
-           }
-
            (void)memcpy(new_xrefs, GLOBAL_XREFS, GLOBAL_NUM_XREFS * sizeof(*GLOBAL_XREFS));
            FREE(GLOBAL_XREFS);
            GLOBAL_XREFS = new_xrefs;

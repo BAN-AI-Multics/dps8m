@@ -774,8 +774,27 @@ static void submit (enum deckFormat fmt, char * fname, uint16 readerIndex)
 #if defined(TESTING)
     sim_printf ("submit %s\r\n", fname);
 #endif
+#if defined(__GNUC__)
+# if !defined(__clang_version__)
+#  if __GNUC__ > 7
+#   if !defined(__INTEL_COMPILER)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wstringop-truncation"
+#   endif /* if !defined(__INTEL_COMPILER) */
+#  endif /* if __GNUC__ > 7 */
+# endif /* if !defined(__clang_version__) */
+#endif /* if defined(__GNUC__) */
     strncpy (rdr_state [readerIndex].fname, fname, sizeof(rdr_state [readerIndex].fname) - 1);
     rdr_state [readerIndex].fname [sizeof(rdr_state [readerIndex].fname) - 1] = '\0';
+#if defined(__GNUC__)
+# if !defined(__clang_version__)
+#  if __GNUC__ > 7
+#   if !defined(__INTEL_COMPILER)
+#    pragma GCC diagnostic pop
+#   endif /* if !defined(__INTEL_COMPILER) */
+#  endif /* if __GNUC__ > 7 */
+# endif /* if !defined(__clang_version__) */
+#endif /* if defined(__GNUC__) */
     rdr_state [readerIndex].deckfd     = deckfd;
     rdr_state [readerIndex].deckState  = deckStart;
     rdr_state [readerIndex].deckFormat = fmt;

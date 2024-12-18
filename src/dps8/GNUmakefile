@@ -56,6 +56,12 @@ endif
 
 ###############################################################################
 
+ifndef LIBSIR
+  LIBSIR = $(wildcard ../libsir/build/obj/src/*.o)
+endif
+
+###############################################################################
+
 ifndef LIBUV
   LIBUV = -luv
 endif
@@ -102,25 +108,25 @@ ifeq ($(MINGW_CROSS),1)
   # Cross-compilation with Cygwin host to MinGW target
   ifeq ($(CYGWIN_MINGW_CROSS),1)
     LIBS += -lwinmm -lws2_32 -lssp $(MINGWEX) -lwsock32 -luserenv -liplpapi   \
-            -ldbghelp -lversion -lmincore -lcryptbase                         \
+            -ldbghelp -lversion -lmincore -lcryptbase -lshlwapi               \
             -L../../../libuv/.libs $(LIBUV)
   endif
   ifeq ($(shell $(UNAME) -o 2> /dev/null || true >/dev/null 2>&1),Cygwin)
     # Standard Cygwin build
     LIBS += -lwinmm -lws2_32 -lwsock32 -luserenv -liphlpapi -ldbghelp         \
-            -lversion -lmincore -lcryptbase $(LIBUV)
+            -lversion -lmincore -lcryptbase -lshlwapi $(LIBUV)
   else
     # Cross-compilation to MinGW
     LIBS += -lwinmm -lws2_32 -lssp $(MINGWEX) -lwsock32 -luserenv -liphlpapi  \
-            -ldbghelp -lversion -lmincore -lcryptbase -L../../../libuv/.libs  \
-            $(LIBUV)
+            -ldbghelp -lversion -lmincore -lcryptbase -lshlwapi               \
+            -L../../../libuv/.libs $(LIBUV)
   endif
 endif
 
 ###############################################################################
 # Include directories
 
-CFLAGS += -I../decNumber -I$(SIMHx)
+CFLAGS += -I../decNumber -I$(SIMHx) -I$(LIBSIRx)
 
 ###############################################################################
 # Warning level tweaks
@@ -389,7 +395,7 @@ ifeq ($(TESTING),1)
 	@$(PRINTF) '%s\n' "LD: $(OBJS)"
 endif
 	@$(SETV); $(CC) -o dps8$(EXE) $(LDFLAGS) $(OBJS) $(LOCALOBJS)             \
-           $(MATHLIB) $(DECN_OBJS) $(SIMH_OBJS)                               \
+           $(MATHLIB) $(DECN_OBJS) $(SIMH_OBJS) $(LIBSIR)                     \
             $(LIBS) $(LOCALLIBS) $(DUMALIBS)
 
 ###############################################################################

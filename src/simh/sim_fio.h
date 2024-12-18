@@ -44,26 +44,7 @@
 # define fxwrite(a,b,c,d) sim_fwrite (a, b, c, d)
 
 int32 sim_finit (void);
-# if (   defined (__linux)              || \
-         defined (__linux__)            || \
-         defined (_AIX)                 || \
-     ( ( defined (__sun)                || \
-         defined (__sun__) )            && \
-         defined (_LARGEFILE_SOURCE) )  || \
-         defined (_WIN32)               || \
-         defined (__APPLE__)            || \
-         defined (__CYGWIN__)           || \
-         defined (__FreeBSD__)          || \
-         defined (__NetBSD__)           || \
-         defined (__OpenBSD__) )        && \
-        !defined (DONT_DO_LARGEFILE)
-typedef t_int64        t_offset;
-# else
-typedef int32        t_offset;
-#  if !defined (DONT_DO_LARGEFILE)
-#   define DONT_DO_LARGEFILE 1
-#  endif
-# endif
+typedef t_int64 t_offset;
 FILE *sim_fopen (const char *file, const char *mode);
 int sim_fseek (FILE *st, t_addr offset, int whence);
 int sim_fseeko (FILE *st, t_offset offset, int whence);
@@ -78,9 +59,6 @@ t_offset sim_fsize_ex (FILE *fptr);
 t_offset sim_fsize_name_ex (const char *fname);
 void sim_buf_swap_data (void *bptr, size_t size, size_t count);
 void sim_buf_copy_swapped (void *dptr, const void *bptr, size_t size, size_t count);
-
-extern t_bool sim_taddr_64;         /* t_addr is > 32b and Large File Support available */
-extern t_bool sim_toffset_64;       /* Large File (>2GB) file I/O support */
-extern t_bool sim_end;              /* TRUE = little endian, FALSE = big endian */
+extern t_bool sim_end; /* TRUE = little endian, FALSE = big endian */
 
 #endif
