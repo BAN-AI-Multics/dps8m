@@ -4730,6 +4730,7 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
     (void)dl_iterate_phdr (dl_iterate_phdr_callback, NULL);
     if (dl_iterate_phdr_callback_called)
         (void)fprintf (st, "\n");
+    dl_iterate_phdr_callback_called = 0;
 #        endif
 #       endif
 #      endif
