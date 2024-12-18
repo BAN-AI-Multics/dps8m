@@ -120,6 +120,7 @@ COMPRESSXT ?= gz
 KITNAME    ?= sources
 SCSPELLCMD ?= scspell
 SIMHx       = ../simh
+LIBSIRx     = ../libsir/include
 
 ###############################################################################
 
@@ -315,7 +316,7 @@ ifndef SUNPRO
   CFLAGS  += -Wall $(OPTFLAGS) $(STRICT_ALIASING)
 endif
 
-CFLAGS  += $(X_FLAGS)
+CFLAGS  += -D_LARGE_FILES -D_FILE_OFFSET_BITS=64 $(X_FLAGS)
 LDFLAGS += $(X_FLAGS)
 
 ###############################################################################
@@ -669,15 +670,15 @@ endif
 
 ###############################################################################
 
-CFLAGS += -I../decNumber -I$(SIMHx)
+CFLAGS += -I../decNumber -I$(SIMHx) -I$(LIBSIRx)
 CFLAGS += -std=$(CSTD)
 CFLAGS += -U__STRICT_ANSI__
 CFLAGS += -D_GNU_SOURCE
 
 ###############################################################################
 
-ifneq ($(W),)
-  CFLAGS +=-Wno-array-bounds
+ifneq ($(EXTRA_CFLAGS),)
+  CFLAGS += $(EXTRA_CFLAGS)
 endif
 
 ###############################################################################

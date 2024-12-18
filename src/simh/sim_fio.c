@@ -77,8 +77,6 @@
   } while(0)
 
 t_bool sim_end;                     /* TRUE = little endian, FALSE = big endian */
-t_bool sim_taddr_64;                /* t_addr is > 32b and Large File Support available */
-t_bool sim_toffset_64;              /* Large File (>2GB) file I/O Support available */
 
 /*
  * OS-independent, endian independent binary I/O package
@@ -101,9 +99,6 @@ t_bool sim_toffset_64;              /* Large File (>2GB) file I/O Support availa
 int32 sim_finit (void)
 {
 sim_end = DECLITEND;
-sim_toffset_64 = (sizeof(t_offset) > sizeof(int32));    /* Large File (>2GB) support */
-/*CONSTCOND*/
-sim_taddr_64 = sim_toffset_64 && (sizeof(t_addr) > sizeof(int32));
 return sim_end;
 }
 
@@ -260,11 +255,7 @@ if (strstr(mode, "w") != NULL)
 if (strstr(mode, "a") != NULL)
   writable = 1;
 #endif /* if defined(USE_FCNTL) || defined(USE_FLOCK) */
-#if (defined (__linux) || defined (__linux__) || defined (_AIX)) && !defined (DONT_DO_LARGEFILE)
-fsc = fopen64 (file, mode);
-#else
 fsc = fopen (file, mode);
-#endif
 #if defined(USE_FCNTL)
 struct flock lock;
 (void)memset (&lock, 0, sizeof(lock));
@@ -302,27 +293,8 @@ if (writable && !sim_nolock) {
 return fsc;
 }
 
-#if !defined (DONT_DO_LARGEFILE)
-
-# if ((defined(__sun) || defined(__sun__)) && defined(_LARGEFILE_SOURCE))
-#  define S_SIM_IO_FSEEK_EXT_ 1
-int sim_fseeko (FILE *st, t_offset offset, int whence)
-{
-return fseeko (st, (off_t)offset, whence);
-}
-
-t_offset sim_ftell (FILE *st)
-{
-return (t_offset)(ftello (st));
-}
-
-# endif
-
-/* Windows */
-
-# if defined (_WIN32)
-#  define S_SIM_IO_FSEEK_EXT_ 1
-#  include <sys/stat.h>
+#if defined (_WIN32)
+# include <sys/stat.h>
 
 int sim_fseeko (FILE *st, t_offset offset, int whence)
 {
@@ -361,35 +333,11 @@ if (fgetpos (st, &fileaddr))
 return (t_offset)fileaddr;
 }
 
-# endif                                                  /* end Windows */
+#else
 
-/* Linux */
-
-# if defined (__linux) || defined (__linux__) || defined (_AIX)
-#  define S_SIM_IO_FSEEK_EXT_ 1
 int sim_fseeko (FILE *st, t_offset xpos, int origin)
 {
-return fseeko64 (st, (off64_t)xpos, origin);
-}
-
-t_offset sim_ftell (FILE *st)
-{
-return (t_offset)(ftello64 (st));
-}
-
-# endif                                                  /* end Linux with LFS */
-
-/* Apple */
-
-# if defined (__APPLE__)          || \
-    defined (__FreeBSD__)         || \
-    defined (__NetBSD__)          || \
-    defined (__OpenBSD__)         || \
-    defined (__CYGWIN__)
-#  define S_SIM_IO_FSEEK_EXT_ 1
-int sim_fseeko (FILE *st, t_offset xpos, int origin)
-{
-return fseeko (st, (off_t)xpos, origin);
+return fseeko (st, xpos, origin);
 }
 
 t_offset sim_ftell (FILE *st)
@@ -397,21 +345,6 @@ t_offset sim_ftell (FILE *st)
 return (t_offset)(ftello (st));
 }
 
-# endif  /* end Apple */
-#endif /* !DONT_DO_LARGEFILE */
-
-/* Default: no OS-specific routine has been defined */
-
-#if !defined (S_SIM_IO_FSEEK_EXT_)
-int sim_fseeko (FILE *st, t_offset xpos, int origin)
-{
-return fseek (st, (long) xpos, origin);
-}
-
-t_offset sim_ftell (FILE *st)
-{
-return (t_offset)(ftell (st));
-}
 #endif
 
 int sim_fseek (FILE *st, t_addr offset, int whence)

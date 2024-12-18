@@ -58,8 +58,6 @@
  * sim_disk_data_trace       debug support
  */
 
-#define _FILE_OFFSET_BITS 64    /* Set 64-bit file offset for I/O operations */
-
 #include "sim_defs.h"
 #include "sim_disk.h"
 
@@ -163,7 +161,7 @@ if ((cptr == NULL) || (*cptr == 0))
     return SCPE_ARG;
 if (uptr->flags & UNIT_ATT)
     return SCPE_ALATT;
-cap = (t_offset) get_uint (cptr, 10, sim_taddr_64? 2000000: 2000, &r);
+cap = (t_offset) get_uint (cptr, 10, 2000000, &r);
 if (r != SCPE_OK)
     return SCPE_ARG;
 uptr->capac = (t_addr)((cap * ((t_offset) 1000000))/((dptr->flags & DEV_SECTORS) ? 512 : 1));

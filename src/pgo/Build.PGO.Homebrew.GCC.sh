@@ -44,8 +44,7 @@ export PROFILE_PATH
 test -d "${PROFILE_PATH}" && rm -rf "${PROFILE_PATH}"
 mkdir -p "${PROFILE_PATH}"
 export BASE_LDFLAGS="${LDFLAGS:-}"
-export BASE_CFLAGS="-Dftello64=ftello -Doff64_t=off_t -Dfseeko64=fseeko \
-  -Dfopen64=fopen -fipa-pta -fweb -fprofile-partial-training \
+export BASE_CFLAGS="-fipa-pta -fweb -fprofile-partial-training \
   -fprofile-correction -flto-partition=one -fno-semantic-interposition \
   -fprofile-dir=\"${PROFILE_PATH:?}\" ${CFLAGS:-}"
 

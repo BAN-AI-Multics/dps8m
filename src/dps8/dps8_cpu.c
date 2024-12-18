@@ -2070,11 +2070,14 @@ void * cpu_thread_main (void * arg)
     int myid = * (int *) arg;
     set_cpu_idx ((uint) myid);
     unsigned char umyid = (unsigned char)toupper('a' + (int)myid);
+    char thread_name[SIR_MAXPID] = {0};
 
     sim_msg ("\rCPU %c thread created.\r\n", (unsigned int)umyid);
 # if defined(TESTING)
     printPtid(pthread_self());
 # endif /* if defined(TESTING) */
+    _sir_snprintf_trunc(thread_name, SIR_MAXPID, "%s: CPU %c", appname, (unsigned int)umyid);
+    _sir_setthreadname(thread_name);
 
     sim_os_set_thread_priority (PRIORITY_ABOVE_NORMAL);
     setSignals ();
@@ -4686,11 +4689,7 @@ void dps8_sim_debug (uint32 dbits, DEVICE * dptr, unsigned long long cnt, const 
         while (1)
           {                 /* format passed string, args */
             va_start (arglist, fmt);
-# if defined(NO_vsnprintf)
-            len = vsprintf  (buf, fmt, arglist);
-# else                                                   /* !defined(NO_vsnprintf) */
             len = vsnprintf (buf, (int)((unsigned long)(bufsize)-1), fmt, arglist);
-# endif                                                  /* NO_vsnprintf */
             va_end (arglist);
 
 /* If the formatted result didn't fit into the buffer, then grow the buffer and try again */

@@ -44,7 +44,7 @@ title: DPS8M Releases
 {{< /tab >}}
 {{< tab "Android" >}}
 
-{{< expand "Android 10.0 (API Level 29)" "…" >}}
+{{< expand "Android 10.0+ (API Level 29+)" "…" >}}
 {{< expand "ARM" "…" >}}
 {{< expand "ARM64" "…" >}}
 | File                                                                                       | Verification |
@@ -74,7 +74,7 @@ title: DPS8M Releases
 {{< /expand >}}
 {{< /expand >}}
 
-{{< expand "Android 7.0 (API Level 24)" "…" >}}
+{{< expand "Android 7.0+ (API Level 24+)" "…" >}}
 {{< expand "ARM" "…" >}}
 {{< expand "ARM64" "…" >}}
 | File                                                                                       | Verification |
@@ -533,47 +533,16 @@ title: DPS8M Releases
 | [**dps8m-git-src.zpaq**](https://dps8m.gitlab.io/dps8m/dps8m-git-src.zpaq)     | ZPAQ7                |
 {{< /expand >}}
 {{< /tab >}}
-{{< tab "AIX" >}}
-
-{{< expand "Power ISA (64-bit)" "…" >}}
-| File                                                                                       | Platform                   |
-|:------------------------------------------------------------------------------------------ |:---------------------------|
-| [**dps8m-git-aixv7-pw7.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-pw7.tar.gz) | AIX&nbsp;7.2,&nbsp;POWER7+ |
-{{< /expand >}}
-{{< /tab >}}
+<!-- \{\{< tab "AIX" >\}\} -->
+<!-- \{\{< expand "Power ISA (64-bit)" "…" >\}\} -->
+<!-- | File                                                                                       | Platform                   | -->
+<!-- |:------------------------------------------------------------------------------------------ |:---------------------------| -->
+<!-- | [**dps8m-git-aixv7-pw7.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-aixv7-pw7.tar.gz) | AIX&nbsp;7.2,&nbsp;POWER7+ | -->
+<!-- \{\{< /expand >\}\} -->
+<!-- \{\{< /tab >\}\} -->
 {{< tab "Android" >}}
 
-{{< expand "Android 10.0 (API Level 29)" "…" >}}
-{{< expand "ARM" "…" >}}
-{{< expand "ARM64" "…" >}}
-| File                                                                                       |
-|:------------------------------------------------------------------------------------------ |
-| [**dps8m-git-ndk29-a64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-ndk29-a64.tar.gz) |
-{{< /expand >}}
-
-{{< expand "ARM (32-bit)" "…" >}}
-| File                                                                                       |
-|:------------------------------------------------------------------------------------------ |
-| [**dps8m-git-ndk29-a32.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-ndk29-a32.tar.gz) |
-{{< /expand >}}
-{{< /expand >}}
-
-{{< expand "Intel x86" "…" >}}
-{{< expand "Intel x86_64 (AMD64)" "…" >}}
-| File                                                                                       |
-|:------------------------------------------------------------------------------------------ |
-| [**dps8m-git-ndk29-x64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-ndk29-x64.tar.gz) |
-{{< /expand >}}
-
-{{< expand "Intel ix86 (32-bit)" "…" >}}
-| File                                                                                       |
-|:------------------------------------------------------------------------------------------ |
-| [**dps8m-git-ndk29-x32.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-ndk29-x32.tar.gz) |
-{{< /expand >}}
-{{< /expand >}}
-{{< /expand >}}
-
-{{< expand "Android 7.0 (API Level 24)" "…" >}}
+{{< expand "Android 7.0+ (API Level 24+)" "…" >}}
 {{< expand "ARM" "…" >}}
 {{< expand "ARM64" "…" >}}
 | File                                                                                       |
