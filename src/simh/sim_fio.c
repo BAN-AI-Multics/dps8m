@@ -337,7 +337,7 @@ return (t_offset)fileaddr;
 
 int sim_fseeko (FILE *st, t_offset xpos, int origin)
 {
-return fseeko (st, xpos, origin);
+return fseeko (st, (off_t)xpos, origin);
 }
 
 t_offset sim_ftell (FILE *st)
