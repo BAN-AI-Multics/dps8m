@@ -57,7 +57,8 @@ export CFLAGS="-fprofile-generate=${PROFILE_PATH:?}/profile.%p.profraw \
   ${BASE_CFLAGS:?} -Wno-ignored-optimization-argument"
 export LDFLAGS="${BASE_LDFLAGS:-} ${CFLAGS:?} -fuse-ld=lld"
 ${MAKE:-make} distclean "${@}" HOMEBREW_LIB= HOMEBREW_INC=
-${MAKE:-make} "${LIBUVVER:?}" "${@}" HOMEBREW_LIB= HOMEBREW_INC=
+test -z "${NO_PGO_LIBUV:-}" \
+  && ${MAKE:-make} "${LIBUVVER:?}" "${@}" HOMEBREW_LIB= HOMEBREW_INC= || true
 ${MAKE:-make} "${@}" HOMEBREW_LIB= HOMEBREW_INC=
 printf '\n%s\n' "Generating profile ..."
 (cd src/perf_test && ../dps8/dps8 -r ./nqueensx.ini)
@@ -71,5 +72,6 @@ export CFLAGS="-fprofile-use=${PROFILE_PATH:?}/final.profdata \
   ${BASE_CFLAGS:?} -Wno-ignored-optimization-argument"
 export LDFLAGS="${BASE_LDFLAGS:-} ${CFLAGS:?} -fuse-ld=lld"
 ${MAKE:-make} distclean "${@}" HOMEBREW_LIB= HOMEBREW_INC=
-${MAKE:-make} "${LIBUVVER:?}" "${@}" HOMEBREW_LIB= HOMEBREW_INC=
+test -z "${NO_PGO_LIBUV:-}" \
+  && ${MAKE:-make} "${LIBUVVER:?}" "${@}" HOMEBREW_LIB= HOMEBREW_INC= || true
 ${MAKE:-make} "${@}" HOMEBREW_LIB= HOMEBREW_INC=

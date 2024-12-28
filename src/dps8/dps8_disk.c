@@ -42,7 +42,7 @@
 #include "dps8_cpu.h"
 #include "dps8_faults.h"
 #include "dps8_scu.h"
-#include "sim_disk.h"
+#include "../simh/sim_disk.h"
 #include "dps8_utils.h"
 
 #if defined(LOCKLESS)

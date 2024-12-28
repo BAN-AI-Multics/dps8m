@@ -903,7 +903,8 @@ void setG7fault (uint cpuNo, _fault faultNo, _fault_subtype subFault)
     //cpu.g7SubFaultsPreset [faultNo] = subFault;
     cpup->g7SubFaults [faultNo] = subFault;
 #if defined(THREADZ) || defined(LOCKLESS)
-    wakeCPU(cpuNo);
+    if (cpuNo != current_running_cpu_idx)
+      wakeCPU(cpuNo);
 #endif
   }
 

@@ -82,7 +82,7 @@ struct system_state_s {
   struct      symbolTable_s symbolTable;
 #if !defined(API)
   char        commit_id [41];
-  vol         word36 M [MEMSIZE];
+  volAtomic   word36 M [MEMSIZE];
   cpu_state_t cpus [N_CPU_UNITS_MAX];
   struct cables_s cables;
 #endif /* if !defined(API) */

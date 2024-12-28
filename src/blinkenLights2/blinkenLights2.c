@@ -41,7 +41,7 @@
 #include <gdk/gdk.h>
 
 #define API
-#include "dps8_state.h"
+#include "../dps8/dps8_state.h"
 
 static struct system_state_s * system_state;
 

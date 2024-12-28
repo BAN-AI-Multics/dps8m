@@ -475,10 +475,6 @@ void createCPUThread (uint cpuNum)
                       cpus[cpuNum].affinity, cpuNum, s);
       }
 #endif /* if defined(AFFINITY) */
-    // Spin waiting for new thread to start executing code
-    while (! cpus[cpuNum].up) {
-      sim_usleep (1);
-    }
   }
 
 void stopCPUThread(void)

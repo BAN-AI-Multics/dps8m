@@ -175,7 +175,7 @@ struct iomThreadz_t
     pthread_t iomThread;
     int iomThreadArg;
 
-    volatile bool ready;
+    volAtomic bool ready;
 
     // interrupt wait
     bool intr;

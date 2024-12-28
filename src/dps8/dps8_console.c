@@ -964,6 +964,29 @@ static void consoleProcessIdx (int conUnitIdx)
                            cms[console_state[0].io_mode],
                            ta_cnt, ta_next);
             console_putstr (conUnitIdx, buf);
+#if defined(THREADZ) || defined(LOCKLESS)
+            (void) sprintf (buf, "syncClockMode %c syncClockModeMasterIdx %u\r\n",
+                            syncClockMode ? 'T' : 'F',
+                            syncClockModeMasterIdx);
+            console_putstr (conUnitIdx, buf);
+            for (int i = 0; i < N_CPU_UNITS_MAX; i ++) {
+              (void) sprintf (buf, "CPU %c %s %05o:%06o\r\n"
+                                   "      executing %c syncClockModeMaster %c workAllocation %4ld\r\n"
+                                   "      inMultics %c syncClockModeCache %c isSlave %c\r\n",
+                              "ABCDEFGH"[i],
+                              cycle_str (cpus[i].cycle),
+                              cpus[i].PPR.PSR,
+                              cpus[i].PPR.IC,
+                              cpus[i].executing ? 'T' : 'F',
+                              cpus[i].syncClockModeMaster ? 'T' : 'F',
+                              cpus[i].workAllocation,
+                              cpus[i].inMultics ? 'T' : 'F',
+                              cpus[i].syncClockModeCache ? 'T' : 'F',
+                              cpus[i].isSlave ? 'T' : 'F');
+              console_putstr (conUnitIdx, buf);
+            }
+#endif /* if defined(THREADZ) || defined(LOCKLESS) */
+
             continue;
           }
 

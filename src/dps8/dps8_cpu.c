@@ -59,7 +59,7 @@
 #endif
 
 #include "dps8_opcodetable.h"
-#include "sim_defs.h"
+#include "../simh/sim_defs.h"
 
 #if defined(THREADZ) || defined(LOCKLESS)
 # include "threadz.h"
@@ -122,7 +122,7 @@ static t_stat simh_cpu_reset_and_clear_unit (UNIT * uptr,
                                              UNUSED int32 value,
                                              UNUSED const char * cptr,
                                              UNUSED void * desc);
-static char * cycle_str (cycles_e cycle);
+char * cycle_str (cycles_e cycle);
 
 static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
                                UNUSED int val, UNUSED const void * desc)
@@ -454,7 +454,6 @@ static config_list_t cpu_config_list [] =
     { "isolts_mode",           0,  1,               cfg_on_off             },
     { "nodis",                 0,  1,               cfg_on_off             },
     { "l68_mode",              0,  1,               cfg_l68_mode           },
-    { "nosync",                0,  1,               cfg_on_off             },
     { NULL,                    0,  0,               NULL                   }
   };
 
@@ -680,10 +679,10 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
                 cpu_reset_unit_idx ((uint) cpu_unit_idx, false);
                 //simh_cpu_reset_and_clear_unit (cpuUnits + cpu_unit_idx, 0, NULL, NULL);
               }
-#else
+#else /* defined(THREADZ) || defined(LOCKLESS) */
               cpu_reset_unit_idx ((uint) cpu_unit_idx, false);
               simh_cpu_reset_and_clear_unit (cpu_unit + cpu_unit_idx, 0, NULL, NULL);
-#endif
+#endif /* defined(THREADZ) || defined(LOCKLESS) */
 
             } else if (was && !v) {
               cpus[cpu_unit_idx].switches = cpus[cpu_unit_idx].isolts_switches_save;
@@ -696,10 +695,10 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
                 cpu_reset_unit_idx ((uint) cpu_unit_idx, false);
                 //simh_cpu_reset_and_clear_unit (cpuUnits + cpu_unit_idx, 0, NULL, NULL);
               }
-#else
+#else /* defined(THREADZ) || defined(LOCKLESS) */
             cpu_reset_unit_idx ((uint) cpu_unit_idx, false);
             simh_cpu_reset_and_clear_unit (cpu_unit + cpu_unit_idx, 0, NULL, NULL);
-#endif
+#endif /* defined(THREADZ) || defined(LOCKLESS) */
 
             }
           }
@@ -707,8 +706,6 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
           cpus[cpu_unit_idx].tweaks.nodis = v;
         else if (strcmp (p, "l68_mode") == 0)
           cpus[cpu_unit_idx].tweaks.l68_mode = v;
-        else if (strcmp (p, "nosync") == 0)
-          cpus[cpu_unit_idx].tweaks.nosync = v;
         else
           {
             sim_warn ("error: cpu_set_config: Invalid cfg_parse rc <%ld>\n",
@@ -890,7 +887,7 @@ static t_stat setCPUConfigDPS8M (UNIT * uptr, UNUSED int32 value, UNUSED const c
   return SCPE_OK;
 }
 
-static char * cycle_str (cycles_e cycle)
+char * cycle_str (cycles_e cycle)
   {
     switch (cycle)
       {
@@ -1001,10 +998,6 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
 
 #if defined(RAPRx)
     cpu.apu.lastCycle = UNKNOWN_CYCLE;
-#endif
-
-#if defined(THREADZ) || defined(LOCKLESS)
-    cpu.rcfDelete = false;
 #endif
 
     (void)memset (& cpu.PPR, 0, sizeof (struct ppr_s));
@@ -1567,7 +1560,6 @@ void cpu_init (void)
     set_cpu_idx (0);
 
     (void)memset (cpus, 0, sizeof (cpu_state_t) * N_CPU_UNITS_MAX);
-    cpus [0].switches.FLT_BASE = 2; // Some of the UnitTests assume this
 
 #if !defined(PERF_STRIP)
     get_serial_number (_cpup);
@@ -2159,39 +2151,80 @@ static bool clear_temporary_absolute_mode (cpu_state_t * cpup)
 
 #if defined(THREADZ) || defined(LOCKLESS)
 # ifdef SYNCTEST
-enum { workAllocationQuantum = 1 };
-enum { syncClockModePollRate = 1 };
+static const int workAllocationQuantum = 64;
+static const int syncClockModePollRate = 128;
 static int allocCount;
 # else
-enum { workAllocationQuantum = 64 };
-enum { syncClockModePollRate = 128 };
+static const int workAllocationQuantum = 64;
+static const int syncClockModePollRate = 128;
 # endif
+static const int masterCycleCntlimit = 4096;
 
-static void becomeClockMaster (cpu_state_t * cpup) {
+void becomeClockMaster (uint cpuNum) {
+  //HDBGNote (cpup, __func__, "entry%s.", "");
 # ifdef SYNCTEST
+  sim_printf ("CPU%c %s entry\n", cpuNum + 'A', __func__);
   allocCount = 0;
 # endif
+
   //lockSync ();  // Only one CPU can manage the sync at a time; if more then one CPU is started
   // at once, the second will hang here until the first is finished. If this proves to be
   // a problem, then we need a mechanism for the second one to join the sync parade.
   if (syncClockMode) {
     // Someone else is already clock master; let them rule
-    sim_warn ("%s: someone else beat us here.\r\n", __func__);
+    //sim_printf ("%s: someone else beat us here.\n", __func__);
+    //HDBGNote (cpup, __func__, "someone else beat us here.%s", "");
     return;
   }
-  syncClockModeMasterIdx = current_running_cpu_idx;
+
+
+  syncClockModeMasterIdx = cpuNum;
+  cpu_state_t * cpup = & cpus[cpuNum];
   cpu.syncClockModeMaster = true; // This CPU is the clock master
-  for (int i = 0; i < N_CPU_UNITS_MAX; i ++)
-    cpus[i].workAllocation = 0;
+  cpu.masterCycleCnt = 0;
+  cpu.syncClockModeCache = true;
+  for (int i = 0; i < N_CPU_UNITS_MAX; i ++) {
+    if (i != cpuNum) { // not the new master
+      cpus[i].workAllocation = 0;
+      __asm volatile ("");
+      atomic_thread_fence (memory_order_seq_cst); //-V779
+      if (cpus[i].inMultics && ! cpus[i].isSlave) { // it is up but not yet a slave
+        cpus[i].syncClockModePoll = 0;
+        __asm volatile ("");
+        atomic_thread_fence (memory_order_seq_cst);
+        cpus[i].becomeSlave = true;
+        __asm volatile ("");
+        atomic_thread_fence (memory_order_seq_cst);
+      } // candidate
+    } // not target CPU
+  } // every CPU
+
+  __asm volatile ("");
+  atomic_thread_fence (memory_order_seq_cst);
   syncClockMode = true;
-}
+
+  __asm volatile ("");
+  atomic_thread_fence (memory_order_seq_cst);
+  //HDBGNote (cpup, __func__, "becomes clock master%s", "");
+} // becomeClockMaster
 
 void giveupClockMaster (cpu_state_t * cpup) {
+  //HDBGNote (cpup, __func__, "entry%s", "");
 # ifdef SYNCTEST
-  sim_printf ("alloc count %d\r\n", allocCount);
+  //HDBGNote (cpup, __func__, "alloc count %d", allocCount);
+  sim_printf ("CPU%c %s entry\n", cpu.cpuIdx + 'A', __func__);
+  sim_printf ("CPU%c Alloc count %d\n", cpu.cpuIdx + 'A', allocCount);
 # endif
-  cpu.syncClockModeMaster = false;
+  __asm volatile ("");
+  cpu.syncClockModeMaster = false; //-V779
+  __asm volatile ("");
   syncClockMode = false; // Free the other processors
+  __asm volatile ("");
+  for (int i = 0; i < N_CPU_UNITS_MAX; i ++) {
+    cpus[i].syncClockModeCache = false;
+  }
+  __asm volatile ("");
+  atomic_thread_fence (memory_order_seq_cst);
   //unlockSync (); // And let someone else grab sync mode
 }
 #endif
@@ -2212,22 +2245,6 @@ t_stat threadz_sim_instr (void)
     unsigned long long lockCntAll       = 0;
     unsigned long long instrCntAll      = 0;
     unsigned long long cycleCntAll      = 0;
-
-#if defined(THREADZ) || defined(LOCKLESS)
-    // New CPUs start sets synchronous clock mode until start_cpu is done with race conditions.
-    if (cpu.tweaks.nosync == 0) {
-      // If we are the only CPU, no need to become master
-      for (int i = 0; i < N_CPU_UNITS_MAX; i ++) {
-        if (cpus[i].up) {
-          becomeClockMaster (cpup);
-# ifdef SYNCTEST
-          sim_printf ("new master\r\n");
-# endif
-          break;
-        }
-      }
-    }
-#endif
 
     t_stat reason = 0;
 
@@ -2325,114 +2342,21 @@ setCPU:;
       }
 
 #if defined(THREADZ) || defined(LOCKLESS)
-    cpu.executing = true;
-    cpu.up = true;
+    // These are used to signal createCPUThread that the "round
+    // up the slaves" code above has run; they must be set
+    // after that. This line will prevent the compiler from
+    // hoisting them.
+    __asm volatile ("");
+    cpu.executing = true; //-V779
+    if (cpu.tweaks.isolts_mode) {
+      ;
+    } else {
+      cpu.inMultics = true;
+    }
 #endif
 
     do
       {
-
-#if defined(THREADZ) || defined(LOCKLESS)
-        // RCF ADD restarts the CPU by doing a connect fault to a CPU
-        // doing the pxss stop cpu DIS.
-        // If we are not in sync clock mode,
-        // And the CPU did the pxss stop DIS
-        // And we processing a FAULT,
-        // then we undergoing an RCF ADD.
-        if (UNLIKELY (cpu.cycle == INTERRUPT_cycle) && UNLIKELY (cpu.rcfDelete) && LIKELY ((! syncClockMode))) {
-          cpu.rcfDelete = false; // Forget about the RCF DELETE
-# ifdef SYNCTEST
-          sim_printf ("rcf delete master\r\n");
-# endif
-          becomeClockMaster (cpup); // Start synchronizing
-          cpu.up = true;
-        }
-
-        // Ready to check sync clock mode?
-        if (cpu.syncClockModeCache || cpu.syncClockModePoll++ > syncClockModePollRate) {
-          cpu.syncClockModePoll = 0;
-
-          // Are the clocks synchronized?
-          if (syncClockMode) {
-
-            // Remember that this thread is synchronized
-            cpu.syncClockModeCache = true;
-
-            // Are we the master?
-            if (syncClockModeMasterIdx == current_running_cpu_idx) {
-
-              // Master
-
-              // Have we used up out allocation?
-              if (cpu.workAllocation <= 0) {
-# ifdef SYNCTEST
-                allocCount ++;
-# endif
-                // If usleep(1) actually takes only 1 us, then this
-                // will be at least 2 seconds.
-                //int64_t waitTimeout = 2000000;
-                // Quick testing shows it is closer to 2 minutes...
-                int64_t waitTimeout = 100000;
-                // Has everyone used up their allocation?
-                while (1) {
-                  bool alldone = true;
-                  for (int i = 0; i < N_CPU_UNITS_MAX; i ++) {
-                    if (cpus[i].up && cpus[i].workAllocation > 0) {
-                      wakeCPU (i);
-                      alldone = false;
-                      //break;
-                    } // up and working
-                  } // cpus
-                  if (alldone) {
-                    // Everyone has used up their allocations; dole out some more work
-                    for (int i = 0; i < N_CPU_UNITS_MAX; i ++) {
-                      if (cpus[i].up) {
-                        cpus[i].workAllocation += workAllocationQuantum;
-                        wakeCPU (i);
-                     }
-                    }
-                    break; // while (1)
-                  } // alldone
-                  if (waitTimeout-- < 0) {
-                    // timed out waiting for everyone to finish their
-                    // work allocation; assume something is fouled.
-                    sim_printf ("Clock master CPU %c timed out\r\n", "ABCDEFGH"[current_running_cpu_idx]);
-                    for (int i = 0; i < N_CPU_UNITS_MAX; i ++) {
-                      if (cpus[i].up && cpus[i].workAllocation > 0) {
-                        sim_printf ("CPU %c remaining allocation: %lld\r\n", "ABCDEFGH"[i], cpus[i].workAllocation);
-                      }
-                    }
-                    sim_printf ("Conceding clock mastery...\r\n");
-                    cpu.syncClockModeCache = false;
-                    giveupClockMaster (cpup);
-                    goto bail;
-                  }
-                  sim_usleep (1);
-                } // while others still have work to do
-              } // have we used up our allocation
-              // We are master and have work allocated; fall through
-              // and do some work
-
-            } else { // Master/slave?
-
-              // Slave
-
-              // Wait for allocation
-              while (syncClockMode && cpu.workAllocation <= 0)
-                sim_usleep (1);
-
-              // We are slave and have work allocated; fall through
-              // and do some work
-
-            } // master/slave
-
-          } else { // ! syncClockMode
-            // Forget that this thread is synchronized
-            cpu.syncClockModeCache = false;
-          } // ! syncClockMode
-        } // poll
-bail:
-#endif
 
         reason = 0;
 
@@ -2878,6 +2802,141 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
           case FAULT_EXEC_cycle:
           case INTERRUPT_EXEC_cycle:
             {
+#if defined(THREADZ) || defined(LOCKLESS)
+
+              // Have we been told to becomes a slave?
+              if (UNLIKELY (cpu.becomeSlave)) {
+                cpu.becomeSlave = false;
+                // Wait for the master to wake up
+                while (! syncClockMode) {
+                  usleep (1);
+                }
+                // Force the poll below
+                cpu.syncClockModePoll = 0;
+              }
+
+              // Ready to check sync clock mode?
+              if (cpu.syncClockModeCache || --cpu.syncClockModePoll <= 0) {
+
+                cpu.syncClockModePoll = cpu.tweaks.isolts_mode ? 1 : syncClockModePollRate;
+
+                // Are the clocks synchronized?
+                if (syncClockMode) {
+
+                  // Remember that this thread is synchronized
+                  cpu.syncClockModeCache = true;
+
+                  // Are we the master?
+                  if (syncClockModeMasterIdx == current_running_cpu_idx) {
+
+                    // Master
+                    cpu.masterCycleCnt ++;
+                    if (cpu.masterCycleCnt > masterCycleCntlimit) {
+# ifdef SYNCTEST
+                      sim_printf ("too many cycles\n");
+# endif
+                      giveupClockMaster (cpup);
+                      goto bail;
+                    }
+
+                    // Have we used up our allocation?
+                    if (cpu.workAllocation <= 0) {
+# ifdef SYNCTEST
+                      allocCount ++;
+# endif
+
+                      // If usleep(1) actually takes only 1 us, then this
+                      // will be at least 2 seconds.
+                      //int64_t waitTimeout = 2000000;
+                      // Quick testing shows it is closer to 2 minutes...
+                      int64_t waitTimeout = 100000;
+
+
+                      // Has everyone used up their allocation?
+                      while (1) {  // while others still have work to do
+                        bool alldone = true;
+                        for (int i = 0; i < N_CPU_UNITS_MAX; i ++) {
+                          if (cpus[i].inMultics && cpus[i].workAllocation > 0) {
+                            wakeCPU (i);
+                            alldone = false;
+                            //break;
+                          } // up and working
+                        } // cpus
+                        if (alldone) {
+                          // Everyone has used up there allocations; dole out some more work
+                          for (int i = 0; i < N_CPU_UNITS_MAX; i ++) {
+                            if (cpus[i].inMultics) {
+                              cpus[i].workAllocation += cpu.tweaks.isolts_mode ? 1 : workAllocationQuantum;
+                              wakeCPU (i);
+                            }
+                          }
+                          break; // while (1)
+                        } // alldone
+                        if (waitTimeout-- < 0) {
+                          // timed out waiting for everyone to finish their
+                          // work allocation; assume something is fouled.
+                          sim_printf ("Clock master CPU %c timed out\n", "ABCDEFGH"[current_running_cpu_idx]);
+                          for (int i = 0; i < N_CPU_UNITS_MAX; i ++) {
+                            if (cpus[i].inMultics && cpus[i].workAllocation > 0) {
+                              sim_printf ("CPU %c remaining allocation: %ld\n", "ABCDEFGH"[i], cpus[i].workAllocation);
+                            }
+                          }
+                          sim_printf ("Conceding clock mastery...\n");
+                          cpu.syncClockModeCache = false;
+                          giveupClockMaster (cpup);
+                          goto bail;
+                        }
+                        usleep (1);
+                      } // while (1) -- while others still have work to do
+                    } // have we used up our allocation
+                    // We are master and have work allocated; fall through
+                    // and do some work
+
+                  } else { // Master/slave?
+
+                    // We are not the master; must be a slave
+
+                    // Have we just become a slave?
+                    if (! cpu.isSlave) {
+                      //HDBGNote (NULL, __func__, "CPU%c Becoming slave", cpu.cpuIdx + 'A');
+# ifdef SYNCTEST
+                     sim_printf ("CPU%c becoming slave\n", cpu.cpuIdx + 'A');
+# endif
+                    }
+                    cpu.isSlave = true;
+
+                    // Wait for allocation
+                    while (syncClockMode && cpu.workAllocation <= 0)
+                      usleep (1);
+
+                    // We are slave and have work allocated; fall through
+                    // and do some work
+
+                  } // master/slave
+
+                } else { // ! syncClockMode
+                  // Forget that this thread is synchronized
+                  cpu.syncClockModeCache = false;
+                  if (cpu.isSlave) {
+                    //HDBGNote (cpup, __func__, "Free; free at last%s", "");
+# ifdef SYNCTEST
+                    sim_printf ("CPU%c free; free at last\n", cpu.cpuIdx + 'A');
+# endif
+                    cpu.isSlave = false;
+                  }
+                } // ! syncClockMode
+              } // polling
+          bail:
+
+#endif
+
+#if defined(THREADZ) || defined(LOCKLESS)
+              if (LIKELY (! cpu.tweaks.isolts_mode) &&
+                  UNLIKELY (! cpu.inMultics)) {
+                cpu.inMultics = true;
+              }
+#endif /* defined(THREADZ) || defined(LOCKLESS) */
+
               CPT (cpt1U, 22); // exec cycle
 
 #if defined(LOCKLESS)
@@ -2996,9 +3055,10 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   CPT (cpt1U, 25); // DIS instruction
 
 #if defined(THREADZ) || defined(LOCKLESS)
-                  // If we do a DIS, throw away our work allocation so that other
-                  // CPUs can get real work done
-                  cpu.workAllocation = 0;
+                  // If we do a DIS is clock sync, skip the sleep
+                  if (cpu.syncClockModeCache) {
+                    break;
+                }
 #endif
 
 // If we get here, we have encountered a DIS instruction in EXEC_cycle.
@@ -3406,8 +3466,8 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 leave:
 #if defined(THREADZ) || defined(LOCKLESS)
     cpu.executing = false;
-    cpu.up = false;
-#endif
+    cpu.inMultics = false;
+#endif /* defined(THREADZ) || defined(LOCKLESS) */
 #if defined(TESTING)
     HDBGPrint ();
 #endif
