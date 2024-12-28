@@ -566,6 +566,7 @@ cnchn
 cnly
 cnms
 cntdwn
+cntlimit
 cntlr
 codeseg
 coffset
@@ -9315,6 +9316,7 @@ beattie
 because
 become
 becomes
+becoming
 beef
 been
 beep
@@ -11123,6 +11125,7 @@ hittner
 hlsearch
 hmmm
 hock
+hoisting
 hold
 holder
 holders
@@ -13412,6 +13415,7 @@ skips
 skirt
 slash
 slave
+slaves
 sleep
 sleeping
 sleeves

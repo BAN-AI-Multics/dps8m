@@ -123,7 +123,7 @@
  * Allow multiple tapes per channel.
  */
 
-#include "sim_tape.h"
+#include "../simh/sim_tape.h"
 
 static DEBTAB mt_dt [] =
   {

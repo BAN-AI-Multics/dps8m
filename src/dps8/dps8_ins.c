@@ -8619,7 +8619,7 @@ elapsedtime ();
                 doFault (FAULT_CMD, fst_cmd_ctl, "(smic)");
               }
             uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
-            t_stat rc = scu_smic ((uint) scuUnitIdx, current_running_cpu_idx,
+            t_stat rc = scu_smic (cpup, (uint) scuUnitIdx, current_running_cpu_idx,
                                   cpu_port_num, cpu.rA);
             if (rc)
               return rc;
@@ -8681,7 +8681,7 @@ elapsedtime ();
 # ifdef HDBG
             hdbgPrint ();
 # endif
-sim_printf ("sys$trouble\r\n");
+            sim_printf ("sys$trouble\r\n");
             exit (1);
           }
 #endif
@@ -8744,8 +8744,8 @@ sim_printf ("sys$trouble\r\n");
           // for RCF DELETE. If we see it, remember that
           // we did.
           if (IWB_IRODD == 0000777616207) {
-            cpu.rcfDelete = true;
-            cpu.up = false;
+            //HDBGNote (cpup, "DIS", "DIS clears inMultics%s", "");
+            cpu.inMultics = false;
           }
 
 // ISOLTS start:
@@ -8763,32 +8763,19 @@ sim_printf ("sys$trouble\r\n");
 //   If ISOLTS mode is not set, we see an IWB_IRODD of 0000000616200
 //   If set, 0000001616200
 
-# if 0
-          // It is very unlikely to have a DIS in a interrupt pair; I believe
-          // only ISOLTS is so silly.
-          if (UNLIKELY (cpu.cycle == INTERRUPT_EXEC_cycle) &&
-              (UNLIKELY (cpu.cu.IWB == 0000001616200) || // correct or error DIS
-               UNLIKELY (cpu.cu.IWB == 0000000616200)) && // in odd
-              UNLIKELY (cpu.syncClockModeMaster)) {
-#  ifdef SYNCTEST
-            sim_printf ("giveup DIS %o:%o\r\n", cpu.PPR.PSR, cpu.PPR.IC);
-#  endif
-            giveupClockMaster (cpup);
-          }
-# else
 
-// Simpler:  If we do a DIS while sync clock master, cancel sync clock...
-// But not the processor startup DIS
+          // If we do a DIS while sync clock master, and are inMultics,
+          // cancel sync clock... But not the processor startup DIS
 
           if (UNLIKELY (cpu.syncClockModeMaster) &&
-              (cpu.PPR.PSR != 0 || cpu.PPR.IC != 0)) {
-#  ifdef SYNCTEST
-            sim_printf ("giveup DIS %o:%o\r\n", cpu.PPR.PSR, cpu.PPR.IC);
-#  endif
+              cpu.inMultics &&
+              (cpu.PPR.PSR !=0 || cpu.PPR.IC != 0)) {
+# ifdef SYNCTEST
+            sim_printf ("CPU%c DIS %o:%o gives up master\n", cpu.cpuIdx + 'A', cpu.PPR.PSR, cpu.PPR.IC);
+# endif
+            //HDBGNote (cpup, "DIS", "DIS give up clock master%s", "");
             giveupClockMaster (cpup);
           }
-
-# endif
 #endif
 
 #if 0
@@ -9546,6 +9533,10 @@ static unsigned long long startInstrCnt;
 
 static int emCall (cpu_state_t * cpup)
 {
+#if defined(THREADZ) || defined(LOCKLESS)
+    atomic_thread_fence (memory_order_seq_cst);
+#endif /* defined(THREADZ) || defined(LOCKLESS) */
+
     DCDstruct * i = & cpu.currentInstruction;
 
 // The address is absolute address of a structure consisting of a

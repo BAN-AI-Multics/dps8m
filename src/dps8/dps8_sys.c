@@ -98,7 +98,7 @@
 
 struct system_state_s * system_state;
 
-vol word36 * M = NULL;  //-V707   // memory
+volAtomic word36 * M = NULL;  //-V707   // memory
 
 //
 // These are part of the scp interface
@@ -4787,8 +4787,8 @@ t_stat parse_sym (UNUSED const char * cptr, UNUSED t_addr addr,
   }
 
 #if defined(THREADZ) || defined(LOCKLESS)
-volatile atomic_bool syncClockMode;
-volatile atomic_uint syncClockModeMasterIdx; // The CPU sync master
+volAtomic bool syncClockMode;
+volAtomic uint syncClockModeMasterIdx; // The CPU sync master
 #endif
 
 // from MM
@@ -4798,8 +4798,8 @@ sysinfo_t sys_opts;
 static t_stat sys_show_config (UNUSED FILE * st, UNUSED UNIT * uptr,
                                UNUSED int  val, UNUSED const void * desc)
   {
-    sim_msg ("IOM connect time:         %d\n",
-                sys_opts.iom_times.connect);
+    sim_msg ("IOM connect time:         %d\n", sys_opts.iom_times.connect);
+    sim_msg ("nosync                    %d\n", sys_opts.nosync);
     return SCPE_OK;
 }
 
@@ -4837,6 +4837,7 @@ static config_value_list_t cfg_on_off [] =
 static config_list_t sys_config_list[] =
   {
     { "connect_time", -1,  100000, cfg_timing_list },
+    { "nosync",        0,  1,      cfg_on_off      },
     { "color",         0,  1,      cfg_on_off      },
     { NULL,            0,  0,      NULL            }
  };
@@ -4866,6 +4867,8 @@ static t_stat sys_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
           sys_opts.iom_times.connect = (int) v;
         else if (strcmp (p, "color") == 0)
           sys_opts.no_color = ! v;
+        else if (strcmp (p, "nosync") == 0)
+          sys_opts.nosync = !! v;
         else
           {
             sim_msg ("error: sys_set_config: Invalid cfg_parse rc <%ld>\n", (long) rc);

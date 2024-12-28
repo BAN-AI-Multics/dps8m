@@ -96,8 +96,8 @@
 #include "fnpuv.h"
 #include "dps8_utils.h"
 
-#include "sim_defs.h"
-#include "sim_tmxr.h"
+#include "../simh/sim_defs.h"
+#include "../simh/sim_tmxr.h"
 
 #if !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32)
 # include <regex.h>

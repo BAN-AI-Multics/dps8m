@@ -26,7 +26,9 @@
 
 # include <stdio.h>
 # include <stdbool.h>
-# include <stdatomic.h>
+# if defined(THREADZ) || defined(LOCKLESS)
+#  include <stdatomic.h>
+# endif /* defined(THREADZ) || defined(LOCKLESS) */
 # include <errno.h>
 # include <inttypes.h>
 # include <sys/stat.h>
@@ -150,8 +152,10 @@ typedef struct { int64_t h;  uint64_t l; } x__int128_t;
 // Multi-threading may require 'volatile' in some places
 # if defined(THREADZ) || defined(LOCKLESS)
 #  define vol volatile
+#  define volAtomic volatile _Atomic
 # else
 #  define vol
+#  define volAtomic
 # endif /* if defined(THREADZ) || defined(LOCKLESS) */
 
 # if !defined(NEED_128)

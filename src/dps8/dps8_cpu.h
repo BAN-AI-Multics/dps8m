@@ -687,9 +687,9 @@ typedef struct DCDstruct_s
 
 typedef struct
   {
-    vol int fault [N_FAULT_GROUPS];
+    volAtomic int fault [N_FAULT_GROUPS];
                             // only one fault in groups 1..6 can be pending
-    vol bool XIP [N_SCU_UNITS_MAX];
+    volAtomic bool XIP [N_SCU_UNITS_MAX];
   } events_t;
 
 // Physical Switches
@@ -742,7 +742,6 @@ typedef struct {
     bool enable_emcall;   // If set, the instruction set is extended with simulator debugging instructions
     bool nodis;           // If true, start CPU in FETCH cycle; else start in DIS instruction
     bool l68_mode;        // False: DPS8/M; True: 6180
-    bool nosync;          // If true, disable clock sync.
 } tweaksType;
 
 enum ou_cycle_e
@@ -1545,19 +1544,23 @@ typedef struct cpu_state_s
 #if defined(THREADZ) || defined(LOCKLESS)
     // Set when sim_instr starts fetching and executing; used to improve
     // thread creation lag time issues.
-    volatile atomic_bool executing;
-    // CPU is running Multics: it has been booted or added, and not deleted.
-    volatile atomic_bool up;
-    volatile atomic_bool forceRestart;
-
+    volAtomic bool executing;
+    volAtomic bool forceRestart;
+    // CPU is running Multics: it has been booted or added, and not deleted,
+    //  and not an ISOLTS test cpu.
+    // ISOLTS test CPUs can be master, but never slave.
+    volAtomic bool inMultics;
     bool syncClockModeMaster; // It set, this CPU is the master
-    volatile atomic_llong workAllocation; // If in sync clock mode, this is
-                                          // the amount of work we have
-                                          // been allocated
-
-    bool rcfDelete;  // Set if the CPU was halted by a RCF DELETE
+    volAtomic long int workAllocation; // If in sync clock mode, this is
+                                           // the amount of work we have
+                                           // been allocated
+    // How many cycles has the master held the clock
+    int masterCycleCnt;
+    //volatile atomic_bool rcfDelete;  // Set if the CPU was halted by a RCF DELETE
     bool syncClockModeCache; // Thread copy of syncClockMode
-    uint syncClockModePoll; // Poll syncClockMode
+    int syncClockModePoll; // Poll syncClockMode
+    volAtomic atomic_bool isSlave;
+    bool becomeSlave;
 #endif
 
     EISstruct currentEISinstruction;
@@ -1842,40 +1845,40 @@ typedef struct cpu_state_s
     word1 panel4_red_ready_light_state;
     word1 panel7_enabled_light_state;
 // The state of the panel switches
-    volatile word15 APU_panel_segno_sw;
-    volatile word1  APU_panel_enable_match_ptw_sw;  // lock
-    volatile word1  APU_panel_enable_match_sdw_sw;  // lock
-    volatile word1  APU_panel_scroll_select_ul_sw;
-    volatile word4  APU_panel_scroll_select_n_sw;
-    volatile word4  APU_panel_scroll_wheel_sw;
-    //volatile word18 APU_panel_addr_sw;
-    volatile word18 APU_panel_enter_sw;
-    volatile word18 APU_panel_display_sw;
-    volatile word4  CP_panel_wheel_sw;
-    volatile word4  DATA_panel_ds_sw;
-    volatile word4  DATA_panel_d1_sw;
-    volatile word4  DATA_panel_d2_sw;
-    volatile word4  DATA_panel_d3_sw;
-    volatile word4  DATA_panel_d4_sw;
-    volatile word4  DATA_panel_d5_sw;
-    volatile word4  DATA_panel_d6_sw;
-    volatile word4  DATA_panel_d7_sw;
-    volatile word4  DATA_panel_wheel_sw;
-    volatile word4  DATA_panel_addr_stop_sw;
-    volatile word1  DATA_panel_enable_sw;
-    volatile word1  DATA_panel_validate_sw;
-    volatile word1  DATA_panel_auto_fast_sw;  // lock
-    volatile word1  DATA_panel_auto_slow_sw;  // lock
-    volatile word4  DATA_panel_cycle_sw;      // lock
-    volatile word1  DATA_panel_step_sw;       // lock
-    volatile word1  DATA_panel_s_trig_sw;
-    volatile word1  DATA_panel_execute_sw;    // lock
-    volatile word1  DATA_panel_scope_sw;
-    volatile word1  DATA_panel_init_sw;       // lock
-    volatile word1  DATA_panel_exec_sw;       // lock
-    volatile word4  DATA_panel_hr_sel_sw;
-    volatile word4  DATA_panel_trackers_sw;
-    volatile bool panelInitialize;
+    volAtomic word15 APU_panel_segno_sw;
+    volAtomic word1  APU_panel_enable_match_ptw_sw;  // lock
+    volAtomic word1  APU_panel_enable_match_sdw_sw;  // lock
+    volAtomic word1  APU_panel_scroll_select_ul_sw;
+    volAtomic word4  APU_panel_scroll_select_n_sw;
+    volAtomic word4  APU_panel_scroll_wheel_sw;
+    //volAtomic word18 APU_panel_addr_sw;
+    volAtomic word18 APU_panel_enter_sw;
+    volAtomic word18 APU_panel_display_sw;
+    volAtomic word4  CP_panel_wheel_sw;
+    volAtomic word4  DATA_panel_ds_sw;
+    volAtomic word4  DATA_panel_d1_sw;
+    volAtomic word4  DATA_panel_d2_sw;
+    volAtomic word4  DATA_panel_d3_sw;
+    volAtomic word4  DATA_panel_d4_sw;
+    volAtomic word4  DATA_panel_d5_sw;
+    volAtomic word4  DATA_panel_d6_sw;
+    volAtomic word4  DATA_panel_d7_sw;
+    volAtomic word4  DATA_panel_wheel_sw;
+    volAtomic word4  DATA_panel_addr_stop_sw;
+    volAtomic word1  DATA_panel_enable_sw;
+    volAtomic word1  DATA_panel_validate_sw;
+    volAtomic word1  DATA_panel_auto_fast_sw;  // lock
+    volAtomic word1  DATA_panel_auto_slow_sw;  // lock
+    volAtomic word4  DATA_panel_cycle_sw;      // lock
+    volAtomic word1  DATA_panel_step_sw;       // lock
+    volAtomic word1  DATA_panel_s_trig_sw;
+    volAtomic word1  DATA_panel_execute_sw;    // lock
+    volAtomic word1  DATA_panel_scope_sw;
+    volAtomic word1  DATA_panel_init_sw;       // lock
+    volAtomic word1  DATA_panel_exec_sw;       // lock
+    volAtomic word4  DATA_panel_hr_sel_sw;
+    volAtomic word4  DATA_panel_trackers_sw;
+    volAtomic bool panelInitialize;
 
     // Intermediate data collection for DATA SCROLL
     bool portBusy;
@@ -2461,5 +2464,7 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem);
 void setupPROM (uint cpuNo, unsigned char * PROM);
 void cpuStats (uint cpuNo);
 #if defined(THREADZ) || defined(LOCKLESS)
+void becomeClockMaster (uint cpuNum);
 void giveupClockMaster (cpu_state_t * cpup);
 #endif
+char * cycle_str (cycles_e cycle);

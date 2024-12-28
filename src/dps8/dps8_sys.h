@@ -28,26 +28,27 @@ typedef struct
     // Delay times are in cycles; negative for immediate
     struct
       {
-        int connect;    // Delay between CIOC instr & connect channel operation
-        //int chan_activate;  // Time for a list service to send a DCW
-        //int boot_time; // delay between CPU start and IOM starting boot process
-        //int terminate_time; // delay between CPU start and IOM starting boot process
+        volAtomic int connect;    // Delay between CIOC instr & connect channel operation
+        //volAtomic int chan_activate;  // Time for a list service to send a DCW
+        //volAtomic int boot_time; // delay between CPU start and IOM starting boot process
+        //volAtomic int terminate_time; // delay between CPU start and IOM starting boot process
       } iom_times;
     // struct {
-        // int read;
-        // int xfer;
+        // volAtomic int read;
+        // volAtomic int xfer;
     // } mt_times;
-    // bool warn_uninit; // Warn when reading uninitialized memory
+    // bool volAtomic warn_uninit; // Warn when reading uninitialized memory
 
-    bool no_color;
-    uint sys_poll_interval; // Polling interval in milliseconds
-    uint sys_slow_poll_interval; // Polling interval in polling intervals
-    uint sys_poll_check_rate; // Check for pooling interval rate in CPU cycles
+    volAtomic bool no_color;
+    volAtomic uint sys_poll_interval; // Polling interval in milliseconds
+    volAtomic uint sys_slow_poll_interval; // Polling interval in polling intervals
+    volAtomic uint sys_poll_check_rate; // Check for pooling interval rate in CPU cycles
+    bool nosync;          // If true, disable clock sync.
 } sysinfo_t;
 
 # if defined(THREADZ) || defined(LOCKLESS)
-extern volatile atomic_bool syncClockMode;
-extern volatile atomic_uint syncClockModeMasterIdx; // The CPU sync master
+extern volAtomic bool syncClockMode;
+extern volAtomic uint syncClockModeMasterIdx; // The CPU sync master
 # endif
 
 # if defined(THREADZ) || defined(LOCKLESS)
@@ -93,7 +94,7 @@ extern struct timespec dbgevent_t0;
 int dbgevent_lookup (word15 segno, word18 offset);
 # endif
 
-extern vol word36 * M;  //-V707
+extern volAtomic word36 * M;  //-V707
 extern sysinfo_t sys_opts;
 extern uint64 sim_deb_start;
 extern uint64 sim_deb_stop;

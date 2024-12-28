@@ -268,6 +268,7 @@ dps8_dia.o: uvutil.h
 dps8_disk.o: ../simh/scp.h
 dps8_disk.o: ../simh/sim_console.h
 dps8_disk.o: ../simh/sim_defs.h
+dps8_disk.o: ../simh/sim_disk.h
 dps8_disk.o: ../simh/sim_fio.h
 dps8_disk.o: ../simh/sim_tape.h
 dps8_disk.o: ../simh/sim_timer.h
@@ -339,8 +340,10 @@ dps8_fnp2.o: ../simh/scp.h
 dps8_fnp2.o: ../simh/sim_console.h
 dps8_fnp2.o: ../simh/sim_defs.h
 dps8_fnp2.o: ../simh/sim_fio.h
+dps8_fnp2.o: ../simh/sim_sock.h
 dps8_fnp2.o: ../simh/sim_tape.h
 dps8_fnp2.o: ../simh/sim_timer.h
+dps8_fnp2.o: ../simh/sim_tmxr.h
 dps8_fnp2.o: dps8.h
 dps8_fnp2.o: dps8_cable.h
 dps8_fnp2.o: dps8_cpu.h
