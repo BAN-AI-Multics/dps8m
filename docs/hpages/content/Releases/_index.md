@@ -18,14 +18,14 @@ title: DPS8M Releases
 {{< tab "Source" >}}
 | File                                                                           | Format               | Verification |
 |:------------------------------------------------------------------------------ |:-------------------- |:------------ |
-| [**dps8m-r3.0.1-src.tar.lz**](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.tar.lz) | tar&nbsp;+&nbsp;lzip | <small>\[&nbsp;[SHA256](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.tar.lz.sha256)&nbsp;\|&nbsp;[PGP](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.tar.lz.asc)&nbsp;\]</small>  |
+| [**dps8m-r3.0.1-src.tar.lz**](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.tar.lz) | [tar&nbsp;+&nbsp;lzip](https://www.nongnu.org/lzip/) | <small>\[&nbsp;[SHA256](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.tar.lz.sha256)&nbsp;\|&nbsp;[PGP](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.tar.lz.asc)&nbsp;\]</small>  |
 {{< expand "Alternate formats" "…" >}}
 | File                                                                           | Format               | Verification |
 |:------------------------------------------------------------------------------ |:-------------------- |:------------ |
-| [**dps8m-r3.0.1-src.tar.gz**](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.tar.gz) | tar&nbsp;+&nbsp;gzip | <small>\[&nbsp;[SHA256](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.tar.gz.sha256)&nbsp;\|&nbsp;[PGP](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.tar.gz.asc)&nbsp;\]</small>  |
-| [**dps8m-r3.0.1-src.7z**](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.7z)         | 7-Zip (LZMA)         | <small>\[&nbsp;[SHA256](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.7z.sha256)&nbsp;\|&nbsp;[PGP](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.7z.asc)&nbsp;\]</small>  |
-| [**dps8m-r3.0.1-src.zip**](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.zip)       | ZIP (DEFLATE)        | <small>\[&nbsp;[SHA256](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.zip.sha256)&nbsp;\|&nbsp;[PGP](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.zip.asc)&nbsp;\]</small>  |
-| [**dps8m-r3.0.1-src.zpaq**](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.zpaq)     | ZPAQ7                | <small>\[&nbsp;[SHA256](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.zpaq.sha256)&nbsp;\|&nbsp;[PGP](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.zpaq.asc)&nbsp;\]</small>  |
+| [**dps8m-r3.0.1-src.tar.gz**](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.tar.gz) | [tar&nbsp;+&nbsp;gzip](https://www.gzip.org/) | <small>\[&nbsp;[SHA256](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.tar.gz.sha256)&nbsp;\|&nbsp;[PGP](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.tar.gz.asc)&nbsp;\]</small>  |
+| [**dps8m-r3.0.1-src.7z**](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.7z)         | [7-Zip](https://www.7-zip.org/) <small>(LZMA)</small>         | <small>\[&nbsp;[SHA256](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.7z.sha256)&nbsp;\|&nbsp;[PGP](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.7z.asc)&nbsp;\]</small>  |
+| [**dps8m-r3.0.1-src.zip**](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.zip)       | [ZIP](https://infozip.sourceforge.net/) <small>(DEFLATE)</small>        | <small>\[&nbsp;[SHA256](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.zip.sha256)&nbsp;\|&nbsp;[PGP](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.zip.asc)&nbsp;\]</small>  |
+| [**dps8m-r3.0.1-src.zpaq**](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.zpaq)     | [ZPAQ7](https://www.mattmahoney.net/dc/zpaq.html)                | <small>\[&nbsp;[SHA256](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.zpaq.sha256)&nbsp;\|&nbsp;[PGP](https://dps8m.gitlab.io/dps8m-r3.0.1-archive/R3.0.1/dps8m-r3.0.1-src.zpaq.asc)&nbsp;\]</small>  |
 {{< /expand >}}
 {{< /tab >}}
 {{< tab "AIX" >}}
@@ -523,14 +523,14 @@ title: DPS8M Releases
 {{< tab "Source" >}}
 | File                                                                           | Format               |
 |:------------------------------------------------------------------------------ |:-------------------- |
-| [**dps8m-git-src.tar.lz**](https://dps8m.gitlab.io/dps8m/dps8m-git-src.tar.lz) | tar&nbsp;+&nbsp;lzip |
+| [**dps8m-git-src.tar.lz**](https://dps8m.gitlab.io/dps8m/dps8m-git-src.tar.lz) | [tar&nbsp;+&nbsp;lzip](https://www.nongnu.org/lzip/) |
 {{< expand "Alternate formats" "…" >}}
 | File                                                                           | Format               |
 |:------------------------------------------------------------------------------ |:-------------------- |
-| [**dps8m-git-src.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-src.tar.gz) | tar&nbsp;+&nbsp;gzip |
-| [**dps8m-git-src.7z**](https://dps8m.gitlab.io/dps8m/dps8m-git-src.7z)         | 7-Zip (LZMA)         |
-| [**dps8m-git-src.zip**](https://dps8m.gitlab.io/dps8m/dps8m-git-src.zip)       | ZIP (DEFLATE)        |
-| [**dps8m-git-src.zpaq**](https://dps8m.gitlab.io/dps8m/dps8m-git-src.zpaq)     | ZPAQ7                |
+| [**dps8m-git-src.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-src.tar.gz) | [tar&nbsp;+&nbsp;gzip](https://www.gzip.org/) |
+| [**dps8m-git-src.7z**](https://dps8m.gitlab.io/dps8m/dps8m-git-src.7z)         | [7-Zip](https://www.7-zip.org/) <small>(LZMA)</small>         |
+| [**dps8m-git-src.zip**](https://dps8m.gitlab.io/dps8m/dps8m-git-src.zip)       | [ZIP](https://infozip.sourceforge.net/) <small>(DEFLATE)</small>        |
+| [**dps8m-git-src.zpaq**](https://dps8m.gitlab.io/dps8m/dps8m-git-src.zpaq)     | [ZPAQ7](https://www.mattmahoney.net/dc/zpaq.html)                |
 {{< /expand >}}
 {{< /tab >}}
 <!-- \{\{< tab "AIX" >\}\} -->
