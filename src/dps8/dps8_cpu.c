@@ -1698,21 +1698,6 @@ DEVICE cpu_dev =
     NULL
   };
 
-void printPtid(pthread_t pt)
-{
-  unsigned char *ptc = (unsigned char*)(void*)(&pt);
-  sim_msg ("\r  Thread ID: 0x");
-  for (size_t i=0; i < sizeof( pt ); i++)
-    {
-      sim_msg ("%02x", (unsigned)(ptc[i]));
-    }
-  sim_msg ("\r\n");
-#if defined(__APPLE__)
-  sim_msg ("\r   Mach TID: 0x%x\r\n",
-           pthread_mach_thread_np( pt ));
-#endif /* if defined(__APPLE__) */
-}
-
 #if defined(M_SHARED)
 cpu_state_t * cpus = NULL;
 #else
@@ -2063,15 +2048,17 @@ void * cpu_thread_main (void * arg)
     set_cpu_idx ((uint) myid);
     unsigned char umyid = (unsigned char)toupper('a' + (int)myid);
     char thread_name[SIR_MAXPID] = {0};
-
-    sim_msg ("\rCPU %c thread created.\r\n", (unsigned int)umyid);
-# if defined(TESTING)
-    printPtid(pthread_self());
-# endif /* if defined(TESTING) */
-    _sir_snprintf_trunc(thread_name, SIR_MAXPID, "%s: CPU %c", appname, (unsigned int)umyid);
-    _sir_setthreadname(thread_name);
+    char temp_thread_name[SIR_MAXPID] = {0};
 
     sim_os_set_thread_priority (PRIORITY_ABOVE_NORMAL);
+    _sir_snprintf_trunc(thread_name, SIR_MAXPID, "CPU %c", (unsigned int)umyid);
+    if (!_sir_setthreadname(thread_name) || !_sir_getthreadname(temp_thread_name))
+      (void)sir_info ("%s thread created (TID " SIR_TIDFORMAT ")", thread_name, _sir_gettid());
+    else
+      (void)sir_info ("Thread created (TID " SIR_TIDFORMAT ")", _sir_gettid());
+# if defined(TESTING) && defined(__APPLE__) && defined(__MACH__)
+    (void)sir_info ("Mach thread ID: 0x%x", pthread_mach_thread_np(pthread_self()));
+# endif /* if defined(TESTING) && defined(__APPLE__) && defined(__MACH__) */
     setSignals ();
     threadz_sim_instr ();
     return NULL;

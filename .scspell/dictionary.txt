@@ -1307,6 +1307,8 @@ getservbyport
 getsid
 getsockname
 getsym
+getthreadname
+gettid
 gettime
 gettimeofday
 getuid
@@ -1988,6 +1990,7 @@ nofnc
 nohalt
 nohost
 noinherit
+nolevel
 nolink
 nolocalopc
 nolock
@@ -2003,6 +2006,7 @@ nondata
 nonint
 noop
 noparam
+nopid
 noqueue
 noquiet
 noresponse
@@ -3017,6 +3021,7 @@ thrds
 threadz
 thru
 ticksper
+tidformat
 timebase
 timecaps
 timedwait
@@ -3452,6 +3457,7 @@ andis
 anet
 anld
 ansa
+ansimacros
 ansq
 anstr
 ansx
@@ -8895,6 +8901,24 @@ tobiaspotocek
 FILEID: 4d1552ca-f62b-11ec-9d14-80ee73e9b8e7
 dwindow
 twindow
+
+FILEID: 062647fc-bf02-11ef-bfc1-80ee73e9b8e7
+cleandep
+cleandepend
+depclean
+dependclean
+distclean
+dumalibs
+endif
+findstring
+gcda
+ifneq
+listchars
+makecmdgoals
+mkrebuild
+notparallel
+printf
+setv
 
 NATURAL:
 abandon

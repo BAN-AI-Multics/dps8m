@@ -764,7 +764,7 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 ## AIX
 
 * Ensure you are running a [supported release](https://www.ibm.com/support/pages/aix-support-lifecycle-information) of [**IBM AIX®**](https://www.ibm.com/products/aix) on a [supported platform](https://www.ibm.com/support/pages/system-aix-maps).
-  * **IBM AIX®** **7.2** (*TL5* *SP8*) and **7.3** (*TL2* *SP2*) on [**POWER8®**, **POWER9™**, and **Power10**](https://www.ibm.com/it-infrastructure/power) systems are regularly tested by **The DPS8M Development Team**.
+  * **IBM AIX®** **7.2** (*TL5* *SP9*) and **7.3** (*TL3*) on [**POWER8®**, **POWER9™**, and **Power10**](https://www.ibm.com/it-infrastructure/power) systems are regularly tested by **The DPS8M Development Team**.
 
 []()
 
@@ -781,7 +781,7 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 
 []()
 
-* [**IBM Open XL C/C++ for AIX V17.1.2 Fix Pack 13** (October 2024)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the *minimum* recommended version of the **Open XL C/C++ V17.1.2** compiler for **POWER8**, **POWER9**, and **Power10** systems.
+* [**IBM Open XL C/C++ for AIX V17.1.2 Fix Pack 14** (December 2024)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the *minimum* recommended version of the **Open XL C/C++ V17.1.2** compiler for **POWER8**, **POWER9**, and **Power10** systems.
   * LTO (*link-time optimization*) and native 128-bit integer operations are both fully supported.
 
 []()
@@ -801,7 +801,7 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 
 []()
 
-* [**IBM XL C/C++ for AIX V16.1.0 Fix Pack 19** (August 2024)](https://www.ibm.com/support/pages/ibm-xl-cc-aix-161) is the *minimum* recommended version of the **IBM XL C/C++ V16.1.0** compiler for **POWER8** and **POWER9** systems.
+* [**IBM XL C/C++ for AIX V16.1.0 Fix Pack 20** (December 2024)](https://www.ibm.com/support/pages/ibm-xl-cc-aix-161) is the *minimum* recommended version of the **IBM XL C/C++ V16.1.0** compiler for **POWER8** and **POWER9** systems.
   * LTO (*link-time optimization*) and 128-bit integer operations are both **not supported**.
     * Use of the **`NEED_128=1`** and **`NO_LTO=1`** options are required when building with **IBM XL C/C++ V16.1.0**.
   * **IBM XL C/C++ V16.1.0** is **not** recommended for **Power10** systems.

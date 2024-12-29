@@ -617,6 +617,7 @@ ifneq (,$(findstring clean,$(MAKECMDGOALS)))
 endif
 clean:
 	@$(SETV); $(MAKE) -C "$(SIMHx)"          -f "GNUmakefile"  "clean"
+	@$(SETV); $(MAKE) -C "../blinkenLights2" -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../decNumber"      -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../prt2pdf"        -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../punutil"        -f "GNUmakefile"  "clean"

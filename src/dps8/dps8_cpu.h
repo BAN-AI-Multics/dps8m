@@ -2453,7 +2453,6 @@ void add_l68_OU_history (cpu_state_t * cpup);
 void add_l68_DU_history (cpu_state_t * cpup);
 void add_l68_APU_history (cpu_state_t * cpup, enum APUH_e op);
 void add_history_force (cpu_state_t * cpup, uint hset, word36 w0, word36 w1);
-void printPtid(pthread_t pt);
 word18 get_BAR_address(cpu_state_t * cpup, word18 addr);
 #if defined(THREADZ) || defined(LOCKLESS)
 t_stat threadz_sim_instr (void);

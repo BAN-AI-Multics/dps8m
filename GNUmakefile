@@ -188,13 +188,13 @@ ifeq ($(V),1)
 	@$(SETV); $(MAKE) -s -C "." ".rebuild.env";                              \
       $(TEST) -f ".needrebuild" && $(RMF) blinkenLights2 || $(TRUE);         \
         ( cd src/blinkenLights2 && $(ENV) VERBOSE=1                          \
-          $(SHELL) ./blinkenLights2.build.sh ) &&                            \
+          $(MAKE) ) &&                                                       \
             $(PRINTF) '%s\n' "BUILD: Successful blinkenLights2 build"        \
               2> /dev/null || $(TRUE)
 else
 	@$(MAKE) -s -C "." ".rebuild.env";                                       \
       $(TEST) -f ".needrebuild" && $(RMF) blinkenLights2 || $(TRUE);         \
-        ( cd src/blinkenLights2 && $(SHELL) ./blinkenLights2.build.sh ) &&   \
+        ( cd src/blinkenLights2 && $(MAKE) ) &&                              \
           $(PRINTF) '%s\n' "BUILD: Successful blinkenLights2 build"          \
             2> /dev/null || $(TRUE)
 endif

@@ -161,9 +161,7 @@
 
 #include "../dps8/dps8_math128.h"
 
-#include "sir.h"
-#include "sir/internal.h"
-#include "sir/version.h"
+#include "../dps8/dps8_sir.h"
 
 #if !defined(__CYGWIN__)
 # if !defined(__APPLE__)
@@ -396,8 +394,8 @@ UNIT *sim_clock_queue            = QUEUE_LIST_END;
 int32 sim_interval               = 0;
 int32 sim_switches               = 0;
 FILE *sim_ofile                  = NULL;
-SCHTAB *sim_schrptr              = FALSE;
-SCHTAB *sim_schaptr              = FALSE;
+SCHTAB *sim_schrptr              = NULL;
+SCHTAB *sim_schaptr              = NULL;
 DEVICE *sim_dfdev                = NULL;
 UNIT *sim_dfunit                 = NULL;
 DEVICE **sim_internal_devices    = NULL;
@@ -1778,14 +1776,14 @@ if (!sir_makeinit(&si))
 /* Levels for stdout: send debug, information, warning, and notice there. */
 si.d_stdout.levels = SIRL_DEBUG | SIRL_INFO | SIRL_WARN | SIRL_NOTICE;
 
-/* Options for stdout: don't show the timestamp, hostname, or thread ID. */
-si.d_stdout.opts = SIRO_NOTIME | SIRO_NOHOST | SIRO_NOTID;
+/* Options for stdout: don't show the name, level, timestamp, hostname, or PID. */
+si.d_stdout.opts = SIRO_NONAME | SIRO_NOLEVEL | SIRO_NOTIME | SIRO_NOHOST | SIRO_NOPID;
 
 /* Levels for stderr: send error and above there. */
 si.d_stderr.levels = SIRL_ERROR | SIRL_CRIT | SIRL_ALERT | SIRL_EMERG;
 
-/* Options for stderr: don't show the timestamp, hostname, or thread ID. */
-si.d_stderr.opts = SIRO_NOTIME | SIRO_NOHOST | SIRO_NOTID;
+/* Options for stderr: don't show the hostname. */
+si.d_stderr.opts = SIRO_NOHOST;
 
 /* Levels for the system logger: don't send any output there. */
 si.d_syslog.levels = SIRL_NONE;
@@ -1802,7 +1800,7 @@ if (!sir_init(&si))
 
 /* Set a friendly name for the current thread. */
 char thread_name[SIR_MAXPID] = {0};
-_sir_snprintf_trunc(thread_name, SIR_MAXPID, "%s: SCP", appname);
+_sir_snprintf_trunc(thread_name, SIR_MAXPID, "%s", appname);
 (void)_sir_setthreadname(thread_name);
 
 /* sanity checks */

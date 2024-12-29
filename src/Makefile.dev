@@ -82,20 +82,22 @@ ifneq (,$(findstring dep,$(MAKECMDGOALS)))
 endif
 dep depend: predepend                                                         \
     # depend:    # Regenerates build system dependencies
+	@$(PRINTF) 'DEPEND: %s' "blinkenLights2" ;                                \
+      ( $(CD) "src/blinkenLights2" && $(DO_MAKEDEP) )
 	@$(PRINTF) 'DEPEND: %s' "decNumber" ;                                     \
       ( $(CD) "src/decNumber" && $(DO_MAKEDEP) )
 	@$(PRINTF) 'DEPEND: %s' "dps8" ;                                          \
-      ( $(CD) "src/dps8"      && $(DO_MAKEDEP) )
+      ( $(CD) "src/dps8"           && $(DO_MAKEDEP) )
 	@$(PRINTF) 'DEPEND: %s' "empty" ;                                         \
-      ( $(CD) "src/empty"     && $(DO_MAKEDEP) )
+      ( $(CD) "src/empty"          && $(DO_MAKEDEP) )
 	@$(PRINTF) 'DEPEND: %s' "mcmb" ;                                          \
-      ( $(CD) "src/mcmb"      && $(DO_MAKEDEP) )
+      ( $(CD) "src/mcmb"           && $(DO_MAKEDEP) )
 	@$(PRINTF) 'DEPEND: %s' "prt2pdf" ;                                       \
-      ( $(CD) "src/prt2pdf"   && $(DO_MAKEDEP) )
+      ( $(CD) "src/prt2pdf"        && $(DO_MAKEDEP) )
 	@$(PRINTF) 'DEPEND: %s' "punutil" ;                                       \
-      ( $(CD) "src/punutil"   && $(DO_MAKEDEP) )
+      ( $(CD) "src/punutil"        && $(DO_MAKEDEP) )
 	@$(PRINTF) 'DEPEND: %s' "simh" ;                                          \
-      ( $(CD) "src/simh"      && $(DO_MAKEDEP) )
+      ( $(CD) "src/simh"           && $(DO_MAKEDEP) )
 
 ###############################################################################
 # Remove dependencies for untracked C files
@@ -125,20 +127,22 @@ ifneq (,$(findstring dep,$(MAKECMDGOALS)))
 endif
 dependclean depclean cleandepend cleandep:                                    \
     # cleandep:    # Cleans-up untracked file dependencies
+	@$(PRINTF) 'DEPEND: %s' "blinkenLights2" ;                                \
+      ( $(CD) "src/blinkenLights2" && $(DO_CLEANDEP) )
 	@$(PRINTF) 'DEPEND: %s' "decNumber" ;                                     \
-      ( $(CD) "src/decNumber" && $(DO_CLEANDEP) )
+      ( $(CD) "src/decNumber"      && $(DO_CLEANDEP) )
 	@$(PRINTF) 'DEPEND: %s' "dps8" ;                                          \
-      ( $(CD) "src/dps8"      && $(DO_CLEANDEP) )
+      ( $(CD) "src/dps8"           && $(DO_CLEANDEP) )
 	@$(PRINTF) 'DEPEND: %s' "empty" ;                                         \
-      ( $(CD) "src/empty"     && $(DO_CLEANDEP) )
+      ( $(CD) "src/empty"          && $(DO_CLEANDEP) )
 	@$(PRINTF) 'DEPEND: %s' "mcmb" ;                                          \
-      ( $(CD) "src/mcmb"      && $(DO_CLEANDEP) )
+      ( $(CD) "src/mcmb"           && $(DO_CLEANDEP) )
 	@$(PRINTF) 'DEPEND: %s' "prt2pdf" ;                                       \
-      ( $(CD) "src/prt2pdf"   && $(DO_CLEANDEP) )
+      ( $(CD) "src/prt2pdf"        && $(DO_CLEANDEP) )
 	@$(PRINTF) 'DEPEND: %s' "punutil" ;                                       \
-      ( $(CD) "src/punutil"   && $(DO_CLEANDEP) )
+      ( $(CD) "src/punutil"        && $(DO_CLEANDEP) )
 	@$(PRINTF) 'DEPEND: %s' "simh" ;                                          \
-      ( $(CD) "src/simh"      && $(DO_CLEANDEP) )
+      ( $(CD) "src/simh"           && $(DO_CLEANDEP) )
 
 ###############################################################################
 # Convenience target: Runs Cppcheck
