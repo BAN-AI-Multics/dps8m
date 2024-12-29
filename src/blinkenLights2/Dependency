@@ -1,0 +1,1 @@
+blinkenLights2.o: ../dps8/dps8_state.h

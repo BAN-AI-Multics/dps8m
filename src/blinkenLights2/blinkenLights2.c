@@ -377,17 +377,10 @@ static gboolean time_handler (GtkWidget * widget) {
     s \
   }
 
-//#define PROBEn(v, n, s) \
-//  if (memcmp (v ## _p + (n) * sizeof_ ## v, & previous.v[n], sizeof (previous.v[n]))) { \
-//    update = true; \
-//    previous.v[n] = * ((typeof (previous.v[n]) *)(v ## _p + (n) + sizeof_ ## v)); \
-//    s \
-//  }
-
 #define PROBEns(v, n, s) \
   if (memcmp (v ## _p[n], & previous.v[n], sizeof (previous.v[n]))) { \
     update = true; \
-    previous.v[n] = * ((typeof (previous.v[n]) *)(v ## _p[n])); \
+    previous.v[n] = * ((__typeof__ (previous.v[n]) *)(v ## _p[n])); \
     s \
   }
 
@@ -416,7 +409,7 @@ static gboolean time_handler (GtkWidget * widget) {
   }
   PROBE (TRR, { for (int i = 0; i < 3; i ++) TRR_state [2 - i] = BIT (TRR); });
   PROBE (TSR, {for (int i = 0; i < 15; i ++) TSR_state [14 - i] = BIT (TSR); });
-  PROBE (TBR, {for (int i = 0; i < 6; i ++) TBR_state [3 - i] = BIT (TBR); }); //-V557
+  PROBE (TBR, {for (int i = 0; i < 6; i ++) TBR_state [5 - i] = BIT (TBR); });
   // ^- XXX: "V557: Array underrun is possible. The value of '3 - i' index could reach -2."
   PROBE (CA, {for (int i = 0; i < 18; i ++) CA_state [17 - i] = BIT (CA); });
 
@@ -744,11 +737,11 @@ int main (int argc, char * argv []) {
                      (PAR_p + nreg * sizeof_PAR + lookup (system_state, SYM_STRUCT_OFFSET,
                                                           "cpus[].PAR[].WORDNO", & symbolType, & valueType, & value));
   }
-  //BAR_p = cpun + lookup \
+  //BAR_p = cpun + lookup
   //        (system_state, SYM_STRUCT_OFFSET, "cpus[].BAR", & symbolType, & valueType, & value);
-  //BASE_p = (uint8_t *) \
+  //BASE_p = (uint8_t *)
   //         (BAR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].BAR.BASE", & symbolType, & valueType, & value));
-  //BOUND_p = (uint8_t *) \
+  //BOUND_p = (uint8_t *)
   //          (BAR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].BAR.BOUND", & symbolType, & valueType, & value));
   TPR_p = cpun + lookup \
           (system_state, SYM_STRUCT_OFFSET, "cpus[].TPR", & symbolType, & valueType, & value);
@@ -786,6 +779,7 @@ int main (int argc, char * argv []) {
   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   GtkWidget * window_rows = gtk_grid_new ();
   GtkCssProvider *cssProvider = gtk_css_provider_new();
+  (void)cssProvider;
 
 // PPR
 
