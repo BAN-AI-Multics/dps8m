@@ -458,7 +458,7 @@ libsir:
              CFLAGS='$(CFLAGS)'                                               \
              LDFLAGS='$(LDFLAGS)'                                             \
       $(MAKE) $(M_SIR_QFLAG) -C "." "static"                                  \
-        SIR_NO_PLUGINS=1 SIR_NO_SHARED=1                                      \
+        SIR_NO_PLUGINS=1 SIR_NO_SHARED=1 SIR_NO_TEXT_STYLING=1                \
         SIR_USE_EOL_CRLF=1 FORTIFY_FLAGS= $(M_SIR_TESTING))
 
 ###############################################################################
