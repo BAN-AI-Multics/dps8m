@@ -2150,15 +2150,9 @@ static bool clear_temporary_absolute_mode (cpu_state_t * cpup)
   }
 
 #if defined(THREADZ) || defined(LOCKLESS)
-# ifdef SYNCTEST
 static const int workAllocationQuantum = 64;
-static const int syncClockModePollRate = 128;
-static int allocCount;
-# else
-static const int workAllocationQuantum = 64;
-static const int syncClockModePollRate = 128;
-# endif
-static const int masterCycleCntlimit = 4096;
+static const int syncClockModePollRate = 64;
+static const int masterCycleCntlimit = 2048;
 
 void becomeClockMaster (uint cpuNum) {
   //HDBGNote (cpup, __func__, "entry%s.", "");
