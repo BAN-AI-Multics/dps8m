@@ -8,7 +8,7 @@
  * ---------------------------------------------------------------------------
  *
  * Copyright (c) 2001-2010 Robert M. Supnik
- * Copyright (c) 2021-2024 The DPS8M Development Team
+ * Copyright (c) 2021-2025 The DPS8M Development Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),

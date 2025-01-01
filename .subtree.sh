@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # SPDX-License-Identifier: MIT-0
-# Copyright (c) 2024 The DPS8M Development Team
+# Copyright (c) 2024-2025 The DPS8M Development Team
 # scspell-id: a947428c-19f4-11ef-8936-80ee73e9b8e7
 
 set -eu

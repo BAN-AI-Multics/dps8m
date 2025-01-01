@@ -4,7 +4,7 @@
 <!-- NOTE: The MIT-0 License is NOT applicable to the text
      of other licenses reproduced within this document. -->
 <!-- NOTE: Licenses in this file are UTF-8 text within fenced code blocks. -->
-<!-- Copyright (c) 2006-2024 The DPS8M Development Team -->
+<!-- Copyright (c) 2006-2025 The DPS8M Development Team -->
 
 # License Information
 

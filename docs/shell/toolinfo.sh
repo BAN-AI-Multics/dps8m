@@ -3,7 +3,7 @@
 # vim: filetype=sh:tabstop=4:ai:tw=80:expandtab
 # SPDX-License-Identifier: MIT-0
 # scspell-id: 4c3b133e-f632-11ec-992b-80ee73e9b8e7
-# Copyright (c) 2022-2024 The DPS8M Development Team
+# Copyright (c) 2022-2025 The DPS8M Development Team
 
 ################################################################################
 # Exit immediately on lock failure

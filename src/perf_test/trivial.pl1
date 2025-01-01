@@ -2,7 +2,7 @@
  * vim: filetype=pli:tabstop=10:ai:expandtab
  * SPDX-License-Identifier: MIT
  * scspell-id: 4e123f31-f90f-11ec-bb9f-80ee73e9b8e7
- * Copyright (c) 2021-2024 The DPS8M Development Team
+ * Copyright (c) 2021-2025 The DPS8M Development Team
  */
 
 trivial: proc;

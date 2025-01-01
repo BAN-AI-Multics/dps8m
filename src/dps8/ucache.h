@@ -7,7 +7,7 @@
  *
  * Copyright (c) 2022-2023 Charles Anthony
  * Copyright (c) 2022-2023 Jeffrey H. Johnson
- * Copyright (c) 2022-2024 The DPS8M Development Team
+ * Copyright (c) 2022-2025 The DPS8M Development Team
  *
  * This software is made available under the terms of the ICU License.
  * See the LICENSE.md file at the top-level directory of this distribution.

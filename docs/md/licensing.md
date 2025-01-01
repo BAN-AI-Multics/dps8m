@@ -2,7 +2,7 @@
 <!-- SPDX-License-Identifier: LicenseRef-CF-GAL -->
 <!-- NOTE: The General Attribution License terms and conditions do NOT apply
            to the TEXT OF OTHER LICENSES reproduced within this document. -->
-<!-- SPDX-FileCopyrightText: 2021-2024 The DPS8M Development Team -->
+<!-- SPDX-FileCopyrightText: 2021-2025 The DPS8M Development Team -->
 <!-- scspell-id: febe4236-f778-11ec-8c3f-80ee73e9b8e7 -->
 
 <!-- pagebreak -->
@@ -31,7 +31,7 @@
 
 **General Attribution License**
 
-- Copyright © 2019-2024 &nbsp; **The DPS8M Development Team**
+- Copyright © 2019-2025 &nbsp; **The DPS8M Development Team**
 
 **This work is provided “_AS IS_”, without any express or implied
 warranties, including but not limited to the implied warranties of
@@ -135,7 +135,7 @@ Attribution License**.
 
 - Copyright © 1984-2021 &nbsp; **Stanley R. Zanarotti** &nbsp;
  \<[`srz@mit.edu`](mailto:srz@mit.edu)\>
-- Copyright © 2021-2024 &nbsp; **The DPS8M Development Team**
+- Copyright © 2021-2025 &nbsp; **The DPS8M Development Team**
 
 **This work is provided “_AS IS_”, without any express or implied
 warranties, including but not limited to the implied warranties of
@@ -419,7 +419,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.**
 * Copyright © 2018-2021 &nbsp; **Juergen Weiss**
 * Copyright © 2021 &nbsp; **Dean S. Anderson**
 * Copyright © 2023 &nbsp; **Björn Victor**
-* Copyright © 2021-2024 &nbsp; **The DPS8M Development Team**
+* Copyright © 2021-2025 &nbsp; **The DPS8M Development Team**
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the “Software”),
@@ -568,7 +568,7 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.**
 * Copyright © 2013 &nbsp; **Robert Armstrong** &nbsp;
    \<[`bob@jfcl.com`](mailto:bob@jfcl.com)\>
 * Copyright © 2015-2016 &nbsp; **Charles Anthony**
-* Copyright © 2021-2024 &nbsp; **The DPS8M Development Team**
+* Copyright © 2021-2025 &nbsp; **The DPS8M Development Team**
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the “Software”), to deal
@@ -653,7 +653,7 @@ in this Software without prior written authorization from the authors.
 
 *COPYRIGHT AND PERMISSION NOTICE*
 
-* Copyright © 2021-2024 &nbsp; **The DPS8M Development Team**
+* Copyright © 2021-2025 &nbsp; **The DPS8M Development Team**
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the “Software”),
@@ -698,7 +698,7 @@ in this Software without prior written authorization of the copyright holder.
    \<[`charles.unix.pro@gmail.com`](mailto:charles.unix.pro@gmail.com)\>
 * Copyright © 2006 &nbsp; **John S. Urban, USA**. &nbsp;
    \<[`urbanjost@comcast.net`](mailto:urbanjost@comcast.net)\>
-* Copyright © 2021-2024 &nbsp; **The DPS8M Development Team**
+* Copyright © 2021-2025 &nbsp; **The DPS8M Development Team**
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the “Software”),
@@ -817,7 +817,7 @@ in this Software without prior written authorization of the copyright holder.
    \<[`antirez@gmail.com`](mailto:antirez@gmail.com)\>
 * Copyright © 2010-2013 &nbsp; **Pieter Noordhuis** &nbsp;
    \<[`pcnoordhuis@gmail.com`](mailto:pcnoordhuis@gmail.com)\>
-* Copyright © 2021-2024 &nbsp; **The DPS8M Development Team**
+* Copyright © 2021-2025 &nbsp; **The DPS8M Development Team**
 
 All rights reserved.
 
@@ -860,7 +860,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.**
 **BSD Random License**
 
 * Copyright © 1983-1991 &nbsp; **The Regents of the University of California**
-* Copyright © 2021-2024 &nbsp; **The DPS8M Development Team**
+* Copyright © 2021-2025 &nbsp; **The DPS8M Development Team**
 
 All rights reserved.
 
@@ -906,7 +906,7 @@ THE POSSIBILITY OF SUCH DAMAGE.**
 **empty License**
 
 * Copyright © 2005-2015 &nbsp; **Mikhail E. Zakharov**
-* Copyright © 2022-2024 &nbsp; **The DPS8M Development Team**
+* Copyright © 2022-2025 &nbsp; **The DPS8M Development Team**
 
 **empty** was written by *Mikhail E. Zakharov*. This software was based on
 the basic idea of pty version 4.0, Copyright © 1992 *Daniel J.* *Bernstein*,
@@ -992,7 +992,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.**
    \<[`dteske@FreeBSD.org`](mailto:dteske@FreeBSD.org)\>
 * Copyright © 2020-2021 &nbsp; **Jeffrey H. Johnson** &nbsp;
    \<[`trnsz@pobox.com`](mailto:trnsz@pobox.com)\>
-* Copyright © 2021-2024 &nbsp; **The DPS8M Development Team**
+* Copyright © 2021-2025 &nbsp; **The DPS8M Development Team**
 
 All rights reserved.
 

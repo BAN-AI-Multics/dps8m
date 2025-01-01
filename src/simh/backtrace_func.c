@@ -12,7 +12,7 @@
  * -------------------------------------------------------------------------
  *
  * Copyright (c) 2021-2023 Jeffrey H. Johnson
- * Copyright (c) 2022-2024 The DPS8M Development Team
+ * Copyright (c) 2022-2025 The DPS8M Development Team
  *
  * All rights reserved.
  *

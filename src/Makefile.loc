@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT-0
 # scspell-id: 17a08b6c-f62b-11ec-9acc-80ee73e9b8e7
 # Copyright (c) 2021 Jeffrey H. Johnson
-# Copyright (c) 2021-2024 The DPS8M Development Team
+# Copyright (c) 2021-2025 The DPS8M Development Team
 
 ###############################################################################
 
@@ -55,7 +55,7 @@ libuvrel:                                                                     \
                       "        are expected below and can be safely ignored."
 	@$(SETV); ($(CD) "libuv-local/libuv-$(RELVER)" &&                         \
       $(ENV) $(SHELL) autogen.sh &&                                           \
-        eval export $(DUMACFG) &&                                             \
+        eval export $(DUMACFG) > /dev/null 2>&1 &&                            \
           $(SHELL) "configure" $(LOCAL_CONFOPTS) --disable-shared             \
             --enable-static --disable-dependency-tracking                     \
               --prefix="$$($(GCWD) -P)/../local" &&   \
@@ -85,14 +85,15 @@ libuvdev:                                                                     \
 	@$(SETV); $(MKDIR) "libuv-local" && $(MKDIR) "libuv-local/local"
 	@$(PRINTF) '%s\n' "Cloning libuv ..."
 	@$(SETV); ($(CD) "libuv-local" &&                                         \
+        $(GIT) clone $(LOCAL_CLONEOPTS) -b $(LIBUVBRN) $(LIBUVGIT) ||         \
         $(GIT) clone $(LOCAL_CLONEOPTS) -b $(LIBUVBRN) $(LIBUVGIT))
 	@$(PRINTF) '%s\n' "Configure and build libuv ..."
 	@$(PRINTF) '%s\n' "# NOTE: Errors may be printed below. These errors are" \
                       "        are expected below and can be safely ignored."
 	@$(SETV); ($(CD) "libuv-local/libuv" && $(ENV) $(SHELL) autogen.sh &&     \
-      eval export $(DUMACFG) &&                                               \
+      eval export $(DUMACFG) > /dev/null 2>&1 &&                              \
         $(SHELL) "configure" $(LOCAL_CONFOPTS) --disable-shared               \
-		  --enable-static --disable-dependency-tracking                       \
+          --enable-static --disable-dependency-tracking                       \
             --prefix="$$($(GCWD) -P)/../local" &&  $(LIBUV_DEV_EXTRA) &&      \
               $(MAKE) $(MAKEFLAGS) && $(MAKE) install && $(MAKE) clean) &&    \
                 $(PRINTF) '%s\n' "*** Local libuv built successfully!"

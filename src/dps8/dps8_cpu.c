@@ -11,7 +11,7 @@
  * Copyright (c) 2013-2023 Charles Anthony
  * Copyright (c) 2017 Michal Tomek
  * Copyright (c) 2021-2023 Jeffrey H. Johnson
- * Copyright (c) 2021-2024 The DPS8M Development Team
+ * Copyright (c) 2021-2025 The DPS8M Development Team
  *
  * This software is made available under the terms of the ICU License.
  * See the LICENSE.md file at the top-level directory of this distribution.
@@ -2053,9 +2053,11 @@ void * cpu_thread_main (void * arg)
     sim_os_set_thread_priority (PRIORITY_ABOVE_NORMAL);
     _sir_snprintf_trunc(thread_name, SIR_MAXPID, "CPU %c", (unsigned int)umyid);
     if (!_sir_setthreadname(thread_name) || !_sir_getthreadname(temp_thread_name))
-      (void)sir_info ("%s thread created (TID " SIR_TIDFORMAT ")", thread_name, _sir_gettid());
+      (void)sir_info ("%s thread created (TID " SIR_TIDFORMAT ")",
+        thread_name, PID_CAST _sir_gettid());
     else
-      (void)sir_info ("Thread created (TID " SIR_TIDFORMAT ")", _sir_gettid());
+      (void)sir_info ("Thread created (TID " SIR_TIDFORMAT ")",
+        PID_CAST _sir_gettid());
 # if defined(TESTING) && defined(__APPLE__) && defined(__MACH__)
     (void)sir_info ("Mach thread ID: 0x%x", pthread_mach_thread_np(pthread_self()));
 # endif /* if defined(TESTING) && defined(__APPLE__) && defined(__MACH__) */

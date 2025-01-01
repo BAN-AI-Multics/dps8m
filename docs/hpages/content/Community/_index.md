@@ -3,7 +3,7 @@ weight: 8000
 title: Community
 ---
 <!-- SPDX-License-Identifier: MIT-0 -->
-<!-- Copyright (c) 2016-2024 The DPS8M Development Team -->
+<!-- Copyright (c) 2016-2025 The DPS8M Development Team -->
 ## Mailing Lists
 
 * The **DPS8M Development Team** offers **mailing lists** for discussing the simulator.
