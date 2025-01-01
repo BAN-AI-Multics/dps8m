@@ -674,7 +674,6 @@ Cross-compiled release binaries:
       - dps8m-git-ndk24-x32.tar.gz
       - dps8m-git-haiku-x64.tar.gz
       - dps8m-git-linux-686.tar.gz
-      - dps8m-git-aixv7-pw7.tar.gz
   retry: 2
   timeout: 480 minutes
   interruptible: true
@@ -1410,7 +1409,6 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-ndk24-x64.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-ndk24-x32.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-haiku-x64.tar.gz public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-aixv7-pw7.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-686.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-pw8.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-macos-uni.tar.gz public
