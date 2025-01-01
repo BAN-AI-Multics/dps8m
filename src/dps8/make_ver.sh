@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: MIT
 # scspell-id: 97aea429-f62f-11ec-b49f-80ee73e9b8e7
 # Copyright (c) 2020-2023 Jeffrey H. Johnson
-# Copyright (c) 2021-2024 The DPS8M Development Team
+# Copyright (c) 2021-2025 The DPS8M Development Team
 
 ##############################################################################
 # Check for csh as sh.

@@ -12,8 +12,8 @@ use warnings;
 # ---------------------------------------------------------------------------
 #
 # Copyright (c) 2016 Tobias Potocek <tobiaspotocek@gmail.com>
-# Copyright (c) 2021-2024 The DPS8M Development Team
 # Copyright (c) 2024 Jeffrey H. Johnson <trnsz@pobox.com>
+# Copyright (c) 2021-2025 The DPS8M Development Team
 #
 # ---------------------------------------------------------------------------
 

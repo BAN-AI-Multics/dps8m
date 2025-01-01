@@ -3,7 +3,7 @@ weight: 3100
 title: Historical Archives
 ---
 <!-- SPDX-License-Identifier: MIT-0 -->
-<!-- Copyright (c) 2016-2024 The DPS8M Development Team -->
+<!-- Copyright (c) 2016-2025 The DPS8M Development Team -->
 ## About Archived Releases
 
 * Current users should upgrade to [**the most recently released stable version**](..).

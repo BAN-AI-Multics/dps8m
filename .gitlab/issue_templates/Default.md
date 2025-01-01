@@ -1,6 +1,6 @@
 <!-- scspell-id: 050905c8-4812-11ed-9ae9-80ee73e9b8e7 -->
 <!-- SPDX-License-Identifier: MIT-0 -->
-<!-- Copyright (c) 2022-2024 The DPS8M Development Team and contributors -->
+<!-- Copyright (c) 2022-2025 The DPS8M Development Team and contributors -->
 <!-- When submitting an issue, remove the above text and this line. -->
 
 ## Simulator Information

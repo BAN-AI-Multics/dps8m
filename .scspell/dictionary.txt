@@ -7152,6 +7152,7 @@ qchars
 qhot
 qpdf
 qtls
+quay
 qversion
 recvmmsg
 resilientstorage
@@ -12865,6 +12866,7 @@ recovered
 recovery
 recursive
 redefine
+redefined
 redefinition
 redirected
 redirections

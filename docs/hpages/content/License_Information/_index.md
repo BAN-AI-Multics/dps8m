@@ -8,7 +8,7 @@ title: License Information
 <!-- NOTE: The MIT-0 License is NOT applicable to the text of
      other licenses reproduced within this document. -->
 <!-- NOTE: Licenses in this file are UTF-8 text within fenced code blocks. -->
-<!-- Copyright (c) 2006-2024 The DPS8M Development Team -->
+<!-- Copyright (c) 2006-2025 The DPS8M Development Team -->
 
 &nbsp;[![REUSE Compliance](https://img.shields.io/reuse/compliance/GitLab.com/dps8m/dps8m.svg)](https://api.reuse.software/info/GitLab.com/dps8m/dps8m)
 
@@ -49,7 +49,7 @@ Copyright © 2017-2023 Jeffrey H. Johnson
 Copyright © 2018-2021 Juergen Weiss
 Copyright © 2021 Dean S. Anderson
 Copyright © 2023 Björn Victor
-Copyright © 2021-2024 The DPS8M Development Team
+Copyright © 2021-2025 The DPS8M Development Team
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the “Software”), to deal
@@ -166,7 +166,7 @@ to distribution of the programs without specific prior written permission.
 ```text
 MIT No Attribution License
 
-Copyright © 2006-2024 The DPS8M Development Team
+Copyright © 2006-2025 The DPS8M Development Team
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the "Software"),

@@ -3,7 +3,7 @@
 # vim: filetype=sh:tabstop=4:ai:expandtab
 # SPDX-License-Identifier: MIT-0
 # scspell-id: d4b774db-f631-11ec-90ff-80ee73e9b8e7
-# Copyright (c) 2021-2024 The DPS8M Development Team
+# Copyright (c) 2021-2025 The DPS8M Development Team
 
 ################################################################################
 # WARNING: Removes all `*.pdf`, `*.tmp`, and `*.state` files during operation.

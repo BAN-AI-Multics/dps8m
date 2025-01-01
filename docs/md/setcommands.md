@@ -1,5 +1,5 @@
 <!-- SPDX-License-Identifier: LicenseRef-CF-GAL -->
-<!-- SPDX-FileCopyrightText: 2022-2024 The DPS8M Development Team -->
+<!-- SPDX-FileCopyrightText: 2022-2025 The DPS8M Development Team -->
 <!-- scspell-id: 65252877-3180-11ed-bcd8-80ee73e9b8e7 -->
 
 ### CPU Configuration

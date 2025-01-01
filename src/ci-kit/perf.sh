@@ -2,7 +2,7 @@
 # vim: filetype=sh:tabstop=4:ai:expandtab
 # SPDX-License-Identifier: MIT-0
 # scspell-id: 4d5c9d65-f62c-11ec-8223-80ee73e9b8e7
-# Copyright (c) 2021-2024 The DPS8M Development Team
+# Copyright (c) 2021-2025 The DPS8M Development Team
 
 ##############################################################################
 

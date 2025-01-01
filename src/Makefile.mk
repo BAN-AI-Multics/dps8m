@@ -5,7 +5,7 @@
 # Copyright (c) 2014-2016 Charles Anthony
 # Copyright (c) 2016 Michal Tomek
 # Copyright (c) 2021 Jeffrey H. Johnson
-# Copyright (c) 2021-2024 The DPS8M Development Team
+# Copyright (c) 2021-2025 The DPS8M Development Team
 
 ###############################################################################
 

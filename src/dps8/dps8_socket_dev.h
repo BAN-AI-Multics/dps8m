@@ -8,7 +8,7 @@
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2017 Charles Anthony
- * Copyright (c) 2021-2024 The DPS8M Development Team
+ * Copyright (c) 2021-2025 The DPS8M Development Team
  *
  * This software is made available under the terms of the ICU License.
  * See the LICENSE.md file at the top-level directory of this distribution.

@@ -3,7 +3,7 @@
 # vim: filetype=sh:tabstop=4:ai:expandtab
 # SPDX-License-Identifier: MIT-0
 # scspell-id: 3f9cac60-f632-11ec-9ef6-80ee73e9b8e7
-# Copyright (c) 2021-2024 The DPS8M Development Team
+# Copyright (c) 2021-2025 The DPS8M Development Team
 
 ############################################################################
 # Convert dps8 flat help to Pandoc-accepted Markdown; requires GNU tooling!!

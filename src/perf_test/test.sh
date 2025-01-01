@@ -3,7 +3,7 @@
 # vim: filetype=sh:tabstop=2:ai:expandtab
 # SPDX-License-Identifier: MIT-0
 # scspell-id: 428ea8be-f631-11ec-9caa-80ee73e9b8e7
-# Copyright (c) 2021-2024 The DPS8M Development Team
+# Copyright (c) 2021-2025 The DPS8M Development Team
 
 ####################################################################################################
 # Linux-only: Set-up a static CPU configuration, run a benchmark, and restore the original settings.
