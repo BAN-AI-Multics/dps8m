@@ -516,7 +516,7 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
         else if (strcmp (p, "speed") == 0)
           cpus[cpu_unit_idx].options.proc_speed = (uint) v;
         else if (strcmp (p, "port") == 0) {
-          if ((! cpus[cpu_unit_idx].tweaks.l68_mode) && (int) v > 4) {
+          if ((! cpus[cpu_unit_idx].tweaks.l68_mode) && (int) v > 3) {
             cfg_parse_done (& cfg_state);
             return SCPE_ARG;
           }
