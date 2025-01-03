@@ -109,6 +109,7 @@ mkdir -p ./source &&                                                       \
 ( cd .. && time "${MAKE:-make}" distclean &&                               \
   time "${MAKE:-make}" zipdist &&                                          \
   mv -f "sources.zip" "./.nsis/source/dps8m-sources.zip" &&                \
+  (advzip -z4 "./.nsis/source/dps8m-sources.zip" || true) &&               \
   time "${MAKE:-make}" distclean )
 }
 
@@ -123,9 +124,9 @@ printf '%s\n' "######  Build DPS8M Omnibus Documentation  ##################"
 mkdir -p ./share &&                                                        \
 ( cd .. && time "${MAKE:-make}" distclean &&                               \
   env CFLAGS="${GCFLAGS:-}" LDFLAGS="${GLDFLAGS:-}"                        \
-    WITH_BACKTRACE=1 NATIVE=1 time "${MAKE:-make}" -j "${CPUS:?}" &&       \
+    time "${MAKE:-make}" -j "${CPUS:?}" &&                                 \
   env CFLAGS="${GCFLAGS:-}" LDFLAGS="${GLDFLAGS:-}"                        \
-    WITH_BACKTRACE=1 NATIVE=1 time "${MAKE:-make}" docspdf &&              \
+    time "${MAKE:-make}" docspdf &&                                        \
   mv -f "docs/dps8-omnibus.pdf" "./.nsis/share/dps8m-omnibus.pdf" &&       \
   "${MAKE:-make}" distclean )
 }

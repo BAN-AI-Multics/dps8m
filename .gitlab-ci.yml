@@ -23,85 +23,19 @@
 
 ############################################################################
 
-.scriptBuildlibuvLLVMMGW64-aarch64: &scriptBuildlibuvLLVMMGW64-aarch64 |
-    # *scriptBuildlibuvLLVMMGW64-aarch64 - Build static libuv from git with LLVM-MinGW-Aarch64 cross-compiler ...
-    echo -e "section_start:`date +%s`:buildlibuvllvmmgwaarch64_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with LLVM-MinGW-Aarch64 cross-compiler ...\033[0m" || true
-    echo "Checking for Docker ..."
-    test -f /.dockerenv || exit 1
-    echo "Getting libuv from GitHub ..."
-    wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
-    echo "Preparing libuv ..."
-    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    echo "Configuring libuv ..."
-    ./configure --disable-shared --enable-static --host=aarch64-w64-mingw32 --disable-dependency-tracking
-    echo "Compiling libuv ..."
-    make && make install && cd ..
-    echo -e "section_end:`date +%s`:buildlibuvllvmmgwaarch64_section\r\e[0K" || true
-
-############################################################################
-
-.scriptBuildlibuvLLVMMGW64-armv7: &scriptBuildlibuvLLVMMGW64-armv7 |
-    # *scriptBuildlibuvLLVMMGW64-armv7 - Build static libuv from git with LLVM-MinGW-ARMv7 cross-compiler ...
-    echo -e "section_start:`date +%s`:buildlibuvllvmmgwarmv7_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with LLVM-MinGW-ARMv7 cross-compiler ...\033[0m" || true
-    echo "Checking for Docker ..."
-    test -f /.dockerenv || exit 1
-    echo "Getting libuv from GitHub ..."
-    wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
-    echo "Preparing libuv ..."
-    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    echo "Configuring libuv ..."
-    ./configure --disable-shared --enable-static --host=armv7-w64-mingw32 --disable-dependency-tracking
-    echo "Compiling libuv ..."
-    make && make install && cd ..
-    echo -e "section_end:`date +%s`:buildlibuvllvmmgwarmv7_section\r\e[0K" || true
-
-############################################################################
-
-.scriptBuildlibuvLLVMMGW64-i686: &scriptBuildlibuvLLVMMGW64-i686 |
-    # *scriptBuildlibuvLLVMMGW64-i686 - Build static libuv from git with LLVM-MinGW-i686 cross-compiler ...
-    echo -e "section_start:`date +%s`:buildlibuvllvmmgwi686_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with LLVM-MinGW-i686 cross-compiler ...\033[0m" || true
-    echo "Checking for Docker ..."
-    test -f /.dockerenv || exit 1
-    echo "Getting libuv from GitHub ..."
-    wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
-    echo "Preparing libuv ..."
-    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    echo "Configuring libuv ..."
-    ./configure --disable-shared --enable-static --host=i686-w64-mingw32 --disable-dependency-tracking
-    echo "Compiling libuv ..."
-    make && make install && cd ..
-    echo -e "section_end:`date +%s`:buildlibuvllvmmgwi686_section\r\e[0K" || true
-
-############################################################################
-
-.scriptBuildlibuvLLVMMGW64-x86_64: &scriptBuildlibuvLLVMMGW64-x86_64 |
-    # *scriptBuildlibuvLLVMMGW64-x86_64 - Build static libuv from git with LLVM-MinGW-x86_64 cross-compiler ...
-    echo -e "section_start:`date +%s`:buildlibuvllvmmgwx8664_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with LLVM-MinGW-x86_64 cross-compiler ...\033[0m" || true
-    echo "Checking for Docker ..."
-    test -f /.dockerenv || exit 1
-    echo "Getting libuv from GitHub ..."
-    wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
-    echo "Preparing libuv ..."
-    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    echo "Configuring libuv ..."
-    ./configure --disable-shared --enable-static --host=x86_64-w64-mingw32 --disable-dependency-tracking
-    echo "Compiling libuv ..."
-    make && make install && cd ..
-    echo -e "section_end:`date +%s`:buildlibuvllvmmgwx8664_section\r\e[0K" || true
-
-############################################################################
-
 .scriptCommon: &scriptCommon |
     # *scriptCommon - Show common CI/CD configuration information
     echo -e "section_start:`date +%s`:common_section[collapsed=false]\r\e[0K\033[0;36mCommon Information ...\033[0m" || true
-    echo "Project Name              : ${CI_PROJECT_TITLE:-Unknown}"
-    echo "Project Git Commit        : ${CI_COMMIT_SHA:-Unknown}"
-    echo "Project Git Branch        : ${CI_COMMIT_BRANCH:-Unknown}"
-    echo "GitLab CI User Details    : ${GITLAB_USER_LOGIN:-Unknown} - ${GITLAB_USER_NAME:-Unknown} (${GITLAB_USER_ID:-Unknown}) ${GITLAB_USER_EMAIL:-}"
-    echo "GitLab CI Job Name        : ${CI_JOB_NAME:-Unknown}"
-    echo "GitLab CI Job ID          : ${CI_JOB_ID:-Unknown}"
-    echo "GitLab CI Job Stage       : ${CI_JOB_STAGE:-Unknown}"
-    echo "GitLab CI Runner Details  : ${CI_RUNNER_VERSION:-Unknown} (${CI_RUNNER_REVISION:-Unknown})"
+    echo "Project Name                : ${CI_PROJECT_TITLE:-Unknown}"
+    echo "Project Git Commit          : ${CI_COMMIT_SHA:-Unknown}"
+    echo "Project Git Branch          : ${CI_COMMIT_BRANCH:-Unknown}"
+    echo "GitLab CI User Details      : ${GITLAB_USER_LOGIN:-Unknown} - ${GITLAB_USER_NAME:-Unknown} (${GITLAB_USER_ID:-Unknown}) ${GITLAB_USER_EMAIL:-}"
+    echo "GitLab CI Pipeline IID      : ${CI_PIPELINE_IID:-Unknown}"
+    echo "GitLab CI Job Name          : ${CI_JOB_NAME:-Unknown}"
+    echo "GitLab CI Job ID            : ${CI_JOB_ID:-Unknown}"
+    echo "GitLab CI Job Stage         : ${CI_JOB_STAGE:-Unknown}"
+    echo "GitLab CI Runner Details    : ${CI_RUNNER_VERSION:-Unknown} (${CI_RUNNER_REVISION:-Unknown})"
+    echo "GitLab CI Project Directory : ${CI_PROJECT_DIR:-Unknown}"
     git status || true > /dev/null 2>&1
     ulimit -c 0 || true > /dev/null 2>&1
     echo -e "section_end:`date +%s`:common_section\r\e[0K" || true
@@ -119,25 +53,6 @@
     test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil.exe && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/punutil/punutil.exe 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/libwinpthread-1.dll && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/libwinpthread-1.dll 2> /dev/null || true > /dev/null 2>&1
     echo -e "section_end:`date +%s`:compress_section\r\e[0K" || true
-
-############################################################################
-
-.scriptDnfSetup: &scriptDnfSetup |
-    # *scriptDnfSetup - Update system and install required tools using dnf on RH-based systems ...
-    echo -e "section_start:`date +%s`:dnfuinstall_section[collapsed=true]\r\e[0K\033[0;36mSetting up system ...\033[0m" || true
-    echo "Checking for Docker ..."
-    test -f /.dockerenv || exit 1
-    echo "Configure dnf ..."
-    sed -i 's/tsflags=nodocs//' /etc/dnf/dnf.conf || true
-    echo "Updating system ..."
-    dnf -y --refresh --best update || dnf -y --refresh --nobest update || true
-    dnf -y --refresh --best update || dnf -y --refresh --nobest update || true
-    dnf -y update
-    echo "Installing software ..."
-    export ARGS="isl file lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make gnupg2 bash curl wget git time gcc clang xz xz-libs xz-devel libzstd libzstd-devel dos2unix"
-    dnf -y --best install ${ARGS:?} || dnf -y --nobest install ${ARGS:?} || true
-    dnf -y --best install ${ARGS:?} || dnf -y --nobest install ${ARGS:?}
-    echo -e "section_end:`date +%s`:dnfuinstall_section\r\e[0K" || true
 
 ############################################################################
 
@@ -179,9 +94,10 @@
 
 .scriptVerifyVersion: &scriptVerifyVersion |
     # *scriptVerifyVersion - Smoke-test ...
+    echo -e "section_start:`date +%s`:version_section[collapsed=true]\r\e[0K\033[0;36mVerify version ...\033[0m" || true
     ./src/dps8/dps8 --version | grep 'imulator'
-    echo "SHOW VERSION" | ./src/dps8/dps8 -t | grep 'imulator '
     printf '%s\n' "SHOW BUILDINFO" "ECHO" "SHOW VERSION" | ./src/dps8/dps8 -t
+    echo -e "section_end:`date +%s`:version_section\r\e[0K" || true
 
 ############################################################################
 # Workflow
@@ -222,7 +138,7 @@ stages:
 # Jobs
 
 Cross-compiled release binaries:
-  image: quay.io/fedora/fedora:41
+  image: registry.gitlab.com/dps8m/dps8m/base:latest
   stage: build
   needs:
     - job: Source Tree Checks
@@ -230,31 +146,25 @@ Cross-compiled release binaries:
     - Docker-x64
     - amd64
     - Linux
-  parallel: 4
+  parallel: 8
   script:
-    - export GLCICD_JOB="ReleaseCross" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
-    - ulimit -c 0 2> /dev/null || true > /dev/null 2>&1
-    - export CI_SKIP_MKREBUILD=1
-    - mkdir -p /tmp 2> /dev/null || true > /dev/null 2>&1
-    - *scriptDnfSetup
     - *scriptSanity
     - *scriptCommon
     - *scriptExtraInfo
+    - |
+      # Start of Configuration ...
+      echo -e "section_start:`date +%s`:config_section[collapsed=true]\r\e[0K\033[0;36mConfiguration ...\033[0m" || true
+    - ulimit -c 0 2> /dev/null || true > /dev/null 2>&1
+    - export CI_SKIP_MKREBUILD=1
+    - mkdir -p /tmp 2> /dev/null || true > /dev/null 2>&1
     - PARALLEL_CI_COUNT=0
     - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - export LOCAL_CLONEOPTS=""
     - git config --global user.name "GitLab CI" || true
     - git config --global user.email "ci@example.com" || true
-    - echo -e "section_start:`date +%s`:crossbsetup_section[collapsed=true]\r\e[0K\033[0;36mInstalling additional packages ...\033[0m" || true
-    - dnf -y install --best copr-cli dnf-utils || dnf -y install --nobest copr-cli dnf-utils || true
-    - dnf -y install "@core" "@Development Tools" "@C Development Tools and Libraries" gcc clang || true
-    - dnf -y --best update || dnf -y --nobest update || true
-    - dnf -y --best update || dnf -y --nobest update
-    - export JOB_PKGS="dos2unix libmd libmd-devel libbsd libbsd-devel tar bzip2 lzip wget libzstd-devel libzstd zlib zlib-devel zstd libzstd libzstd-devel brotli-devel brotli libbrotli libcom_err libxcrypt openssl-devel openssl libcurl libcurl-devel elfutils-debuginfod-client elfutils-debuginfod expat-devel expat libffi libffi-devel gc-devel libevent-devel libgcc gmp-devel krb5-devel compat-guile18 guile-devel guile22-devel libidn2-devel libidn libidn-devel keyutils-libs-devel openldap-devel libtool-ltdl-devel xz-devel mpfr-devel msgpack-devel pcre2-devel libselinux-devel libssh-devel libssh2-devel ncurses-devel libunistring xxhash-devel sudo lld lld-devel llvm llvm-devel clang clang-devel"
-    - dnf -y install --best ${JOB_PKGS:?} || dnf -y install --nobest ${JOB_PKGS:?}
-    - unset JOB_PKGS > /dev/null 2>&1 || true
-    - unexport JOB_PKGS > /dev/null 2>&1 || true
-    - echo -e "section_end:`date +%s`:crossbsetup_section\r\e[0K" || true
+    - |
+      # End of Configuration ...
+      echo -e "section_end:`date +%s`:config_section\r\e[0K" || true
     - PARALLEL_CI_COUNT=$(( PARALLEL_CI_COUNT + 1 )) ; test ${PARALLEL_CI_COUNT:?} -gt ${CI_NODE_TOTAL:?} && PARALLEL_CI_COUNT=1 || true
     - *scriptDPS8Mods
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( mkdir -p /home/jhj/x-tools && cd /home/jhj/x-tools && curl -fsSL https://gitlab.com/dps8m/ci-tools/-/releases/1/downloads/x86_64-unknown-haiku.tar.lz.aa https://gitlab.com/dps8m/ci-tools/-/releases/1/downloads/x86_64-unknown-haiku.tar.lz.ab | lzip -dc | tar xf - ); }; fi
@@ -681,7 +591,7 @@ Cross-compiled release binaries:
 ############################################################################
 
 GNU GLOBAL Hypertext:
-  image: quay.io/fedora/fedora:41
+  image: registry.gitlab.com/dps8m/dps8m/base:latest
   stage: docs
   needs:
     - job: Source Tree Checks
@@ -690,23 +600,51 @@ GNU GLOBAL Hypertext:
     - amd64
     - Linux
   script:
-    - export GLCICD_JOB="GlobalX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
-    - dnf install -y global bzip2 unifdef || dnf install -y global bzip2 unifdef
-    - *scriptDnfSetup
     - *scriptSanity
     - *scriptCommon
     - *scriptExtraInfo
+    - global --version | head -1 || true
+    - |
+      # Start of configure gtags ...
+      echo -e "section_start:`date +%s`:cgtags_section[collapsed=true]\r\e[0K\033[0;36mConfigure gtags ...\033[0m" || true
     - make distclean
     - cp -f ./.gtags.conf /etc/gtags.conf
+    - |
+      # End of configure gtags ...
+      echo -e "section_end:`date +%s`:cgtags_section\r\e[0K" || true
     - *scriptDPS8Mods
+    - |
+      # Start of build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
     - make
+    - |
+      # End of build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - |
+      # Start of preprocessing ...
+      echo -e "section_start:`date +%s`:preproc_section[collapsed=true]\r\e[0K\033[0;36mGtags preprocessing ...\033[0m" || true
     - mv -f src/libsir .
     - sh -c 'OUT=$(find ./src -name "*.[ch]" -exec unifdef -U0 -b -k -m {} \; 2>&1); test -z "${OUT:-}" && exit 0; echo "${OUT:?}"; exit 1'
     - mv -f libsir src
-    - htags --map-file --auto-completion --colorize-warned-line -h -I --tabs 4 -v -n -o -s --tabs 4 --table-flist --statistics
+    - |
+      # End of preprocessing ...
+      echo -e "section_end:`date +%s`:preproc_section\r\e[0K" || true
+    - |
+      # Start of gtags ...
+      echo -e "section_start:`date +%s`:gtags_section[collapsed=true]\r\e[0K\033[0;36mGtags ...\033[0m" || true
+    - htags --map-file --auto-completion --colorize-warned-line -h -I --tabs 4 -n -o -s --table-flist --statistics
+    - |
+      # End of gtags ...
+      echo -e "section_end:`date +%s`:gtags_section\r\e[0K" || true
+    - |
+      # Start of postprocessing ...
+      echo -e "section_start:`date +%s`:postproc_section[collapsed=true]\r\e[0K\033[0;36mGtags postprocessing ...\033[0m" || true
     - sed -e "s/http:\/\/www.gnu.org\/software\/global\//https:\/\/gitlab.com\/dps8m\/dps8m/" -e "s/ title='Go to the GLOBAL project page.'//" -e "s/ alt='\[Powered by GLOBAL-.*\]'//" -e "s/^<a href='http/<br \/><a href='http/" "HTML/index.html" > "HTML/index.html.tmp" && mv -f "HTML/index.html.tmp" "HTML/index.html" && cp -f "HTML/index.html" "HTML/mains.html"
     - cp -f ./.gtags-style.css HTML/style.css
     - cp -f ./docs/hpages/static/pglobe.png HTML/icons/pglobe.png
+    - |
+      # End of postprocessing ...
+      echo -e "section_end:`date +%s`:postproc_section\r\e[0K" || true
   dependencies: []
   artifacts:
     expire_in: 30 days
@@ -719,7 +657,7 @@ GNU GLOBAL Hypertext:
 ############################################################################
 
 Hugo:
-  image: quay.io/fedora/fedora:41
+  image: registry.gitlab.com/dps8m/dps8m/base:latest
   stage: docs
   needs:
     - job: Source Tree Checks
@@ -728,14 +666,18 @@ Hugo:
     - amd64
     - Linux
   script:
-    - export GLCICD_JOB="Hugogen64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
-    - dnf install -y hugo bzip2 || dnf install -y hugo bzip2
-    - *scriptDnfSetup
     - *scriptSanity
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
+    - hugo version
+    - |
+      # Start of Hugo build ...
+      echo -e "section_start:`date +%s`:Hugo_section[collapsed=true]\r\e[0K\033[0;36mHugo build ...\033[0m" || true
     - cd docs/hpages && ./hugobuild.sh
+    - |
+      # End of Hugo build ...
+      echo -e "section_end:`date +%s`:Hugo_section\r\e[0K" || true
   dependencies: []
   artifacts:
     expire_in: 30 days
@@ -747,8 +689,51 @@ Hugo:
 
 ############################################################################
 
-Windows/ARM64, LLVM-MinGW:
-  image: mstorsjo/llvm-mingw:dev
+Linux/x86_64, NVIDIA HPC SDK C:
+  image: registry.gitlab.com/dps8m/dps8m/nvhpc:latest
+  stage: build
+  needs:
+    - job: Source Tree Checks
+  tags:
+    - Docker-x64
+    - amd64
+    - Linux
+    - AVX
+  script:
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - |
+      # Start of configure ...
+      echo -e "section_start:`date +%s`:config_section[collapsed=true]\r\e[0K\033[0;36mConfigure ...\033[0m" || true
+    - export NVPLAT="Linux_x86_64"
+    - export NVCPATH="/opt/nvidia/hpc_sdk/${NVPLAT}/*.*/compilers/bin"
+    - |
+      # End of configure ...
+      echo -e "section_end:`date +%s`:config_section\r\e[0K" || true
+    - ${NVCPATH}/nvc -V
+    - |
+      # Start of build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - env CFLAGS="-noswitcherror --diag_suppress=mixed_enum_type --diag_suppress=branch_past_initialization --diag_suppress=set_but_not_used" CC="${NVCPATH}/nvc" NO_LTO=1 make OPTFLAGS="-fast -O4 -Mnofprelaxed"
+    - |
+      # End of build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *scriptVerifyVersion
+    - *scriptBuildInfo
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+  retry: 2
+  timeout: 90 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/x86_64, Oracle Developer Studio:
+  image: registry.gitlab.com/dps8m/dps8m/base:latest
   stage: build
   needs:
     - job: Source Tree Checks
@@ -757,13 +742,59 @@ Windows/ARM64, LLVM-MinGW:
     - amd64
     - Linux
   script:
-    - export GLCICD_JOB="LLVMMINGWARM64" && export DTIMESTAMP="$(stat -c "%Y" /opt/llvm-mingw)"
-    - *scriptBuildlibuvLLVMMGW64-aarch64
     - *scriptSanity
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make CC="aarch64-w64-mingw32-clang -I/usr/local/include -pthread" CROSS="MINGW64" LIBUV="-L/usr/local/lib /usr/local/lib/libuv.a -lpthread -Wno-unused-command-line-argument -lws2_32 -lpsapi -liphlpapi -lshell32 -luserenv -luser32 -ldbghelp -lole32 -luuid"
+    - /opt/oracle/developerstudio12.6/bin/suncc -V
+    - |
+      # Start of build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - env CFLAGS="-DNO_C_ELLIPSIS -Qy -xO5 -m64 -xlibmil -xCC -mt -xlibmopt -fno-semantic-interposition -xprefetch=auto -xprefetch_level=3" CC="/opt/oracle/developerstudio12.6/bin/suncc" NO_LTO=1 SUNPRO=1 NEED_128=1 CSTD="c11" make
+    - |
+      # End of build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
+    - *scriptVerifyVersion
+    - *scriptBuildInfo
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+  retry: 2
+  timeout: 90 minutes
+  interruptible: true
+
+############################################################################
+
+Windows/ARM64, LLVM-MinGW:
+  image: registry.gitlab.com/dps8m/dps8m/llvm-mingw:latest
+  stage: build
+  needs:
+    - job: Source Tree Checks
+  tags:
+    - Docker-x64
+    - amd64
+    - Linux
+  script:
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - aarch64-w64-mingw32-clang --version | head -1 || true
+    - |
+      # Start of libuv build ...
+      echo -e "section_start:`date +%s`:libuv_section[collapsed=true]\r\e[0K\033[0;36mBuild libuv ...\033[0m" || true
+    - mkdir -p "${HOME}/libuv-build" && mkdir -p "${HOME}/libuv-win32-arm64" && ( cd "${HOME}/libuv-build" && wget -q "https://github.com/libuv/libuv/archive/v1.x.zip" && unzip -xa "v1.x.zip" && cd "libuv-1.x" && sh ./autogen.sh && ./configure --prefix="${HOME}/libuv-win32-arm64" --enable-static --disable-shared --host="aarch64-w64-mingw32" && make && make install )
+    - |
+      # End of libuv build ...
+      echo -e "section_end:`date +%s`:libuv_section\r\e[0K" || true
+    - |
+      # Start of build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - env CC="aarch64-w64-mingw32-clang" CFLAGS="-I${HOME}/libuv-win32-arm64/include -D__MINGW64__" LDFLAGS="-L${HOME}/libuv-win32-arm64/lib" make CROSS="MINGW64"
+    - |
+      # End of build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
     - test -f src/dps8/dps8.exe
     - *scriptBuildInfo
     - mkdir -p "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
@@ -786,7 +817,7 @@ Windows/ARM64, LLVM-MinGW:
 ############################################################################
 
 Windows/ARMv7, LLVM-MinGW:
-  image: mstorsjo/llvm-mingw:dev
+  image: registry.gitlab.com/dps8m/dps8m/llvm-mingw:latest
   stage: build
   needs:
     - job: Source Tree Checks
@@ -795,13 +826,25 @@ Windows/ARMv7, LLVM-MinGW:
     - amd64
     - Linux
   script:
-    - export GLCICD_JOB="LLVMMINGWARM" && export DTIMESTAMP="$(stat -c "%Y" /opt/llvm-mingw)"
-    - *scriptBuildlibuvLLVMMGW64-armv7
     - *scriptSanity
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make CC="armv7-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread -D__int64_t=int64_t -D__MINGW64__ -Wno-unused-command-line-argument" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread -lws2_32 -lpsapi -liphlpapi -lshell32 -luserenv -luser32 -ldbghelp -lole32 -luuid" NEED_128=1
+    - armv7-w64-mingw32-clang --version | head -1 || true
+    - |
+      # Start of libuv build ...
+      echo -e "section_start:`date +%s`:libuv_section[collapsed=true]\r\e[0K\033[0;36mBuild libuv ...\033[0m" || true
+    - mkdir -p "${HOME}/libuv-build" && mkdir -p "${HOME}/libuv-win32-armv7" && ( cd "${HOME}/libuv-build" && wget -q "https://github.com/libuv/libuv/archive/v1.x.zip" && unzip -xa "v1.x.zip" && cd "libuv-1.x" && sh ./autogen.sh && ./configure --prefix="${HOME}/libuv-win32-armv7" --enable-static --disable-shared --host="armv7-w64-mingw32" && make && make install )
+    - |
+      # End of libuv build ...
+      echo -e "section_end:`date +%s`:libuv_section\r\e[0K" || true
+    - |
+      # Start of build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - env CC="armv7-w64-mingw32-clang" CFLAGS="-I${HOME}/libuv-win32-armv7/include -D__MINGW64__" LDFLAGS="-L${HOME}/libuv-win32-armv7/lib" NEED_128=1 make CROSS="MINGW64"
+    - |
+      # End of build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
     - test -f src/dps8/dps8.exe
     - *scriptBuildInfo
     - mkdir -p "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
@@ -823,7 +866,7 @@ Windows/ARMv7, LLVM-MinGW:
 ############################################################################
 
 Windows/i686, LLVM-MinGW:
-  image: mstorsjo/llvm-mingw:dev
+  image: registry.gitlab.com/dps8m/dps8m/llvm-mingw:latest
   stage: build
   needs:
     - job: Source Tree Checks
@@ -832,26 +875,32 @@ Windows/i686, LLVM-MinGW:
     - amd64
     - Linux
   script:
-    - export GLCICD_JOB="LLVMMINGWI686" && export DTIMESTAMP="$(stat -c "%Y" /opt/llvm-mingw)"
-    - *scriptBuildlibuvLLVMMGW64-i686
     - *scriptSanity
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make CC="i686-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread -D__int64_t=int64_t -D__MINGW64__ -Wno-unused-command-line-argument" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread -lws2_32 -lpsapi -liphlpapi -lshell32 -luserenv -luser32 -ldbghelp -lole32 -luuid" NEED_128=1
+    - i686-w64-mingw32-clang --version | head -1 || true
+    - |
+      # Start of libuv build ...
+      echo -e "section_start:`date +%s`:libuv_section[collapsed=true]\r\e[0K\033[0;36mBuild libuv ...\033[0m" || true
+    - mkdir -p "${HOME}/libuv-build" && mkdir -p "${HOME}/libuv-win32-i686" && ( cd "${HOME}/libuv-build" && wget -q "https://github.com/libuv/libuv/archive/v1.x.zip" && unzip -xa "v1.x.zip" && cd "libuv-1.x" && sh ./autogen.sh && ./configure --prefix="${HOME}/libuv-win32-i686" --enable-static --disable-shared --host="i686-w64-mingw32" && make && make install )
+    - |
+      # End of libuv build ...
+      echo -e "section_end:`date +%s`:libuv_section\r\e[0K" || true
+    - |
+      # Start of build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - env CC="i686-w64-mingw32-clang" CFLAGS="-I${HOME}/libuv-win32-i686/include -D__MINGW64__" LDFLAGS="-L${HOME}/libuv-win32-i686/lib" NEED_128=1 make CROSS="MINGW64"
+    - |
+      # End of build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
     - test -f src/dps8/dps8.exe
     - *scriptBuildInfo
-    - mkdir -p "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
-    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
-    - cp -f src/dps8/dps8.exe src/prt2pdf/prt2pdf.exe src/punutil/punutil.exe "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
-    - cp -f /opt/llvm-mingw/i686-w64-mingw32/bin/libwinpthread-1.dll "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
-    - ( cd src && zip -9 ../dps8m-git-mingw-x32.zip ./dps8m-${CI_COMMIT_SHORT_SHA:?}/* )
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - dps8m-git-mingw-x32.zip
       - dps8m.zip
   retry: 2
   timeout: 90 minutes
@@ -860,7 +909,7 @@ Windows/i686, LLVM-MinGW:
 ############################################################################
 
 Windows/x86_64, LLVM-MinGW:
-  image: mstorsjo/llvm-mingw:dev
+  image: registry.gitlab.com/dps8m/dps8m/llvm-mingw:latest
   stage: build
   needs:
     - job: Source Tree Checks
@@ -869,15 +918,27 @@ Windows/x86_64, LLVM-MinGW:
     - amd64
     - Linux
   script:
-    - export GLCICD_JOB="LLVMMINGWX8664" && export DTIMESTAMP="$(stat -c "%Y" /opt/llvm-mingw)"
-    - *scriptBuildlibuvLLVMMGW64-x86_64
     - *scriptSanity
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - make CC="x86_64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -Wno-unused-command-line-argument -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread -lws2_32 -lpsapi -liphlpapi -lshell32 -luserenv -luser32 -ldbghelp -lole32 -luuid"
-    - *scriptBuildInfo
+    - x86_64-w64-mingw32-clang --version | head -1 || true
+    - |
+      # Start of libuv build ...
+      echo -e "section_start:`date +%s`:libuv_section[collapsed=true]\r\e[0K\033[0;36mBuild libuv ...\033[0m" || true
+    - mkdir -p "${HOME}/libuv-build" && mkdir -p "${HOME}/libuv-win32-x86_64" && ( cd "${HOME}/libuv-build" && wget -q "https://github.com/libuv/libuv/archive/v1.x.zip" && unzip -xa "v1.x.zip" && cd "libuv-1.x" && sh ./autogen.sh && ./configure --prefix="${HOME}/libuv-win32-x86_64" --enable-static --disable-shared --host="x86_64-w64-mingw32" && make && make install )
+    - |
+      # End of libuv build ...
+      echo -e "section_end:`date +%s`:libuv_section\r\e[0K" || true
+    - |
+      # Start of build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
+    - env CC="x86_64-w64-mingw32-clang" CFLAGS="-I${HOME}/libuv-win32-x86_64/include -D__MINGW64__" LDFLAGS="-L${HOME}/libuv-win32-x86_64/lib" make CROSS="MINGW64"
+    - |
+      # End of build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
     - test -f src/dps8/dps8.exe
+    - *scriptBuildInfo
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
@@ -891,7 +952,7 @@ Windows/x86_64, LLVM-MinGW:
 ############################################################################
 
 Source Kits:
-  image: debian:sid
+  image: registry.gitlab.com/dps8m/dps8m/base:latest
   stage: build
   needs:
     - job: Source Tree Checks
@@ -900,21 +961,55 @@ Source Kits:
     - amd64
     - Linux
   script:
-    - ( (apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null); apt-get -qq -y install zpaq zip advancecomp pigz tar make git lzip 7zip > /dev/null || apt-get -qq -y install zpaq zip advancecomp pigz tar make git lzip 7zip > /dev/null )
     - *scriptSanity
     - *scriptCommon
-    - make distclean && make dist COMPRESS="pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n" COMPRESSXT="gz"
+    - pigz --version 2>&1 || true
+    - zip --version 2>&1 | grep -i 'Zip .*\.' | tail -1 || true
+    - lzip --version 2>&1 | grep -i 'lzip .*\.' || true
+    - 7za --help 2>&1 | grep -i 'zip .*\.' | head -1 || true
+    - zpaq --help 2>&1 | grep -i 'zpaq .*\.' | head -1 || true
+    - |
+      # Start of tar.gz kit ...
+      echo -e "section_start:`date +%s`:tgz_section[collapsed=true]\r\e[0K\033[0;36mBuild tar.gz kit ...\033[0m" || true
+    - make distclean && make dist COMPRESS="pigz -C "${CI_COMMIT_SHA:?}" -11 -f -m -n" COMPRESSXT="gz"
     - cp -f sources.tar.gz /tmp
+    - |
+      # End of tar.gz kit ...
+      echo -e "section_end:`date +%s`:tgz_section\r\e[0K" || true
+    - |
+      # Start of zip kit ...
+      echo -e "section_start:`date +%s`:zip_section[collapsed=true]\r\e[0K\033[0;36mBuild zip kit ...\033[0m" || true
     - make distclean && make zipdist
     - cp -f /tmp/sources.tar.gz .
     - mv sources.zip dps8m-git-src.zip
     - mv sources.tar.gz dps8m-git-src.tar.gz
+    - |
+      # End of zip kit ...
+      echo -e "section_end:`date +%s`:zip_section\r\e[0K" || true
+    - |
+      # Start of tar.lz kit ...
+      echo -e "section_start:`date +%s`:tlz_section[collapsed=true]\r\e[0K\033[0;36mBuild tar.lz kit ...\033[0m" || true
     - make distclean && make dist COMPRESS="lzip -9 -s 512Mi" COMPRESSXT="lz"
     - mv sources.tar.lz dps8m-git-src.tar.lz
+    - |
+      # End of tar.lz kit ...
+      echo -e "section_end:`date +%s`:tlz_section\r\e[0K" || true
+    - |
+      # Start of 7z kit ...
+      echo -e "section_start:`date +%s`:7z_section[collapsed=true]\r\e[0K\033[0;36mBuild 7z kit ...\033[0m" || true
     - make distclean && env COMPRESSXT="7z" COMPRESS='( mkdir -p 7ztmp && cd 7ztmp && tar xf ../../../$(KITNAME).$(TARXT) && 7za a -y -m0=lzma -mx=9 -mfb=273 -ssc -ssw -spf -snl -md=512m -ms=on -stl -sdel ../../../$(KITNAME).$(COMPRESSXT) . ) && $(RMDIR) 7ztmp && $(RMF) $(KITNAME).$(TARXT)' make dist
     - mv sources.7z dps8m-git-src.7z
+    - |
+      # End of 7z kit ...
+      echo -e "section_end:`date +%s`:7z_section\r\e[0K" || true
+    - |
+      # Start of zpaq kit ...
+      echo -e "section_start:`date +%s`:zpaq_section[collapsed=true]\r\e[0K\033[0;36mBuild zpaq kit ...\033[0m" || true
     - make distclean && env COMPRESSXT="zpaq" COMPRESS='( mkdir -p zpaqtmp && cd zpaqtmp && tar xf ../../../$(KITNAME).$(TARXT) && zpaq -f add ../../../$(KITNAME).$(COMPRESSXT) . -m5 ) && $(RMF) -r ./zpaqtmp && $(RMF) $(KITNAME).$(TARXT)' make dist
     - mv sources.zpaq dps8m-git-src.zpaq
+    - |
+      # End of zpaq kit ...
+      echo -e "section_end:`date +%s`:zpaq_section\r\e[0K" || true
   dependencies: []
   artifacts:
     expire_in: 1 day
@@ -932,7 +1027,7 @@ Source Kits:
 
 NSIS Installer:
   stage: nsis_installer
-  image: quay.io/fedora/fedora:41
+  image: registry.gitlab.com/dps8m/dps8m/base:latest
   needs:
     - job: Source Tree Checks
     - job: DPS8M Omnibus Documentation
@@ -945,45 +1040,51 @@ NSIS Installer:
     - amd64
     - Linux
   script:
-    - export GLCICD_JOB="NSISInstaller" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
-    - *scriptDnfSetup
-    - dnf -y install ucrt64-dlfcn ucrt64-dlfcn-static ucrt64-filesystem ucrt64-crt ucrt64-winpthreads ucrt64-headers ucrt64-winpthreads-static ucrt64-binutils ucrt64-libgcc ucrt64-cpp ucrt64-gcc ucrt64-gcc-c++ ucrt64-libstdc++ diffutils libzstd libzstd-devel zstd bzip2 mingw32-binutils mingw32-cpp mingw32-crt mingw32-dlfcn mingw32-dlfcn-static mingw32-filesystem mingw32-gcc mingw32-gcc-c++ mingw32-headers mingw32-nsis mingw32-nsiswrapper mingw32-srvany mingw32-winpthreads mingw32-winpthreads-static mingw32-xz-libs mingw32-xz-libs-static mingw64-binutils mingw64-cpp mingw64-crt mingw64-dlfcn mingw64-dlfcn-static mingw64-filesystem mingw64-gcc mingw64-gcc-c++ mingw64-headers mingw64-winpthreads mingw64-winpthreads-static mingw64-xz-libs mingw64-xz-libs-static mingw-binutils-generic mingw-filesystem-base mingw-w64-tools --best || dnf -y install mingw32-binutils mingw32-cpp mingw32-crt mingw32-dlfcn mingw32-dlfcn-static mingw32-filesystem mingw32-gcc mingw32-gcc-c++ mingw32-headers mingw32-nsis mingw32-nsiswrapper mingw32-srvany mingw32-winpthreads mingw32-winpthreads-static mingw32-xz-libs mingw32-xz-libs-static mingw64-binutils mingw64-cpp mingw64-crt mingw64-dlfcn mingw64-dlfcn-static mingw64-filesystem mingw64-gcc mingw64-gcc-c++ mingw64-headers mingw64-winpthreads mingw64-winpthreads-static mingw64-xz-libs mingw64-xz-libs-static mingw-binutils-generic mingw-filesystem-base mingw-w64-tools bzip2 libzstd libzstd-devel zstd diffutils --nobest ucrt64-filesystem ucrt64-crt ucrt64-winpthreads ucrt64-headers ucrt64-winpthreads-static ucrt64-binutils ucrt64-libgcc ucrt64-cpp ucrt64-gcc ucrt64-gcc-c++ ucrt64-libstdc++ ucrt64-dlfcn ucrt64-dlfcn-static
-    - dnf -y install bash libtool autoconf automake autoconf-archive m4 gawk --best || dnf -y install libtool autoconf automake autoconf-archive m4 gawk bash --nobest
     - *scriptSanity
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
+    - x86_64-w64-mingw32ucrt-gcc --version | head -1 || true
+    - i686-w64-mingw32-gcc --version | head -1 || true
+    - rpm -qi $(rpm -qf $(command -v makensis)) | grep -i version || true
+    - |
+      # Start NSIS build ...
+      echo -e "section_start:`date +%s`:nsis_section[collapsed=true]\r\e[0K\033[0;36mNSIS build ...\033[0m" || true
     - cd "${CI_PROJECT_DIR:?}/.nsis" && env USE_CI=1 ./build-nsis.sh
     - cd "${CI_PROJECT_DIR:?}" && make distclean
     - test -f "${CI_PROJECT_DIR:?}/.nsis/dps8m-git-win-setup.exe"
+    - |
+      # End NSIS build ...
+      echo -e "section_end:`date +%s`:nsis_section\r\e[0K" || true
   artifacts:
     when: always
     expire_in: 30 days
     paths:
       - .nsis/dps8m-git-win-setup.exe
   retry: 2
-  timeout: 360 minutes
+  timeout: 120 minutes
   interruptible: true
 
 #############################################################################
 
 Option Verification Test:
   stage: cmb_test
-  image: quay.io/fedora/fedora:41
+  image: registry.gitlab.com/dps8m/dps8m/base:latest
   needs:
     - job: Source Tree Checks
   tags:
     - Docker-x64
     - amd64
     - Linux
-  parallel: 1
+  parallel: 4
   script:
-    - export GLCICD_JOB="OptTestFedoraX64_${CI_NODE_INDEX:?}" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
-    - *scriptDnfSetup
     - *scriptSanity
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
+    - |
+      # Start of job setup ...
+      echo -e "section_start:`date +%s`:setup_section[collapsed=true]\r\e[0K\033[0;36mJob setup ...\033[0m" || true
     - export NO_LTO=1
     - export CMB_OPTIONS="NO_LOCKLESS=1 TESTING=1 NEED_128=1 ROUND_ROBIN=1"
     - make -C "src/mcmb" && export CMB_TOOL="$(command -p env PATH="$(command -p env getconf PATH)" mktemp)" && mv -f "src/mcmb/mcmb" "${CMB_TOOL:?}" && chmod a+x "${CMB_TOOL:?}"
@@ -991,10 +1092,25 @@ Option Verification Test:
     - ( export NSPLIT=${CI_NODE_TOTAL:?}; for i in $(seq 1 ${CI_NODE_TOTAL:?}); do ( bash -c '${CMB_TOOL:?} -N -e ${CMB_OPTIONS:?} -p "make " -s " && printf %s\\\\n \"SHOW VERSION\" | ./src/dps8/dps8 -t && make distclean && \\"' ) | awk '{ print "env ITERATION="$0 }' 2> /dev/null | split -e -n "r/${i:?}/${NSPLIT:?}" | awk "BEGIN { print \"#!/usr/bin/env bash\"; print \"# Part ${i:?} of ${NSPLIT:?}\"; printf \"\"; print \"set -eux -o pipefail\" } { print \$0 } END { print \"true\"; print \"\" }" | tr -d '\r' > "part_${i:?}_of_${NSPLIT:?}.sh" 2> /dev/null; done )
     - export CMB_CI_JOB="part_${CI_NODE_INDEX:?}_of_${CI_NODE_TOTAL:?}.sh"
     - dos2unix ./"${CMB_CI_JOB:?}" || true
-    - cat ./"${CMB_CI_JOB:?}" && chmod a+x ./"${CMB_CI_JOB:?}"
+    - chmod a+x ./"${CMB_CI_JOB:?}"
+    - |
+      # End of job setup ...
+      echo -e "section_end:`date +%s`:setup_section\r\e[0K" || true
+    - |
+      # Start of test ...
+      echo -e "section_start:`date +%s`:test_section[collapsed=true]\r\e[0K\033[0;36mTest ...\033[0m" || tru
     - ./"${CMB_CI_JOB:?}" 2>&1 | tee -i options-test.txt | grep --line-buffered 'env ITERATION'
+    - |
+      # End of test ...
+      echo -e "section_end:`date +%s`:test_section\r\e[0K" || true
+    - |
+      # Start of perf_strip ...
+      echo -e "section_start:`date +%s`:perf_section[collapsed=true]\r\e[0K\033[0;36mPERF_STRIP ...\033[0m" || true
     - make clean > /dev/null 2>&1 && make PERF_STRIP=1
     - ( cd src/perf_test && ../../src/dps8/dps8 2>&1 || true )
+    - |
+      # End of perf_strip ...
+      echo -e "section_end:`date +%s`:perf_section\r\e[0K" || true
   dependencies: []
   artifacts:
     when: always
@@ -1002,7 +1118,7 @@ Option Verification Test:
     paths:
       - options-test.txt
   retry: 2
-  timeout: 360 minutes
+  timeout: 120 minutes
   interruptible: true
 
 #############################################################################
@@ -1010,7 +1126,7 @@ Option Verification Test:
 DPS8M Omnibus Documentation:
   when: always
   stage: docs
-  image: quay.io/fedora/fedora:41
+  image: registry.gitlab.com/dps8m/dps8m/base:latest
   tags:
     - Docker-x64-fast
     - Linux
@@ -1018,18 +1134,24 @@ DPS8M Omnibus Documentation:
   needs:
     - job: Source Tree Checks
   script:
-    - export GLCICD_JOB="OmnibusDocsGenX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
-    - echo -e "section_start:`date +%s`:bzip20001setup_section[collapsed=true]\r\e[0K\033[0;36mInstalling bzip2 ...\033[0m" || true
-    - dnf install -y bzip2 || dnf install -y bzip2
-    - echo -e "section_end:`date +%s`:bzip20001setup_section\r\e[0K" || true
-    - *scriptDnfSetup
-    - dnf install -y file texlive-tikzfill texlive-hardwrap texlive-listings texlive-listingsutf8 texlive-microtype texlive-parskip texlive-footnotehyper texlive-footnoterange texlive-bookmark texlive-globalvals texlive-cprotect texlive-tcolorbox texlive-minted jq util-linux graphviz texlive-graphviz graphviz-devil graphviz-gd graphviz-lua python3-pygments texlive-pygmentex biber texlive-enumitem-zref texlive-zref texlive-xurl texlive-xecjk texlive-upquote texlive-unicode-math texlive-ulem texlive-ucharcat texlive-titling texlive-sourcesanspro texlive-sourcecodepro texlive-pagecolor texlive-needspace texlive-mweights texlive-mdframed texlive-ly1 texlive-letltxmacro texlive-fvextra texlive-framed texlive-footmisc texlive-filehook texlive-everypage texlive-csquotes texlive-collectbox texlive-bidi texlive-background texlive-babel-german texlive-footnotebackref texlive-adjustbox telnet tmux mksh expect tcsh wget lzip dos2unix diffutils moreutils libfaketime nmap ansifilter poppler-utils pandoc qpdf ghostscript bc pdftk-java adobe-source-code-pro-fonts adobe-source-sans-pro-fonts texlive-scheme-basic texlive-collection-xetex bash || dnf install -y file texlive-tikzfill texlive-hardwrap texlive-adjustbox telnet tmux mksh expect tcsh wget lzip dos2unix diffutils moreutils libfaketime nmap ansifilter poppler-utils pandoc qpdf ghostscript bc pdftk-java adobe-source-code-pro-fonts adobe-source-sans-pro-fonts texlive-scheme-basic texlive-collection-xetex bash texlive-footnotebackref texlive-babel-german texlive-background texlive-bidi texlive-collectbox texlive-csquotes texlive-everypage texlive-filehook texlive-footmisc texlive-framed texlive-fvextra texlive-letltxmacro texlive-ly1 texlive-mdframed texlive-mweights texlive-needspace texlive-pagecolor texlive-sourcecodepro texlive-sourcesanspro texlive-titling texlive-ucharcat texlive-ulem texlive-unicode-math texlive-upquote texlive-xecjk texlive-xurl texlive-zref texlive-enumitem-zref biber texlive-pygmentex python3-pygments graphviz texlive-graphviz graphviz-devil graphviz-gd graphviz-lua util-linux jq texlive-minted texlive-tcolorbox texlive-cprotect texlive-globalvals texlive-bookmark texlive-footnotehyper texlive-footnoterange texlive-listings texlive-listingsutf8 texlive-microtype texlive-parskip
+    - |
+      # Start of mktexfmt ...
+      echo -e "section_start:`date +%s`:mktexfmt_section[collapsed=true]\r\e[0K\033[0;36mmktexfmt ...\033[0m" || true
     - mktexfmt xelatex.fmt || true
+    - |
+      # End of docspdf ...
+      echo -e "section_end:`date +%s`:mktexfmt_section\r\e[0K" || true
     - *scriptSanity
     - *scriptCommon
     - *scriptExtraInfo
     - *scriptDPS8Mods
+    - |
+      # Start of DPS8M Omnibus Documentation build ...
+      echo -e "section_start:`date +%s`:docspdf_section[collapsed=true]\r\e[0K\033[0;36mBuild DPS8M Omnibus Documentation ...\033[0m" || true
     - gmake && gmake docspdf
+    - |
+      # End of docspdf ...
+      echo -e "section_end:`date +%s`:docspdf_section\r\e[0K" || true
     - test -f ${CI_PROJECT_DIR:?}/docs/dps8-omnibus.pdf
   dependencies: []
   artifacts:
@@ -1038,14 +1160,14 @@ DPS8M Omnibus Documentation:
     paths:
       - docs/dps8-omnibus.pdf
   retry: 2
-  timeout: 360 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
 
 Multics CI-Kit Test:
   stage: ci_test
-  image: quay.io/fedora/fedora:41
+  image: registry.gitlab.com/dps8m/dps8m/base:latest
   tags:
     - Docker-x64-fast
     - Linux
@@ -1054,17 +1176,17 @@ Multics CI-Kit Test:
   needs:
     - job: Source Tree Checks
   script:
-    - export GLCICD_JOB="CIKitTestFedoraX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
-    - echo -e "section_start:`date +%s`:bzip20002setup_section[collapsed=true]\r\e[0K\033[0;36mInstalling bzip2 ...\033[0m" || true
-    - dnf install -y bzip2 || dnf install -y bzip2
-    - echo -e "section_end:`date +%s`:bzip20002setup_section\r\e[0K" || true
-    - *scriptDnfSetup
-    - dnf install -y curl telnet tmux mksh expect tcsh wget lzip dos2unix diffutils moreutils libfaketime nmap ansifilter || dnf install -y curl telnet tmux mksh expect tcsh wget lzip dos2unix diffutils moreutils libfaketime nmap ansifilter
     - *scriptSanity
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
+    - |
+      # Start of CI-Kit ...
+      echo -e "section_start:`date +%s`:cikit_section[collapsed=true]\r\e[0K\033[0;36mCI-Kit ...\033[0m" || true
     - bash -x -c '( set -x ; cd src/ci-kit && env NO_CI_SYMLINK_TAPES=1 ./init.sh ; ./ci.sh ; make -f ci.makefile diff ; mv -f new.log new.txt )'
+    - |
+      # End of CI-Kit ...
+      echo -e "section_end:`date +%s`:cikit_section\r\e[0K" || true
   cache:
     key: tape-cache
     paths:
@@ -1076,7 +1198,7 @@ Multics CI-Kit Test:
     paths:
       - src/ci-kit/new.txt
   retry: 2
-  timeout: 240 minutes
+  timeout: 120 minutes
   interruptible: true
 
 #############################################################################
@@ -1085,20 +1207,25 @@ Flawfinder:
   stage: test
   allow_failure: false
   needs:
-    - job: Option Verification Test
+    - job: Source Tree Checks
+  image: registry.gitlab.com/dps8m/dps8m/base:latest
   tags:
-    - Linux
-    - Flawfinder
+    - Docker-x64
     - amd64
-    - Linux-Shell
-    - POSIX
+    - Linux
   script:
-    - export GLCICD_JOB="Flawfinder" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
     - *scriptSanity
     - *scriptCommon
     - *scriptExtraInfo
+    - flawfinder --version
+    - |
+      # Start of flawfinder ...
+      echo -e "section_start:`date +%s`:flawfinder_section[collapsed=true]\r\e[0K\033[0;36mFlawfinder ...\033[0m" || true
     - env rm -rf src/libbacktrace
     - flawfinder -C -m 5 -c . 2>&1 > flawfinder.txt || true
+    - |
+      # End of flawfinder ...
+      echo -e "section_end:`date +%s`:flawfinder_section\r\e[0K" || true
     - sh -xc 'set +e; grep "No hits found" flawfinder.txt && exit 0;exit 2'
   dependencies: []
   artifacts:
@@ -1113,26 +1240,30 @@ Flawfinder:
 #############################################################################
 
 Clang Analyzer:
-  image: quay.io/fedora/fedora:41
+  image: registry.gitlab.com/dps8m/dps8m/base:latest
   stage: test
   allow_failure: false
   needs:
-    - job: Option Verification Test
+    - job: Source Tree Checks
   tags:
     - Linux
     - Docker-x64
     - amd64
   script:
-    - export GLCICD_JOB="ClangAnalyzer" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
-    - *scriptDnfSetup
     - *scriptSanity
     - *scriptCommon
     - *scriptExtraInfo
-    - dnf install -y clang-devel clang-analyzer clang-tools-extra bzip2 llvm-devel || dnf install -y clang-devel clang-analyzer bzip2 clang-tools-extra llvm-devel
+    - clang --version 2>&1 | head -1 || true
+    - |
+      # Start of analyzer ...
+      echo -e "section_start:`date +%s`:analyze_section[collapsed=true]\r\e[0K\033[0;36mClang Analyzer ...\033[0m" || true
     - gmake superclean
     - gmake clsanalz
     - mkdir -p out
     - touch out/index.html
+    - |
+      # End of analyzer ...
+      echo -e "section_end:`date +%s`:analyze_section\r\e[0K" || true
     - sh -xc 'set +e;C_OUTPUT="$(cat out/index.html 2> /dev/null)" && test -z "${C_OUTPUT:-}"'
   dependencies: []
   artifacts:
@@ -1146,37 +1277,41 @@ Clang Analyzer:
 #############################################################################
 
 PVS-Studio:
-  image: quay.io/fedora/fedora:41
+  image: registry.gitlab.com/dps8m/dps8m/base:latest
   stage: test
   allow_failure: false
   needs:
-    - job: Option Verification Test
+    - job: Source Tree Checks
   tags:
     - Linux
     - Docker-x64
     - amd64
     - AVX
   script:
-    - export GLCICD_JOB="PVSStudioJob" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
-    - *scriptDnfSetup
     - *scriptSanity
     - *scriptCommon
     - *scriptExtraInfo
-    - dnf install -y python3-dnf || dnf install -y python3-dnf
-    - dnf-3 install -4 -y wget curl bear bzip2 || dnf-3 install -4 -y wget curl bear bzip2
-    - wget -O /etc/yum.repos.d/viva64.repo https://dps8m.gitlab.io/dps8m-archive/CI/viva64.repo
-    - dnf-3 --setopt sslverify=0 --refresh -y install -4 pvs-studio || dnf-3 --setopt sslverify=0 --refresh -y install -4 pvs-studio
-    - wget -O /etc/yum.repos.d/viva64-beta.repo https://dps8m.gitlab.io/dps8m-archive/CI/viva64-beta.repo || true
-    - dnf-3 --setopt sslverify=0 --refresh -y install -4 pvs-studio || dnf-3 --setopt sslverify=0 --refresh -y install -4 pvs-studio
-    - dnf-3 --setopt sslverify=0 upgrade -4 --best -y || dnf-3 --setopt sslverify=0 upgrade -4 --nobest -y
+    - pvs-studio --version
     - pvs-studio-analyzer credentials "${PVS_STUDIO_NAME:?}" "${PVS_STUDIO_KEY:?}" || true
     - rm -f compile_commands.json
     - rm -f compile_commands.events.json
+    - |
+      # Start of build ...
+      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
     - env WITH_ABSI_DEV=1 WITH_MGP_DEV=1 WITH_SOCKET_DEV=1 bear -- gmake WITH_ABSI_DEV=1 WITH_MGP_DEV=1 WITH_SOCKET_DEV=1
+    - |
+      # End of build ...
+      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
     - ./src/dps8/dps8 --version
+    - |
+      # Start of analyzer ...
+      echo -e "section_start:`date +%s`:analyzer_section[collapsed=true]\r\e[0K\033[0;36mPVS-Studio Analyzer ...\033[0m" || true
     - pvs-studio-analyzer analyze --intermodular -o log.pvs || true
     - plog-converter -a "GA:1,2" -t fullhtml log.pvs -o pvsreport -d V576,V629,V701,V768 > pvs.txt 2>&1 || true
     - cat pvs.txt || true
+    - |
+      # End of analyzer ...
+      echo -e "section_end:`date +%s`:analyzer_section\r\e[0K" || true
     - grep -Eiq '(Exception. No valid messages|No messages generated)' pvs.txt && { echo 'PASSED'; mkdir -p ./pvsreport; printf '%s\n' "Congratulations!" > ./pvsreport/index.html; } || true
     - mkdir -p ./pvsreport
     - touch pvsreport/index.html
@@ -1194,28 +1329,29 @@ PVS-Studio:
 #############################################################################
 
 Coverity:
-  image: quay.io/fedora/fedora:41
+  image: registry.gitlab.com/dps8m/dps8m/base:latest
   stage: coverity_test
   allow_failure: true
   when: manual
   needs:
     - job: Source Tree Checks
-    - job: Option Verification Test
   tags:
     - Linux
     - Docker-x64
     - amd64
   script:
-    - export GLCICD_JOB="CoverityScan" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
-    - *scriptDnfSetup
     - *scriptSanity
     - *scriptCommon
     - *scriptExtraInfo
-    - dnf install -y wget curl xz bzip2 pkgconf gtk3 gtk3-devel || dnf install -y wget curl xz bzip2 pkgconf gtk3 gtk3-devel
-    - dnf upgrade -y || dnf upgrade -y || true
+    - |
+      # Start of Coverity submission ...
+      echo -e "section_start:`date +%s`:cov_section[collapsed=true]\r\e[0K\033[0;36mCoverity submission ...\033[0m" || true
     - mkdir -p .coverity-dl
     - export COVERITY_DLDIR="$(pwd)/.coverity-dl"
     - ./src/ci-kit/coverity-submit.sh
+    - |
+      # End of Coverity submission ...
+      echo -e "section_end:`date +%s`:cov_section\r\e[0K" || true
     - touch OK
   cache:
     key: coverity-cache
@@ -1236,23 +1372,28 @@ Cppcheck:
   stage: test
   allow_failure: false
   needs:
-    - job: Option Verification Test
+    - job: Source Tree Checks
+  image: registry.gitlab.com/dps8m/dps8m/base:latest
   tags:
+    - Docker-x64
     - Linux
-    - Cppcheck
     - amd64
-    - Linux-Shell
-    - POSIX
   script:
-    - export GLCICD_JOB="Cppcheck" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
     - *scriptSanity
     - *scriptCommon
     - *scriptExtraInfo
+    - cppcheck --version
+    - |
+      # Start of Cppcheck ...
+      echo -e "section_start:`date +%s`:cppcheck_section[collapsed=true]\r\e[0K\033[0;36mCppcheck ...\033[0m" || true
     - env HTMLOUT=1 make cppcheck
     - ansifilter -T cppcheck.txt > cppcheck.txt.1 2> /dev/null
     - env mv -f cppcheck.txt.1 cppcheck.txt > /dev/null 2>&1
-    - sh -xc 'set +e;grep "A HREF=" cppcheck/index.html && exit 1;exit 0'
-    - sh -xc 'set +e;grep -vE "(^#.*#$|^$)" cppcheck/index.html && exit 1;exit 0'
+    - |
+      # End of Cppcheck ...
+      echo -e "section_end:`date +%s`:cppcheck_section\r\e[0K" || true
+    - sh -xc 'set +e; grep "A HREF=" cppcheck/index.html && exit 1; exit 0'
+    - sh -xc 'set +e; grep -vE "(^#.*#$|^$)" cppcheck/index.html && exit 1; exit 0'
   dependencies: []
   artifacts:
     when: always
@@ -1270,23 +1411,26 @@ Oracle Developer Studio Lint:
   stage: test
   allow_failure: false
   needs:
-    - job: Option Verification Test
+    - job: Source Tree Checks
+  image: registry.gitlab.com/dps8m/dps8m/base:latest
   tags:
     - Linux
-    - Sun-CC
+    - Docker-x64
     - amd64
-    - Linux-Shell
-    - POSIX
   script:
-    - export GLCICD_JOB="OracleLint" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
     - *scriptSanity
     - *scriptCommon
     - *scriptExtraInfo
-    - pkill lint > /dev/null 2>&1 || true
-    - sleep 20 || true
+    - /opt/oracle/developerstudio12.6/bin/lint -V
+    - |
+      # Start of Oracle Lint ...
+      echo -e "section_start:`date +%s`:Lint_section[collapsed=true]\r\e[0K\033[0;36mOracle Lint ...\033[0m" || true
     - make orstlint || true
     - sleep 5 || true
     - pkill lint > /dev/null 2>&1 || true
+    - |
+      # End of Oracle Lint ...
+      echo -e "section_end:`date +%s`:Lint_section\r\e[0K" || true
     - sh -xc 'set +e; { grep "^E_" orstlint.txt && exit 1; }; exit 0'
   dependencies: []
   artifacts:
@@ -1301,22 +1445,29 @@ Oracle Developer Studio Lint:
 
 Source Tree Checks:
   stage: src_test
-  image: quay.io/fedora/fedora:41
+  image: registry.gitlab.com/dps8m/dps8m/base:latest
   tags:
     - Docker-x64
     - Linux
     - amd64
   script:
-    - export GLCICD_JOB="GitHooksCheckFedoraX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
-    - echo -e "section_start:`date +%s`:bzip20003setup_section[collapsed=true]\r\e[0K\033[0;36mInstalling bzip2 ...\033[0m" || true
-    - dnf install -y bzip2 || dnf install -y bzip2
-    - echo -e "section_end:`date +%s`:bzip20003setup_section\r\e[0K" || true
-    - *scriptDnfSetup
-    - dnf install -y cppi imake reuse python3-setuptools || dnf install -y cppi imake reuse python3-setuptools
     - *scriptSanity
     - *scriptCommon
     - *scriptExtraInfo
+    - |
+      # Start of editorconfig-checker ...
+      echo -e "section_start:`date +%s`:ecc_section[collapsed=true]\r\e[0K\033[0;36meditorconfig-checker ...\033[0m" || true
+    - ${HOME}/go/bin/editorconfig-checker
+    - |
+      # End of editorconfig-checker ...
+      echo -e "section_end:`date +%s`:ecc_section\r\e[0K" || true
+    - |
+      # Start of source check ...
+      echo -e "section_start:`date +%s`:checksrc_section[collapsed=true]\r\e[0K\033[0;36mSource check ...\033[0m" || true
     - ( env EXTRA_HOOK=1 DEBUG_HOOK=1 TEST_DEPENDS=1 ./.githooks/pre-commit 2>&1 ; env gmake -j 1 lmscspell spdxtest 2>&1 ) 2>&1 | tee -i pre-commit-test.txt
+    - |
+      # End of source check ...
+      echo -e "section_end:`date +%s`:checksrc_section\r\e[0K" || true
   dependencies: []
   artifacts:
     when: always
@@ -1333,44 +1484,49 @@ pages:
   image: alpine:latest
   tags:
     - Docker-amd64
-    - DPS8M
     - Linux
     - amd64
   needs:
-    - job: Cross-compiled release binaries
     - job: Clang Analyzer
     - job: Cppcheck
+    - job: Cross-compiled release binaries
     - job: DPS8M Omnibus Documentation
     - job: Flawfinder
     - job: GNU GLOBAL Hypertext
     - job: Hugo
+    - job: Linux/x86_64, NVIDIA HPC SDK C
+    - job: Linux/x86_64, Oracle Developer Studio
+    - job: Multics CI-Kit Test
+    - job: NSIS Installer
+    - job: Option Verification Test
     - job: Oracle Developer Studio Lint
+    - job: PVS-Studio
     - job: Source Kits
     - job: Windows/ARM64, LLVM-MinGW
     - job: Windows/ARMv7, LLVM-MinGW
     - job: Windows/i686, LLVM-MinGW
-    - job: PVS-Studio
-    - job: NSIS Installer
+    - job: Windows/x86_64, LLVM-MinGW
   dependencies:
-    - "Cross-compiled release binaries"
     - "Clang Analyzer"
     - "Cppcheck"
+    - "Cross-compiled release binaries"
     - "DPS8M Omnibus Documentation"
     - "Flawfinder"
     - "GNU GLOBAL Hypertext"
     - "Hugo"
+    - "NSIS Installer"
     - "Oracle Developer Studio Lint"
+    - "PVS-Studio"
     - "Source Kits"
     - "Windows/ARM64, LLVM-MinGW"
     - "Windows/ARMv7, LLVM-MinGW"
-    - "Windows/i686, LLVM-MinGW"
-    - "PVS-Studio"
-    - "NSIS Installer"
   stage: deploy
   script:
-  - apk update || true
-  - apk -U upgrade --prune || true
-  - apk -U add -u advancecomp pigz brotli
+  - brotli --version
+  - pigz --version
+  - |
+    # Start of Pages deploy ...
+    echo -e "section_start:`date +%s`:deploy_section[collapsed=true]\r\e[0K\033[0;36mPages deploy ...\033[0m" || true
   - mkdir -p public/master
   - mv -f ${CI_PROJECT_DIR:?}/docs/dps8-omnibus.pdf public/master/dps8m-omnibus.pdf
   - mv -f ${CI_PROJECT_DIR:?}/HTML public/master/global
@@ -1422,7 +1578,16 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/.nsis/dps8m-git-win-setup.exe public
   - find "public" -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\)$' -exec brotli -f -k -v -Z -- "{}" \; || true
   - find "public" -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\)$' -exec pigz -9 -f -k -m -v -- "{}" \; || true
+  - |
+    # End of Pages deploy ...
+    echo -e "section_end:`date +%s`:deploy_section\r\e[0K" || true
+  - |
+    # Start of Pages listing ...
+    echo -e "section_start:`date +%s`:listing_section[collapsed=true]\r\e[0K\033[0;36mPages listing ...\033[0m" || true
   - ls -laR -- "public" || true
+  - |
+    # End of Pages listing ...
+    echo -e "section_end:`date +%s`:listing_section\r\e[0K" || true
   artifacts:
     paths:
     - public
