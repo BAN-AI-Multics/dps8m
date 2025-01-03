@@ -1481,7 +1481,7 @@ Source Tree Checks:
 ############################################################################
 
 pages:
-  image: alpine:latest
+  image: registry.gitlab.com/dps8m/dps8m/base:latest
   tags:
     - Docker-amd64
     - Linux
