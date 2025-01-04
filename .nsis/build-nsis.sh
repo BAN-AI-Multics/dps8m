@@ -109,7 +109,7 @@ mkdir -p ./source &&                                                       \
 ( cd .. && time "${MAKE:-make}" distclean &&                               \
   time "${MAKE:-make}" zipdist &&                                          \
   mv -f "sources.zip" "./.nsis/source/dps8m-sources.zip" &&                \
-  (advzip -z4 "./.nsis/source/dps8m-sources.zip" || true) &&               \
+  (advzip -k -z4 "./.nsis/source/dps8m-sources.zip" || true) &&            \
   time "${MAKE:-make}" distclean )
 }
 

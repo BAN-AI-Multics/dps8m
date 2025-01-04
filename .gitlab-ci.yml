@@ -1572,12 +1572,12 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-iloi-641.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-970.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-mingw-a64.zip public
-  - advzip -z4 public/dps8m-git-mingw-a64.zip
+  - advzip -k -z4 public/dps8m-git-mingw-a64.zip
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-mingw-av7.zip public
-  - advzip -z4 public/dps8m-git-mingw-av7.zip
+  - advzip -k -z4 public/dps8m-git-mingw-av7.zip
   - mv -f ${CI_PROJECT_DIR:?}/.nsis/dps8m-git-win-setup.exe public
-  - find "public" -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\)$' -exec brotli -f -k -v -Z -- "{}" \; || true
-  - find "public" -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\)$' -exec pigz -9 -f -k -m -v -- "{}" \; || true
+  - find "public" -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\)$' -print0 | xargs -0 -n 1 -P 0 brotli -f -k -v -Z -- || true
+  - find "public" -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\)$' -print0 | xargs -0 -n 1 -P 0 pigz -9 -f -k -m -v -- || true
   - |
     # End of Pages deploy ...
     echo -e "section_end:`date +%s`:deploy_section\r\e[0K" || true
