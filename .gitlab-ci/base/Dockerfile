@@ -297,7 +297,6 @@ RUN set -x && \
       ucrt64-winpthreads-static \
       unifdef \
       unzip \
-      upx \
       util-linux \
       vim \
       wget \
@@ -323,11 +322,7 @@ RUN set -x && \
   rm -rf ~/.cache && \
   rm -rf /var/tmp/* && \
   rm -rf /var/log/dnf* && \
-  adduser -m -U -G wheel --uid 10000 -c "CI/CD User" user && \
-  true \
-&& \
-  (upx -9v $(find /usr/libexec/gcc/*/*) || true) && \
-  (cd /usr/bin && upx -9v $(ls -laSr | tail -20 | awk '{ print $9 }') || true)
+  adduser -m -U -G wheel --uid 10000 -c "CI/CD User" user
 
 RUN set -x && \
   go install github.com/editorconfig-checker/editorconfig-checker/v2/cmd/editorconfig-checker@latest && \
