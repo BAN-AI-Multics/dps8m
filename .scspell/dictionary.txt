@@ -7104,6 +7104,7 @@ ltimestamp
 luser
 luserenv
 luuid
+makensis
 mcpu
 mdframed
 meditorconfig
@@ -7112,6 +7113,7 @@ mksh
 mktemp
 mktexfmt
 mllvm
+mmktexfmt
 mnofprelaxed
 moreutils
 mtune
