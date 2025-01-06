@@ -1634,8 +1634,6 @@ typedef struct cpu_state_s
 
     unsigned long      faultCnt [N_FAULTS];
 
-    _fault_subtype  g7SubFaults [N_FAULTS];
-
     word36 history [N_HIST_SETS] [N_MAX_HIST_SIZE] [2];
 
     cycles_e cycle;
@@ -1652,7 +1650,7 @@ typedef struct cpu_state_s
 
     word18  lnk;     // rpl link value
 
-    uint g7FaultsPreset;
+    volAtomic uint g7FaultsPreset;
     uint g7Faults;
 
     word24 iefpFinalAddress;

@@ -399,7 +399,8 @@ else if (faultNumber == FAULT_ACV)
 # if !defined(GNU_ATOMICS)
 #  error PROFILER requires GNU_ATOMICS
 # endif /* if !defined(GNU_ATOMICS) */
-    __atomic_add_fetch (& cpu.faults[faultNumber], 1u, __ATOMIC_ACQUIRE);
+    //__atomic_add_fetch (& cpu.faults[faultNumber], 1u, __ATOMIC_ACQUIRE);
+    (void)atomic_fetch_add_explicit(&cpu.faults[faultNumber], 1u, memory_order_acquire);
 #endif /* if defined(PROFILER) */
 #if defined(TESTING)
     HDBGFault (faultNumber, subFault, faultMsg, "");
@@ -425,7 +426,7 @@ else if (faultNumber == FAULT_ACV)
                     faultNumber, (unsigned long long)subFault.bits,
                     faultMsg ? faultMsg : "?");
         sim_warn ("fault out-of-range\n");
-        faultNumber = FAULT_TRB;
+        faultNumber = FAULT_TRB; // XXX Really? this is a simulator bug, not a trouble fault
     }
 
     cpu.faultNumber = faultNumber;
@@ -894,14 +895,17 @@ bool bG7PendingNoTRO (cpu_state_t * cpup)
     return (cpu.g7Faults & (~ (1u << FAULT_TRO))) != 0; // DPS8M
   }
 
-void setG7fault (uint cpuNo, _fault faultNo, _fault_subtype subFault)
+void setG7fault (uint cpuNo, _fault faultNo)
   {
     cpu_state_t * cpup = &cpus[cpuNo];
-    sim_debug (DBG_FAULT, & cpu_dev, "setG7fault CPU %d fault %d (%o) sub %"PRId64" %"PRIo64"\n",
-               cpuNo, faultNo, faultNo, subFault.bits, subFault.bits);
+    sim_debug (DBG_FAULT, & cpu_dev, "setG7fault CPU %d fault %d (%o)\n",
+               cpuNo, faultNo, faultNo);
+#if defined(THREADZ) || defined(LOCKLESS)
+    //__atomic_or_fetch (& cpup->g7FaultsPreset, (1u << faultNo), __ATOMIC_ACQUIRE);
+    (void)atomic_fetch_or_explicit(&cpup->g7FaultsPreset, (1u << faultNo), memory_order_acquire);
+#else
     cpup->g7FaultsPreset |= (1u << faultNo);
-    //cpu.g7SubFaultsPreset [faultNo] = subFault;
-    cpup->g7SubFaults [faultNo] = subFault;
+#endif
 #if defined(THREADZ) || defined(LOCKLESS)
     if (cpuNo != current_running_cpu_idx)
       wakeCPU(cpuNo);
@@ -940,7 +944,7 @@ void doG7Fault (cpu_state_t * cpup, bool allowTR)
 #if defined(THREADZ) || defined(LOCKLESS)
          unlock_scu ();
 #endif
-         doFault (FAULT_CON, cpu.g7SubFaults [FAULT_CON], "Connect");
+         doFault (FAULT_CON, fst_zero, "Connect");
        }
 
      if (allowTR && (cpu.g7Faults & (1u << FAULT_TRO)))
@@ -1001,15 +1005,19 @@ void doG7Fault (cpu_state_t * cpup, bool allowTR)
 
 void advanceG7Faults (cpu_state_t * cpup)
   {
+// This is potentially stale cached, but we don't care, we will see eventually ZZZ
     if (!cpu.g7FaultsPreset && !cpu.FFV_faults_preset)
       return;
 
 #if defined(THREADZ) || defined(LOCKLESS)
     lock_scu ();
-#endif
+    uint zero = 0;
+    //__atomic_exchange (& cpu.g7FaultsPreset, & zero, & cpu.g7Faults, __ATOMIC_ACQUIRE);
+    cpu.g7Faults = atomic_exchange_explicit(&cpu.g7FaultsPreset, zero, memory_order_acquire);
+#else
     cpu.g7Faults       |= cpu.g7FaultsPreset;
     cpu.g7FaultsPreset  = 0;
-    //memcpy (cpu.g7SubFaults, cpu.g7SubFaultsPreset, sizeof (cpu.g7SubFaults));
+#endif
     L68_ (
       cpu.FFV_faults |= cpu.FFV_faults_preset;
       cpu.FFV_faults_preset = 0;

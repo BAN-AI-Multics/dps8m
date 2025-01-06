@@ -2353,7 +2353,7 @@ clock_gettime (CLOCK_REALTIME, & cioc_t0);
                       }
                     uint cpu_unit_udx = cables->
                       scu_to_cpu[scu_unit_idx][scu_port_num][sn].cpu_unit_idx;
-                    setG7fault ((uint) cpu_unit_udx, FAULT_CON, fst_zero);
+                    setG7fault ((uint) cpu_unit_udx, FAULT_CON);
                   }
               }
           }
@@ -2367,7 +2367,7 @@ clock_gettime (CLOCK_REALTIME, & cioc_t0);
               }
             uint cpu_unit_udx =
               cables->scu_to_cpu[scu_unit_idx][scu_port_num][0].cpu_unit_idx;
-            setG7fault ((uint) cpu_unit_udx, FAULT_CON, fst_zero);
+            setG7fault ((uint) cpu_unit_udx, FAULT_CON);
           }
 #else
 // by xipmaskval
@@ -2389,7 +2389,7 @@ clock_gettime (CLOCK_REALTIME, & cioc_t0);
             rc = 1;
             goto done;
           }
-        setG7fault (cpu_unit_udx, FAULT_CON, (_fault_subtype) {.bits=0});
+        setG7fault ((uint) cpu_unit_udx, FAULT_CON);
 #endif
         goto done;
       }

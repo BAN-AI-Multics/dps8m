@@ -126,7 +126,7 @@ void dlyDoFault (_fault faultNumber, _fault_subtype subFault,
                 const char * faultMsg);
 bool bG7PendingNoTRO (cpu_state_t * cpup);
 bool bG7Pending (cpu_state_t * cpup);
-void setG7fault (uint cpuNo, _fault faultNo, _fault_subtype subFault);
+void setG7fault (uint cpuNo, _fault faultNo);
 //void doG7Fault (void);
 void clearTROFault (cpu_state_t * cpup);
 void advanceG7Faults (cpu_state_t * cpup);

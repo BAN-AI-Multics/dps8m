@@ -1822,7 +1822,7 @@ static void panel_process_event (void)
           }
          else // EXECUTE FAULT
           {
-            setG7fault (current_running_cpu_idx, FAULT_EXF, fst_zero);
+            setG7fault (current_running_cpu_idx, FAULT_EXF);
           }
       }
   }
@@ -2409,7 +2409,7 @@ setCPU:;
                     if (cpu.shadowTR == 0) // passing through 0...
                       {
                         if (cpu.tweaks.tro_enable)
-                          setG7fault (current_running_cpu_idx, FAULT_TRO, fst_zero);
+                          setG7fault (current_running_cpu_idx, FAULT_TRO);
                       }
                   }
               }
@@ -2441,7 +2441,7 @@ setCPU:;
           {
             cpu.rTR &= MASK27;
             if (cpu.tweaks.tro_enable) {
-              setG7fault (current_running_cpu_idx, FAULT_TRO, fst_zero);
+              setG7fault (current_running_cpu_idx, FAULT_TRO);
             }
           }
 
@@ -3109,7 +3109,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   if (cpu.rTR <= ticks)
                     {
                       if (cpu.tweaks.tro_enable) {
-                        setG7fault (current_running_cpu_idx, FAULT_TRO, fst_zero);
+                        setG7fault (current_running_cpu_idx, FAULT_TRO);
                       }
                       cpu.rTR = (cpu.rTR - ticks) & MASK27;
                     }
@@ -3143,7 +3143,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                       if (cpu.tweaks.tro_enable)
                         {
                           lock_scu ();
-                          setG7fault (current_running_cpu_idx, FAULT_TRO, fst_zero);
+                          setG7fault (current_running_cpu_idx, FAULT_TRO);
                           unlock_scu ();
                         }
                       cpu.rTR = MASK27;
@@ -3183,8 +3183,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   if (cpu.rTR <= sys_opts.sys_poll_interval * 512)
                     {
                       if (cpu.tweaks.tro_enable) {
-                        setG7fault (current_running_cpu_idx, FAULT_TRO,
-                                    fst_zero);
+                        setG7fault (current_running_cpu_idx, FAULT_TRO);
                       }
                       cpu.rTR = (cpu.rTR - sys_opts.sys_poll_interval * 512) & MASK27;
                     }

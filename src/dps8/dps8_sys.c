@@ -1799,7 +1799,7 @@ static t_stat boot_skip (int32 UNUSED arg, UNUSED const char * buf)
 static t_stat do_execute_fault (UNUSED int32 arg,  UNUSED const char * buf)
   {
     // Assume bootload CPU
-    setG7fault (0, FAULT_EXF, fst_zero);
+    setG7fault (0, FAULT_EXF);
     return SCPE_OK;
   }
 
@@ -4038,7 +4038,7 @@ static void usr1_signal_handler (UNUSED int sig)
   {
     sim_msg ("USR1 signal caught; pressing the EXF button\n");
     // Assume the bootload CPU
-    setG7fault (ASSUME0, FAULT_EXF, fst_zero);
+    setG7fault (ASSUME0, FAULT_EXF);
     return;
   }
 # endif

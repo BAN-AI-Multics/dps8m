@@ -13692,6 +13692,7 @@ stacked
 stage
 staged
 stages
+stale
 stall
 stalls
 stamper
