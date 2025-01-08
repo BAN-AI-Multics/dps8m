@@ -40,8 +40,6 @@
    * [aria2](https://aria2.github.io/) - multi-connection download utility
    * [mksh](http://www.mirbsd.org/mksh.htm) - the MirBSD™ Korn Shell, a
        high quality Korn Shell implementation
-   * [libfaketime](https://github.com/wolfcw/libfaketime/) - used to set a
-       fixed starting date for CI-Kit runs, enhancing log reproducibility
    * [ncat](https://nmap.org/ncat/) - used to probe for available ports
    * [ansifilter](https://gitlab.com/saalen/ansifilter) - ANSI sequence filter
    * [moreutils](https://joeyh.name/code/moreutils/) - timestamp filter

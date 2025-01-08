@@ -2160,7 +2160,6 @@ void becomeClockMaster (uint cpuNum) {
     return;
   }
 
-
   syncClockModeMasterIdx = cpuNum;
   cpu_state_t * cpup = & cpus[cpuNum];
   cpu.syncClockModeMaster = true; // This CPU is the clock master
@@ -2792,7 +2791,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                 cpu.becomeSlave = false;
                 // Wait for the master to wake up
                 while (! syncClockMode) {
-                  usleep (1);
+                  sim_usleep (1);
                 }
                 // Force the poll below
                 cpu.syncClockModePoll = 0;
@@ -2828,12 +2827,11 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                       allocCount ++;
 # endif
 
-                      // If usleep(1) actually takes only 1 us, then this
+                      // If sim_usleep(1) actually takes only 1 us, then this
                       // will be at least 2 seconds.
                       //int64_t waitTimeout = 2000000;
                       // Quick testing shows it is closer to 2 minutes...
                       int64_t waitTimeout = 100000;
-
 
                       // Has everyone used up their allocation?
                       while (1) {  // while others still have work to do
@@ -2869,7 +2867,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                           giveupClockMaster (cpup);
                           goto bail;
                         }
-                        usleep (1);
+                        sim_usleep (1);
                       } // while (1) -- while others still have work to do
                     } // have we used up our allocation
                     // We are master and have work allocated; fall through
@@ -2890,7 +2888,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 
                     // Wait for allocation
                     while (syncClockMode && cpu.workAllocation <= 0)
-                      usleep (1);
+                      sim_usleep (1);
 
                     // We are slave and have work allocated; fall through
                     // and do some work
@@ -3073,9 +3071,8 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 //    continue processing
 //
 
-// The usleep logic is not smart enough w.r.t. ROUND_ROBIN/ISOLTS.
-// The sleep should only happen if all running processors are in
-// DIS mode.
+// The sim_usleep logic is not smart enough w.r.t. ROUND_ROBIN/ISOLTS.
+// The sleep should only happen if all running processors are in DIS mode.
 #if !defined(ROUND_ROBIN)
                   // 1/100 is .01 secs.
                   // *1000 is 10  milliseconds

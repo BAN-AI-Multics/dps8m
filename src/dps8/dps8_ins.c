@@ -8763,7 +8763,6 @@ elapsedtime ();
 //   If ISOLTS mode is not set, we see an IWB_IRODD of 0000000616200
 //   If set, 0000001616200
 
-
           // If we do a DIS while sync clock master, and are inMultics,
           // cancel sync clock... But not the processor startup DIS
 
