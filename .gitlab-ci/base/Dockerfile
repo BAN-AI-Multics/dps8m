@@ -45,6 +45,7 @@ RUN set -x && \
       adobe-source-sans-pro-fonts \
       advancecomp \
       ansifilter \
+      aria2 \
       autoconf \
       autoconf-archive \
       automake \

@@ -2203,48 +2203,6 @@ int core_unlock_all(cpu_state_t * cpup);
 # define MEM_LOCKED_BIT    61
 # define MEM_LOCKED        (1LLU<<MEM_LOCKED_BIT)
 
-# if HAS_BUILTIN(_mm_pause) || defined(_mm_pause) // Check first for macro or builtin _mm_pause ...
-#  define MM_PAUSE          \
-    do                      \
-      {                     \
-        if (nprocs == 1) {  \
-          sched_yield();    \
-        } else {            \
-          _mm_pause();      \
-        }                   \
-      } while(0)
-# elif HAS_BUILTIN(__builtin_ia32_pause) // ... then for __builtin_ia32_pause ...
-#  define MM_PAUSE                 \
-    do                             \
-      {                            \
-        if (nprocs == 1) {         \
-          sched_yield();           \
-        } else {                   \
-          __builtin_ia32_pause();  \
-        }                          \
-      } while(0)
-# else
-#  if defined(__GNUC__) || defined(__clang_version__) // ... then `nop` on GNU C or Clang ...
-#   define MM_PAUSE                                  \
-     do                                              \
-       {                                             \
-         if (nprocs == 1) {                          \
-           sched_yield();                            \
-         } else {                                    \
-           __asm volatile ("nop" ::: "memory");      \
-         }                                           \
-       } while(0)
-#  endif
-# endif
-# if !defined(MM_PAUSE) // ... fallback: use sched_yield as before.
-#  define MM_PAUSE          \
-    do                      \
-      {                     \
-        if (nprocs == 1) {  \
-          sched_yield();    \
-        }                   \
-      } while(0)
-# endif
 # if !defined(SCHED_NEVER_YIELD)
 #  undef SCHED_YIELD
 #  define SCHED_YIELD(lockStatePtr)                                      \
@@ -2252,7 +2210,7 @@ int core_unlock_all(cpu_state_t * cpup);
     {                                                                    \
       if ((i & 0xff) == 0)                                               \
         {                                                                \
-          MM_PAUSE;                                                      \
+          sched_yield();                                                 \
           (lockStatePtr)->lockYield++;                                   \
         }                                                                \
     }                                                                    \

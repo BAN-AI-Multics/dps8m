@@ -118,17 +118,7 @@ command -v "ncat" > /dev/null 2>&1 ||
 
 ####################################################################################################
 
-command -v "faketime" > /dev/null 2>&1 ||
-  {
-    printf '%s\n'  \
-      "*** Error: No faketime command available - try: pkg install libfaketime."
-    exit 1
-  }
-
-####################################################################################################
-
-# NOTE: faketime disabled until FreeBSD package fixed.
 ${SHELL:?} -c \
-    'export SHELL=/bin/sh ; FAKETIME="env TZ=UTC" TAIL=gtail MAKE=gmake DATE=gdate mksh ./ci.sh'
+    'export SHELL=/bin/sh ; env TAIL=gtail MAKE=gmake DATE=gdate mksh ./ci.sh'
 
 ####################################################################################################

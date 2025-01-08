@@ -74,7 +74,7 @@ export DUMA_MEMCPY_OVERLAP=1
 ##############################################################################
 
 # Strict
-set -eu > /dev/null 2>&1
+set -e > /dev/null 2>&1
 
 ##############################################################################
 
@@ -121,57 +121,6 @@ command -v ncat > /dev/null 2>&1 ||
 command -v "stdbuf" > /dev/null 2>&1 &&
   STDBUF="stdbuf -o L" ||
     STDBUF="exec"
-
-##############################################################################
-
-# Faketime configuration
-FAKETIME_PRG="faketime"
-test -n "${FAKETIME:-}" && FAKETIME_PRG="${FAKETIME:-faketime}"
-FAKETIME_ACK="${FAKETIME_PRG:?} --exclude-monotonic -m 2025-05-05"
-
-##############################################################################
-
-# Non-faketime configuration
-FAKETIME_NOP="env TZ=UTC"
-
-##############################################################################
-
-# Disable faketime if running Ubuntu <21.10 with faketime installed
-command -v "${FAKETIME_PRG:?}" > /dev/null 2>&1 || FORCEFAKETIME=1;
-# shellcheck disable=SC2015
-test "${FORCEFAKETIME:-}" -eq "1" 2> /dev/null ||
-{
-  # shellcheck disable=SC2016
-  grep -iq "ubuntu" "/etc/os-release" 2> /dev/null &&
-    grep "VERSION_ID=" "/etc/os-release" 2> /dev/null |
-      cut -d '=' -f 2- 2> /dev/null | tr -cd '[0-9].' 2> /dev/null |
-        ${AWK:-awk} '
-        { if ( 0+$1 != 0 )
-          { if ( 0+$1 < 21.10 )
-            {
-              printf("\n");
-              printf("NOTE: Disabling faketime support on Ubuntu <21.10!!\n");
-              printf("      Setting FORCEFAKETIME=1 overrides this check.\n");
-              printf("\n");
-              exit(0);
-            }
-          else
-            {
-              exit(1);
-            }
-          exit(1);
-          }
-        exit(1);
-        }' 2> /dev/null &&
-  FAKETIME_ACK="${FAKETIME_NOP:?}"
-}
-
-##############################################################################
-
-# Check for faketime
-command -v "${FAKETIME_PRG:?}" > /dev/null 2>&1 &&
-  FAKETIME="${FAKETIME_ACK:?}" ||
-    FAKETIME="${FAKETIME_NOP:?}";
 
 ##############################################################################
 
@@ -259,8 +208,6 @@ printf '***           make: "%s"\n'  \
   "${MAKE:-make}"
 printf '***           tail: "%s"\n'  \
   "${TAIL:-tail}"
-printf '***       faketime: "%s"\n'  \
-  "${FAKETIME:?}"
 printf '***         stdbuf: "%s"\n'  \
   "${STDBUF:?}"
 
@@ -318,12 +265,11 @@ export TMUX='' 2> /dev/null
 eval tmux -u -2 new -d -s cikit-${T_JOB_ID:?}-0                       \
   "\"export CI_JOB_ID=\"${CI_JOB_ID:?}\";                             \
    export FNPPORT=\"${FNPPORT:?}\"; export CONPORT=\"${CONPORT:?}\";  \
-    eval ${FAKETIME:?} ${STDBUF:?} ${MAKE:-make} ${NRB:-}             \
-     --no-print-directory                                             \
-      -f "ci.makefile" ${*} \"s1\" \"s2\" \"s2p\" \"s3\" \"s3p\"      \
-       \"s4\" \"s4p\" \"s5\" \"s6\" \"s7\" 2>&1 |                     \
-        ${STDBUF:?} ${TEE:-tee} -i -a ci.log;                         \
-         tmux wait -S cikit-${T_JOB_ID:?}-1 \"" &&                    \
+    ${STDBUF:?} ${MAKE:-make} ${NRB:-} --no-print-directory           \
+     -f "ci.makefile" ${*} \"s1\" \"s2\" \"s2p\" \"s3\" \"s3p\"       \
+      \"s4\" \"s4p\" \"s5\" \"s6\" \"s7\" 2>&1 |                      \
+       ${STDBUF:?} ${TEE:-tee} -i -a ci.log;                          \
+        tmux wait -S cikit-${T_JOB_ID:?}-1 \"" &&                     \
   tmux wait cikit-${T_JOB_ID:?}-1 &
 BGJOB="${!}" && export BGJOB
 printf '***  %s\n' "tmux wait PID: \"${BGJOB:?}\""
