@@ -1188,7 +1188,14 @@ ucache.o: ucache.h
 ucache.o: uvutil.h
 udplib.o: h316_imp.h
 udplib.o: udplib.h
+utfile.o: ../libsir/include/sir.h
+utfile.o: ../libsir/include/sir/ansimacros.h
+utfile.o: ../libsir/include/sir/internal.h
+utfile.o: ../libsir/include/sir/platform.h
+utfile.o: ../libsir/include/sir/types.h
+utfile.o: ../libsir/include/sir/version.h
 utfile.o: bsd_random.h
+utfile.o: dps8_sir.h
 uvutil.o: ../libsir/include/sir.h
 uvutil.o: ../libsir/include/sir/ansimacros.h
 uvutil.o: ../libsir/include/sir/internal.h

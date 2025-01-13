@@ -29,6 +29,7 @@
 #include <sys/time.h>
 #include <stdint.h>
 #include <unistd.h>
+#include "dps8_sir.h"
 
 #define MAX_MKSTEMPS_TRIES 10000
 
@@ -98,11 +99,7 @@ utfile_mkstemps(char *request_pattern, int suffix_length)
 
   pattern_length = (long) strlen(pattern);
 
-#if defined(USE_MONOTONIC)
-  st1ret = clock_gettime(CLOCK_MONOTONIC, &st1);
-#else
-  st1ret = clock_gettime(CLOCK_REALTIME, &st1);
-#endif /* if defined(USE_MONOTONIC) */
+  st1ret = clock_gettime(SIR_WALLCLOCK, &st1);
   if (st1ret != 0)
     {
       (void)fprintf (stderr, "\rFATAL: clock_gettime failure! Aborting at %s[%s:%d]\r\n",

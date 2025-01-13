@@ -628,14 +628,6 @@ void createIOMThread (uint iomNum)
 # endif /* if defined(__APPLE__) */
     if (rc)
       sim_printf ("createIOMThread pthread_create %d\n", rc);
-
-    char nm [17];
-    (void)sprintf (nm, "IOM %c", 'a' + iomNum);
-# if defined(__FreeBSD__) || defined(__OpenBSD__)
-    pthread_setname_np (p->iomThread, nm);
-# else
-    pthread_set_name_np (p->iomThread, nm);
-# endif /* if defined(__FreeBSD__) || defined(__OpenBSD__) */
   }
 
 // Called by IOM thread to block until CIOC call
@@ -795,14 +787,6 @@ void createChnThread (uint iomNum, uint chnNum, const char * devTypeStr)
 # endif /* if defined(__APPLE__) */
     if (rc)
       sim_printf ("createChnThread pthread_create %d\n", rc);
-
-    char nm [17];
-    (void)sprintf (nm, "chn %c/%u %s", 'a' + iomNum, chnNum, devTypeStr);
-# if defined(__FreeBSD__) || defined(__OpenBSD__)
-    pthread_setname_np (p->chnThread, nm);
-# else
-    pthread_set_name_np (p->chnThread, nm);
-# endif /* if defined(__FreeBSD__) || defined(__OpenBSD__) */
   }
 
 // Called by channel thread to block until I/O command presented
