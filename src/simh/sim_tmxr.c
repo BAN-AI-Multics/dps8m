@@ -835,11 +835,7 @@ if (mp->last_poll_time == 0) {                          /* first poll initializa
 if ((poll_time - mp->last_poll_time) < mp->poll_interval*1000)
     return -1;                                          /* too soon to try */
 
-#if defined(USE_MONOTONIC)
-  st1ret = clock_gettime(CLOCK_MONOTONIC, &ts);
-#else
-  st1ret = clock_gettime(CLOCK_REALTIME, &ts);
-#endif /*if defined(USE_MONOTONIC) */
+  st1ret = clock_gettime(SIR_WALLCLOCK, &ts);
   if (st1ret != 0)
     {
       fprintf (stderr, "\rFATAL: clock_gettime failure! Aborting at %s[%s:%d]\r\n",

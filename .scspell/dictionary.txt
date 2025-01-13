@@ -3309,6 +3309,7 @@ vwerase
 wack
 waitable
 waitpid
+wallclock
 walltime
 wantno
 wantstr
