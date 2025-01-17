@@ -133,6 +133,7 @@ stages:
   - nsis_installer
   - coverity_test
   - deploy
+  - trigger
 
 ############################################################################
 # Jobs
@@ -1588,5 +1589,16 @@ pages:
   retry: 2
   timeout: 120 minutes
   interruptible: false
+
+############################################################################
+
+trigger:
+  stage: trigger
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  needs:
+    - job: pages
+  trigger:
+    project: dps8m/repo
 
 ############################################################################
