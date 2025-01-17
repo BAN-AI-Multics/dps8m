@@ -36,7 +36,6 @@ include-before: |
     * &nbsp; &nbsp; **Prt2PDF** &nbsp; &nbsp;&nbsp; **##PRT2PDFV##**
     * &nbsp; &nbsp; **PunUtil** &nbsp; &nbsp;&nbsp; &nbsp; **##PUNUTILV##**
     * &nbsp; &nbsp; **mcmb** &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **##MCMBVERS##**
-    * &nbsp; &nbsp; **empty** &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; **##EMPTYVER##**
 
   &nbsp;
 

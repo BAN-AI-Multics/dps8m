@@ -1221,7 +1221,6 @@ Flawfinder:
     - |
       # Start of flawfinder ...
       echo -e "section_start:`date +%s`:flawfinder_section[collapsed=true]\r\e[0K\033[0;36mFlawfinder ...\033[0m" || true
-    - env rm -rf src/libbacktrace
     - flawfinder -C -m 5 -c . 2>&1 > flawfinder.txt || true
     - |
       # End of flawfinder ...

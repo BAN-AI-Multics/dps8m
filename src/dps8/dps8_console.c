@@ -420,7 +420,6 @@ int check_attn_key (void)
         if (csp->attn_pressed)
           {
              csp->attn_pressed = false;
-             sim_usleep (1000);
              return (int) i;
           }
       }
@@ -943,7 +942,6 @@ static void consoleProcessIdx (int conUnitIdx)
         // the read.
 
         if (ch == 020) { // ^P
-          sim_usleep (1000);
           if (csp->io_mode != opc_read_mode) {
             if (csp->attn_flush)
               ta_flush ();
@@ -1126,7 +1124,6 @@ static void consoleProcessIdx (int conUnitIdx)
                 sendConsole (conUnitIdx, 04310); // Null line, status operator
                                                  // distracted
                 console_putstr (conUnitIdx,  "CONSOLE: RELEASED\r\n");
-                sim_usleep (1000);
                 return;
               }
             if (c == 030 || c == 031) // ^X ^Y
@@ -1175,7 +1172,6 @@ eol:
         if (csp->startTime + 30 <= time (NULL))
           {
             console_putstr (conUnitIdx,  "CONSOLE: TIMEOUT\r\n");
-            sim_usleep (1000);
             csp->readp = csp->keyboardLineBuffer;
             csp->tailp = csp->keyboardLineBuffer;
             sendConsole (conUnitIdx, 04310); // Null line, status operator
@@ -1273,7 +1269,6 @@ eol:
         sendConsole (conUnitIdx, 04310); // Null line, status operator
                                          // distracted
         console_putstr (conUnitIdx,  "CONSOLE: RELEASED\n");
-        sim_usleep (1000);
         return;
       }
 
@@ -1415,7 +1410,6 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
         console_putstr ((int) con_unit_idx,  "CONSOLE: ALERT\r\n");
         console_putchar ((int) con_unit_idx, '\a');
         p->stati  = 04000;
-        sim_usleep (1000);
         if (csp->model == m6001 && p->isPCW) {
           rc = IOM_CMD_DISCONNECT;
           goto done;
@@ -1439,14 +1433,12 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
         sim_debug (DBG_DEBUG, & opc_dev, "%s: Lock\n", __func__);
         console_putstr ((int) con_unit_idx,  "CONSOLE: LOCK\r\n");
         p->stati = 04000;
-        sim_usleep (1000);
         break;
 
       case 063:               // UNLOCK MCA
         sim_debug (DBG_DEBUG, & opc_dev, "%s: Unlock\n", __func__);
         console_putstr ((int) con_unit_idx,  "CONSOLE: UNLOCK\r\n");
         p->stati = 04000;
-        sim_usleep (1000);
         break;
 
       default:
@@ -1635,7 +1627,6 @@ if (csp->bcd) {
 
           if (strncmp (text, (char *) (csp->autop + 1), expl) == 0) {
             csp->autop += expl + 2;
-            sim_usleep (1000);
             sim_activate (& attn_unit[con_unit_idx], ACTIVATE_1SEC);
           }
         }
@@ -1651,7 +1642,6 @@ if (csp->bcd) {
           needle [expl] = 0;
           if (strstr (text, needle)) {
             csp->autop += expl + 2;
-            sim_usleep (1000);
             sim_activate (& attn_unit[con_unit_idx], ACTIVATE_1SEC);
           }
         }

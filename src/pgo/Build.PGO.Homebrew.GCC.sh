@@ -58,7 +58,6 @@ test -z "${NO_PGO_LIBUV:-}" \
 ${MAKE:-make} "${@}" HOMEBREW_LIB= HOMEBREW_INC=
 printf '\n%s\n' "Generating profile ..."
 (cd src/perf_test && ../dps8/dps8 -r ./nqueensx.ini)
-./src/empty/empty || true
 ./src/prt2pdf/prt2pdf -h || true
 ./src/punutil/punutil -v < /dev/null || true
 ./src/mcmb/mcmb -X mul 7 11 37 41 43 47 53 59 61 67 71 73 79 83 89 97 || true

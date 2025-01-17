@@ -348,7 +348,7 @@ DECN_OBJS = ../decNumber/decContext.o  ../decNumber/decNumber.o
 ###############################################################################
 
 .PHONY: all
-all:  ver.h libsir prt2pdf punutil mcmb empty locallibs_then_dps8 $(TAGS)
+all:  ver.h libsir prt2pdf punutil mcmb locallibs_then_dps8 $(TAGS)
 	-@$(TRUE)
 
 ###############################################################################
@@ -487,12 +487,6 @@ mcmb:
 
 ###############################################################################
 
-.PHONY: empty
-empty:
-	-@$(SETV); $(MAKE) -C "../empty" "all"
-
-###############################################################################
-
 udplib$(EXE): udplib.c udplib.h
 	@$(SETV); $(CC) udplib.c -o udplib -DTEST=1
 
@@ -516,7 +510,6 @@ tags TAGS ctags: $(C_SRCS) $(H_SRCS) ver.h
          $(GREP) -vE '(libsir/sir\.code-workspace)'  2> /dev/null  |          \
          $(GREP) -vE '(libsir/utils|libsir/plugins)' 2> /dev/null  |          \
          $(GREP) -vE '(libsir/include/sir\.hh)'      2> /dev/null  |          \
-         $(GREP) -vE '(libbacktrace/)'               2> /dev/null  |          \
        $(GTAGS) -f -                                 2> /dev/null) || $(TRUE)
 	@$(PRINTF) '%s\n' "CSCOPE: dps8"
 	-@$(SETV); $(CSCOPE) -bcq $(C_SRCS) $(H_SRCS)                             \
@@ -550,8 +543,7 @@ ifneq (,$(findstring clean,$(MAKECMDGOALS)))
 .NOTPARALLEL: distclean clean
 endif
 distclean: clean
-	@$(SETV); $(MAKE) -C "../libsir"       "distclean"              || $(TRUE)
-	@$(SETV); $(MAKE) -C "../libbacktrace" "distclean" 2> /dev/null || $(TRUE)
+	@$(SETV); $(MAKE) -C "../libsir"         "distclean"   ||  $(TRUE)
 	@$(RMF) *.gc??                           2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../blinkenLights2/*.gc??         2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../decNumber/*.gc??              2> /dev/null  ||  $(TRUE)
@@ -559,14 +551,12 @@ distclean: clean
 	@$(RMF) ../prt2pdf/*.gc??                2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../punutil/*.gc??                2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../simh/*.gc??                   2> /dev/null  ||  $(TRUE)
-	@$(RMF) ../empty/*.gc??                  2> /dev/null  ||  $(TRUE)
 	@$(RMF) *.prof*                          2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../blinkenLights2/*.prof*        2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../decNumber/*.prof*             2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../mcmb/*.prof*                  2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../prt2pdf/*.prof*               2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../simh/*.prof*                  2> /dev/null  ||  $(TRUE)
-	@$(RMF) ../empty/*.prof*                 2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../punutil/*.prof*               2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../../dps8m*.state               2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../dps8m*.state                  2> /dev/null  ||  $(TRUE)
@@ -620,11 +610,9 @@ clean:
 	@$(SETV); $(MAKE) -C "../prt2pdf"        -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../punutil"        -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../mcmb"           -f "GNUmakefile"  "clean"
-	@$(SETV); $(MAKE) -C "../empty"          -f "GNUmakefile"  "clean"
 	@$(SETV); ( cd ../blinkenLights2 && $(RMF) blinkenLights2 || $(TRUE) )
 	@$(SETV); $(MAKE) -C "."                 -f "GNUmakefile"  "clean_dps8"
 	@$(SETV); $(MAKE) -C "../libsir"       "clean"               ||  $(TRUE)
-	@$(SETV); $(MAKE) -C "../libbacktrace" "clean" 2> /dev/null  ||  $(TRUE)
 	@$(SETV); $(RMF)  ../../"$(KITNAME)"."$(TARXT)"    ||  $(TRUE)
 	@$(SETV); $(RMF)  ../../"$(KITNAME)"."$(TARXT)".*  ||  $(TRUE)
 	@$(SETV); $(RMF)  ../../"$(KITNAME)"."TMP"         ||  $(TRUE)

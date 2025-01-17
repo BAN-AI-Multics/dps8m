@@ -32,7 +32,7 @@ The **DPS8M Development Team** provides documentation useful to simulator users 
 
 * The **DPS8M Development Team** uses [**GNU Global**](http://www.gnu.org/software/global/) to generate cross-referenced hypertext source code listings.
 * These tagged listings are valuable aids to developers seeking an understanding of the simulator source code.
-* Documentation, third-party libraries (*e.g.* `libbacktrace`), and most non-source files are excluded from these listings.
+* Documentation, third-party libraries, and most non-source files are excluded from these listings.
 * Source files have been pre-processed to exclude unused (*e.g.* `#if 0`) code blocks.
 
 | Listing        | Description            |                    |

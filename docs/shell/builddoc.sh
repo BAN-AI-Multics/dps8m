@@ -187,10 +187,6 @@ unset FLOCK_COMMAND > "/dev/null" 2>&1 || true
  MCMBVERS="$(../src/mcmb/mcmb -v 2>&1 | cut -d ' ' -f 5- | tr -d '*/')"
    printf '    mcmb version             : %s\n' "${MCMBVERS:?}"
 
- EMPTYVER="$(../src/empty/empty -h 2>&1 | head -n 1 | sed -e 's/^empty-//' |
-             awk '/usage:/ { print $1 }' | tr -d ' */')"
-   printf '    empty version            : %s\n' "${EMPTYVER:?}"
-
  LASTMODV="$(cd .. && env TZ=UTC git log -1  \
              --format="%cd"                  \
              --date=format-local:'%Y-%m-%d %H:%M:%S UTC' | tr -d '*')"
@@ -235,7 +231,6 @@ unset FLOCK_COMMAND > "/dev/null" 2>&1 || true
      -e "s/##PUNUTILV##/${PUNUTILV:?}/"  \
      -e "s/##PRT2PDFV##/${PRT2PDFV:?}/"  \
      -e "s/##MCMBVERS##/${MCMBVERS:?}/"  \
-     -e "s/##EMPTYVER##/${EMPTYVER:?}/"  \
      -e "s/##BUILDGIT##/${BUILDGIT:?}/"  \
           yaml/docinfo.yml               \
             > yaml/docinfo-post.yml
