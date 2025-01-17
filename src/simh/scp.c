@@ -4836,12 +4836,6 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
 #if !defined(USE_FLOCK) && !defined(USE_FCNTL)
     (void)fprintf (st, "No file locking available");
 #endif
-    (void)fprintf (st, "\r\n     Backtrace support: ");
-#if defined(USE_BACKTRACE)
-    (void)fprintf (st, "Enabled (libbacktrace)");
-#else
-    (void)fprintf (st, "Disabled");
-#endif /* if defined(USE_BACKTRACE) */
     (void)fprintf (st, "\r\n       Windows support: ");
 #if defined(__MINGW32__) || defined(__MINGW64__) || defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
 # if defined(__MINGW64_VERSION_STR)

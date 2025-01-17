@@ -84,8 +84,6 @@ dep depend: predepend                                                         \
       ( $(CD) "src/decNumber" && $(DO_MAKEDEP) )
 	@$(PRINTF) 'DEPEND: %s' "dps8" ;                                          \
       ( $(CD) "src/dps8"           && $(DO_MAKEDEP) )
-	@$(PRINTF) 'DEPEND: %s' "empty" ;                                         \
-      ( $(CD) "src/empty"          && $(DO_MAKEDEP) )
 	@$(PRINTF) 'DEPEND: %s' "mcmb" ;                                          \
       ( $(CD) "src/mcmb"           && $(DO_MAKEDEP) )
 	@$(PRINTF) 'DEPEND: %s' "prt2pdf" ;                                       \
@@ -129,8 +127,6 @@ dependclean depclean cleandepend cleandep:                                    \
       ( $(CD) "src/decNumber"      && $(DO_CLEANDEP) )
 	@$(PRINTF) 'DEPEND: %s' "dps8" ;                                          \
       ( $(CD) "src/dps8"           && $(DO_CLEANDEP) )
-	@$(PRINTF) 'DEPEND: %s' "empty" ;                                         \
-      ( $(CD) "src/empty"          && $(DO_CLEANDEP) )
 	@$(PRINTF) 'DEPEND: %s' "mcmb" ;                                          \
       ( $(CD) "src/mcmb"           && $(DO_CLEANDEP) )
 	@$(PRINTF) 'DEPEND: %s' "prt2pdf" ;                                       \
@@ -169,7 +165,7 @@ cppiscan:                                                                     \
     # cppiscan:    # Verify C preprocessor nesting indents
 	@$(SETV); ( $(PRINTF) '%s\n' "*** Listing files with cppi:";              \
       $(CPPI) -l $$($(GIT) ls-files |                                         \
-       $(GREP) -Ev '(ci-kit/|libsir/|libbacktrace/)' 2> /dev/null |           \
+       $(GREP) -Ev '(ci-kit/|libsir/)' 2> /dev/null |                         \
         $(GREP) "\.[ch]$$" 2> /dev/null | $(SORT) -u | $(GREP) -v " ");       \
          $(PRINTF) '%s\n' "*** End of listing" )
 
@@ -180,7 +176,7 @@ cppiscan:                                                                     \
 cppifix:                                                                      \
     # cppifix:    # Repair C preprocessor nesting indents
 	@$(SETV); for i in $$($(CPPI) -l $$($(GIT) ls-files |                     \
-      $(GREP) -Ev '(ci-kit/|libsir/|libbacktrace/)' 2> /dev/null |            \
+      $(GREP) -Ev '(ci-kit/|libsir/)' 2> /dev/null |                          \
        $(GREP) "\.[ch]$$" 2> /dev/null |                                      \
         $(SORT) -u | $(GREP) -v " ")); do                                     \
          $(PRINTF) '%s\n' "*** cppi $${i:?}";                                 \
@@ -279,7 +275,6 @@ lmscspell:                                                                    \
      $(GREP) -Ev '(\.ascii$$)'                                              | \
      $(GREP) -Ev '(docs/wiki/)'                                             | \
      $(GREP) -Ev '(src/libsir/)'                                            | \
-     $(GREP) -Ev '(src/libbacktrace/)'                                      | \
      $(GREP) -Ev '(libuv-local/)'                                           | \
      $(GREP) -Ev '(\.envrc$$)'                                              | \
      $(GREP) -Ev '(\.Attic/.)'                                              | \
@@ -294,7 +289,6 @@ lmscspell:                                                                    \
      $(GREP) -Ev '(/dps8$$)'                                                | \
      $(GREP) -Ev '(\.dsk$$)'                                                | \
      $(GREP) -Ev '(\.ec$$)'                                                 | \
-     $(GREP) -Ev '(/empty$$)'                                               | \
      $(GREP) -Ev '(\.env$$)'                                                | \
      $(GREP) -Ev '(errnos\.h$$)'                                            | \
      $(GREP) -Ev '(\.exe$$)'                                                | \

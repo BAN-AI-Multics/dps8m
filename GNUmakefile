@@ -163,20 +163,6 @@ libsir: .rebuild.env                                                         \
             2> /dev/null || $(TRUE)
 
 ##############################################################################
-# Builds empty pseudo-terminal tool
-
-.PHONY: empty .rebuild.env
-empty: .rebuild.env                                                          \
-    # empty:    # Builds the empty pseudo-terminal tool
-	-@$(PRINTF) '%s\n' "BUILD: Starting empty build" 2> /dev/null ||         \
-        $(TRUE)
-	-@$(MAKE) -s -C "." ".rebuild.env";                                      \
-      $(TEST) -f ".needrebuild" && $(MAKE) -C "." "clean" || $(TRUE);        \
-        $(MAKE) -C "src/empty" "all" &&                                      \
-          $(PRINTF) '%s\n' "BUILD: Successful empty build"                   \
-            2> /dev/null || $(TRUE)
-
-##############################################################################
 # Builds blinkenLights2
 
 .PHONY: blinkenLights2 .rebuild.env

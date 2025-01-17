@@ -322,13 +322,6 @@ printf '%s\n' ""
 
 ###############################################################################
 
-title_line "$(printf '%s' 'empty')" >&2
-printf '%s\n' "" >&2
-do_cppcheck "empty" "./src/empty"
-printf '%s\n' "" >&2
-
-###############################################################################
-
 title_line "$(printf '%s' 'punutil')" >&2
 printf '%s\n' "" >&2
 do_cppcheck "punutil" "./src/punutil"
