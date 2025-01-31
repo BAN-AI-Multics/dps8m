@@ -20,10 +20,10 @@ endif
 ###############################################################################
 # Convenience target: Builds libuv from source code (release)
 
-RELVER=v1.49.2
+RELVER=v1.50.0
 RELNAM=libuv-$(RELVER).tar.gz
 LIBREL=https://dist.libuv.org/dist/$(RELVER)/$(RELNAM)
-LUVSUM=916375916
+LUVSUM=2089573224
 
 .PHONY: libuvrel
 ifneq (,$(findstring libuvrel,$(MAKECMDGOALS)))
