@@ -4968,6 +4968,8 @@ void setupPROM (uint cpuNo, unsigned char * PROM) {
 #  define VER_H_PROM_TSA_TEXT "SPARC               "
 # elif defined(__riscv) || defined(__riscv__)
 #  define VER_H_PROM_TSA_TEXT "RISC-V              "
+# elif defined(__e2k__) || defined(__E2K__) || defined(__elbrus64__) || defined(__elbrus__) || defined(__ELBRUS__)
+#  define VER_H_PROM_TSA_TEXT "MCST Elbrus2K       "
 # elif defined(__myriad2__)
 #  define VER_H_PROM_TSA_TEXT "Myriad2             "
 # elif defined(__loongarch64) || defined(__loongarch__)
