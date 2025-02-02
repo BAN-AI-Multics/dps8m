@@ -10567,8 +10567,8 @@ if (sim_deb && (dptr->dctrl & reason)) {
                 }
             if (same > 0) {
                 sim_debug (reason, dptr, "%04lx thru %04lx same as above\n",
-                           i - (16*same),
-                           i - 1);
+                           (unsigned long int)(i - (16*same)),
+                           (unsigned long int)(i - 1));
                 same = 0;
                 }
             group = (((len - i) > 16) ? 16 : (len - i));
@@ -10611,10 +10611,13 @@ if (sim_deb && (dptr->dctrl & reason)) {
             strbuf[soff+sidx] = '\0';
             ebcdicbuf[eidx] = '\0';
             rad50buf[ridx] = '\0';
-            sim_debug (reason, dptr, "%04lx%-48s %s%s%s\n", i, outbuf, strbuf, ebcdicbuf, rad50buf);
+            sim_debug (reason, dptr, "%04lx%-48s %s%s%s\n",
+                    (unsigned long int)i, outbuf, strbuf, ebcdicbuf, rad50buf);
             }
         if (same > 0) {
-            sim_debug (reason, dptr, "%04lx thru %04lx same as above\n", i-(16*same), (long unsigned int)(len-1));
+            sim_debug (reason, dptr, "%04lx thru %04lx same as above\n",
+                    (unsigned long int)(i-(16*same)),
+                    (unsigned long int)(len-1));
             }
         }
     }
