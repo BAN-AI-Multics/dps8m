@@ -5355,18 +5355,18 @@ if (flag) {
 #elif defined(__COVERITY__)
     (void)fprintf (st, "\n  Compiler: Coverity C/C++ Static Analyzer");
 #elif defined(__LCC__)
-# if defined(__e2k__)
+# if defined(__e2k__) || defined(__e2k64__) || defined(__elbrus__) || defined(__ELBRUS__) || defined(__elbrus64__) || defined(__E2K__)
     (void)fprintf (st, "\n  Compiler: MCST Elbrus2K C Compiler (LCC)");
 #  if __LCC__ > 99
-    (void)printf(" %1.2f", (double)(__LCC__) / (double)100);
+    (void)fprintf(st, " %1.2f", (double)(__LCC__) / (double)100);
 #   if defined(__LCC_MINOR__)
 #    if __LCC_MINOR__ > 0
-    (void)printf(".%ld", (long)(__LCC_MINOR__));
+    (void)fprintf(st, ".%ld", (long)(__LCC_MINOR__));
 #    endif
 #   endif
 #  endif
 # else
-    (void)fprintf (st, "\n  Compiler: Local C Compiler (lcc)");
+    (void)fprintf (st, "\n  Compiler: Local/Little C Compiler (lcc)");
 # endif
 #elif defined(sgi) || defined(__sgi) || defined(_sgi) || defined(_SGI_COMPILER_VERSION)
     (void)fprintf (st, "\n  Compiler: SGI MIPSpro");
