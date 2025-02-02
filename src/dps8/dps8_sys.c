@@ -3945,7 +3945,7 @@ static CTAB dps8_cmds[] =
     {"HDBG",               hdbg_size,             0, "Set history debugger buffer size\n",                       NULL, NULL},
     {"HDSEG",              hdbgSegmentNumber,     0, "Set history debugger segment number\n",                    NULL, NULL},
     {"HDBL",               hdbgBlacklist,         0, "Set history debugger blacklist\n",                         NULL, NULL},
-    {"PHDBG",              hdbg_print,            0, "Display history size\n",                                   NULL, NULL},
+    {"PHDBG",              hdbg_print,            0, "Dump history buffer to 'hdbg0000.list'\n",                 NULL, NULL},
     {"HDBG_CPU_MASK",      hdbg_cpu_mask,         0, "Set which CPUs to track (by mask)\n",                      NULL, NULL},
     {"ABSOLUTE",           abs_addr,              0, "Compute the absolute address of segno:offset\n",           NULL, NULL},
     {"STK",                stack_trace,           0, "Print a stack trace\n",                                    NULL, NULL},
