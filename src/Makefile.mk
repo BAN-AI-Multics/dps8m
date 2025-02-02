@@ -287,10 +287,15 @@ ifndef SUNPRO
 endif
 
 _DEBUGOPTFLAG := -g
+ifneq "$(findstring lcc,$(CC))" ""
+  OPTLEVEL ?= -O4
+else
+  OPTLEVEL ?= -O3
+endif
 ifndef TESTING
-  OPTFLAGS = -O3 $(_DEBUGOPTFLAG) -U_FORTIFY_SOURCE -fno-stack-protector      \
-             -fno-math-errno -fno-trapping-math  -fno-signed-zeros            \
-             -fomit-frame-pointer -ffp-contract=fast
+  OPTFLAGS = $(OPTLEVEL) $(_DEBUGOPTFLAG) -U_FORTIFY_SOURCE                   \
+             -fno-stack-protector -fno-math-errno -fno-trapping-math          \
+             -fno-signed-zeros -fomit-frame-pointer -ffp-contract=fast
   ifdef DUMA
     CFLAGS   += -I../dps8 -I. -include dps8_duma.h
     OPTFLAGS += -DDUMA=1
@@ -298,7 +303,7 @@ ifndef TESTING
     export DUMALIBS
   endif
 else
-  OPTFLAGS = -O0 -D_GLIBCXX_ASSERTIONS -g3 -fno-inline -ggdb                  \
+  OPTFLAGS = -O0 -g3 -fno-inline -ggdb                                        \
              -fno-omit-frame-pointer -fstack-protector-all
   ifdef DUMA
     CFLAGS   += -I../dps8 -I. -include dps8_duma.h
