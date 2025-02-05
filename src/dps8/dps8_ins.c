@@ -4233,11 +4233,79 @@ HOT static t_stat doInstruction (cpu_state_t * cpup)
 
         case x0 (0737):  // lls
           {
+            // lls Long Left Shift
             // Shift C(AQ) left the number of positions given in
             // C(TPR.CA)11,17; filling vacated positions with zeros.
+            // Zero       if C(AQ) == 0 then ON; otherwise OFF:
+            // Negative   if C(AQ)0 == 1 then On; otherwise OFF;
+            // Carry      if C(AQ)0 changes during the shift; then ON; otherwise OFF:
 #if BARREL_SHIFTER
             uint cnt = (uint) cpu.TPR.CA & 0177;   // 0-127
 
+# if 1
+            // Sanitize
+            cpu.rA &= MASK36;
+            cpu.rQ &= MASK36;
+
+            if (cnt >= 72) {
+              // If the shift is 72 or greater, AQ will be set to zero and
+              // the carry will be cleared if the initial value of AQ is 0 or
+              // all ones
+              bool allz = cpu.rA == 0 && cpu.rQ == 0;
+              bool all1 = cpu.rA == MASK36 && cpu.rQ == MASK36;
+              if (allz || all1)
+                CLR_I_CARRY;
+              else
+                SET_I_CARRY;
+              cpu.rA = 0;
+              cpu.rQ = 0;
+
+            } else if (cnt >= 36) {
+              // If the shift count is 36 to 71, all of A and some of Q will determine
+              // the carry; all of A will become Q << (cnt - 36), and Q will become 0.
+              uint cnt36 = cnt - 36;
+              // The carry depends on the sign bit changing on the shift;
+              // add 1 so that the mask includes the sign bit and all of
+              // the bits that will be shifted in.
+              word36 lmask = barrelLeftMaskTable[cnt36 + 1];
+              // Capture all of the bits that will be shifted
+              word36 captureA = cpu.rA;
+              word36 captureQ = lmask & cpu.rQ;
+              bool az = captureA == 0;
+              bool a1 = captureA == MASK36;
+              bool qz = captureQ == 0;
+              bool q1 = captureQ == (MASK36 & lmask);
+              bool allz = az && qz;
+              bool all1 = a1 && q1;
+              if (allz || all1)
+                CLR_I_CARRY;
+              else
+                SET_I_CARRY;
+
+              // Shift the bits
+              cpu.rA = (cpu.rQ << cnt36) & MASK36;
+              cpu.rQ = 0;
+            } else { // cnt < 36
+              // If the count is < 36, carry is determined by the high part of A;
+              // A is shifted left, and bits shifted out of Q are shifted into A.
+              // The carry depends on the sign bit changing on the shift;
+              // add 1 so that the mask includes the sign bit and all of
+              // the bits that will be shifted in.
+              word36 lmask = barrelLeftMaskTable[cnt + 1];
+              word36 captureA = lmask & cpu.rA;
+              bool allz = captureA == 0;
+              bool all1 = captureA == (MASK36 & lmask);
+
+              if (allz || all1)
+                CLR_I_CARRY;
+              else
+                SET_I_CARRY;
+
+              // Shift the bits
+              cpu.rA = ((cpu.rA << cnt) & MASK36) | (cpu.rQ >> (36 - cnt));
+              cpu.rQ = (cpu.rQ << cnt) & MASK36;
+            }
+# else
             // Capture the bits shifted through A0
             word36 captureA, captureQ;
             // If count > 72, tan all of the bits will rotate through A0
@@ -4273,6 +4341,7 @@ HOT static t_stat doInstruction (cpu_state_t * cpup)
             word36 lowQ  = cpu.rQ & BS_COMPL(barrelLeftMaskTable[cnt]);
             cpu.rA = (lowA << cnt) | (highQ >> (36 - cnt));
             cpu.rQ = (lowQ << cnt) /*| (highA >> (36 - cnt)) */;
+# endif
 #else // !BARREL_SHIFTER
 
             CLR_I_CARRY;
