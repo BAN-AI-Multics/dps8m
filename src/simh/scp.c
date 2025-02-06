@@ -5361,7 +5361,7 @@ if (flag) {
     (void)fprintf(st, " %1.2f", (double)(__LCC__) / (double)100);
 #   if defined(__LCC_MINOR__)
 #    if __LCC_MINOR__ > 0
-    (void)fprintf(st, ".%ld", (long)(__LCC_MINOR__));
+    (void)fprintf(st, ".%02ld", (long)(__LCC_MINOR__));
 #    endif
 #   endif
 #  endif

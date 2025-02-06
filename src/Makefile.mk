@@ -286,12 +286,21 @@ ifndef SUNPRO
   endif
 endif
 
-_DEBUGOPTFLAG := -g
+# NOTE: We enable -ffast-mem for Elbrus LCC!  This is unsafe in any OOM
+# condition, but worth it for the performance benefits on this platform.
+
+# MCST LCC (Elbrus and SPARC, only Elbrus tested), recommend 1.27+
 ifneq "$(findstring lcc,$(CC))" ""
-  OPTLEVEL ?= -O4
+  OPTLEVEL      ?= -O4 -fno-PIC -fwhole -fno-semantic-interposition           \
+                   -fint-divide-opt -ffast-mem -fforce-rtmd -frtmd-aggr       \
+                   -Wno-maybe-uninitialized
+  _DEBUGOPTFLAG ?=
+  SIR_FPIC      :=
+  export SIR_FPIC
 else
   OPTLEVEL ?= -O3
 endif
+_DEBUGOPTFLAG ?= -g
 ifndef TESTING
   OPTFLAGS = $(OPTLEVEL) $(_DEBUGOPTFLAG) -U_FORTIFY_SOURCE                   \
              -fno-stack-protector -fno-math-errno -fno-trapping-math          \
@@ -313,6 +322,12 @@ else
   endif
 endif
 
+# Unconditionally add the CFLAGS to LDFLAGS for MCST LCC compilers
+ifneq "$(findstring lcc,$(CC))" ""
+  LDFLAGS += $(CFLAGS)
+endif
+
+# Not for SUNPRO
 ifndef SUNPRO
   CFLAGS  += -Wall $(OPTFLAGS) $(STRICT_ALIASING)
 endif
