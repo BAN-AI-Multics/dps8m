@@ -155,6 +155,7 @@ struct cpuThreadz_t
 # endif /* if !defined(__APPLE__) && defined (CLOCK_MONOTONIC) */
 #endif /* if defined (USE_MONOTONIC) */
     pthread_cond_t sleepCond;
+    pthread_mutex_t sleepLock;
 
   };
 extern struct cpuThreadz_t cpuThreadz [N_CPU_UNITS_MAX];

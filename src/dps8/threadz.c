@@ -412,9 +412,24 @@ void createCPUThread (uint cpuNum)
     cpu_reset_unit_idx (cpuNum, false);
     p->cpuThreadArg = (int) cpuNum;
     // initialize run/stop switch
+
+#if defined(__FreeBSD__) || defined(__OpenBSD__) || (defined(__linux__) && defined(__GLIBC__))
+    pthread_mutexattr_t sleep_attr;
+    pthread_mutexattr_init(&sleep_attr);
+# if !defined(__OpenBSD__)
+    pthread_mutexattr_settype(&sleep_attr, PTHREAD_MUTEX_ADAPTIVE_NP);
+# endif
+    rc = pthread_mutex_init (& p->sleepLock, &sleep_attr);
+#else
+    rc = pthread_mutex_init (& p->sleepLock, NULL);
+#endif /* FreeBSD || OpenBSD || Linux+GLIBC */
+    if (rc)
+      sim_printf ("createCPUThread pthread_mutex_init sleepLock %d\n", rc);
+
     rc = pthread_mutex_init (& p->runLock, NULL);
     if (rc)
       sim_printf ("createCPUThread pthread_mutex_init runLock %d\n", rc);
+
     rc = pthread_cond_init (& p->runCond, NULL);
     if (rc)
       sim_printf ("createCPUThread pthread_cond_init runCond %d\n", rc);
@@ -525,7 +540,15 @@ unsigned long  sleepCPU (unsigned long usec) {
   absTime.tv_nsec = nsec % 1000000000L;
   absTime.tv_sec += nsec / 1000000000L;
 
-  rc = pthread_cond_timedwait (& p->sleepCond, & scu_lock, & absTime);
+  rc = pthread_mutex_lock (& p->sleepLock);
+  if (rc)
+    sim_printf ("sleepCPU pthread_mutex_lock sleepLock %d\n", rc);
+
+  rc = pthread_cond_timedwait (& p->sleepCond, & p->sleepLock, & absTime);
+
+  int rc2 = pthread_mutex_unlock (& p->sleepLock);
+  if (rc2)
+    sim_printf ("sleepCPU pthread_mutex_unlock sleepLock %d\n", rc2);
 
   if (rc == ETIMEDOUT) {
     return 0;
@@ -878,7 +901,7 @@ void initThreadz (void)
     have_mem_lock = false;
     have_rmw_lock = false;
 #endif
-#if defined(__FreeBSD__) || defined(__OpenBSD__)
+#if defined(__FreeBSD__) || defined(__OpenBSD__) || (defined(__linux__) && defined(__GLIBC__))
     pthread_mutexattr_t scu_attr;
     pthread_mutexattr_init(&scu_attr);
 # if !defined(__OpenBSD__)
@@ -887,7 +910,7 @@ void initThreadz (void)
     pthread_mutex_init (& scu_lock, &scu_attr);
 #else
     pthread_mutex_init (& scu_lock, NULL);
-#endif /* FreeBSD || OpenBSD */
+#endif /* FreeBSD || OpenBSD || Linux+GLIBC */
     pthread_mutexattr_t iom_attr;
     pthread_mutexattr_init(& iom_attr);
     pthread_mutexattr_settype(& iom_attr, PTHREAD_MUTEX_RECURSIVE);
