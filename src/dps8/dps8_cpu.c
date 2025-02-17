@@ -3119,13 +3119,19 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   // unsigned long left = cpu.rTR * 125u / 64u;
                   // ubsan
                   unsigned long left = (unsigned long) ((uint64) (cpu.rTR) * 125u / 64u);
+#   if 0
+                  if (left > 250000) { // 1/4 second
+                    if (left > 1000000) { // 1 second
+                      sim_printf ("WARN: sleep time too big (%lu uSecs); clamping\r\n", left);
+                    }
+                    left = 250000; // clamp
+                  }
+#   endif
                   unsigned long nowLeft = left;
-                  lock_scu ();
                   if (!sample_interrupts (cpup))
                     {
                       nowLeft = sleepCPU (left);
                     }
-                  unlock_scu ();
                   if (nowLeft)
                     {
                       // sleepCPU uses a clock that is not guaranteed to be monotonic, and occasionally returns nowLeft > left.
