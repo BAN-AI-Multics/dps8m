@@ -4978,33 +4978,33 @@ void setupPROM (uint cpuNo, unsigned char * PROM) {
 #  if defined(__iset__)
 #   if __iset__ > 0
 #    if __iset__ == 1
-#     define VER_H_PROM_TSA_TEXT "MCST Elbrus2K v1    "
+#     define VER_H_PROM_TSA_TEXT "MCST Elbrus v1      "
 #    elif __iset__ == 2
-#     define VER_H_PROM_TSA_TEXT "MCST Elbrus2K v2    "
+#     define VER_H_PROM_TSA_TEXT "MCST Elbrus v2      "
 #    elif __iset__ == 3
-#     define VER_H_PROM_TSA_TEXT "MCST Elbrus2K v3    "
+#     define VER_H_PROM_TSA_TEXT "MCST Elbrus v3      "
 #    elif __iset__ == 4
-#     define VER_H_PROM_TSA_TEXT "MCST Elbrus2K v4    "
+#     define VER_H_PROM_TSA_TEXT "MCST Elbrus v4      "
 #    elif __iset__ == 5
-#     define VER_H_PROM_TSA_TEXT "MCST Elbrus2K v5    "
+#     define VER_H_PROM_TSA_TEXT "MCST Elbrus v5      "
 #    elif __iset__ == 6
-#     define VER_H_PROM_TSA_TEXT "MCST Elbrus2K v6    "
+#     define VER_H_PROM_TSA_TEXT "MCST Elbrus v6      "
 #    elif __iset__ == 7
-#     define VER_H_PROM_TSA_TEXT "MCST Elbrus2K v7    "
+#     define VER_H_PROM_TSA_TEXT "MCST Elbrus v7      "
 #    elif __iset__ == 8
-#     define VER_H_PROM_TSA_TEXT "MCST Elbrus2K v8    "
+#     define VER_H_PROM_TSA_TEXT "MCST Elbrus v8      "
 #    elif __iset__ == 9
-#     define VER_H_PROM_TSA_TEXT "MCST Elbrus2K v9    "
+#     define VER_H_PROM_TSA_TEXT "MCST Elbrus v9      "
 #    elif __iset__ == 10
-#     define VER_H_PROM_TSA_TEXT "MCST Elbrus2K v10   "
+#     define VER_H_PROM_TSA_TEXT "MCST Elbrus v10     "
 #    else
-#     define VER_H_PROM_TSA_TEXT "MCST Elbrus2K       "
+#     define VER_H_PROM_TSA_TEXT "MCST Elbrus         "
 #    endif
 #   else
-#    define VER_H_PROM_TSA_TEXT "MCST Elbrus2K       "
+#    define VER_H_PROM_TSA_TEXT "MCST Elbrus         "
 #   endif
 #  else
-#   define VER_H_PROM_TSA_TEXT "MCST Elbrus2K       "
+#   define VER_H_PROM_TSA_TEXT "MCST Elbrus         "
 #  endif
 # elif defined(__myriad2__)
 #  define VER_H_PROM_TSA_TEXT "Myriad2             "

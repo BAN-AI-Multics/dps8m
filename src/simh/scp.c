@@ -5356,13 +5356,19 @@ if (flag) {
     (void)fprintf (st, "\n  Compiler: Coverity C/C++ Static Analyzer");
 #elif defined(__LCC__)
 # if defined(__e2k__) || defined(__e2k64__) || defined(__elbrus__) || defined(__ELBRUS__) || defined(__elbrus64__) || defined(__E2K__)
-    (void)fprintf (st, "\n  Compiler: MCST Elbrus2K C Compiler (LCC)");
+    (void)fprintf (st, "\n  Compiler: MCST Elbrus C Compiler");
 #  if __LCC__ > 99
-    (void)fprintf(st, " %1.2f", (double)(__LCC__) / (double)100);
+    (void)fprintf(st, " - LCC %1.2f", (double)(__LCC__) / (double)100);
 #   if defined(__LCC_MINOR__)
 #    if __LCC_MINOR__ > 0
     (void)fprintf(st, ".%02ld", (long)(__LCC_MINOR__));
 #    endif
+#   endif
+#  endif
+#  if defined(__EDG__) && defined(__EDG_VERSION__)
+#   if __EDG_VERSION__ > 99
+    (void)fprintf(st, " - EDG %d.%d", (int)((__EDG_VERSION__) / 100),
+                  (int)(((__EDG_VERSION__) % 100) % 10));
 #   endif
 #  endif
 # else
