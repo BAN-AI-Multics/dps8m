@@ -1670,6 +1670,42 @@ char *cptr, *cptr2;
 char nbuf[PATH_MAX + 7];
 char cbuf[4*CBUFSIZE];
 char **targv = NULL;
+int32 i, sw;
+t_bool lookswitch;
+t_stat stat;
+
+# if defined(_AIX)
+if (getenv("DPS8M_SKIP_AIX_VARIABLES") == NULL) {
+  if (setenv("DPS8M_SKIP_AIX_VARIABLES", "1", 1)) {
+    (void)fprintf(stderr, "\rFATAL: Failed to set \"DPS8M_SKIP_AIX_VARIABLES=1\"! Aborting at %s[%s:%d]\r\n",
+                  __func__, __FILE__, __LINE__);
+    abort();
+  }
+
+  if (setenv("AIXTHREAD_AFFINITY", "strict", 1)) {
+    (void)fprintf(stderr, "\rWARN: Failed to set \"AIXTHREAD_AFFINITY=strict\".\r\n");
+  }
+
+  if (setenv("AIXTHREAD_MUTEX_FAST", "ON", 1)) {
+    (void)fprintf(stderr, "\rWARN: Failed to set \"AIXTHREAD_MUTEX_FAST=ON\".\r\n");
+  }
+
+  if (setenv("MALLOCOPTIONS", "multiheap", 1)) {
+    (void)fprintf(stderr, "\rWARN: Failed to set \"MALLOCOPTIONS=multiheap\".\r\n");
+  }
+
+  if (setenv("AIXTHREAD_SCOPE", "S", 1)) {
+    (void)fprintf(stderr, "\rWARN: Failed to set \"AIXTHREAD_SCOPE=S\".\r\n");
+  }
+
+  if (execvp(argv[0], argv) == -1) {
+    (void)fprintf(stderr, "\rFATAL: execvp failed! Aborting at %s[%s:%d]\r\n",
+                  __func__, __FILE__, __LINE__);
+    abort();
+  }
+}
+# endif
+
 # if defined(USE_BACKTRACE)
 #  if defined(BACKTRACE_SUPPORTED)
 #   if defined(_INC_BACKTRACE_FUNC)
@@ -1678,9 +1714,6 @@ bt_pid = (long)getpid();
 #   endif /* if defined(_INC_BACKTRACE_FUNC) */
 #  endif /* if defined(BACKTRACE_SUPPORTED) */
 # endif /* if defined(USE_BACKTRACE) */
-int32 i, sw;
-t_bool lookswitch;
-t_stat stat;
 
 # if defined(__MINGW32__)
 #  undef IS_WINDOWS
