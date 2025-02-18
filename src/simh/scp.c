@@ -1694,9 +1694,11 @@ if (getenv("DPS8M_SKIP_AIX_VARIABLES") == NULL) {
     (void)fprintf(stderr, "\rWARN: Failed to set \"MALLOCOPTIONS=multiheap\".\r\n");
   }
 
+#  if !defined(__PASE__)
   if (setenv("AIXTHREAD_SCOPE", "S", 1)) {
     (void)fprintf(stderr, "\rWARN: Failed to set \"AIXTHREAD_SCOPE=S\".\r\n");
   }
+#  endif
 
   if (execvp(argv[0], argv) == -1) {
     (void)fprintf(stderr, "\rFATAL: execvp failed! Aborting at %s[%s:%d]\r\n",
