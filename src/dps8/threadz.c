@@ -435,6 +435,7 @@ void createCPUThread (uint cpuNum)
       sim_printf ("createCPUThread pthread_cond_init runCond %d\n", rc);
 
     p->run = true;
+    p->sleeping = false;
 
     // initialize DIS sleep
 #if defined(USE_MONOTONIC)
@@ -544,7 +545,9 @@ unsigned long  sleepCPU (unsigned long usec) {
   if (rc)
     sim_printf ("sleepCPU pthread_mutex_lock sleepLock %d\n", rc);
 
+  p->sleeping = true;
   rc = pthread_cond_timedwait (& p->sleepCond, & p->sleepLock, & absTime);
+  p->sleeping = false;
 
   int rc2 = pthread_mutex_unlock (& p->sleepLock);
   if (rc2)
@@ -582,9 +585,19 @@ void wakeCPU (uint cpuNum)
     int rc;
     struct cpuThreadz_t * p = & cpuThreadz[cpuNum];
 
-    rc = pthread_cond_signal (& p->sleepCond);
+    rc = pthread_mutex_lock (& p->sleepLock);
     if (rc)
-      sim_printf ("wakeCPU pthread_cond_signal %d\n", rc);
+      sim_printf ("sleepCPU pthread_mutex_lock sleepLock %d\n", rc);
+
+    if (p->sleeping) {
+      rc = pthread_cond_signal (& p->sleepCond);
+      if (rc)
+        sim_printf ("wakeCPU pthread_cond_signal %d\n", rc);
+    }
+
+    int rc2 = pthread_mutex_unlock (& p->sleepLock);
+    if (rc2)
+      sim_printf ("sleepCPU pthread_mutex_unlock sleepLock %d\n", rc2);
   }
 
 #if defined(IO_THREADZ)

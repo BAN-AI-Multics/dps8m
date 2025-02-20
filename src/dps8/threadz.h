@@ -156,6 +156,7 @@ struct cpuThreadz_t
 #endif /* if defined (USE_MONOTONIC) */
     pthread_cond_t sleepCond;
     pthread_mutex_t sleepLock;
+    bool sleeping;
 
   };
 extern struct cpuThreadz_t cpuThreadz [N_CPU_UNITS_MAX];
