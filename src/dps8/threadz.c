@@ -547,7 +547,7 @@ unsigned long  sleepCPU (unsigned long usec) {
 
   p->sleeping = true;
   rc = pthread_cond_timedwait (& p->sleepCond, & p->sleepLock, & absTime);
-  p->sleeping = false;
+  p->sleeping = false; //-V519
 
   int rc2 = pthread_mutex_unlock (& p->sleepLock);
   if (rc2)
