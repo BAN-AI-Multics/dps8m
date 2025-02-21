@@ -125,7 +125,9 @@
 #      if !defined(CROSS_MINGW64)
 #       if !defined(_WIN32)
 #        if !defined(__HAIKU__)
-#         include <link.h>
+#         if !defined(__QNX__)
+#          include <link.h>
+#         endif
 #        endif
 #       endif
 #      endif
@@ -172,7 +174,9 @@
 #      if !defined(CROSS_MINGW64)
 #       if !defined(_WIN32)
 #        if !defined(__HAIKU__)
+#         if !defined(__QNX__)
 static unsigned int dl_iterate_phdr_callback_called = 0;
+#         endif
 #        endif
 #       endif
 #      endif
@@ -1574,6 +1578,7 @@ void CleanDUMA(void)
 #      if !defined(CROSS_MINGW64)
 #       if !defined(_WIN32)
 #        if !defined(__HAIKU__)
+#         if !defined(__QNX__)
 static int
 dl_iterate_phdr_callback (struct dl_phdr_info *info, size_t size, void *data)
 {
@@ -1590,6 +1595,7 @@ dl_iterate_phdr_callback (struct dl_phdr_info *info, size_t size, void *data)
 
   return 0;
 }
+#         endif
 #        endif
 #       endif
 #      endif
@@ -3430,7 +3436,7 @@ for (; *ip && (op < oend); ) {
                         ap = rbuf;
                         }
                     else if (!strcmp ("HOSTID", gbuf)) {
-#if defined(HAVE_UNISTD) && !defined(__HAIKU__) && !defined(__ANDROID__) && !defined(__serenity__)
+#if defined(HAVE_UNISTD) && !defined(__HAIKU__) && !defined(__ANDROID__) && !defined(__serenity__) && !defined(__QNX__)
                         (void)sprintf (rbuf, "%ld", (long)gethostid());
 #else
                         (void)sprintf (rbuf, "00000000");
@@ -4760,10 +4766,12 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
 #      if !defined(CROSS_MINGW64)
 #       if !defined(_WIN32)
 #        if !defined(__HAIKU__)
+#         if !defined(__QNX__)
     (void)dl_iterate_phdr (dl_iterate_phdr_callback, NULL);
     if (dl_iterate_phdr_callback_called)
         (void)fprintf (st, "\n");
     dl_iterate_phdr_callback_called = 0;
+#         endif
 #        endif
 #       endif
 #      endif

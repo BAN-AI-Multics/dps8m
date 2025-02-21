@@ -377,10 +377,15 @@ else
   endif
 
 ###############################################################################
+# -pthread?
+
+PTHOPT?=-pthread
+
+###############################################################################
 # FreeBSD
 
   ifeq ($(UNAME_S),FreeBSD)
-    CFLAGS += -I/usr/local/include $(OVR_FLOCK) -DUSE_FCNTL=1 -pthread
+    CFLAGS += -I/usr/local/include $(OVR_FLOCK) -DUSE_FCNTL=1 $(PTHOPT)
     LDFLAGS += -L/usr/local/lib
   endif
 
@@ -390,9 +395,9 @@ else
   ifeq ($(UNAME_S),OS400)
     KRNBITS:=$(shell getconf KERNEL_BITMODE 2> /dev/null || printf '%s' "64")
     CFLAGS += $(OVR_FLOCK) -DUSE_FCNTL=1 -DHAVE_POPT=1 -maix$(KRNBITS)        \
-              -Wl,-b$(KRNBITS) -pthread -D_THREAD_SAFE -Wl,-brtl
+              -Wl,-b$(KRNBITS) $(PTHOPT) -D_THREAD_SAFE -Wl,-brtl
     LDFLAGS += $(MATHLIB) -lpthread -lpopt -lbsd -lutil -maix$(KRNBITS)       \
-               -Wl,-b$(KRNBITS) -pthread -D_THREAD_SAFE -Wl,-brtl
+               -Wl,-b$(KRNBITS) $(PTHOPT) -D_THREAD_SAFE -Wl,-brtl
     CC?=gcc
     export NO_LTO=1
     export ATOMICS=AIX

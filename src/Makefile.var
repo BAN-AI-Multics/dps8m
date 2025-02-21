@@ -168,6 +168,12 @@ ifeq ($(OS),Windows_NT)
 endif
 
 ###############################################################################
+# Pthread library
+
+LIBPTHREAD?=-lpthread
+PTHOPT?=-pthread
+
+###############################################################################
 # POSIX threads
 
 ifeq ($(THREADZ),1)
@@ -175,12 +181,12 @@ ifeq ($(THREADZ),1)
   ifndef SUNPRO
     ifndef SUNLINT
       ifndef WATCOM
-        CFLAGS += -pthread
+        CFLAGS += $(PTHOPT)
       endif
     endif
   endif
     CFLAGS += -DTHREADZ
-    LIBS += -lpthread
+    LIBS += $(LIBPTHREAD)
 endif
 
 ###############################################################################
@@ -199,7 +205,7 @@ ifeq ($(LOCKLESS),1)
   ifndef SUNPRO
     ifndef SUNLINT
       ifndef WATCOM
-        CFLAGS += -pthread
+        CFLAGS += $(PTHOPT)
       endif
     endif
   endif
@@ -211,7 +217,7 @@ ifeq ($(LOCKLESS),1)
   CFLAGS += -DLOCKLESS
   ifndef SUNPRO
     ifndef SUNLINT
-      LIBS += -lpthread
+      LIBS += $(LIBPTHREAD)
     endif
   endif
 endif
