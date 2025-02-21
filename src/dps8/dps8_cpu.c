@@ -5020,6 +5020,8 @@ void setupPROM (uint cpuNo, unsigned char * PROM) {
 #  define VER_H_PROM_TSA_TEXT "Altera Nios II      "
 # elif defined(__MICROBLAZE__) || defined(__microblaze__)
 #  define VER_H_PROM_TSA_TEXT "Xilinx MicroBlaze   "
+# elif defined(__kvx__) || defined(__KVX__) || defined(__KVX_64__)
+#  define VER_H_PROM_TSA_TEXT "Kalray KVX          "
 # endif
 # if !defined(VER_H_PROM_TSA_TEXT)
 #  define BURN_PROM_TSA_TEXT "Unknown Target Arch."
