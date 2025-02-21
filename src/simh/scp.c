@@ -1392,7 +1392,8 @@ return 0;
 }
 #endif /* if defined(_WIN32) */
 
-#define XSTR_EMAXLEN 32767
+#if !defined(NO_LOCALE)
+# define XSTR_EMAXLEN 32767
 
 const char
 *xstrerror_l(int errnum)
@@ -1401,19 +1402,19 @@ const char
   const char *ret = NULL;
   static __thread char buf[XSTR_EMAXLEN];
 
-#if defined(__APPLE__) || defined(_AIX) || defined(__MINGW32__) || \
-    defined(__MINGW64__) || defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
-# if defined(__MINGW32__) || defined(__MINGW64__) || defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
+# if defined(__APPLE__) || defined(_AIX) || defined(__MINGW32__) || \
+     defined(__MINGW64__) || defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
+#  if defined(__MINGW32__) || defined(__MINGW64__) || defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
   if (strerror_s(buf, sizeof(buf), errnum) == 0) ret = buf; /*LINTOK: xstrerror_l*/
-# else
+#  else
   if (strerror_r(errnum, buf, sizeof(buf)) == 0) ret = buf; /*LINTOK: xstrerror_l*/
-# endif
-#else
-# if defined(__NetBSD__)
-  locale_t loc = LC_GLOBAL_LOCALE;
+#  endif
 # else
+#  if defined(__NetBSD__)
+  locale_t loc = LC_GLOBAL_LOCALE;
+#  else
   locale_t loc = uselocale((locale_t)0);
-# endif
+#  endif
   locale_t copy = loc;
   if (copy == LC_GLOBAL_LOCALE)
     copy = duplocale(copy);
@@ -1426,7 +1427,7 @@ const char
           freelocale(copy);
         }
     }
-#endif
+# endif
 
   if (!ret)
     {
@@ -1437,6 +1438,9 @@ const char
   errno = saved;
   return ret;
 }
+#else
+# define xstrerror_l strerror
+#endif
 
 t_stat process_stdin_commands (t_stat stat, char *argv[]);
 
@@ -1776,7 +1780,9 @@ DUMA_SET_FILL(0x2E);
 #  endif /* if defined(BACKTRACE_SUPPORTED) */
 # endif /* if defined(USE_BACKTRACE) */
 
+# if !defined(NO_LOCALE)
 (void)setlocale(LC_ALL, "");
+# endif
 
 # if defined(NEED_CONSOLE_SETUP) && defined(_WIN32)
 #  if !defined(ENABLE_VIRTUAL_TERMINAL_PROCESSING)

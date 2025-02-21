@@ -668,7 +668,9 @@ int main (int argc, char * argv [])
     int rc;
     int linkno;
 
+#  if !defined(NO_LOCALE)
     (void)setlocale(LC_ALL, "");
+#  endif
     rc = udp_create ("4500::4426", & linkno);
     if (rc < 0)
       {

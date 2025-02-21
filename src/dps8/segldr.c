@@ -20,10 +20,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#if defined(__APPLE__)
-# include <xlocale.h>
+#if !defined(NO_LOCALE)
+# if defined(__APPLE__)
+#  include <xlocale.h>
+# endif
+# include <locale.h>
 #endif
-#include <locale.h>
 
 #include "dps8.h"
 #include "dps8_sys.h"
@@ -35,6 +37,10 @@
 #include "dps8_utils.h"
 
 #include "segldr.h"
+
+#if defined(NO_LOCALE)
+# define xstrerror_l strerror
+#endif
 
 /*
  * Segment loader memory layout
@@ -460,7 +466,9 @@ t_stat segment_loader (int32 arg, const char * buf)
 extern DEVICE opc_dev;
 int main (int argc, char * argv[])
   {
+# if !defined(NO_LOCALE)
     (void)setlocale(LC_ALL, "");
+# endif
     void dps8_init_strip (void);
     dps8_init_strip ();
     cpus[0].tweaks.enable_emcall = 1;

@@ -703,7 +703,9 @@ int main(int argc, char **argv) {
      * A second loop is used to process the remaining non-option
        arguments.
 */
+#if !defined(NO_LOCALE)
    (void)setlocale(LC_ALL, "");
+#endif
 
    char *varname;
 

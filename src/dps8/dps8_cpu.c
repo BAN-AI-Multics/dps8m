@@ -5275,7 +5275,9 @@ void perfTest (char * testName) {
   if (testName == NULL)
     testName = "strip.mem";
 
+# if !defined(NO_LOCALE)
   (void) setlocale(LC_NUMERIC, "");
+# endif
 
   // dps8m_init_strip
   system_state = malloc (sizeof (struct system_state_s));

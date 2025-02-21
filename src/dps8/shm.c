@@ -32,6 +32,10 @@
 #include "../simh/sim_defs.h"
 #include "shm.h"
 
+#if defined(NO_LOCALE)
+# define xstrerror_l strerror
+#endif
+
 #if defined(USE_FLOCK) && defined(USE_FCNTL)
 # if !defined(USE_BFLOCK)
 #  define USE_BFLOCK
@@ -52,7 +56,9 @@ extern int sim_nostate;
 extern int sim_iglock;
 extern int sim_nolock;
 
+#if !defined(NO_LOCALE)
 const char *xstrerror_l(int errnum);
+#endif
 
 void *
 create_shm(char *key, size_t shm_size)

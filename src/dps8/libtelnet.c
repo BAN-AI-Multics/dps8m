@@ -71,6 +71,10 @@
 
 #include "libtelnet.h"
 
+#if defined(NO_LOCALE)
+# define xstrerror_l strerror
+#endif
+
 #if defined(FREE)
 # undef FREE
 #endif /* if defined(FREE) */

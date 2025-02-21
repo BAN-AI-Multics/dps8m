@@ -1372,7 +1372,9 @@ static void dump_raw(FILE *out_file)
 
 int main(int argc, char *argv[])
 {
+#if !defined(NO_LOCALE)
     (void)setlocale(LC_ALL, "");
+#endif
 
     (void)fprintf(stderr, "****\nPunch File Utility\n****\n");
 

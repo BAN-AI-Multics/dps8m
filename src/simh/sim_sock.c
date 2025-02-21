@@ -70,6 +70,10 @@
 # define NI_MAXHOST 1025
 #endif /* if !defined(NI_MAXHOST) */
 
+#if defined(NO_LOCALE)
+# define xstrerror_l strerror
+#endif
+
 #if defined(FREE)
 # undef FREE
 #endif /* if defined(FREE) */

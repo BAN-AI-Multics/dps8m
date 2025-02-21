@@ -83,6 +83,10 @@
 #  define sim_printf printf
 # endif
 
+# if defined(NO_LOCALE)
+#  define xstrerror_l strerror
+# endif
+
 int sim_parse_addr \
         (const char *cptr, char *host, size_t hostlen, const char *default_host,
          char *port, size_t port_len, const char *default_port, const char *validate_addr);
@@ -116,6 +120,8 @@ SOCKET sim_err_sock (SOCKET sock, const char *emsg);
 int sim_getnames_sock (SOCKET sock, char **socknamebuf, char **peernamebuf);
 void sim_init_sock (void);
 void sim_cleanup_sock (void);
+# if !defined(NO_LOCALE)
 extern const char *xstrerror_l(int errnum);
+# endif
 
 #endif

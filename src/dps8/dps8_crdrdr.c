@@ -51,6 +51,10 @@
 #include "dps8_scu.h"
 #include "dps8_utils.h"
 
+#if defined(NO_LOCALE)
+# define xstrerror_l strerror
+#endif
+
 #define DBG_CTR 1
 #define N_RDR_UNITS 1 // default
 

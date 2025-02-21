@@ -53,6 +53,10 @@
 #include "dps8_scu.h"
 #include "dps8_utils.h"
 
+#if defined(NO_LOCALE)
+# define xstrerror_l strerror
+#endif
+
 #if defined(FREE)
 # undef FREE
 #endif /* if defined(FREE) */

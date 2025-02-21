@@ -74,6 +74,10 @@
 #include <ctype.h>
 #include <signal.h>
 
+#if defined(NO_LOCALE)
+# define xstrerror_l strerror
+#endif
+
 #define FREE(p) do  \
   {                 \
     free((p));      \

@@ -76,6 +76,10 @@
 
 #include "segldr.h"
 
+#if defined(NO_LOCALE)
+# define xstrerror_l strerror
+#endif
+
 #define DBG_CTR cpu.cycleCnt
 
 #define ASSUME0 0

@@ -19,6 +19,7 @@
 #   WITH_BACKTRACE=1                       Enable building with libbacktrace
 #         NEED_128=1                       Enable provided 128-bit int types
 #           NATIVE=1                       Enable native arch/cpu via CFLAGS
+#        NO_LOCALE=1                       Disable support for native locale
 #      NO_LOCKLESS=1                       Enable legacy (non-lockless) code
 #           NO_LTO=1                       Disables the use of LTO for build
 #    NO_C_ELLIPSIS=1                       Disables the C ellipsis extension

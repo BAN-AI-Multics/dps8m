@@ -32,10 +32,12 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <string.h>
-#if defined(__APPLE__)
-# include <xlocale.h>
+#if !defined(NO_LOCALE)
+# if defined(__APPLE__)
+#  include <xlocale.h>
+# endif
+# include <locale.h>
 #endif
-#include <locale.h>
 #include <math.h>
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
@@ -471,7 +473,8 @@ static gboolean time_handler (GtkWidget * widget) {
   return TRUE;
 }
 
-#define XSTR_EMAXLEN 32767
+#if !defined(NO_LOCALE)
+# define XSTR_EMAXLEN 32767
 
 static const char
 *xstrerror_l(int errnum)
@@ -480,21 +483,21 @@ static const char
   const char *ret = NULL;
   static /* __thread */ char buf[XSTR_EMAXLEN];
 
-#if defined(__APPLE__) || defined(_AIX) || \
-      defined(__MINGW32__) || defined(__MINGW64__) || \
-        defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
-# if defined(__MINGW32__) || defined(__MINGW64__) || \
-        defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
+# if defined(__APPLE__) || defined(_AIX) || \
+       defined(__MINGW32__) || defined(__MINGW64__) || \
+         defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
+#  if defined(__MINGW32__) || defined(__MINGW64__) || \
+         defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
   if (strerror_s(buf, sizeof(buf), errnum) == 0) ret = buf; /*LINTOK: xstrerror_l*/
-# else
+#  else
   if (strerror_r(errnum, buf, sizeof(buf)) == 0) ret = buf; /*LINTOK: xstrerror_l*/
-# endif
-#else
-# if defined(__NetBSD__)
-  locale_t loc = LC_GLOBAL_LOCALE;
+#  endif
 # else
+#  if defined(__NetBSD__)
+  locale_t loc = LC_GLOBAL_LOCALE;
+#  else
   locale_t loc = uselocale((locale_t)0);
-# endif
+#  endif
   locale_t copy = loc;
   if (copy == LC_GLOBAL_LOCALE)
     copy = duplocale(copy);
@@ -507,7 +510,7 @@ static const char
           freelocale(copy);
         }
     }
-#endif
+# endif
 
   if (!ret)
     {
@@ -518,6 +521,9 @@ static const char
   errno = saved;
   return ret;
 }
+#else
+# define xstrerror_l strerror
+#endif
 
 #if !defined(PATH_MAX)
 # define PATH_MAX 256
@@ -604,7 +610,9 @@ static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, 
 }
 
 int main (int argc, char * argv []) {
+#if !defined(NO_LOCALE)
   (void)setlocale(LC_ALL, "");
+#endif
 
   long cpunum;
 
