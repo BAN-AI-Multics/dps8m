@@ -177,12 +177,13 @@ endif
 # What needs -ldl?
 
 LIBDL ?= -ldl
+PTHOPT ?= -pthread
 OSTYPE = $(shell $(UNAME) -s 2> /dev/null)
 ifeq ($(OSTYPE),AIX)
   LIBS += $(LIBDL)
 endif
 ifeq ($(OSTYPE),FreeBSD)
-  LIBS += $(LIBDL) -pthread
+  LIBS += $(LIBDL) $(PTHOPT)
 endif
 ifeq ($(OSTYPE),Linux)
   ifndef CROSS

@@ -665,9 +665,9 @@ typedef enum
 
 // Basic STDIO for MinGW
 # if !defined(__CYGWIN__)
-#  if defined(__MINGW32__) || defined(__MINGW64__) || defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
+#  if defined(__MINGW32__) || defined(__MINGW64__) || defined(CROSS_MINGW32) || defined(CROSS_MINGW64) || defined(__QNX__)
 #   define WIN_STDIO    1
-#  endif /* if defined(__MINGW32__) || defined(__MINGW64__) || defined(CROSS_MINGW32) || defined(CROSS_MINGW64) */
+#  endif
 # endif /* if !defined(__CYGWIN__) */
 
 //#define SYNCTEST
