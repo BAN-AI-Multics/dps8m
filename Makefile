@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Version: 2.2.5
+# Version: 2.2.6
 #
 ##############################################################################
 #
@@ -34,7 +34,7 @@
 # Defaults
 
 .NOTPARALLEL:
-SHELL       := $(shell env sh -c 'PATH="$$(command -p getconf PATH)" command -v sh')
+SHELL       := $(shell env sh -c 'PATH="$$(command -p getconf PATH 2> /dev/null):$${PATH:-/bin:/usr/bin}" command -v sh')
 BUILDDIR     = ./build
 LOGDIR       = ./logs
 LINTSH       = ./.lint.sh
@@ -96,7 +96,7 @@ endif
 ifeq ($(SIR_DEBUG),1)
   DBGFLAGS ?= -g3
   ifneq ($(NO_DEFAULT_CFLAGS),1)
-    SIR_CFLAGS += -O0 -DDEBUG -D_DEBUG -D_GLIBCXX_ASSERTIONS $(DBGFLAGS) -U_FORTIFY_SOURCE
+    SIR_CFLAGS += -O0 -DDEBUG -D_DEBUG $(DBGFLAGS) -U_FORTIFY_SOURCE
   endif
 else
   ifneq ($(NO_DEFAULT_CFLAGS),1)
