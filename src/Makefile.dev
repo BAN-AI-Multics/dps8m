@@ -13,6 +13,9 @@
 ###############################################################################
 # Check installed developer git pre-commit hook, excluding CI/CD builds
 
+# Disable hook warning
+HOOK_WARNED=1
+
 ifndef HOOK_WARNED
  ifndef CI_JOB_ID
   ifeq (,$(wildcard ./.git/hooks/pre-commit))

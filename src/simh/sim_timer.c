@@ -54,6 +54,10 @@
 #include <ctype.h>
 #include <math.h>
 
+#if defined(__QNX__)
+# include <qh/time.h>
+#endif
+
 #define SIM_INTERNAL_CLK (SIM_NTIMERS+(1<<30))
 #define SIM_INTERNAL_UNIT sim_internal_timer_unit
 
@@ -131,7 +135,15 @@ t_stat sim_os_set_thread_priority (int below_normal_above)
 int sched_policy, min_prio, max_prio;
 struct sched_param sched_priority;
 
-# if !defined(__gnu_hurd__)
+# if defined(__gnu_hurd__) || defined(NO_PRIORITY)
+(void)sched_priority;
+(void)max_prio;
+(void)min_prio;
+(void)sched_policy;
+
+return SCPE_OK;
+}
+# else
 if ((below_normal_above < -1) || (below_normal_above > 1))
     return SCPE_ARG;
 
@@ -155,9 +167,10 @@ switch (below_normal_above) {
         break;
     }
 pthread_setschedparam (pthread_self(), sched_policy, &sched_priority);
-# endif /* if !defined(__gnu_hurd__) */
+
 return SCPE_OK;
 }
+# endif
 #endif
 
 /* OS-dependent timer and clock routines */
@@ -727,11 +740,15 @@ sim_usleep(useconds_t tusleep)
   return 0;
 # else
 #  if !defined(__PASE__)
+#   if defined(__QNX__) && defined(QNX_NSSLEEP)
+  return qh_nssleep((uint64_t)tusleep * 1000UL, CLOCK_MONOTONIC, (uint64_t)tusleep * 1000UL);
+#   else
   struct timespec rqt;
   rqt.tv_sec  = tusleep / 1000000L;
   rqt.tv_nsec = (tusleep % 1000000L) * 1000L;
 
   return clock_nanosleep(CLOCK_MONOTONIC, 0, &rqt, NULL);
+#   endif
 #  else
   return usleep(tusleep);
 #  endif /* if !defined(__PASE__) */

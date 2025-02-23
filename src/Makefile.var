@@ -17,6 +17,14 @@ ifdef NO_LOCALE
 endif
 
 ###############################################################################
+# Disables elevated thread priorities
+
+ifdef NO_PRIORITY
+  NO_PRIORITY=1
+  CFLAGS += -DNO_PRIORITY=1
+endif
+
+###############################################################################
 # Atomic operations selection
 
 ifdef ATOMICS
