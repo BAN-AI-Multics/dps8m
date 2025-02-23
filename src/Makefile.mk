@@ -382,6 +382,22 @@ else
 PTHOPT?=-pthread
 
 ###############################################################################
+# QNX (detected by looking for `*qcc*` in CC or QNX=1
+
+ifneq "$(findstring qcc,$(CC))" ""
+  QNX?=1
+endif
+
+ifeq ($(QNX),1)
+  LDFLAGS+=-lsocket -lqh
+  LIBDL=
+  LIBPTHREAD=
+  LIBRT=
+  NO_LOCALE=1
+  PTHOPT=
+endif
+
+###############################################################################
 # FreeBSD
 
   ifeq ($(UNAME_S),FreeBSD)
