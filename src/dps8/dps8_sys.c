@@ -326,7 +326,6 @@ static char * default_base_system_script [] =
     "SET CPU0 CONFIG=ENABLE_WAM=disable",
     "SET CPU0 CONFIG=REPORT_FAULTS=disable",
     "SET CPU0 CONFIG=TRO_ENABLE=enable",
-    "SET CPU0 CONFIG=Y2K=disable",
     "SET CPU0 CONFIG=DRL_FATAL=disable",
     "SET CPU0 CONFIG=USEMAP=disable",
     "SET CPU0 CONFIG=PROM_INSTALLED=enable",
@@ -404,7 +403,6 @@ static char * default_base_system_script [] =
     "SET CPU1 CONFIG=ENABLE_WAM=disable",
     "SET CPU1 CONFIG=REPORT_FAULTS=disable",
     "SET CPU1 CONFIG=TRO_ENABLE=enable",
-    "SET CPU1 CONFIG=Y2K=disable",
     "SET CPU1 CONFIG=DRL_FATAL=disable",
     "SET CPU1 CONFIG=USEMAP=disable",
     "SET CPU1 CONFIG=PROM_INSTALLED=enable",
@@ -482,7 +480,6 @@ static char * default_base_system_script [] =
     "SET CPU2 CONFIG=ENABLE_WAM=disable",
     "SET CPU2 CONFIG=REPORT_FAULTS=disable",
     "SET CPU2 CONFIG=TRO_ENABLE=enable",
-    "SET CPU2 CONFIG=Y2K=disable",
     "SET CPU2 CONFIG=DRL_FATAL=disable",
     "SET CPU2 CONFIG=USEMAP=disable",
     "SET CPU2 CONFIG=PROM_INSTALLED=enable",
@@ -560,7 +557,6 @@ static char * default_base_system_script [] =
     "SET CPU3 CONFIG=ENABLE_WAM=disable",
     "SET CPU3 CONFIG=REPORT_FAULTS=disable",
     "SET CPU3 CONFIG=TRO_ENABLE=enable",
-    "SET CPU3 CONFIG=Y2K=disable",
     "SET CPU3 CONFIG=DRL_FATAL=disable",
     "SET CPU3 CONFIG=USEMAP=disable",
     "SET CPU3 CONFIG=PROM_INSTALLED=enable",
@@ -638,7 +634,6 @@ static char * default_base_system_script [] =
     "SET CPU4 CONFIG=ENABLE_WAM=disable",
     "SET CPU4 CONFIG=REPORT_FAULTS=disable",
     "SET CPU4 CONFIG=TRO_ENABLE=enable",
-    "SET CPU4 CONFIG=Y2K=disable",
     "SET CPU4 CONFIG=DRL_FATAL=disable",
     "SET CPU4 CONFIG=USEMAP=disable",
     "SET CPU4 CONFIG=PROM_INSTALLED=enable",
@@ -716,7 +711,6 @@ static char * default_base_system_script [] =
     "SET CPU5 CONFIG=ENABLE_WAM=disable",
     "SET CPU5 CONFIG=REPORT_FAULTS=disable",
     "SET CPU5 CONFIG=TRO_ENABLE=enable",
-    "SET CPU5 CONFIG=Y2K=disable",
     "SET CPU5 CONFIG=DRL_FATAL=disable",
     "SET CPU5 CONFIG=USEMAP=disable",
     "SET CPU5 CONFIG=PROM_INSTALLED=enable",
@@ -795,7 +789,6 @@ static char * default_base_system_script [] =
     "SET CPU6 CONFIG=ENABLE_WAM=disable",
     "SET CPU6 CONFIG=REPORT_FAULTS=disable",
     "SET CPU6 CONFIG=TRO_ENABLE=enable",
-    "SET CPU6 CONFIG=Y2K=disable",
     "SET CPU6 CONFIG=DRL_FATAL=disable",
     "SET CPU6 CONFIG=USEMAP=disable",
     "SET CPU6 CONFIG=PROM_INSTALLED=enable",
@@ -877,7 +870,6 @@ static char * default_base_system_script [] =
     "SET CPU7 CONFIG=ENABLE_WAM=disable",
     "SET CPU7 CONFIG=REPORT_FAULTS=disable",
     "SET CPU7 CONFIG=TRO_ENABLE=enable",
-    "SET CPU7 CONFIG=Y2K=disable",
     "SET CPU7 CONFIG=DRL_FATAL=disable",
     "SET CPU7 CONFIG=USEMAP=disable",
     "SET CPU7 CONFIG=PROM_INSTALLED=enable",
@@ -1074,6 +1066,7 @@ static char * default_base_system_script [] =
     "SET SCU0 CONFIG=ONL=014",
     "SET SCU0 CONFIG=INT=0",
     "SET SCU0 CONFIG=LWR=0",
+    "SET SCU0 CONFIG=CLOCK_DELTA=0",
 
 // SCU1
 
@@ -1094,6 +1087,7 @@ static char * default_base_system_script [] =
     "SET SCU1 CONFIG=ONL=014",
     "SET SCU1 CONFIG=INT=0",
     "SET SCU1 CONFIG=LWR=0",
+    "SET SCU1 CONFIG=CLOCK_DELTA=0",
 
 // SCU2
 
@@ -1114,6 +1108,7 @@ static char * default_base_system_script [] =
     "SET SCU2 CONFIG=ONL=014",
     "SET SCU2 CONFIG=INT=0",
     "SET SCU2 CONFIG=LWR=0",
+    "SET SCU2 CONFIG=CLOCK_DELTA=0",
 
 // SCU3
 
@@ -1134,6 +1129,7 @@ static char * default_base_system_script [] =
     "SET SCU3 CONFIG=ONL=014",
     "SET SCU3 CONFIG=INT=0",
     "SET SCU3 CONFIG=LWR=0",
+    "SET SCU3 CONFIG=CLOCK_DELTA=0",
 
 # if 0
 // SCU4
@@ -1155,6 +1151,7 @@ static char * default_base_system_script [] =
     "SET SCU4 CONFIG=ONL=014",
     "SET SCU4 CONFIG=INT=0",
     "SET SCU4 CONFIG=LWR=0",
+    "SET SCU4 CONFIG=CLOCK_DELTA=0",
 
 // SCU5
 
@@ -1175,6 +1172,7 @@ static char * default_base_system_script [] =
     "SET SCU5 CONFIG=ONL=014",
     "SET SCU5 CONFIG=INT=0",
     "SET SCU5 CONFIG=LWR=0",
+    "SET SCU5 CONFIG=CLOCK_DELTA=0",
 
 // SCU6
 
@@ -1195,6 +1193,7 @@ static char * default_base_system_script [] =
     "SET SCU6 CONFIG=ONL=014",
     "SET SCU6 CONFIG=INT=0",
     "SET SCU6 CONFIG=LWR=0",
+    "SET SCU6 CONFIG=CLOCK_DELTA=0",
 
 // SCU7
 
@@ -1215,6 +1214,7 @@ static char * default_base_system_script [] =
     "SET SCU7 CONFIG=ONL=014",
     "SET SCU7 CONFIG=INT=0",
     "SET SCU7 CONFIG=LWR=0",
+    "SET SCU7 CONFIG=CLOCK_DELTA=0",
 # endif
 
     // ; DO NOT CHANGE THE CONFIGURATION OF THE FNP UNITS.

@@ -221,8 +221,6 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
                 cpus[cpu_unit_idx].tweaks.report_faults);
     sim_msg ("TRO faults enabled:           %01o(8)\n",
                 cpus[cpu_unit_idx].tweaks.tro_enable);
-    sim_msg ("Y2K enabled:                  %01o(8)\n",
-                scu [0].y2k);
     sim_msg ("drl fatal enabled:            %01o(8)\n",
                 cpus[cpu_unit_idx].tweaks.drl_fatal);
     sim_msg ("useMap:                       %d\n",
@@ -270,7 +268,6 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
 //               n = 1 report
 //               n = 2 report overflow
 //           tro_enable = n
-//           y2k
 //           drl_fatal
 
 static config_value_list_t cfg_multics_fault_base [] =
@@ -445,8 +442,6 @@ static config_list_t cpu_config_list [] =
     { "enable_wam",            0,  1,               cfg_on_off             },
     { "report_faults",         0,  1,               cfg_on_off             },
     { "tro_enable",            0,  1,               cfg_on_off             },
-    // y2k was moved to SCU; keep here for script compatibility
-    { "y2k",                   0,  1,               cfg_on_off             },
     { "drl_fatal",             0,  1,               cfg_on_off             },
     { "useMap",                0,  1,               cfg_on_off             },
     { "address",               0,  0777777,         NULL                   },
@@ -585,8 +580,6 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
           cpus[cpu_unit_idx].tweaks.report_faults = (uint) v;
         else if (strcmp (p, "tro_enable") == 0)
           cpus[cpu_unit_idx].tweaks.tro_enable = (uint) v;
-        else if (strcmp (p, "y2k") == 0)
-          scu [0].y2k = (uint) v;
         else if (strcmp (p, "drl_fatal") == 0)
           cpus[cpu_unit_idx].tweaks.drl_fatal = (uint) v;
         else if (strcmp (p, "useMap") == 0)
