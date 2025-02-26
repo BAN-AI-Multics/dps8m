@@ -32,6 +32,7 @@
 #include <stdio.h>
 #if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32)
 # include <signal.h>
+# include <sys/mman.h>
 #endif /* if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) */
 #include <time.h>
 #include <stdint.h>
@@ -65,6 +66,7 @@
 #include "dps8_absi.h"
 #include "dps8_mgp.h"
 #include "dps8_utils.h"
+#include "dps8_memalign.h"
 #include "shm.h"
 #include "ver.h"
 
@@ -4406,12 +4408,6 @@ static void dps8_init (void) {
   void *(*mallocptr)() = malloc;
   h = hash32s(&mallocptr, sizeof(mallocptr), h);
 #endif /* if __STDC_VERSION__ < 201112L */
-  void *small = malloc(1);
-  h = hash32s(&small, sizeof(small), h);
-  FREE(small);
-  void *big = malloc(1UL << 20);
-  h = hash32s(&big, sizeof(big), h);
-  FREE(big);
   void *ptr = &ptr;
   h = hash32s(&ptr, sizeof(ptr), h);
   time_t t = time(0);
@@ -4456,7 +4452,7 @@ static void dps8_init (void) {
     defined(__MINGW32__)   || \
     defined(CROSS_MINGW32) || \
     defined(CROSS_MINGW64)
-  system_state = malloc (sizeof (struct system_state_s));
+  system_state = aligned_malloc (sizeof (struct system_state_s));
 #else
   if (sim_randstate)
     (void)sprintf(statenme, "%s.state", rssuffix);
@@ -4466,7 +4462,7 @@ static void dps8_init (void) {
     system_state = (struct system_state_s *)
       create_shm (statenme, sizeof (struct system_state_s));
   else
-    system_state = malloc (sizeof (struct system_state_s));
+    system_state = aligned_malloc (sizeof (struct system_state_s));
 #endif
 
   if (!system_state) {
@@ -4484,6 +4480,18 @@ static void dps8_init (void) {
 #endif /* if defined(USE_BACKTRACE) */
     exit (svErrno);
   }
+#if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32)
+  if (mlock(system_state, sizeof(struct system_state_s)) == -1) {
+# if defined(TESTING)
+    sir_warn("Could not lock memory - mlock() error: %s.", xstrerror_l(errno));
+#  if defined(__linux__)
+    const char * setcap_filename = _sir_getappfilename();
+    sir_warn("Increase \"ulimit -l\" or \"setcap 'cap_ipc_lock+ep' %s\".",
+             setcap_filename ? setcap_filename : "dps8");
+#  endif
+# endif
+  }
+#endif
 
 #if !defined(PERF_STRIP)
 

@@ -4059,8 +4059,8 @@ if ((sim_do_depth != 0) &&
     }
 if ((sim_do_depth != 0) &&
     (NULL == sim_on_actions[sim_do_depth][SCPE_AFAIL])) {/* handler set for AFAIL? */
-    sim_on_actions[sim_do_depth][SCPE_AFAIL] =          /* No, so make "RETURN" */
-        (char *)malloc(1+strlen("RETURN"));             /* be the action */
+    sim_on_actions[sim_do_depth][SCPE_AFAIL] =           /* No, so make "RETURN" */
+        (char *)malloc(1+strlen("RETURN"));              /* be the action */
     strcpy(sim_on_actions[sim_do_depth][SCPE_AFAIL], "RETURN");
     }
 return SCPE_OK;
@@ -4885,7 +4885,9 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
 #if !defined(USE_FLOCK) && !defined(USE_FCNTL)
     (void)fprintf (st, "No file locking available");
 #endif
+#if defined(__MINGW32__) || defined(__MINGW64__) || defined(CROSS_MINGW32) || defined(CROSS_MINGW64) || defined(__CYGWIN__)
     (void)fprintf (st, "\r\n       Windows support: ");
+#endif
 #if defined(__MINGW32__) || defined(__MINGW64__) || defined(CROSS_MINGW32) || defined(CROSS_MINGW64)
 # if defined(__MINGW64_VERSION_STR)
     (void)fprintf (st, "Built with MinGW-w64 %s", __MINGW64_VERSION_STR);
@@ -4923,8 +4925,6 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
                    CYGWIN_VERSION_DLL_MINOR);
     if (uname(&utsname) == 0)
       fprintf (st, "; %s in use", utsname.release);
-#else
-    (void)fprintf (st, "Disabled");
 #endif
 
     (void)fprintf (st, "\r\n");

@@ -19,6 +19,7 @@
 # include "../libsir/include/sir.h"
 # include "../libsir/include/sir/platform.h"
 # include "../libsir/include/sir/internal.h"
+# include "../libsir/include/sir/filesystem.h"
 # include "../libsir/include/sir/ansimacros.h"
 
 #endif /* if !defined(_INCLUDED_DPS8_SIR_H) */

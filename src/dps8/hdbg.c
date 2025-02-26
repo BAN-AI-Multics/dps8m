@@ -27,6 +27,7 @@
 # include "dps8_sys.h"
 # include "dps8_cpu.h"
 # include "dps8_utils.h"
+# include "dps8_memalign.h"
 # include "hdbg.h"
 
 # include "dps8_faults.h"
@@ -141,7 +142,7 @@ static void createBuffer (void) {
   }
   if (hdbgSize <= 0)
     return;
-  hevents = malloc (sizeof (struct hevt) * hdbgSize);
+  hevents = aligned_malloc (sizeof (struct hevt) * hdbgSize);
   if (! hevents) {
     sim_printf ("hdbg createBuffer failed\n");
     return;
