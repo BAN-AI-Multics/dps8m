@@ -80,7 +80,7 @@ typedef struct
     uint elapsed_days;
     uint steady_clock;    // If non-zero the clock is tied to the cycle counter
     uint bullet_time;
-    uint y2k;
+    int64 clock_delta;
     int64 user_correction;
     uint64 last_time;
 } scu_t;

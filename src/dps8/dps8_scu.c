@@ -602,6 +602,14 @@ unsigned int gtod_warned = 0;
 
 // ============================================================================
 
+static t_stat scu_set_state (UNUSED UNIT * uptr, UNUSED int32 value,
+                             const char * cptr, UNUSED void * desc)
+  {
+    sim_printf("Cannot modify STATE; try SET SCUn CONFIG%s%s.\n",
+               cptr ? "=" : "", cptr ? cptr : "");
+    return SCPE_ARG;
+  }
+
 static t_stat scu_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr,
                                UNUSED int val, const UNUSED void * desc)
   {
@@ -681,7 +689,7 @@ static t_stat scu_show_state (UNUSED FILE * st, UNIT *uptr, UNUSED int val,
     sim_printf("Elapsed days: %d\n",     scup -> elapsed_days);
     sim_printf("Steady clock: %d\n",     scup -> steady_clock);
     sim_printf("Bullet time: %d\n",      scup -> bullet_time);
-    sim_printf("Y2K enabled: %d\n",      scup -> y2k);
+    sim_printf("Clock delta: %lld\n",    (long long)scup -> clock_delta);
     return SCPE_OK;
   }
 
@@ -840,7 +848,7 @@ static config_list_t scu_config_list [] =
     /* 17 */ { "elapsed_days", 0, 20000,           NULL       },
     /* 18 */ { "steady_clock", 0, 1,               cfg_on_off },
     /* 19 */ { "bullet_time",  0, 1,               cfg_on_off },
-    /* 20 */ { "y2k",          0, 1,               cfg_on_off },
+    /* 20 */ { "clock_delta",  -2147483648, 2147483647, NULL  },
              { NULL,           0, 0,               NULL       }
   };
 
@@ -935,8 +943,8 @@ static t_stat scu_set_config (UNIT * uptr, UNUSED int32 value,
           scu [scu_unit_idx].steady_clock = (uint) v;
         else if (strcmp (p, "bullet_time") == 0)
           scu [scu_unit_idx].bullet_time = (uint) v;
-        else if (strcmp (p, "y2k") == 0)
-          scu [scu_unit_idx].y2k = (uint) v;
+        else if (strcmp (p, "clock_delta") == 0)
+          scu [scu_unit_idx].clock_delta = (int64_t) v;
         else
           {
             sim_printf ("error: scu_set_config: invalid cfg_parse rc <%d>\n",
@@ -979,7 +987,7 @@ static MTAB scu_mod [] =
       0,                                             /* Match              */
       (char *) "STATE",                              /* Print string       */
       (char *) "STATE",                              /* Match string       */
-      NULL,                                          /* Validation routine */
+      scu_set_state,                                 /* Validation routine */
       scu_show_state,                                /* Display routine    */
       (char *) "SCU unit internal state",            /* Value descriptor   */
       NULL                                           /* Help               */
@@ -1263,14 +1271,9 @@ static uint64 set_SCU_clock (cpu_state_t * cpup, uint scu_unit_idx)
     struct timeval now;
     gettimeofday(& now, NULL);
 
-    if (scu [0].y2k) // Apply clock skew when Y2K mode enabled
-      {
-        // Back the clock up to just after the MR12.5 release
-        // $ date --date='30 years ago' +%s ; date +%s
-        // 1685451324
-        // 7738766524
-        now.tv_sec -= (1685451324 - 738766524); // XXX(jhj): make dynamic!
-      }
+    if (scu [scu_unit_idx].clock_delta) // Apply clock_delta correction.
+        now.tv_sec += scu [scu_unit_idx].clock_delta;
+
     uint64 UNIX_secs  = (uint64) now.tv_sec;
     uint64 UNIX_usecs = UNIX_secs * 1000000LL + (uint64) now.tv_usec;
 
@@ -1294,8 +1297,6 @@ static uint64 set_SCU_clock (cpu_state_t * cpup, uint scu_unit_idx)
 
     // now determine uSecs since Jan 1, 1901 ...
     uint64 Multics_usecs = 2177452800000000LL + UNIX_usecs;
-
-    // Correction factor from the set time command
 
     // The casting to uint show be okay; both are 64 bit, so if
     // user_correction is <0, it will come out in the wash ok.

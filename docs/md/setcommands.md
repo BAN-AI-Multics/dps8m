@@ -574,25 +574,6 @@ Refer to *GB61-01* **Operators Guide, Appendix A** for more details.
 
 <!-- br -->
 
-##### Y2K
-\
-\
-"**`Y2K`**" configures whether the Year 2000 compatibility workaround is enabled, where "`0`" or "`disable`" is disabled and "`1`" or "`enable`" is enabled.
-
-* The Year 2000 compatibility workaround modifies the system clock to enable older Multics releases (*i.e.* MR12.3 and MR12.5) that are *not* Y2K-compliant to be booted and used without modification.
-
-        Y2K=<0 or 1>
-        Y2K=<disable or enable>
-
-**Example**
-
-* Configure the system to enable the *Year 2000 compatibility workaround*:
-        SET CPU CONFIG=Y2K=1
-
-<!------------------------------------------------------------------------------------->
-
-<!-- br -->
-
 ##### DRL_FATAL
 \
 \
@@ -1252,10 +1233,39 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
 <!------------------------------------------------------------------------------------->
 
-##### Y2K
+##### CLOCK_DELTA
 \
 \
-* TBD (0 or 1, disable or enable)
+"**`CLOCK_DELTA`**" modifies the SCU clock to run a user-specified number of seconds ahead (or behind) the host clock, where "`0`", the default, is no modification.
+
+        CLOCK_DELTA=<-2147483648 to 2147483647>
+
+* Setting "`CLOCK_DELTA`" to a negative value is useful to enable booting older Multics releases (*i.e.* MR12.3 and MR12.5) that are *not* Y2K-compliant without modification.
+
+* Setting "`CLOCK_DELTA`" to a positive value is useful for Multics development or working with disks that were used "in the future".
+
+* The *GNU* "`date`" tool (with the help of the Unix shell) can be used to calculate an appropriate value.  The following example calculates a value representing a modification of *5 years*:
+  ```dps8
+  printf '%s\n' "$(( $(date --date='5 years' +%s) - $(date +%s) ))"
+  ```
+  * macOS and BSD users usually have this tool available as "`gdate`" (part of the *GNU coreutils* package, which may require separate installation).
+
+* It is the responsibility of the user to set a reasonable "`CLOCK_DELTA`" value.
+  * Multics may not handle times in the year 2043 and beyond.
+
+  * Undefined behavior may result if the modified time is beyond *January 19 2038 03:14:07 UTC* on a host system that measures time as seconds elapsed since *January 1 1970 00:00:00 UTC* (*the Unix epoch*) and stores the result in a signed 32-bit integer (*i.e.* Unix systems using 32-bit `time_t`).
+
+* It is not expected that the "`CLOCK_DELTA`" value will require modification by most users under normal operating circumstances.
+
+**Examples**
+
+* Configure the SCU**`0`** clock to run *5 years* ahead of the host clock:
+        SET SCU0 CONFIG=CLOCK_DELTA=157766400
+
+* Configure the SCU**`0`** clock to run *33 years, 6 months* behind of the host clock:
+        SET SCU0 CONFIG=CLOCK_DELTA=-1057017600
+
+<!-- br -->
 
 <!------------------------------------------------------------------------------------->
 
