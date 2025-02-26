@@ -1,6 +1,7 @@
 bsd_random.o: bsd_random.h
 dps8_absi.o: ../libsir/include/sir.h
 dps8_absi.o: ../libsir/include/sir/ansimacros.h
+dps8_absi.o: ../libsir/include/sir/filesystem.h
 dps8_absi.o: ../libsir/include/sir/internal.h
 dps8_absi.o: ../libsir/include/sir/platform.h
 dps8_absi.o: ../libsir/include/sir/types.h
@@ -31,6 +32,7 @@ dps8_absi.o: udplib.h
 dps8_absi.o: uvutil.h
 dps8_addrmods.o: ../libsir/include/sir.h
 dps8_addrmods.o: ../libsir/include/sir/ansimacros.h
+dps8_addrmods.o: ../libsir/include/sir/filesystem.h
 dps8_addrmods.o: ../libsir/include/sir/internal.h
 dps8_addrmods.o: ../libsir/include/sir/platform.h
 dps8_addrmods.o: ../libsir/include/sir/types.h
@@ -64,6 +66,7 @@ dps8_addrmods.o: ucache.h
 dps8_addrmods.o: uvutil.h
 dps8_append.o: ../libsir/include/sir.h
 dps8_append.o: ../libsir/include/sir/ansimacros.h
+dps8_append.o: ../libsir/include/sir/filesystem.h
 dps8_append.o: ../libsir/include/sir/internal.h
 dps8_append.o: ../libsir/include/sir/platform.h
 dps8_append.o: ../libsir/include/sir/types.h
@@ -102,6 +105,7 @@ dps8_append.o: ucache.h
 dps8_append.o: uvutil.h
 dps8_cable.o: ../libsir/include/sir.h
 dps8_cable.o: ../libsir/include/sir/ansimacros.h
+dps8_cable.o: ../libsir/include/sir/filesystem.h
 dps8_cable.o: ../libsir/include/sir/internal.h
 dps8_cable.o: ../libsir/include/sir/platform.h
 dps8_cable.o: ../libsir/include/sir/types.h
@@ -143,6 +147,7 @@ dps8_cable.o: ucache.h
 dps8_cable.o: uvutil.h
 dps8_console.o: ../libsir/include/sir.h
 dps8_console.o: ../libsir/include/sir/ansimacros.h
+dps8_console.o: ../libsir/include/sir/filesystem.h
 dps8_console.o: ../libsir/include/sir/internal.h
 dps8_console.o: ../libsir/include/sir/platform.h
 dps8_console.o: ../libsir/include/sir/types.h
@@ -175,6 +180,7 @@ dps8_console.o: ucache.h
 dps8_console.o: uvutil.h
 dps8_cpu.o: ../libsir/include/sir.h
 dps8_cpu.o: ../libsir/include/sir/ansimacros.h
+dps8_cpu.o: ../libsir/include/sir/filesystem.h
 dps8_cpu.o: ../libsir/include/sir/internal.h
 dps8_cpu.o: ../libsir/include/sir/platform.h
 dps8_cpu.o: ../libsir/include/sir/types.h
@@ -202,6 +208,7 @@ dps8_cpu.o: dps8_ins.h
 dps8_cpu.o: dps8_iom.h
 dps8_cpu.o: dps8_math.h
 dps8_cpu.o: dps8_math128.h
+dps8_cpu.o: dps8_memalign.h
 dps8_cpu.o: dps8_mgp.h
 dps8_cpu.o: dps8_opcodetable.h
 dps8_cpu.o: dps8_scu.h
@@ -218,6 +225,7 @@ dps8_cpu.o: uvutil.h
 dps8_cpu.o: ver.h
 dps8_crdpun.o: ../libsir/include/sir.h
 dps8_crdpun.o: ../libsir/include/sir/ansimacros.h
+dps8_crdpun.o: ../libsir/include/sir/filesystem.h
 dps8_crdpun.o: ../libsir/include/sir/internal.h
 dps8_crdpun.o: ../libsir/include/sir/platform.h
 dps8_crdpun.o: ../libsir/include/sir/types.h
@@ -248,6 +256,7 @@ dps8_crdpun.o: utfile.h
 dps8_crdpun.o: uvutil.h
 dps8_crdrdr.o: ../libsir/include/sir.h
 dps8_crdrdr.o: ../libsir/include/sir/ansimacros.h
+dps8_crdrdr.o: ../libsir/include/sir/filesystem.h
 dps8_crdrdr.o: ../libsir/include/sir/internal.h
 dps8_crdrdr.o: ../libsir/include/sir/platform.h
 dps8_crdrdr.o: ../libsir/include/sir/types.h
@@ -277,6 +286,7 @@ dps8_crdrdr.o: ucache.h
 dps8_crdrdr.o: uvutil.h
 dps8_decimal.o: ../libsir/include/sir.h
 dps8_decimal.o: ../libsir/include/sir/ansimacros.h
+dps8_decimal.o: ../libsir/include/sir/filesystem.h
 dps8_decimal.o: ../libsir/include/sir/internal.h
 dps8_decimal.o: ../libsir/include/sir/platform.h
 dps8_decimal.o: ../libsir/include/sir/types.h
@@ -307,6 +317,7 @@ dps8_decimal.o: ucache.h
 dps8_decimal.o: uvutil.h
 dps8_dia.o: ../libsir/include/sir.h
 dps8_dia.o: ../libsir/include/sir/ansimacros.h
+dps8_dia.o: ../libsir/include/sir/filesystem.h
 dps8_dia.o: ../libsir/include/sir/internal.h
 dps8_dia.o: ../libsir/include/sir/platform.h
 dps8_dia.o: ../libsir/include/sir/types.h
@@ -337,6 +348,7 @@ dps8_dia.o: udplib.h
 dps8_dia.o: uvutil.h
 dps8_disk.o: ../libsir/include/sir.h
 dps8_disk.o: ../libsir/include/sir/ansimacros.h
+dps8_disk.o: ../libsir/include/sir/filesystem.h
 dps8_disk.o: ../libsir/include/sir/internal.h
 dps8_disk.o: ../libsir/include/sir/platform.h
 dps8_disk.o: ../libsir/include/sir/types.h
@@ -367,6 +379,7 @@ dps8_disk.o: ucache.h
 dps8_disk.o: uvutil.h
 dps8_eis.o: ../libsir/include/sir.h
 dps8_eis.o: ../libsir/include/sir/ansimacros.h
+dps8_eis.o: ../libsir/include/sir/filesystem.h
 dps8_eis.o: ../libsir/include/sir/internal.h
 dps8_eis.o: ../libsir/include/sir/platform.h
 dps8_eis.o: ../libsir/include/sir/types.h
@@ -399,6 +412,7 @@ dps8_eis.o: ucache.h
 dps8_eis.o: uvutil.h
 dps8_faults.o: ../libsir/include/sir.h
 dps8_faults.o: ../libsir/include/sir/ansimacros.h
+dps8_faults.o: ../libsir/include/sir/filesystem.h
 dps8_faults.o: ../libsir/include/sir/internal.h
 dps8_faults.o: ../libsir/include/sir/platform.h
 dps8_faults.o: ../libsir/include/sir/types.h
@@ -429,6 +443,7 @@ dps8_faults.o: ucache.h
 dps8_faults.o: uvutil.h
 dps8_fnp2.o: ../libsir/include/sir.h
 dps8_fnp2.o: ../libsir/include/sir/ansimacros.h
+dps8_fnp2.o: ../libsir/include/sir/filesystem.h
 dps8_fnp2.o: ../libsir/include/sir/internal.h
 dps8_fnp2.o: ../libsir/include/sir/platform.h
 dps8_fnp2.o: ../libsir/include/sir/types.h
@@ -463,6 +478,7 @@ dps8_fnp2.o: ucache.h
 dps8_fnp2.o: uvutil.h
 dps8_fnp2_iomcmd.o: ../libsir/include/sir.h
 dps8_fnp2_iomcmd.o: ../libsir/include/sir/ansimacros.h
+dps8_fnp2_iomcmd.o: ../libsir/include/sir/filesystem.h
 dps8_fnp2_iomcmd.o: ../libsir/include/sir/internal.h
 dps8_fnp2_iomcmd.o: ../libsir/include/sir/platform.h
 dps8_fnp2_iomcmd.o: ../libsir/include/sir/types.h
@@ -494,6 +510,7 @@ dps8_fnp2_iomcmd.o: ucache.h
 dps8_fnp2_iomcmd.o: uvutil.h
 dps8_iefp.o: ../libsir/include/sir.h
 dps8_iefp.o: ../libsir/include/sir/ansimacros.h
+dps8_iefp.o: ../libsir/include/sir/filesystem.h
 dps8_iefp.o: ../libsir/include/sir/internal.h
 dps8_iefp.o: ../libsir/include/sir/platform.h
 dps8_iefp.o: ../libsir/include/sir/types.h
@@ -525,6 +542,7 @@ dps8_iefp.o: ucache.h
 dps8_iefp.o: uvutil.h
 dps8_ins.o: ../libsir/include/sir.h
 dps8_ins.o: ../libsir/include/sir/ansimacros.h
+dps8_ins.o: ../libsir/include/sir/filesystem.h
 dps8_ins.o: ../libsir/include/sir/internal.h
 dps8_ins.o: ../libsir/include/sir/platform.h
 dps8_ins.o: ../libsir/include/sir/types.h
@@ -563,6 +581,7 @@ dps8_ins.o: uvutil.h
 dps8_ins.o: ver.h
 dps8_iom.o: ../libsir/include/sir.h
 dps8_iom.o: ../libsir/include/sir/ansimacros.h
+dps8_iom.o: ../libsir/include/sir/filesystem.h
 dps8_iom.o: ../libsir/include/sir/internal.h
 dps8_iom.o: ../libsir/include/sir/platform.h
 dps8_iom.o: ../libsir/include/sir/types.h
@@ -594,6 +613,7 @@ dps8_iom.o: ucache.h
 dps8_iom.o: uvutil.h
 dps8_math.o: ../libsir/include/sir.h
 dps8_math.o: ../libsir/include/sir/ansimacros.h
+dps8_math.o: ../libsir/include/sir/filesystem.h
 dps8_math.o: ../libsir/include/sir/internal.h
 dps8_math.o: ../libsir/include/sir/platform.h
 dps8_math.o: ../libsir/include/sir/types.h
@@ -624,6 +644,7 @@ dps8_math.o: ucache.h
 dps8_math.o: uvutil.h
 dps8_math128.o: ../libsir/include/sir.h
 dps8_math128.o: ../libsir/include/sir/ansimacros.h
+dps8_math128.o: ../libsir/include/sir/filesystem.h
 dps8_math128.o: ../libsir/include/sir/internal.h
 dps8_math128.o: ../libsir/include/sir/platform.h
 dps8_math128.o: ../libsir/include/sir/types.h
@@ -644,6 +665,7 @@ dps8_math128.o: dps8_sys.h
 dps8_math128.o: uvutil.h
 dps8_mgp.o: ../libsir/include/sir.h
 dps8_mgp.o: ../libsir/include/sir/ansimacros.h
+dps8_mgp.o: ../libsir/include/sir/filesystem.h
 dps8_mgp.o: ../libsir/include/sir/internal.h
 dps8_mgp.o: ../libsir/include/sir/platform.h
 dps8_mgp.o: ../libsir/include/sir/types.h
@@ -673,6 +695,7 @@ dps8_mgp.o: ucache.h
 dps8_mgp.o: uvutil.h
 dps8_mt.o: ../libsir/include/sir.h
 dps8_mt.o: ../libsir/include/sir/ansimacros.h
+dps8_mt.o: ../libsir/include/sir/filesystem.h
 dps8_mt.o: ../libsir/include/sir/internal.h
 dps8_mt.o: ../libsir/include/sir/platform.h
 dps8_mt.o: ../libsir/include/sir/types.h
@@ -702,6 +725,7 @@ dps8_mt.o: ucache.h
 dps8_mt.o: uvutil.h
 dps8_opcodetable.o: ../libsir/include/sir.h
 dps8_opcodetable.o: ../libsir/include/sir/ansimacros.h
+dps8_opcodetable.o: ../libsir/include/sir/filesystem.h
 dps8_opcodetable.o: ../libsir/include/sir/internal.h
 dps8_opcodetable.o: ../libsir/include/sir/platform.h
 dps8_opcodetable.o: ../libsir/include/sir/types.h
@@ -723,6 +747,7 @@ dps8_opcodetable.o: dps8_sys.h
 dps8_opcodetable.o: uvutil.h
 dps8_prt.o: ../libsir/include/sir.h
 dps8_prt.o: ../libsir/include/sir/ansimacros.h
+dps8_prt.o: ../libsir/include/sir/filesystem.h
 dps8_prt.o: ../libsir/include/sir/internal.h
 dps8_prt.o: ../libsir/include/sir/platform.h
 dps8_prt.o: ../libsir/include/sir/types.h
@@ -753,6 +778,7 @@ dps8_prt.o: utfile.h
 dps8_prt.o: uvutil.h
 dps8_scu.o: ../libsir/include/sir.h
 dps8_scu.o: ../libsir/include/sir/ansimacros.h
+dps8_scu.o: ../libsir/include/sir/filesystem.h
 dps8_scu.o: ../libsir/include/sir/internal.h
 dps8_scu.o: ../libsir/include/sir/platform.h
 dps8_scu.o: ../libsir/include/sir/types.h
@@ -781,6 +807,7 @@ dps8_scu.o: ucache.h
 dps8_scu.o: uvutil.h
 dps8_simh.o: ../libsir/include/sir.h
 dps8_simh.o: ../libsir/include/sir/ansimacros.h
+dps8_simh.o: ../libsir/include/sir/filesystem.h
 dps8_simh.o: ../libsir/include/sir/internal.h
 dps8_simh.o: ../libsir/include/sir/platform.h
 dps8_simh.o: ../libsir/include/sir/types.h
@@ -801,6 +828,7 @@ dps8_simh.o: dps8_sys.h
 dps8_simh.o: uvutil.h
 dps8_socket_dev.o: ../libsir/include/sir.h
 dps8_socket_dev.o: ../libsir/include/sir/ansimacros.h
+dps8_socket_dev.o: ../libsir/include/sir/filesystem.h
 dps8_socket_dev.o: ../libsir/include/sir/internal.h
 dps8_socket_dev.o: ../libsir/include/sir/platform.h
 dps8_socket_dev.o: ../libsir/include/sir/types.h
@@ -830,6 +858,7 @@ dps8_socket_dev.o: ucache.h
 dps8_socket_dev.o: uvutil.h
 dps8_sys.o: ../libsir/include/sir.h
 dps8_sys.o: ../libsir/include/sir/ansimacros.h
+dps8_sys.o: ../libsir/include/sir/filesystem.h
 dps8_sys.o: ../libsir/include/sir/internal.h
 dps8_sys.o: ../libsir/include/sir/platform.h
 dps8_sys.o: ../libsir/include/sir/types.h
@@ -858,6 +887,7 @@ dps8_sys.o: dps8_ins.h
 dps8_sys.o: dps8_iom.h
 dps8_sys.o: dps8_math.h
 dps8_sys.o: dps8_math128.h
+dps8_sys.o: dps8_memalign.h
 dps8_sys.o: dps8_mgp.h
 dps8_sys.o: dps8_mt.h
 dps8_sys.o: dps8_prt.h
@@ -880,6 +910,7 @@ dps8_sys.o: uvutil.h
 dps8_sys.o: ver.h
 dps8_urp.o: ../libsir/include/sir.h
 dps8_urp.o: ../libsir/include/sir/ansimacros.h
+dps8_urp.o: ../libsir/include/sir/filesystem.h
 dps8_urp.o: ../libsir/include/sir/internal.h
 dps8_urp.o: ../libsir/include/sir/platform.h
 dps8_urp.o: ../libsir/include/sir/types.h
@@ -909,6 +940,7 @@ dps8_urp.o: ucache.h
 dps8_urp.o: uvutil.h
 dps8_utils.o: ../libsir/include/sir.h
 dps8_utils.o: ../libsir/include/sir/ansimacros.h
+dps8_utils.o: ../libsir/include/sir/filesystem.h
 dps8_utils.o: ../libsir/include/sir/internal.h
 dps8_utils.o: ../libsir/include/sir/platform.h
 dps8_utils.o: ../libsir/include/sir/types.h
@@ -939,6 +971,7 @@ dps8_utils.o: ucache.h
 dps8_utils.o: uvutil.h
 fnptelnet.o: ../libsir/include/sir.h
 fnptelnet.o: ../libsir/include/sir/ansimacros.h
+fnptelnet.o: ../libsir/include/sir/filesystem.h
 fnptelnet.o: ../libsir/include/sir/internal.h
 fnptelnet.o: ../libsir/include/sir/platform.h
 fnptelnet.o: ../libsir/include/sir/types.h
@@ -971,6 +1004,7 @@ fnptelnet.o: ucache.h
 fnptelnet.o: uvutil.h
 fnpuv.o: ../libsir/include/sir.h
 fnpuv.o: ../libsir/include/sir/ansimacros.h
+fnpuv.o: ../libsir/include/sir/filesystem.h
 fnpuv.o: ../libsir/include/sir/internal.h
 fnpuv.o: ../libsir/include/sir/platform.h
 fnpuv.o: ../libsir/include/sir/types.h
@@ -1002,6 +1036,7 @@ fnpuv.o: ucache.h
 fnpuv.o: uvutil.h
 hdbg.o: ../libsir/include/sir.h
 hdbg.o: ../libsir/include/sir/ansimacros.h
+hdbg.o: ../libsir/include/sir/filesystem.h
 hdbg.o: ../libsir/include/sir/internal.h
 hdbg.o: ../libsir/include/sir/platform.h
 hdbg.o: ../libsir/include/sir/types.h
@@ -1018,6 +1053,7 @@ hdbg.o: dps8_em_consts.h
 hdbg.o: dps8_faults.h
 hdbg.o: dps8_hw_consts.h
 hdbg.o: dps8_math128.h
+hdbg.o: dps8_memalign.h
 hdbg.o: dps8_simh.h
 hdbg.o: dps8_sir.h
 hdbg.o: dps8_sys.h
@@ -1027,6 +1063,7 @@ hdbg.o: ucache.h
 hdbg.o: uvutil.h
 libtelnet.o: ../libsir/include/sir.h
 libtelnet.o: ../libsir/include/sir/ansimacros.h
+libtelnet.o: ../libsir/include/sir/filesystem.h
 libtelnet.o: ../libsir/include/sir/internal.h
 libtelnet.o: ../libsir/include/sir/platform.h
 libtelnet.o: ../libsir/include/sir/types.h
@@ -1058,6 +1095,7 @@ panelScraper.o: ../font8x8/font8x8_misc.h
 panelScraper.o: ../font8x8/font8x8_sga.h
 panelScraper.o: ../libsir/include/sir.h
 panelScraper.o: ../libsir/include/sir/ansimacros.h
+panelScraper.o: ../libsir/include/sir/filesystem.h
 panelScraper.o: ../libsir/include/sir/internal.h
 panelScraper.o: ../libsir/include/sir/platform.h
 panelScraper.o: ../libsir/include/sir/types.h
@@ -1082,6 +1120,7 @@ panelScraper.o: ucache.h
 panelScraper.o: uvutil.h
 segldr.o: ../libsir/include/sir.h
 segldr.o: ../libsir/include/sir/ansimacros.h
+segldr.o: ../libsir/include/sir/filesystem.h
 segldr.o: ../libsir/include/sir/internal.h
 segldr.o: ../libsir/include/sir/platform.h
 segldr.o: ../libsir/include/sir/types.h
@@ -1117,6 +1156,7 @@ shm.o: ../simh/sim_timer.h
 shm.o: shm.h
 threadz.o: ../libsir/include/sir.h
 threadz.o: ../libsir/include/sir/ansimacros.h
+threadz.o: ../libsir/include/sir/filesystem.h
 threadz.o: ../libsir/include/sir/internal.h
 threadz.o: ../libsir/include/sir/platform.h
 threadz.o: ../libsir/include/sir/types.h
@@ -1144,6 +1184,7 @@ threadz.o: ucache.h
 threadz.o: uvutil.h
 tracker.o: ../libsir/include/sir.h
 tracker.o: ../libsir/include/sir/ansimacros.h
+tracker.o: ../libsir/include/sir/filesystem.h
 tracker.o: ../libsir/include/sir/internal.h
 tracker.o: ../libsir/include/sir/platform.h
 tracker.o: ../libsir/include/sir/types.h
@@ -1165,6 +1206,7 @@ tracker.o: tracker.h
 tracker.o: uvutil.h
 ucache.o: ../libsir/include/sir.h
 ucache.o: ../libsir/include/sir/ansimacros.h
+ucache.o: ../libsir/include/sir/filesystem.h
 ucache.o: ../libsir/include/sir/internal.h
 ucache.o: ../libsir/include/sir/platform.h
 ucache.o: ../libsir/include/sir/types.h
@@ -1190,6 +1232,7 @@ udplib.o: h316_imp.h
 udplib.o: udplib.h
 utfile.o: ../libsir/include/sir.h
 utfile.o: ../libsir/include/sir/ansimacros.h
+utfile.o: ../libsir/include/sir/filesystem.h
 utfile.o: ../libsir/include/sir/internal.h
 utfile.o: ../libsir/include/sir/platform.h
 utfile.o: ../libsir/include/sir/types.h
@@ -1198,6 +1241,7 @@ utfile.o: bsd_random.h
 utfile.o: dps8_sir.h
 uvutil.o: ../libsir/include/sir.h
 uvutil.o: ../libsir/include/sir/ansimacros.h
+uvutil.o: ../libsir/include/sir/filesystem.h
 uvutil.o: ../libsir/include/sir/internal.h
 uvutil.o: ../libsir/include/sir/platform.h
 uvutil.o: ../libsir/include/sir/types.h

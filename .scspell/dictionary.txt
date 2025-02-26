@@ -261,6 +261,7 @@ adwpn
 adxn
 afail
 aincr
+aixthread
 alatt
 alen
 alength
@@ -1271,6 +1272,7 @@ genernum
 getact
 getaddrinfo
 getaddrname
+getappfilename
 getbits
 getbyte
 getc
@@ -1742,6 +1744,7 @@ mainpath
 makeinit
 makeword
 malloc
+mallocoptions
 mallocptr
 manifestly
 mapsize
@@ -1792,6 +1795,7 @@ mdsptw
 mediumpurple
 melif
 melse
+memalign
 memcmp
 memcpy
 memdump
@@ -1882,6 +1886,7 @@ mult
 multand
 multicsu
 multies
+multiheap
 multiplicand
 munmap
 mustbuf
@@ -2050,6 +2055,7 @@ nrzi
 nsdw
 nsec
 nspeed
+nssleep
 nstart
 nsyms
 ntdddisk
@@ -2649,6 +2655,7 @@ setaffinity
 setbit
 setbits
 setbusy
+setcap
 setclock
 setcount
 setdone
@@ -4146,6 +4153,7 @@ mbxes
 mchar
 mdpt
 mdsptw
+memalign
 memcmp
 memcpy
 memmove
@@ -4571,6 +4579,7 @@ strdatad
 strdatadf
 strdup
 strdupesc
+strerror
 strfield
 stripquotes
 strlen
@@ -4595,6 +4604,7 @@ swwam
 sxbd
 symtab
 synctest
+sysconf
 sysinfo
 sznc
 sztl
@@ -5808,9 +5818,12 @@ FILETYPE: Make; .mk
 arml
 brtl
 iwmmxt
+libdl
+libpthread
 librt
 lutil
 notparallel
+pthopt
 
 FILETYPE: NSIS; .nsi
 abortwarning
@@ -6216,9 +6229,11 @@ FILEID: 2d62a287-f62b-11ec-badd-80ee73e9b8e7
 colorcolumn
 daix
 dbsd
+dcache
 dgnu
 dhdbg
 disolts
+dlevel
 dneed
 dpanel
 dperf
@@ -6241,6 +6256,7 @@ ifeq
 ifndef
 ifneq
 lbacktrace
+libpthread
 listchars
 lpthread
 ltosyn
@@ -6248,6 +6264,7 @@ multiprocessing
 notparallel
 osap
 printf
+pthopt
 simulation
 sunlint
 threadz
@@ -6793,6 +6810,7 @@ printuk
 procdef
 procsrt
 psabi
+pthopt
 qflag
 qshowmacros
 realclean
@@ -6936,6 +6954,7 @@ doesn
 dsbin
 encachable
 libertyhaven
+setcap
 shouldn
 stuvwyyz
 
@@ -8404,11 +8423,13 @@ clspkt
 conni
 conns
 copcode
+dcache
 dstprc
 dumppkt
 editmsg
 foundone
 framenr
+linesize
 pklen
 pknr
 pktype
@@ -10648,6 +10669,7 @@ electric
 element
 elementary
 elements
+elevated
 eleven
 elide
 elided
@@ -11681,6 +11703,7 @@ justification
 justified
 justify
 justifying
+kalray
 kappa
 karatsuba
 keep
@@ -12798,6 +12821,7 @@ printers
 printing
 prints
 prior
+priorities
 priority
 prism
 pristine

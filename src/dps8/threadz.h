@@ -162,7 +162,7 @@ struct cpuThreadz_t
 extern struct cpuThreadz_t cpuThreadz [N_CPU_UNITS_MAX];
 
 void createCPUThread (uint cpuNum);
-void stopCPUThread(void);
+NO_RETURN void stopCPUThread(void);
 #if defined(THREADZ)
 void cpuRunningWait (void);
 #endif /* if defined(THREADZ) */

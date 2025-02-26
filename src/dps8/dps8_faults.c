@@ -722,6 +722,7 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle,
 #endif
 }
 
+NO_RETURN
 void do_FFV_fault (cpu_state_t * cpup, uint fault_number, const char * fault_msg)
   {
     sim_debug (DBG_FAULT, & cpu_dev,

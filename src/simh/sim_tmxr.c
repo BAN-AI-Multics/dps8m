@@ -855,12 +855,6 @@ uint32_t h = 0;  /* initial hash value */
 void *(*mallocptr)() = malloc;
 h = hash32s(&mallocptr, sizeof(mallocptr), h);
 #endif /* __STDC_VERSION__ < 201112L */
-void *small = malloc(1);
-h = hash32s(&small, sizeof(small), h);
-FREE(small);
-void *big = malloc(1UL << 20);
-h = hash32s(&big, sizeof(big), h);
-FREE(big);
 void *ptr = &ptr;
 h = hash32s(&ptr, sizeof(ptr), h);
 time_t t = time(0);

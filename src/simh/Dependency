@@ -8,6 +8,7 @@ linehistory.o: ../dps8/dps8_sys.h
 linehistory.o: ../dps8/uvutil.h
 linehistory.o: ../libsir/include/sir.h
 linehistory.o: ../libsir/include/sir/ansimacros.h
+linehistory.o: ../libsir/include/sir/filesystem.h
 linehistory.o: ../libsir/include/sir/internal.h
 linehistory.o: ../libsir/include/sir/platform.h
 linehistory.o: ../libsir/include/sir/types.h
@@ -38,6 +39,7 @@ scp.o: ../dps8/uvutil.h
 scp.o: ../dps8/ver.h
 scp.o: ../libsir/include/sir.h
 scp.o: ../libsir/include/sir/ansimacros.h
+scp.o: ../libsir/include/sir/filesystem.h
 scp.o: ../libsir/include/sir/internal.h
 scp.o: ../libsir/include/sir/platform.h
 scp.o: ../libsir/include/sir/types.h
@@ -67,6 +69,7 @@ sim_console.o: ../dps8/ucache.h
 sim_console.o: ../dps8/uvutil.h
 sim_console.o: ../libsir/include/sir.h
 sim_console.o: ../libsir/include/sir/ansimacros.h
+sim_console.o: ../libsir/include/sir/filesystem.h
 sim_console.o: ../libsir/include/sir/internal.h
 sim_console.o: ../libsir/include/sir/platform.h
 sim_console.o: ../libsir/include/sir/types.h
@@ -119,6 +122,7 @@ sim_tmxr.o: ../dps8/dps8_sys.h
 sim_tmxr.o: ../dps8/uvutil.h
 sim_tmxr.o: ../libsir/include/sir.h
 sim_tmxr.o: ../libsir/include/sir/ansimacros.h
+sim_tmxr.o: ../libsir/include/sir/filesystem.h
 sim_tmxr.o: ../libsir/include/sir/internal.h
 sim_tmxr.o: ../libsir/include/sir/platform.h
 sim_tmxr.o: ../libsir/include/sir/types.h

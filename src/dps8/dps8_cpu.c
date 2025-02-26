@@ -33,6 +33,10 @@
 #include <unistd.h>
 #include <ctype.h>
 
+#if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32)
+# include <sys/mman.h>
+#endif
+
 #include "dps8.h"
 #include "dps8_sys.h"
 #include "dps8_iom.h"
@@ -53,6 +57,7 @@
 #include "dps8_absi.h"
 #include "dps8_mgp.h"
 #include "dps8_utils.h"
+#include "dps8_memalign.h"
 
 #if defined(M_SHARED)
 # include "shm.h"
@@ -67,6 +72,10 @@ __thread uint current_running_cpu_idx;
 #endif
 
 #include "ver.h"
+
+#if defined(NO_LOCALE)
+# define xstrerror_l strerror
+#endif
 
 #define DBG_CTR cpu.cycleCnt
 
@@ -2067,6 +2076,7 @@ void * cpu_thread_main (void * arg)
   }
 #endif // THREADZ
 
+NO_RETURN
 static void do_LUF_fault (cpu_state_t * cpup)
   {
     CPT (cpt1U, 16); // LUF
@@ -5280,7 +5290,7 @@ void perfTest (char * testName) {
 # endif
 
   // dps8m_init_strip
-  system_state = malloc (sizeof (struct system_state_s));
+  system_state = aligned_malloc (sizeof (struct system_state_s));
   if (!system_state)
     {
       (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
@@ -5293,6 +5303,18 @@ void perfTest (char * testName) {
 # endif /* if defined(USE_BACKTRACE) */
       abort();
     }
+# if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32)
+  if (mlock(system_state, sizeof(struct system_state_s)) == -1) {
+#  if defined(TESTING)
+    (void)fprintf(stderr, "\rCould not lock memory - mlock() error: %s.\r\n", xstrerror_l(errno));
+#   if defined(__linux__)
+    const char * setcap_filename = _sir_getappfilename();
+    (void)fprintf(stderr, "\rIncrease \"ulimit -l\" or \"setcap 'cap_ipc_lock+ep' %s\".\r\n",
+                  setcap_filename ? setcap_filename : "dps8");
+#   endif
+#  endif
+  }
+# endif
   M = system_state->M;
 # if defined(M_SHARED)
   cpus = system_state->cpus;

@@ -247,6 +247,13 @@ ifeq ($(SPEED),1)
 endif
 
 ###############################################################################
+# Pass through LEVEL1_DCACHE_LINE_SIZE
+
+ifdef LEVEL1_DCACHE_LINE_SIZE
+  CFLAGS += -DLEVEL1_DCACHE_LINE_SIZE=$(LEVEL1_DCACHE_LINE_SIZE)
+endif
+
+###############################################################################
 # No native __int128/__uint128 types?
 
 ifeq ($(NEED_128),1)
