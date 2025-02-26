@@ -1,7 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:ai:expandtab
  * SPDX-License-Identifier: ICU
- * scspell-id: 35c9cf5c-ebbf-11ed-8d34-80ee73e9b8e7
+ * scspell-id: f720964c-f3ed-11ef-b468-922037bebb33
  *
  * ---------------------------------------------------------------------------
  *
