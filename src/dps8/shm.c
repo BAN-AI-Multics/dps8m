@@ -289,6 +289,9 @@ create_shm(char *key, size_t shm_size)
     }
 
   p = mmap(NULL, shm_size, PROT_READ | PROT_WRITE,
+#if defined(MAP_POPULATE)
+          MAP_POPULATE |
+#endif
 #if defined(MAP_NOSYNC)
            MAP_NOSYNC |
 #endif
@@ -393,6 +396,9 @@ open_shm(char *key, size_t shm_size)
 # endif
 
   p = mmap(NULL, size, PROT_READ | PROT_WRITE,
+# if defined(MAP_POPULATE)
+          MAP_POPULATE |
+# endif
 # if defined(MAP_NOSYNC)
            MAP_NOSYNC |
 # endif
