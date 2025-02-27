@@ -28,14 +28,6 @@
 #  define ALLOC_SIZE(size)
 # endif
 
-# undef ASSUMED_ALIGN
-# if HAS_ATTRIBUTE(assumed_align)
-#  define ASSUMED_ALIGN(size) __attribute__((assumed_align(size)))
-# endif
-# if !defined(ASSUMED_ALIGN)
-#  define ASSUMED_ALIGN(size)
-# endif
-
 # undef ATTR_MALLOC
 # if HAS_ATTRIBUTE(malloc)
 #  define ATTR_MALLOC __attribute__((malloc))
@@ -56,7 +48,7 @@
 #   error No _SC_PAGESIZE or _SC_PAGE_SIZE defined
 #  endif
 
-ATTR_MALLOC ASSUMED_ALIGN(DPS8_MEMALIGN_PAGESIZE) ALLOC_SIZE(1)
+ATTR_MALLOC ALLOC_SIZE(1)
 static inline void *
 aligned_malloc(size_t size)
 {
