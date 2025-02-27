@@ -64,14 +64,14 @@ aligned_malloc(size_t size)
     size_t current_page_size = atomic_load(&page_size);
 
     if (current_page_size == 0) {
-        long page_size = sysconf(DPS8_MEMALIGN_PAGESIZE);
+        long sys_page_size = sysconf(DPS8_MEMALIGN_PAGESIZE);
         size_t temp_ps;
         size_t expected = 0;
 
-        if (page_size < 1) {
+        if (sys_page_size < 1) {
             temp_ps = 4096UL;
         } else {
-            temp_ps = (size_t)page_size;
+            temp_ps = (size_t)sys_page_size;
         }
 
         if (atomic_compare_exchange_strong(&page_size, &expected, temp_ps)) {
