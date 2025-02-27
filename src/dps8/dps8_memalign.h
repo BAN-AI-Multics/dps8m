@@ -67,6 +67,9 @@ aligned_malloc(size_t size)
         size_t temp = (size_t)sysconf(DPS8_MEMALIGN_PAGESIZE);
         size_t expected = 0;
 
+        if (temp < 1)
+            temp = 4096;
+
         if (atomic_compare_exchange_strong(&page_size, &expected, temp)) {
             current_page_size = temp;
         } else {
