@@ -32,7 +32,7 @@ export AR
 
 # Test AR
 printf '\nAR: %s\n' "${AR:?}"
-${AR:?} --version
+command -v "${AR:?}"
 
 # RANLIB
 test -z "${RANLIB:-}" && RANLIB="gcc-ranlib${TOOLSUFFIX:-}"
@@ -40,7 +40,7 @@ export RANLIB
 
 # Test RANLIB
 printf '\nRANLIB: %s\n' "${RANLIB:?}"
-${RANLIB:?} --version
+command -v "${RANLIB:?}"
 
 # LIBUVVER
 test -z "${LIBUVVER:-}" && LIBUVVER="libuvrel"
