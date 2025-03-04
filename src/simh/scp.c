@@ -5133,6 +5133,19 @@ if (flag) {
     (void)fprintf (st, "NO_LOCKLESS");
 #endif /* if !defined(LOCKLESS) */
 
+/* PANEL68 */
+#if defined(PANEL68)
+# if defined(HAVE_DPSOPT)
+    (void)fprintf (st, ", ");
+# else
+    (void)fprintf (st, "\n Options: ");
+# endif
+# if !defined(HAVE_DPSOPT)
+#  define HAVE_DPSOPT 1
+# endif
+    (void)fprintf (st, "PANEL68");
+#endif /* if defined(PANLE68) */
+
 /* ABSI */  /* XXX: Change to NO_ABSI once code is non-experimental */
 #if defined(WITH_ABSI_DEV)
 # if defined(HAVE_DPSOPT)

@@ -47,6 +47,7 @@ endif
 
 ifdef PANEL68
   PANEL68=1
+  WAM=1
   CFLAGS += -DPANEL68=1
 endif
 

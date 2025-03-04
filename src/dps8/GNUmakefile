@@ -315,7 +315,7 @@ H_SRCS += fnpuv.h
 H_SRCS += fnptelnet.h
 H_SRCS += h316_imp.h
 ifeq ($(PANEL68),1)
-  C_SRCS += panelScraper.h
+  H_SRCS += panelScraper.h
 endif
 H_SRCS += hdbg.h
 H_SRCS += segldr.h

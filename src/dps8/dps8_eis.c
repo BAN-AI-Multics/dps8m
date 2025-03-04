@@ -5224,7 +5224,7 @@ static void EISloadInputBufferAlphnumeric (cpu_state_t * cpup, int k)
     EISstruct * e = & cpu.currentEISinstruction;
     // p points to position in inBuffer where 4-bit chars are stored
     word9 * p = e -> inBuffer;
-    memset (e -> inBuffer, 0, sizeof (e -> inBuffer));// initialize to all 0's
+    (void)memset (e -> inBuffer, 0, sizeof (e -> inBuffer)); // initialize to all 0's
 
     // minimum of the remaining sending string count, the remaining receiving
     // string count, and 64.

@@ -4286,6 +4286,19 @@ static void dps8_init (void) {
     sim_msg ("NO_LOCKLESS");
 # endif /* if !defined(LOCKLESS) */
 
+/* PANEL68 */
+# if defined(PANEL68)
+#  if defined(HAVE_DPSOPT)
+    sim_msg (", ");
+#  else
+    sim_msg ("\n Options: ");
+#  endif
+#  if !defined(HAVE_DPSOPT)
+#   define HAVE_DPSOPT 1
+#  endif
+    sim_msg ("PANEL68");
+# endif /* if defined(PANLE68) */
+
 /* ABSI */  /* XXX: Change to NO_ABSI once code is non-experimental */
 # if defined(WITH_ABSI_DEV)
 #  if defined(HAVE_DPSOPT)
