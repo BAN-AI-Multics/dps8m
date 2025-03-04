@@ -1820,6 +1820,8 @@ puts ("\e[0m");
 (void)disable_debugger(1);
 # endif /* if defined(__HAIKU__) */
 
+running_perf_test = false;
+
 /* libsir init */
 
 sirinit si;
