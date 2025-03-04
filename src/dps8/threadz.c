@@ -493,7 +493,6 @@ void createCPUThread (uint cpuNum)
 #endif /* if defined(AFFINITY) */
   }
 
-NO_RETURN
 void stopCPUThread(void)
   {
     struct cpuThreadz_t * p = & cpuThreadz[current_running_cpu_idx];

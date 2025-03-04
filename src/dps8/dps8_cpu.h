@@ -1899,6 +1899,9 @@ typedef struct cpu_state_s
     // Control Points data acquisition
     word1 cpt [28] [36];
 #endif /* if defined(PANEL68) */
+#if defined(THREADZ) || defined(LOCKLESS)
+    pthread_t thread_id;
+#endif
 #define cpt1U   0  // Instruction processing tracking
 #define cpt1L   1  // Instruction processing tracking
 #define cpt2U   2  // Instruction execution tracking

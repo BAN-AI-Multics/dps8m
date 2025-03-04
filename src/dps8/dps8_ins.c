@@ -9627,10 +9627,19 @@ static int emCall (cpu_state_t * cpup)
 #endif
          return STOP_STOP;
 
+#define UV_VERSION(major, minor, patch) ((major << 16) | (minor << 8) | (patch))
+
        // OP 3: Start CPU clock
        case 3:
          startInstrCnt = cpu.instrCnt;
          uv_getrusage (& startTime);
+#if UV_VERSION_HEX >= UV_VERSION(1, 50, 0)
+         if (uv_getrusage_thread(& startTime) == UV_ENOTSUP) {
+           uv_getrusage (& startTime);
+         }
+#else
+         uv_getrusage (& startTime);
+#endif
          break;
 
        // OP 4: Report CPU clock
@@ -9640,37 +9649,46 @@ static int emCall (cpu_state_t * cpup)
 #define ns_msec (1000000000L / 1000L)
 #define ns_usec (1000000000L / 1000L / 1000L)
            uv_rusage_t now;
+#if UV_VERSION_HEX >= UV_VERSION(1, 50, 0)
+           if (uv_getrusage_thread(& now) == UV_ENOTSUP) {
+             uv_getrusage (& now);
+           }
+#else
            uv_getrusage (& now);
-           uint64_t start            = (uint64_t)((uint64_t)startTime.ru_utime.tv_usec * 1000ULL +
-                                                  (uint64_t)startTime.ru_utime.tv_sec * (uint64_t)ns_sec);
-           uint64_t stop             = (uint64_t)((uint64_t)now.ru_utime.tv_usec * 1000ULL +
-                                                  (uint64_t)now.ru_utime.tv_sec * (uint64_t)ns_sec);
+#endif
+           uint64_t start            = (uint64_t)((uint64_t)(startTime.ru_utime.tv_usec * 1000ULL) +
+                                                  (uint64_t)(startTime.ru_stime.tv_usec * 1000ULL) +
+                                                  (uint64_t)(startTime.ru_utime.tv_sec * (uint64_t)ns_sec) +
+                                                  (uint64_t)(startTime.ru_stime.tv_sec * (uint64_t)ns_sec));
+           uint64_t stop             = (uint64_t)((uint64_t)(now.ru_utime.tv_usec * 1000ULL) +
+                                                  (uint64_t)(now.ru_stime.tv_usec * 1000ULL) +
+                                                  (uint64_t)(now.ru_utime.tv_sec * (uint64_t)ns_sec) +
+                                                  (uint64_t)(now.ru_stime.tv_sec * (uint64_t)ns_sec));
            uint64_t delta            = stop - start;
            uint64_t seconds          = delta / ns_sec;
            uint64_t milliseconds     = (delta / ns_msec) % 1000ULL;
            uint64_t microseconds     = (delta / ns_usec) % 1000ULL;
-           uint64_t nanoseconds      = delta % 1000ULL;
            unsigned long long nInsts = (unsigned long long)((unsigned long long)cpu.instrCnt -
                                                             (unsigned long long)startInstrCnt);
            double secs               = (double)(((long double) delta) / ((long double) ns_sec));
            long double ips           = (long double)(((long double) nInsts) / ((long double) secs));
            long double mips          = (long double)(ips / 1000000.0L);
 
+           struct tm tm = {0};
+           tm.tm_hour = seconds / 3600;
+           tm.tm_min = (seconds % 3600) / 60;
+           tm.tm_sec = seconds % 60;
+           char elapsed_time[64];
+           strftime(elapsed_time, sizeof(elapsed_time), "%H:%M:%S", &tm);
+
+           sim_printf ("\rTime elapsed: %s.%03llu%03llu\r\n",
+                       elapsed_time, (unsigned long long)milliseconds, (unsigned long long)microseconds);
 #if defined(WIN_STDIO)
-           sim_printf ("CPU time %llu.%03llu,%03llu,%03llu\n",
+           sim_printf ("\rInstructions: %llu\r\n", (unsigned long long) nInsts);
+           sim_printf ("\r%f MIPS\n", (double) mips);
 #else
-           sim_printf ("CPU time %'llu.%03llu,%03llu,%03llu\n",
-#endif /* if defined(WIN_STDIO) */
-                       (unsigned long long) seconds,
-                       (unsigned long long) milliseconds,
-                       (unsigned long long) microseconds,
-                       (unsigned long long) nanoseconds);
-#if defined(WIN_STDIO)
-           sim_printf ("%llu instructions\n", (unsigned long long) nInsts);
-           sim_printf ("%f MIPS\n", (double) mips);
-#else
-           sim_printf ("%'llu instructions\n", (unsigned long long) nInsts);
-           sim_printf ("%'f MIPS\n", (double) mips);
+           sim_printf ("\rInstructions: %'llu\r\n", (unsigned long long) nInsts);
+           sim_printf ("\r%'f MIPS\r\n", (double) mips);
 #endif /* if defined(WIN_STDIO) */
            break;
          }

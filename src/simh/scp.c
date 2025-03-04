@@ -1708,6 +1708,12 @@ if (getenv("DPS8M_SKIP_AIX_VARIABLES") == NULL) {
   if (setenv("AIXTHREAD_SCOPE", "S", 1)) {
     (void)fprintf(stderr, "\rWARN: Failed to set \"AIXTHREAD_SCOPE=S\".\r\n");
   }
+#  else
+#   if !defined(TESTING)
+  if (setenv("PASE_SYSCALL_NOSIGILL", "ALL", 1)) {
+    (void)fprintf(stderr, "\rWARN: Failed to set \"PASE_SYSCALL_NOSIGILL=ALL\".\r\n");
+  }
+#   endif
 #  endif
 
   if (execvp(argv[0], argv) == -1) {

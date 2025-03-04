@@ -15,8 +15,12 @@
 
 #if defined(DUMA)
 # if !defined(_POSIX_C_SOURCE)
-#  define _POSIX_C_SOURCE 1
+#  define _POSIX_C_SOURCE 200809L
 # endif /* if !defined(_POSIX_C_SOURCE) */
+# if _POSIX_C_SOURCE < 200809L
+#  undef _POSIX_C_SOURCE
+#  define _POSIX_C_SOURCE 200809L
+# endif /* if _POSIX_C_SOURCE < 200809L */
 # undef USE_DUMA
 # define USE_DUMA 1
 # include <stdlib.h>

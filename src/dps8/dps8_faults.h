@@ -131,4 +131,4 @@ void setG7fault (uint cpuNo, _fault faultNo);
 void clearTROFault (cpu_state_t * cpup);
 void advanceG7Faults (cpu_state_t * cpup);
 void set_FFV_fault (cpu_state_t * cpup, uint f_fault_no);
-NO_RETURN void do_FFV_fault (cpu_state_t * cpup, uint fault_number, const char * fault_msg);
+void do_FFV_fault (cpu_state_t * cpup, uint fault_number, const char * fault_msg);
