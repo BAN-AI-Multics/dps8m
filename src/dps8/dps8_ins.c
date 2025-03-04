@@ -9656,39 +9656,54 @@ static int emCall (cpu_state_t * cpup)
 #else
            uv_getrusage (& now);
 #endif
-           uint64_t start            = (uint64_t)((uint64_t)(startTime.ru_utime.tv_usec * 1000ULL) +
-                                                  (uint64_t)(startTime.ru_stime.tv_usec * 1000ULL) +
-                                                  (uint64_t)(startTime.ru_utime.tv_sec * (uint64_t)ns_sec) +
+           uint64_t u_start          = (uint64_t)((uint64_t)(startTime.ru_utime.tv_usec * 1000ULL) +
+                                                  (uint64_t)(startTime.ru_utime.tv_sec * (uint64_t)ns_sec));
+           uint64_t s_start          = (uint64_t)((uint64_t)(startTime.ru_stime.tv_usec * 1000ULL) +
                                                   (uint64_t)(startTime.ru_stime.tv_sec * (uint64_t)ns_sec));
-           uint64_t stop             = (uint64_t)((uint64_t)(now.ru_utime.tv_usec * 1000ULL) +
-                                                  (uint64_t)(now.ru_stime.tv_usec * 1000ULL) +
-                                                  (uint64_t)(now.ru_utime.tv_sec * (uint64_t)ns_sec) +
+           uint64_t u_stop           = (uint64_t)((uint64_t)(now.ru_utime.tv_usec * 1000ULL) +
+                                                  (uint64_t)(now.ru_utime.tv_sec * (uint64_t)ns_sec));
+           uint64_t s_stop           = (uint64_t)((uint64_t)(now.ru_stime.tv_usec * 1000ULL) +
                                                   (uint64_t)(now.ru_stime.tv_sec * (uint64_t)ns_sec));
-           uint64_t delta            = stop - start;
-           uint64_t seconds          = delta / ns_sec;
-           uint64_t milliseconds     = (delta / ns_msec) % 1000ULL;
-           uint64_t microseconds     = (delta / ns_usec) % 1000ULL;
+           uint64_t u_delta          = u_stop - u_start;
+           uint64_t s_delta          = s_stop - s_start;
+           uint64_t u_seconds        = u_delta / ns_sec;
+           uint64_t s_seconds        = s_delta / ns_sec;
+           uint64_t u_milliseconds   = (u_delta / ns_msec) % 1000ULL;
+           uint64_t s_milliseconds   = (s_delta / ns_msec) % 1000ULL;
+           uint64_t u_microseconds   = (u_delta / ns_usec) % 1000ULL;
+           uint64_t s_microseconds   = (s_delta / ns_usec) % 1000ULL;
            unsigned long long nInsts = (unsigned long long)((unsigned long long)cpu.instrCnt -
                                                             (unsigned long long)startInstrCnt);
-           double secs               = (double)(((long double) delta) / ((long double) ns_sec));
-           long double ips           = (long double)(((long double) nInsts) / ((long double) secs));
+           double u_secs             = (double)(((long double) u_delta) / ((long double) ns_sec));
+           double s_secs             = (double)(((long double) s_delta) / ((long double) ns_sec));
+           long double ips           = (long double)(((long double) nInsts) /
+                                                    (((long double) u_secs) + ((long double) s_secs)));
            long double mips          = (long double)(ips / 1000000.0L);
 
            struct tm tm = {0};
-           tm.tm_hour = seconds / 3600;
-           tm.tm_min = (seconds % 3600) / 60;
-           tm.tm_sec = seconds % 60;
            char elapsed_time[64];
+
+           tm.tm_hour = u_seconds / 3600;
+           tm.tm_min = (u_seconds % 3600) / 60;
+           tm.tm_sec = u_seconds % 60;
            strftime(elapsed_time, sizeof(elapsed_time), "%H:%M:%S", &tm);
 
-           sim_printf ("\rTime elapsed: %s.%03llu%03llu\r\n",
-                       elapsed_time, (unsigned long long)milliseconds, (unsigned long long)microseconds);
+           sim_printf ("\rUser time elapsed  : %s.%03llu%03llu\r\n",
+                       elapsed_time, (unsigned long long)u_milliseconds, (unsigned long long)u_microseconds);
+
+           tm.tm_hour = s_seconds / 3600;
+           tm.tm_min = (s_seconds % 3600) / 60;
+           tm.tm_sec = s_seconds % 60;
+           strftime(elapsed_time, sizeof(elapsed_time), "%H:%M:%S", &tm);
+
+           sim_printf ("\rSystem time elapsed: %s.%03llu%03llu\r\n",
+                       elapsed_time, (unsigned long long)s_milliseconds, (unsigned long long)s_microseconds);
 #if defined(WIN_STDIO)
-           sim_printf ("\rInstructions: %llu\r\n", (unsigned long long) nInsts);
-           sim_printf ("\r%f MIPS\n", (double) mips);
+           sim_printf ("\rInstructions       : %llu\r\n", (unsigned long long) nInsts);
+           sim_printf ("\rPerformance        : %f MIPS\r\n\r\n", (double) mips);
 #else
-           sim_printf ("\rInstructions: %'llu\r\n", (unsigned long long) nInsts);
-           sim_printf ("\r%'f MIPS\r\n", (double) mips);
+           sim_printf ("\rInstructions       : %'llu\r\n", (unsigned long long) nInsts);
+           sim_printf ("\rPerformance        : %'f MIPS\r\n", (double) mips);
 #endif /* if defined(WIN_STDIO) */
            break;
          }

@@ -3552,7 +3552,8 @@ leave:
 #endif
 
 #if defined(THREADZ) || defined(LOCKLESS)
-    sim_usleep(2000000); // Delay (up to 2s) to allow for stats gathering
+    if (running_perf_test == false)
+      sim_usleep(2000000); // Delay (up to 2s) to allow for stats gathering
     stopCPUThread();
 #endif
 
@@ -5329,11 +5330,15 @@ void cpuStats (uint cpuNo) {
 #endif
 }
 
+bool running_perf_test;
+
 #if defined(THREADZ) || defined(LOCKLESS)
 # include <locale.h>
 # include "segldr.h"
 
 void perfTest (char * testName) {
+  running_perf_test = true;
+
   if (testName == NULL)
     testName = "strip.mem";
 
