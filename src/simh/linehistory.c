@@ -49,6 +49,11 @@
 # define _POSIX_C_SOURCE 200809L
 #endif /* if !defined(_POSIX_C_SOURCE) */
 
+#if _POSIX_C_SOURCE < 200809L
+# undef _POSIX_C_SOURCE
+# define _POSIX_C_SOURCE 200809L
+#endif /* if _POSIX_C_SOURCE < 200809L */
+
 #if !defined(__MINGW32__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) && \
     !defined(__MINGW64__) && !defined(_MSC_VER) && !defined(_MSC_BUILD)
 

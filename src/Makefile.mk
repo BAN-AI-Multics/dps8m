@@ -313,7 +313,7 @@ ifndef TESTING
   endif
 else
   OPTFLAGS = -O0 -g3 -fno-inline -ggdb                                        \
-             -fno-omit-frame-pointer -fstack-protector-all
+             -fno-omit-frame-pointer -fno-stack-protector
   ifdef DUMA
     CFLAGS   += -I../dps8 -I. -include dps8_duma.h
     OPTFLAGS += -DDUMA=1

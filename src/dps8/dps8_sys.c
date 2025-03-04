@@ -4480,7 +4480,7 @@ static void dps8_init (void) {
 #endif /* if defined(USE_BACKTRACE) */
     exit (svErrno);
   }
-#if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32)
+#if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) && !defined(__PASE__)
   if (mlock(system_state, sizeof(struct system_state_s)) == -1) {
 # if defined(TESTING)
     sir_warn("Could not lock memory - mlock() error: %s.", xstrerror_l(errno));

@@ -1021,6 +1021,7 @@ enoexec
 enomem
 enospc
 enotempty
+enotsup
 enotty
 enum
 envname
@@ -1243,6 +1244,7 @@ fsync
 fszn
 ftell
 ftello
+ftime
 ftok
 ftrue
 ftruncate
@@ -1277,6 +1279,7 @@ getbits
 getbyte
 getc
 getchar
+getcpuclockid
 getcwd
 getdelim
 getegid
@@ -2278,6 +2281,7 @@ prdml
 prdms
 preemptible
 preemptively
+prefault
 prefixnl
 premote
 prepage
@@ -2966,6 +2970,7 @@ synctest
 sysconf
 sysctl
 sysctlbyname
+sysevent
 sysinfo
 sysinit
 syslog
@@ -6582,6 +6587,7 @@ fixedfileinfo
 ices
 llvmorg
 msvcrt
+nosigill
 odifiers
 overrunat
 rsion
@@ -11133,6 +11139,7 @@ gary
 gate
 gateway
 gather
+gathering
 gawk
 gcos
 gear
@@ -12172,6 +12179,7 @@ monochrome
 monospace
 monotonic
 month
+months
 moon
 more
 moreover

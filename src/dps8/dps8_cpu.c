@@ -2052,6 +2052,8 @@ void * cpu_thread_main (void * arg)
     char thread_name[SIR_MAXPID] = {0};
     char temp_thread_name[SIR_MAXPID] = {0};
 
+    _cpup->thread_id = pthread_self();
+
     sim_os_set_thread_priority (PRIORITY_ABOVE_NORMAL);
     _sir_snprintf_trunc(thread_name, SIR_MAXPID, "CPU %c", (unsigned int)umyid);
     if (!_sir_setthreadname(thread_name) || !_sir_getthreadname(temp_thread_name))
@@ -3550,6 +3552,7 @@ leave:
 #endif
 
 #if defined(THREADZ) || defined(LOCKLESS)
+    sim_usleep(2000000); // Delay (up to 2s) to allow for stats gathering
     stopCPUThread();
 #endif
 
@@ -5178,6 +5181,58 @@ void cpuStats (uint cpuNo) {
   if (! cpus[cpuNo].cycleCnt)
     return;
 
+/* Detect Haiku pthread_getcpuclockid availability */
+#if defined(__HAIKU__)
+# if HAS_INCLUDE(<syscall_clock_info.h>)
+#  include <syscall_clock_info.h>
+# endif
+# if !defined(_SYSTEM_SYSCALL_CLOCK_INFO_H)
+#  if !defined(HAIKU_NO_PTHREAD_GETCPUCLOCKID)
+#   define HAIKU_NO_PTHREAD_GETCPUCLOCKID
+#  endif
+# endif
+#endif
+
+/* Clang and SunCC may not define __illumos__ but we require it
+ * here to check for pthread_getcpuclockid availability */
+#if defined(__sun) || defined(__sun__)
+# if !defined(__illumos__)
+#  if HAS_INCLUDE(<sys/sysevent.h>)
+#   include <sys/sysevent.h>
+#  endif
+#  if defined(ILLUMOS_VENDOR) || defined(ILLUMOS_KERN_PUB)
+#   define __illumos__
+#  endif
+# endif
+#endif
+
+  double cpu_seconds = 0;
+  int cpu_millis = 0;
+  char cpu_ftime[64] = {0};
+#if (defined(THREADZ) || defined(LOCKLESS))
+# if !defined(HAIKU_NO_PTHREAD_GETCPUCLOCKID) && !defined(__illumos__) && !defined(__APPLE__) && !defined(__PASE__)
+  struct timespec cpu_time;
+  clockid_t clock_id;
+  if (pthread_getcpuclockid (cpus[cpuNo].thread_id, &clock_id) == 0) {
+    if (clock_gettime (clock_id, &cpu_time) == 0) {
+      cpu_seconds = (double)cpu_time.tv_sec + cpu_time.tv_nsec / 1e9;
+    }
+  }
+# endif
+#endif
+
+  if (cpu_seconds > 0 && cpus[cpuNo].instrCnt > 0) {
+    int cpu_hours = (int)(cpu_seconds / 3600);
+    int cpu_minutes = (int)((cpu_seconds - cpu_hours * 3600) / 60);
+    int cpu_secs = (int)(cpu_seconds - (cpu_hours * 3600) - (cpu_minutes * 60));
+    struct tm cpu_tm = {0};
+    cpu_tm.tm_hour = cpu_hours;
+    cpu_tm.tm_min = cpu_minutes;
+    cpu_tm.tm_sec = cpu_secs;
+    strftime(cpu_ftime, sizeof(cpu_ftime), "%H:%M:%S", &cpu_tm);
+    cpu_millis = (int)((cpu_seconds - (cpu_hours * 3600) - (cpu_minutes * 60) - cpu_secs) * 1000);
+  }
+
   (void)fflush(stderr);
   (void)fflush(stdout);
   sim_msg ("\r\n");
@@ -5186,6 +5241,10 @@ void cpuStats (uint cpuNo) {
   sim_msg ("\r+---------------------------------+\r\n");
   sim_msg ("\r|         CPU %c Statistics        |\r\n", 'A' + cpuNo);
   sim_msg ("\r+---------------------------------+\r\n");
+  if (cpu_seconds > 0 && cpus[cpuNo].instrCnt > 0) {
+    sim_msg ("\r|  CPU Time Used %11s.%03d  |\r\n", cpu_ftime, cpu_millis);
+    sim_msg ("\r+---------------------------------+\r\n");
+  }
   (void)fflush(stdout);
   (void)fflush(stderr);
 #if defined(WIN_STDIO)
@@ -5296,7 +5355,7 @@ void perfTest (char * testName) {
 # endif /* if defined(USE_BACKTRACE) */
       abort();
     }
-# if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32)
+# if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) && !defined(__PASE__)
   if (mlock(system_state, sizeof(struct system_state_s)) == -1) {
 #  if defined(TESTING)
     (void)fprintf(stderr, "\rCould not lock memory - mlock() error: %s.\r\n", xstrerror_l(errno));
