@@ -4297,7 +4297,7 @@ static void dps8_init (void) {
 #   define HAVE_DPSOPT 1
 #  endif
     sim_msg ("PANEL68");
-# endif /* if defined(PANLE68) */
+# endif /* if defined(PANEL68) */
 
 /* ABSI */  /* XXX: Change to NO_ABSI once code is non-experimental */
 # if defined(WITH_ABSI_DEV)

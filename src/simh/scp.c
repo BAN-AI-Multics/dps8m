@@ -5146,7 +5146,7 @@ if (flag) {
 #  define HAVE_DPSOPT 1
 # endif
     (void)fprintf (st, "PANEL68");
-#endif /* if defined(PANLE68) */
+#endif /* if defined(PANEL68) */
 
 /* ABSI */  /* XXX: Change to NO_ABSI once code is non-experimental */
 #if defined(WITH_ABSI_DEV)

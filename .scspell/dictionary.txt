@@ -1561,6 +1561,7 @@ islt
 isnan
 isnonzero
 isnull
+isoc
 isoddint
 isprerelease
 isprint
@@ -6343,6 +6344,7 @@ nitems
 nulparse
 nulprint
 ruler
+ulonglong
 wildmenu
 wrapscan
 

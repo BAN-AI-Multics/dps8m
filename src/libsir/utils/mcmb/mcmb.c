@@ -1,7 +1,7 @@
 /*
  * mcmb.c
  *
- * Version: 2120.5.10-dps (libcmb 3.5.6)
+ * Version: 2120.6.00-dps (libcmb 3.5.6)
  *
  * -----------------------------------------------------------------------------
  *
@@ -13,7 +13,7 @@
  *
  * Copyright (c) 2002-2019 Devin Teske <dteske@FreeBSD.org>
  * Copyright (c) 2020-2024 Jeffrey H. Johnson <trnsz@pobox.com>
- * Copyright (c) 2021-2024 The DPS8M Development Team
+ * Copyright (c) 2021-2025 The DPS8M Development Team
  *
  * All rights reserved.
  *
@@ -56,13 +56,32 @@
 
 #if !defined(_GNU_SOURCE)
 # define _GNU_SOURCE
-#endif
+#endif /* if !defined(_GNU_SOURCE) */
 
 #if !defined(__EXTENSIONS__)
 # define __EXTENSIONS__
-#endif
+#endif /* if !defined(__EXTENSIONS__) */
 
-#include <sys/param.h>
+#if !defined(__MVS__)
+# include <sys/param.h>
+#else
+# if !defined(NO_LOCALE)
+#  define NO_LOCALE
+# endif /* if !defined(NO_LOCALE) */
+# if !defined(_UNIX03_SOURCE)
+#  define _UNIX03_SOURCE
+# endif /* if !defined(_UNIX03_SOURCE) */
+# if !defined(_XOPEN_SOURCE)
+#  define _XOPEN_SOURCE
+# endif /* if !defined(_XOPEN_SOURCE) */
+# if !defined(_XOPEN_SOURCE_EXTENDED)
+#  define _XOPEN_SOURCE_EXTENDED 1
+# endif /* if !defined(_XOPEN_SOURCE_EXTENDED) */
+# if !defined(_ISOC99_SOURCE)
+#  define _ISOC99_SOURCE
+# endif /* if !defined(_ISOC99_SOURCE) */
+#endif /* if !defined(__MVS__) */
+
 #include <sys/stat.h>
 #include <time.h>
 #include <sys/time.h>
@@ -82,7 +101,7 @@
 #if !defined(NO_LOCALE)
 # if defined(__APPLE__)
 #  include <xlocale.h>
-# endif
+# endif /* if defined(__APPLE__) */
 # include <locale.h>
 #endif /* if !defined(NO_LOCALE) */
 
@@ -93,6 +112,15 @@
 #if !defined(FALSE)
 # define FALSE 0
 #endif /* if !defined(FALSE) */
+
+#if defined(__MVS__) && !defined(__clang_version__)
+# undef inline
+# define inline
+#endif /* if defined(__MVS__) && !defined(__clang_version__) */
+
+#if !defined(ULLONG_MAX) && defined(ULONGLONG_MAX)
+# define ULLONG_MAX ULONGLONG_MAX
+#endif /* if !defined(ULLONG_MAX) && defined(ULONGLONG_MAX) */
 
 #if defined(FREE)
 # undef FREE
@@ -425,7 +453,7 @@ static struct cmb_xitem *cmb_transform_find;
 # define CMB_PARSE_FRAGSIZE 512
 #endif /* if !defined(CMB_PARSE_FRAGSIZE) */
 
-static const char mcmbver[]         = "2120.5.10-dps";
+static const char mcmbver[]         = "2120.6.00-dps";
 static const char libversion[]      = "libcmb 3.5.6";
 
 /*
@@ -2000,7 +2028,7 @@ main(int argc, char *argv[])
               h = hash32s(&ptr, sizeof(ptr), h);
               time_t t = time(0);
               h = hash32s(&t, sizeof(t), h);
-#if !defined(_AIX)
+#if !defined(_AIX) && !defined(__MVS__)
               for (int i = 0; i < 1000; i++)
                 {
                   unsigned long counter = 0;
