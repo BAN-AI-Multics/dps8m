@@ -1,7 +1,7 @@
 /*
  * mcmb.c
  *
- * Version: 2120.6.00-dps (libcmb 3.5.6)
+ * Version: 2120.6.01-dps (libcmb 3.5.6)
  *
  * -----------------------------------------------------------------------------
  *
@@ -92,6 +92,7 @@
 #include <limits.h>
 #include <math.h>
 #include <stddef.h>
+#include <limits.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -117,10 +118,6 @@
 # undef inline
 # define inline
 #endif /* if defined(__MVS__) && !defined(__clang_version__) */
-
-#if !defined(ULLONG_MAX) && defined(ULONGLONG_MAX)
-# define ULLONG_MAX ULONGLONG_MAX
-#endif /* if !defined(ULLONG_MAX) && defined(ULONGLONG_MAX) */
 
 #if defined(FREE)
 # undef FREE
@@ -453,7 +450,7 @@ static struct cmb_xitem *cmb_transform_find;
 # define CMB_PARSE_FRAGSIZE 512
 #endif /* if !defined(CMB_PARSE_FRAGSIZE) */
 
-static const char mcmbver[]         = "2120.6.00-dps";
+static const char mcmbver[]         = "2120.6.01-dps";
 static const char libversion[]      = "libcmb 3.5.6";
 
 /*
@@ -588,7 +585,7 @@ cmb_count(struct cmb_config *config, uint32_t nitems)
           /* cppcheck-suppress shiftTooManyBits */
           return 1 << nitems;
         }
-      return ULLONG_MAX >> ( 64 - nitems );
+      return UINT64_MAX >> ( 64 - nitems );
     }
 
   /*
@@ -637,7 +634,7 @@ cmb_count(struct cmb_config *config, uint32_t nitems)
           return 0;
         }
 
-      if (ncombos > ULLONG_MAX - count)
+      if (ncombos > UINT64_MAX - count)
         {
           errno = ERANGE;
           return 0;
@@ -1171,10 +1168,6 @@ CMB_ACTION(cmb_print)
 
   return 0;
 }
-
-#if !defined(UINT_MAX)
-# define UINT_MAX 0xFFFFFFFF
-#endif /* if !defined(UINT_MAX) */
 
 static char version[] = "3.9.5";
 
