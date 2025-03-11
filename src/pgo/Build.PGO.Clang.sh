@@ -96,7 +96,7 @@ export CFLAGS="-fprofile-generate=${PROFILE_PATH:?}/profile.%p.profraw \
   ${BASE_CFLAGS:?}"
 export LDFLAGS="${BASE_LDFLAGS:-} ${CFLAGS:?}"
 ${MAKE:-make} distclean "${@}"
-test -z "${NO_PGO_LIBUV:-}" && ${MAKE:-gmake} "${LIBUVVER:?}" "${@}" || true
+test -z "${NO_PGO_LIBUV:-}" && ${MAKE:-make} "${LIBUVVER:?}" "${@}" || true
 ${MAKE:-make} "${@}"
 printf '\n%s\n' "Generating profile ..."
 (cd src/perf_test && ../dps8/dps8 -r ./nqueensx.ini)
@@ -110,5 +110,5 @@ export CFLAGS="-fprofile-use=${PROFILE_PATH:?}/final.profdata \
   ${BASE_CFLAGS:?}"
 export LDFLAGS="${BASE_LDFLAGS:-} ${CFLAGS:?}"
 ${MAKE:-make} distclean "${@}"
-test -z "${NO_PGO_LIBUV:-}" && ${MAKE:-gmake} "${LIBUVVER:?}" "${@}" || true
+test -z "${NO_PGO_LIBUV:-}" && ${MAKE:-make} "${LIBUVVER:?}" "${@}" || true
 ${MAKE:-make} "${@}"
