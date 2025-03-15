@@ -51,6 +51,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include "dps8_sir.h"
 
 #if defined(__HAIKU__)
 # include <OS.h>
@@ -120,7 +121,7 @@ is_compatible_architecture (const char *path)
   }
 
   unsigned char e_ident[EI_NIDENT];
-  if (fread(e_ident, 1, EI_NIDENT, f) != EI_NIDENT) {
+  if (EI_NIDENT != fread(e_ident, 1, EI_NIDENT, f)) {
 # if defined(TESTING)
     (void)fprintf(stderr, "WARNING: Bad header in '%s'!\n", path);
 # endif
@@ -129,7 +130,7 @@ is_compatible_architecture (const char *path)
   }
   fclose(f);
 
-  if (memcmp(e_ident, ELFMAG, SELFMAG) != 0) {
+  if (0 != memcmp(e_ident, ELFMAG, SELFMAG)) {
 # if defined(TESTING)
     (void)fprintf(stderr, "WARNING: Bad header in '%s'!\n", path);
 # endif
@@ -165,12 +166,17 @@ is_compatible_architecture (const char *path)
 static char **
 get_candidate_lib_dirs (int32_t *n_dirs)
 {
-  uint32_t count = 0;
+  size_t count = 0;
   char **dirs = NULL;
   const char *ld_path = getenv("LD_LIBRARY_PATH");
 
   if (ld_path && *ld_path) {
     char *copy = strdup(ld_path);
+    if (NULL == copy) {
+      /* cppcheck-suppress memleak */
+      return NULL;
+    }
+
     char *token = strtok(copy, ":");
     while (token) {
       count++;
@@ -195,14 +201,53 @@ get_candidate_lib_dirs (int32_t *n_dirs)
       "/home/linuxbrew/.linuxbrew/lib",
       "/usr/pkg/lib",
       "/usr/lib/32",
+      "/usr/lib/aarch64-linux-gnu",
+      "/usr/lib/arm-linux-gnueabihf",
   };
 
   uint32_t n_defaults = sizeof(defaults) / sizeof(defaults[0]);
   count += n_defaults;
 
+  FILE *fp = fopen("/proc/self/maps", "r");
+  char *temp_paths[SIR_MAXPATH];
+  uint32_t temp_count = 0;
+  if (fp) {
+    char line[SIR_MAXPATH];
+    while (fgets(line, sizeof(line), fp) && temp_count < SIR_MAXPATH) {
+      char *path = strstr(line, "/");
+      if (path && strstr(path, ".so")) {
+        char *dir_end = strrchr(path, '/');
+        if (dir_end) {
+          *dir_end = '\0';
+          int is_dup = 0;
+          for (uint32_t i = 0; i < temp_count; i++) {
+            if (0 == strcmp(temp_paths[i], path)) {
+              is_dup = 1;
+              break;
+            }
+          }
+          if (!is_dup) {
+            temp_paths[temp_count++] = strdup(path);
+            if (NULL == temp_paths[temp_count - 1]) {
+              for (uint32_t i = 0; i < temp_count - 1; i++)
+                FREE(temp_paths[i]);
+              fclose(fp);
+              return NULL;
+            }
+          }
+        }
+      }
+    }
+    fclose(fp);
+    count += temp_count;
+  }
+
   dirs = malloc(sizeof(char *) * (count + 1));
-  if (NULL == dirs)
+  if (NULL == dirs) {
+    for (uint32_t i = 0; i < temp_count; i++)
+      FREE(temp_paths[i]);
     return NULL;
+  }
 
   int32_t index = 0;
 
@@ -210,19 +255,40 @@ get_candidate_lib_dirs (int32_t *n_dirs)
     char *copy = strdup(ld_path);
     if (NULL == copy) {
       FREE(dirs);
+      for (uint32_t i = 0; i < temp_count; i++)
+        FREE(temp_paths[i]);
       return NULL;
     }
-
     char *token = strtok(copy, ":");
     while (token) {
       dirs[index++] = strdup(token);
+      if (NULL == dirs[index - 1]) {
+        for (int32_t i = 0; i < index - 1; i++)
+          FREE(dirs[i]);
+        FREE(dirs);
+        FREE(copy);
+        for (uint32_t i = 0; i < temp_count; i++)
+          FREE(temp_paths[i]);
+        return NULL;
+      }
       token = strtok(NULL, ":");
     }
     FREE(copy);
   }
 
-  for (uint32_t i = 0; i < n_defaults; i++)
+  for (uint32_t i = 0; i < temp_count; i++) {
+    dirs[index++] = temp_paths[i];
+  }
+
+  for (uint32_t i = 0; i < n_defaults; i++) {
     dirs[index++] = strdup(defaults[i]);
+    if (NULL == dirs[index - 1]) {
+      for (int32_t j = 0; j < index - 1; j++)
+        FREE(dirs[j]);
+      FREE(dirs);
+      return NULL;
+    }
+  }
 
   dirs[index] = NULL;
   *n_dirs = index;
@@ -264,14 +330,15 @@ find_libhwloc_path (void)
 
   for (uint32_t i = 0; candidates[i] != NULL; i++) {
     for (uint32_t j = 0; j < n_dirs; j++) {
-      char fullpath[PATH_MAX];
+      char fullpath[SIR_MAXPATH];
       (void)snprintf(fullpath, sizeof(fullpath), "%s/%s", dirs[j], candidates[i]);
       if (file_exists(fullpath) && is_compatible_architecture(fullpath)) {
         found = strdup(fullpath);
         break;
       }
     }
-    if (found != NULL) break;
+    if (NULL != found)
+      break;
   }
 
   free_candidate_lib_dirs(dirs);

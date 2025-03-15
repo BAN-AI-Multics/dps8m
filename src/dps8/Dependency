@@ -937,6 +937,14 @@ dps8_sys.o: tracker.h
 dps8_sys.o: ucache.h
 dps8_sys.o: uvutil.h
 dps8_sys.o: ver.h
+dps8_topo.o: ../libsir/include/sir.h
+dps8_topo.o: ../libsir/include/sir/ansimacros.h
+dps8_topo.o: ../libsir/include/sir/filesystem.h
+dps8_topo.o: ../libsir/include/sir/internal.h
+dps8_topo.o: ../libsir/include/sir/platform.h
+dps8_topo.o: ../libsir/include/sir/types.h
+dps8_topo.o: ../libsir/include/sir/version.h
+dps8_topo.o: dps8_sir.h
 dps8_urp.o: ../libsir/include/sir.h
 dps8_urp.o: ../libsir/include/sir/ansimacros.h
 dps8_urp.o: ../libsir/include/sir/filesystem.h
