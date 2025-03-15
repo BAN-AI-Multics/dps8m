@@ -322,15 +322,6 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
       sim_printf ("\r\n");
       sim_printf ("  The simulator has detected timekeeping using a %ld-bit representation.\r\n",
                   (long)(sizeof (time_t) * CHAR_BIT));
-#if defined(__linux__)
-      sim_printf ("\r\n");
-      sim_printf ("  If you are using Linux with glibc v2.34 or greater, it supports 64-bit time.\r\n");
-      sim_printf ("\r\n");
-      sim_printf ("  You can resolve this by rebuilding the simulator from source and adding\r\n");
-      sim_printf ("  `-D_TIME_BITS=64` to your CFLAGS.  See the following website for details:\r\n");
-      sim_printf ("\r\n");
-      sim_printf ("  https://www.gnu.org/software/libc/manual/html_node/64_002dbit-time-symbol-handling.html\r\n");
-#endif
     } else {
       ++hint_count;
     }
@@ -530,7 +521,6 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
         sim_printf ("\r\n");
         sim_printf ("  The simulator has detected it is running on a Raspberry Pi single-board\r\n");
         sim_printf ("  computer, which is not configured for fixed frequency operation.\r\n");
-        sim_printf ("\r\n");
         sim_printf ("  Using a fixed-frequency configuration allows for more deterministic\r\n");
         sim_printf ("  response times and enhances performance and simulation fidelity.\r\n");
         sim_printf ("\r\n");
@@ -552,16 +542,16 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
         sim_printf ("  Your Raspberry Pi has recorded the following adverse hardware event(s):\r\n");
         sim_printf ("\r\n");
         if (a_issues & (1 << 0)) {
-          sim_printf("    * Under-voltage events have occurred.\r\n");
+          sim_printf("    * Under-voltage events have occurred since boot.\r\n");
         }
         if (a_issues & (1 << 1)) {
-          sim_printf("    * CPU frequency capping events have occurred.\r\n");
+          sim_printf("    * CPU frequency capping events have occurred since boot.\r\n");
         }
         if (a_issues & (1 << 2)) {
-          sim_printf("    * Thermal throttling events have occurred.\r\n");
+          sim_printf("    * Thermal throttling events have occurred since boot.\r\n");
         }
         if (a_issues & (1 << 3)) {
-          sim_printf("    * Soft temperature limits have been reached or exceeded.\r\n");
+          sim_printf("    * Soft temperature limits have been reached or exceeded since boot.\r\n");
         }
       } else {
         ++hint_count;
@@ -579,14 +569,12 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
       sim_printf ("\r\n* Hint #%u - UNABLE TO DETERMINE SYSTEM TOPOLOGY USING LIBHWLOC\r\n", ++hint_count);
       sim_printf ("\r\n");
       sim_printf ("  No overall topology information could be determined for this system.\r\n");
-      sim_printf ("\r\n");
       sim_printf ("  The simulator is aware this system has %llu logical processors available,\r\n",
                   (unsigned long long)nprocs);
       sim_printf ("  but it was not able to determine the number of actual physical cores.\r\n");
       sim_printf ("\r\n");
       sim_printf ("  The simulator uses topology information to optimize performance and\r\n");
       sim_printf ("  to warn about potentially dangerous or suboptimal configurations.\r\n");
-      sim_printf ("\r\n");
       sim_printf ("  We use libhwloc (https://www-lb.open-mpi.org/projects/hwloc/) to query\r\n");
       sim_printf ("  this information in an architecture and operating system agnostic way.\r\n");
 # if defined(__APPLE__)
@@ -623,11 +611,9 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
       sim_printf ("\r\n* Hint #%u - LINUX REAL-TIME SCHEDULING CAPABILITY IS NOT ENABLED\r\n", ++hint_count);
       sim_printf ("\r\n");
       sim_printf ("  Linux real-time scheduling capability is not enabled.\r\n");
-      sim_printf ("\r\n");
       sim_printf ("  Real-time support allows for accurate and deterministic response times\r\n");
       sim_printf ("  and improved thread scheduling behavior, enhancing simulation fidelity.\r\n");
       if (nprocs > 2) {
-        sim_printf ("\r\n");
         if ((unsigned long long)ncores > 1 && (unsigned long long)ncores != (unsigned long long)nprocs) {
           sim_printf("  Since this system seems to have %llu logical (and %llu physical) processors,\r\n",
                      (unsigned long long)nprocs, (unsigned long long)ncores);
@@ -640,7 +626,7 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
       sim_printf ("\r\n");
       sim_printf ("  To enable the real-time capability, run the following shell command:\r\n");
       sim_printf ("\r\n");
-      sim_printf ("    sudo setcap 'cap_sys_nice+ep' %s\r\n", setcap_filename ? setcap_filename : "dps8");
+      sim_printf ("    sudo setcap 'cap_sys_nice,cap_ipc_lock+ep' %s\r\n", setcap_filename ? setcap_filename : "dps8");
     } else {
       ++hint_count;
     }
@@ -656,18 +642,18 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
       sim_printf ("\r\n* Hint #%u - UNABLE TO LOCK SIMULATOR MEMORY WITH MLOCK()\r\n", ++hint_count);
       sim_printf ("\r\n");
       sim_printf ("  The simulator attempted, but failed, to use memory locking with mlock().\r\n");
-      sim_printf ("\r\n");
       sim_printf ("  Memory locking prevents the simulated memory from being swapped out to\r\n");
       sim_printf ("  disk.  This avoids page faults and enables more deterministic performance.\r\n");
+      sim_printf ("  Memory locking also enhances response times for real-time mode operation.\r\n");
 #if defined(__linux__) && defined(CAP_IPC_LOCK)
       const pid_t pid = _sir_getpid();
       const int cap_ipc_lock = CAP_IPC_LOCK;
       if (!has_linux_capability(pid, cap_ipc_lock)) {
         const char * setcap_filename = _sir_getappfilename();
         sim_printf ("\r\n");
-        sim_printf ("  You can allow memory locking by running the following shell command:\r\n");
+        sim_printf ("  You can enable real-time and memory locking by running this command:\r\n");
         sim_printf ("\r\n");
-        sim_printf ("    sudo setcap 'cap_ipc_lock+ep' %s\r\n",
+        sim_printf ("    sudo setcap 'cap_sys_nice,cap_ipc_lock+ep' %s\r\n",
                     setcap_filename ? setcap_filename : "dps8");
       }
 #elif defined(__sun) || defined(__illumos__)

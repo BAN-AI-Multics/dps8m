@@ -1636,8 +1636,8 @@ GetUCRTVersion (struct UCRTVersion *ucrtversion)
   if (!ucrt)
     return GetLastError ();
 
-  wchar_t path[MAX_PATH];
-  if (!GetModuleFileNameW (ucrt, path, MAX_PATH))
+  wchar_t path[SIR_MAXPATH];
+  if (!GetModuleFileNameW (ucrt, path, SIR_MAXPATH))
     return GetLastError ();
 
   DWORD versionInfoSize = GetFileVersionInfoSizeW (path, NULL);
