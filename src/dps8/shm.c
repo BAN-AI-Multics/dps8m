@@ -32,6 +32,8 @@
 #include "../simh/sim_defs.h"
 #include "shm.h"
 
+/* Don't use libsir functions in this file! */
+
 #if defined(NO_LOCALE)
 # define xstrerror_l strerror
 #endif

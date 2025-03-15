@@ -53,6 +53,7 @@
 #include "sim_defs.h"
 #include <ctype.h>
 #include <math.h>
+#include "../dps8/dps8_sir.h"
 
 #if defined(__QNX__)
 # include <qh/time.h>
@@ -94,7 +95,6 @@ static uint32 _compute_minimum_sleep (void)
 {
 uint32 i, tot, tim;
 
-sim_os_set_thread_priority (PRIORITY_ABOVE_NORMAL);
 sim_idle_ms_sleep (1);              /* Start sampling on a tick boundary */
 for (i = 0, tot = 0; i < sleep1Samples; i++)
     tot += sim_idle_ms_sleep (1);
@@ -105,7 +105,6 @@ for (i = 0, tot = 0; i < sleep1Samples; i++)
     tot += sim_idle_ms_sleep (sim_os_sleep_min_ms + 1);
 tim = tot / sleep1Samples;          /* Truncated average */
 sim_os_sleep_inc_ms = tim - sim_os_sleep_min_ms;
-sim_os_set_thread_priority (PRIORITY_NORMAL);
 return sim_os_sleep_min_ms;
 }
 
@@ -132,45 +131,42 @@ return SCPE_OK;
 /* Native pthreads priority implementation */
 t_stat sim_os_set_thread_priority (int below_normal_above)
 {
-int sched_policy, min_prio, max_prio;
-struct sched_param sched_priority;
+int sched_policy = 0, min_prio = 0, max_prio = 0;
+struct sched_param sched_param;
 
-# if defined(__gnu_hurd__) || defined(NO_PRIORITY)
-(void)sched_priority;
-(void)max_prio;
-(void)min_prio;
-(void)sched_policy;
-
-return SCPE_OK;
-}
-# else
 if ((below_normal_above < -1) || (below_normal_above > 1))
     return SCPE_ARG;
-
-pthread_getschedparam (pthread_self(), &sched_policy, &sched_priority);
-#  if !defined(__PASE__)
+if (pthread_getschedparam (pthread_self(), &sched_policy, &sched_param) != 0) {
+# if defined(TESTING)
+    (void)sir_debug("pthread_getschedparam failed, not changing priority");
+# endif
+    return SCPE_OK; /* If we can't do it, just return early */
+}
+# if !defined(__PASE__)
 min_prio = sched_get_priority_min(sched_policy);
 max_prio = sched_get_priority_max(sched_policy);
-#  else
+# else
 min_prio = 1;
 max_prio = 127;
-#  endif /* if !defined(__PASE__) */
+# endif /* if !defined(__PASE__) */
 switch (below_normal_above) {
     case PRIORITY_BELOW_NORMAL:
-        sched_priority.sched_priority = min_prio;
+        sched_param.sched_priority = min_prio;
         break;
     case PRIORITY_NORMAL:
-        sched_priority.sched_priority = (max_prio + min_prio) / 2;
+        sched_param.sched_priority = (max_prio + min_prio) / 2;
         break;
     case PRIORITY_ABOVE_NORMAL:
-        sched_priority.sched_priority = max_prio;
+        sched_param.sched_priority = max_prio;
         break;
     }
-pthread_setschedparam (pthread_self(), sched_policy, &sched_priority);
-
+if (pthread_setschedparam (pthread_self(), sched_policy, &sched_param) != 0) {
+# if defined(TESTING)
+    (void)sir_debug("pthread_setschedparam failed changing priority to %d", sched_param.sched_priority);
+# endif
+}
 return SCPE_OK;
 }
-# endif
 #endif
 
 /* OS-dependent timer and clock routines */

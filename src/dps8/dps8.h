@@ -147,6 +147,9 @@ typedef struct { int64_t h;  uint64_t l; } x__int128_t;
 //# define TR_WORK_MEM
 # define TR_WORK_EXEC
 
+// Storage for main thread id
+extern pthread_t main_thread_id;
+
 // Multi-threading may require 'volatile' in some places
 # if defined(THREADZ) || defined(LOCKLESS)
 #  define vol volatile

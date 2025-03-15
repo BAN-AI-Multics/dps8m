@@ -44,6 +44,7 @@
 #include <sys/time.h>
 
 #include "dps8.h"
+#include "dps8_sir.h"
 #include "dps8_iom.h"
 #include "dps8_mgp.h"
 #include "dps8_sys.h"
@@ -1182,7 +1183,7 @@ mgp_init_dev_state(void)
       h = hash32s(&counter, sizeof(counter), h);
     }
 # endif /* if !defined(_AIX) */
-  int mypid = (int)getpid();
+  int mypid = (int)_sir_getpid();
   h = hash32s(&mypid, sizeof(mypid), h);
   char rnd[4];
   FILE *f = fopen("/dev/urandom", "rb");

@@ -99,6 +99,7 @@
 #define DBG_CTR 0
 
 #include "../dps8/dps8.h"
+#include "../dps8/dps8_sir.h"
 
 #include <ctype.h>
 #include <time.h>
@@ -872,7 +873,7 @@ for (int i = 0; i < 1000; i++)
     h = hash32s(&counter, sizeof(counter), h);
   }
 #endif /* if !defined(_AIX) */
-int mypid = (int)getpid();
+int mypid = (int)_sir_getpid();
 h = hash32s(&mypid, sizeof(mypid), h);
 char rnd[4];
 FILE *f = fopen("/dev/urandom", "rb");

@@ -38,6 +38,7 @@
 #include "hdbg.h"
 
 extern unsigned int nprocs;
+extern unsigned int ncores;
 extern bool running_perf_test;
 
 #define N_CPU_UNITS 1 // Default

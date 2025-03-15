@@ -40,6 +40,8 @@
 #if !defined(SIM_SCP_H_)
 # define SIM_SCP_H_      0
 
+# include <stdbool.h>
+
 /* run_cmd parameters */
 
 # define RU_RUN          0                          /* run               */
@@ -259,6 +261,7 @@ extern t_addr sim_brk_match_addr;
 extern BRKTYPTAB *sim_brk_type_desc;                      /* type descriptions */
 extern FILE *stdnul;
 extern t_bool sim_asynch_enabled;
+extern bool mlock_failure;
 
 /* VM interface */
 

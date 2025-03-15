@@ -189,13 +189,13 @@
 
 * **DPS8M** supports most <u>operating systems</u> conforming to *IEEE Std 1003.1-2008* (**POSIX.1-2008**), many <u>C compilers</u> conforming to *ISO/IEC 9899:2011* (**C11**), and numerous <u>hardware architectures</u>.
 
-  * <u>Operating systems</u> supported are **AIX**, **IBM i** (**OS/400**), **FreeBSD**, **NetBSD**, **OpenBSD**, **DragonFly BSD**, **Haiku**, **Android**, **illumos OpenIndiana**, **Linux**, **macOS**, **Solaris**, **SerenityOS**, and **Windows**.
+  * <u>Operating systems</u> supported are **IBM AIX**, **IBM i** (**OS/400**), **QNX**, **FreeBSD**, **NetBSD**, **OpenBSD**, **DragonFly BSD**, **Haiku**, **Android**, **illumos** (**OpenIndiana**), **Linux**, **macOS**, **Solaris**, **SerenityOS**, and **Windows** (both **Cygwin** and native).
 
-  * <u>C compilers</u> supported are **Clang**, **LLVM-MinGW**, AMD Optimizing C/C++ (**AOCC**), Arm C/C++ Compiler (**ARMClang**), GNU C (**GCC**), IBM Advance Toolchain (**AT**), IBM XL C/C++ (**XLC**), IBM Open XL C/C++ (**IBMClang**), Intel oneAPI DPC++/C++ (**ICX**), NVIDIA HPC SDK C Compiler (**NVC**), and Oracle Developer Studio (**SunCC**).
+  * <u>C compilers</u> supported are **Clang**, **LLVM-MinGW**, AMD Optimizing C/C++ (**AOCC**), Arm C/C++ Compiler (**ARMClang**), GNU C (**GCC**), IBM Advance Toolchain (**AT**), IBM XL C/C++ (**XLC**), IBM Open XL C/C++ (**IBMClang**), Intel oneAPI DPC++/C++ (**ICX**), NVIDIA HPC SDK C Compiler (**NVC**), Oracle Developer Studio (**SunCC**), and МЦСТ LCC (**Elbrus C Compiler**).
 
-  * <u>Hardware architectures</u> actively supported include **Intel x86** (i686, x86_64), **ARM** (ARMv6, ARMv7, ARM64), **LoongArch** (LA64), **MIPS** (MIPS, MIPS64), **OpenRISC** (OR1200, MOR1KX), **PowerPC** (PPC, PPC64, PPC64le), **RISC-V** (RV64), **SPARC** (SPARC, UltraSPARC), **SuperH** (SH-4A), **m68k** (68020+), and **IBM Z** (s390x, z13+).
+  * <u>Hardware architectures</u> actively supported include **Intel x86** (i686, x86_64), **ARM** (ARMv6, ARMv7, ARM64), **LoongArch** (LA64), **MIPS** (MIPS, MIPS64), **OpenRISC** (OR1200, MOR1KX), **PowerPC** (PPC, PPC64, PPC64le), **RISC-V** (RV64), **SPARC** (SPARC, UltraSPARC), **E2K** (МЦСТ Эльбрус), **KVX** (Kalray MPPA®, Coolidge™), and **IBM Z** (s390x, z13+).
 
-* Various releases of **DPS8M** have been ported to **embedded systems**, **cell phones**, **tablets**, **handheld gaming consoles**, **wireless routers**, and even modern **mainframes**.  A full-featured port should be possible for any 32- or 64-bit platform with appropriate hardware atomic operations and able to support the [**libuv**](https://libuv.org/) asynchronous I/O library.
+* Various releases of **DPS8M** have been ported to **embedded systems**, **cell phones**, **tablets**, **handheld gaming consoles**, **wireless routers**, and even modern **mainframes**.  A full-featured port should be possible for any 32- or 64-bit platform (preferably with appropriate hardware atomic operations) and able to support ports of the [**libuv**](https://libuv.org/) asynchronous I/O library and [**libsir**](https://github.com/aremmell/libsir) logging library.
 
 * The simulator is distributed as an [**easy-to-build**](https://dps8m.gitlab.io/dps8m/Documentation/Source_Compilation) source code [**distribution**](https://dps8m.gitlab.io/dps8m/Releases) (buildable simply via '**`make`**' on most systems) or as ready-to-run [**pre-compiled binaries**](https://dps8m.gitlab.io/dps8m/Releases) for several popular platforms.
 

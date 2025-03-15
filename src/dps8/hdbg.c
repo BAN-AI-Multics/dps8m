@@ -142,7 +142,11 @@ static void createBuffer (void) {
   }
   if (hdbgSize <= 0)
     return;
+# if !defined(_AIX)
   hevents = aligned_malloc (sizeof (struct hevt) * hdbgSize);
+# else
+  hevents = malloc (sizeof (struct hevt) * hdbgSize);
+# endif
   if (! hevents) {
     sim_printf ("hdbg createBuffer failed\n");
     return;
