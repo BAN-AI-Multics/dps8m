@@ -55,6 +55,7 @@
 
 #include "sim_defs.h"
 #include "sim_disk.h"
+#include "sim_hints.h"
 #include "sim_tape.h"
 #include "sim_sock.h"
 
@@ -153,6 +154,9 @@
 
 #include "../dps8/dps8.h"
 #include "../dps8/dps8_cpu.h"
+#include "../dps8/dps8_rt.h"
+#include "../dps8/dps8_priv.h"
+#include "../dps8/dps8_topo.h"
 #include "../dps8/ver.h"
 
 #include "../dps8/dps8_iom.h"
@@ -283,6 +287,8 @@ t_value (*sim_vm_pc_value) (void) = NULL;
 t_bool (*sim_vm_is_subroutine_call) (t_addr **ret_addrs) = NULL;
 t_bool (*sim_vm_fprint_stopped) (FILE *st, t_stat reason) = NULL;
 unsigned int nprocs;
+unsigned int ncores;
+bool mlock_failure = false;
 
 /* Prototypes */
 
@@ -451,6 +457,9 @@ static int32 sim_goto_line[MAX_DO_NEST_LVL+1];   /* the current line number in t
 static int32 sim_do_echo         = 0;            /* the echo status of the currently open do file */
 static int32 sim_show_message    = 1;            /* the message display status of the currently open do file */
 static int32 sim_on_inherit      = 0;            /* the inherit status of on state and conditions when executing do files */
+#if !defined(PERF_STRIP)
+static int32 sim_realtime        = 0;            /* user requested real-time mode */
+#endif
 static int32 sim_do_depth        = 0;
 
 static int32 sim_on_check[MAX_DO_NEST_LVL+1];
@@ -466,6 +475,8 @@ static SCHTAB sim_staba;                         /* Memory search specifier */
 
 static UNIT sim_step_unit   = { UDATA (&step_svc, 0, 0)  };
 static UNIT sim_expect_unit = { UDATA (&expect_svc, 0, 0)  };
+
+pthread_t main_thread_id;
 
 /* Tables and strings */
 
@@ -940,6 +951,7 @@ static const char simh_help[] =
       "+SH{OW} C{ONFIGURATION}           Show simulator configuration\n"
       "+SH{OW} D{EFAULT_BASE_SYSTEM}     Show default base system script\n"
       "+SH{OW} DEV{ICES}                 Show devices\n"
+      "+SH{OW} H{INTS}                   Show configuration hints\n"
       "+SH{OW} M{ODIFIERS}               Show SET commands for all devices\n"
       "+SH{OW} O{N}                      Show ON condition actions\n"
       "+SH{OW} P{ROM}                    Show CPU ID PROM initialization data\n"
@@ -966,6 +978,7 @@ static const char simh_help[] =
 #define HLP_SHOW_VERSION        "*Commands SHOW"
 #define HLP_SHOW_BUILDINFO      "*Commands SHOW"
 #define HLP_SHOW_PROM           "*Commands SHOW"
+#define HLP_SHOW_HINTS          "*Commands SHOW"
 #define HLP_SHOW_DBS            "*Commands SHOW"
 #define HLP_SHOW_DEFAULT        "*Commands SHOW"
 #define HLP_SHOW_CONSOLE        "*Commands SHOW"
@@ -1349,6 +1362,7 @@ static SHTAB show_glob_tab[] = {
     { "VERSION",   &show_version,            1, HLP_SHOW_VERSION   },
     { "BUILDINFO", &show_buildinfo,          1, HLP_SHOW_BUILDINFO },
     { "PROM",      &show_prom,               0, HLP_SHOW_PROM      },
+    { "HINTS",     &show_hints,              0, HLP_SHOW_HINTS     },
     { "CONSOLE",   &sim_show_console,        0, HLP_SHOW_CONSOLE   },
     { "REMOTE",    &sim_show_remote_console, 0, HLP_SHOW_REMOTE    },
     { "BREAK",     &show_break,              0, HLP_SHOW_BREAK     },
@@ -1447,21 +1461,6 @@ const char
 #endif
 
 t_stat process_stdin_commands (t_stat stat, char *argv[]);
-
-/* Check if running on Rosetta 2 */
-
-#if defined(__APPLE__)
-int processIsTranslated(void)
-{
-    int ret = 0;
-    size_t size = sizeof(ret);
-    if (sysctlbyname("sysctl.proc_translated", &ret, &size, NULL, 0) == -1) {
-        if (errno == ENOENT)
-            return 0;
-        return -1; }
-    return ret;
-}
-#endif /* if defined(_APPLE_) */
 
 /* Substring removal hack */
 
@@ -1684,6 +1683,49 @@ int32 i, sw;
 t_bool lookswitch;
 t_stat stat;
 
+/* Check for improper setuid root */
+# if !defined(__sun) && !defined(__illumos__) && !defined(_WIN32)
+uid_t real_uid = getuid();
+uid_t eff_uid = geteuid();
+if (0 == eff_uid && 0 != real_uid) {
+  (void)fprintf(stderr, "FATAL: Running with improper setuid root privileges!\r\n");
+  exit(EXIT_FAILURE);
+}
+# endif
+
+sunos_obtain_realtime_privileges(); /* Keep as early as possible */
+
+/* libsir init */
+
+sirinit si;
+if (!sir_makeinit(&si))
+    return dps8_sir_report_error();
+
+/* Levels for stdout: send debug, information, warning, and notice there. */
+si.d_stdout.levels = SIRL_DEBUG | SIRL_INFO | SIRL_WARN | SIRL_NOTICE;
+
+/* Options for stdout: don't show the name, level, timestamp, hostname, or PID. */
+si.d_stdout.opts = SIRO_NONAME | SIRO_NOLEVEL | SIRO_NOTIME | SIRO_NOHOST | SIRO_NOPID;
+
+/* Levels for stderr: send error and above there. */
+si.d_stderr.levels = SIRL_ERROR | SIRL_CRIT | SIRL_ALERT | SIRL_EMERG;
+
+/* Options for stderr: don't show the hostname. */
+si.d_stderr.opts = SIRO_NOHOST;
+
+/* Levels for the system logger: don't send any output there. */
+si.d_syslog.levels = SIRL_NONE;
+
+/* Options for the system logger: use the default value. */
+si.d_syslog.opts = SIRO_DEFAULT;
+
+/* Configure a name to associate with our output. */
+(void)_sir_strncpy(si.name, SIR_MAXNAME, appname, strnlen(appname, SIR_MAXNAME));
+
+/* Initialize libsir. */
+if (!sir_init(&si))
+    return dps8_sir_report_error();
+
 # if defined(_AIX)
 if (getenv("DPS8M_SKIP_AIX_VARIABLES") == NULL) {
   if (setenv("DPS8M_SKIP_AIX_VARIABLES", "1", 1)) {
@@ -1727,7 +1769,7 @@ if (getenv("DPS8M_SKIP_AIX_VARIABLES") == NULL) {
 # if defined(USE_BACKTRACE)
 #  if defined(BACKTRACE_SUPPORTED)
 #   if defined(_INC_BACKTRACE_FUNC)
-bt_pid = (long)getpid();
+bt_pid = (long)_sir_getpid();
 (void)bt_pid;
 #   endif /* if defined(_INC_BACKTRACE_FUNC) */
 #  endif /* if defined(BACKTRACE_SUPPORTED) */
@@ -1822,37 +1864,6 @@ puts ("\e[0m");
 
 running_perf_test = false;
 
-/* libsir init */
-
-sirinit si;
-if (!sir_makeinit(&si))
-    return dps8_sir_report_error();
-
-/* Levels for stdout: send debug, information, warning, and notice there. */
-si.d_stdout.levels = SIRL_DEBUG | SIRL_INFO | SIRL_WARN | SIRL_NOTICE;
-
-/* Options for stdout: don't show the name, level, timestamp, hostname, or PID. */
-si.d_stdout.opts = SIRO_NONAME | SIRO_NOLEVEL | SIRO_NOTIME | SIRO_NOHOST | SIRO_NOPID;
-
-/* Levels for stderr: send error and above there. */
-si.d_stderr.levels = SIRL_ERROR | SIRL_CRIT | SIRL_ALERT | SIRL_EMERG;
-
-/* Options for stderr: don't show the hostname. */
-si.d_stderr.opts = SIRO_NOHOST;
-
-/* Levels for the system logger: don't send any output there. */
-si.d_syslog.levels = SIRL_NONE;
-
-/* Options for the system logger: use the default value. */
-si.d_syslog.opts = SIRO_DEFAULT;
-
-/* Configure a name to associate with our output. */
-(void)_sir_strncpy(si.name, SIR_MAXNAME, appname, strnlen(appname, SIR_MAXNAME));
-
-/* Initialize libsir. */
-if (!sir_init(&si))
-    return dps8_sir_report_error();
-
 /* Set a friendly name for the current thread. */
 char thread_name[SIR_MAXPID] = {0};
 _sir_snprintf_trunc(thread_name, SIR_MAXPID, "%s", appname);
@@ -1906,6 +1917,7 @@ nprocs = (unsigned int)uv_available_parallelism();
 # else
 nprocs = (unsigned int)_sir_nprocs();
 # endif
+ncores = (unsigned int)get_core_count();
 
 /* Make sure that argv has at least 10 elements and that it ends in a NULL pointer */
 targv = (char **)calloc (1+MAX(10, argc), sizeof(*targv));
@@ -1991,22 +2003,25 @@ for (i = 1; i < argc; i++) {                            /* loop thru args */
         (void)fprintf (stdout, "%s simulator", sim_name);
 # endif /* if defined(VER_H_GIT_VERSION) */
         (void)fprintf (stdout, "\n");
-        (void)fprintf (stdout, "\n USAGE: %s { [ SWITCHES ] ... } { < SCRIPT > }", argv[0]);
+        (void)fprintf (stdout, "\n USAGE: %s [ [ SWITCH ] ... ] [ SCRIPT ]", argv[0]);
         (void)fprintf (stdout, "\n");
         (void)fprintf (stdout, "\n Invokes the %s simulator, with optional switches and/or script file.", sim_name);
         (void)fprintf (stdout, "\n");
         (void)fprintf (stdout, "\n Switches:");
         (void)fprintf (stdout, "\n  -e, -E            Aborts script processing immediately upon any error");
-        (void)fprintf (stdout, "\n  -h, -H, --help    Prints only this informational help text and exit");
+        (void)fprintf (stdout, "\n  -h, -H, --help    Prints only this informational help text and exits");
         (void)fprintf (stdout, "\n  -k, -K            Disables all support for exclusive file locking");
         (void)fprintf (stdout, "\n  -l, -L            Reports but ignores all exclusive file locking errors");
         (void)fprintf (stdout, "\n  -o, -O            Makes scripting ON conditions and actions inheritable");
+# if !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) && !defined(__CYGWIN__)
+        (void)fprintf (stdout, "\n  -p, -P            Enables real-time scheduling (may require privileges)");
+# endif
         (void)fprintf (stdout, "\n  -q, -Q            Disables printing of non-fatal informational messages");
         (void)fprintf (stdout, "\n  -r, -R            Enables an unlinked ephemeral system state file");
         (void)fprintf (stdout, "\n  -s, -S            Enables a randomized persistent system state file");
         (void)fprintf (stdout, "\n  -t, -T            Disables fsync and creation/usage of system state file");
         (void)fprintf (stdout, "\n  -v, -V            Prints commands read from script file before execution");
-        (void)fprintf (stdout, "\n  --version         Prints only the simulator identification text and exit");
+        (void)fprintf (stdout, "\n  --version         Prints only the simulator identification text and exits");
         (void)fprintf (stdout, "\n");
 # if defined(USE_DUMA)
         nodist++;
@@ -2061,6 +2076,11 @@ if (sim_nostate)                                    /*    and disables -s and -r
   }
 sim_on_inherit = sim_switches & SWMASK ('O');       /* -o means inherit on state */
 
+# if !defined(__MVS__) && !defined(__MINGW32__) && !defined(__MINGW64__) && \
+     !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) && !defined(__CYGWIN__)
+sim_realtime = sim_switches & SWMASK ('P');         /* -p means real-time priority */
+# endif
+
 sim_init_sock ();                                   /* init socket capabilities */
 if (sim_dflt_dev == NULL)                           /* if no default */
     sim_dflt_dev = sim_devices[0];
@@ -2101,6 +2121,33 @@ sim_is_running = 0;
 sim_log = NULL;
 if (sim_emax <= 0)
     sim_emax = 1;
+
+/* stash our pthread_id */
+main_thread_id = pthread_self();
+
+/* stash current (default) thread scheduler and priority */
+save_thread_sched(pthread_self());
+
+/* real-time priority (always call before sim_timer_init) */
+if (sim_realtime) {
+    if (nprocs < 2) {
+        sir_emerg("FATAL: Real-time requires >1 CPU but only %u detected!", nprocs);
+        exit(EXIT_FAILURE);
+    } else {
+        watchdog_startup();
+    }
+}
+
+/* do setup for realtime or normal operation */
+if (realtime_ok) {
+    set_realtime_priority (pthread_self(), realtime_max_priority() - 1);
+    check_realtime_priority (pthread_self(), realtime_max_priority() - 1);
+} else {
+# if !defined(__QNX__)
+    (void)sim_os_set_thread_priority (PRIORITY_ABOVE_NORMAL);
+# endif
+}
+
 sim_timer_init ();
 
 if ((stat = sim_ttinit ()) != SCPE_OK) {
@@ -2157,6 +2204,11 @@ else if (*argv[0]) {                                    /* sim name arg? */
     }
 
 argv = uv_setup_args(argc, argv);
+
+/* show if hints are not disabled and empty cbuf and not quiet mode */
+if (getenv("DPS8M_NO_HINTS") == NULL)
+  if (!sim_quiet && 0 == strcmp(cbuf, ""))
+    (void)show_hints(0, 0, 0, 1, 0);
 
 stat = process_stdin_commands (SCPE_BARE_STATUS(stat), argv);
 
@@ -3491,7 +3543,7 @@ for (; *ip && (op < oend); ) {
                         }
                     else if (!strcmp ("PID", gbuf)) {
 #if defined(HAVE_UNISTD)
-                        (void)sprintf (rbuf, "%ld", (long)getpid());
+                        (void)sprintf (rbuf, "%ld", (long)_sir_getpid());
 #else
                         (void)sprintf (rbuf, "0");
 #endif /* if defined(HAVE_UNISTD) */
@@ -3507,7 +3559,7 @@ for (; *ip && (op < oend); ) {
                         }
                     else if (!strcmp ("PGID", gbuf)) {
 #if defined(HAVE_UNISTD)
-                        (void)sprintf (rbuf, "%ld", (long)getpgid(getpid()));
+                        (void)sprintf (rbuf, "%ld", (long)getpgid(_sir_getpid()));
 #else
                         (void)sprintf (rbuf, "0");
 #endif /* if defined(HAVE_UNISTD) */
@@ -3515,7 +3567,7 @@ for (; *ip && (op < oend); ) {
                         }
                     else if (!strcmp ("SID", gbuf)) {
 #if defined(HAVE_UNISTD)
-                        (void)sprintf (rbuf, "%ld", (long)getsid(getpid()));
+                        (void)sprintf (rbuf, "%ld", (long)getsid(_sir_getpid()));
 #else
                         (void)sprintf (rbuf, "0");
 #endif /* if defined(HAVE_UNISTD) */
@@ -3567,9 +3619,14 @@ for (; *ip && (op < oend); ) {
 #endif /* if defined(VER_H_GIT_DATE) */
                         ap = rbuf;
                         }
-                    else if ( (!strcmp("CPUS", gbuf)) \
-                      || (!strcmp("SIM_PROCESSORS", gbuf) ) ) {
-                        (void)sprintf(rbuf, "%u", nprocs);
+                    else if ((!strcmp("CORES", gbuf)) ||
+                             (!strcmp("SIM_CORES", gbuf))) {
+                        (void)sprintf(rbuf, "%u", (ncores >= 1 && nprocs >= 1) ? ((ncores > nprocs) ? nprocs : ncores) : 1);
+                        ap = rbuf;
+                        }
+                    else if ((!strcmp("CPUS", gbuf)) ||
+                             (!strcmp("SIM_PROCESSORS", gbuf))) {
+                        (void)sprintf(rbuf, "%u", (nprocs < 2) ? 1U : nprocs);
                         ap = rbuf;
                         }
                     }
@@ -5637,12 +5694,6 @@ if (flag) {
         (void)fprintf (st, "\n   Host OS: IBM OS/400 (PASE)");
 #  endif /* if !defined(__PASE__) */
 # endif /* if !defined(_AIX) */
-    }
-#endif
-#if defined(__APPLE__)
-    int isRosetta = processIsTranslated();
-    if (isRosetta == 1) {
-        sim_printf ("\n\n  ****** RUNNING UNDER APPLE ROSETTA 2, EXPECT REDUCED PERFORMANCE ******");
     }
 #endif
     if (nodist)

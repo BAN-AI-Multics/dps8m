@@ -267,9 +267,9 @@ do_cppcheck()
   title_line "${unit:?}"
   ( ${RMF:-rm} -f "${unit:?}.xml" > "/dev/null" 2>&1 || true )
   # shellcheck disable=SC2086,SC2248
-  eval ${CPPCHECK:?} ${EXTRA:-}  -j "$(count_cpus)" ${XMLARGS:-}          \
+  eval ${CPPCHECK:?} ${EXTRA:-} -j "$(count_cpus)" ${XMLARGS:-}           \
     --enable="${CPPCHECKS:?}" --force -UBUILDINFO_"${unit:?}"             \
-    ${CPPDEFINE:?} ${includes:?} ${infiles:?} ${EXTRA:-}                  \
+    ${CPPDEFINE:?} ${includes:?} ${infiles:?}                             \
     --file-filter="./src/*" --inline-suppr --max-ctu-depth="10"           \
     --platform="unix64" --std="c11" --std="c++11" --suppress="*:/usr/*"   \
     --suppress="checkLibraryNoReturn" --suppress="funcArgNamesDifferent"  \

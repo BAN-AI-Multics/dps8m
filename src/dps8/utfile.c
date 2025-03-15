@@ -136,7 +136,7 @@ utfile_mkstemps(char *request_pattern, int suffix_length)
       h = hash32s(&counter, sizeof(counter), h);
     }
 #endif /* if !defined(_AIX) */
-  int mypid = (int)getpid();
+  int mypid = (int)_sir_getpid();
   h = hash32s(&mypid, sizeof(mypid), h);
   char rnd[4];
   FILE *f = fopen("/dev/urandom", "rb");

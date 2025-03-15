@@ -548,6 +548,8 @@
 
 #include "dps8.h"
 #include "dps8_cpu.h"
+#include "dps8_rt.h"
+#include "dps8_priv.h"
 #include "dps8_sys.h"
 #include "dps8_faults.h"
 #include "dps8_scu.h"
@@ -3535,7 +3537,14 @@ void * chan_thread_main (void * arg)
 # if defined(TESTING)
     printPtid(pthread_self());
 # endif /* if defined(TESTING) */
-    sim_os_set_thread_priority (PRIORITY_ABOVE_NORMAL);
+    if (realtime_ok) {
+      set_realtime_priority (pthread_self(), realtime_max_priority() - 1);
+      check_realtime_priority (pthread_self(), realtime_max_priority() - 1);
+    } else {
+# if !defined(__QNX__)
+      (void)sim_os_set_thread_priority (PRIORITY_ABOVE_NORMAL);
+# endif
+    }
 
     setSignals ();
     while (1)

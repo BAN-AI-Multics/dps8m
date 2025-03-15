@@ -85,6 +85,7 @@
 #define DBG_CTR 0
 
 #include "../dps8/dps8.h"
+#include "../dps8/dps8_sir.h"
 
 #if defined(__HAIKU__)
 # define nice(n) ({})
@@ -904,7 +905,7 @@ for (i=(was_active_command ? sim_rem_cmd_active_line : 0);
             int32 save_quiet = sim_quiet;
 
             sim_quiet = 1;
-            (void)sprintf (sim_rem_con_temp_name, "sim_remote_console_%d.temporary_log", (int)getpid());
+            (void)sprintf (sim_rem_con_temp_name, "sim_remote_console_%d.temporary_log", (int)_sir_getpid());
             sim_set_logon (0, sim_rem_con_temp_name);
             sim_quiet = save_quiet;
             sim_log_temp = TRUE;
@@ -2011,7 +2012,6 @@ if (sim_log) {
     (void)fflush (sim_log);
     _setmode (_fileno (sim_log), _O_BINARY);
     }
-sim_os_set_thread_priority (PRIORITY_BELOW_NORMAL);
 return SCPE_OK;
 }
 
@@ -2021,7 +2021,6 @@ if (sim_log) {
     (void)fflush (sim_log);
     _setmode (_fileno (sim_log), _O_TEXT);
     }
-sim_os_set_thread_priority (PRIORITY_NORMAL);
 if ((std_input) &&                                      /* If Not Background process? */
     (std_input != INVALID_HANDLE_VALUE) &&
     (!SetConsoleMode(std_input, saved_mode)))           /* Restore Normal mode */
@@ -2159,13 +2158,11 @@ if (ioctl (0, TIOCSETC, &runtchars) < 0)
     return SCPE_TTIERR;
 if (ioctl (0, TIOCSLTC, &runltchars) < 0)
     return SCPE_TTIERR;
-sim_os_set_thread_priority (PRIORITY_BELOW_NORMAL);      /* lower priority */
 return SCPE_OK;
 }
 
 static t_stat sim_os_ttcmd (void)
 {
-sim_os_set_thread_priority (PRIORITY_NORMAL);            /* restore priority */
 (void)fcntl (0, F_SETFL, cmdfl);                         /* block mode */
 if (ioctl (0, TIOCSETP, &cmdtty) < 0)
     return SCPE_TTIERR;
@@ -2277,7 +2274,6 @@ runtty.c_cc[VINTR] = sim_int_char;                      /* in case changed */
 # endif
 if (tcsetattr (0, TCSA_TYPE, &runtty) < 0)
     return SCPE_TTIERR;
-sim_os_set_thread_priority (PRIORITY_BELOW_NORMAL);     /* try to lower pri */
 return SCPE_OK;
 }
 
@@ -2285,7 +2281,6 @@ static t_stat sim_os_ttcmd (void)
 {
 if (!isatty (fileno (stdin)))                           /* skip if !tty */
     return SCPE_OK;
-sim_os_set_thread_priority (PRIORITY_NORMAL);           /* try to raise pri */
 # if defined(__ANDROID__)
 (void)fflush(stdout);
 (void)fflush(stderr);

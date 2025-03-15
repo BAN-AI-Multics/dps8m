@@ -31,16 +31,16 @@
 ```
 COPYRIGHT AND PERMISSION NOTICE
 
-Copyright © 2006-2023 Michael Mondy, Harry Reed, Charles Anthony, and others
+Copyright © 2006-2025 Michael Mondy, Harry Reed, Charles Anthony, and others
 Copyright © 2012 Dave Jordan
 Copyright © 2015-2016 Craig Ruff
 Copyright © 2015-2023 Eric Swenson
 Copyright © 2016 Jean-Michel Merliot
-Copyright © 2017-2023 Jeffrey H. Johnson
+Copyright © 2017-2025 Jeffrey H. Johnson
 Copyright © 2018-2021 Juergen Weiss
 Copyright © 2021 Dean S. Anderson
 Copyright © 2023 Björn Victor
-Copyright © 2021-2024 The DPS8M Development Team
+Copyright © 2021-2025 The DPS8M Development Team
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the “Software”), to deal

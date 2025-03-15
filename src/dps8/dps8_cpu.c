@@ -42,6 +42,8 @@
 #include "dps8_iom.h"
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
+#include "dps8_rt.h"
+#include "dps8_priv.h"
 #include "dps8_addrmods.h"
 #include "dps8_faults.h"
 #include "dps8_scu.h"
@@ -72,6 +74,11 @@ __thread uint current_running_cpu_idx;
 #endif
 
 #include "ver.h"
+
+#if defined(_AIX) && !defined(__PASE__)
+# include <pthread.h>
+# include <sys/resource.h>
+#endif
 
 #if defined(NO_LOCALE)
 # define xstrerror_l strerror
@@ -2054,7 +2061,14 @@ void * cpu_thread_main (void * arg)
 
     _cpup->thread_id = pthread_self();
 
-    sim_os_set_thread_priority (PRIORITY_ABOVE_NORMAL);
+    if (realtime_ok) {
+      set_realtime_priority (pthread_self(), realtime_max_priority() - 1);
+      check_realtime_priority (pthread_self(), realtime_max_priority() - 1);
+    } else {
+# if !defined(__QNX__)
+      (void)sim_os_set_thread_priority (PRIORITY_ABOVE_NORMAL);
+# endif
+    }
     _sir_snprintf_trunc(thread_name, SIR_MAXPID, "CPU %c", (unsigned int)umyid);
     if (!_sir_setthreadname(thread_name) || !_sir_getthreadname(temp_thread_name))
       (void)sir_info ("%s thread created (TID " SIR_TIDFORMAT ")",
@@ -2065,6 +2079,28 @@ void * cpu_thread_main (void * arg)
 # if defined(TESTING) && defined(__APPLE__) && defined(__MACH__)
     (void)sir_info ("Mach thread ID: 0x%x", pthread_mach_thread_np(pthread_self()));
 # endif /* if defined(TESTING) && defined(__APPLE__) && defined(__MACH__) */
+    bool warned = false;
+    if (realtime_ok) {
+      if (myid + 2 > nprocs) {
+        (void)sir_warn ("Total number of supervisor and CPU threads (%lu) exceeds available host parallelism (%lu)!",
+                        (unsigned long)(myid) + 2, (unsigned long)nprocs);
+        warned = true;
+      }
+      if (!warned && nprocs >= 2 && ncores >= 1 && nprocs >= ncores && myid + 2 > ncores) {
+        (void)sir_warn ("Total number of supervisor and CPU threads (%lu) exceeds physical host core count (%lu)!",
+                        (unsigned long)(myid) + 2, (unsigned long)ncores);
+      }
+    } else {
+      if (myid + 1 > nprocs) {
+        (void)sir_warn ("Total number of CPU threads (%lu) exceeds available host parallelism (%lu)!",
+                        (unsigned long)(myid) + 1, (unsigned long)nprocs);
+        warned = true;
+      }
+      if (!warned && ncores >= 1 && nprocs >= ncores && myid + 1 > ncores) {
+        (void)sir_warn ("Total number of CPU threads (%lu) exceeds physical host core count (%lu)!",
+                        (unsigned long)(myid) + 1, (unsigned long)ncores);
+      }
+    }
     setSignals ();
     threadz_sim_instr ();
     return NULL;
@@ -5211,7 +5247,8 @@ void cpuStats (uint cpuNo) {
   int cpu_millis = 0;
   char cpu_ftime[64] = {0};
 #if (defined(THREADZ) || defined(LOCKLESS))
-# if !defined(HAIKU_NO_PTHREAD_GETCPUCLOCKID) && !defined(__illumos__) && !defined(__APPLE__) && !defined(__PASE__)
+# if !defined(HAIKU_NO_PTHREAD_GETCPUCLOCKID) && !defined(__illumos__) && \
+     !defined(__APPLE__) && !defined(__PASE__) && !defined(__serenity__)
   struct timespec cpu_time;
   clockid_t clock_id;
   if (pthread_getcpuclockid (cpus[cpuNo].thread_id, &clock_id) == 0) {
@@ -5248,6 +5285,14 @@ void cpuStats (uint cpuNo) {
   }
   (void)fflush(stdout);
   (void)fflush(stderr);
+#if defined(_AIX) && !defined(__PASE__)
+  struct rusage rusage;
+  if (!pthread_getrusage_np(cpus[cpuNo].thread_id, &rusage, PTHRDSINFO_RUSAGE_COLLECT)) {
+    sim_msg ("\r|  Volun. CtxtSw %'15llu  |\r\n", (unsigned long long)rusage.ru_nvcsw);
+    sim_msg ("\r|  Invol. CtxtSw %'15llu  |\r\n", (unsigned long long)rusage.ru_nivcsw);
+    sim_msg ("\r+---------------------------------+\r\n");
+  }
+#endif
 #if defined(WIN_STDIO)
   sim_msg ("\r|  cycles        %15llu  |\r\n", (unsigned long long)cpus[cpuNo].cycleCnt);
   sim_msg ("\r|  instructions  %15llu  |\r\n", (unsigned long long)cpus[cpuNo].instrCnt);
@@ -5347,7 +5392,11 @@ void perfTest (char * testName) {
 # endif
 
   // dps8m_init_strip
+# if !defined(_AIX)
   system_state = aligned_malloc (sizeof (struct system_state_s));
+# else
+  system_state = malloc (sizeof (struct system_state_s));
+# endif
   if (!system_state)
     {
       (void)fprintf (stderr, "\rFATAL: Out of memory! Aborting at %s[%s:%d]\r\n",
@@ -5362,14 +5411,7 @@ void perfTest (char * testName) {
     }
 # if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) && !defined(__PASE__)
   if (mlock(system_state, sizeof(struct system_state_s)) == -1) {
-#  if defined(TESTING)
-    (void)fprintf(stderr, "\rCould not lock memory - mlock() error: %s.\r\n", xstrerror_l(errno));
-#   if defined(__linux__)
-    const char * setcap_filename = _sir_getappfilename();
-    (void)fprintf(stderr, "\rIncrease \"ulimit -l\" or \"setcap 'cap_ipc_lock+ep' %s\".\r\n",
-                  setcap_filename ? setcap_filename : "dps8");
-#   endif
-#  endif
+    mlock_failure = true;
   }
 # endif
   M = system_state->M;

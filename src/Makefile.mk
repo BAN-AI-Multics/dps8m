@@ -90,6 +90,7 @@ ETAGS      ?= etags
 GTAGS      ?= gtags
 FIND       ?= find
 CP         ?= cp -f
+MV         ?= mv -f
 INFOZIP    ?= zip
 ZIP        ?= $(INFOZIP)
 TOUCH      ?= touch
@@ -98,6 +99,7 @@ TEST       ?= test
 SLEEP      ?= sleep
 PASTE      ?= paste
 PRINTF     ?= printf
+SETCAP     ?= setcap
 TAR        ?= tar
 XARGS      ?= xargs
 GTARUSER   ?= dps8m
@@ -435,13 +437,15 @@ endif
 ###############################################################################
 # GNU/Hurd
 
-# Debian GNU/Hurd 2021: GNU-Mach 1.8+git20210821 / Hurd-0.9 / i686-AT386
-# GCC: Debian 10.2.1-6+hurd.1 and Debian GCC 11.2.0-2
-# Clang: Debian clang version 11.0.1-2 and Debian clang version 12.0.1-1
+# Users of GNU/Hurd on 32-bit platforms will need the NEED_128=1 build option.
+# Note that we unconditionally add -lpthread to LIBS for GNU/Hurd systems.
+# Running on GNU/Hurd is touchy. It *used* to work, but we have encountered
+# trouble with recent releases and make *no* guarantees about functionality.
 
   ifeq ($(UNAME_S),GNU)
-    export NEED_128=1
     export OS=GNU
+    CFLAGS += $(OVR_FLOCK) -DUSE_FCNTL=1
+    LIBS += -lpthread
   endif
 
 ###############################################################################

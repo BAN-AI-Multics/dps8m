@@ -45,6 +45,7 @@
 
 #include "dps8.h"
 #include "dps8_sys.h"
+#include "dps8_sir.h"
 #include "dps8_iom.h"
 #include "dps8_console.h"
 #include "dps8_cable.h"
@@ -4438,7 +4439,7 @@ static void dps8_init (void) {
       h = hash32s(&counter, sizeof(counter), h);
     }
 #endif /* if !defined(_AIX) */
-  int mypid = (int)getpid();
+  int mypid = (int)_sir_getpid();
   h = hash32s(&mypid, sizeof(mypid), h);
   char rnd[4];
   FILE *f = fopen("/dev/urandom", "rb");
@@ -4475,7 +4476,11 @@ static void dps8_init (void) {
     system_state = (struct system_state_s *)
       create_shm (statenme, sizeof (struct system_state_s));
   else
+# if !defined(_AIX)
     system_state = aligned_malloc (sizeof (struct system_state_s));
+# else
+    system_state = malloc (sizeof (struct system_state_s));
+# endif
 #endif
 
   if (!system_state) {
@@ -4495,14 +4500,7 @@ static void dps8_init (void) {
   }
 #if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) && !defined(__PASE__)
   if (mlock(system_state, sizeof(struct system_state_s)) == -1) {
-# if defined(TESTING)
-    sir_warn("Could not lock memory - mlock() error: %s.", xstrerror_l(errno));
-#  if defined(__linux__)
-    const char * setcap_filename = _sir_getappfilename();
-    sir_warn("Increase \"ulimit -l\" or \"setcap 'cap_ipc_lock+ep' %s\".",
-             setcap_filename ? setcap_filename : "dps8");
-#  endif
-# endif
+    mlock_failure = true;
   }
 #endif
 

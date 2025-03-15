@@ -409,13 +409,13 @@ OTHER DEALINGS IN THE FONT SOFTWARE.**
 
 *COPYRIGHT AND PERMISSION NOTICE*
 
-* Copyright © 2006-2023 &nbsp; **Michael Mondy**, **Harry Reed**,
+* Copyright © 2006-2025 &nbsp; **Michael Mondy**, **Harry Reed**,
    **Charles Anthony**, and others
 * Copyright © 2012 &nbsp; **Dave Jordan**
 * Copyright © 2015-2016 &nbsp; **Craig Ruff**
 * Copyright © 2015-2023 &nbsp; **Eric Swenson**
 * Copyright © 2016 &nbsp; **Jean-Michel Merliot**
-* Copyright © 2017-2023 &nbsp; **Jeffrey H. Johnson**
+* Copyright © 2017-2025 &nbsp; **Jeffrey H. Johnson**
 * Copyright © 2018-2021 &nbsp; **Juergen Weiss**
 * Copyright © 2021 &nbsp; **Dean S. Anderson**
 * Copyright © 2023 &nbsp; **Björn Victor**
@@ -943,7 +943,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.**
 
 * Copyright © 2002-2019 &nbsp; **Devin Teske** &nbsp;
    \<[`dteske@FreeBSD.org`](mailto:dteske@FreeBSD.org)\>
-* Copyright © 2020-2021 &nbsp; **Jeffrey H. Johnson** &nbsp;
+* Copyright © 2020-2024 &nbsp; **Jeffrey H. Johnson** &nbsp;
    \<[`trnsz@pobox.com`](mailto:trnsz@pobox.com)\>
 * Copyright © 2021-2025 &nbsp; **The DPS8M Development Team**
 

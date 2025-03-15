@@ -43,19 +43,19 @@
 #  include <winsock2.h>
 
 # elif !defined (_WIN32)                                 /* Not Windows */
-#  include <sys/types.h>                                  /* for fcntl, getpid */
-#  include <sys/socket.h>                                 /* for sockets */
+#  include <sys/types.h>                                 /* for fcntl, getpid */
+#  include <sys/socket.h>                                /* for sockets */
 #  include <string.h>
 #  include <errno.h>
 #  include <fcntl.h>
 #  include <unistd.h>
-#  include <netinet/in.h>                                 /* for sockaddr_in */
-#  include <netinet/tcp.h>                                /* for TCP_NODELAY */
-#  include <arpa/inet.h>                                  /* for inet_addr and inet_ntoa */
+#  include <netinet/in.h>                                /* for sockaddr_in */
+#  include <netinet/tcp.h>                               /* for TCP_NODELAY */
+#  include <arpa/inet.h>                                 /* for inet_addr and inet_ntoa */
 #  include <netdb.h>
 #  include <sys/time.h>
 
-#  define WSAGetLastError()       errno                   /* Windows macros */
+#  define WSAGetLastError()       errno                  /* Windows macros */
 #  define WSASetLastError(err)    errno = err
 #  define closesocket             close
 #  define SOCKET                  int

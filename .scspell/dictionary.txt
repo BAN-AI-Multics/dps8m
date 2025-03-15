@@ -245,6 +245,7 @@ addrmod
 addrmods
 addrs
 addrsize
+addset
 addspec
 addsym
 addzero
@@ -281,6 +282,7 @@ alloclhs
 allocres
 allocrhi
 allocrhs
+allocset
 allones
 alltyp
 alsu
@@ -360,6 +362,7 @@ badint
 basecmdp
 basename
 basetime
+basicset
 beforevalue
 beginthreadex
 bestoffset
@@ -595,6 +598,7 @@ connectaddr
 constantcondition
 constcond
 constexpr
+copyset
 copystat
 cosched
 countmap
@@ -796,6 +800,7 @@ delcount
 delif
 delim
 delse
+delset
 dend
 dendif
 dequeue
@@ -853,8 +858,10 @@ divmnu
 divti
 dkuf
 dlast
+dlclose
 dlcss
 dlen
+dlerror
 dlfcn
 dlopen
 dlpi
@@ -990,6 +997,8 @@ eisdir
 elapsedtime
 elength
 elfalse
+elfclass
+elfmag
 elif
 elifs
 ello
@@ -1219,6 +1228,7 @@ fread
 freeaddrinfo
 freeing
 freelocale
+freeset
 freopen
 frexp
 frexpl
@@ -1227,6 +1237,7 @@ fromport
 frst
 frsz
 fsampl
+fscanf
 fsdptw
 fsdwp
 fseek
@@ -1304,6 +1315,7 @@ getpeername
 getpgid
 getpid
 getppid
+getppriv
 getrlimit
 getrusage
 gets
@@ -1362,6 +1374,7 @@ highcount
 highlbn
 highmap
 highr
+highres
 highresult
 highwater
 hinfo
@@ -1558,6 +1571,7 @@ isits
 islnk
 islower
 islt
+ismember
 isnan
 isnonzero
 isnull
@@ -1779,6 +1793,7 @@ maxname
 maxneg
 maxnum
 maxp
+maxpath
 maxpathlen
 maxphys
 maxpid
@@ -1931,6 +1946,7 @@ nchar
 nchars
 ncnt
 ncombos
+ncores
 ndes
 ndigits
 ndpath
@@ -1962,8 +1978,10 @@ nextplus
 nextset
 nfault
 nfound
+nident
 nines
 nios
+nivcsw
 nkbevent
 nkbevents
 nlen
@@ -2081,6 +2099,7 @@ numsz
 numunits
 nunits
 nvcompiler
+nvcsw
 nwam
 nwritten
 nxbits
@@ -2297,6 +2316,8 @@ printout
 printp
 printpq
 printstring
+priocntl
+privs
 prno
 prnum
 proc
@@ -2334,6 +2355,7 @@ prvptr
 psave
 psdw
 psegno
+pset
 psize
 pstring
 pstrlen
@@ -2630,6 +2652,7 @@ segname
 segno
 segnum
 segs
+selfmag
 selftest
 selse
 sembuf
@@ -2665,6 +2688,7 @@ setclock
 setcount
 setdone
 setenv
+seteuid
 setexp
 setf
 setfl
@@ -2685,6 +2709,7 @@ setnums
 setoptions
 setown
 setpos
+setppriv
 setrlimit
 setschedparam
 setsid
@@ -2693,6 +2718,7 @@ setsockopt
 setstate
 setthreadname
 settype
+setuid
 setval
 setvbuf
 seven
@@ -2862,6 +2888,7 @@ stca
 stcd
 stcq
 stdarg
+stdatomic
 stdbool
 stdc
 stddef
@@ -4174,6 +4201,7 @@ mkstemp
 mkstemps
 mktempmode
 mkword
+mlock
 modembits
 modmask
 modulo
@@ -4216,6 +4244,7 @@ nbar
 nbits
 nblocks
 nbytes
+ncores
 ndes
 netdb
 netinet
@@ -6195,6 +6224,7 @@ reusetool
 rmnf
 rtmd
 scspellcmd
+setcap
 setv
 shlvl
 sunlint
@@ -6347,6 +6377,8 @@ ruler
 ulonglong
 wildmenu
 wrapscan
+xlrand
+xsrand
 
 FILEID: 50949946-f631-11ec-81f4-80ee73e9b8e7
 cleandep
@@ -6596,6 +6628,7 @@ rsion
 shouldn
 ssign
 strip
+topo
 tures
 ucrt
 ucrtbase
@@ -6825,6 +6858,7 @@ realclean
 reallyclean
 relies
 segldr
+setcap
 setv
 slte
 srcs
@@ -6956,15 +6990,18 @@ doesn
 
 FILEID: 6e07fe19-f62d-11ec-86f2-80ee73e9b8e7
 adbin
+ctxt
 dance
 didn
 doesn
 dsbin
 encachable
 libertyhaven
+pthrdsinfo
 setcap
 shouldn
 stuvwyyz
+volun
 
 FILEID: 1414c8ee-f62f-11ec-885a-80ee73e9b8e7
 doesn
@@ -9105,6 +9142,31 @@ eprof
 fprofile
 ranlib
 
+FILEID: e39fb11a-ffab-11ef-b6d4-80ee73e9b8e7
+fullpath
+lpthread
+maxnodes
+nbobjs
+nodecount
+
+FILEID: e86a7296-0066-11f0-aebb-80ee73e9b8e7
+ruid
+
+FILEID: 1784dba8-00a2-11f0-b624-80ee73e9b8e7
+abool
+aint
+asize
+chown
+cpufreq
+cpuinfo
+cpupower
+cwords
+govs
+hrline
+naptr
+powersave
+vcgencmd
+
 NATURAL:
 abandon
 abandoned
@@ -9218,6 +9280,7 @@ adopted
 advance
 advanced
 advantage
+adversely
 advertise
 advertising
 advised
@@ -9236,6 +9299,7 @@ against
 aggregate
 aggressive
 agner
+agnostic
 agree
 agreed
 ahead
@@ -9478,6 +9542,7 @@ avoiding
 avoids
 awaiting
 awakened
+aware
 away
 awkward
 awkwardly
@@ -9765,6 +9830,7 @@ capabilities
 capability
 capable
 capacity
+capping
 captured
 card
 cards
@@ -10075,6 +10141,7 @@ connects
 consecutive
 consequential
 consequently
+conservative
 consider
 considered
 considering
@@ -10255,6 +10322,7 @@ dalias
 damages
 dance
 dang
+dangerous
 dangling
 daniel
 dark
@@ -10335,6 +10403,7 @@ defaults
 defective
 defects
 deferred
+deficient
 define
 defined
 defines
@@ -10438,6 +10507,7 @@ determine
 determined
 determines
 determining
+deterministic
 detriment
 developed
 developer
@@ -10637,6 +10707,7 @@ duration
 during
 dutch
 dwheeler
+dylib
 dynamically
 each
 earlier
@@ -10732,6 +10803,7 @@ engineering
 english
 enhanced
 enhancements
+enhances
 enhancing
 enough
 ensure
@@ -10939,6 +11011,7 @@ faith
 fake
 falcon
 fallback
+fallbacks
 falling
 falls
 false
@@ -10975,6 +11048,7 @@ fetcher
 fetches
 fetching
 fewer
+fidelity
 field
 fields
 fifo
@@ -11109,6 +11183,7 @@ freely
 frees
 freescale
 freeware
+frequencies
 frequency
 frequently
 friday
@@ -11190,9 +11265,11 @@ goods
 gotcha
 goto
 governor
+governors
 grab
 grace
 grain
+grained
 grant
 granted
 granularity
@@ -11384,6 +11461,7 @@ humor
 hundred
 hurd
 hurts
+hwloc
 hygiene
 hypertext
 hypervisor
@@ -11425,6 +11503,8 @@ image
 images
 immediately
 impact
+impacted
+impacts
 implement
 implementation
 implementations
@@ -11438,6 +11518,7 @@ implies
 implying
 important
 impossible
+improper
 improve
 improved
 improvement
@@ -11761,6 +11842,7 @@ laid
 lambda
 lamp
 land
+landlock
 landscape
 language
 languages
@@ -11818,6 +11900,7 @@ libcmb
 libcurl
 liberal
 libexec
+libhwloc
 libraries
 library
 libs
@@ -11863,6 +11946,7 @@ linted
 linter
 linus
 linux
+linuxbrew
 lipo
 lisp
 list
@@ -11946,6 +12030,7 @@ lossage
 lost
 loud
 lower
+lowered
 lowest
 lows
 lparstat
@@ -11979,6 +12064,7 @@ mainframes
 mainline
 mainly
 mains
+mainstream
 maintain
 maintained
 maintainer
@@ -12142,6 +12228,7 @@ mirroring
 misalignment
 misc
 miscellaneous
+misconfiguration
 mismatch
 misnomer
 misrepresented
@@ -12150,6 +12237,7 @@ misses
 missing
 misuse
 misusing
+mitigations
 mixed
 mkdir
 mnemonics
@@ -12227,6 +12315,7 @@ multirecord
 multiword
 munge
 murmur
+musl
 must
 mutex
 mutually
@@ -12342,6 +12431,7 @@ notice
 noticed
 notices
 notification
+notifications
 notify
 noting
 nova
@@ -12775,6 +12865,7 @@ predictable
 prediction
 preemptive
 preface
+preferably
 preferred
 prefetch
 prefetched
@@ -12839,6 +12930,7 @@ prism
 pristine
 private
 privileged
+privileges
 probably
 probe
 probing
@@ -13026,6 +13118,7 @@ rebooting
 rebuild
 rebuilding
 recalculate
+recall
 receipt
 receive
 received
@@ -13049,6 +13142,7 @@ recognizing
 recommendation
 recommended
 recommends
+recompilation
 recompiling
 recompress
 reconfigure
@@ -13084,6 +13178,7 @@ reedclan
 reel
 reenable
 reenables
+reentrant
 reentry
 refactoring
 reference
@@ -13268,6 +13363,7 @@ restores
 restoring
 restrict
 restricted
+restricting
 restrictions
 restrictive
 result
@@ -13394,6 +13490,7 @@ sample
 sampled
 samples
 sampling
+sandbox
 sane
 sanfilippo
 sanitization
@@ -13481,6 +13578,7 @@ semaphore
 semicolon
 semivoiced
 send
+sender
 sending
 sends
 sense
@@ -13589,9 +13687,11 @@ signature
 signed
 significance
 significant
+significantly
 signless
 signs
 silently
+silicon
 silly
 simh
 similar
@@ -13743,6 +13843,7 @@ squaring
 squash
 squeezed
 squid
+stability
 stable
 stack
 stacked
@@ -13851,6 +13952,7 @@ subnet
 subnormal
 subnormality
 subnormals
+suboptimally
 subpaths
 subprocess
 subroutine
@@ -13908,6 +14010,7 @@ sunos
 sunpro
 superclean
 superscript
+superuser
 supervisor
 supnik
 supplemented
@@ -13927,6 +14030,7 @@ suppression
 sure
 surmise
 surmising
+surprises
 surrounding
 survey
 suse
@@ -14004,6 +14108,7 @@ teletype
 tell
 telnet
 temp
+temperature
 template
 templates
 temporarily
@@ -14054,6 +14159,7 @@ thereafter
 thereby
 therefore
 thereof
+thermal
 these
 theta
 they
@@ -14078,6 +14184,8 @@ threadz
 three
 threshold
 throttle
+throttled
+throttling
 through
 throughout
 throughput
@@ -14094,6 +14202,7 @@ tightly
 till
 time
 timed
+timekeeping
 timeout
 timeouts
 timer
@@ -14138,6 +14247,7 @@ tooltip
 topic
 topics
 toplevel
+topology
 tops
 torn
 tort
@@ -14145,6 +14255,7 @@ tortious
 total
 touch
 touched
+touchy
 towards
 toxic
 trace
@@ -14328,9 +14439,11 @@ unicode
 unifdef
 unimplemented
 uninitialized
+unintentional
 uninteresting
 uninterruptible
 union
+uniprocessor
 uniq
 unique
 uniquely
@@ -14379,6 +14492,7 @@ unreliable
 unrelocated
 unresolved
 unresponsive
+unrestricted
 unrolled
 unrounded
 unsafe
@@ -14415,6 +14529,7 @@ updated
 updates
 updating
 upgrade
+upgrading
 uploading
 upon
 upper

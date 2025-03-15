@@ -6,7 +6,7 @@
  * ---------------------------------------------------------------------------
  *
  * Copyright (c) 2014-2016 Charles Anthony
- * Copyright (c) 2021-2024 Jeffrey H. Johnson <trnsz@pobox.com>
+ * Copyright (c) 2021-2025 Jeffrey H. Johnson <trnsz@pobox.com>
  * Copyright (c) 2021-2025 The DPS8M Development Team
  *
  * This software is made available under the terms of the ICU License.

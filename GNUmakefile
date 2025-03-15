@@ -23,7 +23,6 @@
 #         NO_LOCALE=1                      Disable support for native locale
 #       NO_LOCKLESS=1                      Enable legacy (non-lockless) code
 #            NO_LTO=1                      Disables the use of LTO for build
-#       NO_PRIORITY=1                      Disables elevated priority levels
 #           PANEL68=1                      Enable custom L68 panel interface
 #        PERF_STRIP=1                      Enable CPU-only benchmarking mode
 #               QNX=1                      Force QNX compilation without qcc

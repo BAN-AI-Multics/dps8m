@@ -43,6 +43,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "../dps8/dps8_sir.h"
+
 #if defined(__CYGWIN__)
 # include <dlfcn.h>
 # include <libloaderapi.h>
@@ -738,7 +740,7 @@ if (sta == -1)
     return SOCKET_ERROR;
 # if !defined (__HAIKU__)                               /* Unix only */
 #  if !defined (__serenity__)
-sta = fcntl (sock, F_SETOWN, getpid());                 /* set ownership */
+sta = fcntl (sock, F_SETOWN, _sir_getpid());                 /* set ownership */
 if (sta == -1)
     return SOCKET_ERROR;
 #  endif

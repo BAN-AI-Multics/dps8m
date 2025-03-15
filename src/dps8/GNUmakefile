@@ -47,7 +47,7 @@ endif
 # If using Cygwin as a host for cross-compilation, set CYGWIN_MINGW_CROSS=1
 
 ifneq ($(CYGWIN_MINGW_CROSS),1)
-  ifeq ($(shell $(UNAME) -o 2> /dev/null || true >/dev/null 2>&1),Cygwin)
+  ifeq ($(shell $(UNAME) -o 2> /dev/null || true > /dev/null 2>&1),Cygwin)
     CROSS=""
   endif
 endif
@@ -231,7 +231,9 @@ ifeq ($(WITH_MGP_DEV),1)
 endif
 C_SRCS += dps8_mt.c
 C_SRCS += dps8_opcodetable.c
+C_SRCS += dps8_priv.c
 C_SRCS += dps8_prt.c
+C_SRCS += dps8_rt.c
 C_SRCS += dps8_scu.c
 C_SRCS += dps8_simh.c
 ifeq ($(WITH_SOCKET_DEV),1)
@@ -243,6 +245,7 @@ ifeq ($(TESTING),1)
   C_SRCS += tracker.c
 endif
 C_SRCS += dps8_sys.c
+C_SRCS += dps8_topo.c
 C_SRCS += dps8_urp.c
 C_SRCS += dps8_utils.c
 C_SRCS += fnpuv.c
@@ -303,12 +306,15 @@ H_SRCS += dps8_math.h
 H_SRCS += dps8_math128.h
 H_SRCS += dps8_mt.h
 H_SRCS += dps8_opcodetable.h
+H_SRCS += dps8_priv.h
 H_SRCS += dps8_prt.h
+H_SRCS += dps8_rt.h
 H_SRCS += dps8_socket_dev.h
 H_SRCS += dps8_scu.h
 H_SRCS += dps8_simh.h
 H_SRCS += dps8_state.h
 H_SRCS += dps8_sys.h
+H_SRCS += dps8_topo.h
 H_SRCS += dps8_urp.h
 H_SRCS += dps8_utils.h
 H_SRCS += fnpuv.h
@@ -340,7 +346,8 @@ H_SRCS += ucache.h
 
 SIMH_OBJS = ../simh/sim_console.o  ../simh/sim_disk.o  ../simh/sim_tape.o     \
             ../simh/sim_fio.o      ../simh/sim_sock.o  ../simh/scp.o          \
-            ../simh/sim_timer.o    ../simh/sim_tmxr.o  ../simh/linehistory.o
+            ../simh/sim_timer.o    ../simh/sim_tmxr.o  ../simh/linehistory.o  \
+            ../simh/sim_hints.o
 
 ###############################################################################
 
@@ -361,11 +368,39 @@ endif
 ifneq (,$(findstring clean,$(MAKECMDGOALS)))
 .NOTPARALLEL: clean install
 endif
+X:=$(shell $(PRINTF) '%s\n' "$$$$" 2>/dev/null || $(TRUE))
 install:
 	@$(TEST) -f "dps8$(EXE)" || { $(PRINTF) '%s\n' "Error: No dps8 binary.";  \
                                   exit 1; }
-	@$(SETV); $(MKDIR) "$(DESTDIR)$(INSTALL_BIN)"
-	@$(SETV); $(CP) "dps8$(EXE)" "$(DESTDIR)$(INSTALL_BIN)/dps8$(EXE)"
+	$(MKDIR) "$(DESTDIR)$(INSTALL_BIN)"
+	$(MV) "$(DESTDIR)$(INSTALL_BIN)/dps8$(EXE)" \
+        "$(DESTDIR)$(INSTALL_BIN)/dps8$(EXE).old$(X)" 2>/dev/null || $(TRUE)
+	$(CP) "dps8$(EXE)" "$(DESTDIR)$(INSTALL_BIN)/dps8$(EXE)"
+	$(RM) "$(DESTDIR)$(INSTALL_BIN)/dps8$(EXE).old$(X)" 2>/dev/null || $(TRUE)
+ifeq ($(shell $(UNAME) -s 2>/dev/null || true >/dev/null 2>&1),Linux)
+	$(SETCAP) 'cap_sys_nice,cap_ipc_lock+eip' \
+        "$(DESTDIR)$(INSTALL_BIN)/dps8$(EXE)" 2>/dev/null || $(TRUE)
+endif
+	$(TEST) -f "../prt2pdf/prt2pdf$(EXE)" && \
+        $(MV) "$(DESTDIR)$(INSTALL_BIN)/prt2pdf$(EXE)" \
+            "$(DESTDIR)$(INSTALL_BIN)/prt2pdf$(EXE).old$(X)" 2>/dev/null || \
+                $(TRUE)
+	$(TEST) -f "../prt2pdf/prt2pdf$(EXE)" && \
+        $(CP) "../prt2pdf/prt2pdf$(EXE)" \
+            "$(DESTDIR)$(INSTALL_BIN)/prt2pdf$(EXE)"
+	$(TEST) -f "../prt2pdf/prt2pdf$(EXE)" && \
+        $(RM) "$(DESTDIR)$(INSTALL_BIN)/prt2pdf$(EXE).old$(X)" 2>/dev/null || \
+            $(TRUE)
+	$(TEST) -f "../punutil/punutil$(EXE)" && \
+        $(MV) "$(DESTDIR)$(INSTALL_BIN)/punutil$(EXE)" \
+            "$(DESTDIR)$(INSTALL_BIN)/punutil$(EXE).old$(X)" 2>/dev/null || \
+                $(TRUE)
+	$(TEST) -f "../punutil/punutil$(EXE)" && \
+        $(CP) "../punutil/punutil$(EXE)" \
+            "$(DESTDIR)$(INSTALL_BIN)/punutil$(EXE)"
+	$(TEST) -f "../punutil/punutil$(EXE)" && \
+        $(RM) "$(DESTDIR)$(INSTALL_BIN)/punutil$(EXE).old$(X)" 2>/dev/null || \
+            $(TRUE)
 
 ###############################################################################
 
