@@ -67,6 +67,7 @@
 
 #include "dps8_opcodetable.h"
 #include "../simh/sim_defs.h"
+#include "../simh/sim_os_mem.h"
 
 #if defined(THREADZ) || defined(LOCKLESS)
 # include "threadz.h"
@@ -5410,8 +5411,16 @@ void perfTest (char * testName) {
       abort();
     }
 # if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) && !defined(__PASE__)
-  if (mlock(system_state, sizeof(struct system_state_s)) == -1) {
-    mlock_failure = true;
+  if (0 == sim_free_memory || sim_free_memory >= 192000000) {
+    if (mlock(system_state, sizeof(struct system_state_s)) == -1) {
+      mlock_failure = true;
+    }
+  } else {
+#  if defined(TESTING)
+    sim_warn ("Low memory - no memory locking attempted.\r\n");
+#  else
+    (void)system_state;
+#  endif
   }
 # endif
   M = system_state->M;

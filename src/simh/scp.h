@@ -262,6 +262,7 @@ extern BRKTYPTAB *sim_brk_type_desc;                      /* type descriptions *
 extern FILE *stdnul;
 extern t_bool sim_asynch_enabled;
 extern bool mlock_failure;
+extern uint64_t sim_free_memory;
 
 /* VM interface */
 

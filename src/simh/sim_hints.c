@@ -43,6 +43,9 @@
 #include "../dps8/dps8_cpu.h"
 #include "../dps8/dps8_topo.h"
 
+#include "../simh/sim_os_mem.h"
+#include "../simh/scp.h"
+
 /*
  * We may run in early startup (before logging has been initialized),
  * so only use non-logging libsir calls from functions in this file.
@@ -744,6 +747,7 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 #endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/* HINT: Check for Apple Rosetta binary translation. */
 
 #if defined(__APPLE__)
   int isRosetta = processIsTranslated();
@@ -764,6 +768,26 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 #endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/* HINT: Check available memory and warn the user if it seems too low. */
+
+  if (sim_free_memory < 192000000) {
+    if (!flag) {
+      sim_hrline ();
+      sim_printf ("\r\n* Hint #%u - LOW SYSTEM MEMORY DETECTED\r\n", ++hint_count);
+      sim_printf ("\r\n");
+      sim_printf ("  Currently %llu MB of memory is available (%llu MB at process start-up).\r\n",
+                  ((long long unsigned)sim_memory_available() / 1000000),
+                  ((long long unsigned)sim_free_memory / 1000000));
+      sim_printf ("\r\n");
+      sim_printf ("  We recommend a minimum of 192 MB of available physical system memory\r\n");
+      sim_printf ("  for optimum simulator performance.  Additionally, memory locking is not\r\n");
+      sim_printf ("  attempted when less than 192 MB of memory is available at start-up time.\r\n");
+    } else {
+      ++hint_count;
+    }
+  }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   if (hint_count) {
     if (!flag) {
@@ -780,7 +804,7 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
     }
   } else {
     if (!flag) {
-      sim_printf ("No configuration hints currently available.\r\n");
+      sim_printf ("No hints are currently available.\r\n");
     }
   }
 

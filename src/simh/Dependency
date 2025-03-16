@@ -57,6 +57,7 @@ scp.o: sim_defs.h
 scp.o: sim_disk.h
 scp.o: sim_fio.h
 scp.o: sim_hints.h
+scp.o: sim_os_mem.h
 scp.o: sim_sock.h
 scp.o: sim_tape.h
 scp.o: sim_timer.h
@@ -122,7 +123,9 @@ sim_hints.o: ../libsir/include/sir/internal.h
 sim_hints.o: ../libsir/include/sir/platform.h
 sim_hints.o: ../libsir/include/sir/types.h
 sim_hints.o: ../libsir/include/sir/version.h
+sim_hints.o: ../simh/scp.h
 sim_hints.o: ../simh/sim_defs.h
+sim_hints.o: ../simh/sim_os_mem.h
 sim_hints.o: ../simh/sim_tape.h
 sim_hints.o: ../simh/sim_timer.h
 sim_hints.o: linehistory.h

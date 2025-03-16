@@ -189,6 +189,7 @@ dps8_cpu.o: ../simh/scp.h
 dps8_cpu.o: ../simh/sim_console.h
 dps8_cpu.o: ../simh/sim_defs.h
 dps8_cpu.o: ../simh/sim_fio.h
+dps8_cpu.o: ../simh/sim_os_mem.h
 dps8_cpu.o: ../simh/sim_tape.h
 dps8_cpu.o: ../simh/sim_timer.h
 dps8_cpu.o: dps8.h
@@ -896,6 +897,7 @@ dps8_sys.o: ../simh/scp.h
 dps8_sys.o: ../simh/sim_console.h
 dps8_sys.o: ../simh/sim_defs.h
 dps8_sys.o: ../simh/sim_fio.h
+dps8_sys.o: ../simh/sim_os_mem.h
 dps8_sys.o: ../simh/sim_tape.h
 dps8_sys.o: ../simh/sim_timer.h
 dps8_sys.o: bsd_random.h

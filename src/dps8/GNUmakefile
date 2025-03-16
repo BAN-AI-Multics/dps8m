@@ -344,10 +344,10 @@ H_SRCS += ucache.h
 
 ###############################################################################
 
-SIMH_OBJS = ../simh/sim_console.o  ../simh/sim_disk.o  ../simh/sim_tape.o     \
-            ../simh/sim_fio.o      ../simh/sim_sock.o  ../simh/scp.o          \
-            ../simh/sim_timer.o    ../simh/sim_tmxr.o  ../simh/linehistory.o  \
-            ../simh/sim_hints.o
+SIMH_OBJS = ../simh/sim_console.o  ../simh/sim_disk.o   ../simh/sim_tape.o    \
+            ../simh/sim_fio.o      ../simh/sim_sock.o   ../simh/scp.o         \
+            ../simh/sim_timer.o    ../simh/sim_tmxr.o   ../simh/linehistory.o \
+            ../simh/sim_hints.o    ../simh/sim_os_mem.o
 
 ###############################################################################
 
