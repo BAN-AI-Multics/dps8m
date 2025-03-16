@@ -58,6 +58,7 @@
 #include "sim_hints.h"
 #include "sim_tape.h"
 #include "sim_sock.h"
+#include "sim_os_mem.h"
 
 #include <signal.h>
 #include <ctype.h>
@@ -461,6 +462,7 @@ static int32 sim_on_inherit      = 0;            /* the inherit status of on sta
 static int32 sim_realtime        = 0;            /* user requested real-time mode */
 #endif
 static int32 sim_do_depth        = 0;
+uint64_t sim_free_memory         = 0;
 
 static int32 sim_on_check[MAX_DO_NEST_LVL+1];
 static char *sim_on_actions[MAX_DO_NEST_LVL+1][SCPE_MAX_ERR+1];
@@ -1694,6 +1696,8 @@ if (0 == eff_uid && 0 != real_uid) {
 # endif
 
 sunos_obtain_realtime_privileges(); /* Keep as early as possible */
+
+sim_free_memory = sim_memory_available(); /* stash free memory */
 
 /* libsir init */
 

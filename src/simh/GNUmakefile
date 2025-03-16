@@ -59,13 +59,15 @@ endif
 
 ###############################################################################
 
-C_SRCS = scp.c       sim_console.c  sim_disk.c   sim_fio.c   sim_hints.c      \
-         sim_sock.c  sim_tape.c     sim_timer.c  sim_tmxr.c  linehistory.c
+C_SRCS = scp.c        sim_console.c  sim_disk.c   sim_fio.c   sim_hints.c     \
+         sim_sock.c   sim_tape.c     sim_timer.c  sim_tmxr.c  linehistory.c   \
+         sim_os_mem.c
 
 ###############################################################################
 
-OBJS = scp.o       sim_console.o  sim_disk.o   sim_fio.o   sim_hints.o        \
-       sim_sock.o  sim_tape.o     sim_timer.o  sim_tmxr.o  linehistory.o
+OBJS = scp.o        sim_console.o  sim_disk.o   sim_fio.o   sim_hints.o       \
+       sim_sock.o   sim_tape.o     sim_timer.o  sim_tmxr.o  linehistory.o     \
+       sim_os_mem.o
 
 ###############################################################################
 

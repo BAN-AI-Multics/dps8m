@@ -9168,6 +9168,10 @@ naptr
 powersave
 vcgencmd
 
+FILEID: f59cc352-0209-11f0-af38-80ee73e9b8e7
+freebufcache
+meminfo
+
 NATURAL:
 abandon
 abandoned
@@ -10030,6 +10034,7 @@ comments
 commercial
 commit
 commits
+committable
 committed
 common
 commonly
