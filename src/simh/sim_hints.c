@@ -331,17 +331,25 @@ check_cpu_frequencies (void)
                 entry->d_name);
       file = fopen (path, "r");
       if (file) {
-        fscanf (file, "%d", &min_freq);
-        fclose (file);
+        if (1 != fscanf (file, "%d", &min_freq)) {
+          fclose (file);
+          min_freq = -1;
+        } else {
+          fclose (file);
+        }
       }
       snprintf (path, sizeof (path), "/sys/devices/system/cpu/%s/cpufreq/cpuinfo_max_freq",
                 entry->d_name);
       file = fopen (path, "r");
       if (file) {
-        fscanf (file, "%d", &max_freq);
-        fclose (file);
+        if (1 != fscanf (file, "%d", &max_freq)) {
+          fclose (file);
+          max_freq = -1;
+        } else {
+          fclose (file);
+        }
       }
-      if (min_freq != max_freq) {
+      if (-1 != min_freq && -1 != max_freq && min_freq != max_freq) {
         mismatch = 1;
       }
     }

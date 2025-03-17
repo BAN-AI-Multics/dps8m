@@ -413,8 +413,8 @@ get_core_count(void)
     char *dl_error = dlerror();
     if (dl_error && *dl_error)
       (void)fprintf(stderr, "ERROR: no hwloc_topology_init: %s\n", dl_error);
-    (void)dlclose(handle);
 # endif
+    (void)dlclose(handle);
     return 0;
   }
 
@@ -425,8 +425,8 @@ get_core_count(void)
     char *dl_error = dlerror();
     if (dl_error && *dl_error)
       (void)fprintf(stderr, "ERROR: no hwloc_topology_load: %s\n", dl_error);
-    (void)dlclose(handle);
 # endif
+    (void)dlclose(handle);
     return 0;
   }
 
@@ -437,8 +437,8 @@ get_core_count(void)
     char *dl_error = dlerror();
     if (dl_error && *dl_error)
       (void)fprintf(stderr, "ERROR: no hwloc_topology_destroy: %s\n", dl_error);
-    (void)dlclose(handle);
 # endif
+    (void)dlclose(handle);
     return 0;
   }
 
@@ -449,8 +449,8 @@ get_core_count(void)
     char *dl_error = dlerror();
     if (dl_error && *dl_error)
       (void)fprintf(stderr, "ERROR: no hwloc_get_type_depth: %s\n", dl_error);
-    (void)dlclose(handle);
 # endif
+    (void)dlclose(handle);
     return 0;
   }
 
@@ -461,8 +461,8 @@ get_core_count(void)
     char *dl_error = dlerror();
     if (dl_error && *dl_error)
       (void)fprintf(stderr, "ERROR: no hwloc_get_nbobjs_by_depth: %s\n", dl_error);
-    (void)dlclose(handle);
 # endif
+    (void)dlclose(handle);
     return 0;
   }
 
@@ -470,8 +470,8 @@ get_core_count(void)
   if (0 != hwloc_topology_init(&topology)) {
 # if defined(TOPO_TESTING)
     (void)fprintf(stderr, "ERROR: hwloc_topology_init failure.\n");
-    (void)dlclose(handle);
 # endif
+    (void)dlclose(handle);
     return 0;
   }
 
@@ -479,8 +479,8 @@ get_core_count(void)
 # if defined(TOPO_TESTING)
     (void)fprintf(stderr, "ERROR: hwloc_topology_load failure.\n");
     hwloc_topology_destroy(topology);
-    (void)dlclose(handle);
 # endif
+    (void)dlclose(handle);
     return 0;
   }
 
@@ -489,8 +489,8 @@ get_core_count(void)
 # if defined(TOPO_TESTING)
     (void)fprintf(stderr, "ERROR: hwloc_get_type_depth failure.\n");
     hwloc_topology_destroy(topology);
-    (void)dlclose(handle);
 # endif
+    (void)dlclose(handle);
     return 0;
   }
 
