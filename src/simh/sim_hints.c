@@ -21,20 +21,27 @@
 #include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <limits.h>
 #include <stdatomic.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #if !defined(_WIN32)
 # include <sys/resource.h>
 #endif
 #include <time.h>
+#include <sys/time.h>
 #include <unistd.h>
 #if defined(__APPLE__)
 # include <sys/types.h>
 # include <sys/sysctl.h>
+#endif
+#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__sun) || \
+    defined(__illumos__) || defined(__linux__) && !defined(__ANDROID__)
+# include <sys/timex.h>
 #endif
 
 #include "linehistory.h"
@@ -73,6 +80,34 @@
 # endif
 #endif
 
+#if !defined(__APPLE__)
+# if HAS_INCLUDE(<elf.h>)
+#  include <elf.h>
+# endif
+#endif
+
+#undef USE_ELF_H
+#if defined(EI_MAG0) && defined(EI_MAG1) && defined(EI_MAG2) && defined(EI_MAG3) && \
+    defined(ELFMAG0) && defined(ELFMAG1) && defined(ELFMAG2) && defined(ELFMAG3) && \
+    defined(PT_DYNAMIC) && !defined(_WIN32)
+# define USE_ELF_H
+#endif
+
+#if !defined(_WIN32)
+# include <sys/mman.h>
+#endif
+
+#undef PROC_SELF
+#if defined(__linux__) || defined(__serenity__)
+# define PROC_SELF "/proc/self/exe"
+#elif defined(__NetBSD__)
+# define PROC_SELF "/proc/curproc/exe"
+#elif defined(__FreeBSD__) || defined(__DragonFly__)
+# define PROC_SELF "/proc/curproc/file"
+#elif defined(__sun) || defined(__illumos__)
+# define PROC_SELF "/proc/self/path/a.out"
+#endif
+
 #if !defined(CHAR_BIT)
 # define CHAR_BIT 8
 #endif
@@ -85,6 +120,155 @@ static inline void
 sim_hrline(void)
 {
   sim_printf("\r\n------------------------------------------------------------------------------\r\n");
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+static int
+is_static_linked_selfelf(void)
+{
+#if !defined(USE_ELF_H)
+  return -1;
+#elif defined(__APPLE__)
+  return -1;
+#else
+  char *self_exe;
+
+# ifdef PROC_SELF
+  self_exe = PROC_SELF;
+# else
+  self_exe = sim_appfilename;
+# endif
+
+  int fd = open(self_exe, O_RDONLY);
+
+  if (fd < 0) {
+    self_exe = sim_appfilename;
+    fd = open(self_exe, O_RDONLY);
+    if (fd < 0)
+      return -1;
+  }
+
+  struct stat st;
+  if (fstat(fd, &st) < 0) {
+    (void)close(fd);
+    return -1;
+  }
+
+  void *map = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+  if (MAP_FAILED == map) {
+    (void)close(fd);
+    return -1;
+  }
+
+  Elf64_Ehdr *ehdr = (Elf64_Ehdr *)map;
+
+  if (ELFMAG0 != ehdr->e_ident[EI_MAG0] ||
+      ELFMAG1 != ehdr->e_ident[EI_MAG1] ||
+      ELFMAG2 != ehdr->e_ident[EI_MAG2] ||
+      ELFMAG3 != ehdr->e_ident[EI_MAG3]) {
+    (void)munmap(map, st.st_size);
+    (void)close(fd);
+    return -1;
+  }
+
+  Elf64_Phdr *phdr;
+  void *phdr_address = (void *)((char *)map + ehdr->e_phoff);
+  (void)memcpy(&phdr, &phdr_address, sizeof(phdr));
+  for (unsigned int i = 0; i < ehdr->e_phnum; i++)
+    if (PT_DYNAMIC == phdr[i].p_type) {
+      (void)munmap(map, st.st_size);
+      (void)close(fd);
+      return 0;
+    }
+
+  (void)munmap(map, st.st_size);
+  (void)close(fd);
+  return 1;
+#endif
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+static int
+is_static_linked_selfmap (void)
+{
+  FILE *maps = fopen ("/proc/self/maps", "r");
+
+  if (!maps)
+    return -1;
+
+  char line[256];
+  while (fgets (line, sizeof (line), maps))
+   if (strstr(line, "/ld-") ||
+       strstr(line, "/system/bin/linker") ||
+       strstr(line, "/lib/ld")) {
+      (void)fclose (maps);
+      return 0;
+    }
+
+  (void)fclose (maps);
+  return 1;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+static int
+is_static_linked (void)
+{
+  int map = is_static_linked_selfmap ();
+  int elf = is_static_linked_selfelf ();
+
+#if defined(STATIC_TESTING)
+  (void)fprintf(stderr, "is_static_linked_selfmap=%d\r\n", map);
+  (void)fprintf(stderr, "is_static_linked_selfelf=%d\r\n", elf);
+#endif
+
+  if (-1 == map && -1 == elf)
+    return -1;
+
+  if (-1 == map)
+    return elf;
+
+  if (-1 == elf)
+    return map;
+
+  if (map != elf)
+    return -1;
+
+  return map;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+static int
+is_ntp_sync (void) // -1 == Failed to check     0 == Not synchronized
+{                  //  1 == Maybe synchronized  2 == Synchronized OK
+#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__sun) || \
+    defined(__illumos__) || defined(__linux__) && !defined(__ANDROID__)
+  struct timex tx = { 0 };
+# if defined(__FreeBSD__) || defined(__NetBSD__) || \
+     defined(__sun) || defined(__illumos__)
+  int result = ntp_adjtime (&tx);
+# else
+  int result = adjtimex (&tx);
+# endif
+  if (-1 == result)
+    return -1;
+# if defined(__sun) || defined(__illumos__)
+  if (tx.status & STA_UNSYNC)
+# else
+  if (TIME_OK != result)
+# endif
+    if (1000000 >= tx.maxerror)
+      return 1;
+    else
+      return 0;
+  else
+    return 2;
+#else
+  return -1;
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -169,7 +353,7 @@ check_cpu_frequencies (void)
 #define RPI_TEXT "Raspberry Pi"
 
 static int
-is_raspberry_pi(void)
+is_raspberry_pi (void)
 {
   FILE *file;
   char line[1024];
@@ -202,7 +386,7 @@ is_raspberry_pi(void)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 static uint32_t
-check_pi_issues(void)
+check_pi_issues (void)
 {
   uint32_t a_issues = 0;
 
@@ -293,7 +477,7 @@ atm_cwords (int count)
 
 #if defined(__APPLE__)
 static int
-processIsTranslated(void)
+processIsTranslated (void)
 {
   int ret = 0;
   size_t size = sizeof(ret);
@@ -423,11 +607,6 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
       else
         sim_printf("  You have %llu logical processors configured using a power-saving governor.\r\n",
                    reduced);
-      sim_printf ("\r\n");
-      sim_printf ("  To enable the `performance` governor, run the following shell command:\r\n");
-      sim_printf ("\r\n");
-      sim_printf ("    echo performance | \\\r\n");
-      sim_printf ("      sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor\r\n");
     } else {
       ++hint_count;
     }
@@ -544,18 +723,14 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
         sim_printf ("\r\n");
         sim_printf ("  Your Raspberry Pi has recorded the following adverse hardware event(s):\r\n");
         sim_printf ("\r\n");
-        if (a_issues & (1 << 0)) {
+        if (a_issues & (1 << 0))
           sim_printf("    * Under-voltage events have occurred since boot.\r\n");
-        }
-        if (a_issues & (1 << 1)) {
+        if (a_issues & (1 << 1))
           sim_printf("    * CPU frequency capping events have occurred since boot.\r\n");
-        }
-        if (a_issues & (1 << 2)) {
+        if (a_issues & (1 << 2))
           sim_printf("    * Thermal throttling events have occurred since boot.\r\n");
-        }
-        if (a_issues & (1 << 3)) {
+        if (a_issues & (1 << 3))
           sim_printf("    * Soft temperature limits have been reached or exceeded since boot.\r\n");
-        }
       } else {
         ++hint_count;
       }
@@ -566,7 +741,7 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 /* HINT: Check if topology information was available, recommend installing libhwloc if not. */
 
 #if !defined(_WIN32)
-  if (1 < nprocs && false == dps8_topo_used) {
+  if (1 < nprocs && false == dps8_topo_used && 1 != is_static_linked()) {
     if (!flag) {
       sim_hrline ();
       sim_printf ("\r\n* Hint #%u - UNABLE TO DETERMINE SYSTEM TOPOLOGY USING LIBHWLOC\r\n", ++hint_count);
@@ -609,7 +784,6 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 
   if (nprocs > 1 && !has_linux_capability(pid, cap_sys_nice)) {
     if (!flag) {
-      const char * setcap_filename = _sir_getappfilename();
       sim_hrline ();
       sim_printf ("\r\n* Hint #%u - LINUX REAL-TIME SCHEDULING CAPABILITY IS NOT ENABLED\r\n", ++hint_count);
       sim_printf ("\r\n");
@@ -629,7 +803,7 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
       sim_printf ("\r\n");
       sim_printf ("  To enable the real-time capability, run the following shell command:\r\n");
       sim_printf ("\r\n");
-      sim_printf ("    sudo setcap 'cap_sys_nice,cap_ipc_lock+ep' %s\r\n", setcap_filename ? setcap_filename : "dps8");
+      sim_printf ("  sudo setcap 'cap_sys_nice,cap_ipc_lock+ep' %s\r\n", sim_appfilename);
     } else {
       ++hint_count;
     }
@@ -652,20 +826,17 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
       const pid_t pid = _sir_getpid();
       const int cap_ipc_lock = CAP_IPC_LOCK;
       if (!has_linux_capability(pid, cap_ipc_lock)) {
-        const char * setcap_filename = _sir_getappfilename();
         sim_printf ("\r\n");
         sim_printf ("  You can enable real-time and memory locking by running this command:\r\n");
         sim_printf ("\r\n");
-        sim_printf ("    sudo setcap 'cap_sys_nice,cap_ipc_lock+ep' %s\r\n",
-                    setcap_filename ? setcap_filename : "dps8");
+        sim_printf ("  sudo setcap 'cap_sys_nice,cap_ipc_lock+ep' %s\r\n", sim_appfilename);
       }
 #elif defined(__sun) || defined(__illumos__)
-      const char * setcap_filename = _sir_getappfilename();
       sim_printf ("\r\n");
       sim_printf ("  You can allow memory locking by running the following shell commands:\r\n");
       sim_printf ("\r\n");
-      sim_printf ("    sudo chown root:root %s\r\n", setcap_filename ? setcap_filename : "dps8");
-      sim_printf ("    sudo chmod u+s %s\r\n", setcap_filename ? setcap_filename : "dps8");
+      sim_printf ("  sudo chown root:root %s\r\n", sim_appfilename);
+      sim_printf ("  sudo chmod u+s %s\r\n", sim_appfilename);
       sim_printf ("\r\n");
       sim_printf ("  This is safe - we drop all unnecessary privileges immediately at start-up.\r\n");
 #else
@@ -750,8 +921,7 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 /* HINT: Check for Apple Rosetta binary translation. */
 
 #if defined(__APPLE__)
-  int isRosetta = processIsTranslated();
-  if (1 == isRosetta) {
+  if (1 == processIsTranslated()) {
     if (!flag) {
       sim_hrline ();
       sim_printf ("\r\n* Hint #%u - APPLE ROSETTA BINARY TRANSLATION DETECTED\r\n", ++hint_count);
@@ -788,13 +958,31 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
   }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/* HINT: Check for lack of external clock synchronization (like NTP). */
+
+  if (0 == is_ntp_sync()) {
+    if (!flag) {
+      sim_hrline ();
+      sim_printf ("\r\n* Hint #%u - NO EXTERNAL CLOCK SYNCHRONIZATION DETECTED\r\n", ++hint_count);
+      sim_printf ("\r\n");
+      sim_printf ("  The system is reporting that your clock is NOT externally synchronized.\r\n");
+      sim_printf ("  Accurate time synchronization is critical for proper simulator operation.\r\n");
+      sim_printf ("  This can usually be resolved by ensuring that NTP (Network Time Protocol)\r\n");
+      sim_printf ("  software (e.g. ntpd, chrony, timesyncd, etc.) is installed and configured.\r\n");
+    } else {
+      ++hint_count;
+    }
+  }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/* Hint notifications */
 
   if (hint_count) {
     if (!flag) {
       sim_hrline ();
       if (getenv("DPS8M_NO_HINTS") == NULL) {
         sim_printf ("\r\n");
-        sim_printf ("To disable hint notifications, set the environment variable `DPS8M_NO_HINTS=1`.\r\n");
+        sim_printf ("To disable hint notifications, set the environment variable `DPS8M_NO_HINTS=1`\r\n");
       }
       sim_printf ("\r\n");
     } else {

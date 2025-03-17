@@ -290,6 +290,7 @@ t_bool (*sim_vm_fprint_stopped) (FILE *st, t_stat reason) = NULL;
 unsigned int nprocs;
 unsigned int ncores;
 bool mlock_failure = false;
+char* sim_appfilename;
 
 /* Prototypes */
 
@@ -1698,6 +1699,11 @@ if (0 == eff_uid && 0 != real_uid) {
 sunos_obtain_realtime_privileges(); /* Keep as early as possible */
 
 sim_free_memory = sim_memory_available(); /* stash free memory */
+
+sim_appfilename = _sir_getappfilename(); /* stash app filename */
+if (sim_appfilename == NULL) {
+  sim_appfilename = "dps8";
+}
 
 /* libsir init */
 
