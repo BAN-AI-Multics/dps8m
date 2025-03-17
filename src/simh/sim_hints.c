@@ -94,7 +94,11 @@
 #if defined(EI_MAG0) && defined(EI_MAG1) && defined(EI_MAG2) && defined(EI_MAG3) && \
     defined(ELFMAG0) && defined(ELFMAG1) && defined(ELFMAG2) && defined(ELFMAG3) && \
     defined(PT_DYNAMIC) && !defined(_WIN32)
-# define MAX_HEADERS 65536
+# if defined(USHRT_MAX)
+#  define MAX_HEADERS USHRT_MAX
+# else
+#  define MAX_HEADERS 65535
+# endif
 # define USE_ELF_H
 #endif
 
@@ -142,7 +146,7 @@ is_jailed(void)
 
   (void)len;
 
-  if (jailed)
+  if (jailed) //-V547
     return true;
 
   return false;
