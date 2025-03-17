@@ -140,6 +140,8 @@ is_jailed(void)
     return false;
 #endif
 
+  (void)len;
+
   if (jailed)
     return true;
 
