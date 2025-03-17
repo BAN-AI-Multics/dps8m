@@ -682,7 +682,10 @@ switch (f) {                                            /* the read method depen
                                / sizeof (buffer [0]);
                 }
 
-            *bc = buffer [--bufcntr];                   /* store the metadata marker value */
+            if (bufcntr > 0)
+              *bc = buffer [--bufcntr];                   /* store the metadata marker value */
+            else
+              return MTSE_IOERR;
 
             uptr->pos = uptr->pos - sizeof (t_mtrlnt);  /* backspace over the marker */
 

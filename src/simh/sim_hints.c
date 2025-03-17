@@ -154,21 +154,22 @@ is_jailed(void)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32)
 static int
 is_static_linked_selfelf(void)
 {
-#if !defined(USE_ELF_H)
+# if !defined(USE_ELF_H)
   return -1;
-#elif defined(__APPLE__)
+# elif defined(__APPLE__)
   return -1;
-#else
+# else
   char *self_exe;
 
-# ifdef PROC_SELF
+#  ifdef PROC_SELF
   self_exe = PROC_SELF;
-# else
+#  else
   self_exe = sim_appfilename;
-# endif
+#  endif
 
   int fd = open(self_exe, O_RDONLY);
 
@@ -222,11 +223,13 @@ is_static_linked_selfelf(void)
   (void)munmap(map, st.st_size);
   (void)close(fd);
   return 1;
-#endif
+# endif
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32)
 static int
 is_static_linked_selfmap (void)
 {
@@ -247,19 +250,21 @@ is_static_linked_selfmap (void)
   (void)fclose (maps);
   return 1;
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32)
 static int
 is_static_linked (void)
 {
   int map = is_static_linked_selfmap ();
   int elf = is_static_linked_selfelf ();
 
-#if defined(STATIC_TESTING)
+# if defined(STATIC_TESTING)
   (void)fprintf(stderr, "is_static_linked_selfmap=%d\r\n", map);
   (void)fprintf(stderr, "is_static_linked_selfelf=%d\r\n", elf);
-#endif
+# endif
 
   if (-1 == map && -1 == elf)
     return -1;
@@ -275,6 +280,7 @@ is_static_linked (void)
 
   return map;
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

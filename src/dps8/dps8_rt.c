@@ -144,6 +144,7 @@ void
     (void)sim_usleep(WATCHDOG_INTERVAL);
   }
 
+  /*NOTREACHED*/ /* unreachable */
   return NULL;
 }
 
@@ -177,6 +178,7 @@ void
     prev_timestamp = current_timestamp;
   }
 
+  /*NOTREACHED*/ /* unreachable */
   return NULL;
 }
 

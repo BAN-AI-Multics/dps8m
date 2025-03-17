@@ -316,7 +316,7 @@ free_candidate_lib_dirs (char **dirs)
 #endif
 
 /* Find libhwloc */
-#if !defined(__HAIKU__)
+#if !defined(__HAIKU__) && !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32)
 static char *
 find_libhwloc_path (void)
 {
