@@ -90,6 +90,7 @@
 #if defined(EI_MAG0) && defined(EI_MAG1) && defined(EI_MAG2) && defined(EI_MAG3) && \
     defined(ELFMAG0) && defined(ELFMAG1) && defined(ELFMAG2) && defined(ELFMAG3) && \
     defined(PT_DYNAMIC) && !defined(_WIN32)
+# define MAX_HEADERS 65536
 # define USE_ELF_H
 #endif
 
@@ -175,6 +176,13 @@ is_static_linked_selfelf(void)
   Elf64_Phdr *phdr;
   void *phdr_address = (void *)((char *)map + ehdr->e_phoff);
   (void)memcpy(&phdr, &phdr_address, sizeof(phdr));
+
+  if (0 == ehdr->e_phnum || ehdr->e_phnum > MAX_HEADERS) {
+    (void)munmap(map, st.st_size);
+    (void)close(fd);
+    return -1;
+  }
+
   for (unsigned int i = 0; i < ehdr->e_phnum; i++)
     if (PT_DYNAMIC == phdr[i].p_type) {
       (void)munmap(map, st.st_size);
