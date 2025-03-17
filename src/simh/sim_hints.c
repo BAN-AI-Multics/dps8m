@@ -24,6 +24,7 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <stdatomic.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,14 +35,17 @@
 #endif
 #include <time.h>
 #include <sys/time.h>
+#include <sys/types.h>
 #include <unistd.h>
 #if defined(__APPLE__)
-# include <sys/types.h>
 # include <sys/sysctl.h>
 #endif
 #if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__sun) || \
     defined(__illumos__) || defined(__linux__) && !defined(__ANDROID__)
-# include <sys/timex.h>
+# include <sys/timex.h> // XXX: Check DragonFly
+#endif
+#if defined(__FreeBSD__) || defined(__DragonFly__)
+# include <sys/sysctl.h>
 #endif
 
 #include "linehistory.h"
@@ -121,6 +125,25 @@ static inline void
 sim_hrline(void)
 {
   sim_printf("\r\n------------------------------------------------------------------------------\r\n");
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+static int
+is_jailed(void)
+{
+  int jailed = 0;
+  size_t len = sizeof(jailed);
+
+#if defined(__FreeBSD__) || defined(__DragonFly__)
+  if (-1 == sysctlbyname("security.jail.jailed", &jailed, &len, NULL, 0))
+    return false;
+#endif
+
+  if (jailed)
+    return true;
+
+  return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -257,7 +280,7 @@ is_ntp_sync (void) // -1 == Failed to check     0 == Not synchronized
   struct timex tx = { 0 };
 # if defined(__FreeBSD__) || defined(__NetBSD__) || \
      defined(__sun) || defined(__illumos__)
-  int result = ntp_adjtime (&tx);
+  int result = ntp_adjtime (&tx); // XXX: DragonFly?
 # else
   int result = adjtimex (&tx);
 # endif
@@ -985,6 +1008,11 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
       sim_printf ("  Accurate time synchronization is critical for proper simulator operation.\r\n");
       sim_printf ("  This can usually be resolved by ensuring that NTP (Network Time Protocol)\r\n");
       sim_printf ("  software (e.g. ntpd, chrony, timesyncd, etc.) is installed and configured.\r\n");
+      if (is_jailed()) {
+        sim_printf ("\r\n");
+        sim_printf ("  NOTE: The simulator is running in a BSD jail.  The time synchronization\r\n");
+        sim_printf ("  daemon must be installed and configured on the host, and not in the jail.\r\n");
+      }
     } else {
       ++hint_count;
     }
