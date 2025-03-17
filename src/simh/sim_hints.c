@@ -876,6 +876,9 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
         sim_printf ("\r\n");
         sim_printf ("  sudo setcap 'cap_sys_nice,cap_ipc_lock+ep' %s\r\n", sim_appfilename);
       }
+#elif defined(__FreeBSD__)
+      sim_printf ("\r\n");
+      sim_printf ("  See https://man.freebsd.org/cgi/man.cgi?login.conf(5) for details.\r\n");
 #elif defined(__sun) || defined(__illumos__)
       sim_printf ("\r\n");
       sim_printf ("  You can allow memory locking by running the following shell commands:\r\n");
