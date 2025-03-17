@@ -177,7 +177,7 @@ is_static_linked_selfelf(void)
   void *phdr_address = (void *)((char *)map + ehdr->e_phoff);
   (void)memcpy(&phdr, &phdr_address, sizeof(phdr));
 
-  if (0 == ehdr->e_phnum || ehdr->e_phnum > MAX_HEADERS) {
+  if (0 == ehdr->e_phnum || ehdr->e_phnum > MAX_HEADERS) { //-V560
     (void)munmap(map, st.st_size);
     (void)close(fd);
     return -1;
