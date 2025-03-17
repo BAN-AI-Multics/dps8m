@@ -251,6 +251,8 @@ addsym
 addzero
 adev
 adjlen
+adjtime
+adjtimex
 adjustedexponent
 adla
 adlaq
@@ -302,6 +304,7 @@ ansx
 ansxn
 anxn
 apad
+appfilename
 appname
 approxaddhalf
 approxset
@@ -2256,6 +2259,8 @@ pgte
 phaf
 phdbg
 phdr
+phnum
+phoff
 phys
 physmem
 physpages
@@ -3071,6 +3076,7 @@ timerr
 timespec
 timeval
 timewait
+timex
 timw
 tinyexp
 tiocgetc
@@ -3504,6 +3510,7 @@ ansimacros
 ansq
 anstr
 ansx
+appfilename
 appname
 apuh
 aradix
@@ -9161,11 +9168,15 @@ chown
 cpufreq
 cpuinfo
 cpupower
+curproc
 cwords
 govs
 hrline
 naptr
 powersave
+selfelf
+selfmap
+unsync
 vcgencmd
 
 FILEID: f59cc352-0209-11f0-af38-80ee73e9b8e7
@@ -9924,6 +9935,7 @@ choose
 chopping
 chosen
 christmas
+chrony
 chuck
 chunked
 chunking
@@ -12446,6 +12458,7 @@ nprocessors
 nqueensx
 nsis
 nslookup
+ntpd
 nuclear
 null
 nullability
@@ -14216,6 +14229,7 @@ timers
 times
 timestamp
 timestamper
+timesyncd
 timezone
 timing
 timothe
