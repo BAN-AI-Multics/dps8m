@@ -699,7 +699,7 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /* HINT: Check that core dumps have not been limited or disabled. */
 
-#if !defined(_WIN32)
+#if !defined(_WIN32) && !defined(__HAIKU__)
   struct rlimit core_limit;
   if (getrlimit(RLIMIT_CORE, &core_limit) == 0) {
     if (core_limit.rlim_cur == 0) {

@@ -98,42 +98,45 @@
 
 bool dps8_topo_used = false;
 
+#if !defined(__HAIKU__)
 static inline int
 file_exists (const char *path)
 {
   struct stat st;
   return 0 == stat(path, &st);
 }
+#endif
 
+#if !defined(__HAIKU__)
 static inline int
 is_compatible_architecture (const char *path)
 {
-#if !defined(USE_ELF_H)
+# if !defined(USE_ELF_H)
   (void)path;
   return 1;
-#else
+# else
   FILE *f = fopen(path, "rb");
   if (NULL == f) {
-# if defined(TOPO_TESTING)
+#  if defined(TOPO_TESTING)
     (void)fprintf(stderr, "WARNING: Unable to open '%s'!\n", path);
-# endif
+#  endif
     return 0;
   }
 
   unsigned char e_ident[EI_NIDENT];
   if (EI_NIDENT != fread(e_ident, 1, EI_NIDENT, f)) {
-# if defined(TOPO_TESTING)
+#  if defined(TOPO_TESTING)
     (void)fprintf(stderr, "WARNING: Bad header in '%s'!\n", path);
-# endif
+#  endif
     fclose(f);
     return 0;
   }
   fclose(f);
 
   if (0 != memcmp(e_ident, ELFMAG, SELFMAG)) {
-# if defined(TOPO_TESTING)
+#  if defined(TOPO_TESTING)
     (void)fprintf(stderr, "WARNING: Bad header in '%s'!\n", path);
-# endif
+#  endif
     return 0;
   }
 
@@ -142,27 +145,29 @@ is_compatible_architecture (const char *path)
   if (64 == bits) {
     /* cppcheck-suppress arrayIndexOutOfBounds */
     if (EI_NIDENT >= EI_CLASS && ELFCLASS64 == e_ident[EI_CLASS]) { //-V560
-# if defined(TOPO_TESTING)
+#  if defined(TOPO_TESTING)
       (void)fprintf(stderr, "NOTICE: '%s' is valid 64-bit ELF.\n", path);
-# endif
+#  endif
       return 1;
     }
   } else if (32 == bits) {
     /* cppcheck-suppress arrayIndexOutOfBounds */
     if (EI_NIDENT >= EI_CLASS && ELFCLASS32 == e_ident[EI_CLASS]) { //-V560
-# if defined(TOPO_TESTING)
+#  if defined(TOPO_TESTING)
       (void)fprintf(stderr, "NOTICE: '%s' is valid 32-bit ELF.\n", path);
-# endif
+#  endif
       return 1;
     }
   }
-# if defined(TOPO_TESTING)
+#  if defined(TOPO_TESTING)
   (void)fprintf(stderr, "WARNING: '%s' could not be validated!\n", path);
-# endif
+#  endif
   return 0;
-#endif
+# endif
 }
+#endif
 
+#if !defined(__HAIKU__)
 static char **
 get_candidate_lib_dirs (int32_t *n_dirs)
 {
@@ -294,7 +299,9 @@ get_candidate_lib_dirs (int32_t *n_dirs)
   *n_dirs = index;
   return dirs;
 }
+#endif
 
+#if !defined(__HAIKU__)
 static inline void
 free_candidate_lib_dirs (char **dirs)
 {
@@ -306,8 +313,10 @@ free_candidate_lib_dirs (char **dirs)
 
   FREE(dirs);
 }
+#endif
 
 /* Find libhwloc */
+#if !defined(__HAIKU__)
 static char *
 find_libhwloc_path (void)
 {
@@ -344,6 +353,7 @@ find_libhwloc_path (void)
   free_candidate_lib_dirs(dirs);
   return found;
 }
+#endif
 
 /* libhwloc */
 typedef void *dl_hwloc_topology_t;
