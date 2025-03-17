@@ -167,7 +167,7 @@ is_compatible_architecture (const char *path)
 }
 #endif
 
-#if !defined(__HAIKU__)
+#if !defined(__HAIKU__) && !defined(__NetBSD__)
 static char **
 get_candidate_lib_dirs (int32_t *n_dirs)
 {
@@ -316,7 +316,8 @@ free_candidate_lib_dirs (char **dirs)
 #endif
 
 /* Find libhwloc */
-#if !defined(__HAIKU__) && !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32)
+#if !defined(__HAIKU__) && !defined(__MINGW64__) && !defined(__MINGW32__) && \
+    !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) && !defined(__NetBSD__)
 static char *
 find_libhwloc_path (void)
 {

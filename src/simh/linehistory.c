@@ -57,6 +57,12 @@
 #if !defined(__MINGW32__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) && \
     !defined(__MINGW64__) && !defined(_MSC_VER) && !defined(_MSC_BUILD)
 
+# if defined(__OpenBSD__)
+#  if !defined(_BSD_SOURCE)
+#   define _BSD_SOURCE
+#  endif
+# endif
+
 # if defined(__sun) && defined(__SVR4)
 #  if !defined(__EXTENSIONS__)
 #   define __EXTENSIONS__ 1
