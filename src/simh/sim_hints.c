@@ -797,7 +797,7 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /* HINT: Check if topology information was available, recommend installing libhwloc if not. */
 
-#if !defined(_WIN32)
+#if !defined(_WIN32) && !defined(FORCE_STATIC)
   if (1 < nprocs && false == dps8_topo_used && 1 != is_static_linked()) {
     if (!flag) {
       sim_hrline ();
