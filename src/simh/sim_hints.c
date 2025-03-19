@@ -766,8 +766,12 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
       }
     }
     a_issues = check_pi_issues ();
-    if ( a_issues & (1 << 0) || a_issues & (1 << 1)
-      || a_issues & (1 << 2) || a_issues & (1 << 3) ) {
+    if ( a_issues & (1 << 0) ||
+#if defined(RPI_CAPPING)
+         a_issues & (1 << 1) ||
+#endif
+         a_issues & (1 << 2) ||
+         a_issues & (1 << 3) ) {
       if (!flag) {
         sim_hrline ();
         sim_printf ("\r\n* Hint #%u - RASPBERRY PI ADVERSE HARDWARE EVENTS RECORDED\r\n", ++hint_count);
@@ -775,11 +779,13 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
         sim_printf ("  Your Raspberry Pi has recorded the following adverse hardware event(s):\r\n");
         sim_printf ("\r\n");
         if (a_issues & (1 << 0))
-          sim_printf("    * Under-voltage events have occurred since boot.\r\n");
+          sim_printf("    * Undervoltage events have occurred since boot.\r\n");
+#if defined(RPI_CAPPING)
         if (a_issues & (1 << 1))
           sim_printf("    * CPU frequency capping events have occurred since boot.\r\n");
+#endif
         if (a_issues & (1 << 2))
-          sim_printf("    * Thermal throttling events have occurred since boot.\r\n");
+          sim_printf("    * Throttling events have occurred since boot.\r\n");
         if (a_issues & (1 << 3))
           sim_printf("    * Soft temperature limits have been reached or exceeded since boot.\r\n");
       } else {
