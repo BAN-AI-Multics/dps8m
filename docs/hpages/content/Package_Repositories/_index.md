@@ -33,6 +33,7 @@
 
 * Using **DNF** (*as root*):
   ```sh
+  rpm --import https://dps8m.gitlab.io/repo/pubkey.asc
   dnf -y install 'dnf-command(config-manager)'
   dnf config-manager --add-repo https://dps8m.gitlab.io/repo/rpm/dps8m.repo
   dnf install dps8m
@@ -40,6 +41,7 @@
 
 * Using **Yum** (*as root*):
   ```sh
+  rpm --import https://dps8m.gitlab.io/repo/pubkey.asc
   yum -y install yum-utils
   yum-config-manager --add-repo https://dps8m.gitlab.io/repo/rpm/dps8m.repo
   yum install dps8m
@@ -66,6 +68,7 @@
 
 * Using **DNF** (*as root*):
   ```sh
+  rpm --import https://dps8m.gitlab.io/repo/pubkey.asc
   dnf -y install 'dnf-command(config-manager)'
   dnf config-manager --add-repo https://dps8m.gitlab.io/repo/rpm/dps8m-bleeding.repo
   dnf install dps8m
@@ -73,6 +76,7 @@
 
 * Using **Yum** (*as root*):
   ```sh
+  rpm --import https://dps8m.gitlab.io/repo/pubkey.asc
   yum -y install yum-utils
   yum-config-manager --add-repo https://dps8m.gitlab.io/repo/rpm/dps8m-bleeding.repo
   yum install dps8m
