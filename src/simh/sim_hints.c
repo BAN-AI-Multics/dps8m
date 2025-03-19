@@ -884,7 +884,7 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
       const int cap_ipc_lock = CAP_IPC_LOCK;
       if (!has_linux_capability(pid, cap_ipc_lock)) {
         sim_printf ("\r\n");
-        sim_printf ("  You can enable real-time and memory locking by running this command:\r\n");
+        sim_printf ("  You can enable real-time and memory locking by running this shell command:\r\n");
         sim_printf ("\r\n");
         sim_printf ("  sudo setcap 'cap_sys_nice,cap_ipc_lock+ep' %s\r\n", sim_appfilename);
       }
