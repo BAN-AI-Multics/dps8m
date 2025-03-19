@@ -905,7 +905,7 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /* HINT: Check if atomic types are not lock-free and warn the user about it. */
 
-#if !defined(__SUNPRO_C) && !defined(__SUNPRO_CC)
+#if defined(LOCKLESS) && !defined(__SUNPRO_C) && !defined(__SUNPRO_CC)
 # define CHECK_LOCK_FREE(var, type_name, counter, names, index) \
    do {                                                         \
      if (!atomic_is_lock_free (&var)) {                         \
