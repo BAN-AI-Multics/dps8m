@@ -3282,6 +3282,7 @@ uselocale
 usemap
 uservar
 ushort
+ushrt
 usleep
 usym
 utable
@@ -11780,6 +11781,7 @@ iterations
 itself
 iwmmxt
 jade
+jailed
 january
 java
 jean
@@ -14445,6 +14447,7 @@ understand
 understanding
 understands
 understood
+undervoltage
 undetermined
 undocumented
 unechoed
