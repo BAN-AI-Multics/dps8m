@@ -3,22 +3,20 @@
 -->
 ## APT / DNF / Yum / Brew Repositories
 
-* A [**DNF**](https://github.com/rpm-software-management/dnf) / [**Yum**](http://yum.baseurl.org/) repo is available for users of [**RPM**](https://rpm.org/)-based [**Linux**](https://kernel.org/) distributions (*e.g.* [*Fedora*](https://fedoraproject.org/), [*RHEL*](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux), [*CentOS*](https://www.centos.org/), [*Amazon Linux 2*](https://aws.amazon.com/amazon-linux-2), etc.)
-  * **RPM** packages are provided for `aarch64`, `i686`, `ppc64`, `ppc64le`, `riscv64`, `s390x`, and `x86_64` systems.
-
+* An [**APT**](https://wiki.debian.org/AptCLI) repo is available for users of [**DEB**](https://wiki.debian.org/Teams/Dpkg)-based [**Linux**](https://kernel.org/) distributions (*e.g.* [*Ubuntu*](https://ubuntu.com/), [*Debian*](https://www.debian.org/), [*Raspberry Pi OS*](https://www.raspberrypi.com/software/), [*Mint*](https://linuxmint.com/), etc.)
+  * **DEB** packages are provided for `armhf`, `arm64`, `i386`, `powerpc`, `ppc64`, `ppc64el`, `riscv64`, `sparc64`, `loong64`, `s390x`, and `amd64` systems.
 
 []()
-* An [**APT**](https://wiki.debian.org/AptCLI) repo is available for users of [**DEB**](https://wiki.debian.org/Teams/Dpkg)-based [**Linux**](https://kernel.org/) distributions (*e.g.* [*Ubuntu*](https://ubuntu.com/), [*Debian*](https://www.debian.org/), [*Raspberry Pi OS*](https://www.raspberrypi.com/software/), [*Mint*](https://linuxmint.com/), etc.)
-  * **DEB** packages are provided for `armhf`, `arm64`, `i386`, `ppc64`, `ppc64el`, `riscv64`, `s390x`, and `amd64` systems.
+[]()
+
+* A [**DNF**](https://github.com/rpm-software-management/dnf) / [**Yum**](http://yum.baseurl.org/) repo is available for users of [**RPM**](https://rpm.org/)-based [**Linux**](https://kernel.org/) distributions (*e.g.* [*Fedora*](https://fedoraproject.org/), [*RHEL*](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux), [*CentOS*](https://www.centos.org/), [*Amazon Linux 2*](https://aws.amazon.com/amazon-linux-2), etc.)
+  * **RPM** packages are provided for `aarch64`, `i686`, `ppc64`, `ppc64le`, `riscv64`, `s390x`, and `x86_64` systems.
 
 []()
 []()
 
 * [**Brew**](https://formulae.brew.sh/) formulae are available for users of the [**Homebrew**](https://brew.sh/) package manager on [*macOS*](https://www.apple.com/macos/) (and [*Linux*](https://docs.brew.sh/Homebrew-on-Linux)).
   * **Brew** formulae are provided for `arm64` and `x86_64` systems.
-
-[]()
-[]()
 
 ### Stable Release
 
