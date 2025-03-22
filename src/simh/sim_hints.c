@@ -229,7 +229,7 @@ is_static_linked_selfelf(void)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32)
+#if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) && !defined(FORCE_STATIC)
 static int
 is_static_linked_selfmap (void)
 {
@@ -254,7 +254,7 @@ is_static_linked_selfmap (void)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32)
+#if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) && !defined(FORCE_STATIC)
 static int
 is_static_linked (void)
 {
