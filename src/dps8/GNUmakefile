@@ -378,8 +378,8 @@ install:
 	$(CP) "dps8$(EXE)" "$(DESTDIR)$(INSTALL_BIN)/dps8$(EXE)"
 	$(RM) "$(DESTDIR)$(INSTALL_BIN)/dps8$(EXE).old$(X)" 2>/dev/null || $(TRUE)
 ifeq ($(shell $(UNAME) -s 2>/dev/null || true >/dev/null 2>&1),Linux)
-	$(SETCAP) 'cap_sys_nice,cap_ipc_lock+eip' \
-        "$(DESTDIR)$(INSTALL_BIN)/dps8$(EXE)" 2>/dev/null || $(TRUE)
+	$(TEST) -f "/.dockerenv" || { $(SETCAP) 'cap_sys_nice,cap_ipc_lock+eip' \
+        "$(DESTDIR)$(INSTALL_BIN)/dps8$(EXE)" 2>/dev/null || $(TRUE); }
 endif
 	$(TEST) -f "../prt2pdf/prt2pdf$(EXE)" && \
         $(MV) "$(DESTDIR)$(INSTALL_BIN)/prt2pdf$(EXE)" \
