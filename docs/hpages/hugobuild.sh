@@ -11,16 +11,16 @@ set -e
 
 test -f "config.toml" ||
   {
-	printf '%s\n' "ERROR: 'config.toml' not found."
-	exit 1
+    printf '%s\n' "ERROR: 'config.toml' not found."
+    exit 1
   }
 
 ##########################################################################
 
 test -f "hugoclean.sh" ||
   {
-	printf '%s\n' "ERROR: 'hugoclean.sh' not found."
-	exit 1
+    printf '%s\n' "ERROR: 'hugoclean.sh' not found."
+    exit 1
   }
 
 ##########################################################################
@@ -32,8 +32,8 @@ test -f "hugoclean.sh" ||
 
 test -x "hugovars.sh" ||
   {
-	printf '%s\n' "ERROR: 'hugovars.sh' not found."
-	exit 1
+    printf '%s\n' "ERROR: 'hugovars.sh' not found."
+    exit 1
   }
 
 ##########################################################################

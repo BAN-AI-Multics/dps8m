@@ -11,8 +11,8 @@ set -e
 
 test -x "hugovars.sh" ||
   {
-	printf '%s\n' "ERROR: 'hugovars.sh' not found."
-	exit 1
+    printf '%s\n' "ERROR: 'hugovars.sh' not found."
+    exit 1
   }
 
 ##########################################################################
