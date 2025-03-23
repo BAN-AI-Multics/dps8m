@@ -275,10 +275,11 @@ I:;
   finalAddress &= 0xffffff;
   PNL (cpu.APUMemAddr = finalAddress;)
 
-#if defined(L68)
-  if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
-    add_APU_history (APUH_FAP);
-#endif /* if defined(L68) */
+  L68_ (
+    if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
+      add_l68_APU_history (cpup, APUH_FAP);
+  )
+
   DBGAPP ("doAppendCycleAPUDataStore(H:FAP): (%05o:%06o) finalAddress=%08o\r\n", cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
 
   goto HI;
