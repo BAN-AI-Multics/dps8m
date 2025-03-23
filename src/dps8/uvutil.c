@@ -15,6 +15,8 @@
  * ---------------------------------------------------------------------------
  */
 
+//-V::595
+
 #include <uv.h>
 #include <ctype.h>
 #include <signal.h>
@@ -123,7 +125,7 @@ static void accessReadCallback (uv_stream_t* stream,
       {
         if (access->telnetp)
           {
-            telnet_recv (access->telnetp, buf->base, (size_t) nread); //-V595
+            telnet_recv (access->telnetp, buf->base, (size_t) nread);
           }
         else
           {

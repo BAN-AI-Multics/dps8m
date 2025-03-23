@@ -15,6 +15,8 @@
  * ---------------------------------------------------------------------------
  */
 
+//-V::595
+
 // The FNP <--> libuv interface
 //
 // Every libuv TCP connection has a uv_tcp_t object.
@@ -443,7 +445,7 @@ static void fuv_read_cb (uv_stream_t* stream,
           }
       }
 
-    if (buf->base) //-V595
+    if (buf->base)
         free (buf->base); /* X-LINTED: FREE */
   }
 
