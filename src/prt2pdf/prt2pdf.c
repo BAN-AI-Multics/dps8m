@@ -156,7 +156,9 @@
                     __func__, __FILE__, __LINE__);
       abort();
    }
+   /* cppcheck-suppress nullPointerOutOfMemory */
    n->next             = NULL;
+   /* cppcheck-suppress nullPointerOutOfMemory */
    n->page_id          = id;
    *GLOBAL_INSERT_PAGE = n;
    GLOBAL_INSERT_PAGE  = &n->next;
@@ -184,6 +186,7 @@
               abort();
            }
 
+           /* cppcheck-suppress nullPointerOutOfMemory */
            (void)memcpy(new_xrefs, GLOBAL_XREFS, GLOBAL_NUM_XREFS * sizeof(*GLOBAL_XREFS));
            FREE(GLOBAL_XREFS);
            GLOBAL_XREFS = new_xrefs;
