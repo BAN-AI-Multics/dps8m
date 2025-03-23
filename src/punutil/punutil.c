@@ -723,6 +723,7 @@ static card_image_t *allocate_card(void)
         abort();
     }
 
+    /* cppcheck-suppress nullPointerOutOfMemory */
     (void)memset(card, 0, sizeof(card_image_t));
 
     return card;

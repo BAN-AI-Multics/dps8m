@@ -766,7 +766,7 @@ static void update_data_scroll (void)
         case 6: // 7
           {
             // The contents of the APU history register
-//(void)printf ("%u\n", cpu.DATA_panel_hr_sel_sw);
+//(void)printf ("%u\r\n", cpu.DATA_panel_hr_sel_sw);
             SETL (bank_d, 0+3, cpu.history[L68_APU_HIST_REG][cpu.DATA_panel_hr_sel_sw][0], 36);
             SETL (bank_e, 0+3, cpu.history[L68_APU_HIST_REG][cpu.DATA_panel_hr_sel_sw][1], 36);
 #if 0
@@ -1118,7 +1118,7 @@ static void lwrite (FD fd, const void * buf, size_t count)
     DWORD bytes_written;
     if(!WriteFile(fd, buf, count, &bytes_written, NULL))
     {
-        (void)fprintf(stderr, "Error\n");
+        (void)fprintf(stderr, "Error\r\n");
         CloseHandle(fd);
         exit (1);
     }
@@ -1130,37 +1130,37 @@ static void lwrite (FD fd, const void * buf, size_t count)
 static void send_lamp_data (FD fd)
   {
     char buf [129];
-    (void)sprintf (buf, "0%c%c%c%c%c%c%c%c\n", nibbles (bank_a));
+    (void)sprintf (buf, "0%c%c%c%c%c%c%c%c\n", nibbles (bank_a)); //-NLOK
     lwrite (fd, buf, 10);
-    (void)sprintf (buf, "1%c%c%c%c%c%c%c%c\n", nibbles (bank_b));
+    (void)sprintf (buf, "1%c%c%c%c%c%c%c%c\n", nibbles (bank_b)); //-NLOK
     lwrite (fd, buf, 10);
-    (void)sprintf (buf, "2%c%c%c%c%c%c%c%c\n", nibbles (bank_c));
+    (void)sprintf (buf, "2%c%c%c%c%c%c%c%c\n", nibbles (bank_c)); //-NLOK
     lwrite (fd, buf, 10);
-    (void)sprintf (buf, "3%c%c%c%c%c%c%c%c\n", nibbles (bank_d));
+    (void)sprintf (buf, "3%c%c%c%c%c%c%c%c\n", nibbles (bank_d)); //-NLOK
     lwrite (fd, buf, 10);
-    (void)sprintf (buf, "4%c%c%c%c%c%c%c%c\n", nibbles (bank_e));
+    (void)sprintf (buf, "4%c%c%c%c%c%c%c%c\n", nibbles (bank_e)); //-NLOK
     lwrite (fd, buf, 10);
-    (void)sprintf (buf, "5%c%c%c%c%c%c%c%c\n", nibbles (bank_f));
+    (void)sprintf (buf, "5%c%c%c%c%c%c%c%c\n", nibbles (bank_f)); //-NLOK
     lwrite (fd, buf, 10);
-    (void)sprintf (buf, "6%c%c%c%c%c%c%c%c\n", nibbles (bank_g));
+    (void)sprintf (buf, "6%c%c%c%c%c%c%c%c\n", nibbles (bank_g)); //-NLOK
     lwrite (fd, buf, 10);
-    (void)sprintf (buf, "7%c%c%c%c%c%c%c%c\n", nibbles (bank_h));
+    (void)sprintf (buf, "7%c%c%c%c%c%c%c%c\n", nibbles (bank_h)); //-NLOK
     lwrite (fd, buf, 10);
-    (void)sprintf (buf, "8%c%c%c%c%c%c%c%c\n", nibbles (bank_i));
+    (void)sprintf (buf, "8%c%c%c%c%c%c%c%c\n", nibbles (bank_i)); //-NLOK
     lwrite (fd, buf, 10);
-    (void)sprintf (buf, "9%c%c%c%c%c%c%c%c\n", nibbles (bank_j));
+    (void)sprintf (buf, "9%c%c%c%c%c%c%c%c\n", nibbles (bank_j)); //-NLOK
     lwrite (fd, buf, 10);
-    (void)sprintf (buf, ":%c%c%c%c%c%c%c%c\n", nibbles (bank_k));
+    (void)sprintf (buf, ":%c%c%c%c%c%c%c%c\n", nibbles (bank_k)); //-NLOK
     lwrite (fd, buf, 10);
-    (void)sprintf (buf, ";%c%c%c%c%c%c%c%c\n", nibbles (bank_l));
+    (void)sprintf (buf, ";%c%c%c%c%c%c%c%c\n", nibbles (bank_l)); //-NLOK
     lwrite (fd, buf, 10);
-    (void)sprintf (buf, "<%c%c%c%c%c%c%c%c\n", nibbles (bank_m));
+    (void)sprintf (buf, "<%c%c%c%c%c%c%c%c\n", nibbles (bank_m)); //-NLOK
     lwrite (fd, buf, 10);
-    (void)sprintf (buf, "=%c%c%c%c%c%c%c%c\n", nibbles (bank_n));
+    (void)sprintf (buf, "=%c%c%c%c%c%c%c%c\n", nibbles (bank_n)); //-NLOK
     lwrite (fd, buf, 10);
-    (void)sprintf (buf, ">%c%c%c%c%c%c%c%c\n", nibbles (bank_o));
+    (void)sprintf (buf, ">%c%c%c%c%c%c%c%c\n", nibbles (bank_o)); //-NLOK
     lwrite (fd, buf, 10);
-    (void)sprintf (buf, "?%c%c%c%c%c%c%c%c\n", nibbles (bank_p));
+    (void)sprintf (buf, "?%c%c%c%c%c%c%c%c\n", nibbles (bank_p)); //-NLOK
     lwrite (fd, buf, 10);
 #if defined(__MINGW64__) || defined(__MINGW32__)
 #else
@@ -1185,7 +1185,7 @@ static void set_message (void)
             int whichbit = c2 % 8;
             unsigned char bit1 = fontbits & (1 << (/*7 -*/ whichbit));
             banks [r + start_row] [c] = !!bit1;
-//printw ("r %d c %d c2 %d char2 %d fontbits %02x whichbit %d bit1 %02x\n", r, c, c2, char2, fontbits, whichbit, bit1);
+//printw ("r %d c %d c2 %d char2 %d fontbits %02x whichbit %d bit1 %02x\r\n", r, c, c2, char2, fontbits, whichbit, bit1);
           }
       }
     c_offset = (c_offset + 1) % nbits;
@@ -1313,12 +1313,12 @@ more:;
         port_buf [port_state ++] = ch;
         if (port_state < 9)
           goto more;
-//(void)printf ("\n");
-//(void)printf ("got one\n");
+//(void)printf ("\r\n");
+//(void)printf ("got one\r\n");
 
         //for (int i = 0; i < 9; i ++)
           //(void)printf ("%c", port_buf [i]);
-        //(void)printf ("\n");
+        //(void)printf ("\r\n");
 
         port_data [ 0] = !! (port_buf [1] & 020);
         port_data [ 1] = !! (port_buf [1] & 010);
@@ -1370,7 +1370,7 @@ more:;
 
         //for (int i = 0; i < 40; i ++)
           //(void)printf ("%d", port_data [i] ? 1 : 0);
-        //(void)printf ("\n");
+        //(void)printf ("\r\n");
 
         port_state = 0;
 
@@ -1408,8 +1408,8 @@ more:;
               SETS (cpu.DATA_panel_ds_sw, port_data, 0, 4);
         //for (int i = 0; i < 40; i ++)
           //(void)printf ("%d", port_data [i] ? 1 : 0);
-        //(void)printf ("\n");
-//(void)printf ("set to %d\n", cpu.DATA_panel_ds_sw);
+        //(void)printf ("\r\n");
+//(void)printf ("set to %d\r\n", cpu.DATA_panel_ds_sw);
               switch (cpu.DATA_panel_ds_sw)
                 {
                   case 0:
@@ -1462,7 +1462,7 @@ static volatile bool scraperCancel = false;
 
 static void * scraperThreadMain (void * arg)
   {
-    sim_printf ("panel scraper\n");
+    sim_printf ("panel scraper\r\n");
     uint cpuNum = (uint) * (int *) arg;
     panel_cpup = cpus + cpuNum;
 
@@ -1472,12 +1472,12 @@ static void * scraperThreadMain (void * arg)
     int fd = open(device, O_RDWR | O_NOCTTY | O_NDELAY);
     if(fd == -1)
       {
-        (void)printf( "failed to open port\n" );
+        (void)printf( "failed to open port\r\n" );
         goto die;
       }
     if(tcgetattr(fd, &config) < 0)
       {
-        (void)printf ("can't get\n");
+        (void)printf ("can't get\r\n");
         close (fd);
         goto die;
       }
@@ -1534,7 +1534,7 @@ static void * scraperThreadMain (void * arg)
     //
     if(cfsetispeed(&config, B38400) < 0 || cfsetospeed(&config, B38400) < 0)
       {
-        (void)printf ("can't set speed\n");
+        (void)printf ("can't set speed\r\n");
         close (fd);
         goto die;
       }
@@ -1544,7 +1544,7 @@ static void * scraperThreadMain (void * arg)
      //
      if(tcsetattr(fd, TCSAFLUSH, &config) < 0)
        {
-         (void)printf ("can't set %d\n", errno);
+         (void)printf ("can't set %d\r\n", errno);
          close (fd);
          goto die;
        }
@@ -1578,7 +1578,7 @@ int panelScraperStart (void)
   {
     if (scraperRunning)
       {
-        sim_printf ("scraper already running\n");
+        sim_printf ("scraper already running\r\n");
         return SCPE_ARG;
       }
 
@@ -1593,7 +1593,7 @@ int panelScraperStart (void)
       scraperRunning = true;
     else
       {
-        sim_printf ("pthread_create returned %d\n", rc);
+        sim_printf ("pthread_create returned %d\r\n", rc);
         return SCPE_ARG;
       }
     return SCPE_OK;
@@ -1603,13 +1603,13 @@ int panelScraperStop (void)
   {
     if (! scraperRunning)
       {
-        sim_printf ("scraper not running\n");
+        sim_printf ("scraper not running\r\n");
         return SCPE_ARG;
       }
 
     scraperCancel = true;
 
-    sim_printf ("scraper signaled\n");
+    sim_printf ("scraper signaled\r\n");
     return SCPE_OK;
   }
 

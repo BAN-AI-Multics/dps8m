@@ -141,13 +141,13 @@ uint128 add_128 (uint128 a, uint128 b)
 
 uint128 subtract_128 (uint128 a, uint128 b)
   {
-//(void)printf ("sub a %016llx %016llx\n", a.h, a.l);
-//(void)printf ("sub b %016llx %016llx\n", b.h, b.l);
+//(void)printf ("sub a %016llx %016llx\r\n", a.h, a.l);
+//(void)printf ("sub b %016llx %016llx\r\n", b.h, b.l);
     bool borrow = !! (b.l > a.l);
     uint128 res = construct_128 (a.h - b.h, a.l - b.l);
     if (borrow)
       res.h --;
-//(void)printf ("sub res %016llx %016llx\n", res.h, res.l);
+//(void)printf ("sub res %016llx %016llx\r\n", res.h, res.l);
     return res;
   }
 
@@ -229,11 +229,11 @@ uint128 rshift_128 (uint128 a, unsigned int n)
         return construct_128 (0, a.h);
       }
     uint64_t nmask = (uint64_t) ((1LLU << (n - 65)) - 1);
-(void)printf ("nmask %016llx\n", nmask);
+(void)printf ("nmask %016llx\r\n", nmask);
     uint64_t l = a.h >> (n - 64);
-(void)printf ("l %016llx\n", l);
+(void)printf ("l %016llx\r\n", l);
     uint64_t h = sign ? MASK64 : 0;
-(void)printf ("h %016llx\n", h);
+(void)printf ("h %016llx\r\n", h);
     if (sign)
       {
         // extending the signbit
@@ -244,7 +244,7 @@ uint128 rshift_128 (uint128 a, unsigned int n)
         // shifting zeros from on high
         l &= (uint64_t) (~(-1 << (64 - n)));
       }
-(void)printf ("l2 %016llx\n", l);
+(void)printf ("l2 %016llx\r\n", l);
 #  endif
 
     uint64_t h = a.h;
@@ -279,7 +279,7 @@ static void mulmn (uint32_t w[], uint32_t u[],
 //(void)fprintf (stderr, "  ");
 //for (int i = n - 1; i >= 0; i --)
 //  (void)fprintf (stderr, "%08x", v [i]);
-//(void)fprintf (stderr, "\n");
+//(void)fprintf (stderr, "\r\n");
     uint64_t k, t;
     int i, j;
 
@@ -292,7 +292,7 @@ static void mulmn (uint32_t w[], uint32_t u[],
         for (i = 0; i < m; i++)
           {
             t = (uint64_t) u[i] * (uint64_t) v[j] + (uint64_t) w[i + j] + k;
-//(void)printf ("%d %d %016llx\n",i, j, t);
+//(void)printf ("%d %d %016llx\r\n",i, j, t);
             w[i + j] = (uint32_t) t;        // (i.e., t & 0xFFFF).
             k = t >> 32;
           }
@@ -472,7 +472,7 @@ cmp_again:
 
 uint128 multiply_128 (uint128 a, uint128 b)
   {
-//(void)printf ("%016llx%016llx %016llx%016llx\n", a.h,a.l,b.h,b.l);
+//(void)printf ("%016llx%016llx %016llx%016llx\r\n", a.h,a.l,b.h,b.l);
     const int l = 4;
     uint32_t w[l+l], u[l], v[l];
 
@@ -492,7 +492,7 @@ uint128 multiply_128 (uint128 a, uint128 b)
 
 int128 multiply_s128 (int128 a, int128 b)
   {
-//(void)printf ("%016llx%016llx %016llx%016llx\n", a.h,a.l,b.h,b.l);
+//(void)printf ("%016llx%016llx %016llx%016llx\r\n", a.h,a.l,b.h,b.l);
     const int l = 4;
     uint32_t w[l+l], u[l], v[l];
 
@@ -643,7 +643,7 @@ static void tisz (uint64_t h, uint64_t l, bool expect)
     bool r = iszero_128 (construct_128 (h, l));
     ti_test_iter++;
     if (r != expect) {
-      (void)fprintf (stderr, "FATAL (%u): iszero_128 (%llu, %llu) returned %lu\n",
+      (void)fprintf (stderr, "FATAL (%u): iszero_128 (%llu, %llu) returned %lu\r\n",
                      ti_test_iter,
                      (unsigned long long)h, (unsigned long long)l, (unsigned long)r);
       kd_div_errors++;
@@ -658,7 +658,7 @@ static void tand (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
     uint128 r = and_128 (a, b);
     ti_test_iter++;
     if (r.h != rh || r.l != rl) {
-      (void)fprintf (stderr, "FATAL (%u): and_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
+      (void)fprintf (stderr, "FATAL (%u): and_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\r\n",
                      ti_test_iter,
                      (unsigned long long)ah, (unsigned long long)al,  (unsigned long long)bh,
                      (unsigned long long)bl, (unsigned long long)r.h, (unsigned long long)r.l);
@@ -674,7 +674,7 @@ static void tor (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
     uint128 r = or_128 (a, b);
     ti_test_iter++;
     if (r.h != rh || r.l != rl) {
-      (void)fprintf (stderr, "FATAL (%u): or_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
+      (void)fprintf (stderr, "FATAL (%u): or_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\r\n",
                      ti_test_iter,
                      (unsigned long long)ah, (unsigned long long)al, (unsigned long long)bh,
                      (unsigned long long)bl, (unsigned long long)r.h, (unsigned long long)r.l);
@@ -689,7 +689,7 @@ static void tcomp (uint64_t ah, uint64_t al,
     uint128 r = complement_128 (a);
     ti_test_iter++;
     if (r.h != rh || r.l != rl) {
-      (void)fprintf (stderr, "FATAL (%u): complement_128 (%016llx%016llx) returned %016llx%016llx\n",
+      (void)fprintf (stderr, "FATAL (%u): complement_128 (%016llx%016llx) returned %016llx%016llx\r\n",
                      ti_test_iter,
                      (unsigned long long)ah, (unsigned long long)al, (unsigned long long)r.h,
                      (unsigned long long)r.l);
@@ -705,7 +705,7 @@ static void tadd (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
     uint128 r = add_128 (a, b);
     ti_test_iter++;
     if (r.h != rh || r.l != rl) {
-      (void)fprintf (stderr, "FATAL %u): add_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
+      (void)fprintf (stderr, "FATAL %u): add_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\r\n",
                      ti_test_iter,
                      (unsigned long long)ah, (unsigned long long)al,  (unsigned long long)bh,
                      (unsigned long long)bl, (unsigned long long)r.h, (unsigned long long)r.l);
@@ -721,7 +721,7 @@ static void tsub (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
     uint128 r = subtract_128 (a, b);
     ti_test_iter++;
     if (r.h != rh || r.l != rl) {
-      (void)fprintf (stderr, "FATAL (%u): subtract_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
+      (void)fprintf (stderr, "FATAL (%u): subtract_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\r\n",
                      ti_test_iter,
                      (unsigned long long)ah, (unsigned long long)al,  (unsigned long long)bh,
                      (unsigned long long)bl, (unsigned long long)r.h, (unsigned long long)r.l);
@@ -736,7 +736,7 @@ static void tneg (uint64_t ah, uint64_t al,
     uint128 r = negate_128 (a);
     ti_test_iter++;
     if (r.h != rh || r.l != rl) {
-      (void)fprintf (stderr, "FATAL (%u): negate_128 (%016llx%016llx) returned %016llx%016llx\n",
+      (void)fprintf (stderr, "FATAL (%u): negate_128 (%016llx%016llx) returned %016llx%016llx\r\n",
                      ti_test_iter,
                      (unsigned long long)ah, (unsigned long long)al, (unsigned long long)r.h,
                      (unsigned long long)r.l);
@@ -752,7 +752,7 @@ static void tgt (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
     ti_test_iter++;
     bool r = isgt_128 (a, b);
     if (r != expect) {
-      (void)fprintf (stderr, "FATAL (%u): gt_128 (%016llx%016llx, %016llx%016llx) returned %llu\n",
+      (void)fprintf (stderr, "FATAL (%u): gt_128 (%016llx%016llx, %016llx%016llx) returned %llu\r\n",
                      ti_test_iter,
                      (unsigned long long)ah, (unsigned long long)al, (unsigned long long)bh,
                      (unsigned long long)bl, (unsigned long long)r);
@@ -767,7 +767,7 @@ static void tls (uint64_t ah, uint64_t al, unsigned int n,
     uint128 r = lshift_128 (a, n);
     ti_test_iter++;
     if (r.h != rh || r.l != rl) {
-      (void)fprintf (stderr, "FATAL (%u): lshift_128 (%016llx%016llx, %llu) returned %016llx%016llx\n",
+      (void)fprintf (stderr, "FATAL (%u): lshift_128 (%016llx%016llx, %llu) returned %016llx%016llx\r\n",
                      ti_test_iter,
                      (unsigned long long)ah,  (unsigned long long)al, (unsigned long long)n,
                      (unsigned long long)r.h, (unsigned long long)r.l);
@@ -782,7 +782,7 @@ static void trs (uint64_t ah, uint64_t al, unsigned int n,
     uint128 r = rshift_128 (a, n);
     ti_test_iter++;
     if (r.h != rh || r.l != rl) {
-      (void)fprintf (stderr, "FATAL (%u): rshift_128 (%016llx%016llx, %llu) returned %016llx%016llx\n",
+      (void)fprintf (stderr, "FATAL (%u): rshift_128 (%016llx%016llx, %llu) returned %016llx%016llx\r\n",
                      ti_test_iter,
                      (unsigned long long)ah,  (unsigned long long)al, (unsigned long long)n,
                      (unsigned long long)r.h, (unsigned long long)r.l);
@@ -798,7 +798,7 @@ static void tmul (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
     uint128 r = multiply_128 (a, b);
     ti_test_iter++;
     if (r.h != rh || r.l != rl) {
-      (void)fprintf (stderr, "FATAL (%u): multiply_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
+      (void)fprintf (stderr, "FATAL (%u): multiply_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\r\n",
                      ti_test_iter,
                      (unsigned long long)ah, (unsigned long long)al,  (unsigned long long)bh,
                      (unsigned long long)bl, (unsigned long long)r.h, (unsigned long long)r.l);
@@ -814,7 +814,7 @@ static void tsmul (int64_t ah, uint64_t al, int64_t bh, uint64_t bl,
     int128 r = multiply_s128 (a, b);
     ti_test_iter++;
     if (r.h != rh || r.l != rl) {
-      (void)fprintf (stderr, "FATAL (%u): multiply_s128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
+      (void)fprintf (stderr, "FATAL (%u): multiply_s128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\r\n",
                      ti_test_iter,
                      (unsigned long long)ah, (unsigned long long)al,  (unsigned long long)bh,
                      (unsigned long long)bl, (unsigned long long)r.h, (unsigned long long)r.l);
@@ -831,7 +831,7 @@ static void tdiv16 (uint64_t ah, uint64_t al, uint16_t b,
     uint128 res = divide_128_16 (a, b, & rem);
     ti_test_iter++;
     if (res.h != resh || res.l != resl || rem != remainder) {
-      (void)fprintf (stderr, "FATAL (%u): divide_128_16 (%016llx%016llx, %04x) returned %016llx%016llx, %04x\n",
+      (void)fprintf (stderr, "FATAL (%u): divide_128_16 (%016llx%016llx, %04x) returned %016llx%016llx, %04x\r\n",
                      ti_test_iter,
                      (unsigned long long)ah,    (unsigned long long)al, b,
                      (unsigned long long)res.h, (unsigned long long)res.l, rem);
@@ -848,7 +848,7 @@ static void tdiv32 (uint64_t ah, uint64_t al, uint32_t b,
     uint128 res = divide_128_32 (a, b, & rem);
     ti_test_iter++;
     if (res.h != resh || res.l != resl || rem != remainder) {
-      (void)fprintf (stderr, "FATAL (%u): divide_128_32 (%016llx%016llx, %08x) returned %016llx%016llx, %08x\n",
+      (void)fprintf (stderr, "FATAL (%u): divide_128_32 (%016llx%016llx, %08x) returned %016llx%016llx, %08x\r\n",
                      ti_test_iter,
                      (unsigned long long)ah,    (unsigned long long)al, b,
                      (unsigned long long)res.h, (unsigned long long)res.l, rem);

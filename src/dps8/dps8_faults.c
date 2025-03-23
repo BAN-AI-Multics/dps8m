@@ -254,12 +254,12 @@ static char fault_msg [1024];
 void emCallReportFault (void)
   {
            cpu_state_t * cpup = _cpup;
-           sim_printf ("fault report:\n");
-           sim_printf ("  fault number %d (%o)\n", cpu . faultNumber, cpu . faultNumber);
-           sim_printf ("  subfault number %llu (%llo)\n", (unsigned long long) cpu.subFault.bits,
+           sim_printf ("fault report:\r\n");
+           sim_printf ("  fault number %d (%o)\r\n", cpu . faultNumber, cpu . faultNumber);
+           sim_printf ("  subfault number %llu (%llo)\r\n", (unsigned long long) cpu.subFault.bits,
                    (unsigned long long)cpu.subFault.bits);
-           sim_printf ("  faulting address %05o:%06o\n", fault_psr, fault_ic);
-           sim_printf ("  msg %s\n", fault_msg);
+           sim_printf ("  faulting address %05o:%06o\r\n", fault_psr, fault_ic);
+           sim_printf ("  msg %s\r\n", fault_msg);
   }
 #endif /* if defined(TESTING) */
 
@@ -386,13 +386,13 @@ else if (faultNumber == FAULT_ACV)
 }
 #endif /* if defined(LOOPRTC) */
 //if (current_running_cpu_idx)
-    //sim_printf ("Fault %d(0%0o), sub %ld(0%lo), dfc %c, '%s'\n",
+    //sim_printf ("Fault %d(0%0o), sub %ld(0%lo), dfc %c, '%s'\r\n",
                //faultNumber, faultNumber, subFault, subFault,
                //cpu . bTroubleFaultCycle ? 'Y' : 'N', faultMsg);
 //if (current_running_cpu_idx)
-    //sim_printf ("xde %d xdo %d\n", cpu.cu.xde, cpu.cu.xdo);
+    //sim_printf ("xde %d xdo %d\r\n", cpu.cu.xde, cpu.cu.xdo);
     sim_debug (DBG_FAULT, & cpu_dev,
-               "Fault %d(0%0o), sub %"PRIu64"(0%"PRIo64"), dfc %c, '%s'\n",
+               "Fault %d(0%0o), sub %"PRIu64"(0%"PRIo64"), dfc %c, '%s'\r\n",
                faultNumber, faultNumber, subFault.bits, subFault.bits,
                cpu . bTroubleFaultCycle ? 'Y' : 'N', faultMsg);
 #if defined(PROFILER)
@@ -422,10 +422,10 @@ else if (faultNumber == FAULT_ACV)
     //if (faultNumber < 0 || faultNumber > 31)
     if (faultNumber & ~037U)  // quicker?
     {
-        sim_printf ("fault(out-of-range): %d %llo '%s'\n",
+        sim_printf ("fault(out-of-range): %d %llo '%s'\r\n",
                     faultNumber, (unsigned long long)subFault.bits,
                     faultMsg ? faultMsg : "?");
-        sim_warn ("fault out-of-range\n");
+        sim_warn ("fault out-of-range\r\n");
         faultNumber = FAULT_TRB; // XXX Really? this is a simulator bug, not a trouble fault
     }
 
@@ -491,7 +491,7 @@ else if (faultNumber == FAULT_ACV)
               cpu . faultRegister [0] |= FR_CON_D;
               break;
             default:
-              sim_warn ("FAULT_CON can't map port %lo\n", (long unsigned) subFault.fault_con_subtype);
+              sim_warn ("FAULT_CON can't map port %lo\r\n", (long unsigned) subFault.fault_con_subtype);
               break;
           }
       }
@@ -543,9 +543,9 @@ else if (faultNumber == FAULT_ACV)
                (faultNumber == FAULT_IPR && (subFault.fault_ipr_subtype & FR_ILL_OP_CONST) &&
                 cpu.currentInstruction.opcodeX &&
                 (cpu.currentInstruction.opcode & 0410) == 0)));
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "MIF %o\n", TST_I_MIF);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "MIF %o\r\n", TST_I_MIF);
 #if 0
-sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle,
+sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\r\n", cpu.cycle,
            cpu.currentInstruction.info->ndes, faultNumber,
            (cpu . cycle == EXEC_cycle && cpu . currentInstruction . info -> ndes > 0) \
             || faultNumber == FAULT_IPR);
@@ -671,7 +671,7 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle,
 
     if (cpu.cycle == FAULT_EXEC_cycle)
       {
-        sim_debug (DBG_CYCLE, & cpu_dev, "Changing fault number to Trouble fault\n");
+        sim_debug (DBG_CYCLE, & cpu_dev, "Changing fault number to Trouble fault\r\n");
 
         cpu.faultNumber   = FAULT_TRB;
         cpu.cu.FI_ADDR    = FAULT_TRB;
@@ -686,10 +686,10 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle,
                                        // break this logic
               {
                 sim_printf \
-                    ("Fault cascade @0%06o with no interrupts pending and no events in queue\n",
+                    ("Fault cascade @0%06o with no interrupts pending and no events in queue\r\n",
                      cpu.PPR.IC);
-                sim_printf("\nCycles = %"PRId64"\n", cpu.cycleCnt);
-                sim_printf("\nInstructions = %"PRId64"\n", cpu.instrCnt);
+                sim_printf("\r\nCycles = %"PRId64"\r\n", cpu.cycleCnt);
+                sim_printf("\r\nInstructions = %"PRId64"\r\n", cpu.instrCnt);
                 //stop_reason = STOP_FLT_CASCADE;
                 longjmp (cpu.jmpMain, JMP_STOP);
               }
@@ -714,7 +714,7 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle,
       cpu.instrCnt ++;
 
     cpu . cycle = FAULT_cycle;
-    sim_debug (DBG_CYCLE, & cpu_dev, "Setting cycle to FAULT_cycle\n");
+    sim_debug (DBG_CYCLE, & cpu_dev, "Setting cycle to FAULT_cycle\r\n");
     longjmp (cpu.jmpMain, JMP_REENTRY);
 #if !defined(__SUNPRO_C) && !defined(__SUNPRO_CC)
     /*NOTREACHED*/ /* unreachable */
@@ -725,7 +725,7 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle,
 void do_FFV_fault (cpu_state_t * cpup, uint fault_number, const char * fault_msg)
   {
     sim_debug (DBG_FAULT, & cpu_dev,
-               "Floating fault %d '%s'\n",
+               "Floating fault %d '%s'\r\n",
                fault_number, fault_msg);
 #if !defined(SPEED)
     if_sim_debug (DBG_FAULT, & cpu_dev)
@@ -734,9 +734,9 @@ void do_FFV_fault (cpu_state_t * cpup, uint fault_number, const char * fault_msg
 
     if (fault_number < 1 || fault_number > 3)
       {
-        sim_printf ("floating fault(out-of-range): %d '%s'\n",
+        sim_printf ("floating fault(out-of-range): %d '%s'\r\n",
                     fault_number, fault_msg ? fault_msg : "?");
-        sim_warn ("fault out-of-range\n");
+        sim_warn ("fault out-of-range\r\n");
       }
 
     cpu.FFV_fault_number = fault_number;
@@ -803,7 +803,7 @@ void do_FFV_fault (cpu_state_t * cpup, uint fault_number, const char * fault_msg
 #if 1
     SC_I_MIF (cpu.cycle == EXEC_cycle &&
         cpu.currentInstruction.info->ndes > 0);
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "MIF %o\n", TST_I_MIF);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "MIF %o\r\n", TST_I_MIF);
 #endif
 
     // History registers
@@ -832,10 +832,10 @@ void do_FFV_fault (cpu_state_t * cpup, uint fault_number, const char * fault_msg
                                        // break this logic
               {
                 sim_printf \
-                    ("Fault cascade @0%06o with no interrupts pending and no events in queue\n",
+                    ("Fault cascade @0%06o with no interrupts pending and no events in queue\r\n",
                      cpu.PPR.IC);
-                sim_printf("\nCycles = %"PRId64"\n", cpu.cycleCnt);
-                sim_printf("\nInstructions = %"PRId64"\n", cpu.instrCnt);
+                sim_printf("\r\nCycles = %"PRId64"\r\n", cpu.cycleCnt);
+                sim_printf("\r\nInstructions = %"PRId64"\r\n", cpu.instrCnt);
                 longjmp (cpu.jmpMain, JMP_STOP);
               }
 #  endif /* if !defined(ROUND_ROBIN) */
@@ -847,7 +847,7 @@ void do_FFV_fault (cpu_state_t * cpup, uint fault_number, const char * fault_msg
             cpu.bTroubleFaultCycle = true;
           }
         cpu.cycle = FAULT_cycle;
-        sim_debug (DBG_CYCLE, & cpu_dev, "Setting cycle to FAULT_cycle\n");
+        sim_debug (DBG_CYCLE, & cpu_dev, "Setting cycle to FAULT_cycle\r\n");
         longjmp (cpu.jmpMain, JMP_REENTRY);
       }
     cpu.bTroubleFaultCycle = false;
@@ -898,7 +898,7 @@ bool bG7PendingNoTRO (cpu_state_t * cpup)
 void setG7fault (uint cpuNo, _fault faultNo)
   {
     cpu_state_t * cpup = &cpus[cpuNo];
-    sim_debug (DBG_FAULT, & cpu_dev, "setG7fault CPU %d fault %d (%o)\n",
+    sim_debug (DBG_FAULT, & cpu_dev, "setG7fault CPU %d fault %d (%o)\r\n",
                cpuNo, faultNo, faultNo);
 #if defined(THREADZ) || defined(LOCKLESS)
     //__atomic_or_fetch (& cpup->g7FaultsPreset, (1u << faultNo), __ATOMIC_ACQUIRE);
@@ -914,7 +914,7 @@ void setG7fault (uint cpuNo, _fault faultNo)
 
 void set_FFV_fault (cpu_state_t * cpup, uint f_fault_no)
   {
-    sim_debug (DBG_FAULT, & cpu_dev, "set_FFV_fault CPU f_fault_no %u\n",
+    sim_debug (DBG_FAULT, & cpu_dev, "set_FFV_fault CPU f_fault_no %u\r\n",
                f_fault_no);
     // Map fault number (2/4/6) to bit mask  01/02/04
     cpu.FFV_faults_preset |= 1u << ((f_fault_no / 2) - 1);
@@ -927,10 +927,10 @@ void clearTROFault (cpu_state_t * cpup)
 
 void doG7Fault (cpu_state_t * cpup, bool allowTR)
   {
-    // sim_printf ("doG7fault %08o [%"PRId64"]\n", cpu . g7Faults, cpu.cycleCnt);
+    // sim_printf ("doG7fault %08o [%"PRId64"]\r\n", cpu . g7Faults, cpu.cycleCnt);
     // if (cpu . g7Faults)
       // {
-        // sim_debug (DBG_FAULT, & cpu_dev, "doG7Fault %08o\n", cpu . g7Faults);
+        // sim_debug (DBG_FAULT, & cpu_dev, "doG7Fault %08o\r\n", cpu . g7Faults);
       // }
     // According AL39,  Table 7-1. List of Faults, priority of connect is 25
     // and priority of Timer runout is 26, lower number means higher priority
@@ -951,7 +951,7 @@ void doG7Fault (cpu_state_t * cpup, bool allowTR)
        {
          cpu . g7Faults &= ~(1u << FAULT_TRO);
 
-         //sim_printf("timer runout %12o\n",cpu.PPR.IC);
+         //sim_printf("timer runout %12o\r\n",cpu.PPR.IC);
 #if defined(THREADZ) || defined(LOCKLESS)
          unlock_scu ();
 #endif

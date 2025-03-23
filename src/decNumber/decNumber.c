@@ -6708,7 +6708,9 @@ static void decSetCoeff(decNumber *dn, decContext *set, const Unit *lsu,
         count-=(DECDPUN-cut);
         if (count<=0) break;
         up++;
+#if !defined(__clang_analyzer__)
         quot=*up;
+#endif
 #if DECDPUN<=4
           quot=QUOT10(quot, cut);
           rem=*up-quot*powers[cut];

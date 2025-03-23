@@ -24,20 +24,20 @@
 #include "decNumber.h"        // base number library
 #include "decNumberLocal.h"   // decNumber local types, etc.
 
-#define PRINTDEC(msg, dn)                        \
-    {                                            \
-        if_sim_debug (DBG_TRACEEXT, & cpu_dev)   \
-          {                                      \
-            char temp[256];                      \
-            decNumberToString(dn, temp);         \
-            sim_printf("%s:'%s'\n", msg, temp);  \
-          }                                      \
+#define PRINTDEC(msg, dn)                          \
+    {                                              \
+        if_sim_debug (DBG_TRACEEXT, & cpu_dev)     \
+          {                                        \
+            char temp[256];                        \
+            decNumberToString(dn, temp);           \
+            sim_printf("%s:'%s'\r\n", msg, temp);  \
+          }                                        \
     }
 
-#define PRINTALL(msg, dn, set)                                                     \
-    {                                                                              \
-        if_sim_debug (DBG_TRACEEXT, & cpu_dev)                                     \
-        sim_printf("%s:'%s E%d'\n", msg, getBCDn(dn, set->digits), dn->exponent);  \
+#define PRINTALL(msg, dn, set)                                                       \
+    {                                                                                \
+        if_sim_debug (DBG_TRACEEXT, & cpu_dev)                                       \
+        sim_printf("%s:'%s E%d'\r\n", msg, getBCDn(dn, set->digits), dn->exponent);  \
     }
 
 decContext * decContextDefaultDPS8(decContext *context);

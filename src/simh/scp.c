@@ -567,409 +567,409 @@ const t_value width_mask[] = { 0,
 
 static const char simh_help[] =
        /***************** 80 character line width template *************************/
-      "1Commands\n"
+      "1Commands\n" //-NLOK
 #define HLP_RESET       "*Commands Resetting Devices"
        /***************** 80 character line width template *************************/
-      "2Resetting Devices\n"
-      " The `RESET` command (*abbreviated* `RE`) resets a device or the entire\n"
-      " simulator to a predefined condition.  If the switch \"`-p`\" is specified,\n"
-      " the device is reset to its initial power-on state:\n\n"
-      "++RESET                  resets all devices\n"
-      "++RESET -p               power-cycle all devices\n"
-      "++RESET ALL              resets all devices\n"
-      "++RESET <device>         resets the specified <device>\n\n"
-      " * Typically, `RESET` *aborts* in-progress I/O operations, *clears* any\n"
-      " interrupt requests, and returns the device to a quiescent state.\n\n"
-      " * It does **NOT** clear the main memory or affect associated I/O\n"
-      " connections.\n"
+      "2Resetting Devices\n" //-NLOK
+      " The `RESET` command (*abbreviated* `RE`) resets a device or the entire\r\n"
+      " simulator to a predefined condition.  If the switch \"`-p`\" is specified,\r\n"
+      " the device is reset to its initial power-on state:\r\n\r\n"
+      "++RESET                  resets all devices\r\n"
+      "++RESET -p               power-cycle all devices\r\n"
+      "++RESET ALL              resets all devices\r\n"
+      "++RESET <device>         resets the specified <device>\r\n\r\n"
+      " * Typically, `RESET` *aborts* in-progress I/O operations, *clears* any\r\n"
+      " interrupt requests, and returns the device to a quiescent state.\r\n\r\n"
+      " * It does **NOT** clear the main memory or affect associated I/O\r\n"
+      " connections.\r\n"
 #define HLP_EXAMINE     "*Commands Examining_and_Changing_State"
 #define HLP_IEXAMINE    "*Commands Examining_and_Changing_State"
 #define HLP_DEPOSIT     "*Commands Examining_and_Changing_State"
 #define HLP_IDEPOSIT    "*Commands Examining_and_Changing_State"
        /***************** 80 character line width template *************************/
-      "2Examining and Changing State\n"
-      " There are four commands to examine and change state:\n\n"
-      " * `EXAMINE` (*abbreviated* `E`) examines state\n"
-      " * `DEPOSIT` (*abbreviated* `D`) changes state\n"
-      " * `IEXAMINE` (\"interactive examine\", *abbreviated* `IE`) examines state\n"
-      "    and allows the user to interactively change it\n"
-      " * `IDEPOSIT` (interactive deposit, *abbreviated* `ID`) allows the user to\n"
-      "    interactively change state\n\n"
-      " All four commands take the form:\n\n"
-      "++command {modifiers} <object list>\n\n"
-      " The `DEPOSIT` command requires the deposit value at the end of the command.\n\n"
-      " There are four kinds of modifiers: **switches**, **device/unit name**,\n"
-      " **search specifier**, and for `EXAMINE`, **output file**.\n\n"
-      " * **Switches** have been described previously.\n"
-      " * A **device/unit name** identifies the device and unit whose address\n"
-      " space is to be examined or modified. If no device is specified, the CPU\n"
-      " main memory is selected. If a device but no unit is specified, unit `0`\n"
-      " of the specified device is selected automatically.\n"
-      " * The **search specifier** provides criteria for testing addresses or\n"
-      " registers to see if they should be processed.  The search specifier\n"
-      " consists of a \"<`logical operator`>\", a \"<`relational operator`>\", or\n"
-      " both, optionally separated by spaces:\n\n"
-      "++{ < logical op >  < value > }  < relational op >  < value >\n\n"
+      "2Examining and Changing State\n" //-NLOK
+      " There are four commands to examine and change state:\r\n\r\n"
+      " * `EXAMINE` (*abbreviated* `E`) examines state\r\n"
+      " * `DEPOSIT` (*abbreviated* `D`) changes state\r\n"
+      " * `IEXAMINE` (\"interactive examine\", *abbreviated* `IE`) examines state\r\n"
+      "    and allows the user to interactively change it\r\n"
+      " * `IDEPOSIT` (interactive deposit, *abbreviated* `ID`) allows the user to\r\n"
+      "    interactively change state\r\n\r\n"
+      " All four commands take the form:\r\n\r\n"
+      "++command {modifiers} <object list>\r\n\r\n"
+      " The `DEPOSIT` command requires the deposit value at the end of the command.\r\n\r\n"
+      " There are four kinds of modifiers: **switches**, **device/unit name**,\r\n"
+      " **search specifier**, and for `EXAMINE`, **output file**.\r\n\r\n"
+      " * **Switches** have been described previously.\r\n"
+      " * A **device/unit name** identifies the device and unit whose address\r\n"
+      " space is to be examined or modified. If no device is specified, the CPU\r\n"
+      " main memory is selected. If a device but no unit is specified, unit `0`\r\n"
+      " of the specified device is selected automatically.\r\n"
+      " * The **search specifier** provides criteria for testing addresses or\r\n"
+      " registers to see if they should be processed.  The search specifier\r\n"
+      " consists of a \"<`logical operator`>\", a \"<`relational operator`>\", or\r\n"
+      " both, optionally separated by spaces:\r\n\r\n"
+      "++{ < logical op >  < value > }  < relational op >  < value >\r\n\r\n"
        /***************** 80 character line width template *************************/
-      " * * The \"<`logical operator`>\" may be \"`&`\" (*and*), \"`|`\" (*or*),\n"
-      " or \"`^`\" (*exclusive or*), and the \"<`relational operator`>\" may\n"
-      " be \"`=`\" or \"`==`\" (*equal*), \"`!`\" or \"`!=`\" (*not\n"
-      " equal*), \">=\" (*greater than or equal*), \">\" (*greater\n"
-      " than*), \"<=\" (*less than or equal*), or \"<\" (*less than*).\n"
-      " * * If any \"<`logical operator`>\" is specified without\n"
-      " a \"<`relational operator`>\", it is ignored.\n"
-      " * * If any \"<`relational operator`>\" is specified without\n"
-      " a \"<`logical operator`>\", no logical operation is performed.\n"
-      " * * All comparisons are unsigned.\n\n"
-      " * The **output file** modifier redirects the command output to a file\n"
-      " instead of the console.  The **output file** modifier is specified with\n"
-      " the \"`@`\" (*commercial-at*) character, followed by a valid file name.\n\n"
-      " **NOTE**: Modifiers may be specified in any order.  If multiple\n"
-      " modifiers of the same type are specified, later modifiers override earlier\n"
-      " modifiers. If the **device/unit name** comes *after* the search specifier,\n"
-      " the search values will interpreted in the *radix of the CPU*, rather than\n"
-      " of the device/unit.\n\n"
-      " The \"<`object list`>\" argument consists of one or more of the following,\n"
-      " separated by commas:\n\n"
+      " * * The \"<`logical operator`>\" may be \"`&`\" (*and*), \"`|`\" (*or*),\r\n"
+      " or \"`^`\" (*exclusive or*), and the \"<`relational operator`>\" may\r\n"
+      " be \"`=`\" or \"`==`\" (*equal*), \"`!`\" or \"`!=`\" (*not\r\n"
+      " equal*), \">=\" (*greater than or equal*), \">\" (*greater\r\n"
+      " than*), \"<=\" (*less than or equal*), or \"<\" (*less than*).\r\n"
+      " * * If any \"<`logical operator`>\" is specified without\r\n"
+      " a \"<`relational operator`>\", it is ignored.\r\n"
+      " * * If any \"<`relational operator`>\" is specified without\r\n"
+      " a \"<`logical operator`>\", no logical operation is performed.\r\n"
+      " * * All comparisons are unsigned.\r\n\r\n"
+      " * The **output file** modifier redirects the command output to a file\r\n"
+      " instead of the console.  The **output file** modifier is specified with\r\n"
+      " the \"`@`\" (*commercial-at*) character, followed by a valid file name.\r\n\r\n"
+      " **NOTE**: Modifiers may be specified in any order.  If multiple\r\n"
+      " modifiers of the same type are specified, later modifiers override earlier\r\n"
+      " modifiers. If the **device/unit name** comes *after* the search specifier,\r\n"
+      " the search values will interpreted in the *radix of the CPU*, rather than\r\n"
+      " of the device/unit.\r\n\r\n"
+      " The \"<`object list`>\" argument consists of one or more of the following,\r\n"
+      " separated by commas:\r\n\r\n"
        /***************** 80 character line width template *************************/
-      "++register                the specified register\n"
-      "++register[sub1-sub2]     the specified register array locations,\n"
-      "++++++++                  starting at location sub1 up to and\n"
-      "++++++++                  including location sub2\n"
-      "++register[sub1/length]   the specified register array locations,\n"
-      "++++++++                  starting at location sub1 up to but\n"
-      "++++++++                  not including sub1+length\n"
-      "++register[ALL]           all locations in the specified register\n"
-      "++++++++                  array\n"
-      "++register1-register2     all the registers starting at register1\n"
-      "++++++++                  up to and including register2\n"
-      "++address                 the specified location\n"
-      "++address1-address2       all locations starting at address1 up to\n"
-      "++++++++                  and including address2\n"
-      "++address/length          all location starting at address up to\n"
-      "++++++++                  but not including address+length\n"
-      "++STATE                   all registers in the device\n"
-      "++ALL                     all locations in the unit\n"
-      "++$                       the last value displayed by an EXAMINE\n"
-      "++++++++                  command interpreted as an address\n"
-      "3Switches\n"
-      "4Formatting Control\n"
-      " Switches can be used to control the format of the displayed information:\n\n"
+      "++register                the specified register\r\n"
+      "++register[sub1-sub2]     the specified register array locations,\r\n"
+      "++++++++                  starting at location sub1 up to and\r\n"
+      "++++++++                  including location sub2\r\n"
+      "++register[sub1/length]   the specified register array locations,\r\n"
+      "++++++++                  starting at location sub1 up to but\r\n"
+      "++++++++                  not including sub1+length\r\n"
+      "++register[ALL]           all locations in the specified register\r\n"
+      "++++++++                  array\r\n"
+      "++register1-register2     all the registers starting at register1\r\n"
+      "++++++++                  up to and including register2\r\n"
+      "++address                 the specified location\r\n"
+      "++address1-address2       all locations starting at address1 up to\r\n"
+      "++++++++                  and including address2\r\n"
+      "++address/length          all location starting at address up to\r\n"
+      "++++++++                  but not including address+length\r\n"
+      "++STATE                   all registers in the device\r\n"
+      "++ALL                     all locations in the unit\r\n"
+      "++$                       the last value displayed by an EXAMINE\r\n"
+      "++++++++                  command interpreted as an address\r\n"
+      "3Switches\n" //-NLOK
+      "4Formatting Control\n" //-NLOK
+      " Switches can be used to control the format of the displayed information:\r\n\r\n"
        /***************** 80 character line width template *************************/
-      "5-a\n"
-      " display as ASCII\n"
-      "5-c\n"
-      " display as character string\n"
-      "5-m\n"
-      " display as instruction mnemonics\n"
-      "5-o\n"
-      " display as octal\n"
-      "5-d\n"
-      " display as decimal\n"
-      "5-h\n"
-      " display as hexadecimal\n\n"
-      "3Examples\n"
-      "++ex 1000-1100                examine 1000 to 1100\n"
-      "++de PC 1040                  set PC to 1040\n"
-      "++ie 40-50                    interactively examine 40:50\n"
-      "++ie >1000 40-50              interactively examine the subset\n"
-      "+++++++++                     of locations 40:50 that are >1000\n"
-      "++ex rx0 50060                examine 50060, RX unit 0\n"
-      "++ex rx sbuf[3-6]             examine SBUF[3] to SBUF[6] in RX\n"
-      "++de all 0                    set main memory to 0\n"
-      "++de &77>0 0                  set all addresses whose low order\n"
-      "+++++++++                     bits are non-zero to 0\n"
-      "++ex -m @memdump.txt 0-7777   dump memory to file\n\n"
-      " * **NOTE**: To terminate an interactive command, simply type any bad value\n"
-      "           (*e.g.* `XYZ`) when input is requested.\n"
+      "5`-a`\n" //-NLOK
+      " display as ASCII\r\n"
+      "5`-c`\n" //-NLOK
+      " display as character string\r\n"
+      "5`-m`\n" //-NLOK
+      " display as instruction mnemonics\r\n"
+      "5`-o`\n" //-NLOK
+      " display as octal\r\n"
+      "5`-d`\n" //-NLOK
+      " display as decimal\r\n"
+      "5`-h`\n" //-NLOK
+      " display as hexadecimal\r\n\r\n"
+      "3Examples\n" //-NLOK
+      "++ex 1000-1100                examine 1000 to 1100\r\n"
+      "++de PC 1040                  set PC to 1040\r\n"
+      "++ie 40-50                    interactively examine 40:50\r\n"
+      "++ie >1000 40-50              interactively examine the subset\r\n"
+      "+++++++++                     of locations 40:50 that are >1000\r\n"
+      "++ex rx0 50060                examine 50060, RX unit 0\r\n"
+      "++ex rx sbuf[3-6]             examine SBUF[3] to SBUF[6] in RX\r\n"
+      "++de all 0                    set main memory to 0\r\n"
+      "++de &77>0 0                  set all addresses whose low order\r\n"
+      "+++++++++                     bits are non-zero to 0\r\n"
+      "++ex -m @memdump.txt 0-7777   dump memory to file\r\n\r\n"
+      " * **NOTE**: To terminate an interactive command, simply type any bad value\r\n"
+      "           (*e.g.* `XYZ`) when input is requested.\r\n"
 #define HLP_EVALUATE    "*Commands Evaluating_Instructions"
        /***************** 80 character line width template *************************/
-      "2Evaluating Instructions\n"
-      " The `EVAL` command evaluates a symbolic expression and returns the\n"
-      " equivalent numeric value.\n\n"
+      "2Evaluating Instructions\n" //-NLOK
+      " The `EVAL` command evaluates a symbolic expression and returns the\r\n"
+      " equivalent numeric value.\r\n\r\n"
        /***************** 80 character line width template *************************/
-      "2Running A Simulated Program\n"
+      "2Running A Simulated Program\n" //-NLOK
 #define HLP_RUN         "*Commands Running_A_Simulated_Program RUN"
-      "3RUN\n"
-      " The `RUN` command (*abbreviated* `RU`) resets all devices, deposits its\n"
-      " argument, if given, in the PC (program counter), and starts execution.\n"
-      " If no argument is given execution starts at the current PC.\n"
+      "3RUN\n" //-NLOK
+      " The `RUN` command (*abbreviated* `RU`) resets all devices, deposits its\r\n"
+      " argument, if given, in the PC (program counter), and starts execution.\r\n"
+      " If no argument is given execution starts at the current PC.\r\n"
 #define HLP_GO          "*Commands Running_A_Simulated_Program GO"
-      "3GO\n"
-      " The `GO` command does *not* reset devices, deposits its argument (if\n"
-      " given) in the PC, and starts execution.  If no argument is given,\n"
-      " execution starts at the current PC (program counter).\n"
+      "3GO\n" //-NLOK
+      " The `GO` command does *not* reset devices, deposits its argument (if\r\n"
+      " given) in the PC, and starts execution.  If no argument is given,\r\n"
+      " execution starts at the current PC (program counter).\r\n"
 #define HLP_CONTINUE    "*Commands Running_A_Simulated_Program Continuing_Execution"
-      "3Continuing Execution\n"
-      " The `CONTINUE` command (*abbreviated* `CONT` or `CO`) resumes execution\n"
-      " (if execution was stopped, possibly due to hitting a breakpoint) at the\n"
-      " current program counter without resetting any devices.\n"
+      "3Continuing Execution\n" //-NLOK
+      " The `CONTINUE` command (*abbreviated* `CONT` or `CO`) resumes execution\r\n"
+      " (if execution was stopped, possibly due to hitting a breakpoint) at the\r\n"
+      " current program counter without resetting any devices.\r\n"
 #define HLP_STEP        "*Commands Running_A_Simulated_Program Step_Execution"
-      "3Step Execution\n"
-      " The `STEP` command (*abbreviated* `S`) resumes execution at the current\n"
-      " PC for the number of instructions given by its argument.  If no argument\n"
-      " is supplied, one instruction is executed.\n"
-      "4Switches\n"
-      "5`-T`\n"
-      " If the `STEP` command is invoked with the \"`-T`\" switch, the step\n"
-      " command will cause execution to run for *microseconds* rather than\n"
-      " instructions.\n"
+      "3Step Execution\n" //-NLOK
+      " The `STEP` command (*abbreviated* `S`) resumes execution at the current\r\n"
+      " PC for the number of instructions given by its argument.  If no argument\r\n"
+      " is supplied, one instruction is executed.\r\n"
+      "4Switches\n" //-NLOK
+      "5`-T`\n" //-NLOK
+      " If the `STEP` command is invoked with the \"`-T`\" switch, the step\r\n"
+      " command will cause execution to run for *microseconds* rather than\r\n"
+      " instructions.\r\n"
 #define HLP_NEXT        "*Commands Running_A_Simulated_Program NEXT"
-      "3NEXT\n"
-      " The `NEXT` command (*abbreviated* `N`) resumes execution at the current PC\n"
-      " for one instruction, attempting to execute *through* subroutine calls.\n"
-      " If the next instruction to be executed is *not* a subroutine call, then\n"
-      " one instruction is executed.\n"
+      "3NEXT\n" //-NLOK
+      " The `NEXT` command (*abbreviated* `N`) resumes execution at the current PC\r\n"
+      " for one instruction, attempting to execute *through* subroutine calls.\r\n"
+      " If the next instruction to be executed is *not* a subroutine call, then\r\n"
+      " one instruction is executed.\r\n"
 #define HLP_BOOT        "*Commands Running_A_Simulated_Program Booting_the_system"
-      "3Booting the system\n"
-      " The `BOOT` command (*abbreviated* `BO`) resets all devices and bootstraps\n"
-      " the device and unit given by its argument. If no unit is supplied,\n"
-      " unit `0` is bootstrapped.  The specified unit must be `ATTACH`'ed.\n\n"
-      " When booting Multics, the boot device should always be `iom0`.\n"
-      " Assuming a tape is attached to the `tape0` device, it will be bootstrapped\n"
-      " into memory and the system will transfer control to the boot record.\n\n"
-      " **Example**\n\n"
-      "++; Boot Multics using iom0\n"
-      "++boot iom0\n\n"
+      "3Booting the system\n" //-NLOK
+      " The `BOOT` command (*abbreviated* `BO`) resets all devices and bootstraps\r\n"
+      " the device and unit given by its argument. If no unit is supplied,\r\n"
+      " unit `0` is bootstrapped.  The specified unit must be `ATTACH`'ed.\r\n\r\n"
+      " When booting Multics, the boot device should always be `iom0`.\r\n"
+      " Assuming a tape is attached to the `tape0` device, it will be bootstrapped\r\n"
+      " into memory and the system will transfer control to the boot record.\r\n\r\n"
+      " **Example**\r\n\r\n"
+      "++; Boot Multics using iom0\r\n"
+      "++boot iom0\r\n\r\n"
        /***************** 80 character line width template *************************/
-      "2Stopping The Simulator\n"
-      " The simulator runs until the simulated hardware encounters an error, or\n"
-      " until the user forces a stop condition.\n"
-      "3Simulator Detected Stop Conditions\n"
-      " These simulator-detected conditions stop simulation:\n\n"
-      "++-  HALT instruction.  If a HALT instruction is decoded, simulation stops.\n\n"
-      "++-  I/O error.  If an I/O error occurs during simulation of an I/O\n"
-      "+++operation, and the device stop-on-I/O-error flag is set, simulation\n"
-      "+++usually stops.\n\n"
-      "++-  Processor condition.  Certain processor conditions can stop\n"
-      "+++the simulation.\n"
-      "3User Specified Stop Conditions\n"
-      " Typing the interrupt character stops simulation.  The interrupt character\n"
-      " is defined by the `WRU` (*Where aRe yoU*) console option, and is initially\n"
-      " set to `005` (`^E`).\n\n"
+      "2Stopping The Simulator\n" //-NLOK
+      " The simulator runs until the simulated hardware encounters an error, or\r\n"
+      " until the user forces a stop condition.\r\n"
+      "3Simulator Detected Stop Conditions\n" //-NLOK
+      " These simulator-detected conditions stop simulation:\r\n\r\n"
+      "++-  HALT instruction.  If a HALT instruction is decoded, simulation stops.\r\n\r\n"
+      "++-  I/O error.  If an I/O error occurs during simulation of an I/O\r\n"
+      "+++operation, and the device stop-on-I/O-error flag is set, simulation\r\n"
+      "+++usually stops.\r\n\r\n"
+      "++-  Processor condition.  Certain processor conditions can stop\r\n"
+      "+++the simulation.\r\n"
+      "3User Specified Stop Conditions\n" //-NLOK
+      " Typing the interrupt character stops simulation.  The interrupt character\r\n"
+      " is defined by the `WRU` (*Where aRe yoU*) console option, and is initially\r\n"
+      " set to `005` (`^E`).\r\n\r\n"
        /***************** 80 character line width template *************************/
 #define HLP_BREAK       "*Commands Stopping_The_Simulator User_Specified_Stop_Conditions BREAK"
 #define HLP_NOBREAK     "*Commands Stopping_The_Simulator User_Specified_Stop_Conditions BREAK"
-      "4Breakpoints\n"
-      " The simulator offers breakpoint capability for debugging. Users may define\n"
-      " breakpoints of different types, identified by letter (for example, `E`\n"
-      " for *execution*, `R` for *read*, `W` for *write*, etc).\n\n"
-      " Associated with each breakpoint is a count and, optionally, one or more\n"
-      " actions.  Each time a breakpoint occurs, the associated count\n"
-      " is *decremented*.  If the count is less than or equal to `0`, the breakpoint\n"
-      " occurs; otherwise, it is deferred.  When the breakpoint occurs, any\n"
-      " optional actions are automatically executed.\n\n"
-      " A breakpoint is set by the `BREAK` (or `SET BREAK`) command:\n\n"
-      "++BREAK {-types} {<addr range>{[count]},{addr range...}}{;action;action...}\n\n"
-      " If no type is specified, the default breakpoint type (`E`, *execution*) is\n"
-      " used.  If no address range is specified, the current PC is used.  As\n"
-      " with `EXAMINE` and `DEPOSIT`, an address range may be a single address, a\n"
-      " range of addresses low-high, or a relative range of address/length.\n"
+      "4Breakpoints\n" //-NLOK
+      " The simulator offers breakpoint capability for debugging. Users may define\r\n"
+      " breakpoints of different types, identified by letter (for example, `E`\r\n"
+      " for *execution*, `R` for *read*, `W` for *write*, etc).\r\n\r\n"
+      " Associated with each breakpoint is a count and, optionally, one or more\r\n"
+      " actions.  Each time a breakpoint occurs, the associated count\r\n"
+      " is *decremented*.  If the count is less than or equal to `0`, the breakpoint\r\n"
+      " occurs; otherwise, it is deferred.  When the breakpoint occurs, any\r\n"
+      " optional actions are automatically executed.\r\n\r\n"
+      " A breakpoint is set by the `BREAK` (or `SET BREAK`) command:\r\n\r\n"
+      "++BREAK {-types} {<addr range>{[count]},{addr range...}}{;action;action...}\r\n\r\n"
+      " If no type is specified, the default breakpoint type (`E`, *execution*) is\r\n"
+      " used.  If no address range is specified, the current PC is used.  As\r\n"
+      " with `EXAMINE` and `DEPOSIT`, an address range may be a single address, a\r\n"
+      " range of addresses low-high, or a relative range of address/length.\r\n"
        /***************** 80 character line width template *************************/
-      "5Displaying Breakpoints\n"
-      " Currently set breakpoints can be displayed with the `SHOW BREAK` command:\n\n"
-      "++SHOW {-C} {-types} BREAK {ALL|<addr range>{,<addr range>...}}\n\n"
-      " Locations with breakpoints of the specified type are displayed.\n\n"
-      " The \"`-C`\" switch displays the selected breakpoint(s) formatted as\n"
-      " commands which may be subsequently used to establish the same\n"
-      " breakpoint(s).\n\n"
-      "5Removing Breakpoints\n"
-      " Breakpoints can be cleared by the `NOBREAK` or the `SET NOBREAK` commands.\n"
-      "5Examples\n"
-      " The following examples illustrate breakpoint usage:\n\n"
-      "++BREAK                      set E break at current PC\n"
-      "++BREAK -e 200               set E break at 200\n"
-      "++BREAK 2000/2[2]            set E breaks at 2000,2001 with count = 2\n"
-      "++BREAK 100;EX AC;D MQ 0     set E break at 100 with actions EX AC and\n"
-      "+++++++++D MQ 0\n"
-      "++BREAK 100;                 delete action on break at 100\n\n"
+      "5Displaying Breakpoints\n" //-NLOK
+      " Currently set breakpoints can be displayed with the `SHOW BREAK` command:\r\n\r\n"
+      "++SHOW {-C} {-types} BREAK {ALL|<addr range>{,<addr range>...}}\r\n\r\n"
+      " Locations with breakpoints of the specified type are displayed.\r\n\r\n"
+      " The \"`-C`\" switch displays the selected breakpoint(s) formatted as\r\n"
+      " commands which may be subsequently used to establish the same\r\n"
+      " breakpoint(s).\r\n\r\n"
+      "5Removing Breakpoints\n" //-NLOK
+      " Breakpoints can be cleared by the `NOBREAK` or the `SET NOBREAK` commands.\r\n"
+      "5Examples\n" //-NLOK
+      " The following examples illustrate breakpoint usage:\r\n\r\n"
+      "++BREAK                      set E break at current PC\r\n"
+      "++BREAK -e 200               set E break at 200\r\n"
+      "++BREAK 2000/2[2]            set E breaks at 2000,2001 with count = 2\r\n"
+      "++BREAK 100;EX AC;D MQ 0     set E break at 100 with actions EX AC and\r\n"
+      "+++++++++D MQ 0\r\n"
+      "++BREAK 100;                 delete action on break at 100\r\n\r\n"
        /***************** 80 character line width template *************************/
-      "2Connecting and Disconnecting Devices\n"
-      " Units are simulated as files on the host file system.  Before using any\n"
-      " simulated unit, the user must specify the file to be accessed by that unit.\n"
+      "2Connecting and Disconnecting Devices\n" //-NLOK
+      " Units are simulated as files on the host file system.  Before using any\r\n"
+      " simulated unit, the user must specify the file to be accessed by that unit.\r\n"
 #define HLP_ATTACH      "*Commands Connecting_and_Disconnecting_Devices Attaching_devices"
-      "3Attaching devices\n"
-      " The `ATTACH` (*abbreviation* `AT`) command associates a unit and a file:\n\n"
-      "++ATTACH <unit> <filename>\n\n"
-      " Some devices have more detailed or specific help available with:\n\n"
-      "++HELP <device> ATTACH\n\n"
-      "4Switches\n"
-      "5-n\n"
-      " If the \"`-n`\" switch is specified when `ATTACH` is executed, a new\n"
-      " file will be created when the filename specified does not exist, or an\n"
-      " existing file will have it's size truncated to zero, and an appropriate\n"
-      " message is printed.\n"
-      "5-e\n"
-      " If the file does not exist, and the \"`-e`\" switch *was not* specified,\n"
-      " a new file is created, and an appropriate message is printed.  If\n"
-      " the \"`-e`\" switch *was* specified, a new file is *not* created, and an\n"
-      " error message is printed.\n"
-      "5-r\n"
-      " If the \"`-r`\" switch is specified, or the file is write protected by\n"
-      " host operating system, `ATTACH` tries to open the file in read only mode.\n"
-      " If the file does not exist, or the unit does not support read only\n"
-      " operation, an error occurs.  Input-only devices, such as card readers, or\n"
-      " storage devices with write locking switches, such as disks or tapes,\n"
-      " support read only operation - other devices do not.  If a file is\n"
-      " attached read only, its contents can be examined but not modified.\n"
-      "5-q\n"
-      " If the \"`-q`\" switch is specified when creating a new file (\"`-n`\")\n"
-      " or opening one read only (\"`-r`\"), the message announcing this fact\n"
-      " is suppressed.\n"
-      "5-f\n"
-      " For simulated magnetic tapes, the `ATTACH` command can specify the format\n"
-      " of the attached tape image file:\n\n"
-      "++ATTACH -f <tape_unit> <format> <filename>\n\n"
-      " * The currently supported magnetic tape image file formats are:\n\n"
-      " |                  |                                                      |\n"
-      " | ----------------:|:---------------------------------------------------- |\n"
-      " | \"**`SIMH`**\"   | The **SIMH** / **DPS8M** native portable tape format |\n"
-      " | \"**`E11`**\"    | The *D Bit* **Ersatz-11** simulator format           |\n"
-      " | \"**`TPC`**\"    | The **TPC** format (*used by _SIMH_ prior to V2.3*)  |\n"
-      " | \"**`P7B`**\"    | The **Paul Pierce** `7`-track tape archive format    |\n\n"
+      "3Attaching devices\n" //-NLOK
+      " The `ATTACH` (*abbreviation* `AT`) command associates a unit and a file:\r\n\r\n"
+      "++ATTACH <unit> <filename>\r\n\r\n"
+      " Some devices have more detailed or specific help available with:\r\n\r\n"
+      "++HELP <device> ATTACH\r\n\r\n"
+      "4Switches\n" //-NLOK
+      "5`-n`\n" //-NLOK
+      " If the \"`-n`\" switch is specified when `ATTACH` is executed, a new\r\n"
+      " file will be created when the filename specified does not exist, or an\r\n"
+      " existing file will have it's size truncated to zero, and an appropriate\r\n"
+      " message is printed.\r\n"
+      "5`-e`\n" //-NLOK
+      " If the file does not exist, and the \"`-e`\" switch *was not* specified,\r\n"
+      " a new file is created, and an appropriate message is printed.  If\r\n"
+      " the \"`-e`\" switch *was* specified, a new file is *not* created, and an\r\n"
+      " error message is printed.\r\n"
+      "5`-r`\n" //-NLOK
+      " If the \"`-r`\" switch is specified, or the file is write protected by\r\n"
+      " host operating system, `ATTACH` tries to open the file in read only mode.\r\n"
+      " If the file does not exist, or the unit does not support read only\r\n"
+      " operation, an error occurs.  Input-only devices, such as card readers, or\r\n"
+      " storage devices with write locking switches, such as disks or tapes,\r\n"
+      " support read only operation - other devices do not.  If a file is\r\n"
+      " attached read only, its contents can be examined but not modified.\r\n"
+      "5`-q`\n" //-NLOK
+      " If the \"`-q`\" switch is specified when creating a new file (\"`-n`\")\r\n"
+      " or opening one read only (\"`-r`\"), the message announcing this fact\r\n"
+      " is suppressed.\r\n"
+      "5`-f`\n" //-NLOK
+      " For simulated magnetic tapes, the `ATTACH` command can specify the format\r\n"
+      " of the attached tape image file:\r\n\r\n"
+      "++ATTACH -f <tape_unit> <format> <filename>\r\n\r\n"
+      " * The currently supported magnetic tape image file formats are:\r\n\r\n"
+      " |                  |                                                      |\r\n"
+      " | ----------------:|:---------------------------------------------------- |\r\n"
+      " | \"**`SIMH`**\"   | The **SIMH** / **DPS8M** native portable tape format |\r\n"
+      " | \"**`E11`**\"    | The *D Bit* **Ersatz-11** simulator format           |\r\n"
+      " | \"**`TPC`**\"    | The **TPC** format (*used by _SIMH_ prior to V2.3*)  |\r\n"
+      " | \"**`P7B`**\"    | The **Paul Pierce** `7`-track tape archive format    |\r\n\r\n"
        /***************** 80 character line width template *************************/
-      " * The default tape format can also be specified with the `SET` command\n"
-      " prior to using the `ATTACH` command:\n\n"
-      "++SET <tape_unit> FORMAT=<format>\n"
-      "++ATTACH <tape_unit> <filename>\n\n"
-      " * The format of a currently attached tape image can be displayed with\n"
-      "   the `SHOW FORMAT` command:\n\n"
-      "++SHOW <unit> FORMAT\n\n"
-      " **Examples**\n\n"
-      " The following example illustrates common `ATTACH` usage:\n"
-      "++; Associate the tape image file \"12.7MULTICS.tap\" with the tape0 unit\n"
-      "++; in read-only mode, where tape0 corresponds to the first tape device.\n"
-      "++ATTACH -r tape0 12.7MULTICS.tap\n\n"
-      "++; Associate the disk image file \"root.dsk\" with the disk0 unit.\n"
-      "++; The disk0 unit corresponds to the first disk device.\n"
-      "++ATTACH disk0 root.dsk\n\n"
+      " * The default tape format can also be specified with the `SET` command\r\n"
+      " prior to using the `ATTACH` command:\r\n\r\n"
+      "++SET <tape_unit> FORMAT=<format>\r\n"
+      "++ATTACH <tape_unit> <filename>\r\n\r\n"
+      " * The format of a currently attached tape image can be displayed with\r\n"
+      "   the `SHOW FORMAT` command:\r\n\r\n"
+      "++SHOW <unit> FORMAT\r\n\r\n"
+      " **Examples**\r\n\r\n"
+      " The following example illustrates common `ATTACH` usage:\r\n"
+      "++; Associate the tape image file \"12.8MULTICS.tap\" with the tape0 unit\r\n"
+      "++; in read-only mode, where tape0 corresponds to the first tape device.\r\n"
+      "++ATTACH -r tape0 12.8MULTICS.tap\r\n\r\n"
+      "++; Associate the disk image file \"root.dsk\" with the disk0 unit.\r\n"
+      "++; The disk0 unit corresponds to the first disk device.\r\n"
+      "++ATTACH disk0 root.dsk\r\n\r\n"
        /***************** 80 character line width template *************************/
 #define HLP_DETACH      "*Commands Connecting_and_Disconnecting_Devices Detaching_devices"
-      "3Detaching devices\n"
-      " The `DETACH` (*abbreviation* `DET`) command breaks the association between\n"
-      " a unit and its backing file or device:\n\n"
-      "++DETACH ALL             Detach all units\n"
-      "++DETACH <unit>          Detach specified unit\n\n"
-      " * **NOTE:** The `EXIT` command performs an automatic `DETACH ALL`.\n"
+      "3Detaching devices\n" //-NLOK
+      " The `DETACH` (*abbreviation* `DET`) command breaks the association between\r\n"
+      " a unit and its backing file or device:\r\n\r\n"
+      "++DETACH ALL             Detach all units\r\n"
+      "++DETACH <unit>          Detach specified unit\r\n\r\n"
+      " * **NOTE:** The `EXIT` command performs an automatic `DETACH ALL`.\r\n"
 #define HLP_SET         "*Commands SET"
-      "2SET\n"
+      "2SET\n" //-NLOK
        /***************** 80 character line width template *************************/
 #define HLP_SET_LOG    "*Commands SET Logging"
-      "3Logging\n"
-      " Interactions with the simulator session can be recorded to a log file.\n\n"
-      "+SET LOG log_file            Specify the log destination\n"
-      "++++++++                     (STDOUT, DEBUG, or filename)\n"
-      "+SET NOLOG                   Disables any currently active logging\n"
-      "4Switches\n"
-      "5`-N`\n"
-      " By default, log output is written at the *end* of the specified log file.\n"
-      " A new log file can created if the \"`-N`\" switch is used on the command\n"
-      " line.\n\n"
-      "5`-B`\n"
-      " By default, log output is written in *text* mode.  The log file can be\n"
-      " opened for *binary* mode writing if the \"`-B`\" switch is used on the\n"
-      " command line.\n"
+      "3Logging\n" //-NLOK
+      " Interactions with the simulator session can be recorded to a log file.\r\n\r\n"
+      "+SET LOG log_file            Specify the log destination\r\n"
+      "++++++++                     (STDOUT, DEBUG, or filename)\r\n"
+      "+SET NOLOG                   Disables any currently active logging\r\n"
+      "4Switches\n" //-NLOK
+      "5`-N`\n" //-NLOK
+      " By default, log output is written at the *end* of the specified log file.\r\n"
+      " A new log file can created if the \"`-N`\" switch is used on the command\r\n"
+      " line.\r\n\r\n"
+      "5`-B`\n" //-NLOK
+      " By default, log output is written in *text* mode.  The log file can be\r\n"
+      " opened for *binary* mode writing if the \"`-B`\" switch is used on the\r\n"
+      " command line.\r\n"
 #define HLP_SET_DEBUG  "*Commands SET Debug_Messages"
        /***************** 80 character line width template *************************/
-      "3Debug Messages\n"
-      "+SET DEBUG debug_file        Specify the debug destination\n"
-      "++++++++                     (STDOUT, STDERR, LOG, or filename)\n"
-      "+SET NODEBUG                 Disables any currently active debug output\n"
-      "4Switches\n"
-      " Debug message output contains a timestamp which indicates the number of\n"
-      " simulated instructions which have been executed prior to the debug event.\n\n"
-      " Debug message output can be enhanced to contain additional, potentially\n"
-      " useful information.\n\n\n"
-      " **NOTE**: If neither \"`-T`\" or \"`-A`\" is specified, \"`-T`\" is implied.\n"
-      "5-T\n"
-      " The \"`-T`\" switch causes debug output to contain a time of day displayed\n"
-      " as `hh:mm:ss.msec`.\n"
-      "5-A\n"
-      " The \"`-A`\" switch causes debug output to contain a time of day displayed\n"
-      " as `seconds.msec`.\n"
-      "5-R\n"
-      " The \"`-R`\" switch causes timing to be relative to the start of debugging.\n"
-      "5-P\n"
-      " The \"`-P`\" switch adds the output of the PC (program counter) to each\n"
-      " debug message.\n"
-      "5-N\n"
-      " The \"`-N`\" switch causes a new (empty) file to be written to.\n"
-      " (The default is to append to an existing debug log file).\n"
-      "5-D\n"
-      " The \"`-D`\" switch causes data blob output to also display the data\n"
-      " as **`RADIX-50`** characters.\n"
-      "5-E\n"
-      " The \"`-E`\" switch causes data blob output to also display the data\n"
-      " as \"**EBCDIC**\" characters.\n"
+      "3Debug Messages\n" //-NLOK
+      "+SET DEBUG debug_file        Specify the debug destination\r\n"
+      "++++++++                     (STDOUT, STDERR, LOG, or filename)\r\n"
+      "+SET NODEBUG                 Disables any currently active debug output\r\n"
+      "4Switches\n" //-NLOK
+      " Debug message output contains a timestamp which indicates the number of\r\n"
+      " simulated instructions which have been executed prior to the debug event.\r\n\r\n"
+      " Debug message output can be enhanced to contain additional, potentially\r\n"
+      " useful information.\r\n\r\n\r\n"
+      " **NOTE**: If neither \"`-T`\" or \"`-A`\" is specified, \"`-T`\" is implied.\r\n"
+      "5`-T`\n" //-NLOK
+      " The \"`-T`\" switch causes debug output to contain a time of day displayed\r\n"
+      " as `hh:mm:ss.msec`.\r\n"
+      "5`-A`\n" //-NLOK
+      " The \"`-A`\" switch causes debug output to contain a time of day displayed\r\n"
+      " as `seconds.msec`.\r\n"
+      "5`-R`\n" //-NLOK
+      " The \"`-R`\" switch causes timing to be relative to the start of debugging.\r\n"
+      "5`-P`\n" //-NLOK
+      " The \"`-P`\" switch adds the output of the PC (program counter) to each\r\n"
+      " debug message.\r\n"
+      "5`-N`\n" //-NLOK
+      " The \"`-N`\" switch causes a new (empty) file to be written to.\r\n"
+      " (The default is to append to an existing debug log file).\r\n"
+      "5`-D`\n" //-NLOK
+      " The \"`-D`\" switch causes data blob output to also display the data\r\n"
+      " as **`RADIX-50`** characters.\r\n"
+      "5`-E`\n" //-NLOK
+      " The \"`-E`\" switch causes data blob output to also display the data\r\n"
+      " as \"**EBCDIC**\" characters.\r\n"
        /***************** 80 character line width template *************************/
 #define HLP_SET_ENVIRON "*Commands SET Environment_Variables"
-      "3Environment Variables\n"
-      "+SET ENVIRONMENT NAME=val    Set environment variable\n"
-      "+SET ENVIRONMENT NAME        Clear environment variable\n"
+      "3Environment Variables\n" //-NLOK
+      "+SET ENVIRONMENT NAME=val    Set environment variable\r\n"
+      "+SET ENVIRONMENT NAME        Clear environment variable\r\n"
 #define HLP_SET_ON      "*Commands SET Command_Status_Trap_Dispatching"
-      "3Command Status Trap Dispatching\n"
-      "+SET ON                      Enables error checking command execution\n"
-      "+SET NOON                    Disables error checking command execution\n"
-      "+SET ON INHERIT              Enables inheritance of ON state and actions\n"
-      "+SET ON NOINHERIT            Disables inheritance of ON state and actions\n"
+      "3Command Status Trap Dispatching\n" //-NLOK
+      "+SET ON                      Enables error checking command execution\r\n"
+      "+SET NOON                    Disables error checking command execution\r\n"
+      "+SET ON INHERIT              Enables inheritance of ON state and actions\r\n"
+      "+SET ON NOINHERIT            Disables inheritance of ON state and actions\r\n"
 #define HLP_SET_VERIFY "*Commands SET Command_Execution_Display"
-      "3Command Execution Display\n"
-      "+SET VERIFY                  Enables display of processed script commands\n"
-      "+SET VERBOSE                 Enables display of processed script commands\n"
-      "+SET NOVERIFY                Disables display of processed script commands\n"
-      "+SET NOVERBOSE               Disables display of processed script commands\n"
+      "3Command Execution Display\n" //-NLOK
+      "+SET VERIFY                  Enables display of processed script commands\r\n"
+      "+SET VERBOSE                 Enables display of processed script commands\r\n"
+      "+SET NOVERIFY                Disables display of processed script commands\r\n"
+      "+SET NOVERBOSE               Disables display of processed script commands\r\n"
 #define HLP_SET_MESSAGE "*Commands SET Command_Error_Status_Display"
-      "3Command Error Status Display\n"
-      "+SET MESSAGE                 Re-enables display of script error messages\n"
-      "+SET NOMESSAGE               Disables display of script error messages\n"
+      "3Command Error Status Display\n" //-NLOK
+      "+SET MESSAGE                 Re-enables display of script error messages\r\n"
+      "+SET NOMESSAGE               Disables display of script error messages\r\n"
 #define HLP_SET_QUIET "*Commands SET Command_Output_Display"
-      "3Command Output Display\n"
-      "+SET QUIET                   Disables suppression of some messages\n"
-      "+SET NOQUIET                 Re-enables suppression of some messages\n"
+      "3Command Output Display\n" //-NLOK
+      "+SET QUIET                   Disables suppression of some messages\r\n"
+      "+SET NOQUIET                 Re-enables suppression of some messages\r\n"
 #define HLP_SET_LOCALOPC "*Commands SET Local_Operator_Console"
-      "3Local Operator Console\n"
-      "+SET LOCALOPC                Enables local operator console\n"
-      "+SET NOLOCALOPC              Disables local operator console\n"
+      "3Local Operator Console\n" //-NLOK
+      "+SET LOCALOPC                Enables local operator console\r\n"
+      "+SET NOLOCALOPC              Disables local operator console\r\n"
 #define HLP_SET_PROMPT "*Commands SET Command_Prompt"
-      "3Command Prompt\n"
-      "+SET PROMPT \"string\"         Sets an alternate simulator prompt string\n"
-      "3Device and Unit Settings\n"
-      "+SET <dev> OCT|DEC|HEX       Set device display radix\n"
-      "+SET <dev> ENABLED           Enable device\n"
-      "+SET <dev> DISABLED          Disable device\n"
-      "+SET <dev> DEBUG{=arg}       Set device debug flags\n"
-      "+SET <dev> NODEBUG={arg}     Clear device debug flags\n"
-      "+SET <dev> arg{,arg...}      Set device parameters\n"
-      "+SET <unit> ENABLED          Enable unit\n"
-      "+SET <unit> DISABLED         Disable unit\n"
-      "+SET <unit> arg{,arg...}     Set unit parameters\n"
-      "+HELP <dev> SET              Displays any device specific SET commands\n"
-      " \n\n"
-      " See the Omnibus documentation for a complete SET command reference.\n"
+      "3Command Prompt\n" //-NLOK
+      "+SET PROMPT \"string\"         Sets an alternate simulator prompt string\r\n"
+      "3Device and Unit Settings\n" //-NLOK
+      "+SET <dev> OCT|DEC|HEX       Set device display radix\r\n"
+      "+SET <dev> ENABLED           Enable device\r\n"
+      "+SET <dev> DISABLED          Disable device\r\n"
+      "+SET <dev> DEBUG{=arg}       Set device debug flags\r\n"
+      "+SET <dev> NODEBUG={arg}     Clear device debug flags\r\n"
+      "+SET <dev> arg{,arg...}      Set device parameters\r\n"
+      "+SET <unit> ENABLED          Enable unit\r\n"
+      "+SET <unit> DISABLED         Disable unit\r\n"
+      "+SET <unit> arg{,arg...}     Set unit parameters\r\n"
+      "+HELP <dev> SET              Displays any device specific SET commands\r\n"
+      " \r\n\r\n"
+      " See the Omnibus documentation for a complete SET command reference.\r\n"
        /***************** 80 character line width template *************************/
 #define HLP_SHOW        "*Commands SHOW"
-      "2SHOW\n"
-      "+SH{OW} B{UILDINFO}               Show build-time compilation information\n"
-      "+SH{OW} CL{OCKS}                  Show wall clock and timer information\n"
-      "+SH{OW} C{ONFIGURATION}           Show simulator configuration\n"
-      "+SH{OW} D{EFAULT_BASE_SYSTEM}     Show default base system script\n"
-      "+SH{OW} DEV{ICES}                 Show devices\n"
-      "+SH{OW} H{INTS}                   Show configuration hints\n"
-      "+SH{OW} M{ODIFIERS}               Show SET commands for all devices\n"
-      "+SH{OW} O{N}                      Show ON condition actions\n"
-      "+SH{OW} P{ROM}                    Show CPU ID PROM initialization data\n"
-      "+SH{OW} Q{UEUE}                   Show event queue\n"
-      "+SH{OW} S{HOW}                    Show SHOW commands for all devices\n"
-      "+SH{OW} T{IME}                    Show simulated timer\n"
-      "+SH{OW} VE{RSION}                 Show simulator version\n"
-      "+H{ELP} <dev> SHOW                Show device-specific SHOW commands\n"
-      "+SH{OW} <dev> {arg,...}           Show device parameters\n"
-      "+SH{OW} <dev> DEBUG               Show device debug flags\n"
-      "+SH{OW} <dev> MODIFIERS           Show device modifiers\n"
-      "+SH{OW} <dev> RADIX               Show device display radix\n"
-      "+SH{OW} <dev> SHOW                Show device SHOW commands\n"
-      "+SH{OW} <unit> {arg,...}          Show unit parameters\n\n"
-      " See the Omnibus documentation for a complete SHOW command reference.\n\n"
+      "2SHOW\n" //-NLOK
+      "+SH{OW} B{UILDINFO}               Show build-time compilation information\r\n"
+      "+SH{OW} CL{OCKS}                  Show wall clock and timer information\r\n"
+      "+SH{OW} C{ONFIGURATION}           Show simulator configuration\r\n"
+      "+SH{OW} D{EFAULT_BASE_SYSTEM}     Show default base system script\r\n"
+      "+SH{OW} DEV{ICES}                 Show devices\r\n"
+      "+SH{OW} H{INTS}                   Show configuration hints\r\n"
+      "+SH{OW} M{ODIFIERS}               Show SET commands for all devices\r\n"
+      "+SH{OW} O{N}                      Show ON condition actions\r\n"
+      "+SH{OW} P{ROM}                    Show CPU ID PROM initialization data\r\n"
+      "+SH{OW} Q{UEUE}                   Show event queue\r\n"
+      "+SH{OW} S{HOW}                    Show SHOW commands for all devices\r\n"
+      "+SH{OW} T{IME}                    Show simulated timer\r\n"
+      "+SH{OW} VE{RSION}                 Show simulator version\r\n"
+      "+H{ELP} <dev> SHOW                Show device-specific SHOW commands\r\n"
+      "+SH{OW} <dev> {arg,...}           Show device parameters\r\n"
+      "+SH{OW} <dev> DEBUG               Show device debug flags\r\n"
+      "+SH{OW} <dev> MODIFIERS           Show device modifiers\r\n"
+      "+SH{OW} <dev> RADIX               Show device display radix\r\n"
+      "+SH{OW} <dev> SHOW                Show device SHOW commands\r\n"
+      "+SH{OW} <unit> {arg,...}          Show unit parameters\r\n\r\n"
+      " See the Omnibus documentation for a complete SHOW command reference.\r\n\r\n"
 #define HLP_SHOW_CONFIG         "*Commands SHOW"
 #define HLP_SHOW_DEVICES        "*Commands SHOW"
 #define HLP_SHOW_FEATURES       "*Commands SHOW"
@@ -995,274 +995,274 @@ static const char simh_help[] =
 #define HLP_SHOW_EXPECT         "*Commands SHOW"
 #define HLP_HELP                "*Commands HELP"
        /***************** 80 character line width template *************************/
-      "2HELP\n"
-      "+H{ELP}                      Show this message\n"
-      "+H{ELP} <command>            Show help for command\n"
-      "+H{ELP} <dev>                Show help for device\n"
-      "+H{ELP} <dev> REGISTERS      Show help for device register variables\n"
-      "+H{ELP} <dev> ATTACH         Show help for device specific ATTACH command\n"
-      "+H{ELP} <dev> SET            Show help for device specific SET commands\n"
-      "+H{ELP} <dev> SHOW           Show help for device specific SHOW commands\n"
-      "+H{ELP} <dev> <command>      Show help for device specific <command> command\n"
+      "2HELP\n" //-NLOK
+      "+H{ELP}                      Show this message\r\n"
+      "+H{ELP} <command>            Show help for command\r\n"
+      "+H{ELP} <dev>                Show help for device\r\n"
+      "+H{ELP} <dev> REGISTERS      Show help for device register variables\r\n"
+      "+H{ELP} <dev> ATTACH         Show help for device specific ATTACH command\r\n"
+      "+H{ELP} <dev> SET            Show help for device specific SET commands\r\n"
+      "+H{ELP} <dev> SHOW           Show help for device specific SHOW commands\r\n"
+      "+H{ELP} <dev> <command>      Show help for device specific <command> command\r\n"
        /***************** 80 character line width template *************************/
-      "2Altering The Simulated Configuration\n"
-      " The \"SET <device> DISABLED\" command removes a device from the configuration.\n"
-      " A `DISABLED` device is invisible to running programs.  The device can still\n"
-      " be `RESET`, but it cannot be `ATTACH`ed, `DETACH`ed, or `BOOT`ed.\n\n"
-      " The \"SET <device> ENABLED\" command restores a disabled device to a\n"
-      " configuration.\n\n"
-      " Most multi-unit devices allow units to be enabled or disabled:\n\n"
-      "++SET <unit> ENABLED\n"
-      "++SET <unit> DISABLED\n\n"
-      " When a unit is disabled, it will not be displayed by SHOW DEVICE.\n\n"
+      "2Altering The Simulated Configuration\n" //-NLOK
+      " The \"SET <device> DISABLED\" command removes a device from the configuration.\r\n"
+      " A `DISABLED` device is invisible to running programs.  The device can still\r\n"
+      " be `RESET`, but it cannot be `ATTACH`ed, `DETACH`ed, or `BOOT`ed.\r\n\r\n"
+      " The \"SET <device> ENABLED\" command restores a disabled device to a\r\n"
+      " configuration.\r\n\r\n"
+      " Most multi-unit devices allow units to be enabled or disabled:\r\n\r\n"
+      "++SET <unit> ENABLED\r\n"
+      "++SET <unit> DISABLED\r\n\r\n"
+      " When a unit is disabled, it will not be displayed by SHOW DEVICE.\r\n\r\n"
        /***************** 80 character line width template *************************/
 #define HLP_DO          "*Commands Executing_Command_Files Processing_Command_Files"
-      "2Executing Command Files\n"
-      "3Processing Command Files\n"
-      " The simulator can invoke another script file with the \"`DO`\" command:\n\n"
-      "++DO <filename> {arguments...}       execute commands in specified file\n\n"
-      " The \"`DO`\" command allows command files to contain substitutable\n"
-      " arguments. The string \"`%%n`\", where \"`n`\" is a number\n"
-      " between \"`1`\" and \"`9`\", is replaced with argument \"`n`\" from\n"
-      " the \"`DO`\" command line. (*i.e.* \"`%%0`\", \"`%%1`\", \"`%%2`\", etc.).\n"
-      " The string \"`%%0`\" is replaced with \"<`filename`>\".\n The\n"
-      " sequences \"`\\%%`\" and \"`\\\\`\" are replaced with the literal\n"
-      " characters \"`%%`\" and \"`\\`\", respectively. Arguments with spaces must\n"
-      " be enclosed in matching single or double quotation marks.\n\n"
-      " * **NOTE**: Nested \"`DO`\" commands are supported, up to ten invocations\n"
-      " deep.\n\n"
-      "4Switches\n"
-      "5`-v`\n\n"
-      " If the switch \"`-v`\" is specified, commands in the command file are\n"
-      " echoed *before* they are executed.\n\n"
-      "5`-e`\n\n"
-      " If the switch \"`-e`\" is specified, command processing (including nested\n"
-      " command invocations) will be aborted if any command error is encountered.\n"
-      " (A simulation stop **never** aborts processing; use `ASSERT` to catch\n"
-      " unexpected stops.) Without this switch, all errors except `ASSERT` failures\n"
-      " will be ignored, and command processing will continue.\n\n"
-      "5`-o`\n\n"
-      " If the switch \"`-o`\" is specified, the `ON` conditions and actions from\n"
-      " the calling command file will be inherited by the command file being\n"
-      " invoked.\n"
-      "5`-q`\n\n"
-      " If the switch \"`-q`\" is specified, *quiet mode* will be explicitly\n"
-      " enabled for the called command file, otherwise the *quiet mode* setting\n"
-      " is inherited from the calling context.\n"
+      "2Executing Command Files\n" //-NLOK
+      "3Processing Command Files\n" //-NLOK
+      " The simulator can invoke another script file with the \"`DO`\" command:\r\n\r\n"
+      "++DO <filename> {arguments...}       execute commands in specified file\r\n\r\n"
+      " The \"`DO`\" command allows command files to contain substitutable\r\n"
+      " arguments. The string \"`%%n`\", where \"`n`\" is a number\r\n"
+      " between \"`1`\" and \"`9`\", is replaced with argument \"`n`\" from\r\n"
+      " the \"`DO`\" command line. (*i.e.* \"`%%0`\", \"`%%1`\", \"`%%2`\", etc.).\r\n"
+      " The string \"`%%0`\" is replaced with \"<`filename`>\"\r\n"
+      " The sequences \"`\\%%`\" and \"`\\\\`\" are replaced with the literal\r\n"
+      " characters \"`%%`\" and \"`\\`\", respectively. Arguments with spaces must\r\n"
+      " be enclosed in matching single or double quotation marks.\r\n\r\n"
+      " * **NOTE**: Nested \"`DO`\" commands are supported, up to ten invocations\r\n"
+      " deep.\r\n\r\n"
+      "4Switches\n" //-NLOK
+      "5`-v`\n\n" //-NLOK
+      " If the switch \"`-v`\" is specified, commands in the command file are\r\n"
+      " echoed *before* they are executed.\r\n\r\n"
+      "5`-e`\n\n" //-NLOK
+      " If the switch \"`-e`\" is specified, command processing (including nested\r\n"
+      " command invocations) will be aborted if any command error is encountered.\r\n"
+      " (A simulation stop **never** aborts processing; use `ASSERT` to catch\r\n"
+      " unexpected stops.) Without this switch, all errors except `ASSERT` failures\r\n"
+      " will be ignored, and command processing will continue.\r\n\r\n"
+      "5`-o`\n\n" //-NLOK
+      " If the switch \"`-o`\" is specified, the `ON` conditions and actions from\r\n"
+      " the calling command file will be inherited by the command file being\r\n"
+      " invoked.\r\n"
+      "5`-q`\n\n" //-NLOK
+      " If the switch \"`-q`\" is specified, *quiet mode* will be explicitly\r\n"
+      " enabled for the called command file, otherwise the *quiet mode* setting\r\n"
+      " is inherited from the calling context.\r\n"
        /***************** 80 character line width template *************************/
 #define HLP_GOTO        "*Commands Executing_Command_Files GOTO"
-      "3GOTO\n"
-      " Commands in a command file execute in sequence until either an error\n"
-      " trap occurs (when a command completes with an error status), or when an\n"
-      " explicit request is made to start command execution elsewhere with\n"
-      " the `GOTO` command:\n\n"
-      "++GOTO <label>\n\n"
-      " * Labels are lines in a command file which the first non-whitespace\n"
-      " character is a \"`:`\".\n"
-      " * The target of a `GOTO` is the first matching label in the current `DO`\n"
-      " command file which is encountered.\n\n"
-      " **Example**\n\n"
-      " The following example illustrates usage of the `GOTO` command (by\n"
-      " creating an infinite loop):\n\n"
-      "++:Label\n"
-      "++:: This is a loop.\n"
-      "++GOTO Label\n\n"
+      "3GOTO\n" //-NLOK
+      " Commands in a command file execute in sequence until either an error\r\n"
+      " trap occurs (when a command completes with an error status), or when an\r\n"
+      " explicit request is made to start command execution elsewhere with\r\n"
+      " the `GOTO` command:\r\n\r\n"
+      "++GOTO <label>\r\n\r\n"
+      " * Labels are lines in a command file which the first non-whitespace\r\n"
+      " character is a \"`:`\".\r\n"
+      " * The target of a `GOTO` is the first matching label in the current `DO`\r\n"
+      " command file which is encountered.\r\n\r\n"
+      " **Example**\r\n\r\n"
+      " The following example illustrates usage of the `GOTO` command (by\r\n"
+      " creating an infinite loop):\r\n\r\n"
+      "++:Label\r\n"
+      "++:: This is a loop.`\r\n"
+      "++GOTO Label\r\n\r\n"
 #define HLP_RETURN      "*Commands Executing_Command_Files RETURN"
        /***************** 80 character line width template *************************/
-      "3RETURN\n"
-      " The `RETURN` command causes the current procedure call to be restored to\n"
-      " the calling context, possibly returning a specific return status.\n"
-      " If no return status is specified, the return status from the last command\n"
-      " executed will be returned.  The calling context may have `ON` traps defined\n"
-      " which may redirect command flow in that context.\n\n"
-      "++RETURN                 return from command file with last command status\n"
-      "++RETURN {-Q} <status>   return from command file with specific status\n\n"
-      " * The status return can be any numeric value or one of the standard SCPE_\n"
-      " condition names.\n\n"
-      " * The \"`-Q`\" switch on the `RETURN` command will cause the specified\n"
-      " status to be returned, but normal error status message printing to be\n"
-      " suppressed.\n\n"
-      " **Condition Names**\n\n"
-      " The available standard SCPE_ condition names and their meanings are:\n\n"
-      " | Name    | Meaning                         | Name    | Meaning                             |\n"
-      " | ------- | --------------------------------| ------- | ----------------------------------- |\n"
-      " | NXM     | Address space exceeded          | UNATT   | Unit not attached                   |\n"
-      " | IOERR   | I/O error                       | CSUM    | Checksum error                      |\n"
-      " | FMT     | Format error                    | NOATT   | Unit not attachable                 |\n"
-      " | OPENERR | File open error                 | MEM     | Memory exhausted                    |\n"
-      " | ARG     | Invalid argument                | STEP    | Step expired                        |\n"
-      " | UNK     | Unknown command                 | RO      | Read only argument                  |\n"
-      " | INCOMP  | Command not completed           | STOP    | Simulation stopped                  |\n"
-      " | EXIT    | Goodbye                         | TTIERR  | Console input I/O error             |\n"
-      " | TTOERR  | Console output I/O error        | EOF     | End of file                         |\n"
-      " | REL     | Relocation error                | NOPARAM | No settable parameters              |\n"
-      " | ALATT   | Unit already attached           | TIMER   | Hardware timer error                |\n"
-      " | SIGERR  | Signal handler setup error      | TTYERR  | Console terminal setup error        |\n"
-      " | NOFNC   | Command not allowed             | UDIS    | Unit disabled                       |\n"
-      " | NORO    | Read only operation not allowed | INVSW   | Invalid switch                      |\n"
-      " | MISVAL  | Missing value                   | 2FARG   | Too few arguments                   |\n"
-      " | 2MARG   | Too many arguments              | NXDEV   | Non-existent device                 |\n"
-      " | NXUN    | Non-existent unit               | NXREG   | Non-existent register               |\n"
-      " | NXPAR   | Non-existent parameter          | NEST    | Nested DO command limit exceeded    |\n"
-      " | IERR    | Internal error                  | MTRLNT  | Invalid magtape record length       |\n"
-      " | LOST    | Console Telnet connection lost  | TTMO    | Console Telnet connection timed out |\n"
-      " | STALL   | Console Telnet output stall     | AFAIL   | Assertion failed                    |\n"
-      " | INVREM  | Invalid remote console command  |         |                                     |\n"
-      "\n\n"
+      "3RETURN\n" //-NLOK
+      " The `RETURN` command causes the current procedure call to be restored to\r\n"
+      " the calling context, possibly returning a specific return status.\r\n"
+      " If no return status is specified, the return status from the last command\r\n"
+      " executed will be returned.  The calling context may have `ON` traps defined\r\n"
+      " which may redirect command flow in that context.\r\n\r\n"
+      "++RETURN                 return from command file with last command status\r\n"
+      "++RETURN {-Q} <status>   return from command file with specific status\r\n\r\n"
+      " * The status return can be any numeric value or one of the standard SCPE_\r\n"
+      " condition names.\r\n\r\n"
+      " * The \"`-Q`\" switch on the `RETURN` command will cause the specified\r\n"
+      " status to be returned, but normal error status message printing to be\r\n"
+      " suppressed.\r\n\r\n"
+      " **Condition Names**\r\n\r\n"
+      " The available standard SCPE_ condition names and their meanings are:\r\n\r\n"
+      " | Name    | Meaning                         | Name    | Meaning                             |\r\n"
+      " | ------- | --------------------------------| ------- | ----------------------------------- |\r\n"
+      " | NXM     | Address space exceeded          | UNATT   | Unit not attached                   |\r\n"
+      " | IOERR   | I/O error                       | CSUM    | Checksum error                      |\r\n"
+      " | FMT     | Format error                    | NOATT   | Unit not attachable                 |\r\n"
+      " | OPENERR | File open error                 | MEM     | Memory exhausted                    |\r\n"
+      " | ARG     | Invalid argument                | STEP    | Step expired                        |\r\n"
+      " | UNK     | Unknown command                 | RO      | Read only argument                  |\r\n"
+      " | INCOMP  | Command not completed           | STOP    | Simulation stopped                  |\r\n"
+      " | EXIT    | Goodbye                         | TTIERR  | Console input I/O error             |\r\n"
+      " | TTOERR  | Console output I/O error        | EOF     | End of file                         |\r\n"
+      " | REL     | Relocation error                | NOPARAM | No settable parameters              |\r\n"
+      " | ALATT   | Unit already attached           | TIMER   | Hardware timer error                |\r\n"
+      " | SIGERR  | Signal handler setup error      | TTYERR  | Console terminal setup error        |\r\n"
+      " | NOFNC   | Command not allowed             | UDIS    | Unit disabled                       |\r\n"
+      " | NORO    | Read only operation not allowed | INVSW   | Invalid switch                      |\r\n"
+      " | MISVAL  | Missing value                   | 2FARG   | Too few arguments                   |\r\n"
+      " | 2MARG   | Too many arguments              | NXDEV   | Non-existent device                 |\r\n"
+      " | NXUN    | Non-existent unit               | NXREG   | Non-existent register               |\r\n"
+      " | NXPAR   | Non-existent parameter          | NEST    | Nested DO command limit exceeded    |\r\n"
+      " | IERR    | Internal error                  | MTRLNT  | Invalid magtape record length       |\r\n"
+      " | LOST    | Console Telnet connection lost  | TTMO    | Console Telnet connection timed out |\r\n"
+      " | STALL   | Console Telnet output stall     | AFAIL   | Assertion failed                    |\r\n"
+      " | INVREM  | Invalid remote console command  |         |                                     |\r\n"
+      "\r\n\r\n"
 #define HLP_SHIFT       "*Commands Executing_Command_Files Shift_Parameters"
-      "3Shift Parameters\n"
-      " Shift the command files positional parameters\n"
+      "3Shift Parameters\n" //-NLOK
+      " Shift the command files positional parameters\r\n"
 #define HLP_CALL        "*Commands Executing_Command_Files Call_a_subroutine"
-      "3Call a subroutine\n"
-      " Control can be transferred to a labeled subroutine using `CALL`.\n\n"
-      " **Example**\n\n"
-      "++CALL routine\n"
-      "++BYE\n"
-      "++\n"
-      "++:routine\n"
-      "++ECHO routine called\n"
-      "++RETURN\n\n"
+      "3Call a subroutine\n" //-NLOK
+      " Control can be transferred to a labeled subroutine using `CALL`.\r\n\r\n"
+      " **Example**\r\n\r\n"
+      "++CALL routine\r\n"
+      "++BYE\r\n"
+      "++\r\n"
+      "++:routine\r\n"
+      "++ECHO routine called\r\n"
+      "++RETURN\r\n\r\n"
 #define HLP_ON          "*Commands Executing_Command_Files ON"
-      "3ON\n"
-      " The `ON` command performs actions after a condition, or clears a condition.\n"
-      "++ON <condition> <action>  Perform action after condition\n"
-      "++ON <condition>           Clears action of specified condition\n"
+      "3ON\n" //-NLOK
+      " The `ON` command performs actions after a condition, or clears a condition.\r\n"
+      "++ON <condition> <action>  Perform action after condition\r\n"
+      "++ON <condition>           Clears action of specified condition\r\n"
 #define HLP_PROCEED     "*Commands Executing_Command_Files PROCEED_or_IGNORE"
 #define HLP_IGNORE      "*Commands Executing_Command_Files PROCEED_or_IGNORE"
        /***************** 80 character line width template *************************/
-      "3PROCEED or IGNORE\n"
-      " The `PROCEED` (or `IGNORE`) command does nothing.  It is potentially\n"
-      " useful as a placeholder for any `ON` action condition that should be\n"
-      " explicitly ignored, allowing command file execution to continue without\n"
-      " taking any specific action.\n"
+      "3PROCEED or IGNORE\n" //-NLOK
+      " The `PROCEED` (or `IGNORE`) command does nothing.  It is potentially\r\n"
+      " useful as a placeholder for any `ON` action condition that should be\r\n"
+      " explicitly ignored, allowing command file execution to continue without\r\n"
+      " taking any specific action.\r\n"
 #define HLP_ECHO        "*Commands Executing_Command_Files Displaying_Arbitrary_Text"
        /***************** 80 character line width template *************************/
-      "3Displaying Arbitrary Text\n"
-      " The `ECHO` command is a useful way of annotating command files.  `ECHO`\n"
-      " prints out its arguments to the console (and to any applicable log file):\n\n"
-      "++ECHO <string>      Output string to console\n\n"
-      " **NOTE**: If no arguments are specified, `ECHO` prints a blank line.\n"
-      " This may be used to provide spacing for console messages or log file\n"
-      " output.\n"
+      "3Displaying Arbitrary Text\n" //-NLOK
+      " The `ECHO` command is a useful way of annotating command files.  `ECHO`\r\n"
+      " prints out its arguments to the console (and to any applicable log file):\r\n\r\n"
+      "++ECHO <string>      Output string to console\r\n\r\n"
+      " **NOTE**: If no arguments are specified, `ECHO` prints a blank line.\r\n"
+      " This may be used to provide spacing for console messages or log file\r\n"
+      " output.\r\n"
        /***************** 80 character line width template *************************/
 #define HLP_ASSERT      "*Commands Executing_Command_Files Testing_Assertions"
-      "3Testing Assertions\n"
-      " The `ASSERT` command tests a simulator state condition and halts command\n"
-      " file execution if the condition is false:\n\n"
-      "++ASSERT <Simulator State Expressions>\n\n"
-      " * If the indicated expression evaluates to false, the command completes\n"
-      " with an `AFAIL` condition.  By default, when a command file encounters a\n"
-      " command which returns the `AFAIL` condition, it will exit the running\n"
-      " command file with the `AFAIL` status to the calling command file.  This\n"
-      " behavior can be changed with the `ON` command as well as switches to the\n"
-      " invoking `DO` command.\n\n"
-      " **Examples**\n\n"
-      " The command file below might be used to bootstrap a hypothetical system\n"
-      " that halts after the initial load from disk. The `ASSERT` command can then\n"
-      " be used to confirm that the load completed successfully by examining the\n"
-      " CPU's \"`A`\" register for the expected value:\n\n"
-      "++; Example INI file\n"
-      "++BOOT\n"
-      "++; A register contains error code; 0 = good boot\n"
-      "++ASSERT A=0\n"
-      "++RUN\n\n"
+      "3Testing Assertions\n" //-NLOK
+      " The `ASSERT` command tests a simulator state condition and halts command\r\n"
+      " file execution if the condition is false:\r\n\r\n"
+      "++ASSERT <Simulator State Expressions>\r\n\r\n"
+      " * If the indicated expression evaluates to false, the command completes\r\n"
+      " with an `AFAIL` condition.  By default, when a command file encounters a\r\n"
+      " command which returns the `AFAIL` condition, it will exit the running\r\n"
+      " command file with the `AFAIL` status to the calling command file.  This\r\n"
+      " behavior can be changed with the `ON` command as well as switches to the\r\n"
+      " invoking `DO` command.\r\n\r\n"
+      " **Examples**\r\n\r\n"
+      " The command file below might be used to bootstrap a hypothetical system\r\n"
+      " that halts after the initial load from disk. The `ASSERT` command can then\r\n"
+      " be used to confirm that the load completed successfully by examining the\r\n"
+      " CPU's \"`A`\" register for the expected value:`\r\n\r\n"
+      "++; Example INI file\r\n"
+      "++BOOT\r\n"
+      "++; A register contains error code; 0 = good boot\r\n"
+      "++ASSERT A=0\r\n"
+      "++RUN\r\n\r\n"
        /***************** 80 character line width template *************************/
-      " * In the above example, if the \"`A`\" register is *not* `0`,\n"
-      " the \"`ASSERT A=0`\" command will be displayed to the user, and the\n"
-      " command file will be aborted with an \"`Assertion failed`\" message.\n"
-      " Otherwise, the command file will continue to bring up the system.\n\n"
-      " * See the **`IF`** command documentation for more information and details\n"
-      " regarding simulator state expressions.\n\n"
+      " * In the above example, if the \"`A`\" register is *not* `0`,\r\n"
+      " the \"`ASSERT A=0`\" command will be displayed to the user, and the\r\n"
+      " command file will be aborted with an \"`Assertion failed`\" message.\r\n"
+      " Otherwise, the command file will continue to bring up the system.\r\n\r\n"
+      " * See the **`IF`** command documentation for more information and details\r\n"
+      " regarding simulator state expressions.\r\n\r\n"
 #define HLP_IF          "*Commands Executing_Command_Files Testing_Conditions"
-      "3Testing Conditions\n"
-      " The `IF` command tests a simulator state condition and executes additional\n"
-      " commands if the condition is true:\n\n"
-      "++IF <Simulator State Expressions> commandtoprocess{; additionalcommand}...\n\n"
-      " **Examples**\n\n"
-      " The command file below might be used to bootstrap a hypothetical system\n"
-      " that halts after the initial load from disk. The `IF` command can then\n"
-      " be used to confirm that the load completed successfully by examining the\n"
-      " CPU's \"`A`\" register for an expected value:\n\n"
-      "++; Example INI file\n"
-      "++BOOT\n"
-      "++; A register contains error code; 0 = good boot\n"
-      "++IF NOT A=0 echo Boot failed - Failure Code ; EX A; exit AFAIL\n"
-      "++RUN\n\n"
+      "3Testing Conditions\n" //-NLOK
+      " The `IF` command tests a simulator state condition and executes additional\r\n"
+      " commands if the condition is true:\r\n\r\n"
+      "++IF <Simulator State Expressions> commandtoprocess{; additionalcommand}...\r\n\r\n"
+      " **Examples**\r\n\r\n"
+      " The command file below might be used to bootstrap a hypothetical system\r\n"
+      " that halts after the initial load from disk. The `IF` command can then\r\n"
+      " be used to confirm that the load completed successfully by examining the\r\n"
+      " CPU's \"`A`\" register for an expected value:\r\n\r\n"
+      "++; Example INI file\r\n"
+      "++BOOT\r\n"
+      "++; A register contains error code; 0 = good boot\r\n"
+      "++IF NOT A=0 echo Boot failed - Failure Code ; EX A; exit AFAIL\r\n"
+      "++RUN\r\n\r\n"
        /***************** 80 character line width template *************************/
-      " * In the above example, if the \"`A`\" register is *not* `0`, the\n"
-      " message \"`Boot failed - Failure Code `\" will be displayed, the contents\n"
-      " of the \"`A`\" register will be displayed, and the command file will be\n"
-      " aborted with an \"`Assertion failed`\" message.  Otherwise, the command\n"
-      " file will continue to bring up the system.\n"
-      "4Conditional Expressions\n"
-      " The `IF` and `ASSERT` commands evaluate the following two different forms\n"
-      " of conditional expressions.\n\n"
-      "5Simulator State Expressions\n"
-      "  &nbsp;\n \n"
-      " The values of simulator registers can be evaluated with:\n\n"
-      "++{NOT} {<dev>} <reg>|<addr>{<logical-op><value>}<conditional-op><value>\n\n"
-      " * If \"<`dev`>\" is not specified, `CPU` is assumed.  \"<`reg`>\" is a\n"
-      " register belonging to the indicated device.\n"
-      " * The \"<`addr`>\" is an address in the address space of the indicated\n"
-      " device.\n"
-      " * The \"<`conditional-op`>\" and optional \"<`logical-op`>\" are\n"
-      " the same as those used for \"search specifiers\" by the `EXAMINE` and\n"
-      " `DEPOSIT` commands.\n"
-      " The \"<`value`>\" is expressed in the radix specified for \"<`reg`>\",\n"
-      " not in the radix for the device when referencing a register; when an\n"
-      " address is referenced the device radix is used as the default.\n\n"
-      " * If \"<`logical-op`>\" and \"<`value`>\" are specified, the target\n"
-      " register value is first altered as indicated.  The result is then compared\n"
-      " to the \"<`value`>\" via the \"<`conditional-op`>\".\n"
-      " * * If the result is *true*, the command(s) are executed before proceeding\n"
-      " to the next line in the command file.\n"
-      " * * If the result is *false*, the next command in the command file is\n"
-      " processed.\n\n"
-      "5String Comparison Expressions\n"
-      "  &nbsp;\n \n"
-      " String Values can be compared with:\n\n"
-      "++{-i} {NOT} \"<string1>\" <compare-op> \"<string2>\"\n\n"
-      " * The \"`-i`\" switch, if present, causes a comparison to be case\n"
-      "   insensitive.\n"
-      " * The \"<`string1`>\" and \"<`string2`>\" arguments are quoted string\n"
-      "   values which may have environment variables substituted as desired.\n"
-      " * The \"<`compare-op`>\" may be one of:\n\n"
-      " |                |                        |\n"
-      " | --------------:|:---------------------- |\n"
-      " | \"**`==`**\"     |  equal                 |\n"
-      " | \"**`EQU`**\"    |  equal                 |\n"
-      " | \"**`!=`**\"     |  not equal             |\n"
-      " | \"**`NEQ`**\"    |  not equal             |\n"
-      " | \"**<**\"        |  less than             |\n"
-      " | \"**`LSS`**\"    |  less than             |\n"
-      " | \"**<=**\"       |  less than or equal    |\n"
-      " | \"**`LEQ`**\"    |  less than or equal    |\n"
-      " | \"**>**\"        |  greater than          |\n"
-      " | \"**`GTR`**\"    |  greater than          |\n"
-      " | \"**>=**\"       |  greater than or equal |\n"
-      " | \"**`GEQ`**\"    |  greater than or equal |\n"
-      " * **NOTE**: Comparisons are *generic*.  This means that if\n"
-      " both \"<`string1`>\" and \"<`string2`>\" are comprised of all numeric\n"
-      " digits, then the strings are converted to numbers and a numeric\n"
-      " comparison is performed.  For example, the comparison\n"
-      " '`\"+1\"` `EQU` `\"1\"`' evaluates to *true*.\n"
+      " * In the above example, if the \"`A`\" register is *not* `0`, the\r\n"
+      " message \"`Boot failed - Failure Code `\" will be displayed, the contents\r\n"
+      " of the \"`A`\" register will be displayed, and the command file will be\r\n"
+      " aborted with an \"`Assertion failed`\" message.  Otherwise, the command\r\n"
+      " file will continue to bring up the system.\r\n"
+      "4Conditional Expressions\n" //-NLOK
+      " The `IF` and `ASSERT` commands evaluate the following two different forms\r\n"
+      " of conditional expressions.\r\n\r\n"
+      "5Simulator State Expressions\n" //-NLOK
+      "  &nbsp;\r\n \r\n"
+      " The values of simulator registers can be evaluated with:\r\n\r\n"
+      "++{NOT} {<dev>} <reg>|<addr>{<logical-op><value>}<conditional-op><value>\r\n\r\n"
+      " * If \"<`dev`>\" is not specified, `CPU` is assumed.  \"<`reg`>\" is a\r\n"
+      " register belonging to the indicated device.\r\n"
+      " * The \"<`addr`>\" is an address in the address space of the indicated\r\n"
+      " device.\r\n"
+      " * The \"<`conditional-op`>\" and optional \"<`logical-op`>\" are\r\n"
+      " the same as those used for \"search specifiers\" by the `EXAMINE` and\r\n"
+      " `DEPOSIT` commands.\r\n"
+      " The \"<`value`>\" is expressed in the radix specified for \"<`reg`>\",\r\n"
+      " not in the radix for the device when referencing a register; when an\r\n"
+      " address is referenced the device radix is used as the default.\r\n\r\n"
+      " * If \"<`logical-op`>\" and \"<`value`>\" are specified, the target\r\n"
+      " register value is first altered as indicated.  The result is then compared\r\n"
+      " to the \"<`value`>\" via the \"<`conditional-op`>\".\r\n"
+      " * * If the result is *true*, the command(s) are executed before proceeding\r\n"
+      " to the next line in the command file.\r\n"
+      " * * If the result is *false*, the next command in the command file is\r\n"
+      " processed.\r\n\r\n"
+      "5String Comparison Expressions\n" //-NLOK
+      "  &nbsp;\r\n \r\n"
+      " String Values can be compared with:\r\n\r\n"
+      "++{-i} {NOT} \"<string1>\" <compare-op> \"<string2>\"\r\n\r\n"
+      " * The \"`-i`\" switch, if present, causes a comparison to be case\r\n"
+      "   insensitive.\r\n"
+      " * The \"<`string1`>\" and \"<`string2`>\" arguments are quoted string\r\n"
+      "   values which may have environment variables substituted as desired.\r\n"
+      " * The \"<`compare-op`>\" may be one of:\r\n\r\n"
+      " |                |                        |\r\n"
+      " | --------------:|:---------------------- |\r\n"
+      " | \"**`==`**\"     |  equal                 |\r\n"
+      " | \"**`EQU`**\"    |  equal                 |\r\n"
+      " | \"**`!=`**\"     |  not equal             |\r\n"
+      " | \"**`NEQ`**\"    |  not equal             |\r\n"
+      " | \"**<**\"        |  less than             |\r\n"
+      " | \"**`LSS`**\"    |  less than             |\r\n"
+      " | \"**<=**\"       |  less than or equal    |\r\n"
+      " | \"**`LEQ`**\"    |  less than or equal    |\r\n"
+      " | \"**>**\"        |  greater than          |\r\n"
+      " | \"**`GTR`**\"    |  greater than          |\r\n"
+      " | \"**>=**\"       |  greater than or equal |\r\n"
+      " | \"**`GEQ`**\"    |  greater than or equal |\r\n"
+      " * **NOTE**: Comparisons are *generic*.  This means that if\r\n"
+      " both \"<`string1`>\" and \"<`string2`>\" are comprised of all numeric\r\n"
+      " digits, then the strings are converted to numbers and a numeric\r\n"
+      " comparison is performed.  For example, the comparison\r\n"
+      " '`\"+1\"` `EQU` `\"1\"`' evaluates to *true*.\r\n"
        /***************** 80 character line width template *************************/
 #define HLP_EXIT        "*Commands Exiting_the_Simulator"
-      "2Exiting the Simulator\n"
-      " The `EXIT` command (*synonyms* `QUIT` *and* `BYE`) exits the simulator,\n"
-      " returning control to the host operating system.\n"
+      "2Exiting the Simulator\n" //-NLOK
+      " The `EXIT` command (*synonyms* `QUIT` *and* `BYE`) exits the simulator,\r\n"
+      " returning control to the host operating system.\r\n"
        /***************** 80 character line width template *************************/
 #define HLP_SPAWN       "*Commands Executing_System_Commands"
-      "2Executing System Commands\n"
-      " * The simulator can execute host operating system commands with\n"
-      " the \"`!`\" (*spawn*) command.\n\n"
-      " |                         |                                             |\n"
-      " |:----------------------- |:------------------------------------------- |\n"
-      " | \"**`!`**\"             | Spawn the hosts default command interpreter |\n"
-      " | \"**`!`** <`command`>\" | Execute the host operating system `command` |\n\n"
-      " * **NOTE**: The *exit status* from the command which was executed is set\n"
-      " as the *command completion status* for the \"`!`\" command.  This may\n"
-      " influence any enabled `ON` condition traps.\n" ;
+      "2Executing System Commands\n" //-NLOK
+      " * The simulator can execute host operating system commands with\r\n"
+      " the \"`!`\" (*spawn*) command.\r\n\r\n"
+      " |                         |                                             |\r\n"
+      " |:----------------------- |:------------------------------------------- |\r\n"
+      " | \"**`!`**\"             | Spawn the hosts default command interpreter |\r\n"
+      " | \"**`!`** <`command`>\" | Execute the host operating system `command` |\r\n\r\n"
+      " * **NOTE**: The *exit status* from the command which was executed is set\r\n"
+      " as the *command completion status* for the \"`!`\" command.  This may\r\n"
+      " influence any enabled `ON` condition traps.\r\n" ;
        /***************** 80 character line width template *************************/
 
 static CTAB cmd_table[] = {
@@ -1882,12 +1882,12 @@ _sir_snprintf_trunc(thread_name, SIR_MAXPID, "%s", appname);
 /* sanity checks */
 
 # if defined(__clang_analyzer__)
-(void)fprintf (stderr, "Error: Attempting to execute a Clang Analyzer build!\n");
+(void)fprintf (stderr, "Error: Attempting to execute a Clang Analyzer build!\r\n");
 return 1;
 # endif /* if defined(__clang_analyzer__) */
 
 if (argc == 0) {
-    (void)fprintf (stderr, "Error: main() called directly!\n");
+    (void)fprintf (stderr, "Error: main() called directly!\r\n");
     return 1;
 }
 
@@ -1900,16 +1900,16 @@ int testEndian = decContextTestEndian();
 if (testEndian != 0) {
   if (testEndian == 1) {
     (void)fprintf (stderr,
-                   "Error: Compiled for big-endian, but little-endian ordering detected; aborting.\n");
+                   "Error: Compiled for big-endian, but little-endian ordering detected; aborting.\r\n");
     return 1;
   }
   if (testEndian == -1) {
     (void)fprintf (stderr,
-                   "Error: Compiled for little-endian, but big-endian ordering detected; aborting.\n");
+                   "Error: Compiled for little-endian, but big-endian ordering detected; aborting.\r\n");
     return 1;
   }
   (void)fprintf (stderr,
-                 "Error: Unable to determine system byte order; aborting.\n");
+                 "Error: Unable to determine system byte order; aborting.\r\n");
   return 1;
 }
 # if defined(NEED_128)
@@ -1977,18 +1977,18 @@ for (i = 1; i < argc; i++) {                            /* loop thru args */
 # if defined(VER_H_GIT_VERSION)
 #  if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT)
 #   if VER_H_GIT_PATCH_INT < 1
-        (void)fprintf (stdout, "%s simulator %s\n",
+        (void)fprintf (stdout, "%s simulator %s\r\n",
                        sim_name, VER_H_GIT_VERSION);
 #   else
-        (void)fprintf (stdout, "%s simulator %s+%s\n",
+        (void)fprintf (stdout, "%s simulator %s+%s\r\n",
                        sim_name, VER_H_GIT_VERSION, VER_H_GIT_PATCH);
 #   endif /* if VER_H_GIT_PATCH_INT < 1 */
 #  else
-        (void)fprintf (stdout, "%s simulator %s\n",
+        (void)fprintf (stdout, "%s simulator %s\r\n",
                        sim_name, VER_H_GIT_VERSION);
 #  endif /* if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT) */
 # else
-        (void)fprintf (stdout, "%s simulator\n", sim_name);
+        (void)fprintf (stdout, "%s simulator\r\n", sim_name);
 # endif /* if defined(VER_H_GIT_VERSION) */
         FREE (targv);
         return 0;
@@ -2012,47 +2012,47 @@ for (i = 1; i < argc; i++) {                            /* loop thru args */
 # else
         (void)fprintf (stdout, "%s simulator", sim_name);
 # endif /* if defined(VER_H_GIT_VERSION) */
-        (void)fprintf (stdout, "\n");
-        (void)fprintf (stdout, "\n USAGE: %s [ [ SWITCH ] ... ] [ SCRIPT ]", argv[0]);
-        (void)fprintf (stdout, "\n");
-        (void)fprintf (stdout, "\n Invokes the %s simulator, with optional switches and/or script file.", sim_name);
-        (void)fprintf (stdout, "\n");
-        (void)fprintf (stdout, "\n Switches:");
-        (void)fprintf (stdout, "\n  -e, -E            Aborts script processing immediately upon any error");
-        (void)fprintf (stdout, "\n  -h, -H, --help    Prints only this informational help text and exits");
-        (void)fprintf (stdout, "\n  -k, -K            Disables all support for exclusive file locking");
-        (void)fprintf (stdout, "\n  -l, -L            Reports but ignores all exclusive file locking errors");
-        (void)fprintf (stdout, "\n  -o, -O            Makes scripting ON conditions and actions inheritable");
+        (void)fprintf (stdout, "\r\n");
+        (void)fprintf (stdout, "\r\n USAGE: %s [ [ SWITCH ] ... ] [ SCRIPT ]", argv[0]);
+        (void)fprintf (stdout, "\r\n");
+        (void)fprintf (stdout, "\r\n Invokes the %s simulator, with optional switches and/or script file.", sim_name);
+        (void)fprintf (stdout, "\r\n");
+        (void)fprintf (stdout, "\r\n Switches:");
+        (void)fprintf (stdout, "\r\n  -e, -E            Aborts script processing immediately upon any error");
+        (void)fprintf (stdout, "\r\n  -h, -H, --help    Prints only this informational help text and exits");
+        (void)fprintf (stdout, "\r\n  -k, -K            Disables all support for exclusive file locking");
+        (void)fprintf (stdout, "\r\n  -l, -L            Reports but ignores all exclusive file locking errors");
+        (void)fprintf (stdout, "\r\n  -o, -O            Makes scripting ON conditions and actions inheritable");
 # if !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(CROSS_MINGW32) && !defined(CROSS_MINGW64) && !defined(__CYGWIN__)
-        (void)fprintf (stdout, "\n  -p, -P            Enables real-time scheduling (may require privileges)");
+        (void)fprintf (stdout, "\r\n  -p, -P            Enables real-time scheduling (may require privileges)");
 # endif
-        (void)fprintf (stdout, "\n  -q, -Q            Disables printing of non-fatal informational messages");
-        (void)fprintf (stdout, "\n  -r, -R            Enables an unlinked ephemeral system state file");
-        (void)fprintf (stdout, "\n  -s, -S            Enables a randomized persistent system state file");
-        (void)fprintf (stdout, "\n  -t, -T            Disables fsync and creation/usage of system state file");
-        (void)fprintf (stdout, "\n  -v, -V            Prints commands read from script file before execution");
-        (void)fprintf (stdout, "\n  --version         Prints only the simulator identification text and exits");
-        (void)fprintf (stdout, "\n");
+        (void)fprintf (stdout, "\r\n  -q, -Q            Disables printing of non-fatal informational messages");
+        (void)fprintf (stdout, "\r\n  -r, -R            Enables an unlinked ephemeral system state file");
+        (void)fprintf (stdout, "\r\n  -s, -S            Enables a randomized persistent system state file");
+        (void)fprintf (stdout, "\r\n  -t, -T            Disables fsync and creation/usage of system state file");
+        (void)fprintf (stdout, "\r\n  -v, -V            Prints commands read from script file before execution");
+        (void)fprintf (stdout, "\r\n  --version         Prints only the simulator identification text and exits");
+        (void)fprintf (stdout, "\r\n");
 # if defined(USE_DUMA)
         nodist++;
 # endif /* if defined(USE_DUMA) */
 if (!nodist) {
-        (void)fprintf (stdout, "\n This software is made available under the terms of the ICU License.");
-        (void)fprintf (stdout, "\n For complete license details, see the LICENSE file included with the");
-        (void)fprintf (stdout, "\n software or https://gitlab.com/dps8m/dps8m/-/blob/master/LICENSE.md\n");
+        (void)fprintf (stdout, "\r\n This software is made available under the terms of the ICU License.");
+        (void)fprintf (stdout, "\r\n For complete license details, see the LICENSE file included with the");
+        (void)fprintf (stdout, "\r\n software or https://gitlab.com/dps8m/dps8m/-/blob/master/LICENSE.md\r\n");
 }
 else
 {
-        (void)fprintf (stdout, "\n********** LICENSE RESTRICTED BUILD ****** NOT FOR REDISTRIBUTION **********");
+        (void)fprintf (stdout, "\r\n********** LICENSE RESTRICTED BUILD ****** NOT FOR REDISTRIBUTION **********");
 }
-        (void)fprintf (stdout, "\n");
+        (void)fprintf (stdout, "\r\n");
         FREE(argv); //-V726
         return 0;
     }
     /* invalid arguments? */
     if ((*argv[i] == '-') && lookswitch) {              /* switch? */
         if ((sw = get_switches (argv[i])) < 0) {
-            (void)fprintf (stderr, "Invalid switch \"%s\".\nTry \"%s -h\" for help.\n", argv[i], argv[0]);
+            (void)fprintf (stderr, "Invalid switch \"%s\".\r\nTry \"%s -h\" for help.\r\n", argv[i], argv[0]);
             FREE(argv); //-V726
             return 1;
             }
@@ -2061,7 +2061,7 @@ else
     /* parse arguments */
     else {
         if ((strlen (argv[i]) + strlen (cbuf) + 3) >= sizeof(cbuf)) {
-            (void)fprintf (stderr, "Argument string too long\n");
+            (void)fprintf (stderr, "Argument string too long\r\n");
             FREE(argv); //-V726
             return 1;
             }
@@ -2161,30 +2161,30 @@ if (realtime_ok) {
 sim_timer_init ();
 
 if ((stat = sim_ttinit ()) != SCPE_OK) {
-    (void)fprintf (stderr, "Fatal terminal initialization error\n%s\n",
+    (void)fprintf (stderr, "Fatal terminal initialization error\r\n%s\r\n",
                    sim_error_text (stat));
     FREE(argv); //-V726
     return 1;
     }
 if ((sim_eval = (t_value *) calloc (sim_emax, sizeof (t_value))) == NULL) {
-    (void)fprintf (stderr, "Unable to allocate examine buffer\n");
+    (void)fprintf (stderr, "Unable to allocate examine buffer\r\n");
     FREE(argv); //-V726
     return 1;
     };
 if ((stat = reset_all_p (0)) != SCPE_OK) {
-    (void)fprintf (stderr, "Fatal simulator initialization error\n%s\n",
+    (void)fprintf (stderr, "Fatal simulator initialization error\r\n%s\r\n",
                    sim_error_text (stat));
     FREE(argv); //-V726
     return 1;
     }
 if ((stat = sim_brk_init ()) != SCPE_OK) {
-    (void)fprintf (stderr, "Fatal breakpoint table initialization error\n%s\n",
+    (void)fprintf (stderr, "Fatal breakpoint table initialization error\r\n%s\r\n",
                    sim_error_text (stat));
     FREE(argv); //-V726
     return 1;
     }
 if (!sim_quiet) {
-    (void)printf ("\n");
+    (void)printf ("\r\n");
     show_version (stdout, NULL, NULL, 0, NULL);
     }
 
@@ -2255,7 +2255,7 @@ CTAB *cmdp = NULL;
 stat = SCPE_BARE_STATUS(stat);                          /* remove possible flag */
 while (stat != SCPE_EXIT) {                             /* in case exit */
     if ((cptr = sim_brk_getact (cbuf, sizeof(cbuf))))   /* pending action? */
-        (void)printf ("%s%s\n", sim_prompt, cptr);      /* echo */
+        (void)printf ("%s%s\r\n", sim_prompt, cptr);    /* echo */
     else if (sim_vm_read != NULL) {                     /* sim routine? */
         (void)printf ("%s", sim_prompt);                /* prompt */
         cptr = (*sim_vm_read) (cbuf, sizeof(cbuf), stdin);
@@ -2269,9 +2269,9 @@ while (stat != SCPE_EXIT) {                             /* in case exit */
         continue;
     sim_sub_args (cbuf, sizeof(cbuf), argv);
     if (sim_log)                                        /* log cmd */
-        (void)fprintf (sim_log, "%s%s\n", sim_prompt, cptr);
+        (void)fprintf (sim_log, "%s%s\r\n", sim_prompt, cptr);
     if (sim_deb && (sim_deb != sim_log) && (sim_deb != stdout))
-        (void)fprintf (sim_deb, "%s%s\n", sim_prompt, cptr);
+        (void)fprintf (sim_deb, "%s%s\r\n", sim_prompt, cptr);
     cptr = get_glyph_cmd (cptr, gbuf);                  /* get command glyph */
     sim_switches = 0;                                   /* init switches */
     if ((cmdp = find_cmd (gbuf)))                       /* lookup command */
@@ -2287,7 +2287,7 @@ while (stat != SCPE_EXIT) {                             /* in case exit */
             cmdp->message (NULL, stat);                 /* let it deal with display */
         else
             if (stat >= SCPE_BASE)                      /* error? */
-                sim_printf ("%s\n", sim_error_text (stat));
+                sim_printf ("%s\r\n", sim_error_text (stat));
         }
     if (sim_vm_post != NULL)
         (*sim_vm_post) (TRUE);
@@ -2417,7 +2417,7 @@ for (cmdp = cmd_table; cmdp && (cmdp->name != NULL); cmdp++) {
             max_cmdname_size = strlen(cmdp->name);
         }
     }
-(void)fprintf (st, "HELP is available for the following commands:\n\n    ");
+(void)fprintf (st, "HELP is available for the following commands:\r\n\r\n    ");
 if (hlp_cmdp)
   qsort (hlp_cmdp, cmd_cnt, sizeof(*hlp_cmdp), _cmd_name_compare);
 line_offset = 4;
@@ -2426,13 +2426,13 @@ for ( i = 0 ; i < cmd_cnt ; ++i ) {
     line_offset += 5 + max_cmdname_size;
     if (line_offset + max_cmdname_size > 79) {
         line_offset = 4;
-        (void)fprintf (st, "\n    ");
+        (void)fprintf (st, "\r\n    ");
         }
     else
         (void)fprintf (st, "%*s", (int)(max_cmdname_size + 5 - strlen (hlp_cmdp[i]->name)), "");
     }
 FREE (hlp_cmdp);
-(void)fprintf (st, "\n");
+(void)fprintf (st, "\r\n");
 return;
 }
 
@@ -2471,7 +2471,7 @@ if (dptr->registers)
         }
 if (!found) {
     if (!silent)
-        (void)fprintf (st, "No register HELP available for the %s device\n",
+        (void)fprintf (st, "No register HELP available for the %s device\r\n",
                        dptr->name);
     }
 else {
@@ -2488,7 +2488,7 @@ else {
 #endif /* if defined(USE_BACKTRACE) */
         abort();
       }
-    (void)fprintf (st, "\nThe %s device implements these registers:\n\n",
+    (void)fprintf (st, "\r\nThe %s device implements these registers:\r\n\r\n",
                    dptr->name);
     for (rptr = dptr->registers; rptr->name != NULL; rptr++) {
         if (rptr->flags & REG_HIDDEN)
@@ -2507,7 +2507,7 @@ else {
                            rangebuf);
             }
         if (all_unique) {
-            (void)fprintf (st, "  %s %4d  %s\n",
+            (void)fprintf (st, "  %s %4d  %s\r\n",
                            namebuf,
                            rptr->width,
                            rptr->desc ? rptr->desc : "");
@@ -2515,13 +2515,13 @@ else {
             }
         trptr = find_reg_glob (rptr->name, &tptr, &tdptr);
         if ((trptr == NULL) || (tdptr != dptr))
-            (void)fprintf (st, "  %s %s %4d  %s\n",
+            (void)fprintf (st, "  %s %s %4d  %s\r\n",
                            dptr->name,
                            namebuf,
                            rptr->width,
                            rptr->desc ? rptr->desc : "");
         else
-            (void)fprintf (st, "  %*s %s %4d  %s\n",
+            (void)fprintf (st, "  %*s %s %4d  %s\r\n",
                            (int)strlen(dptr->name), "",
                            namebuf,
                            rptr->width,
@@ -2539,22 +2539,22 @@ fprint_reg_help_ex (st, dptr, TRUE);
 void fprint_attach_help_ex (FILE *st, DEVICE *dptr, t_bool silent)
 {
 if (dptr->attach_help) {
-    (void)fprintf (st, "\n%s device ATTACH commands:\n\n", dptr->name);
+    (void)fprintf (st, "\r\n%s device ATTACH commands:\r\n\r\n", dptr->name);
     dptr->attach_help (st, dptr, NULL, 0, NULL);
     return;
     }
 if (DEV_TYPE(dptr) == DEV_DISK) {
-    (void)fprintf (st, "\n%s device ATTACH commands:\n\n", dptr->name);
+    (void)fprintf (st, "\r\n%s device ATTACH commands:\r\n\r\n", dptr->name);
     sim_disk_attach_help (st, dptr, NULL, 0, NULL);
     return;
     }
 if (DEV_TYPE(dptr) == DEV_TAPE) {
-    (void)fprintf (st, "\n%s device ATTACH commands:\n\n", dptr->name);
+    (void)fprintf (st, "\r\n%s device ATTACH commands:\r\n\r\n", dptr->name);
     sim_tape_attach_help (st, dptr, NULL, 0, NULL);
     return;
     }
 if (!silent) {
-    (void)fprintf (st, "No ATTACH help is available for the %s device\n", dptr->name);
+    (void)fprintf (st, "No ATTACH help is available for the %s device\r\n", dptr->name);
     if (dptr->help)
         dptr->help (st, dptr, NULL, 0, NULL);
     }
@@ -2569,7 +2569,7 @@ char buf[CBUFSIZE], header[CBUFSIZE];
 uint32 enabled_units = dptr->numunits;
 uint32 unit;
 
-(void)sprintf (header, "\n%s device SET commands:\n\n", dptr->name);
+(void)sprintf (header, "\r\n%s device SET commands:\r\n\r\n", dptr->name);
 for (unit=0; unit < dptr->numunits; unit++)
     if (dptr->units[unit].flags & UNIT_DIS)
         --enabled_units;
@@ -2588,25 +2588,25 @@ if (dptr->modifiers) {
                                ? "=val"   : (MODMASK(mptr,MTAB_VALO) \
                                ? "{=val}" : "")));
             if ((strlen (buf) < 30) || (NULL == mptr->help))
-                (void)fprintf (st, "%-30s\t%s\n", buf, mptr->help ? mptr->help : "");
+                (void)fprintf (st, "%-30s\t%s\r\n", buf, mptr->help ? mptr->help : "");
             else
-                (void)fprintf (st, "%s\n%-30s\t%s\n", buf, "", mptr->help);
+                (void)fprintf (st, "%s\r\n%-30s\t%s\r\n", buf, "", mptr->help);
             }
         }
     }
 if (dptr->flags & DEV_DISABLE) {
     fprint_header (st, &found, header);
     (void)sprintf (buf, "SET %s ENABLE", sim_dname (dptr));
-    (void)fprintf (st,  "%-30s\tEnables device %s\n", buf, sim_dname (dptr));
+    (void)fprintf (st,  "%-30s\tEnables device %s\r\n", buf, sim_dname (dptr));
     (void)sprintf (buf, "SET %s DISABLE", sim_dname (dptr));
-    (void)fprintf (st,  "%-30s\tDisables device %s\n", buf, sim_dname (dptr));
+    (void)fprintf (st,  "%-30s\tDisables device %s\r\n", buf, sim_dname (dptr));
     }
 if (dptr->flags & DEV_DEBUG) {
     fprint_header (st, &found, header);
     (void)sprintf (buf, "SET %s DEBUG", sim_dname (dptr));
-    (void)fprintf (st,  "%-30s\tEnables debugging for device %s\n", buf, sim_dname (dptr));
+    (void)fprintf (st,  "%-30s\tEnables debugging for device %s\r\n", buf, sim_dname (dptr));
     (void)sprintf (buf, "SET %s NODEBUG", sim_dname (dptr));
-    (void)fprintf (st,  "%-30s\tDisables debugging for device %s\n", buf, sim_dname (dptr));
+    (void)fprintf (st,  "%-30s\tDisables debugging for device %s\r\n", buf, sim_dname (dptr));
     if (dptr->debflags) {
         t_bool desc_available = FALSE;
         strcpy (buf, "");
@@ -2615,17 +2615,17 @@ if (dptr->flags & DEV_DEBUG) {
             (void)fprintf (st, "%s%s", ((dep == dptr->debflags) ? "" : ";"), dep->name);
             desc_available |= ((dep->desc != NULL) && (dep->desc[0] != '\0'));
             }
-        (void)fprintf (st, "\n");
-        (void)fprintf (st,  "%-30s\tEnables specific debugging for device %s\n", buf, sim_dname (dptr));
+        (void)fprintf (st, "\r\n");
+        (void)fprintf (st,  "%-30s\tEnables specific debugging for device %s\r\n", buf, sim_dname (dptr));
         (void)fprintf (st, "SET %s NODEBUG=", sim_dname (dptr));
         for (dep = dptr->debflags; dep->name != NULL; dep++)
             (void)fprintf (st, "%s%s", ((dep == dptr->debflags) ? "" : ";"), dep->name);
-        (void)fprintf (st, "\n");
-        (void)fprintf (st,  "%-30s\tDisables specific debugging for device %s\n", buf, sim_dname (dptr));
+        (void)fprintf (st, "\r\n");
+        (void)fprintf (st,  "%-30s\tDisables specific debugging for device %s\r\n", buf, sim_dname (dptr));
         if (desc_available) {
-            (void)fprintf (st, "\n*%s device DEBUG settings:\n", sim_dname (dptr));
+            (void)fprintf (st, "\r\n*%s device DEBUG settings:\r\n", sim_dname (dptr));
             for (dep = dptr->debflags; dep->name != NULL; dep++)
-                (void)fprintf (st, "%4s%-12s%s\n", "", dep->name, dep->desc ? dep->desc : "");
+                (void)fprintf (st, "%4s%-12s%s\r\n", "", dep->name, dep->desc ? dep->desc : "");
             }
         }
     }
@@ -2633,9 +2633,9 @@ if ((dptr->modifiers) && (dptr->units) && (enabled_units != 1)) {
     if (dptr->units->flags & UNIT_DISABLE) {
         fprint_header (st, &found, header);
         (void)sprintf (buf, "SET %sn ENABLE", sim_dname (dptr));
-        (void)fprintf (st,  "%-30s\tEnables unit %sn\n", buf, sim_dname (dptr));
+        (void)fprintf (st,  "%-30s\tEnables unit %sn\r\n", buf, sim_dname (dptr));
         (void)sprintf (buf, "SET %sn DISABLE", sim_dname (dptr));
-        (void)fprintf (st,  "%-30s\tDisables unit %sn\n", buf, sim_dname (dptr));
+        (void)fprintf (st,  "%-30s\tDisables unit %sn\r\n", buf, sim_dname (dptr));
         }
     for (mptr = dptr->modifiers; mptr->mask != 0; mptr++) {
         if ((!MODMASK(mptr,MTAB_VUN)) && MODMASK(mptr,MTAB_XTD))
@@ -2650,14 +2650,14 @@ if ((dptr->modifiers) && (dptr->units) && (enabled_units != 1)) {
                                ? ""       : (MODMASK(mptr,MTAB_VALR) \
                                ? "=val"   : (MODMASK(mptr,MTAB_VALO) \
                                ? "{=val}" : "")));
-            (void)fprintf (st, "%-30s\t%s\n", buf,
+            (void)fprintf (st, "%-30s\t%s\r\n", buf,
                            (strchr(mptr->mstring, '=')) \
                                ? "" : (mptr->help ? mptr->help : ""));
             }
         }
     }
 if (!found && !silent)
-    (void)fprintf (st, "No SET help is available for the %s device\n", dptr->name);
+    (void)fprintf (st, "No SET help is available for the %s device\r\n", dptr->name);
 }
 
 void fprint_set_help (FILE *st, DEVICE *dptr)
@@ -2673,7 +2673,7 @@ char buf[CBUFSIZE], header[CBUFSIZE];
 uint32 enabled_units = dptr->numunits;
 uint32 unit;
 
-(void)sprintf (header, "\n%s device SHOW commands:\n\n", dptr->name);
+(void)sprintf (header, "\r\n%s device SHOW commands:\r\n\r\n", dptr->name);
 for (unit=0; unit < dptr->numunits; unit++)
     if (dptr->units[unit].flags & UNIT_DIS)
         --enabled_units;
@@ -2688,13 +2688,13 @@ if (dptr->modifiers) {
         fprint_header (st, &found, header);
         (void)sprintf (buf, "SHOW %s %s%s", sim_dname (dptr),
                        mptr->pstring, MODMASK(mptr,MTAB_SHP) ? "{=arg}" : "");
-        (void)fprintf (st, "%-30s\t%s\n", buf, mptr->help ? mptr->help : "");
+        (void)fprintf (st, "%-30s\t%s\r\n", buf, mptr->help ? mptr->help : "");
         }
     }
 if (dptr->flags & DEV_DEBUG) {
     fprint_header (st, &found, header);
     (void)sprintf (buf, "SHOW %s DEBUG", sim_dname (dptr));
-    (void)fprintf (st, "%-30s\tDisplays debugging status for device %s\n", buf, sim_dname (dptr));
+    (void)fprintf (st, "%-30s\tDisplays debugging status for device %s\r\n", buf, sim_dname (dptr));
     }
 if ((dptr->modifiers) && (dptr->units) && (enabled_units != 1)) {
     for (mptr = dptr->modifiers; mptr->mask != 0; mptr++) {
@@ -2706,11 +2706,11 @@ if ((dptr->modifiers) && (dptr->units) && (enabled_units != 1)) {
         (void)sprintf (buf, "SHOW %s%s %s%s", sim_dname (dptr),
                        (dptr->numunits > 1) ? "n" : "0", mptr->pstring,
                        MODMASK(mptr,MTAB_SHP) ? "=arg" : "");
-        (void)fprintf (st, "%-30s\t%s\n", buf, mptr->help ? mptr->help : "");
+        (void)fprintf (st, "%-30s\t%s\r\n", buf, mptr->help ? mptr->help : "");
         }
     }
 if (!found && !silent)
-    (void)fprintf (st, "No SHOW help is available for the %s device\n", dptr->name);
+    (void)fprintf (st, "No SHOW help is available for the %s device\r\n", dptr->name);
 }
 
 void fprint_show_help (FILE *st, DEVICE *dptr)
@@ -2725,7 +2725,7 @@ char gbuf[CBUFSIZE];
 
 if (sim_brk_types == 0) {
     if ((dptr != sim_dflt_dev) && (!silent)) {
-        (void)fprintf (st, "Breakpoints are not supported in the %s simulator\n", sim_name);
+        (void)fprintf (st, "Breakpoints are not supported in the %s simulator\r\n", sim_name);
         if (dptr->help)
             dptr->help (st, dptr, NULL, 0, NULL);
         }
@@ -2736,22 +2736,22 @@ if (brkt == NULL) {
 
     if (dptr == sim_dflt_dev) {
         if (sim_brk_types & ~sim_brk_dflt) {
-            (void)fprintf (st, "%s supports the following breakpoint types:\n", sim_dname (dptr));
+            (void)fprintf (st, "%s supports the following breakpoint types:\r\n", sim_dname (dptr));
             for (i=0; i<26; i++) {
                 if (sim_brk_types & (1<<i))
-                    (void)fprintf (st, "  -%c\n", 'A'+i);
+                    (void)fprintf (st, "  -%c\r\n", 'A'+i);
                 }
             }
-        (void)fprintf (st, "The default breakpoint type is: %s\n", put_switches (gbuf, sizeof(gbuf), sim_brk_dflt));
+        (void)fprintf (st, "The default breakpoint type is: %s\r\n", put_switches (gbuf, sizeof(gbuf), sim_brk_dflt));
         }
     return;
     }
-(void)fprintf (st, "%s supports the following breakpoint types:\n", sim_dname (dptr));
+(void)fprintf (st, "%s supports the following breakpoint types:\r\n", sim_dname (dptr));
 while (brkt->btyp) {
-    (void)fprintf (st, "  %s     %s\n", put_switches (gbuf, sizeof(gbuf), brkt->btyp), brkt->desc);
+    (void)fprintf (st, "  %s     %s\r\n", put_switches (gbuf, sizeof(gbuf), brkt->btyp), brkt->desc);
     ++brkt;
     }
-(void)fprintf (st, "The default breakpoint type is: %s\n", put_switches (gbuf, sizeof(gbuf), sim_brk_dflt));
+(void)fprintf (st, "The default breakpoint type is: %s\r\n", put_switches (gbuf, sizeof(gbuf), sim_brk_dflt));
 }
 
 t_stat help_dev_help (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, const char *cptr)
@@ -2766,7 +2766,7 @@ if (*cptr) {
             if (dptr->help) /* Shouldn't this pass cptr so the device knows which command invoked? */
                 return dptr->help (st, dptr, uptr, flag, cptr);
             else
-                (void)fprintf (st, "No HELP available for the %s %s command\n", cmdp->name, sim_dname(dptr));
+                (void)fprintf (st, "No HELP available for the %s %s command\r\n", cmdp->name, sim_dname(dptr));
             return SCPE_OK;
             }
         if (cmdp->action == &set_cmd) {
@@ -2787,7 +2787,7 @@ if (*cptr) {
             }
         if (dptr->help)
             return dptr->help (st, dptr, uptr, flag, cptr);
-        (void)fprintf (st, "No %s HELP is available for the %s device\n", cmdp->name, dptr->name);
+        (void)fprintf (st, "No %s HELP is available for the %s device\r\n", cmdp->name, dptr->name);
         return SCPE_OK;
         }
     if (MATCH_CMD (gbuf, "REGISTERS") == 0) {
@@ -2796,16 +2796,16 @@ if (*cptr) {
         }
     if (dptr->help)
         return dptr->help (st, dptr, uptr, flag, cptr);
-    (void)fprintf (st, "No %s HELP is available for the %s device\n", gbuf, dptr->name);
+    (void)fprintf (st, "No %s HELP is available for the %s device\r\n", gbuf, dptr->name);
     return SCPE_OK;
     }
 if (dptr->help) {
     return dptr->help (st, dptr, uptr, flag, cptr);
     }
 if (dptr->description)
-    (void)fprintf (st, "%s %s HELP\n", dptr->description (dptr), dptr->name);
+    (void)fprintf (st, "%s %s HELP\r\n", dptr->description (dptr), dptr->name);
 else
-    (void)fprintf (st, "%s HELP\n", dptr->name);
+    (void)fprintf (st, "%s HELP\r\n", dptr->name);
 fprint_set_help_ex    (st, dptr, TRUE);
 fprint_show_help_ex   (st, dptr, TRUE);
 fprint_attach_help_ex (st, dptr, TRUE);
@@ -2884,25 +2884,25 @@ if (*cptr) {
                     break;
                     /*NOTREACHED*/ /* unreachable */ /* XXX(jhj): NOTREACHED below */
                     if (dptr->help)
-                        sim_printf ("H{ELP} %-17s Display help for device %s\n",
+                        sim_printf ("H{ELP} %-17s Display help for device %s\r\n",
                                     dptr->name, dptr->name);
                     if (dptr->attach_help ||
                         (DEV_TYPE(dptr) == DEV_MUX) ||
                         (DEV_TYPE(dptr) == DEV_DISK) ||
                         (DEV_TYPE(dptr) == DEV_TAPE)) {
-                        sim_printf ("H{ELP} %s ATTACH\t Display help for device %s ATTACH command\n",
+                        sim_printf ("H{ELP} %s ATTACH\t Display help for device %s ATTACH command\r\n",
                                     dptr->name, dptr->name);
                         }
                     if (dptr->registers) {
                         if (dptr->registers->name != NULL)
-                            sim_printf ("H{ELP} %s REGISTERS\t Display help for device %s register variables\n",
+                            sim_printf ("H{ELP} %s REGISTERS\t Display help for device %s register variables\r\n",
                                         dptr->name, dptr->name);
                         }
                     if (dptr->modifiers) {
                         MTAB *mptr;
                         for (mptr = dptr->modifiers; mptr->pstring != NULL; mptr++) {
                             if (mptr->help) {
-                                sim_printf ("H{ELP} %s SET\t\t Display help for device %s SET commands\n",
+                                sim_printf ("H{ELP} %s SET\t\t Display help for device %s SET commands\r\n",
                                             dptr->name, dptr->name);
                                 break;
                                 }
@@ -2925,12 +2925,12 @@ if (*cptr) {
             CTAB *cmdpa;
             for (cmdpa=cmd_table; cmdpa->name != NULL; cmdpa++)
                 if ((cmdpa->action == cmdp->action) && (cmdpa->help)) {
-                    sim_printf ("%s is an alias for the %s command:\n%s",
+                    sim_printf ("%s is an alias for the %s command:\r\n%s",
                                 cmdp->name, cmdpa->name, cmdpa->help);
                     break;
                     }
             if (cmdpa->name == NULL)                /* not found? */
-                sim_printf ("No help available for the %s command\n", cmdp->name);
+                sim_printf ("No help available for the %s command\r\n", cmdp->name);
             }
         }
     else {
@@ -2943,7 +2943,7 @@ if (*cptr) {
             if (dptr == NULL)
                 return SCPE_ARG;
             if (dptr->flags & DEV_DIS)
-                sim_printf ("Device %s is currently disabled\n", dptr->name);
+                sim_printf ("Device %s is currently disabled\r\n", dptr->name);
             }
         r = help_dev_help (stdout, dptr, uptr, flag, cptr);
         if (sim_log)
@@ -2982,7 +2982,7 @@ return status;
 
 t_stat echo_cmd (int32 flag, CONST char *cptr)
 {
-sim_printf ("%s\n", cptr);
+sim_printf ("%s\r\n", cptr);
 return SCPE_OK;
 }
 
@@ -3072,7 +3072,7 @@ if ((fpin = fopen (do_arg[0], "r")) == NULL) {          /* file failed to open? 
     strcat (strcpy (cbuf, do_arg[0]), ".ini");          /* try again with .ini extension */
     if ((fpin = fopen (cbuf, "r")) == NULL) {           /* failed a second time? */
         if (flag == 0)                                  /* cmd line file? */
-             (void)fprintf (stderr, "Can't open file %s\n", do_arg[0]);
+             (void)fprintf (stderr, "Can't open file %s\r\n", do_arg[0]);
         return SCPE_OPENERR;                            /* return failure */
         }
     }
@@ -3134,7 +3134,7 @@ do {
     if (*cptr == 0)                                     /* ignore blank */
         continue;
     if (echo)                                           /* echo if -v */
-        sim_printf("%s> %s\n", do_position(), cptr);
+        sim_printf("%s> %s\r\n", do_position(), cptr);
     if (*cptr == ':')                                   /* ignore label */
         continue;
     cptr = get_glyph_cmd (cptr, gbuf);                  /* get command glyph */
@@ -3184,7 +3184,7 @@ do {
         if (!echo && !sim_quiet &&                      /* report if not echoing */
             !stat_nomessage &&                          /* and not suppressing messages */
             !(cmdp && cmdp->message)) {                 /* and not handling them specially */
-            sim_printf("%s> %s\n", do_position(), sim_do_ocptr[sim_do_depth]);
+            sim_printf("%s> %s\r\n", do_position(), sim_do_ocptr[sim_do_depth]);
             }
         }
     if (!stat_nomessage) {                              /* report error if not suppressed */
@@ -3192,7 +3192,7 @@ do {
             cmdp->message ((!echo && !sim_quiet) ? sim_do_ocptr[sim_do_depth] : NULL, stat);
         else
             if (stat >= SCPE_BASE)                      /* report error if not suppressed */
-                sim_printf ("%s\n", sim_error_text (stat));
+                sim_printf ("%s\r\n", sim_error_text (stat));
         }
     if (stat == SCPE_EXPECT)                            /* EXPECT status is non actionable */
         stat = SCPE_OK;                                 /* so adjust it to SCPE_OK */
@@ -3741,7 +3741,7 @@ if (*cptr == '"') {                                     /* quoted string compari
         if (0 == strcmp (op, optr->op))
             break;
     if (!optr->op)
-        return sim_messagef (SCPE_ARG, "Invalid operator: %s\n", op);
+        return sim_messagef (SCPE_ARG, "Invalid operator: %s\r\n", op);
     cptr += strlen (op);
     while (sim_isspace (*cptr))                         /* skip spaces */
         ++cptr;
@@ -3871,7 +3871,7 @@ while (*cptr) {
     if ((!strncmp(gbuf, "DELAY=", 6)) && (gbuf[6])) {
         delay = (uint32)get_uint (&gbuf[6], 10, 2000000000, &r);
         if (r != SCPE_OK)
-            return sim_messagef (SCPE_ARG, "Invalid Delay Value\n");
+            return sim_messagef (SCPE_ARG, "Invalid Delay Value\r\n");
         cptr = tptr;
         tptr = get_glyph (cptr, gbuf, ',');
         continue;
@@ -3879,7 +3879,7 @@ while (*cptr) {
     if ((!strncmp(gbuf, "AFTER=", 6)) && (gbuf[6])) {
         after = (uint32)get_uint (&gbuf[6], 10, 2000000000, &r);
         if (r != SCPE_OK)
-            return sim_messagef (SCPE_ARG, "Invalid After Value\n");
+            return sim_messagef (SCPE_ARG, "Invalid After Value\r\n");
         cptr = tptr;
         tptr = get_glyph (cptr, gbuf, ',');
         continue;
@@ -3890,13 +3890,13 @@ while (*cptr) {
     }
 if (*cptr) {
     if ((*cptr != '"') && (*cptr != '\'')) //-V560
-        return sim_messagef (SCPE_ARG, "String must be quote delimited\n");
+        return sim_messagef (SCPE_ARG, "String must be quote delimited\r\n");
     cptr = get_glyph_quoted (cptr, gbuf, 0);
     if (*cptr != '\0')
         return SCPE_2MARG;                  /* No more arguments */
 
     if (SCPE_OK != sim_decode_quoted_string (gbuf, dbuf, &dsize))
-        return sim_messagef (SCPE_ARG, "Invalid String\n");
+        return sim_messagef (SCPE_ARG, "Invalid String\r\n");
     }
 if ((dsize == 0) && (delay == 0) && (after == 0))
     return SCPE_2FARG;
@@ -4004,7 +4004,7 @@ while (1) {
         sim_brk_clract ();                              /* goto defangs current actions */
         sim_do_echo = saved_do_echo;                    /* restore echo mode */
         if (sim_do_echo)                                /* echo if -v */
-            sim_printf("%s> %s\n", do_position(), cbuf);
+            sim_printf("%s> %s\r\n", do_position(), cbuf);
         return SCPE_OK;
         }
     }
@@ -4493,9 +4493,9 @@ if ((dptr = find_dev (gbuf))) {                         /* device match? */
     }
 else if ((dptr = find_unit (gbuf, &uptr))) {            /* unit match? */
     if (uptr == NULL)                                   /* invalid unit */
-        return sim_messagef (SCPE_NXUN, "Non-existent unit: %s\n", gbuf);
+        return sim_messagef (SCPE_NXUN, "Non-existent unit: %s\r\n", gbuf);
     if (uptr->flags & UNIT_DIS)                         /* disabled? */
-        return sim_messagef (SCPE_UDIS, "Unit disabled: %s\n", gbuf);
+        return sim_messagef (SCPE_UDIS, "Unit disabled: %s\r\n", gbuf);
     shtb = show_unit_tab;                               /* global table */
     lvl = MTAB_VUN;                                     /* unit match */
     GET_SWITCHES (cptr);                                /* get more switches */
@@ -4525,7 +4525,7 @@ else {
         if (sim_dflt_dev && (shptr = find_shtab (show_dev_tab, gbuf)))  /* global match? */
             return shptr->action (ofile, sim_dflt_dev, uptr, shptr->arg, cptr);
         else
-            return sim_messagef (SCPE_NXDEV, "Non-existent device: %s\n", gbuf);/* no match */
+            return sim_messagef (SCPE_NXDEV, "Non-existent device: %s\r\n", gbuf);/* no match */
         }
     }
 
@@ -4547,7 +4547,7 @@ while (*cptr != 0) {                                    /* do all mods */
             (MATCH_CMD (gbuf, mptr->pstring) == 0))
             )) {
             if (cvptr && !MODMASK(mptr,MTAB_SHP))
-                return sim_messagef (SCPE_ARG, "Invalid Argument: %s=%s\n", gbuf, cvptr);
+                return sim_messagef (SCPE_ARG, "Invalid Argument: %s=%s\r\n", gbuf, cvptr);
             show_one_mod (ofile, dptr, uptr, mptr, cvptr, 1);
             break;
             }                                           /* end if */
@@ -4562,9 +4562,9 @@ while (*cptr != 0) {                                    /* do all mods */
             }
         else {
             if (!dptr->modifiers)                       /* no modifiers? */
-                return sim_messagef (SCPE_NOPARAM, "%s device has no parameters\n", dptr->name);
+                return sim_messagef (SCPE_NOPARAM, "%s device has no parameters\r\n", dptr->name);
             else
-                return sim_messagef (SCPE_NXPAR, "Non-existent parameter: %s\n", gbuf);
+                return sim_messagef (SCPE_NXPAR, "Non-existent parameter: %s\r\n", gbuf);
             }
         }                                               /* end if */
     }                                                   /* end while */
@@ -4593,14 +4593,14 @@ int32 toks = 0;
 if (strcmp(sim_dname (dptr),"SYS") != 0) {
 (void)fprintf (st, "%s", sim_dname (dptr));                   /* print dev name */
 if ((flag == 2) && dptr->description) {
-    (void)fprintf (st, "\t%s\n", dptr->description(dptr));
+    (void)fprintf (st, "\t%s\r\n", dptr->description(dptr));
     }
 else {
     if ((sim_switches & SWMASK ('D')) && dptr->description)
-        (void)fprintf (st, "\t%s\n", dptr->description(dptr));
+        (void)fprintf (st, "\t%s\r\n", dptr->description(dptr));
     }
 if (qdisable (dptr)) {                                  /* disabled? */
-    (void)fprintf (st, "\tdisabled\n");
+    (void)fprintf (st, "\tdisabled\r\n");
     return SCPE_OK;
     }
 for (j = ucnt = udbl = 0; j < dptr->numunits; j++) {    /* count units */
@@ -4613,25 +4613,25 @@ for (j = ucnt = udbl = 0; j < dptr->numunits; j++) {    /* count units */
 //show_all_mods (st, dptr, dptr->units, MTAB_VDV, &toks); /* show dev mods */
 if (dptr->numunits == 0) {
     // if (toks) //-V547
-    //     (void)fprintf (st, "\n");
+    //     (void)fprintf (st, "\r\n");
 }
  else
 {
     if (ucnt == 0) {
         fprint_sep (st, &toks);
-        (void)fprintf (st, "all units disabled\n");
+        (void)fprintf (st, "all units disabled\r\n");
         }
     else if ((ucnt + udbl) == 1) {
         fprint_sep (st, &toks);
-        (void)fprintf (st, " 1 unit\n");
+        (void)fprintf (st, " 1 unit\r\n");
         }
     else if ((ucnt > 1) || (udbl > 0)) {
         fprint_sep (st, &toks);
-        (void)fprintf (st, "%2.d units\n", ucnt + udbl);
+        (void)fprintf (st, "%2.d units\r\n", ucnt + udbl);
         }
     else
         if ((flag != 2) || !dptr->description || toks)
-            (void)fprintf (st, "\n");
+            (void)fprintf (st, "\r\n");
     toks = 0;
 }
 if (flag)                                               /* dev only? */
@@ -4657,7 +4657,7 @@ int32 u = (int32)(uptr - dptr->units);
 int32 toks = 0;
 
 if (flag > 1)
-    (void)fprintf (st, "   %s%d \n", sim_dname (dptr), u);
+    (void)fprintf (st, "   %s%d\r\n", sim_dname (dptr), u);
 else if (flag < 0)
     (void)fprintf (st, " %s%d ", sim_dname (dptr), u);
 if (uptr->flags & UNIT_ATT) {
@@ -4678,7 +4678,7 @@ if ((uptr->capac > 0) && (uptr->flags & UNIT_FIX)) {
     }
 show_all_mods (st, dptr, uptr, MTAB_VUN, &toks);        /* show unit mods */
 if (toks || (flag < 0) || (flag > 1))
-    (void)fprintf (st, "\n");
+    (void)fprintf (st, "\r\n");
 return SCPE_OK;
 }
 
@@ -4832,11 +4832,11 @@ t_stat show_prom (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cp
 
 t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 {
-    (void)fprintf (st, "\r Build Information:\n");
+    (void)fprintf (st, "\r Build Information:\r\n");
 #if defined(BUILDINFO_scp)
-    (void)fprintf (st, "\r\n      Compilation info: %s\n", BUILDINFO_scp );
+    (void)fprintf (st, "\r\n      Compilation info: %s\r\n", BUILDINFO_scp );
 #else
-    (void)fprintf (st, "\r\n      Compilation info: Not available\n" );
+    (void)fprintf (st, "\r\n      Compilation info: Not available\r\n" );
 #endif
 #if !defined(__CYGWIN__)
 # if !defined(__APPLE__)
@@ -4850,7 +4850,7 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
 #         if !defined(__QNX__)
     (void)dl_iterate_phdr (dl_iterate_phdr_callback, NULL);
     if (dl_iterate_phdr_callback_called)
-        (void)fprintf (st, "\n");
+        (void)fprintf (st, "\r\n");
     dl_iterate_phdr_callback_called = 0;
 #         endif
 #        endif
@@ -5077,37 +5077,37 @@ if (flag) {
 #  if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT)
 #   if defined(VER_H_GIT_HASH)
 #    if VER_H_GIT_PATCH_INT < 1
-    (void)fprintf (st, "\n   Version: %s (%ld-bit)\n    Commit: %s",
+    (void)fprintf (st, "\r\n   Version: %s (%ld-bit)\r\n    Commit: %s",
                    VER_H_GIT_VERSION,
                    (long)(CHAR_BIT*sizeof(void *)),
                    VER_H_GIT_HASH);
 #    else
 #     define NO_SUPPORT_VERSION 1
-    (void)fprintf (st, "\n   Version: %s+%s (%ld-bit)\n    Commit: %s",
+    (void)fprintf (st, "\r\n   Version: %s+%s (%ld-bit)\r\n    Commit: %s",
                    VER_H_GIT_VERSION, VER_H_GIT_PATCH,
                    (long)(CHAR_BIT*sizeof(void *)),
                    VER_H_GIT_HASH);
 #    endif
 #   else
 #    if VER_H_GIT_PATCH_INT < 1
-        (void)fprintf (st, "\n   Version: %s (%ld-bit)",
+        (void)fprintf (st, "\r\n   Version: %s (%ld-bit)",
                        VER_H_GIT_VERSION,
                        (long)(CHAR_BIT*sizeof(void *)));
 #    else
 #     define NO_SUPPORT_VERSION 1
-        (void)fprintf (st, "\n   Version: %s+%s (%ld-bit)",
+        (void)fprintf (st, "\r\n   Version: %s+%s (%ld-bit)",
                        VER_H_GIT_VERSION, VER_H_GIT_PATCH,
                        (long)(CHAR_BIT*sizeof(void *)));
 #    endif
 #   endif
 #  else
 #   if defined(VER_H_GIT_HASH)
-        (void)fprintf (st, "\n   Version: %s (%ld-bit)\n    Commit: %s",
+        (void)fprintf (st, "\r\n   Version: %s (%ld-bit)\r\n    Commit: %s",
                        VER_H_GIT_VERSION,
                        (long)(CHAR_BIT*sizeof(void *)),
                        VER_H_GIT_HASH);
 #   else
-        (void)fprintf (st, "\n   Version: %s (%ld-bit)",
+        (void)fprintf (st, "\r\n   Version: %s (%ld-bit)",
                        VER_H_GIT_VERSION,
                        (long)(CHAR_BIT*sizeof(void *)));
 #   endif
@@ -5117,7 +5117,7 @@ if (flag) {
 
 /* TESTING */
 #if defined(TESTING)
-    (void)fprintf (st, "\n   Options: ");
+    (void)fprintf (st, "\r\n   Options: ");
 # if !defined(HAVE_DPSOPT)
 #  define HAVE_DPSOPT 1
 # endif
@@ -5129,7 +5129,7 @@ if (flag) {
 # if defined(HAVE_DPSOPT)
     (void)fprintf (st, ", ");
 # else
-    (void)fprintf (st, "\n   Options: ");
+    (void)fprintf (st, "\r\n   Options: ");
 # endif
 # if !defined(HAVE_DPSOPT)
 #  define HAVE_DPSOPT 1
@@ -5142,7 +5142,7 @@ if (flag) {
 # if defined(HAVE_DPSOPT)
     (void)fprintf (st, ", ");
 # else
-    (void)fprintf (st, "\n   Options: ");
+    (void)fprintf (st, "\r\n   Options: ");
 # endif
 # if !defined(HAVE_DPSOPT)
 #  define HAVE_DPSOPT 1
@@ -5155,7 +5155,7 @@ if (flag) {
 # if defined(HAVE_DPSOPT)
     (void)fprintf (st, ", ");
 # else
-    (void)fprintf (st, "\n   Options: ");
+    (void)fprintf (st, "\r\n   Options: ");
 # endif
 # if !defined(HAVE_DPSOPT)
 #  define HAVE_DPSOPT 1
@@ -5168,7 +5168,7 @@ if (flag) {
 # if defined(HAVE_DPSOPT)
     (void)fprintf (st, ", ");
 # else
-    (void)fprintf (st, "\n   Options: ");
+    (void)fprintf (st, "\r\n   Options: ");
 # endif
 # if !defined(HAVE_DPSOPT)
 #  define HAVE_DPSOPT 1
@@ -5181,7 +5181,7 @@ if (flag) {
 # if defined(HAVE_DPSOPT)
     (void)fprintf (st, ", ");
 # else
-    (void)fprintf (st, "\n   Options: ");
+    (void)fprintf (st, "\r\n   Options: ");
 # endif
 # if !defined(HAVE_DPSOPT)
 #  define HAVE_DPSOPT 1
@@ -5194,7 +5194,7 @@ if (flag) {
 # if defined(HAVE_DPSOPT)
     (void)fprintf (st, ", ");
 # else
-    (void)fprintf (st, "\n   Options: ");
+    (void)fprintf (st, "\r\n   Options: ");
 # endif
 # if !defined(HAVE_DPSOPT)
 #  define HAVE_DPSOPT 1
@@ -5207,7 +5207,7 @@ if (flag) {
 # if defined(HAVE_DPSOPT)
     (void)fprintf (st, ", ");
 # else
-    (void)fprintf (st, "\n Options: ");
+    (void)fprintf (st, "\r\n Options: ");
 # endif
 # if !defined(HAVE_DPSOPT)
 #  define HAVE_DPSOPT 1
@@ -5220,7 +5220,7 @@ if (flag) {
 # if defined(HAVE_DPSOPT)
     (void)fprintf (st, ", ");
 # else
-    (void)fprintf (st, "\n   Options: ");
+    (void)fprintf (st, "\r\n   Options: ");
 # endif
 # if !defined(HAVE_DPSOPT)
 #  define HAVE_DPSOPT 1
@@ -5233,7 +5233,7 @@ if (flag) {
 # if defined(HAVE_DPSOPT)
     (void)fprintf (st, ", ");
 # else
-    (void)fprintf (st, "\n   Options: ");
+    (void)fprintf (st, "\r\n   Options: ");
 # endif
 # if !defined(HAVE_DPSOPT)
 #  define HAVE_DPSOPT 1
@@ -5246,7 +5246,7 @@ if (flag) {
 # if defined(HAVE_DPSOPT)
     (void)fprintf (st, ", ");
 # else
-    (void)fprintf (st, "\n   Options: ");
+    (void)fprintf (st, "\r\n   Options: ");
 # endif
 # if !defined(HAVE_DPSOPT)
 #  define HAVE_DPSOPT 1
@@ -5262,7 +5262,7 @@ if (flag) {
 # if defined(HAVE_DPSOPT)
     (void)fprintf (st, ", ");
 # else
-    (void)fprintf (st, "\n   Options: ");
+    (void)fprintf (st, "\r\n   Options: ");
 # endif
 # if !defined(HAVE_DPSOPT)
 #  define HAVE_DPSOPT 1
@@ -5272,16 +5272,16 @@ if (flag) {
 
 #if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_DATE)
 # if defined(NO_SUPPORT_VERSION)
-    (void)fprintf (st, "\n  Modified: %s", VER_H_GIT_DATE);
+    (void)fprintf (st, "\r\n  Modified: %s", VER_H_GIT_DATE);
 # else
-    (void)fprintf (st, "\n  Released: %s", VER_H_GIT_DATE);
+    (void)fprintf (st, "\r\n  Released: %s", VER_H_GIT_DATE);
 # endif
 #endif
 #if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_DATE) && defined(VER_H_PREP_DATE)
     (void)fprintf (st, " - Kit Prepared: %s", VER_H_PREP_DATE);
 #endif
 #if defined(VER_CURRENT_TIME)
-    (void)fprintf (st, "\n  Compiled: %s", VER_CURRENT_TIME);
+    (void)fprintf (st, "\r\n  Compiled: %s", VER_CURRENT_TIME);
 #endif
     if (dirty) //-V547
       {
@@ -5321,7 +5321,7 @@ if (flag) {
       }
     unsigned char SPROM[1024];
     setupPROM (0, SPROM);
-    (void)fprintf (st, "\n    Target: ");
+    (void)fprintf (st, "\r\n    Target: ");
     printpq (SPROM, st, 190, 20);
     if (SPROM[170] != 20)
       {
@@ -5333,7 +5333,7 @@ if (flag) {
       }
     strtrimspace(build_os_version, build_os_version_raw);
     strtrimspace(build_os_arch, build_os_arch_raw);
-    (void)fprintf (st, "\n  Build OS: %s %s", build_os_version, build_os_arch);
+    (void)fprintf (st, "\r\n  Build OS: %s %s", build_os_version, build_os_arch);
     FREE(build_os_version);
     FREE(build_os_arch);
 #endif
@@ -5369,13 +5369,13 @@ if (flag) {
 #if ( defined(__GNUC__) && defined(__VERSION__) ) && !defined(__EDG__)
 # if !defined(__clang_version__)
     if (isdigit((unsigned char)gnumver[0])) {
-        (void)fprintf (st, "\n  Compiler: GCC %s", postver);
+        (void)fprintf (st, "\r\n  Compiler: GCC %s", postver);
     } else {
-        (void)fprintf (st, "\n  Compiler: %s", postver);
+        (void)fprintf (st, "\r\n  Compiler: %s", postver);
     }
 # endif
 # if defined(__clang_analyzer__ )
-    (void)fprintf (st, "\n  Compiler: Clang C/C++ Static Analyzer");
+    (void)fprintf (st, "\r\n  Compiler: Clang C/C++ Static Analyzer");
 # elif defined(__clang_version__) && defined(__VERSION__)
     char clangllvmver[1024];
     (void)sprintf(clangllvmver, "%.1023s", __clang_version__);
@@ -5388,15 +5388,15 @@ if (flag) {
     strremove(clangllvmver, " ( )");
     strremove(clangllvmver, " ()");
     if (gnumver[0] == 'c' || gnumver[0] == 'C') {
-        (void)fprintf (st, "\n  Compiler: Clang %s", clangllvmver);
+        (void)fprintf (st, "\r\n  Compiler: Clang %s", clangllvmver);
     } else {
-        (void)fprintf (st, "\n  Compiler: %s", postver);
+        (void)fprintf (st, "\r\n  Compiler: %s", postver);
     }
 # elif defined(__clang_version__)
-    (void)fprintf (st, "\n  Compiler: %s", postver);
+    (void)fprintf (st, "\r\n  Compiler: %s", postver);
 # endif
 #elif defined(__PGI) && !defined(__NVCOMPILER)
-    (void)fprintf (st, "\n  Compiler: Portland Group, Inc. (PGI) C Compiler ");
+    (void)fprintf (st, "\r\n  Compiler: Portland Group, Inc. (PGI) C Compiler ");
 # if defined(__PGIC__)
     (void)fprintf (st, "%d", __PGIC__);
 #  if defined(__PGIC_MINOR__)
@@ -5407,7 +5407,7 @@ if (flag) {
 #  endif
 # endif
 #elif defined(__NVCOMPILER)
-    (void)fprintf (st, "\n  Compiler: NVIDIA HPC SDK C Compiler ");
+    (void)fprintf (st, "\r\n  Compiler: NVIDIA HPC SDK C Compiler ");
 # if defined(__NVCOMPILER_MAJOR__)
     (void)fprintf (st, "%d", __NVCOMPILER_MAJOR__);
 #  if defined(__NVCOMPILER_MINOR__)
@@ -5418,26 +5418,26 @@ if (flag) {
 #  endif
 # endif
 #elif defined(_MSC_FULL_VER) && defined(_MSC_BUILD)
-    (void)fprintf (st, "\n  Compiler: Microsoft C %d.%02d.%05d.%02d",
+    (void)fprintf (st, "\r\n  Compiler: Microsoft C %d.%02d.%05d.%02d",
                    _MSC_FULL_VER/10000000,
                    (_MSC_FULL_VER/100000)%100,
                    _MSC_FULL_VER%100000,
                    _MSC_BUILD);
 #elif ( defined(__xlc__) && !defined(__clang_version__) )
 # if defined(_AIX) && defined(__PASE__)
-    (void)fprintf (st, "\n  Compiler: IBM XL C/C++ V%s (PASE for IBM i)", __xlc__);
+    (void)fprintf (st, "\r\n  Compiler: IBM XL C/C++ V%s (PASE for IBM i)", __xlc__);
 # endif
 # if defined(_AIX) && !defined(__PASE__)
-    (void)fprintf (st, "\n  Compiler: IBM XL C/C++ for AIX V%s", __xlc__);
+    (void)fprintf (st, "\r\n  Compiler: IBM XL C/C++ for AIX V%s", __xlc__);
 # endif
 # if defined(__linux__) && ( !defined(_AIX) || !defined(__PASE__) )
-    (void)fprintf (st, "\n  Compiler: IBM XL C/C++ for Linux V%s", __xlc__);
+    (void)fprintf (st, "\r\n  Compiler: IBM XL C/C++ for Linux V%s", __xlc__);
 # endif
 # if ( !defined(_AIX) && !defined(__clang_version__) && !defined(__PASE__) && !defined(__linux__) && defined(__xlc__) )
 #  if defined(__PPC__) && defined(__APPLE__)
-    (void)fprintf (st, "\n  Compiler: IBM XL C/C++ V%s for Mac OS X", __xlc__);
+    (void)fprintf (st, "\r\n  Compiler: IBM XL C/C++ V%s for Mac OS X", __xlc__);
 #  else
-    (void)fprintf (st, "\n  Compiler: IBM XL C/C++ V%s", __xlc__);
+    (void)fprintf (st, "\r\n  Compiler: IBM XL C/C++ V%s", __xlc__);
 #  endif
 # endif
 #elif defined(__SUNPRO_C) || defined(__SUNPRO_CC) || defined(__SUNPRO_CC_COMPAT)
@@ -5473,27 +5473,27 @@ if (flag) {
 # if !defined(COMP_VER)
 #  define COMP_VER 0
 # endif
-    (void)fprintf (st, "\n  Compiler: Oracle Developer Studio C/C++ %d.%d.%d",
+    (void)fprintf (st, "\r\n  Compiler: Oracle Developer Studio C/C++ %d.%d.%d",
                    VER_DEC_MAJ(COMP_VER),
                    VER_DEC_MIN(COMP_VER),
                    VER_DEC_REV(COMP_VER));
 #elif defined(__DMC__)
-    (void)fprintf (st, "\n  Compiler: Digital Mars C/C++");
+    (void)fprintf (st, "\r\n  Compiler: Digital Mars C/C++");
 #elif defined(__PCC__)
-    (void)fprintf (st, "\n  Compiler: Portable C Compiler");
+    (void)fprintf (st, "\r\n  Compiler: Portable C Compiler");
 #elif defined(KENC) || defined(KENCC) || defined(__KENC__) || defined(__KENCC__)
-    (void)fprintf (st, "\n  Compiler: Plan 9 Compiler Suite");
+    (void)fprintf (st, "\r\n  Compiler: Plan 9 Compiler Suite");
 #elif defined(__ACK__)
-    (void)fprintf (st, "\n  Compiler: Amsterdam Compiler Kit");
+    (void)fprintf (st, "\r\n  Compiler: Amsterdam Compiler Kit");
 #elif defined(__COMO__)
-    (void)fprintf (st, "\n  Compiler: Comeau C++");
+    (void)fprintf (st, "\r\n  Compiler: Comeau C++");
 #elif defined(__COMPCERT__)
-    (void)fprintf (st, "\n  Compiler: CompCert C");
+    (void)fprintf (st, "\r\n  Compiler: CompCert C");
 #elif defined(__COVERITY__)
-    (void)fprintf (st, "\n  Compiler: Coverity C/C++ Static Analyzer");
+    (void)fprintf (st, "\r\n  Compiler: Coverity C/C++ Static Analyzer");
 #elif defined(__LCC__)
 # if defined(__e2k__) || defined(__e2k64__) || defined(__elbrus__) || defined(__ELBRUS__) || defined(__elbrus64__) || defined(__E2K__)
-    (void)fprintf (st, "\n  Compiler: MCST Elbrus C Compiler");
+    (void)fprintf (st, "\r\n  Compiler: MCST Elbrus C Compiler");
 #  if __LCC__ > 99
     (void)fprintf(st, " - LCC %1.2f", (double)(__LCC__) / (double)100);
 #   if defined(__LCC_MINOR__)
@@ -5509,44 +5509,44 @@ if (flag) {
 #   endif
 #  endif
 # else
-    (void)fprintf (st, "\n  Compiler: Local/Little C Compiler (lcc)");
+    (void)fprintf (st, "\r\n  Compiler: Local/Little C Compiler (lcc)");
 # endif
 #elif defined(sgi) || defined(__sgi) || defined(_sgi) || defined(_SGI_COMPILER_VERSION)
-    (void)fprintf (st, "\n  Compiler: SGI MIPSpro");
+    (void)fprintf (st, "\r\n  Compiler: SGI MIPSpro");
 #elif defined(__OPEN64__)
-    (void)fprintf (st, "\n  Compiler: Open64 %s", __OPEN64__);
+    (void)fprintf (st, "\r\n  Compiler: Open64 %s", __OPEN64__);
 #elif defined(__PGI) || defined(__PGIC__)
-    (void)fprintf (st, "\n  Compiler: Portland Group/PGI C/C++");
+    (void)fprintf (st, "\r\n  Compiler: Portland Group/PGI C/C++");
 #elif defined(__VBCC__)
-    (void)fprintf (st, "\n  Compiler: Volker Barthelmann C Compiler (vbcc)");
+    (void)fprintf (st, "\r\n  Compiler: Volker Barthelmann C Compiler (vbcc)");
 #elif defined(__WATCOMC__)
-    (void)fprintf (st, "\n  Compiler: Watcom C/C++ %d.%d",
+    (void)fprintf (st, "\r\n  Compiler: Watcom C/C++ %d.%d",
                    __WATCOMC__ / 100,
                    __WATCOMC__ % 100);
 #elif defined(__xlC__)
-    (void)fprintf (st, "\n  Compiler: IBM XL C/C++");
+    (void)fprintf (st, "\r\n  Compiler: IBM XL C/C++");
 #elif defined(__INTEL_COMPILER) || defined(__ICC)
 # if defined(__INTEL_COMPILER_UPDATE)
 #  if defined(__INTEL_COMPILER_BUILD_DATE)
-    (void)fprintf (st, "\n  Compiler: Intel C++ Compiler %d.%d (%d)",
+    (void)fprintf (st, "\r\n  Compiler: Intel C++ Compiler %d.%d (%d)",
                    __INTEL_COMPILER, __INTEL_COMPILER_UPDATE,
                    __INTEL_COMPILER_BUILD_DATE);
 #  else
-    (void)fprintf (st, "\n  Compiler: Intel C++ Compiler %d.%d",
+    (void)fprintf (st, "\r\n  Compiler: Intel C++ Compiler %d.%d",
                    __INTEL_COMPILER, __INTEL_COMPILER_UPDATE);
 #  endif
 # else
-    (void)fprintf (st, "\n  Compiler: Intel C++ Compiler %d",
+    (void)fprintf (st, "\r\n  Compiler: Intel C++ Compiler %d",
                    __INTEL_COMPILER);
 # endif
 #elif defined(SIM_COMPILER)
 # define S_xstr(a) S_str(a)
 # define S_str(a) #a
-    (void)fprintf (st, "\n  Compiler: %s", S_xstr(SIM_COMPILER));
+    (void)fprintf (st, "\r\n  Compiler: %s", S_xstr(SIM_COMPILER));
 # undef S_str
 # undef S_xstr
 #else
-    (void)fprintf (st, "\n  Compiler: Unknown");
+    (void)fprintf (st, "\r\n  Compiler: Unknown");
 #endif
 
 #if defined(__ppc64__) || defined(__PPC64__) || defined(__ppc64le__) || defined(__PPC64LE__) || defined(__powerpc64__) || \
@@ -5628,13 +5628,13 @@ if (flag) {
 #endif
     (void)fprintf (st, "%s", arch);
 #if defined(BUILD_BY_USER)
-        (void)fprintf (st, "\n  Built by: %s", BUILD_BY_USER);
+        (void)fprintf (st, "\r\n  Built by: %s", BUILD_BY_USER);
 #else
 # if defined(GENERATED_MAKE_VER_H) && defined(VER_H_PREP_USER)
-        (void)fprintf (st, "\n  Built by: %s", VER_H_PREP_USER);
+        (void)fprintf (st, "\r\n  Built by: %s", VER_H_PREP_USER);
 # endif
 #endif
-                (void)fprintf (st, "\n\n Host System Information:");
+                (void)fprintf (st, "\r\n\r\n Host System Information:");
 #if defined(_WIN32)
     if (1) {
         char *arch = getenv ("PROCESSOR_ARCHITECTURE");
@@ -5651,7 +5651,7 @@ if (flag) {
                 } while (osversion[0] == '\0');
             _pclose (f);
             }
-        (void)fprintf (st, "\n   Host OS: %s", osversion);
+        (void)fprintf (st, "\r\n   Host OS: %s", osversion);
         (void)fprintf (st, " %s%s%s", arch, proc_arch3264 ? " on " : "", proc_arch3264 ? proc_arch3264  : "");
         }
 #else
@@ -5685,39 +5685,39 @@ if (flag) {
             strremove(osversion, " (emulated by QEMU)");
         }
 # if !defined(_AIX)
-            (void)fprintf (st, "\n   Host OS: %s", osversion);
+            (void)fprintf (st, "\r\n   Host OS: %s", osversion);
 # else
             strremove(osversion, "AIX ");
 #  if !defined(__PASE__)
-            (void)fprintf (st, "\n   Host OS: IBM AIX %s", osversion);
+            (void)fprintf (st, "\r\n   Host OS: IBM AIX %s", osversion);
 #  else
-            (void)fprintf (st, "\n   Host OS: IBM OS/400 (PASE) %s", osversion);
+            (void)fprintf (st, "\r\n   Host OS: IBM OS/400 (PASE) %s", osversion);
 #  endif /* if !defined(__PASE__) */
 # endif /* if !defined(_AIX) */
     } else {
 # if !defined(_AIX)
-        (void)fprintf (st, "\n   Host OS: Unknown");
+        (void)fprintf (st, "\r\n   Host OS: Unknown");
 # else
 #  if !defined(__PASE__)
-        (void)fprintf (st, "\n   Host OS: IBM AIX");
+        (void)fprintf (st, "\r\n   Host OS: IBM AIX");
 #  else
-        (void)fprintf (st, "\n   Host OS: IBM OS/400 (PASE)");
+        (void)fprintf (st, "\r\n   Host OS: IBM OS/400 (PASE)");
 #  endif /* if !defined(__PASE__) */
 # endif /* if !defined(_AIX) */
     }
 #endif
     if (nodist)
       {
-        sim_printf ("\n\n ********* LICENSE RESTRICTED BUILD *** NOT FOR REDISTRIBUTION *********\n");
+        sim_printf ("\r\n\r\n ********* LICENSE RESTRICTED BUILD *** NOT FOR REDISTRIBUTION *********\r\n");
       }
     else
       {
-        (void)fprintf (st, "\n");
-        (void)fprintf (st, "\n This software is made available under the terms of the ICU License.");
-        (void)fprintf (st, "\n For complete license details, see the LICENSE file included with the");
-        (void)fprintf (st, "\n software or https://gitlab.com/dps8m/dps8m/-/blob/master/LICENSE.md");
+        (void)fprintf (st, "\r\n");
+        (void)fprintf (st, "\r\n This software is made available under the terms of the ICU License.");
+        (void)fprintf (st, "\r\n For complete license details, see the LICENSE file included with the");
+        (void)fprintf (st, "\r\n software or https://gitlab.com/dps8m/dps8m/-/blob/master/LICENSE.md");
       }
-        (void)fprintf (st, "\n");
+        (void)fprintf (st, "\r\n");
     }
 return SCPE_OK;
 }
@@ -5730,7 +5730,7 @@ t_bool only_enabled = (sim_switches & SWMASK ('E'));
 
 if (cptr && (*cptr != 0))
     return SCPE_2MARG;
-(void)fprintf (st, "%s simulator configuration%s\n\n", sim_name, only_enabled ? " (enabled devices)" : "");
+(void)fprintf (st, "%s simulator configuration%s\r\n\r\n", sim_name, only_enabled ? " (enabled devices)" : "");
 for (i = 0; (dptr = sim_devices[i]) != NULL; i++)
     if (!only_enabled || !qdisable (dptr))
         show_device (st, dptr, flag);
@@ -5752,9 +5752,9 @@ return SCPE_OK;
 t_stat show_dev_logicals (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 {
 if (dptr->lname)
-    (void)fprintf (st, "%s -> %s\n", dptr->lname, dptr->name);
+    (void)fprintf (st, "%s -> %s\r\n", dptr->lname, dptr->name);
 else if (!flag)
-    fputs ("no logical name assigned\n", st);
+    fputs ("no logical name assigned\r\n", st);
 return SCPE_OK;
 }
 
@@ -5767,12 +5767,12 @@ int32 accum;
 if (cptr && (*cptr != 0))
     return SCPE_2MARG;
 if (sim_clock_queue == QUEUE_LIST_END)
-    (void)fprintf (st, "%s event queue empty, time = %.0f, executing %.0f instructions/sec\n",
+    (void)fprintf (st, "%s event queue empty, time = %.0f, executing %.0f instructions/sec\r\n",
                    sim_name, sim_time, sim_timer_inst_per_sec ());
 else {
     const char *tim;
 
-    (void)fprintf (st, "%s event queue status, time = %.0f, executing %.0f instructions/sec\n",
+    (void)fprintf (st, "%s event queue status, time = %.0f, executing %.0f instructions/sec\r\n",
                    sim_name, sim_time, sim_timer_inst_per_sec ());
     accum = 0;
     for (uptr = sim_clock_queue; uptr != QUEUE_LIST_END; uptr = uptr->next) {
@@ -5790,7 +5790,7 @@ else {
                 else
                     (void)fprintf (st, "  Unknown");
         tim = sim_fmt_secs((accum + uptr->time)/sim_timer_inst_per_sec ());
-        (void)fprintf (st, " at %d%s%s%s%s\n", accum + uptr->time,
+        (void)fprintf (st, " at %d%s%s%s%s\r\n", accum + uptr->time,
                        (*tim) ? " (" : "", tim, (*tim) ? ")" : "",
                        (uptr->flags & UNIT_IDLE) ? " (Idle capable)" : "");
         accum = accum + uptr->time;
@@ -5804,7 +5804,7 @@ t_stat show_time (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cp
 {
 if (cptr && (*cptr != 0))
     return SCPE_2MARG;
-(void)fprintf (st, "Time:\t%.0f\n", sim_gtime());
+(void)fprintf (st, "Time:\t%.0f\r\n", sim_gtime());
 return SCPE_OK;
 }
 
@@ -5821,7 +5821,7 @@ return r;
 
 t_stat show_dev_radix (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 {
-(void)fprintf (st, "Radix=%d\n", dptr->dradix);
+(void)fprintf (st, "Radix=%d\r\n", dptr->dradix);
 return SCPE_OK;
 }
 
@@ -5867,19 +5867,19 @@ for (lvl=sim_do_depth; lvl >= 0; --lvl) {
         (void)fprintf(st, "On Processing at Do Nest Level: %d", lvl);
     else
         (void)fprintf(st, "On Processing for input commands");
-    (void)fprintf(st, " is %s\n", (sim_on_check[lvl]) ? "enabled" : "disabled");
+    (void)fprintf(st, " is %s\r\n", (sim_on_check[lvl]) ? "enabled" : "disabled");
     for (i=1; i<SCPE_BASE; ++i) {
         if (sim_on_actions[lvl][i])
-            (void)fprintf(st, "    on %5d    %s\n", i, sim_on_actions[lvl][i]); }
+            (void)fprintf(st, "    on %5d    %s\r\n", i, sim_on_actions[lvl][i]); }
     for (i=SCPE_BASE; i<=SCPE_MAX_ERR; ++i) {
         if (sim_on_actions[lvl][i])
-            (void)fprintf(st, "    on %-5s    %s\n", scp_errors[i-SCPE_BASE].code, sim_on_actions[lvl][i]); }
+            (void)fprintf(st, "    on %-5s    %s\r\n", scp_errors[i-SCPE_BASE].code, sim_on_actions[lvl][i]); }
     if (sim_on_actions[lvl][0])
-        (void)fprintf(st, "    on ERROR    %s\n", sim_on_actions[lvl][0]);
-    (void)fprintf(st, "\n");
+        (void)fprintf(st, "    on ERROR    %s\r\n", sim_on_actions[lvl][0]);
+    (void)fprintf(st, "\r\n");
     }
 if (sim_on_inherit)
-    (void)fprintf(st, "on state and actions are inherited by nested do commands and subroutines\n");
+    (void)fprintf(st, "on state and actions are inherited by nested do commands and subroutines\r\n");
 return SCPE_OK;
 }
 
@@ -5918,7 +5918,7 @@ for (mptr = dptr->modifiers; mptr->mask != 0; mptr++) {
             (MODMASK(mptr,flag) && !MODMASK(mptr,MTAB_NMO)):
             ((MTAB_VUN == (uint32)flag) && ((uptr->flags & mptr->mask) == mptr->match)))) {
         if (*toks > 0) {
-            (void)fprintf (st, "\n");
+            (void)fprintf (st, "\r\n");
             *toks = 0;
             }
         if (r == SCPE_OK)
@@ -5984,7 +5984,7 @@ t_addr lo, hi, max;
 int32 cnt;
 
 if (sim_brk_types == 0)
-    return sim_messagef (SCPE_NOFNC, "No breakpoint support in this simulator\n");
+    return sim_messagef (SCPE_NOFNC, "No breakpoint support in this simulator\r\n");
 if (dptr == NULL)
     return SCPE_IERR;
 uptr = dptr->units;
@@ -5996,7 +5996,7 @@ strncpy (abuf, cptr, sizeof(abuf)-1);
 cptr = abuf;
 if ((aptr = strchr (abuf, ';'))) {                      /* ;action? */
     if (flg != SSH_ST)                                  /* only on SET */
-        return sim_messagef (SCPE_ARG, "Invalid argument: %s\n", aptr);
+        return sim_messagef (SCPE_ARG, "Invalid argument: %s\r\n", aptr);
     *aptr++ = 0;                                        /* separate strings */
     }
 if (*cptr == 0) {                                       /* no argument? */
@@ -6007,16 +6007,16 @@ while (*cptr) {
     cptr = get_glyph (cptr, gbuf, ',');
     tptr = get_range (dptr, gbuf, &lo, &hi, dptr->aradix, max, 0);
     if (tptr == NULL)
-        return sim_messagef (SCPE_ARG, "Invalid address specifier: %s\n", gbuf);
+        return sim_messagef (SCPE_ARG, "Invalid address specifier: %s\r\n", gbuf);
     if (*tptr == '[') {
         cnt = (int32) strtotv (tptr + 1, &t1ptr, 10);
         if ((tptr == t1ptr) || (*t1ptr != ']') || (flg != SSH_ST))
-            return sim_messagef (SCPE_ARG, "Invalid repeat count specifier: %s\n", tptr + 1);
+            return sim_messagef (SCPE_ARG, "Invalid repeat count specifier: %s\r\n", tptr + 1);
         tptr = t1ptr + 1;
         }
     else cnt = 0;
     if (*tptr != 0)
-        return sim_messagef (SCPE_ARG, "Unexpected argument: %s\n", tptr);
+        return sim_messagef (SCPE_ARG, "Unexpected argument: %s\r\n", tptr);
     if ((lo == 0) && (hi == max)) {
         if (flg == SSH_CL)
             sim_brk_clrall (sim_switches);
@@ -6040,7 +6040,7 @@ return SCPE_OK;
 t_stat ssh_break_one (FILE *st, int32 flg, t_addr lo, int32 cnt, CONST char *aptr)
 {
 if (!sim_brk_types)
-    return sim_messagef (SCPE_NOFNC, "No breakpoint support in this simulator\n");
+    return sim_messagef (SCPE_NOFNC, "No breakpoint support in this simulator\r\n");
 switch (flg) {
     case SSH_ST:
         return sim_brk_set (lo, sim_switches, cnt, aptr);
@@ -6215,7 +6215,7 @@ if ((sim_switches & SWMASK ('R')) ||                    /* read only? */
         return attach_err (uptr, SCPE_OPENERR);         /* yes, error */
     uptr->flags = uptr->flags | UNIT_RO;                /* set rd only */
     if (!sim_quiet && !(sim_switches & SWMASK ('Q'))) {
-        sim_printf ("%s: unit is read only (%s)\n", sim_dname (dptr), cptr);
+        sim_printf ("%s: unit is read only (%s)\r\n", sim_dname (dptr), cptr);
         }
     }
 else {
@@ -6224,7 +6224,7 @@ else {
         if (uptr->fileref == NULL)                      /* open fail? */
             return attach_err (uptr, SCPE_OPENERR);     /* yes, error */
         if (!sim_quiet && !(sim_switches & SWMASK ('Q'))) {
-            sim_printf ("%s: creating new file (%s)\n", sim_dname (dptr), cptr);
+            sim_printf ("%s: creating new file (%s)\r\n", sim_dname (dptr), cptr);
             }
         }
     else {                                              /* normal */
@@ -6249,7 +6249,7 @@ else {
                     return attach_err (uptr, SCPE_OPENERR); /* yes, error */
                 uptr->flags = uptr->flags | UNIT_RO;    /* set rd only */
                 if (!sim_quiet) {
-                    sim_printf ("%s: unit is read only (%s)\n", sim_dname (dptr), cptr);
+                    sim_printf ("%s: unit is read only (%s)\r\n", sim_dname (dptr), cptr);
                     }
                 }
             else {                                      /* doesn't exist */
@@ -6259,7 +6259,7 @@ else {
                 if (uptr->fileref == NULL)              /* open fail? */
                     return attach_err (uptr, SCPE_OPENERR); /* yes, error */
                 if (!sim_quiet) {
-                    sim_printf ("%s: creating new file (%s)\n", sim_dname (dptr), cptr);
+                    sim_printf ("%s: creating new file (%s)\r\n", sim_dname (dptr), cptr);
                     }
                 }
             }                                           /* end if null */
@@ -6272,7 +6272,7 @@ if (uptr->flags & UNIT_BUFABLE) {                       /* buffer? */
     if (uptr->filebuf == NULL)                          /* no buffer? */
         return attach_err (uptr, SCPE_MEM);             /* error */
     if (!sim_quiet) {
-        sim_printf ("%s: buffering file in memory\n", sim_dname (dptr));
+        sim_printf ("%s: buffering file in memory\r\n", sim_dname (dptr));
         }
     uptr->hwmark = (uint32)sim_fread (uptr->filebuf,    /* read file */
         SZ_D (dptr), cap, uptr->fileref);
@@ -6385,12 +6385,12 @@ if (uptr->flags & UNIT_BUF) {
     uint32 cap = (uptr->hwmark + dptr->aincr - 1) / dptr->aincr;
     if (uptr->hwmark && ((uptr->flags & UNIT_RO) == 0)) {
         if (!sim_quiet) {
-            sim_printf ("%s: writing buffer to file\n", sim_dname (dptr));
+            sim_printf ("%s: writing buffer to file\r\n", sim_dname (dptr));
             }
         rewind (uptr->fileref);
         sim_fwrite (uptr->filebuf, SZ_D (dptr), cap, uptr->fileref);
         if (ferror (uptr->fileref))
-            sim_printf ("%s: I/O error - %s (Error %d)",
+            sim_printf ("%s: I/O error - %s (Error %d)\r\n",
                         sim_dname (dptr), xstrerror_l(errno), errno);
         }
     if (uptr->flags & UNIT_MUSTBUF) {                   /* dyn alloc? */
@@ -6470,7 +6470,7 @@ if ((flag == RU_RUN) || (flag == RU_GO)) {              /* run or go */
         if (MATCH_CMD (gbuf, "UNTIL") != 0)
             cptr = get_glyph (cptr, gbuf, 0);           /* get next glyph */
         if (MATCH_CMD (gbuf, "UNTIL") != 0)
-            return sim_messagef (SCPE_2MARG, "Unexpected %s command argument: %s %s\n",
+            return sim_messagef (SCPE_2MARG, "Unexpected %s command argument: %s %s\r\n",
                                              (flag == RU_RUN) ? "RUN" : "GO", gbuf, cptr);
         sim_switches = 0;
         GET_SWITCHES (cptr);
@@ -6486,7 +6486,7 @@ if ((flag == RU_RUN) || (flag == RU_GO)) {              /* run or go */
             sim_brk_types |= BRK_TYP_TEMP;
             r = ssh_break (NULL, cptr, SSH_ST);
             if (r != SCPE_OK)
-                return sim_messagef (r, "Unable to establish breakpoint at: %s\n", cptr);
+                return sim_messagef (r, "Unable to establish breakpoint at: %s\r\n", cptr);
             }
         sim_switches = saved_switches;
         }
@@ -6562,7 +6562,7 @@ else
         return SCPE_IERR;
     else                                                /* CONTINUE command */
         if (*cptr != 0)                                 /* should be end (no arguments allowed) */
-            return sim_messagef (SCPE_2MARG, "CONTINUE command takes no arguments\n");
+            return sim_messagef (SCPE_2MARG, "CONTINUE command takes no arguments\r\n");
 
 if (sim_switches & SIM_SW_HIDE)                         /* Setup only for Remote Console Mode */
     return SCPE_OK;
@@ -6704,7 +6704,7 @@ void
 run_cmd_message (const char *unechoed_cmdline, t_stat r)
 {
 if (unechoed_cmdline && (r >= SCPE_BASE) && (r != SCPE_STEP) && (r != SCPE_STOP) && (r != SCPE_EXPECT))
-    sim_printf("%s> %s\n", do_position(), unechoed_cmdline);
+    sim_printf("%s> %s\r\n", do_position(), unechoed_cmdline);
 #if defined(WIN_STDIO)
 (void)fflush(stderr);
 (void)fflush(stdout);
@@ -6737,8 +6737,8 @@ for (uptr = sim_clock_queue; uptr != QUEUE_LIST_END; uptr = sim_clock_queue) {
 r = reset_all (0);
 if ((r == SCPE_OK) && (flag == RU_RUN)) {
     if ((run_cmd_did_reset) && (0 == (sim_switches & SWMASK ('Q')))) {
-        sim_printf ("Resetting all devices...  This may not have been your intention.\n");
-        sim_printf ("The GO and CONTINUE commands do not reset devices.\n");
+        sim_printf ("Resetting all devices...  This may not have been your intention.\r\n");
+        sim_printf ("The GO and CONTINUE commands do not reset devices.\r\n");
         }
     run_cmd_did_reset = TRUE;
     }
@@ -6792,7 +6792,7 @@ if ((dptr != NULL) && (dptr->examine != NULL)) {
         (void)fprintf (st, ")");
         }
     }
-(void)fprintf (st, "\n");
+(void)fprintf (st, "\r\n");
 return;
 }
 
@@ -6961,14 +6961,14 @@ for (rptr = lowr; rptr <= highr; rptr++) {
                     }
                 else {
                     if (val_start+1 != idx-1) {
-                        (void)Fprintf (ofile, "%s[%d]-%s[%d]: same as above\n", rptr->name, val_start+1, rptr->name, idx-1);
+                        (void)Fprintf (ofile, "%s[%d]-%s[%d]: same as above\r\n", rptr->name, val_start+1, rptr->name, idx-1);
                         if (sim_log && (ofile == stdout))
-                            (void)Fprintf (sim_log, "%s[%d]-%s[%d]: same as above\n", rptr->name, val_start+1, rptr->name, idx-1);
+                            (void)Fprintf (sim_log, "%s[%d]-%s[%d]: same as above\r\n", rptr->name, val_start+1, rptr->name, idx-1);
                         }
                     else {
-                        (void)Fprintf (ofile, "%s[%d]: same as above\n", rptr->name, val_start+1);
+                        (void)Fprintf (ofile, "%s[%d]: same as above\r\n", rptr->name, val_start+1);
                         if (sim_log && (ofile == stdout))
-                            (void)Fprintf (sim_log, "%s[%d]: same as above\n", rptr->name, val_start+1);
+                            (void)Fprintf (sim_log, "%s[%d]: same as above\r\n", rptr->name, val_start+1);
                         }
                     }
                 }
@@ -6996,14 +6996,14 @@ for (rptr = lowr; rptr <= highr; rptr++) {
             }
         else {
             if (val_start+1 != highs) {
-                (void)Fprintf (ofile, "%s[%d]-%s[%d]: same as above\n", rptr->name, val_start+1, rptr->name, highs);
+                (void)Fprintf (ofile, "%s[%d]-%s[%d]: same as above\r\n", rptr->name, val_start+1, rptr->name, highs);
                 if (sim_log && (ofile == stdout))
-                    (void)Fprintf (sim_log, "%s[%d]-%s[%d]: same as above\n", rptr->name, val_start+1, rptr->name, highs);
+                    (void)Fprintf (sim_log, "%s[%d]-%s[%d]: same as above\r\n", rptr->name, val_start+1, rptr->name, highs);
                 }
             else {
-                (void)Fprintf (ofile, "%s[%d]: same as above\n", rptr->name, val_start+1);
+                (void)Fprintf (ofile, "%s[%d]: same as above\r\n", rptr->name, val_start+1);
                 if (sim_log && (ofile == stdout))
-                    (void)Fprintf (sim_log, "%s[%d]: same as above\n", rptr->name, val_start+1);
+                    (void)Fprintf (sim_log, "%s[%d]: same as above\r\n", rptr->name, val_start+1);
                 }
             }
         }
@@ -7087,7 +7087,7 @@ else if (!(rptr->flags & REG_VMFLAGS) ||
 if (flag & EX_I)
     (void)Fprintf (ofile, "\t");
 else
-    (void)Fprintf (ofile, "\n");
+    (void)Fprintf (ofile, "\r\n");
 return SCPE_OK;
 }
 
@@ -7162,7 +7162,7 @@ if (rptr->flags & REG_RO)
 if (flag & EX_I) {
     cptr = read_line (gbuf, sizeof(gbuf), stdin);
     if (sim_log)
-        (void)fprintf (sim_log, "%s\n", cptr? cptr: "");
+        (void)fprintf (sim_log, "%s\r\n", cptr? cptr: "");
     if (cptr == NULL)                                   /* force exit */
         return 1;
     if (*cptr == 0)                                     /* success */
@@ -7283,7 +7283,7 @@ if ((reason = fprint_sym (ofile, addr, sim_eval, uptr, sim_switches)) > 0) {
 if (flag & EX_I)
     (void)Fprintf (ofile, "\t");
 else
-    (void)Fprintf (ofile, "\n");
+    (void)Fprintf (ofile, "\r\n");
 return reason;
 }
 
@@ -7382,7 +7382,7 @@ if (dptr == NULL)
 if (flag & EX_I) {
     cptr = read_line (gbuf, sizeof(gbuf), stdin);
     if (sim_log)
-        (void)fprintf (sim_log, "%s\n", cptr? cptr: "");
+        (void)fprintf (sim_log, "%s\r\n", cptr? cptr: "");
     if (cptr == NULL)                                   /* force exit */
         return 1;
     if (*cptr == 0)                                     /* success */
@@ -7465,7 +7465,7 @@ for (i = a = 0; a < lim; ) {
         if ((r = fprint_sym (sim_log, a, &sim_eval[i], dptr->units, sim_switches)) > 0)
             r = fprint_val (sim_log, sim_eval[i], rdx, dptr->dwidth, PV_RZRO);
         }
-    sim_printf ("\n");
+    sim_printf ("\r\n");
     if (r < 0)
         a = a + 1 - r;
     else a = a + dptr->aincr;
@@ -7545,7 +7545,7 @@ while (sim_isspace (*cptr))                             /* trim leading spc */
     cptr++;
 if ((*cptr == ';') || (*cptr == '#')) {                 /* ignore comment */
     if (sim_do_echo)                                    /* echo comments if -v */
-        sim_printf("%s> %s\n", do_position(), cptr);
+        sim_printf("%s> %s\r\n", do_position(), cptr);
     *cptr = 0;
     }
 
@@ -8891,7 +8891,7 @@ UPDATE_SIM_TIME;                                        /* update sim time */
 if (sim_clock_queue == QUEUE_LIST_END) {                /* queue empty? */
     sim_interval = noqueue_time = NOQUEUE_WAIT;         /* flag queue empty */
     sim_debug (SIM_DBG_EVENT, sim_dflt_dev,
-               "Queue Empty New Interval = %d\n",
+               "Queue Empty New Interval = %d\r\n",
                sim_interval);
     return SCPE_OK;
     }
@@ -8907,7 +8907,7 @@ do {
     else
         sim_interval = noqueue_time = NOQUEUE_WAIT;
     sim_debug (SIM_DBG_EVENT, sim_dflt_dev,
-               "Processing Event for %s\n", sim_uname (uptr));
+               "Processing Event for %s\r\n", sim_uname (uptr));
     if (uptr->action != NULL)
         reason = uptr->action (uptr);
     else
@@ -8920,12 +8920,12 @@ do {
 if (sim_clock_queue == QUEUE_LIST_END) {                /* queue empty? */
     sim_interval = noqueue_time = NOQUEUE_WAIT;         /* flag queue empty */
     sim_debug (SIM_DBG_EVENT, sim_dflt_dev,
-               "Processing Queue Complete New Interval = %d\n",
+               "Processing Queue Complete New Interval = %d\r\n",
                sim_interval);
     }
 else
     sim_debug (SIM_DBG_EVENT, sim_dflt_dev,
-               "Processing Queue Complete New Interval = %d(%s)\n",
+               "Processing Queue Complete New Interval = %d(%s)\r\n",
                sim_interval, sim_uname(sim_clock_queue));
 
 if ((reason == SCPE_OK) && stop_cpu)
@@ -8968,7 +8968,7 @@ if (sim_is_active (uptr))                               /* already active? */
     return SCPE_OK;
 UPDATE_SIM_TIME;                                        /* update sim time */
 
-sim_debug (SIM_DBG_ACTIVATE, sim_dflt_dev, "Activating %s delay=%d\n", sim_uname (uptr), event_time);
+sim_debug (SIM_DBG_ACTIVATE, sim_dflt_dev, "Activating %s delay=%d\r\n", sim_uname (uptr), event_time);
 
 prvptr = NULL;
 accum = 0;
@@ -9050,7 +9050,7 @@ if (sim_clock_queue == QUEUE_LIST_END)
 if (!sim_is_active (uptr))
     return SCPE_OK;
 UPDATE_SIM_TIME;                                        /* update sim time */
-sim_debug (SIM_DBG_EVENT, sim_dflt_dev, "Canceling Event for %s\n", sim_uname(uptr));
+sim_debug (SIM_DBG_EVENT, sim_dflt_dev, "Canceling Event for %s\r\n", sim_uname(uptr));
 nptr = QUEUE_LIST_END;
 
 if (sim_clock_queue == uptr) {
@@ -9331,7 +9331,7 @@ if ((sw == 0) || (sw == BRK_TYP_DYN_STEPOVER))
 if (~sim_brk_types & sw) {
     char gbuf[CBUFSIZE];
 
-    return sim_messagef (SCPE_NOFNC, "Unknown breakpoint type; %s\n", put_switches(gbuf, sizeof(gbuf), sw & ~sim_brk_types));
+    return sim_messagef (SCPE_NOFNC, "Unknown breakpoint type; %s\r\n", put_switches(gbuf, sizeof(gbuf), sw & ~sim_brk_types));
     }
 if ((sw & BRK_TYP_DYN_ALL) && act)                      /* can't specify an action with a dynamic breakpoint */
     return SCPE_ARG;
@@ -9489,7 +9489,7 @@ if (bp->cnt > 0) {
 if (bp->act != NULL) {
     if (st != NULL) {
         (void)fprintf (st, "; %s", bp->act); } }
-(void)fprintf (st, "\n");
+(void)fprintf (st, "\r\n");
 return SCPE_OK;
 }
 
@@ -9506,11 +9506,11 @@ for (types=bit=0; bit <= ('Z'-'A'); bit++)
     if (sim_brk_types & (1 << bit))
         ++types;
 if ((!(sw & SWMASK ('C'))) && sim_brk_types && (types > 1)) {
-    (void)fprintf (st, "Supported Breakpoint Types:");
+    (void)fprintf (st, "Supported Breakpoint Types:"); //-V522
     for (bit=0; bit <= ('Z'-'A'); bit++)
         if (sim_brk_types & (1 << bit))
             (void)fprintf (st, " -%c", 'A' + bit);
-    (void)fprintf (st, "\n");
+    (void)fprintf (st, "\r\n");
     }
 if (((sw & sim_brk_types) != sim_brk_types) && (types > 1)) {
     mask = (sw & sim_brk_types);
@@ -9518,7 +9518,7 @@ if (((sw & sim_brk_types) != sim_brk_types) && (types > 1)) {
     for (bit=0; bit <= ('Z'-'A'); bit++)
         if (mask & (1 << bit))
             (void)fprintf (st, " -%c", 'A' + bit);
-    (void)fprintf (st, "\n");
+    (void)fprintf (st, "\r\n");
     }
 for (bpt = sim_brk_tab; bpt < (sim_brk_tab + sim_brk_ent); bpt++) {
     BRKTAB *prev = NULL;
@@ -9701,7 +9701,7 @@ if (sim_brk_type_desc) {
         }
     }
 if (!msg[0])
-    (void)sprintf (msg, "%s Breakpoint at: %s\n",
+    (void)sprintf (msg, "%s Breakpoint at: %s\r\n",
                    put_switches (buf, sizeof(buf), sim_brk_match_type), addr);
 
 return msg;
@@ -9754,7 +9754,7 @@ int32 cnt = 0;
 t_stat r;
 
 if (exp == NULL)
-    return sim_messagef (SCPE_ARG, "Null exp!\n");
+    return sim_messagef (SCPE_ARG, "Null exp!\r\n");
 after = exp->after;
 
 if ((cptr == NULL) || (*cptr == 0))
@@ -9762,7 +9762,7 @@ if ((cptr == NULL) || (*cptr == 0))
 if (*cptr == '[') {
     cnt = (int32) strtotv (cptr + 1, &c1ptr, 10);
     if ((cptr == c1ptr) || (*c1ptr != ']'))
-        return sim_messagef (SCPE_ARG, "Invalid Repeat count specification\n");
+        return sim_messagef (SCPE_ARG, "Invalid Repeat count specification\r\n");
     cptr = c1ptr + 1;
     while (sim_isspace(*cptr))
         ++cptr;
@@ -9771,12 +9771,12 @@ tptr = get_glyph (cptr, gbuf, ',');
 if ((!strncmp(gbuf, "HALTAFTER=", 10)) && (gbuf[10])) {
     after = (uint32)get_uint (&gbuf[10], 10, 2000000000, &r);
     if (r != SCPE_OK)
-        return sim_messagef (SCPE_ARG, "Invalid Halt After Value\n");
+        return sim_messagef (SCPE_ARG, "Invalid Halt After Value\r\n");
     after_set = TRUE;
     cptr = tptr;
     }
 if ((*cptr != '"') && (*cptr != '\''))
-    return sim_messagef (SCPE_ARG, "String must be quote delimited\n");
+    return sim_messagef (SCPE_ARG, "String must be quote delimited\r\n");
 cptr = get_glyph_quoted (cptr, gbuf, 0);
 
 return sim_exp_set (exp, gbuf, cnt, (after_set ? after : exp->after), sim_switches, cptr);
@@ -9791,7 +9791,7 @@ char gbuf[CBUFSIZE];
 if (NULL == cptr || !*cptr)
     return sim_exp_clrall (exp);                    /* clear all rules */
 if ((*cptr != '"') && (*cptr != '\''))
-    return sim_messagef (SCPE_ARG, "String must be quote delimited\n");
+    return sim_messagef (SCPE_ARG, "String must be quote delimited\r\n");
 cptr = get_glyph_quoted (cptr, gbuf, 0);
 if (*cptr != '\0')
     return SCPE_2MARG;                              /* No more arguments */
@@ -9882,27 +9882,27 @@ if (!match_buf)
     return SCPE_MEM;
 if (switches & EXP_TYP_REGEX) {
     FREE (match_buf);
-    return sim_messagef (SCPE_ARG, "RegEx support not available\n");
+    return sim_messagef (SCPE_ARG, "RegEx support not available\r\n");
     }
 else {
     if (switches & EXP_TYP_REGEX_I) {
         FREE (match_buf);
-        return sim_messagef (SCPE_ARG, "Case independent matching is only valid for RegEx expect rules\n");
+        return sim_messagef (SCPE_ARG, "Case independent matching is only valid for RegEx expect rules\r\n");
         }
     sim_data_trace(exp->dptr, exp->dptr->units, (const uint8 *)match, "", strlen(match)+1, "Expect Match String", exp->dbit);
     if (SCPE_OK != sim_decode_quoted_string (match, match_buf, &match_size)) {
         FREE (match_buf);
-        return sim_messagef (SCPE_ARG, "Invalid quoted string\n");
+        return sim_messagef (SCPE_ARG, "Invalid quoted string\r\n");
         }
     }
 FREE (match_buf);
 for (i=0; i<exp->size; i++) {                           /* Make sure this rule won't be occluded */
     if ((0 == strcmp (match, exp->rules[i].match_pattern)) &&
         (exp->rules[i].switches & EXP_TYP_PERSIST))
-        return sim_messagef (SCPE_ARG, "Persistent Expect rule with identical match string already exists\n");
+        return sim_messagef (SCPE_ARG, "Persistent Expect rule with identical match string already exists\r\n");
     }
 if (after && exp->size)
-    return sim_messagef (SCPE_ARG, "Multiple concurrent EXPECT rules aren't valid when a HALTAFTER parameter is non-zero\n");
+    return sim_messagef (SCPE_ARG, "Multiple concurrent EXPECT rules aren't valid when a HALTAFTER parameter is non-zero\r\n");
 exp->rules = (EXPTAB *) realloc (exp->rules, sizeof (*exp->rules)*(exp->size + 1));
 if (!exp->rules)
   {
@@ -9998,7 +9998,7 @@ if (ep->cnt > 0)
     (void)fprintf (st, " [%d]", ep->cnt);
 if (ep->act)
     (void)fprintf (st, " %s", ep->act);
-(void)fprintf (st, "\n");
+(void)fprintf (st, "\r\n");
 return SCPE_OK;
 }
 
@@ -10009,26 +10009,26 @@ CONST EXPTAB *ep = (CONST EXPTAB *)sim_exp_fnd (exp, match, 0);
 if (exp->buf_size) {
     char *bstr = sim_encode_quoted_string (exp->buf, exp->buf_ins);
 
-    (void)fprintf (st, "Match Buffer Size: %lld\n",
+    (void)fprintf (st, "Match Buffer Size: %lld\r\n",
                    (long long)exp->buf_size);
-    (void)fprintf (st, "Buffer Insert Offset: %lld\n",
+    (void)fprintf (st, "Buffer Insert Offset: %lld\r\n",
                    (long long)exp->buf_ins);
-    (void)fprintf (st, "Buffer Contents: %s\n",
+    (void)fprintf (st, "Buffer Contents: %s\r\n",
                    bstr);
     FREE (bstr);
     }
 if (exp->after)
-    (void)fprintf (st, "Halt After: %lld instructions\n",
+    (void)fprintf (st, "Halt After: %lld instructions\r\n",
                    (long long)exp->after);
 if (exp->dptr && exp->dbit)
-    (void)fprintf (st, "Debugging via: SET %s DEBUG%s%s\n",
+    (void)fprintf (st, "Debugging via: SET %s DEBUG%s%s\r\n",
                    sim_dname(exp->dptr), exp->dptr->debflags ? "=" : "",
                    exp->dptr->debflags ? get_dbg_verb (exp->dbit, exp->dptr) : "");
-(void)fprintf (st, "Match Rules:\n");
+(void)fprintf (st, "Match Rules:\r\n");
 if (!*match)
     return sim_exp_showall (st, exp);
 if (!ep) {
-    (void)fprintf (st, "No Rules match '%s'\n", match);
+    (void)fprintf (st, "No Rules match '%s'\r\n", match);
     return SCPE_ARG;
     }
 do {
@@ -10083,9 +10083,9 @@ for (i=0; i < exp->size; i++) {
                     char *estr = sim_encode_quoted_string (exp->buf, exp->buf_ins);
                     char *mstr = sim_encode_quoted_string (&ep->match[ep->size-exp->buf_ins], exp->buf_ins);
 
-                    sim_debug (exp->dbit, exp->dptr, "Checking String[0:%lld]: %s\n",
+                    sim_debug (exp->dbit, exp->dptr, "Checking String[0:%lld]: %s\r\n",
                                (long long)exp->buf_ins, estr);
-                    sim_debug (exp->dbit, exp->dptr, "Against Match Data: %s\n", mstr);
+                    sim_debug (exp->dbit, exp->dptr, "Against Match Data: %s\r\n", mstr);
                     FREE (estr);
                     FREE (mstr);
                     }
@@ -10096,10 +10096,10 @@ for (i=0; i < exp->size; i++) {
                 char *estr = sim_encode_quoted_string (&exp->buf[exp->buf_size-(ep->size-exp->buf_ins)], ep->size-exp->buf_ins);
                 char *mstr = sim_encode_quoted_string (ep->match, ep->size-exp->buf_ins);
 
-                sim_debug (exp->dbit, exp->dptr, "Checking String[%lld:%lld]: %s\n",
+                sim_debug (exp->dbit, exp->dptr, "Checking String[%lld:%lld]: %s\r\n",
                            (long long)exp->buf_size-(ep->size-exp->buf_ins),
                            (long long)ep->size-exp->buf_ins, estr);
-                sim_debug (exp->dbit, exp->dptr, "Against Match Data: %s\n", mstr);
+                sim_debug (exp->dbit, exp->dptr, "Against Match Data: %s\r\n", mstr);
                 FREE (estr);
                 FREE (mstr);
                 }
@@ -10112,10 +10112,10 @@ for (i=0; i < exp->size; i++) {
                 char *estr = sim_encode_quoted_string (&exp->buf[exp->buf_ins-ep->size], ep->size);
                 char *mstr = sim_encode_quoted_string (ep->match, ep->size);
 
-                sim_debug (exp->dbit, exp->dptr, "Checking String[%lld:%lld]: %s\n",
+                sim_debug (exp->dbit, exp->dptr, "Checking String[%lld:%lld]: %s\r\n",
                            (long long)exp->buf_ins-ep->size,
                            (long long)ep->size, estr);
-                sim_debug (exp->dbit, exp->dptr, "Against Match Data: %s\n", mstr);
+                sim_debug (exp->dbit, exp->dptr, "Against Match Data: %s\r\n", mstr);
                 FREE (estr);
                 FREE (mstr);
                 }
@@ -10127,23 +10127,23 @@ for (i=0; i < exp->size; i++) {
     }
 if (exp->buf_ins == exp->buf_size) {                    /* At end of match buffer? */
         exp->buf_ins = 0;                               /* wrap around to beginning */
-        sim_debug (exp->dbit, exp->dptr, "Buffer wrapping\n");
+        sim_debug (exp->dbit, exp->dptr, "Buffer wrapping\r\n");
     }
 if ((ep != NULL) && (i != exp->size)) {                 /* Found? */
-    sim_debug (exp->dbit, exp->dptr, "Matched expect pattern!\n");
+    sim_debug (exp->dbit, exp->dptr, "Matched expect pattern!\r\n");
     if (ep->cnt > 0) {
         ep->cnt -= 1;
-        sim_debug (exp->dbit, exp->dptr, "Waiting for %lld more match%s before stopping\n",
+        sim_debug (exp->dbit, exp->dptr, "Waiting for %lld more match%s before stopping\r\n",
                    (long long)ep->cnt, (ep->cnt == 1) ? "" : "es");
         }
     else {
         uint32 after   = exp->after;
         int32 switches = ep->switches;
         if (ep->act && *ep->act) {
-            sim_debug (exp->dbit, exp->dptr, "Initiating actions: %s\n", ep->act);
+            sim_debug (exp->dbit, exp->dptr, "Initiating actions: %s\r\n", ep->act);
             }
         else {
-            sim_debug (exp->dbit, exp->dptr, "No actions specified, stopping...\n");
+            sim_debug (exp->dbit, exp->dptr, "No actions specified, stopping...\r\n");
             }
         sim_brk_setact (ep->act);                       /* set up actions */
         if (ep->switches & EXP_TYP_CLEARALL)            /* Clear-all expect rule? */
@@ -10216,30 +10216,30 @@ return SCPE_OK;
 t_stat sim_show_send_input (FILE *st, const SEND *snd)
 {
 if (snd->extoff < snd->insoff) {
-    (void)fprintf (st, "%lld bytes of pending input Data:\n    ",
+    (void)fprintf (st, "%lld bytes of pending input Data:\r\n    ",
                    (long long)snd->insoff-snd->extoff);
     fprint_buffer_string (st, snd->buffer+snd->extoff, snd->insoff-snd->extoff);
-    (void)fprintf (st, "\n");
+    (void)fprintf (st, "\r\n");
     }
 else
-    (void)fprintf (st, "No Pending Input Data\n");
+    (void)fprintf (st, "No Pending Input Data\r\n");
 if ((snd->next_time - sim_gtime()) > 0) {
     if ((snd->next_time - sim_gtime()) > (sim_timer_inst_per_sec()/1000000.0))
-        (void)fprintf (st, "Minimum of %d instructions (%d microseconds) before sending first character\n",
+        (void)fprintf (st, "Minimum of %d instructions (%d microseconds) before sending first character\r\n",
                        (int)(snd->next_time - sim_gtime()),
         (int)((snd->next_time - sim_gtime())/(sim_timer_inst_per_sec()/1000000.0)));
     else
-        (void)fprintf (st, "Minimum of %d instructions before sending first character\n",
+        (void)fprintf (st, "Minimum of %d instructions before sending first character\r\n",
                        (int)(snd->next_time - sim_gtime()));
     }
 if (snd->delay > (sim_timer_inst_per_sec()/1000000.0))
-    (void)fprintf (st, "Minimum of %d instructions (%d microseconds) between characters\n",
+    (void)fprintf (st, "Minimum of %d instructions (%d microseconds) between characters\r\n",
                    (int)snd->delay, (int)(snd->delay/(sim_timer_inst_per_sec()/1000000.0)));
 else
-    (void)fprintf (st, "Minimum of %d instructions between characters\n",
+    (void)fprintf (st, "Minimum of %d instructions between characters\r\n",
                    (int)snd->delay);
 if (snd->dptr && snd->dbit)
-    (void)fprintf (st, "Debugging via: SET %s DEBUG%s%s\n",
+    (void)fprintf (st, "Debugging via: SET %s DEBUG%s%s\r\n",
                    sim_dname(snd->dptr), snd->dptr->debflags ? "=" : "",
                    snd->dptr->debflags ? get_dbg_verb (snd->dbit, snd->dptr) : "");
 return SCPE_OK;
@@ -10255,7 +10255,7 @@ cpu_state_t * cpup = _cpup;
 if ((NULL != snd) && (snd->extoff < snd->insoff)) {     /* pending input characters available? */
     if (sim_gtime() < snd->next_time) {                 /* too soon? */
         *stat = SCPE_OK;
-        sim_debug (snd->dbit, snd->dptr, "Too soon to inject next byte\n");
+        sim_debug (snd->dbit, snd->dptr, "Too soon to inject next byte\r\n");
         }
     else {
         char dstr[8] = "";
@@ -10263,7 +10263,7 @@ if ((NULL != snd) && (snd->extoff < snd->insoff)) {     /* pending input charact
         snd->next_time = sim_gtime() + snd->delay;
         if (sim_isgraph(*stat & 0xFF) || ((*stat & 0xFF) == ' '))
             (void)sprintf (dstr, " '%c'", *stat & 0xFF);
-        sim_debug (snd->dbit, snd->dptr, "Byte value: 0x%02X%s injected\n", *stat & 0xFF, dstr);
+        sim_debug (snd->dbit, snd->dptr, "Byte value: 0x%02X%s injected\r\n", *stat & 0xFF, dstr);
         }
     return TRUE;
     }
@@ -10489,11 +10489,11 @@ while (1) {                                         /* format passed string, arg
 
 if (sim_is_running) {
     char *c, *remnant = buf;
-    while ((c = strchr(remnant, '\n'))) {
-        if ((c != buf) && (*(c - 1) != '\r'))
-            (void)printf("%.*s\r\n", (int)(c-remnant), remnant);
+    while ((c = strchr(remnant, '\n'))) { //-NLOK
+        if ((c != buf) && (*(c - 1) != '\r')) //-NLOK
+            (void)printf("%.*s\r\n", (int)(c-remnant), remnant); //-NLOK
         else
-            (void)printf("%.*s\n", (int)(c-remnant), remnant);
+            (void)printf("%.*s\n", (int)(c-remnant), remnant); //-NLOK
         remnant = c + 1;
         }
     (void)printf("%s", remnant);
@@ -10543,19 +10543,19 @@ while (1) {                                         /* format passed string, arg
 
 if (sim_do_ocptr[sim_do_depth]) {
     if (!sim_do_echo && !sim_quiet && !inhibit_message)
-        sim_printf("%s> %s\n", do_position(), sim_do_ocptr[sim_do_depth]);
+        sim_printf("%s> %s\r\n", do_position(), sim_do_ocptr[sim_do_depth]);
     else {
         if (sim_deb)                        /* Always put context in debug output */
-            (void)fprintf (sim_deb, "%s> %s\n", do_position(), sim_do_ocptr[sim_do_depth]);
+            (void)fprintf (sim_deb, "%s> %s\r\n", do_position(), sim_do_ocptr[sim_do_depth]);
         }
     }
 if (sim_is_running && !inhibit_message) {
     char *c, *remnant = buf;
-    while ((c = strchr(remnant, '\n'))) {
-        if ((c != buf) && (*(c - 1) != '\r'))
-            (void)printf("%.*s\r\n", (int)(c-remnant), remnant);
+    while ((c = strchr(remnant, '\n'))) { //-NLOK
+        if ((c != buf) && (*(c - 1) != '\r')) //-NLOK
+            (void)printf("%.*s\r\n", (int)(c-remnant), remnant); //-NLOK
         else
-            (void)printf("%.*s\n", (int)(c-remnant), remnant);
+            (void)printf("%.*s\n", (int)(c-remnant), remnant); //-NLOK
         remnant = c + 1;
         }
     (void)printf("%s", remnant);
@@ -10656,7 +10656,7 @@ void sim_data_trace(DEVICE *dptr, UNIT *uptr, const uint8 *data, const char *pos
 cpu_state_t * cpup = _cpup;
 #endif
 if (sim_deb && (dptr->dctrl & reason)) {
-    sim_debug (reason, dptr, "%s %s %slen: %08X\n", sim_uname(uptr), txt, position, (unsigned int)len);
+    sim_debug (reason, dptr, "%s %s %slen: %08X\r\n", sim_uname(uptr), txt, position, (unsigned int)len);
     if (data && len) {
         size_t i, same, group, sidx, oidx, ridx, eidx, soff;
         char outbuf[80], strbuf[28], rad50buf[36], ebcdicbuf[32];
@@ -10703,7 +10703,7 @@ if (sim_deb && (dptr->dctrl & reason)) {
                 continue;
                 }
             if (same > 0) {
-                sim_debug (reason, dptr, "%04lx thru %04lx same as above\n",
+                sim_debug (reason, dptr, "%04lx thru %04lx same as above\r\n",
                            (unsigned long int)(i - (16*same)),
                            (unsigned long int)(i - 1));
                 same = 0;
@@ -10748,11 +10748,11 @@ if (sim_deb && (dptr->dctrl & reason)) {
             strbuf[soff+sidx] = '\0';
             ebcdicbuf[eidx] = '\0';
             rad50buf[ridx] = '\0';
-            sim_debug (reason, dptr, "%04lx%-48s %s%s%s\n",
+            sim_debug (reason, dptr, "%04lx%-48s %s%s%s\r\n",
                     (unsigned long int)i, outbuf, strbuf, ebcdicbuf, rad50buf);
             }
         if (same > 0) {
-            sim_debug (reason, dptr, "%04lx thru %04lx same as above\n",
+            sim_debug (reason, dptr, "%04lx thru %04lx same as above\r\n",
                     (unsigned long int)(i-(16*same)),
                     (unsigned long int)(len-1));
             }
@@ -11070,7 +11070,8 @@ for (hblock = astrings; (htext = *hblock) != NULL; hblock++) {
                 FAIL (SCPE_MEM, No memory, NULL);
 #endif /* if !defined(SUNLINT) */
                 }
-            newt->title = (char *) malloc ((htext - start)+1);
+            size_t len = (htext > start) ? (htext - start) : 0;
+            newt->title = (char *) malloc(len + 1);
             if (!newt->title) {
                 FREE (newt);
 #if !defined(SUNLINT)
@@ -11207,13 +11208,13 @@ FILE *tmp = tmpfile();
 #endif /* if defined(_WIN32) */
 
 if (!tmp) {
-    (void)fprintf (st, "Unable to create temporary file: %s (Error %d)\n",
+    (void)fprintf (st, "Unable to create temporary file: %s (Error %d)\r\n",
                    xstrerror_l(errno), errno);
     return;
     }
 
 if (topic->title)
-    (void)fprintf (st, "%s\n", topic->title+1);
+    (void)fprintf (st, "%s\r\n", topic->title+1);
 
 skiplines = 0;
 if (topic->title) {
@@ -11263,11 +11264,11 @@ static t_stat displayFlatHelp (FILE *st, DEVICE *dptr,
 size_t i;
 
 if (topic->flags & HLP_MAGIC_TOPIC) {
-    (void)fprintf (st, "\n%s ", topic->label);
+    (void)fprintf (st, "\r\n%s ", topic->label);
     displayMagicTopic (st, dptr, topic);
     }
 else
-    (void)fprintf (st, "\n%s %s\n", topic->label, topic->title);
+    (void)fprintf (st, "\r\n%s %s\r\n", topic->label, topic->title);
 
 /*
  * Topic text (for magic topics, follows for explanations)
@@ -11335,21 +11336,21 @@ t_bool flat_help = FALSE;
 char cbuf [CBUFSIZE], gbuf[CBUFSIZE];
 
 static const char attach_help[] = { " ATTACH" };
-static const char  brief_help[] = { "%s help.  Type <CR> to exit, HELP for navigation help.\n" };
-static const char onecmd_help[] = { "%s help.\n" };
+static const char  brief_help[] = { "%s help.  Type <CR> to exit, HELP for navigation help.\r\n" };
+static const char onecmd_help[] = { "%s help.\r\n" };
 static const char   help_help[] = {
     /****|***********************80 column width guide********************************/
-    "    To see more HELP information, type the listed subtopic name.  To move\n"
-    "    up a level, just type <CR>.  To review the current subtopic, type \"?\".\n"
-    "    To view all subtopics, type \"*\".  To exit type \"EXIT\", \"^C\", or \"^D\".\n\n"
+    "    To see more HELP information, type the listed subtopic name.  To move\r\n"
+    "    up a level, just type <CR>.  To review the current subtopic, type \"?\".\r\n"
+    "    To view all subtopics, type \"*\".  To exit type \"EXIT\", \"^C\", or \"^D\".\r\n\r\n"
     };
 
 (void)memset (&top, 0, sizeof(top));
 top.parent = &top;
 if ((failed = setjmp (help_env)) != 0) {
-    (void)fprintf (stderr, "\nHELP was unable to process HELP for this device.\n"
-                           "Error in block %u line %u: %s\n"
-                           "%s%*.*s%s\n",
+    (void)fprintf (stderr, "\r\nHELP was unable to process HELP for this device.\r\n"
+                           "Error in block %u line %u: %s\r\n"
+                           "%s%*.*s%s\r\n",
                    (int)help_where.block, (int)help_where.line, help_where.error,
                    help_where.prox ? "Near '" : "",
                    help_where.prox ? 15 : 0, help_where.prox ? 15 : 0,
@@ -11408,9 +11409,9 @@ flat_help = flat_help || !sim_ttisatty() || (flag & SCP_HELP_FLAT);
 if (flat_help) {
     flag |= SCP_HELP_FLAT;
     if (sim_ttisatty())
-        (void)fprintf (st, "%s help.\nThis help is also available in hierarchical form.\n", top.title);
+        (void)fprintf (st, "%s help.\r\nThis help is also available in hierarchical form.\r\n", top.title);
     else
-        (void)fprintf (st, "%s help.\n", top.title);
+        (void)fprintf (st, "%s help.\r\n", top.title);
     }
 else
     (void)fprintf (st, ((flag & SCP_HELP_ONECMD)? onecmd_help: brief_help), top.title);
@@ -11426,7 +11427,7 @@ while (cptr && *cptr) {
     if (!gbuf[0])
         break;
     if (!strcmp (gbuf, "HELP")) {           /* HELP (about help) */
-        (void)fprintf (st, "\n");
+        (void)fprintf (st, "\r\n");
         fputs (help_help, st);
         break;
         }
@@ -11438,11 +11439,11 @@ while (cptr && *cptr) {
         return SCPE_OK;
         }
     if (match == HLP_MATCH_AMBIGUOUS) {
-        (void)fprintf (st, "\n%s is ambiguous in %s\n", gbuf, topic->title);
+        (void)fprintf (st, "\r\n%s is ambiguous in %s\r\n", gbuf, topic->title);
         break;
         }
     if (match == HLP_MATCH_NONE) {
-        (void)fprintf (st, "\n%s is not available in %s\n", gbuf, topic->title);
+        (void)fprintf (st, "\r\n%s is not available in %s\r\n", gbuf, topic->title);
         break;
         }
     topic = topic->children[match-1];
@@ -11468,7 +11469,7 @@ while (TRUE) {
         displayMagicTopic (st, dptr, topic);
         }
     else
-        (void)fprintf (st, "\n%s\n", topic->title);
+        (void)fprintf (st, "\r\n%s\r\n", topic->title);
 
     /* Topic text (for magic topics, follows for explanations)
      * It's possible/reasonable for a magic topic to have no text.
@@ -11482,7 +11483,7 @@ while (TRUE) {
         char *p;
         char tbuf[CBUFSIZE];
 
-        (void)fprintf (st, "\n    Additional information available:\n\n");
+        (void)fprintf (st, "\r\n    Additional information available:\r\n\r\n");
         for (i = 0; i < topic->kids; i++) {
             strcpy (tbuf, topic->children[i]->title +
                     ((topic->children[i]->flags & HLP_MAGIC_TOPIC)? 1 : 0));
@@ -11493,14 +11494,15 @@ while (TRUE) {
             w += 4 + topic->kidwid;
             if (w > 80) {
                 w = 4 + topic->kidwid;
+                fputc ('\r', st);
                 fputc ('\n', st);
                 }
             (void)fprintf (st, "    %-*s", (int32_t)topic->kidwid, tbuf);
             }
-        (void)fprintf (st, "\n\n");
+        (void)fprintf (st, "\r\n\r\n");
         if (flag & SCP_HELP_ONECMD) {
             pstring = helpPrompt (topic, "", TRUE);
-            (void)fprintf (st, "To view additional topics, type HELP %s topicname\n", pstring+1);
+            (void)fprintf (st, "To view additional topics, type HELP %s topicname\r\n", pstring+1);
             FREE (pstring);
             break;
             }
@@ -11549,19 +11551,19 @@ while (TRUE) {
     /* String - look for that topic */
 
     if (!topic->kids) {
-        (void)fprintf (st, "No additional help at this level.\n");
+        (void)fprintf (st, "No additional help at this level.\r\n");
         cptr = NULL;
         goto reprompt;
         }
     match = matchHelpTopicName (topic, gbuf);
     if (match == HLP_MATCH_AMBIGUOUS) {
-        (void)fprintf (st, "%s is ambiguous, please type more of the topic name\n", gbuf);
+        (void)fprintf (st, "%s is ambiguous, please type more of the topic name\r\n", gbuf);
         cptr = NULL;
         goto reprompt;
         }
 
     if (match == HLP_MATCH_NONE) {
-        (void)fprintf (st, "Help for %s is not available\n", gbuf);
+        (void)fprintf (st, "Help for %s is not available\r\n", gbuf);
         cptr = NULL;
         goto reprompt;
         }

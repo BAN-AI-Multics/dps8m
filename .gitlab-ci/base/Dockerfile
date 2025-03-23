@@ -25,7 +25,7 @@
 #
 ################################################################################
 
-FROM quay.io/fedora/fedora:41
+FROM quay.io/fedora/fedora:42
 
 USER 0
 
@@ -106,6 +106,8 @@ RUN set -x && \
       guile22-devel \
       guile-devel \
       hugo \
+      hwloc-devel \
+      hwloc-libs \
       imake \
       isl \
       jq \
@@ -337,13 +339,8 @@ RUN set -x && \
 WORKDIR /opt
 
 RUN set -x && \
-  curl -fsSL "https://github.com/johnsonjh/ndk/releases/download/r26c/android-ndk-r27c-linux.tar.lz" | \
-    lzip -dc | tar xvf - && \
-  rm -rf /opt/oracle/developerstudio12.6/share/man && \
-  rm -rf /opt/oracle/developerstudio12.6/OIC && \
-  rm -rf /opt/oracle/developerstudio12.6/lib/dbxtool && \
-  rm -rf /opt/oracle/developerstudio12.6/lib/devstudio && \
-  rm -rf /opt/oracle/developerstudio12.6/lib/netbeans
+  curl -fsSL "https://github.com/johnsonjh/ndk/releases/download/r26c/android-ndk-r28.tar.lz" | \
+    lzip -dc | tar xvf -
 
 WORKDIR /
 
@@ -376,7 +373,12 @@ RUN set -x && \
 RUN set -x && \
   curl -fsSL "https://github.com/johnsonjh/osc126/releases/download/osc126/126-15.tar.gz" | \
     pigz -dc | \
-    tar xvf -
+    tar xvf - && \
+  rm -rf /opt/oracle/developerstudio12.6/share/man && \
+  rm -rf /opt/oracle/developerstudio12.6/OIC && \
+  rm -rf /opt/oracle/developerstudio12.6/lib/dbxtool && \
+  rm -rf /opt/oracle/developerstudio12.6/lib/devstudio && \
+  rm -rf /opt/oracle/developerstudio12.6/lib/netbeans
 
 RUN touch /.OK
 

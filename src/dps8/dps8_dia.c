@@ -83,9 +83,9 @@ static t_stat set_config (UNIT * uptr, UNUSED int value, const char * cptr, UNUS
     //if (dia_unit_idx >= dia_dev.numunits)
     if (dia_unit_idx >= N_DIA_UNITS_MAX)
       {
-        sim_debug (DBG_ERR, & dia_dev, "DIA SET CONFIG: Invalid unit number %ld\n",
+        sim_debug (DBG_ERR, & dia_dev, "DIA SET CONFIG: Invalid unit number %ld\r\n",
                 (long) dia_unit_idx);
-        sim_printf ("error: DIA SET CONFIG: Invalid unit number %ld\n",
+        sim_printf ("error: DIA SET CONFIG: Invalid unit number %ld\r\n",
                 (long) dia_unit_idx);
         return SCPE_ARG;
       }
@@ -112,7 +112,7 @@ static t_stat set_config (UNIT * uptr, UNUSED int value, const char * cptr, UNUS
               break;
 
             default:
-              sim_printf ("error: DIA SET CONFIG: Invalid cfg_parse rc <%ld>\n", (long) rc);
+              sim_printf ("error: DIA SET CONFIG: Invalid cfg_parse rc <%ld>\r\n", (long) rc);
               cfg_parse_done (& cfg_state);
               return SCPE_ARG;
           } // switch
@@ -130,15 +130,15 @@ static t_stat show_config (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
     if (unit_idx >= (long) N_DIA_UNITS_MAX)
       {
         sim_debug (DBG_ERR, & dia_dev,
-                   "DIA SHOW CONFIG: Invalid unit number %ld\n", (long) unit_idx);
-        sim_printf ("error: Invalid unit number %ld\n", (long) unit_idx);
+                   "DIA SHOW CONFIG: Invalid unit number %ld\r\n", (long) unit_idx);
+        sim_printf ("error: Invalid unit number %ld\r\n", (long) unit_idx);
         return SCPE_ARG;
       }
 
-    sim_printf ("DIA unit number %ld\n", (long) unit_idx);
+    sim_printf ("DIA unit number %ld\r\n", (long) unit_idx);
     struct dia_unit_data * dudp = dia_data.dia_unit_data + unit_idx;
 
-    sim_printf ("DIA Mailbox Address:         %04o(8)\n", dudp -> mailbox_address);
+    sim_printf ("DIA Mailbox Address:         %04o(8)\r\n", dudp -> mailbox_address);
 
     return SCPE_OK;
   }
@@ -150,22 +150,22 @@ static t_stat show_status (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
     if (dia_unit_idx >= (long) dia_dev.numunits)
       {
         sim_debug (DBG_ERR, & dia_dev,
-                   "DIA SHOW STATUS: Invalid unit number %ld\n", (long) dia_unit_idx);
-        sim_printf ("error: Invalid unit number %ld\n", (long) dia_unit_idx);
+                   "DIA SHOW STATUS: Invalid unit number %ld\r\n", (long) dia_unit_idx);
+        sim_printf ("error: Invalid unit number %ld\r\n", (long) dia_unit_idx);
         return SCPE_ARG;
       }
 
-    sim_printf ("DIA unit number %ld\n", (long) dia_unit_idx);
+    sim_printf ("DIA unit number %ld\r\n", (long) dia_unit_idx);
     struct dia_unit_data * dudp = dia_data.dia_unit_data + dia_unit_idx;
 
-    sim_printf ("mailbox_address:              %04o\n", dudp->mailbox_address);
+    sim_printf ("mailbox_address:              %04o\r\n", dudp->mailbox_address);
     return SCPE_OK;
   }
 
 static t_stat show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr,
                            UNUSED int val, UNUSED const void * desc)
   {
-    sim_printf("Number of DIA units in system is %d\n", dia_dev.numunits);
+    sim_printf("Number of DIA units in system is %d\r\n", dia_dev.numunits);
     return SCPE_OK;
   }
 
@@ -431,7 +431,7 @@ static void cmd_bootload (uint iom_unit_idx, uint dev_unit_idx, uint chan, word2
                           (uint16_t) sizeof (pkt), PFLG_FINAL);
     if (rc < 0)
       {
-        (void)fprintf (stderr, "udp_send failed\n");
+        (void)fprintf (stderr, "udp_send failed\r\n");
       }
   }
 
@@ -479,7 +479,7 @@ static int interruptL66 (uint iom_unit_idx, uint chan)
 //   12-15 Multics is done with mbx 8-11  (n - 4).
 
     word6 cell = getbits36_6 (dia_pcw, 24);
-    sim_debug (DBG_TRACE, & dia_dev, "CS interrupt %u\n", cell);
+    sim_debug (DBG_TRACE, & dia_dev, "CS interrupt %u\r\n", cell);
     if (cell < 8)
       {
         //interruptL66_CS_to_FNP ();
@@ -494,8 +494,8 @@ static int interruptL66 (uint iom_unit_idx, uint chan)
       }
     else
       {
-        sim_debug (DBG_ERR, & dia_dev, "fnp illegal cell number %d\n", cell);
-        sim_printf ("fnp illegal cell number %d\n", cell);
+        sim_debug (DBG_ERR, & dia_dev, "fnp illegal cell number %d\r\n", cell);
+        sim_printf ("fnp illegal cell number %d\r\n", cell);
         // doFNPfault (...) // XXX
         return -1;
       }
@@ -522,7 +522,7 @@ static void processMBX (uint iom_unit_idx, uint chan)
 
     word36 dia_pcw;
     dia_pcw = mbxp -> dia_pcw;
-//sim_printf ("mbx %08o:%012"PRIo64"\n", dudp -> mailbox_address, dia_pcw);
+//sim_printf ("mbx %08o:%012"PRIo64"\r\n", dudp -> mailbox_address, dia_pcw);
 
 // Mailbox word 0:
 //
@@ -631,7 +631,7 @@ static void processMBX (uint iom_unit_idx, uint chan)
 
     if (command == 000) // reset
       {
-          sim_debug (DBG_TRACE, & dia_dev, "FNP reset??\n");
+          sim_debug (DBG_TRACE, & dia_dev, "FNP reset??\r\n");
       }
     else if (command == 072) // bootload
       {
@@ -743,10 +743,10 @@ sim_printf ("phys_addr %08o\r\n", phys_addr);
         //
 
         //word24 L66Addr = (word24) getbits36_18 (dia_pcw, 0);
-        //sim_printf ("L66 xfer\n");
-        //sim_printf ("PCW  %012"PRIo64"\n", dia_pcw);
-        //sim_printf ("L66Addr %08o\n", L66Addr);
-        //sim_printf ("M[] %012"PRIo64"\n", M[L66Addr]);
+        //sim_printf ("L66 xfer\r\n");
+        //sim_printf ("PCW  %012"PRIo64"\r\n", dia_pcw);
+        //sim_printf ("L66Addr %08o\r\n", L66Addr);
+        //sim_printf ("M[] %012"PRIo64"\r\n", M[L66Addr]);
 
         // 'dump_mpx d'
         //L66 xfer
@@ -783,11 +783,11 @@ sim_printf ("phys_addr %08o\r\n", phys_addr);
         // Since the data is marked 'paged', and I don't understand the
         // the paging mechanism or parameters, I'm going to punt here and
         // not actually transfer any data.
-        sim_debug (DBG_TRACE, & dia_dev, "FNP data xfer??\n");
+        sim_debug (DBG_TRACE, & dia_dev, "FNP data xfer??\r\n");
       }
     else
       {
-        sim_warn ("bogus fnp command %d (%o)\n", command, command);
+        sim_warn ("bogus fnp command %d (%o)\r\n", command, command);
         ok = false;
       }
 
@@ -816,13 +816,13 @@ static int dia_cmd (uint iom_unit_idx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
     p -> stati = 0;
-//sim_printf ("fnp cmd %d\n", p -> IDCW_DEV_CMD);
+//sim_printf ("fnp cmd %d\r\n", p -> IDCW_DEV_CMD);
     switch (p -> IDCW_DEV_CMD)
       {
         case 000: // CMD 00 Request status
           {
             p -> stati = 04000;
-            sim_debug (DBG_NOTIFY, & dia_dev, "Request status\n");
+            sim_debug (DBG_NOTIFY, & dia_dev, "Request status\r\n");
           }
           break;
 
@@ -831,7 +831,7 @@ static int dia_cmd (uint iom_unit_idx, uint chan)
             p -> stati      = 04501;
             p -> chanStatus = chanStatIncorrectDCW;
             if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
-              sim_warn ("dia daze %o\n", p->IDCW_DEV_CMD);
+              sim_warn ("dia daze %o\r\n", p->IDCW_DEV_CMD);
           }
           return IOM_CMD_ERROR;
       }
@@ -861,7 +861,7 @@ sim_printf ("dia_iom_cmd %u %u\r\n", iom_unit_idx, chan);
         return dia_cmd (iom_unit_idx, chan);
       }
     // else // DDCW/TDCW
-    sim_printf ("%s expected IDCW\n", __func__);
+    sim_printf ("%s expected IDCW\r\n", __func__);
     return -1;
   }
 
@@ -885,7 +885,7 @@ static void load_stored_boot (void)
     // executed by L6 after the load from L66 assuming that the L66
     // bootload is independent of the mechanization used in L66
 
-    sim_printf ("got load_stored_boot\n");
+    sim_printf ("got load_stored_boot\r\n");
   }
 
 #define psz 17000
@@ -897,7 +897,7 @@ static int poll_coupler (uint unitno, uint8_t * * pktp)
     int sz = dn_udp_receive (dia_data.dia_unit_data[unitno].link, pkt, psz);
     if (sz < 0)
       {
-        sim_printf ("dn_udp_receive failed: %d\n", sz);
+        sim_printf ("dn_udp_receive failed: %d\r\n", sz);
         sz = 0;
       }
     * pktp = pkt;
@@ -912,7 +912,7 @@ void dia_unit_process_events (uint unit_num)
 
     uint8_t * pktp;
     int sz = poll_coupler (unit_num, & pktp);
-//sim_printf ("poll_coupler return %d\n", sz);
+//sim_printf ("poll_coupler return %d\r\n", sz);
     if (! sz)
       {
         return;
@@ -930,7 +930,7 @@ void dia_unit_process_events (uint unit_num)
 
        default:
          {
-           sim_printf ("%s got unhandled cmd %u\n", __func__, cmd);
+           sim_printf ("%s got unhandled cmd %u\r\n", __func__, cmd);
            break;
          }
      }

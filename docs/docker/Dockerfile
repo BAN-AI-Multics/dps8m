@@ -4,7 +4,7 @@
 
 #############################################################################
 
-FROM fedora:##RELEASEVER##
+FROM quay.io/fedora/fedora:##RELEASEVER##
 WORKDIR /builds
 RUN set -x; \
 dnf -y --setopt=keepcache=True --setopt=install_weak_deps=True \
@@ -38,6 +38,7 @@ dos2unix \
 emacs \
 expect \
 file \
+gawk \
 gcc \
 ghostscript \
 git \

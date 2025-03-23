@@ -316,7 +316,7 @@ is_ntp_sync (void) // -1 == Failed to check     0 == Not synchronized
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if defined(__linux__)
+#if defined(__linux__) && !defined(__ANDROID__)
 static int
 has_linux_capability(const pid_t pid, const int capability)
 {
@@ -492,7 +492,7 @@ check_scaling_governors (void)
       file = fopen (path, "r");
       if (file) {
         if (fgets (governor, sizeof (governor), file)) {
-          governor[strcspn (governor, "\n")] = '\0';
+          governor[strcspn (governor, "\n")] = '\0'; //-NLOK
           if ( 0 == strcmp (governor, "powersave" )
             || 0 == strcmp (governor, "conservative") ) {
             bad_govs++;
@@ -835,7 +835,7 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /* HINT: On Linux, check if we have real-time is allowed via capabilities. */
 
-#if defined(__linux__) && defined(CAP_SYS_NICE)
+#if defined(__linux__) && defined(CAP_SYS_NICE) && !defined(__ANDROID__)
   const pid_t pid = _sir_getpid();
   const int cap_sys_nice = CAP_SYS_NICE;
 
@@ -870,6 +870,7 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /* HINT: Check if mlock failed to work and tell the user how to fix it. */
 
+#if !defined(__ANDROID__)
   if (true == mlock_failure) {
     if (!flag) {
       sim_hrline ();
@@ -879,7 +880,7 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
       sim_printf ("  Memory locking prevents the simulated memory from being swapped out to\r\n");
       sim_printf ("  disk.  This avoids page faults and enables more deterministic performance.\r\n");
       sim_printf ("  Memory locking also enhances response times for real-time mode operation.\r\n");
-#if defined(__linux__) && defined(CAP_IPC_LOCK)
+# if defined(__linux__) && defined(CAP_IPC_LOCK)
       const pid_t pid = _sir_getpid();
       const int cap_ipc_lock = CAP_IPC_LOCK;
       if (!has_linux_capability(pid, cap_ipc_lock)) {
@@ -888,10 +889,10 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
         sim_printf ("\r\n");
         sim_printf ("  sudo setcap 'cap_sys_nice,cap_ipc_lock+ep' %s\r\n", sim_appfilename);
       }
-#elif defined(__FreeBSD__)
+# elif defined(__FreeBSD__)
       sim_printf ("\r\n");
       sim_printf ("  See https://man.freebsd.org/cgi/man.cgi?login.conf(5) for details.\r\n");
-#elif defined(__sun) || defined(__illumos__)
+# elif defined(__sun) || defined(__illumos__)
       sim_printf ("\r\n");
       sim_printf ("  You can allow memory locking by running the following shell commands:\r\n");
       sim_printf ("\r\n");
@@ -899,14 +900,15 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
       sim_printf ("  sudo chmod u+s %s\r\n", sim_appfilename);
       sim_printf ("\r\n");
       sim_printf ("  This is safe - we drop all unnecessary privileges immediately at start-up.\r\n");
-#else
+# else
       sim_printf("\r\n");
       sim_printf("  You can check `ulimit -l` in your shell to verify locking is unrestricted.\r\n");
-#endif
+# endif
     } else {
       ++hint_count;
     }
   }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /* HINT: Check if atomic types are not lock-free and warn the user about it. */

@@ -1747,17 +1747,17 @@ static char * default_base_system_script [] =
 void print_default_base_system_script (void)
   {
     int n_lines = sizeof (default_base_system_script) / sizeof (char *);
-    sim_printf ("; DEFAULT_BASE_SYSTEM_SCRIPT (%lu lines follow)\n",
+    sim_printf ("; DEFAULT_BASE_SYSTEM_SCRIPT (%lu lines follow)\r\n",
             (unsigned long)n_lines);
     for (int line = 0; line < n_lines; line ++)
-    sim_printf ("%s\n", default_base_system_script[line]);
+    sim_printf ("%s\r\n", default_base_system_script[line]);
   }
 
 // Execute a line of script
 
 static void do_ini_line (char * text)
   {
-    //sim_msg ("<%s?\n", text);
+    //sim_msg ("<%s?\r\n", text);
     char gbuf[257];
     const char * cptr = get_glyph (text, gbuf, 0); /* get command glyph */
     CTAB *cmdp;
@@ -1765,10 +1765,10 @@ static void do_ini_line (char * text)
       {
         t_stat stat = cmdp->action (cmdp->arg, cptr); /* if found, exec */
         if (stat != SCPE_OK)
-          sim_warn ("%s: %s\n", sim_error_text (SCPE_UNK), text);
+          sim_warn ("%s: %s\r\n", sim_error_text (SCPE_UNK), text);
       }
     else
-      sim_warn ("%s: %s\n", sim_error_text (SCPE_UNK), text);
+      sim_warn ("%s: %s\r\n", sim_error_text (SCPE_UNK), text);
   }
 
 // Execute the base system script; this strings the cables
@@ -1829,7 +1829,7 @@ static t_stat do_restart (UNUSED int32 arg,  UNUSED const char * buf)
       {
         n = (int) strtol (buf, NULL, 0);
       }
-    sim_printf ("Restart entry 0%o\n", n);
+    sim_printf ("Restart entry 0%o\r\n", n);
 
     cpu_state_t * cpup = _cpup;
 
@@ -1942,7 +1942,7 @@ bool sim_deb_bar          = false;
 static t_stat dps_debug_mme_cntdwn (UNUSED int32 arg, const char * buf)
   {
     sim_deb_mme_cntdwn = strtoull (buf, NULL, 0);
-    sim_msg ("Debug MME countdown set to %llu\n", (long long unsigned int)sim_deb_mme_cntdwn);
+    sim_msg ("Debug MME countdown set to %llu\r\n", (long long unsigned int)sim_deb_mme_cntdwn);
     return SCPE_OK;
   }
 
@@ -1950,21 +1950,21 @@ static t_stat dps_debug_skip (UNUSED int32 arg, const char * buf)
   {
     sim_deb_skip_cnt   = 0;
     sim_deb_skip_limit = strtoull (buf, NULL, 0);
-    sim_msg ("Debug skip set to %llu\n", (long long unsigned int)sim_deb_skip_limit);
+    sim_msg ("Debug skip set to %llu\r\n", (long long unsigned int)sim_deb_skip_limit);
     return SCPE_OK;
   }
 
 static t_stat dps_debug_start (UNUSED int32 arg, const char * buf)
   {
     sim_deb_start = strtoull (buf, NULL, 0);
-    sim_msg ("Debug set to start at cycle: %llu\n", (long long unsigned int)sim_deb_start);
+    sim_msg ("Debug set to start at cycle: %llu\r\n", (long long unsigned int)sim_deb_start);
     return SCPE_OK;
   }
 
 static t_stat dps_debug_stop (UNUSED int32 arg, const char * buf)
   {
     sim_deb_stop = strtoull (buf, NULL, 0);
-    sim_msg ("Debug set to stop at cycle: %llu\n", (long long unsigned int)sim_deb_stop);
+    sim_msg ("Debug set to stop at cycle: %llu\r\n", (long long unsigned int)sim_deb_stop);
     return SCPE_OK;
   }
 
@@ -1973,7 +1973,7 @@ static t_stat dps_debug_break (UNUSED int32 arg, const char * buf)
     sim_deb_break = strtoull (buf, NULL, 0);
     if (buf[0] == '+')
       sim_deb_break += sim_deb_start;
-    sim_msg ("Debug set to break at cycle: %llu\n", (long long unsigned int)sim_deb_break);
+    sim_msg ("Debug set to break at cycle: %llu\r\n", (long long unsigned int)sim_deb_break);
     return SCPE_OK;
   }
 
@@ -1984,19 +1984,19 @@ static t_stat dps_debug_segno (int32 arg, const char * buf)
         unsigned long segno = strtoul (buf, NULL, 0);
         if (segno >= DEBUG_SEGNO_LIMIT)
           {
-            sim_printf ("out of range; 0 to %u %d.\n", DEBUG_SEGNO_LIMIT, DEBUG_SEGNO_LIMIT);
+            sim_printf ("out of range; 0 to %u %d.\r\n", DEBUG_SEGNO_LIMIT, DEBUG_SEGNO_LIMIT);
             return SCPE_ARG;
           }
         sim_deb_segno[segno] = true;
         sim_deb_segno_on     = true;
-        sim_msg ("Debug set for segno %llo %llu.\n",
+        sim_msg ("Debug set for segno %llo %llu.\r\n",
                 (long long unsigned int)segno, (long long unsigned int) segno);
       }
     else
       {
         (void)memset (sim_deb_segno, 0, sizeof (sim_deb_segno));
         sim_deb_segno_on = false;
-        sim_msg ("Debug set for all segments\n");
+        sim_msg ("Debug set for all segments\r\n");
       }
     return SCPE_OK;
   }
@@ -2004,7 +2004,7 @@ static t_stat dps_debug_segno (int32 arg, const char * buf)
 static t_stat dps_debug_ringno (UNUSED int32 arg, const char * buf)
   {
     sim_deb_ringno = strtoull (buf, NULL, 0);
-    sim_msg ("Debug set to ringno %llo\n", (long long unsigned int)sim_deb_ringno);
+    sim_msg ("Debug set to ringno %llo\r\n", (long long unsigned int)sim_deb_ringno);
     return SCPE_OK;
   }
 
@@ -2012,9 +2012,9 @@ static t_stat dps_debug_bar (int32 arg, UNUSED const char * buf)
   {
     sim_deb_bar = arg;
     if (arg)
-      sim_msg ("Debug set BAR %llo\n", (long long unsigned int)sim_deb_ringno);
+      sim_msg ("Debug set BAR %llo\r\n", (long long unsigned int)sim_deb_ringno);
     else
-      sim_msg ("Debug unset BAR %llo\n", (long long unsigned int)sim_deb_ringno);
+      sim_msg ("Debug unset BAR %llo\r\n", (long long unsigned int)sim_deb_ringno);
     return SCPE_OK;
   }
 
@@ -2025,7 +2025,7 @@ t_stat computeAbsAddrN (word24 * abs_addr, int segno, uint offset)
 
     if (get_addr_mode () != APPEND_mode)
       {
-        sim_warn ("CPU not in append mode\n");
+        sim_warn ("CPU not in append mode\r\n");
         return SCPE_ARG;
       }
 
@@ -2033,7 +2033,7 @@ t_stat computeAbsAddrN (word24 * abs_addr, int segno, uint offset)
       {
         if (2 * (uint) /*TPR.TSR*/ segno >= 16 * ((uint) cpu.DSBR.BND + 1))
           {
-            sim_warn ("DSBR boundary violation.\n");
+            sim_warn ("DSBR boundary violation.\r\n");
             return SCPE_ARG;
           }
 
@@ -2057,7 +2057,7 @@ t_stat computeAbsAddrN (word24 * abs_addr, int segno, uint offset)
         word14 BOUND = (SDWo >> (35 - 14)) & 037777;
         if (/*TPR.CA*/ offset >= 16 * (BOUND + 1))
           {
-            sim_warn ("SDW boundary violation.\n");
+            sim_warn ("SDW boundary violation.\r\n");
             return SCPE_ARG;
           }
 
@@ -2085,7 +2085,7 @@ t_stat computeAbsAddrN (word24 * abs_addr, int segno, uint offset)
 
         if (2 * (uint) segno >= 16 * ((uint) cpu.DSBR.BND + 1))
           {
-            sim_warn ("DSBR boundary violation.\n");
+            sim_warn ("DSBR boundary violation.\r\n");
             return SCPE_ARG;
           }
 
@@ -2115,7 +2115,7 @@ t_stat computeAbsAddrN (word24 * abs_addr, int segno, uint offset)
 
         if (!PTW1.DF)
           {
-            sim_warn ("!PTW1.DF\n");
+            sim_warn ("!PTW1.DF\r\n");
             return SCPE_ARG;
           }
 
@@ -2152,7 +2152,7 @@ t_stat computeAbsAddrN (word24 * abs_addr, int segno, uint offset)
 
         if (!SDW0.DF)
           {
-            sim_warn ("!SDW0.DF\n");
+            sim_warn ("!SDW0.DF\r\n");
             return SCPE_ARG;
           }
 
@@ -2161,7 +2161,7 @@ t_stat computeAbsAddrN (word24 * abs_addr, int segno, uint offset)
 
         if (((offset >> 4) & 037777) > SDW0.BOUND)
           {
-            sim_warn ("SDW boundary violation\n");
+            sim_warn ("SDW boundary violation\r\n");
             return SCPE_ARG;
           }
 
@@ -2201,7 +2201,7 @@ t_stat computeAbsAddrN (word24 * abs_addr, int segno, uint offset)
 
             // if (!PTW2.DF)
             //   {
-            //     sim_debug (DBG_APPENDING, & cpu_dev, "absa fault !PTW2.DF\n");
+            //     sim_debug (DBG_APPENDING, & cpu_dev, "absa fault !PTW2.DF\r\n");
             //     // initiate a directed fault
             //     doFault(FAULT_DF0 + PTW2.FC, 0, "ABSA !PTW2.DF");
             //   }
@@ -2238,7 +2238,7 @@ static t_stat abs_addr_n (int segno, uint offset)
     if (dbgLookupAddress ((word18) segno, offset, & res, NULL))
       return SCPE_ARG;
 
-    sim_msg ("Address is %08o\n", res);
+    sim_msg ("Address is %08o\r\n", res);
     return SCPE_OK;
   }
 
@@ -2547,7 +2547,7 @@ void list_source (char * compname, word18 offset, uint dflag)
             strcat (path, compname);
           }
         strcat (path, ".list");
-        //sim_msg ("<%s>\n", path);
+        //sim_msg ("<%s>\r\n", path);
         FILE * listing = fopen (path, "r");
         if (listing)
           {
@@ -2558,7 +2558,7 @@ void list_source (char * compname, word18 offset, uint dflag)
             if (strncmp (line, "ASSEMBLY LISTING", 16) == 0)
               {
                 // Search ALM listing file
-                // sim_msg ("found <%s>\n", path);
+                // sim_msg ("found <%s>\r\n", path);
 
                 // ALM listing files look like:
                 //     000226  4a  4 00010 7421 20  \tstx2]tbootload_0$entry_stack_ptr,id
@@ -2573,7 +2573,7 @@ void list_source (char * compname, word18 offset, uint dflag)
                           sim_debug (dflag, & cpu_dev, "%s", line);
                         //break;
                       }
-                    if (strcmp (line, "\fLITERALS\n") == 0)
+                    if (strcmp (line, "\fLITERALS\n") == 0) //-NLOK
                       break;
                   }
               } // if assembly listing
@@ -2713,7 +2713,7 @@ void list_source (char * compname, word18 offset, uint dflag)
                               sim_debug (dflag, & cpu_dev, "%s", line);
                             //break;
                           }
-                        //if (strcmp (line, "\fLITERALS\n") == 0)
+                        //if (strcmp (line, "\fLITERALS\n") == 0) //-NLOK
                           //break;
                       }
                   } // if ! tableFound
@@ -2735,7 +2735,7 @@ static t_stat stack_trace (UNUSED int32 arg,  UNUSED const char * buf)
     word15 icSegno = cpu.PPR.PSR;
     word18 icOffset = cpu.PPR.IC;
 
-    sim_msg ("Entry ptr   %05o:%06o\n", icSegno, icOffset);
+    sim_msg ("Entry ptr   %05o:%06o\r\n", icSegno, icOffset);
 
     char * compname;
     word18 compoffset;
@@ -2743,10 +2743,10 @@ static t_stat stack_trace (UNUSED int32 arg,  UNUSED const char * buf)
                                    & compname, & compoffset);
     if (where)
       {
-        sim_msg ("%05o:%06o %s\n", icSegno, icOffset, where);
+        sim_msg ("%05o:%06o %s\r\n", icSegno, icOffset, where);
         list_source (compname, compoffset, 0);
       }
-    sim_msg ("\n");
+    sim_msg ("\r\n");
 
     // According to AK92
     //
@@ -2760,13 +2760,13 @@ static t_stat stack_trace (UNUSED int32 arg,  UNUSED const char * buf)
 
     for (uint frameNo = 1; ; frameNo ++)
       {
-        sim_msg ("Frame %d %05o:%06o\n",
+        sim_msg ("Frame %d %05o:%06o\r\n",
                     frameNo, fpSegno, fpOffset);
 
         word24 fp;
         if (dbgLookupAddress (fpSegno, fpOffset, & fp, & msg))
           {
-            sim_msg ("can't lookup fp (%05o:%06o) because %s\n",
+            sim_msg ("can't lookup fp (%05o:%06o) because %s\r\n",
                     fpSegno, fpOffset, msg);
             break;
           }
@@ -2774,24 +2774,24 @@ static t_stat stack_trace (UNUSED int32 arg,  UNUSED const char * buf)
         word15 prevfpSegno  = (word15) ((M[fp + 16] >> 18) & MASK15);
         word18 prevfpOffset = (word18) ((M[fp + 17] >> 18) & MASK18);
 
-        sim_msg ("Previous FP %05o:%06o\n", prevfpSegno, prevfpOffset);
+        sim_msg ("Previous FP %05o:%06o\r\n", prevfpSegno, prevfpOffset);
 
         word15 returnSegno  = (word15) ((M[fp + 20] >> 18) & MASK15);
         word18 returnOffset = (word18) ((M[fp + 21] >> 18) & MASK18);
 
-        sim_msg ("Return ptr  %05o:%06o\n", returnSegno, returnOffset);
+        sim_msg ("Return ptr  %05o:%06o\r\n", returnSegno, returnOffset);
 
         if (returnOffset == 0)
           {
             if (frameNo == 1)
               {
                 // try rX[7] as the return address
-                sim_msg ("guessing X7 has a return address....\n");
+                sim_msg ("guessing X7 has a return address....\r\n");
                 where = lookup_address (icSegno, cpu.rX[7] - 1,
                                         & compname, & compoffset);
                 if (where)
                   {
-                    sim_msg ("%05o:%06o %s\n", icSegno, cpu.rX[7] - 1, where);
+                    sim_msg ("%05o:%06o %s\r\n", icSegno, cpu.rX[7] - 1, where);
                     list_source (compname, compoffset, 0);
                   }
               }
@@ -2802,7 +2802,7 @@ static t_stat stack_trace (UNUSED int32 arg,  UNUSED const char * buf)
                                     & compname, & compoffset);
             if (where)
               {
-                sim_msg ("%05o:%06o %s\n",
+                sim_msg ("%05o:%06o %s\r\n",
                             returnSegno, returnOffset - 1, where);
                 list_source (compname, compoffset, 0);
               }
@@ -2811,24 +2811,24 @@ static t_stat stack_trace (UNUSED int32 arg,  UNUSED const char * buf)
         word15 entrySegno  = (word15) ((M[fp + 22] >> 18) & MASK15);
         word18 entryOffset = (word18) ((M[fp + 23] >> 18) & MASK18);
 
-        sim_msg ("Entry ptr   %05o:%06o\n", entrySegno, entryOffset);
+        sim_msg ("Entry ptr   %05o:%06o\r\n", entrySegno, entryOffset);
 
         where = lookup_address (entrySegno, entryOffset,
                                 & compname, & compoffset);
         if (where)
           {
-            sim_msg ("%05o:%06o %s\n", entrySegno, entryOffset, where);
+            sim_msg ("%05o:%06o %s\r\n", entrySegno, entryOffset, where);
             list_source (compname, compoffset, 0);
           }
 
         word15 argSegno  = (word15) ((M[fp + 26] >> 18) & MASK15);
         word18 argOffset = (word18) ((M[fp + 27] >> 18) & MASK18);
-        sim_msg ("Arg ptr     %05o:%06o\n", argSegno, argOffset);
+        sim_msg ("Arg ptr     %05o:%06o\r\n", argSegno, argOffset);
 
         word24 ap;
         if (dbgLookupAddress (argSegno, argOffset, & ap, & msg))
           {
-            sim_msg ("can't lookup arg ptr (%05o:%06o) because %s\n",
+            sim_msg ("can't lookup arg ptr (%05o:%06o) because %s\r\n",
                     argSegno, argOffset, msg);
             goto skipArgs;
           }
@@ -2836,23 +2836,23 @@ static t_stat stack_trace (UNUSED int32 arg,  UNUSED const char * buf)
         word16 argCount  = (word16) ((M[ap + 0] >> 19) & MASK17);
         word18 callType  = (word18) (M[ap + 0] & MASK18);
         word16 descCount = (word16) ((M[ap + 1] >> 19) & MASK17);
-        sim_msg ("arg_count   %d\n", argCount);
+        sim_msg ("arg_count   %d\r\n", argCount);
         switch (callType)
           {
             case 0u:
-              sim_msg ("call_type Quick internal call\n");
+              sim_msg ("call_type Quick internal call\r\n");
               break;
             case 4u:
-              sim_msg ("call_type Inter-segment\n");
+              sim_msg ("call_type Inter-segment\r\n");
               break;
             case 8u:
-              sim_msg ("call_type Environment pointer\n");
+              sim_msg ("call_type Environment pointer\r\n");
               break;
             default:
-              sim_msg ("call_type Unknown (%o)\n", callType);
+              sim_msg ("call_type Unknown (%o)\r\n", callType);
               goto skipArgs;
               }
-        sim_msg ("desc_count  %d\n", descCount);
+        sim_msg ("desc_count  %d\r\n", descCount);
 
 # if 0
         if (descCount)
@@ -2870,21 +2870,21 @@ static t_stat stack_trace (UNUSED int32 arg,  UNUSED const char * buf)
                 word24 argnop;
                 if (dbgLookupAddress (argnoSegno, argnoOffset, & argnop, & msg))
                   {
-                    sim_msg ("can't lookup arg%d ptr (%05o:%06o) because %s\n",
+                    sim_msg ("can't lookup arg%d ptr (%05o:%06o) because %s\r\n",
                                 argno, argSegno, argOffset, msg);
                     continue;
                   }
                 word36 argv = M[argnop];
                 sim_msg ("arg%d value   %05o:%06o[%08o] "
-                            "%012llo (%llu)\n",
+                            "%012llo (%llu)\r\n",
                             argno, argSegno, argOffset, argnop,
                             (unsigned long long int)argv, (unsigned long long int)argv);
-                sim_msg ("\n");
+                sim_msg ("\r\n");
              }
          }
 skipArgs:;
 
-        sim_msg ("End of frame %d\n\n", frameNo);
+        sim_msg ("End of frame %d\r\n\r\n", frameNo);
 
         if (prevfpSegno == 077777 && prevfpOffset == 1)
           break;
@@ -2907,7 +2907,7 @@ static t_stat list_source_at (UNUSED int32 arg, UNUSED const char *  buf)
                                    & compname, & compoffset);
     if (where)
       {
-        sim_msg ("%05o:%06o %s\n", segno, offset, where);
+        sim_msg ("%05o:%06o %s\r\n", segno, offset, where);
         list_source (compname, compoffset, 0);
       }
     return SCPE_OK;
@@ -2927,7 +2927,7 @@ static t_stat load_system_book (UNUSED int32 arg, UNUSED const char * buf)
     FILE * fp = fopen (buf, "r");
     if (! fp)
       {
-        sim_msg ("error opening file %s\n", buf);
+        sim_msg ("error opening file %s\r\n", buf);
         return SCPE_ARG;
       }
     for (;;)
@@ -2935,7 +2935,7 @@ static t_stat load_system_book (UNUSED int32 arg, UNUSED const char * buf)
         char * bufp = fgets (filebuf, bufSz, fp);
         if (! bufp)
           break;
-        //sim_msg ("<%s\n>", filebuf);
+        //sim_msg ("<%s\n>", filebuf); //-NLOK
         char name[BOOK_SEGMENT_NAME_LEN];
         uint segno, p0, p1, p2;
 
@@ -2944,11 +2944,11 @@ static t_stat load_system_book (UNUSED int32 arg, UNUSED const char * buf)
           & p0, & p1, & p2);
         if (filebuf[0] != '\t' && cnt == 5)
           {
-            //sim_msg ("A: %s %d\n", name, segno);
+            //sim_msg ("A: %s %d\r\n", name, segno);
             int rc = add_book_segment (name, (int) segno);
             if (rc < 0)
               {
-                sim_warn ("error adding segment name\n");
+                sim_warn ("error adding segment name\r\n");
                 fclose (fp);
                 return SCPE_ARG;
               }
@@ -2964,11 +2964,11 @@ static t_stat load_system_book (UNUSED int32 arg, UNUSED const char * buf)
               {
                 if (strstr (name, "fw.") || strstr (name, ".ec"))
                   continue;
-                //sim_msg ("A: %s %d\n", name, segno);
+                //sim_msg ("A: %s %d\r\n", name, segno);
                 int rc = add_book_segment (name, (int) (c3 ++));
                 if (rc < 0)
                   {
-                    sim_warn ("error adding segment name\n");
+                    sim_warn ("error adding segment name\r\n");
                     fclose (fp);
                     return SCPE_ARG;
                   }
@@ -2980,7 +2980,7 @@ static t_stat load_system_book (UNUSED int32 arg, UNUSED const char * buf)
           cnt = sscanf (filebuf, "Bindmap for >ldd>hard>e>%32s", name);
         if (cnt == 1)
           {
-            //sim_msg ("B: %s\n", name);
+            //sim_msg ("B: %s\r\n", name);
             //int rc = add_book_segment (name);
             int rc = lookup_book_segment (name);
             if (rc < 0)
@@ -2990,7 +2990,7 @@ static t_stat load_system_book (UNUSED int32 arg, UNUSED const char * buf)
                 // them for now.
                 current = -1;
                 continue;
-                //sim_warn ("error adding segment name\n");
+                //sim_warn ("error adding segment name\r\n");
                 //return SCPE_ARG;
               }
             current = rc;
@@ -3005,7 +3005,7 @@ static t_stat load_system_book (UNUSED int32 arg, UNUSED const char * buf)
 
         if (cnt == 7)
           {
-            //sim_msg ("C: %s\n", name);
+            //sim_msg ("C: %s\r\n", name);
             if (current >= 0)
               {
                 add_book_component (current, name, txt_start, txt_length,
@@ -3019,11 +3019,11 @@ static t_stat load_system_book (UNUSED int32 arg, UNUSED const char * buf)
           & p0, & p1, & p2);
         if (filebuf[0] == '\t' && cnt == 5)
           {
-            //sim_msg ("D: %s %d\n", name, segno);
+            //sim_msg ("D: %s %d\r\n", name, segno);
             int rc = add_book_segment (name, (int) segno);
             if (rc < 0)
               {
-                sim_warn ("error adding segment name\n");
+                sim_warn ("error adding segment name\r\n");
                 fclose (fp);
                 return SCPE_ARG;
               }
@@ -3035,13 +3035,13 @@ static t_stat load_system_book (UNUSED int32 arg, UNUSED const char * buf)
 #  if 0
     for (int i = 0; i < n_book_segments; i ++)
       {
-        sim_msg ("  %-32s %6o\n", book_segments[i].segname,
+        sim_msg ("  %-32s %6o\r\n", book_segments[i].segname,
                     book_segments[i].segno);
         for (int j = 0; j < n_book_components; j ++)
           {
             if (book_components[j].book_segment_number == i)
               {
-                (void)fprintf (stderr, "    %-32s %6o %6o %6o %6o %6o %6o\n",
+                (void)fprintf (stderr, "    %-32s %6o %6o %6o %6o %6o %6o\r\n",
                                book_components[j].compname,
                                book_components[j].txt_start,
                                book_components[j].txt_length,
@@ -3106,7 +3106,7 @@ static t_stat lookup_system_book (UNUSED int32  arg, const char * buf)
 
     strncpy (w1, buf, colon);
     w1[colon] = '\0';
-    //sim_msg ("w1 <%s>\n", w1);
+    //sim_msg ("w1 <%s>\r\n", w1);
 
     size_t plus = strcspn (buf + colon + 1, "+");
     if (buf[colon + 1 + plus] == '+')
@@ -3120,9 +3120,9 @@ static t_stat lookup_system_book (UNUSED int32  arg, const char * buf)
         (void)strcpy (w2, buf + colon + 1);
         (void)strcpy (w3, "");
       }
-    //sim_msg ("w1 <%s>\n", w1);
-    //sim_msg ("w2 <%s>\n", w2);
-    //sim_msg ("w3 <%s>\n", w3);
+    //sim_msg ("w1 <%s>\r\n", w1);
+    //sim_msg ("w2 <%s>\r\n", w2);
+    //sim_msg ("w3 <%s>\r\n", w3);
 
     char * end1;
     segno = strtol (w1, & end1, 8);
@@ -3133,7 +3133,7 @@ static t_stat lookup_system_book (UNUSED int32  arg, const char * buf)
       {
         // n:n
         char * ans = lookup_address ((word18) segno, (word18) offset, NULL, NULL);
-        sim_warn ("%s\n", ans ? ans : "not found");
+        sim_warn ("%s\r\n", ans ? ans : "not found");
       }
     else
       {
@@ -3150,17 +3150,17 @@ static t_stat lookup_system_book (UNUSED int32  arg, const char * buf)
         int rc = lookup_system_book_name (w1, w2, & segno, & comp_offset);
         if (rc)
           {
-            sim_warn ("not found\n");
+            sim_warn ("not found\r\n");
             return SCPE_OK;
           }
-        sim_msg ("0%o:0%o\n", (uint) segno, (uint) (comp_offset + offset));
+        sim_msg ("0%o:0%o\r\n", (uint) segno, (uint) (comp_offset + offset));
         abs_addr_n  ((int) segno, (uint) (comp_offset + offset));
       }
 /*
     if (sscanf (buf, "%o:%o", & segno, & offset) != 2)
       return SCPE_ARG;
     char * ans = lookup_address (segno, offset);
-    sim_msg ("%s\n", ans ? ans : "not found");
+    sim_msg ("%s\r\n", ans ? ans : "not found");
 */
     return SCPE_OK;
   }
@@ -3209,7 +3209,7 @@ static t_stat virtAddrN (uint address)
         {
             sdw0_s *s = fetchSDW(segno);
             if (address >= s -> ADDR && address < s -> ADDR + s -> BOUND * 16u)
-              sim_msg ("  %06o:%06o\n", segno, address - s -> ADDR);
+              sim_msg ("  %06o:%06o\r\n", segno, address - s -> ADDR);
         }
     } else {
         for(word15 segno = 0;
@@ -3230,9 +3230,9 @@ static t_stat virtAddrN (uint address)
 
             if (PTW1.DF == 0)
                 continue;
-            //sim_msg ("%06o  Addr %06o U %o M %o DF %o FC %o\n",
+            //sim_msg ("%06o  Addr %06o U %o M %o DF %o FC %o\r\n",
             //            segno, PTW1.ADDR, PTW1.U, PTW1.M, PTW1.DF, PTW1.FC);
-            //sim_msg ("    Target segment page table\n");
+            //sim_msg ("    Target segment page table\r\n");
             for (word15 tspt = 0; tspt < 512u; tspt ++)
             {
                 word36 SDWeven, SDWodd;
@@ -3261,7 +3261,7 @@ static t_stat virtAddrN (uint address)
                 if (SDW0.DF == 0)
                     continue;
                 //sim_msg ("    %06o Addr %06o %o,%o,%o F%o BOUND %06o "
-                //          "%c%c%c%c%c\n",
+                //          "%c%c%c%c%c\r\n",
                 //          tspt, SDW0.ADDR, SDW0.R1, SDW0.R2, SDW0.R3, SDW0.F,
                 //          SDW0.BOUND, SDW0.R ? 'R' : '.', SDW0.E ? 'E' : '.',
                 //          SDW0.W ? 'W' : '.', SDW0.P ? 'P' : '.',
@@ -3289,12 +3289,12 @@ static t_stat virtAddrN (uint address)
                         PTW2.FC   = PTWx2 & 3;
 
                         //sim_msg ("        %06o  Addr %06o U %o M %o F %o "
-                        //            "FC %o\n",
+                        //            "FC %o\r\n",
                         //            offset, PTW2.ADDR, PTW2.U, PTW2.M, PTW2.F,
                         //            PTW2.FC);
                         if (address >= PTW2.ADDR + offset &&
                             address < PTW2.ADDR + offset + 1024)
-                          sim_msg ("  %06o:%06o\n", tspt, (address - offset) - PTW2.ADDR);
+                          sim_msg ("  %06o:%06o\r\n", tspt, (address - offset) - PTW2.ADDR);
 
                       }
                   }
@@ -3302,7 +3302,7 @@ static t_stat virtAddrN (uint address)
                   {
                     if (address >= SDW0.ADDR &&
                         address < SDW0.ADDR + SDW0.BOUND * 16u)
-                      sim_msg ("  %06o:%06o\n", tspt, address - SDW0.ADDR);
+                      sim_msg ("  %06o:%06o\r\n", tspt, address - SDW0.ADDR);
                   }
             }
         }
@@ -3365,7 +3365,7 @@ t_stat brkbrk (UNUSED int32 arg, UNUSED const char *  buf)
 
 static t_stat sbreak (int32 arg, const char * buf)
   {
-    //(void)printf (">> <%s>\n", buf);
+    //(void)printf (">> <%s>\r\n", buf);
     int segno, offset;
     int where;
     int cnt = sscanf (buf, "%o:%o%n", & segno, & offset, & where);
@@ -3375,7 +3375,7 @@ static t_stat sbreak (int32 arg, const char * buf)
       }
     char reformatted[strlen (buf) + 20];
     (void)sprintf (reformatted, "0%04o%06o%s", segno, offset, buf + where);
-    //(void)printf (">> <%s>\n", reformatted);
+    //(void)printf (">> <%s>\r\n", reformatted);
     t_stat rc = brk_cmd (arg, reformatted);
     return rc;
   }
@@ -3384,85 +3384,85 @@ static t_stat sbreak (int32 arg, const char * buf)
 static t_stat dfx1entry (UNUSED int32 arg, UNUSED const char * buf)
   {
 // divide_fx1, divide_fx3
-    sim_msg ("dfx1entry\n");
-    sim_msg ("rA %012"PRIo64" (%llu)\n", rA, rA);
-    sim_msg ("rQ %012"PRIo64" (%llu)\n", rQ, rQ);
+    sim_msg ("dfx1entry\r\n");
+    sim_msg ("rA %012"PRIo64" (%llu)\r\n", rA, rA);
+    sim_msg ("rQ %012"PRIo64" (%llu)\r\n", rQ, rQ);
     // Figure out the caller's text segment, according to pli_operators.
     // sp:tbp -> PR[6].SNR:046
     word24 pa;
     char * msg;
     if (dbgLookupAddress (cpu.PR[6].SNR, 046, & pa, & msg))
       {
-        sim_msg ("text segment number lookup failed because %s\n", msg);
+        sim_msg ("text segment number lookup failed because %s\r\n", msg);
       }
     else
       {
-        sim_msg ("text segno %012"PRIo64" (%llu)\n", M[pa], M[pa]);
+        sim_msg ("text segno %012"PRIo64" (%llu)\r\n", M[pa], M[pa]);
       }
-sim_msg ("%05o:%06o\n", cpu.PR[2].SNR, cpu.rX[0]);
+sim_msg ("%05o:%06o\r\n", cpu.PR[2].SNR, cpu.rX[0]);
 //dbgStackTrace ();
     if (dbgLookupAddress (cpu.PR[2].SNR, cpu.rX[0], & pa, & msg))
       {
-        sim_msg ("return address lookup failed because %s\n", msg);
+        sim_msg ("return address lookup failed because %s\r\n", msg);
       }
     else
       {
-        sim_msg ("scale %012"PRIo64" (%llu)\n", M[pa], M[pa]);
+        sim_msg ("scale %012"PRIo64" (%llu)\r\n", M[pa], M[pa]);
       }
     if (dbgLookupAddress (cpu.PR[2].SNR, cpu.PR[2].WORDNO, & pa, & msg))
       {
-        sim_msg ("divisor address lookup failed because %s\n", msg);
+        sim_msg ("divisor address lookup failed because %s\r\n", msg);
       }
     else
       {
-        sim_msg ("divisor %012"PRIo64" (%llu)\n", M[pa], M[pa]);
+        sim_msg ("divisor %012"PRIo64" (%llu)\r\n", M[pa], M[pa]);
       }
     return SCPE_OK;
   }
 
 static t_stat dfx1exit (UNUSED int32 arg, UNUSED const char * buf)
   {
-    sim_msg ("dfx1exit\n");
-    sim_msg ("rA %012"PRIo64" (%llu)\n", rA, rA);
-    sim_msg ("rQ %012"PRIo64" (%llu)\n", rQ, rQ);
+    sim_msg ("dfx1exit\r\n");
+    sim_msg ("rA %012"PRIo64" (%llu)\r\n", rA, rA);
+    sim_msg ("rQ %012"PRIo64" (%llu)\r\n", rQ, rQ);
     return SCPE_OK;
   }
 
 static t_stat dv2scale (UNUSED int32 arg, UNUSED const char * buf)
   {
-    sim_msg ("dv2scale\n");
-    sim_msg ("rQ %012"PRIo64" (%llu)\n", rQ, rQ);
+    sim_msg ("dv2scale\r\n");
+    sim_msg ("rQ %012"PRIo64" (%llu)\r\n", rQ, rQ);
     return SCPE_OK;
   }
 
 static t_stat dfx2entry (UNUSED int32 arg, UNUSED const char * buf)
   {
 // divide_fx2
-    sim_msg ("dfx2entry\n");
-    sim_msg ("rA %012"PRIo64" (%llu)\n", rA, rA);
-    sim_msg ("rQ %012"PRIo64" (%llu)\n", rQ, rQ);
+    sim_msg ("dfx2entry\r\n");
+    sim_msg ("rA %012"PRIo64" (%llu)\r\n", rA, rA);
+    sim_msg ("rQ %012"PRIo64" (%llu)\r\n", rQ, rQ);
     // Figure out the caller's text segment, according to pli_operators.
     // sp:tbp -> PR[6].SNR:046
     word24 pa;
     char * msg;
     if (dbgLookupAddress (cpu.PR[6].SNR, 046, & pa, & msg))
       {
-        sim_msg ("text segment number lookup failed because %s\n", msg);
+        sim_msg ("text segment number lookup failed because %s\r\n", msg);
       }
     else
       {
-        sim_msg ("text segno %012"PRIo64" (%llu)\n", M[pa], M[pa]);
+        sim_msg ("text segno %012"PRIo64" (%llu)\r\n", M[pa], M[pa]);
       }
 #  if 0
-sim_msg ("%05o:%06o\n", cpu.PR[2].SNR, cpu.rX[0]);
+sim_msg ("%05o:%06o\r\n", cpu.PR[2].SNR, cpu.rX[0]);
 //dbgStackTrace ();
     if (dbgLookupAddress (cpu.PR[2].SNR, cpu.rX[0], & pa, & msg))
       {
-        sim_msg ("return address lookup failed because %s\n", msg);
+        sim_msg ("return address lookup failed because %s\r\n", msg);
       }
     else
       {
-        sim_msg ("scale ptr %012"PRIo64" (%llu)\n", M[pa], M[pa]);
+        sim_msg ("scale ptr %012"PRIo64" (%llu)\r\n", M[pa], M[pa]);
         if ((M[pa] & 077) == 043)
           {
             word15 segno = (M[pa] >> 18u) & MASK15;
@@ -3470,23 +3470,23 @@ sim_msg ("%05o:%06o\n", cpu.PR[2].SNR, cpu.rX[0]);
             word24 ipa;
             if (dbgLookupAddress (segno, offset, & ipa, & msg))
               {
-                sim_msg ("divisor address lookup failed because %s\n", msg);
+                sim_msg ("divisor address lookup failed because %s\r\n", msg);
               }
             else
               {
-                sim_msg ("scale %012"PRIo64" (%llu)\n", M[ipa], M[ipa]);
+                sim_msg ("scale %012"PRIo64" (%llu)\r\n", M[ipa], M[ipa]);
               }
           }
       }
 #  endif
     if (dbgLookupAddress (cpu.PR[2].SNR, cpu.PR[2].WORDNO, & pa, & msg))
       {
-        sim_msg ("divisor address lookup failed because %s\n", msg);
+        sim_msg ("divisor address lookup failed because %s\r\n", msg);
       }
     else
       {
-        sim_msg ("divisor %012"PRIo64" (%llu)\n", M[pa], M[pa]);
-        sim_msg ("divisor %012"PRIo64" (%llu)\n", M[pa + 1], M[pa + 1]);
+        sim_msg ("divisor %012"PRIo64" (%llu)\r\n", M[pa], M[pa]);
+        sim_msg ("divisor %012"PRIo64" (%llu)\r\n", M[pa + 1], M[pa + 1]);
       }
     return SCPE_OK;
   }
@@ -3497,40 +3497,40 @@ static t_stat mdfx3entry (UNUSED int32 arg, UNUSED const char * buf)
 // entered with first arg in q, bp pointing at second
 
 // divide_fx1, divide_fx2
-    sim_msg ("mdfx3entry\n");
-    //sim_msg ("rA %012"PRIo64" (%llu)\n", rA, rA);
-    sim_msg ("rQ %012"PRIo64" (%llu)\n", rQ, rQ);
+    sim_msg ("mdfx3entry\r\n");
+    //sim_msg ("rA %012"PRIo64" (%llu)\r\n", rA, rA);
+    sim_msg ("rQ %012"PRIo64" (%llu)\r\n", rQ, rQ);
     // Figure out the caller's text segment, according to pli_operators.
     // sp:tbp -> PR[6].SNR:046
     word24 pa;
     char * msg;
     if (dbgLookupAddress (cpu.PR[6].SNR, 046, & pa, & msg))
       {
-        sim_msg ("text segment number lookup failed because %s\n", msg);
+        sim_msg ("text segment number lookup failed because %s\r\n", msg);
       }
     else
       {
-        sim_msg ("text segno %012"PRIo64" (%llu)\n", M[pa], M[pa]);
+        sim_msg ("text segno %012"PRIo64" (%llu)\r\n", M[pa], M[pa]);
       }
-//sim_msg ("%05o:%06o\n", cpu.PR[2].SNR, cpu.rX[0]);
+//sim_msg ("%05o:%06o\r\n", cpu.PR[2].SNR, cpu.rX[0]);
 //dbgStackTrace ();
 #  if 0
     if (dbgLookupAddress (cpu.PR[2].SNR, cpu.rX[0], & pa, & msg))
       {
-        sim_msg ("return address lookup failed because %s\n", msg);
+        sim_msg ("return address lookup failed because %s\r\n", msg);
       }
     else
       {
-        sim_msg ("scale %012"PRIo64" (%llu)\n", M[pa], M[pa]);
+        sim_msg ("scale %012"PRIo64" (%llu)\r\n", M[pa], M[pa]);
       }
 #  endif
     if (dbgLookupAddress (cpu.PR[2].SNR, cpu.PR[2].WORDNO, & pa, & msg))
       {
-        sim_msg ("divisor address lookup failed because %s\n", msg);
+        sim_msg ("divisor address lookup failed because %s\r\n", msg);
       }
     else
       {
-        sim_msg ("divisor %012"PRIo64" (%llu)\n", M[pa], M[pa]);
+        sim_msg ("divisor %012"PRIo64" (%llu)\r\n", M[pa], M[pa]);
       }
     return SCPE_OK;
   }
@@ -3541,38 +3541,38 @@ static t_stat smfx1entry (UNUSED int32 arg, UNUSED const char * buf)
 // entered with first arg in q, bp pointing at second
 
 // divide_fx1, divide_fx2
-    sim_msg ("smfx1entry\n");
-    //sim_msg ("rA %012"PRIo64" (%llu)\n", rA, rA);
-    sim_msg ("rQ %012"PRIo64" (%llu)\n", rQ, rQ);
+    sim_msg ("smfx1entry\r\n");
+    //sim_msg ("rA %012"PRIo64" (%llu)\r\n", rA, rA);
+    sim_msg ("rQ %012"PRIo64" (%llu)\r\n", rQ, rQ);
     // Figure out the caller's text segment, according to pli_operators.
     // sp:tbp -> PR[6].SNR:046
     word24 pa;
     char * msg;
     if (dbgLookupAddress (cpu.PR[6].SNR, 046, & pa, & msg))
       {
-        sim_msg ("text segment number lookup failed because %s\n", msg);
+        sim_msg ("text segment number lookup failed because %s\r\n", msg);
       }
     else
       {
-        sim_msg ("text segno %012"PRIo64" (%llu)\n", M[pa], M[pa]);
+        sim_msg ("text segno %012"PRIo64" (%llu)\r\n", M[pa], M[pa]);
       }
-sim_msg ("%05o:%06o\n", cpu.PR[2].SNR, cpu.rX[0]);
+sim_msg ("%05o:%06o\r\n", cpu.PR[2].SNR, cpu.rX[0]);
 //dbgStackTrace ();
     if (dbgLookupAddress (cpu.PR[2].SNR, cpu.rX[0], & pa, & msg))
       {
-        sim_msg ("return address lookup failed because %s\n", msg);
+        sim_msg ("return address lookup failed because %s\r\n", msg);
       }
     else
       {
-        sim_msg ("scale %012"PRIo64" (%llu)\n", M[pa], M[pa]);
+        sim_msg ("scale %012"PRIo64" (%llu)\r\n", M[pa], M[pa]);
       }
     if (dbgLookupAddress (cpu.PR[2].SNR, cpu.PR[2].WORDNO, & pa, & msg))
       {
-        sim_msg ("divisor address lookup failed because %s\n", msg);
+        sim_msg ("divisor address lookup failed because %s\r\n", msg);
       }
     else
       {
-        sim_msg ("divisor %012"PRIo64" (%llu)\n", M[pa], M[pa]);
+        sim_msg ("divisor %012"PRIo64" (%llu)\r\n", M[pa], M[pa]);
       }
     return SCPE_OK;
   }
@@ -3589,7 +3589,7 @@ static t_stat search_memory (UNUSED int32 arg, const char * buf)
     uint i;
     for (i = 0; i < MEMSIZE; i ++)
       if ((M[i] & DMASK) == value)
-        sim_msg ("%08o\n", i);
+        sim_msg ("%08o\r\n", i);
     return SCPE_OK;
   }
 
@@ -3599,10 +3599,10 @@ static t_stat set_dbg_cpu_mask (int32 UNUSED arg, const char * UNUSED buf)
     int cnt = sscanf (buf, "%u", & msk);
     if (cnt != 1)
       {
-        sim_msg ("Huh?\n");
+        sim_msg ("Huh?\r\n");
         return SCPE_ARG;
       }
-    sim_msg ("mask set to %u\n", msk);
+    sim_msg ("mask set to %u\r\n", msk);
     dbgCPUMask = msk;
     return SCPE_OK;
   }
@@ -3631,7 +3631,7 @@ static t_stat scraper (UNUSED int32 arg, const char * buf)
           p ++;
         return panelScraperMsg (p);
       }
-    sim_msg ("err: scraper start|stop|msg\n");
+    sim_msg ("err: scraper start|stop|msg\r\n");
     return SCPE_ARG;
   }
 #endif
@@ -3904,140 +3904,140 @@ static CTAB dps8_cmds[] =
 // System configuration
 //
 
-    {"DEFAULT_BASE_SYSTEM", set_default_base_system,  0, "Set configuration to defaults\n",             NULL, NULL},
+    {"DEFAULT_BASE_SYSTEM", set_default_base_system,  0, "Set configuration to defaults\r\n",             NULL, NULL},
 
-    {"CABLE",               sys_cable,                0, "String a cable.\n",                           NULL, NULL},
-    {"UNCABLE",             sys_cable,                1, "Unstring a cable.\n",                         NULL, NULL},
-    {"CABLE_RIPOUT",        sys_cable_ripout,         0, "Remove all cables from the configuration.\n", NULL, NULL},
-    {"CABLE_SHOW",          sys_cable_show,           0, "Show the current cabling configuration.\n",   NULL, NULL},
+    {"CABLE",               sys_cable,                0, "String a cable.\r\n",                           NULL, NULL},
+    {"UNCABLE",             sys_cable,                1, "Unstring a cable.\r\n",                         NULL, NULL},
+    {"CABLE_RIPOUT",        sys_cable_ripout,         0, "Remove all cables from the configuration.\r\n", NULL, NULL},
+    {"CABLE_SHOW",          sys_cable_show,           0, "Show the current cabling configuration.\r\n",   NULL, NULL},
 
-    {"FNPSERVERPORT",       set_fnp_server_port,      0, "Set the FNP dialin TELNET port number\n",     NULL, NULL},
-    {"FNPSERVERADDRESS",    set_fnp_server_address,   0, "Set the FNP dialin server binding address\n", NULL, NULL},
-    {"FNPSERVER3270PORT",   set_fnp_3270_server_port, 0, "Set the FNP TN3270 dialin port number\n",     NULL, NULL},
+    {"FNPSERVERPORT",       set_fnp_server_port,      0, "Set the FNP dialin TELNET port number\r\n",     NULL, NULL},
+    {"FNPSERVERADDRESS",    set_fnp_server_address,   0, "Set the FNP dialin server binding address\r\n", NULL, NULL},
+    {"FNPSERVER3270PORT",   set_fnp_3270_server_port, 0, "Set the FNP TN3270 dialin port number\r\n",     NULL, NULL},
 
 //
 // System control
 //
 
-    {"SKIPBOOT",  boot_skip,                     0, "Skip forward on boot tape\n",                                    NULL, NULL},
-    {"FNPSTART",  fnp_start,                     0, "Directs the simulator to immediately start listening for FNP connections.\n",
+    {"SKIPBOOT",  boot_skip,                     0, "Skip forward on boot tape\r\n",                                    NULL, NULL},
+    {"FNPSTART",  fnp_start,                     0, "Directs the simulator to immediately start listening for FNP connections.\r\n",
                                                                                                                       NULL, NULL},
-    {"MOUNT",     mount_tape,                    0, "Mount tape image and signal Multics\n",                          NULL, NULL},
-    {"LOAD",      load_media,                    1, "Mount disk or tape image and signal Multics\n",                  NULL, NULL},
-    {"UNLOAD",    load_media,                    0, "Unmount disk or tape image and signal Multics\n",                NULL, NULL},
-    {"READY",     ready_media,                   0, "Signal Multics that media is ready\n",                           NULL, NULL},
-    {"REWIND",    rewind_media,                  0, "Rewind tape\n",                                                  NULL, NULL},
-    {"XF",        do_execute_fault,              0, "Execute fault: Press the execute fault button\n",                NULL, NULL},
-    {"RESTART",   do_restart,                    0, "Execute fault: Press the execute fault button\n",                NULL, NULL},
-    {"POLL",      set_sys_polling_interval,      0, "Set polling interval (in milliseconds)\n",                       NULL, NULL},
-    {"SLOWPOLL",  set_sys_slow_polling_interval, 0, "Set slow polling interval (in polling intervals).\n",            NULL, NULL},
-    {"CHECKPOLL", set_sys_poll_check_rate,       0, "Set polling check rate (in polling intervals).\n",               NULL, NULL},
-    {"BURST",     burst_printer,                 0, "Burst process output from printer.\n",                           NULL, NULL},
+    {"MOUNT",     mount_tape,                    0, "Mount tape image and signal Multics\r\n",                          NULL, NULL},
+    {"LOAD",      load_media,                    1, "Mount disk or tape image and signal Multics\r\n",                  NULL, NULL},
+    {"UNLOAD",    load_media,                    0, "Unmount disk or tape image and signal Multics\r\n",                NULL, NULL},
+    {"READY",     ready_media,                   0, "Signal Multics that media is ready\r\n",                           NULL, NULL},
+    {"REWIND",    rewind_media,                  0, "Rewind tape\r\n",                                                  NULL, NULL},
+    {"XF",        do_execute_fault,              0, "Execute fault: Press the execute fault button\r\n",                NULL, NULL},
+    {"RESTART",   do_restart,                    0, "Execute fault: Press the execute fault button\r\n",                NULL, NULL},
+    {"POLL",      set_sys_polling_interval,      0, "Set polling interval (in milliseconds)\r\n",                       NULL, NULL},
+    {"SLOWPOLL",  set_sys_slow_polling_interval, 0, "Set slow polling interval (in polling intervals).\r\n",            NULL, NULL},
+    {"CHECKPOLL", set_sys_poll_check_rate,       0, "Set polling check rate (in polling intervals).\r\n",               NULL, NULL},
+    {"BURST",     burst_printer,                 0, "Burst process output from printer.\r\n",                           NULL, NULL},
 
 //
 // Debugging
 //
 
 # if defined(TESTING)
-    {"TRKW",               trkw,                  0, "Start tracking to track.dat\n",                            NULL, NULL},
-    {"TRKR",               trkr,                  0, "Start comparing with track.dat\n",                         NULL, NULL},
-    {"DBGMMECNTDWN",       dps_debug_mme_cntdwn,  0, "Enable debug after n MMEs\n",                              NULL, NULL},
-    {"DBGSKIP",            dps_debug_skip,        0, "Skip first n TRACE debugs\n",                              NULL, NULL},
-    {"DBGSTART",           dps_debug_start,       0, "Limit debugging to N > Cycle count\n",                     NULL, NULL},
-    {"DBGSTOP",            dps_debug_stop,        0, "Limit debugging to N < Cycle count\n",                     NULL, NULL},
-    {"DBGBREAK",           dps_debug_break,       0, "Break when N >= Cycle count\n",                            NULL, NULL},
-    {"DBGSEGNO",           dps_debug_segno,       1, "Limit debugging to PSR == segno\n",                        NULL, NULL},
-    {"NODBGSEGNO",         dps_debug_segno,       0, "Reset to debugging all segments\n",                        NULL, NULL},
-    {"DBGRINGNO",          dps_debug_ringno,      0, "Limit debugging to PRR == ringno\n",                       NULL, NULL},
-    {"DBGBAR",             dps_debug_bar,         1, "Limit debugging to BAR mode\n",                            NULL, NULL},
-    {"NODBGBAR",           dps_debug_bar,         0, "Limit debugging to BAR mode\n",                            NULL, NULL},
-    {"HDBG",               hdbg_size,             0, "Set history debugger buffer size\n",                       NULL, NULL},
-    {"HDSEG",              hdbgSegmentNumber,     0, "Set history debugger segment number\n",                    NULL, NULL},
-    {"HDBL",               hdbgBlacklist,         0, "Set history debugger blacklist\n",                         NULL, NULL},
-    {"PHDBG",              hdbg_print,            0, "Dump history buffer to 'hdbg0000.list'\n",                 NULL, NULL},
-    {"HDBG_CPU_MASK",      hdbg_cpu_mask,         0, "Set which CPUs to track (by mask)\n",                      NULL, NULL},
-    {"ABSOLUTE",           abs_addr,              0, "Compute the absolute address of segno:offset\n",           NULL, NULL},
-    {"STK",                stack_trace,           0, "Print a stack trace\n",                                    NULL, NULL},
-    {"LIST",               list_source_at,        0, "List source for address / segno:offset\n",                 NULL, NULL},
-    {"LD_SYSTEM_BOOK",     load_system_book,      0, "Load a Multics system book for symbolic debugging\n",      NULL, NULL},
-    {"ASBE",               add_system_book_entry, 0, "Add an entry to the system book\n",                        NULL, NULL},
-    {"LOOKUP_SYSTEM_BOOK", lookup_system_book,    0, "Lookup an address or symbol in the Multics system book\n", NULL, NULL},
-    {"LSB",                lookup_system_book,    0, "Lookup an address or symbol in the Multics system book\n", NULL, NULL},
-    {"VIRTUAL",            virt_address,          0, "Compute the virtual address(es) of segno:offset\n",        NULL, NULL},
-    {"SPATH",              set_search_path,       0, "Set source code search path\n",                            NULL, NULL},
-    {"TEST",               brkbrk,                0, "GDB test hook\n",                                          NULL, NULL},
+    {"TRKW",               trkw,                  0, "Start tracking to track.dat\r\n",                            NULL, NULL},
+    {"TRKR",               trkr,                  0, "Start comparing with track.dat\r\n",                         NULL, NULL},
+    {"DBGMMECNTDWN",       dps_debug_mme_cntdwn,  0, "Enable debug after n MMEs\r\n",                              NULL, NULL},
+    {"DBGSKIP",            dps_debug_skip,        0, "Skip first n TRACE debugs\r\n",                              NULL, NULL},
+    {"DBGSTART",           dps_debug_start,       0, "Limit debugging to N > Cycle count\r\n",                     NULL, NULL},
+    {"DBGSTOP",            dps_debug_stop,        0, "Limit debugging to N < Cycle count\r\n",                     NULL, NULL},
+    {"DBGBREAK",           dps_debug_break,       0, "Break when N >= Cycle count\r\n",                            NULL, NULL},
+    {"DBGSEGNO",           dps_debug_segno,       1, "Limit debugging to PSR == segno\r\n",                        NULL, NULL},
+    {"NODBGSEGNO",         dps_debug_segno,       0, "Reset to debugging all segments\r\n",                        NULL, NULL},
+    {"DBGRINGNO",          dps_debug_ringno,      0, "Limit debugging to PRR == ringno\r\n",                       NULL, NULL},
+    {"DBGBAR",             dps_debug_bar,         1, "Limit debugging to BAR mode\r\n",                            NULL, NULL},
+    {"NODBGBAR",           dps_debug_bar,         0, "Limit debugging to BAR mode\r\n",                            NULL, NULL},
+    {"HDBG",               hdbg_size,             0, "Set history debugger buffer size\r\n",                       NULL, NULL},
+    {"HDSEG",              hdbgSegmentNumber,     0, "Set history debugger segment number\r\n",                    NULL, NULL},
+    {"HDBL",               hdbgBlacklist,         0, "Set history debugger blacklist\r\n",                         NULL, NULL},
+    {"PHDBG",              hdbg_print,            0, "Dump history buffer to 'hdbg0000.list'\r\n",                 NULL, NULL},
+    {"HDBG_CPU_MASK",      hdbg_cpu_mask,         0, "Set which CPUs to track (by mask)\r\n",                      NULL, NULL},
+    {"ABSOLUTE",           abs_addr,              0, "Compute the absolute address of segno:offset\r\n",           NULL, NULL},
+    {"STK",                stack_trace,           0, "Print a stack trace\r\n",                                    NULL, NULL},
+    {"LIST",               list_source_at,        0, "List source for address / segno:offset\r\n",                 NULL, NULL},
+    {"LD_SYSTEM_BOOK",     load_system_book,      0, "Load a Multics system book for symbolic debugging\r\n",      NULL, NULL},
+    {"ASBE",               add_system_book_entry, 0, "Add an entry to the system book\r\n",                        NULL, NULL},
+    {"LOOKUP_SYSTEM_BOOK", lookup_system_book,    0, "Lookup an address or symbol in the Multics system book\r\n", NULL, NULL},
+    {"LSB",                lookup_system_book,    0, "Lookup an address or symbol in the Multics system book\r\n", NULL, NULL},
+    {"VIRTUAL",            virt_address,          0, "Compute the virtual address(es) of segno:offset\r\n",        NULL, NULL},
+    {"SPATH",              set_search_path,       0, "Set source code search path\r\n",                            NULL, NULL},
+    {"TEST",               brkbrk,                0, "GDB test hook\r\n",                                          NULL, NULL},
 #  if defined(DBGEVENT)
-    {"DBG0EVENT",          set_dbgevent,          0, "Set t0 debug event\n",                                     NULL, NULL},
-    {"DBGEVENT",           set_dbgevent,          1, "Set debug event\n",                                        NULL, NULL},
-    {"DBGNOEVENT",         set_dbgevent,          2, "Clear debug event\n",                                      NULL, NULL},
-    {"DBGLISTEVENTS",      set_dbgevent,          3, "List debug events\n",                                      NULL, NULL},
-    {"DBGCLEAREVENTS",     set_dbgevent,          4, "Clear debug events\n",                                     NULL, NULL},
+    {"DBG0EVENT",          set_dbgevent,          0, "Set t0 debug event\r\n",                                     NULL, NULL},
+    {"DBGEVENT",           set_dbgevent,          1, "Set debug event\r\n",                                        NULL, NULL},
+    {"DBGNOEVENT",         set_dbgevent,          2, "Clear debug event\r\n",                                      NULL, NULL},
+    {"DBGLISTEVENTS",      set_dbgevent,          3, "List debug events\r\n",                                      NULL, NULL},
+    {"DBGCLEAREVENTS",     set_dbgevent,          4, "Clear debug events\r\n",                                     NULL, NULL},
 #  endif /* if defined(DBGEVENT) */
 #  define SSH_ST 0        /* set */
 #  define SSH_SH 1        /* show */
 #  define SSH_CL 2        /* clear */
-    {"SBREAK",       sbreak,           SSH_ST, "Set a breakpoint with segno:offset syntax\n", NULL, NULL},
-    {"NOSBREAK",     sbreak,           SSH_CL, "Unset an SBREAK\n",                           NULL, NULL},
+    {"SBREAK",       sbreak,           SSH_ST, "Set a breakpoint with segno:offset syntax\r\n", NULL, NULL},
+    {"NOSBREAK",     sbreak,           SSH_CL, "Unset an SBREAK\r\n",                           NULL, NULL},
 #  if defined(DVFDBG)
     // dvf debugging
-    {"DFX1ENTRY",    dfx1entry,        0,      "\n",                                          NULL, NULL},
-    {"DFX2ENTRY",    dfx2entry,        0,      "\n",                                          NULL, NULL},
-    {"DFX1EXIT",     dfx1exit,         0,      "\n",                                          NULL, NULL},
-    {"DV2SCALE",     dv2scale,         0,      "\n",                                          NULL, NULL},
-    {"MDFX3ENTRY",   mdfx3entry,       0,      "\n",                                          NULL, NULL},
-    {"SMFX1ENTRY",   smfx1entry,       0,      "\n",                                          NULL, NULL},
+    {"DFX1ENTRY",    dfx1entry,        0,      "\r\n",                                          NULL, NULL},
+    {"DFX2ENTRY",    dfx2entry,        0,      "\r\n",                                          NULL, NULL},
+    {"DFX1EXIT",     dfx1exit,         0,      "\r\n",                                          NULL, NULL},
+    {"DV2SCALE",     dv2scale,         0,      "\r\n",                                          NULL, NULL},
+    {"MDFX3ENTRY",   mdfx3entry,       0,      "\r\n",                                          NULL, NULL},
+    {"SMFX1ENTRY",   smfx1entry,       0,      "\r\n",                                          NULL, NULL},
 #  endif /* if defined(DVFDBG) */
 #  if !defined(SPEED)
-    {"WATCH",        set_mem_watch,    1,      "Watch memory location\n",                     NULL, NULL},
-    {"NOWATCH",      set_mem_watch,    0,      "Unwatch memory location\n",                   NULL, NULL},
+    {"WATCH",        set_mem_watch,    1,      "Watch memory location\r\n",                     NULL, NULL},
+    {"NOWATCH",      set_mem_watch,    0,      "Unwatch memory location\r\n",                   NULL, NULL},
 #  endif /* if !defined(SPEED) */
-    {"SEARCHMEMORY", search_memory,    0,      "Search memory for value\n",                   NULL, NULL},
-    {"DBGCPUMASK",   set_dbg_cpu_mask, 0,      "Set per-CPU debug enable mask\n",             NULL, NULL},
+    {"SEARCHMEMORY", search_memory,    0,      "Search memory for value\r\n",                   NULL, NULL},
+    {"DBGCPUMASK",   set_dbg_cpu_mask, 0,      "Set per-CPU debug enable mask\r\n",             NULL, NULL},
 # endif /* if defined(TESTING) */
 
-    {"SEGLDR",       segment_loader,   0,      "Segment Loader\n",                            NULL, NULL},
+    {"SEGLDR",       segment_loader,   0,      "Segment Loader\r\n",                            NULL, NULL},
 
 //
 // Statistics
 //
 
 # if defined(MATRIX)
-    {"DISPLAYMATRIX", display_the_matrix,  0, "Display instruction usage counts\n", NULL, NULL},
+    {"DISPLAYMATRIX", display_the_matrix,  0, "Display instruction usage counts\r\n", NULL, NULL},
 # endif
 
 //
 // Console scripting
 //
 
-    {"AUTOINPUT",     add_opc_autoinput,   0, "Set primary console auto-input\n",     NULL, NULL},
-    {"AI",            add_opc_autoinput,   0, "Set primary console auto-input\n",     NULL, NULL},
-    {"AUTOINPUT2",    add_opc_autoinput,   1, "Set secondary console auto-input\n",   NULL, NULL},
-    {"AI2",           add_opc_autoinput,   1, "Set secondary console auto-input\n",   NULL, NULL},
-    {"CLRAUTOINPUT",  clear_opc_autoinput, 0, "Clear primary console auto-input\n",   NULL, NULL},
-    {"CLRAUTOINPUT2", clear_opc_autoinput, 1, "Clear secondary console auto-input\n", NULL, NULL},
+    {"AUTOINPUT",     add_opc_autoinput,   0, "Set primary console auto-input\r\n",     NULL, NULL},
+    {"AI",            add_opc_autoinput,   0, "Set primary console auto-input\r\n",     NULL, NULL},
+    {"AUTOINPUT2",    add_opc_autoinput,   1, "Set secondary console auto-input\r\n",   NULL, NULL},
+    {"AI2",           add_opc_autoinput,   1, "Set secondary console auto-input\r\n",   NULL, NULL},
+    {"CLRAUTOINPUT",  clear_opc_autoinput, 0, "Clear primary console auto-input\r\n",   NULL, NULL},
+    {"CLRAUTOINPUT2", clear_opc_autoinput, 1, "Clear secondary console auto-input\r\n", NULL, NULL},
 
 //
 // Tuning
 //
 
 # if YIELD
-    {"CLEAR_YIELD",   clear_yield,         1, "Clear yield data points\n",            NULL, NULL},
-    {"YIELD",         yield,               1, "Define yield data point\n",            NULL, NULL},
+    {"CLEAR_YIELD",   clear_yield,         1, "Clear yield data points\r\n",            NULL, NULL},
+    {"YIELD",         yield,               1, "Define yield data point\r\n",            NULL, NULL},
 # endif
 
 //
 // Hacks
 //
 
-    {"LUF",           set_luf,             1, "Enable normal LUF handling\n",         NULL, NULL},
-    {"NOLUF",         set_luf,             0, "Disable normal LUF handling\n",        NULL, NULL},
+    {"LUF",           set_luf,             1, "Enable normal LUF handling\r\n",         NULL, NULL},
+    {"NOLUF",         set_luf,             0, "Disable normal LUF handling\r\n",        NULL, NULL},
 
 //
 // Misc.
 //
 
 # if defined(PANEL68)
-    {"SCRAPER",       scraper,             0, "Control panel scraper\n", NULL, NULL},
+    {"SCRAPER",       scraper,             0, "Control panel scraper\r\n", NULL, NULL},
 # endif /* if defined(PANEL68) */
     { NULL,           NULL,                0, NULL,                      NULL, NULL}
   }; // dps8_cmds
@@ -4045,7 +4045,7 @@ static CTAB dps8_cmds[] =
 # if !defined(__MINGW64__) && !defined(__MINGW32__) && !defined(CROSS_MINGW64) && !defined(CROSS_MINGW32) && !defined(PERF_STRIP)
 static void usr1_signal_handler (UNUSED int sig)
   {
-    sim_msg ("USR1 signal caught; pressing the EXF button\n");
+    sim_msg ("USR1 signal caught; pressing the EXF button\r\n");
     // Assume the bootload CPU
     setG7fault (ASSUME0, FAULT_EXF);
     return;
@@ -4204,7 +4204,7 @@ static void dps8_init (void) {
 
 /* TESTING */
 # if defined(TESTING)
-    sim_msg ("\n Options: ");
+    sim_msg ("\r\n Options: ");
 #  if !defined(HAVE_DPSOPT)
 #   define HAVE_DPSOPT 1
 #  endif
@@ -4216,7 +4216,7 @@ static void dps8_init (void) {
 #  if defined(HAVE_DPSOPT)
     sim_msg (", ");
 #  else
-    sim_msg ("\n Options: ");
+    sim_msg ("\r\n Options: ");
 #  endif
 #  if !defined(HAVE_DPSOPT)
 #   define HAVE_DPSOPT 1
@@ -4229,7 +4229,7 @@ static void dps8_init (void) {
 #  if defined(HAVE_DPSOPT)
     sim_msg (", ");
 #  else
-    sim_msg ("\n Options: ");
+    sim_msg ("\r\n Options: ");
 #  endif
 #  if !defined(HAVE_DPSOPT)
 #   define HAVE_DPSOPT 1
@@ -4242,7 +4242,7 @@ static void dps8_init (void) {
 #  if defined(HAVE_DPSOPT)
     sim_msg (", ");
 #  else
-    sim_msg ("\n Options: ");
+    sim_msg ("\r\n Options: ");
 #  endif
 #  if !defined(HAVE_DPSOPT)
 #   define HAVE_DPSOPT 1
@@ -4255,7 +4255,7 @@ static void dps8_init (void) {
 #  if defined(HAVE_DPSOPT)
     sim_msg (", ");
 #  else
-    sim_msg ("\n Options: ");
+    sim_msg ("\r\n Options: ");
 #  endif
 #  if !defined(HAVE_DPSOPT)
 #   define HAVE_DPSOPT 1
@@ -4268,7 +4268,7 @@ static void dps8_init (void) {
 #  if defined(HAVE_DPSOPT)
     sim_msg (", ");
 #  else
-    sim_msg ("\n Options: ");
+    sim_msg ("\r\n Options: ");
 #  endif
 #  if !defined(HAVE_DPSOPT)
 #   define HAVE_DPSOPT 1
@@ -4281,7 +4281,7 @@ static void dps8_init (void) {
 #  if defined(HAVE_DPSOPT)
     sim_msg (", ");
 #  else
-    sim_msg ("\n Options: ");
+    sim_msg ("\r\n Options: ");
 #  endif
 #  if !defined(HAVE_DPSOPT)
 #   define HAVE_DPSOPT 1
@@ -4294,7 +4294,7 @@ static void dps8_init (void) {
 #  if defined(HAVE_DPSOPT)
     sim_msg (", ");
 #  else
-    sim_msg ("\n Options: ");
+    sim_msg ("\r\n Options: ");
 #  endif
 #  if !defined(HAVE_DPSOPT)
 #   define HAVE_DPSOPT 1
@@ -4307,7 +4307,7 @@ static void dps8_init (void) {
 #  if defined(HAVE_DPSOPT)
     sim_msg (", ");
 #  else
-    sim_msg ("\n Options: ");
+    sim_msg ("\r\n Options: ");
 #  endif
 #  if !defined(HAVE_DPSOPT)
 #   define HAVE_DPSOPT 1
@@ -4320,7 +4320,7 @@ static void dps8_init (void) {
 #  if defined(HAVE_DPSOPT)
     sim_msg (", ");
 #  else
-    sim_msg ("\n Options: ");
+    sim_msg ("\r\n Options: ");
 #  endif
 #  if !defined(HAVE_DPSOPT)
 #   define HAVE_DPSOPT 1
@@ -4333,7 +4333,7 @@ static void dps8_init (void) {
 #  if defined(HAVE_DPSOPT)
     sim_msg (", ");
 #  else
-    sim_msg ("\n Options: ");
+    sim_msg ("\r\n Options: ");
 #  endif
 #  if !defined(HAVE_DPSOPT)
 #   define HAVE_DPSOPT 1
@@ -4346,7 +4346,7 @@ static void dps8_init (void) {
 #  if defined(HAVE_DPSOPT)
     sim_msg (", ");
 #  else
-    sim_msg ("\n Options: ");
+    sim_msg ("\r\n Options: ");
 #  endif
 #  if !defined(HAVE_DPSOPT)
 #   define HAVE_DPSOPT 1
@@ -4355,7 +4355,7 @@ static void dps8_init (void) {
 # endif /* if defined(USE_DUMA) */
 
 # if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_HASH)
-    sim_msg ("\n  Commit: %s", VER_H_GIT_HASH);
+    sim_msg ("\r\n  Commit: %s", VER_H_GIT_HASH);
 # endif
     sim_msg ("\r\n\r\n");
     (void)fflush(stderr);
@@ -4665,7 +4665,7 @@ static t_addr parse_addr (UNUSED DEVICE * dptr, const char *cptr,
         int params = sscanf(addspec, "%s %s", seg, off);
         if (params != 2)
         {
-            sim_warn("parse_addr(): illegal number of parameters\n");
+            sim_warn("parse_addr(): illegal number of parameters\r\n");
             *optr = cptr;   // signal error
             return 0;
         }
@@ -4831,8 +4831,8 @@ sysinfo_t sys_opts;
 static t_stat sys_show_config (UNUSED FILE * st, UNUSED UNIT * uptr,
                                UNUSED int  val, UNUSED const void * desc)
   {
-    sim_msg ("IOM connect time:         %d\n", sys_opts.iom_times.connect);
-    sim_msg ("nosync                    %d\n", sys_opts.nosync);
+    sim_msg ("IOM connect time:         %d\r\n", sys_opts.iom_times.connect);
+    sim_msg ("nosync                    %d\r\n", sys_opts.nosync);
     return SCPE_OK;
 }
 
@@ -4904,7 +4904,7 @@ static t_stat sys_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
           sys_opts.nosync = !! v;
         else
           {
-            sim_msg ("error: sys_set_config: Invalid cfg_parse rc <%ld>\n", (long) rc);
+            sim_msg ("error: sys_set_config: Invalid cfg_parse rc <%ld>\r\n", (long) rc);
             cfg_parse_done (& cfg_state);
             return SCPE_ARG;
           }

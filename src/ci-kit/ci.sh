@@ -24,6 +24,11 @@ export SHELL=/bin/sh
 
 ##############################################################################
 
+export DPS8M_NO_HINTS=1
+export LC_NUMERIC=C
+
+##############################################################################
+
 # shellcheck disable=SC2009
 GIT_DIFF_OUT="$(git diff 2> /dev/null)"
 test -z "${GIT_DIFF_OUT:-}" ||

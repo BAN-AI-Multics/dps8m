@@ -90,7 +90,7 @@ static DEBTAB urp_dt [] =
 
 static t_stat urpShowUnits (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int val, UNUSED const void * desc)
   {
-    sim_printf("Number of URP units in system is %d\n", urp_dev.numunits);
+    sim_printf("Number of URP units in system is %d\r\n", urp_dev.numunits);
     return SCPE_OK;
   }
 
@@ -227,13 +227,13 @@ static iom_cmd_rc_t urpCmd (uint iomUnitIdx, uint chan) {
     switch (p->IDCW_DEV_CMD) {
       case 000: // CMD 00 Request status
         if_sim_debug (DBG_TRACE, & urp_dev) { sim_printf ("// URP Request Status\r\n"); }
-        sim_debug (DBG_DEBUG, & urp_dev, "%s: Request Status\n", __func__);
+        sim_debug (DBG_DEBUG, & urp_dev, "%s: Request Status\r\n", __func__);
         p->stati = 04000;
         break;
 
       case 006: // CMD 005 Initiate read data xfer (load_mpc.pl1)
         if_sim_debug (DBG_TRACE, & urp_dev) { sim_printf ("// URP Initiate Read Data Xfer\r\n"); }
-        sim_debug (DBG_DEBUG, & urp_dev, "%s: Initiate Read Data Xfer\n", __func__);
+        sim_debug (DBG_DEBUG, & urp_dev, "%s: Initiate Read Data Xfer\r\n", __func__);
         statep->ioMode = urpInitRdData;
         p->stati = 04000;
         break;
@@ -243,14 +243,14 @@ static iom_cmd_rc_t urpCmd (uint iomUnitIdx, uint chan) {
 
       case 031: // CMD 031 Set Diagnostic Mode (load_mpc.pl1)
         if_sim_debug (DBG_TRACE, & urp_dev) { sim_printf ("// URP Set Diagnostic Mode\r\n"); }
-        sim_debug (DBG_DEBUG, & urp_dev, "%s: Set Diagnostic Mode\n", __func__);
+        sim_debug (DBG_DEBUG, & urp_dev, "%s: Set Diagnostic Mode\r\n", __func__);
         statep->ioMode = urpSetDiag;
         p->stati = 04000;
         break;
 
       case 040: // CMD 40 Reset status
         if_sim_debug (DBG_TRACE, & urp_dev) { sim_printf ("// URP Reset Status\r\n"); }
-        sim_debug (DBG_DEBUG, & urp_dev, "%s: Reset Status\n", __func__);
+        sim_debug (DBG_DEBUG, & urp_dev, "%s: Reset Status\r\n", __func__);
         p->stati = 04000;
         p->isRead = false;
         break;
@@ -260,11 +260,11 @@ static iom_cmd_rc_t urpCmd (uint iomUnitIdx, uint chan) {
         p->stati = 04501; // cmd reject, invalid opcode
         p->chanStatus = chanStatIncorrectDCW;
         if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
-          sim_warn ("%s: URP unrecognized device command  %02o\n", __func__, p->IDCW_DEV_CMD);
+          sim_warn ("%s: URP unrecognized device command  %02o\r\n", __func__, p->IDCW_DEV_CMD);
         return IOM_CMD_ERROR;
     } // switch IDCW_DEV_CMD
 
-    sim_debug (DBG_DEBUG, & urp_dev, "%s: stati %04o\n", __func__, p->stati);
+    sim_debug (DBG_DEBUG, & urp_dev, "%s: stati %04o\r\n", __func__, p->stati);
     return IOM_CMD_PROCEED;
   } // if IDCW
 
@@ -272,8 +272,8 @@ static iom_cmd_rc_t urpCmd (uint iomUnitIdx, uint chan) {
   switch (statep->ioMode) {
     case urpNoMode:
       if_sim_debug (DBG_TRACE, & urp_dev) { sim_printf ("// URP IOT no mode\r\n"); }
-      //sim_printf ("%s: Unexpected IOTx\n", __func__);
-      //sim_warn ("%s: Unexpected IOTx\n", __func__);
+      //sim_printf ("%s: Unexpected IOTx\r\n", __func__);
+      //sim_warn ("%s: Unexpected IOTx\r\n", __func__);
       //return IOM_CMD_ERROR;
       break;
 
@@ -291,7 +291,7 @@ static iom_cmd_rc_t urpCmd (uint iomUnitIdx, uint chan) {
 
      default:
       if_sim_debug (DBG_TRACE, & urp_dev) { sim_printf ("// URP IOT unknown %d\r\n", statep->ioMode); }
-      sim_warn ("%s: Unrecognized ioMode %d\n", __func__, statep->ioMode);
+      sim_warn ("%s: Unrecognized ioMode %d\r\n", __func__, statep->ioMode);
       return IOM_CMD_ERROR;
   }
   return IOM_CMD_PROCEED;
@@ -305,7 +305,7 @@ iom_cmd_rc_t urp_iom_cmd (uint iomUnitIdx, uint chan) {
   uint urpUnitIdx = cables->iom_to_ctlr[iomUnitIdx][chan].ctlr_unit_idx;
   iom_cmd_t * cmd = cables->urp_to_urd[urpUnitIdx][devCode].iom_cmd;
   if (! cmd) {
-    //sim_warn ("URP can't find device handler\n");
+    //sim_warn ("URP can't find device handler\r\n");
     //return IOM_CMD_ERROR;
     p->stati = 04502; //-V536  // invalid device code
     return IOM_CMD_DISCONNECT;

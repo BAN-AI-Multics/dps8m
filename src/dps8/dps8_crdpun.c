@@ -500,10 +500,10 @@ static void remove_spaces(char *str)
 
 static void log_char_matrix_pattern(uint8* char_matrix)
   {
-    sim_print("\nChar Matrix\n");
+    sim_print("\r\nChar Matrix\r\n");
     for (uint col_offset = 0; col_offset < CHAR_MATRIX_BYTES; col_offset++)
       {
-        sim_printf(" %03o\n", char_matrix[col_offset]);
+        sim_printf(" %03o\r\n", char_matrix[col_offset]);
       }
 
     sim_print("\r\n");
@@ -536,7 +536,7 @@ static char search_glyph_patterns(uint8* matrix)
           }
       }
 
-      sim_warn("*** Warning: Punch found unknown block character pattern\n");
+      sim_warn("*** Warning: Punch found unknown block character pattern\r\n");
       log_char_matrix_pattern(matrix);
 
       return ' ';
@@ -546,7 +546,7 @@ static char get_lace_char(word36* buffer, uint char_pos)
   {
     if (char_pos >= GLYPHS_PER_CARD)
       {
-        sim_warn("*** Error: Attempt to read punch block character out of range (%u)\n", char_pos);
+        sim_warn("*** Error: Attempt to read punch block character out of range (%u)\r\n", char_pos);
         return 0;
       }
 
@@ -607,7 +607,7 @@ static void create_punch_file(pun_state_t * state)
     if (state -> punfile_raw != -1)
       {
           sim_warn \
-              ("*** Error: Punch file already open when attempting to create new file, closing old file!\n");
+              ("*** Error: Punch file already open when attempting to create new file, closing old file!\r\n");
           close(state -> punfile_raw);
           state -> punfile_raw = -1;
       }
@@ -629,7 +629,7 @@ static void create_punch_file(pun_state_t * state)
     state -> punfile_raw = utfile_mkstemps(template, 4);
     if (state -> punfile_raw < 0)
       {
-        perror("creating punch '.pun' file\n");
+        perror("creating punch '.pun' file\r\n");
       }
 
   }
@@ -639,7 +639,7 @@ static void write_punch_files (pun_state_t * state, word36* in_buffer, int word_
   {
       if (word_count != WORDS_PER_CARD)
         {
-          sim_warn ("Unable to interpret punch buffer due to wrong length, not writing output!\n");
+          sim_warn ("Unable to interpret punch buffer due to wrong length, not writing output!\r\n");
           return;
         }
 
@@ -675,10 +675,10 @@ static void write_punch_files (pun_state_t * state, word36* in_buffer, int word_
 
       if (state->log_cards)
       {
-        sim_printf("word12_buffer:\n");
+        sim_printf("word12_buffer:\r\n");
         for (uint i = 0; i < 80; i++)
           {
-            sim_printf("  %04o\n", word12_buffer[i]);
+            sim_printf("  %04o\r\n", word12_buffer[i]);
           }
         sim_printf("\r\n");
       }
@@ -687,8 +687,8 @@ static void write_punch_files (pun_state_t * state, word36* in_buffer, int word_
         {
           if (write(state -> punfile_raw, byte_buffer, sizeof(byte_buffer)) \
                   != sizeof(byte_buffer)) {
-            sim_warn ("Failed to write to .raw card punch file!\n");
-            perror("Writing .raw punch file\n");
+            sim_warn ("Failed to write to .raw card punch file!\r\n");
+            perror("Writing .raw punch file\r\n");
           }
         }
 
@@ -696,17 +696,17 @@ static void write_punch_files (pun_state_t * state, word36* in_buffer, int word_
 
 static void log_card(word12 tally, word36 * buffer)
   {
-    sim_printf ("tally %d\n", tally);
+    sim_printf ("tally %d\r\n", tally);
 
     for (uint i = 0; i < tally; i ++)
       {
-        sim_printf ("  %012llo\n", (unsigned long long)buffer [i]);
+        sim_printf ("  %012llo\r\n", (unsigned long long)buffer [i]);
       }
     sim_printf ("\r\n");
 
     if (tally != WORDS_PER_CARD)
       {
-        sim_warn("Unable to log punch card, tally is not 27 (%d)\n", tally);
+        sim_warn("Unable to log punch card, tally is not 27 (%d)\r\n", tally);
         return;
       }
 
@@ -918,14 +918,14 @@ static enum parse_event do_state_end_of_header(enum parse_event event,
 
     if (state -> log_cards)
       {
-        sim_printf("\n++++ Glyph Buffer ++++\n'%s'\n", state -> glyph_buffer);
+        sim_printf("\r\n++++ Glyph Buffer ++++\r\n'%s'\r\n", state -> glyph_buffer);
       }
 
     char punch_file_name[PATH_MAX+1];
     if (strlen(state -> glyph_buffer) < 86)
       {
         sim_warn \
-            ("*** Punch: glyph buffer too short, unable to parse file name '%s'\n",
+            ("*** Punch: glyph buffer too short, unable to parse file name '%s'\r\n",
              state -> glyph_buffer);
         punch_file_name[0] = 0;
       }
@@ -1018,7 +1018,7 @@ static void unexpected_event(enum parse_event event, pun_state_t * state)
     sim_warn(" in state ");
     print_state(state -> current_state);
 
-    sim_warn("***\n");
+    sim_warn("***\r\n");
   }
 
 static void parse_card(pun_state_t * state, word12 tally, word36 * card_buffer)
@@ -1135,7 +1135,7 @@ static void parse_card(pun_state_t * state, word12 tally, word36 * card_buffer)
               break;
 
             default:
-              sim_warn("*** Error: Punch received unknown event!\n");
+              sim_warn("*** Error: Punch received unknown event!\r\n");
               break;
           }
       }
@@ -1154,7 +1154,7 @@ static int punWriteRecord (uint iomUnitIdx, uint chan)
     p -> isRead = false;
     if (p -> DDCW_TALLY != WORDS_PER_CARD)
       {
-        sim_warn ("%s expected tally of 27\n", __func__);
+        sim_warn ("%s expected tally of 27\r\n", __func__);
         p -> chanStatus = chanStatIncorrectDCW;
         p -> stati = 05001; //-V536  // BUG: arbitrary error code; config switch
         return -1;
@@ -1188,7 +1188,7 @@ iom_cmd_rc_t pun_iom_cmd (uint iomUnitIdx, uint chan) {
 #if defined(TESTING)
   cpu_state_t * cpup  = _cpup;
 
-  sim_debug (DBG_TRACE, & pun_dev, "%s: PUN %c%02o_%02o\n",
+  sim_debug (DBG_TRACE, & pun_dev, "%s: PUN %c%02o_%02o\r\n",
           __func__, iomChar (iomUnitIdx), chan, dev_code);
 #endif
 
@@ -1202,38 +1202,38 @@ iom_cmd_rc_t pun_iom_cmd (uint iomUnitIdx, uint chan) {
     statep->ioMode = punNoMode;
     switch (p->IDCW_DEV_CMD) {
       case 011: // CMD 011 Punch binary
-        sim_debug (DBG_DEBUG, & pun_dev, "%s: Punch Binary\n", __func__);
+        sim_debug (DBG_DEBUG, & pun_dev, "%s: Punch Binary\r\n", __func__);
         statep->ioMode = punWrBin;
         p->stati       = 04000;
         break;
 
       case 031: // CMD 031 Set Diagnostic Mode (load_mpc.pl1)
-        sim_debug (DBG_DEBUG, & pun_dev, "%s: Set Diagnostic Mode\n", __func__);
+        sim_debug (DBG_DEBUG, & pun_dev, "%s: Set Diagnostic Mode\r\n", __func__);
         p->stati = 04000;
         break;
 
       case 040: // CMD 40 Reset status
-        sim_debug (DBG_DEBUG, & pun_dev, "%s: Reset Status\n", __func__);
+        sim_debug (DBG_DEBUG, & pun_dev, "%s: Reset Status\r\n", __func__);
         p->stati  = 04000;
         p->isRead = false;
         break;
 
       default:
         if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
-          sim_warn ("%s: PUN unrecognized device command  %02o\n", __func__, p->IDCW_DEV_CMD);
+          sim_warn ("%s: PUN unrecognized device command  %02o\r\n", __func__, p->IDCW_DEV_CMD);
         p->stati      = 04501; // cmd reject, invalid opcode
         p->chanStatus = chanStatIncorrectDCW;
         return IOM_CMD_ERROR;
     } // switch IDCW_DEV_CMD
-    sim_debug (DBG_DEBUG, & pun_dev, "%s: stati %04o\n", __func__, p->stati);
+    sim_debug (DBG_DEBUG, & pun_dev, "%s: stati %04o\r\n", __func__, p->stati);
     return IOM_CMD_PROCEED;
   } // IDCW
 
   // Not IDCW; TDCW are captured in IOM, so must be IOTD, IOTP or IOTNP
   switch (statep->ioMode) {
     case punNoMode:
-      //sim_printf ("%s: Unexpected IOTx\n", __func__);
-      //sim_warn ("%s: Unexpected IOTx\n", __func__);
+      //sim_printf ("%s: Unexpected IOTx\r\n", __func__);
+      //sim_warn ("%s: Unexpected IOTx\r\n", __func__);
       //return IOM_CMD_ERROR;
       break;
 
@@ -1245,7 +1245,7 @@ iom_cmd_rc_t pun_iom_cmd (uint iomUnitIdx, uint chan) {
       break;
 
     default:
-      sim_warn ("%s: Unrecognized ioMode %d\n", __func__, statep->ioMode);
+      sim_warn ("%s: Unrecognized ioMode %d\r\n", __func__, statep->ioMode);
       return IOM_CMD_ERROR;
   }
   return rc;
@@ -1254,7 +1254,7 @@ iom_cmd_rc_t pun_iom_cmd (uint iomUnitIdx, uint chan) {
 static t_stat pun_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int val,
                                UNUSED const void * desc)
   {
-    sim_printf("Number of PUN units in system is %d\n", pun_dev . numunits);
+    sim_printf("Number of PUN units in system is %d\r\n", pun_dev . numunits);
     return SCPE_OK;
   }
 
@@ -1362,7 +1362,7 @@ static t_stat pun_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
             continue;
           }
 
-        sim_warn ("error: pun_set_config: Invalid cfg_parse rc <%ld>\n",
+        sim_warn ("error: pun_set_config: Invalid cfg_parse rc <%ld>\r\n",
                   (long) rc);
         cfg_parse_done (& cfg_state);
         return SCPE_ARG;

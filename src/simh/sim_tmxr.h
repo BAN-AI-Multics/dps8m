@@ -284,26 +284,26 @@ void _tmxr_debug (uint32 dbits, TMLN *lp, const char *msg, char *buf, int bufsiz
 
 # define tmxr_debug_return(lp, val) \
     do { if (sim_deb && (val) && (lp)->mp && (lp)->mp->dptr && (TMXR_DBG_RET & (lp)->mp->dptr->dctrl)) \
-        { if ((lp)->rxbps) sim_debug (TMXR_DBG_RET, (lp)->mp->dptr, "Ln%d: 0x%x - Next after: %.0f\n", \
+        { if ((lp)->rxbps) sim_debug (TMXR_DBG_RET, (lp)->mp->dptr, "Ln%d: 0x%x - Next after: %.0f\r\n", \
                 (int)((lp)-(lp)->mp->ldsc), val, (lp)->rxnexttime); \
-          else sim_debug (TMXR_DBG_RET, (lp)->mp->dptr, "Ln%d: 0x%x\n", (int)((lp)-(lp)->mp->ldsc), val); \
+          else sim_debug (TMXR_DBG_RET, (lp)->mp->dptr, "Ln%d: 0x%x\r\n", (int)((lp)-(lp)->mp->ldsc), val); \
         } } while (0)
 
 # define tmxr_debug_trace(mp, msg) \
     do { if (sim_deb && (mp)->dptr && (TMXR_DBG_TRC & (mp)->dptr->dctrl)) \
-        sim_debug (TMXR_DBG_TRC, mp->dptr, "%s\n", (msg)); } while (0)
+        sim_debug (TMXR_DBG_TRC, mp->dptr, "%s\r\n", (msg)); } while (0)
 
 # define tmxr_debug_trace_line(lp, msg) \
     do { if (sim_deb && (lp)->mp && (lp)->mp->dptr && (TMXR_DBG_TRC & (lp)->mp->dptr->dctrl)) \
-        sim_debug (TMXR_DBG_TRC, (lp)->mp->dptr, "Ln%d:%s\n", (int)((lp)-(lp)->mp->ldsc), (msg)); } while (0)
+        sim_debug (TMXR_DBG_TRC, (lp)->mp->dptr, "Ln%d:%s\r\n", (int)((lp)-(lp)->mp->ldsc), (msg)); } while (0)
 
 # define tmxr_debug_connect(mp, msg) \
     do { if (sim_deb && (mp)->dptr && (TMXR_DBG_CON & (mp)->dptr->dctrl)) \
-        sim_debug (TMXR_DBG_CON, mp->dptr, "%s\n", (msg)); } while (0)
+        sim_debug (TMXR_DBG_CON, mp->dptr, "%s\r\n", (msg)); } while (0)
 
 # define tmxr_debug_connect_line(lp, msg) \
     do { if (sim_deb && (lp)->mp && (lp)->mp->dptr && (TMXR_DBG_CON & (lp)->mp->dptr->dctrl)) \
-        sim_debug (TMXR_DBG_CON, (lp)->mp->dptr, "Ln%d:%s\n", (int)((lp)-(lp)->mp->ldsc), (msg)); } while (0)
+        sim_debug (TMXR_DBG_CON, (lp)->mp->dptr, "Ln%d:%s\r\n", (int)((lp)-(lp)->mp->ldsc), (msg)); } while (0)
 
 # define tmxr_attach(mp, uptr, cptr) tmxr_attach_ex(mp, uptr, cptr, FALSE)
 
