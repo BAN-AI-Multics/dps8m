@@ -11070,7 +11070,8 @@ for (hblock = astrings; (htext = *hblock) != NULL; hblock++) {
                 FAIL (SCPE_MEM, No memory, NULL);
 #endif /* if !defined(SUNLINT) */
                 }
-            newt->title = (char *) malloc ((htext - start)+1);
+            size_t len = (htext > start) ? (htext - start) : 0;
+            newt->title = (char *) malloc(len + 1);
             if (!newt->title) {
                 FREE (newt);
 #if !defined(SUNLINT)

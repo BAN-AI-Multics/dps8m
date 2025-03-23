@@ -910,7 +910,7 @@ mgp_checksum(struct mgp_packet_header *p, u_char *pkt, uint pklen)
        +   p->chaos_opcode;
   for (i = 0; i < pklen; i++)
     {
-      cks += pkt[i]; //-V557 /* XXX */
+      cks += pkt[i]; //-V557 //-V522 /* XXX */
     }
 
   return cks % 256;

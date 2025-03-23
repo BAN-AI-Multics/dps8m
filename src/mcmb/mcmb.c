@@ -1872,7 +1872,8 @@ main(int argc, char *argv[])
 
       if (!opt_range)
         {
-          ul = sizeof ( struct cmb_xitem * );
+          /* ul = sizeof ( struct cmb_xitem * ); */ // per Clang Analyzer
+          ul = sizeof ( struct cmb_xitem );
           if (( items_tmp = calloc(nitems, ul)) == NULL)
             {
               (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",

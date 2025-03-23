@@ -52,6 +52,8 @@
  * methods that have not yet been invented or conceived.
  */
 
+//-V::595
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -966,7 +968,7 @@ static void _process(telnet_t *telnet, const char *buffer, size_t size) {
 /* push a bytes into the state tracker */
 void telnet_recv(telnet_t *telnet, const char *buffer,
                  size_t size) {
-        _process(telnet, buffer, size); //-V595
+        _process(telnet, buffer, size);
 }
 
 /* send an iac command */
