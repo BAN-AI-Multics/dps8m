@@ -422,7 +422,7 @@ static void fuv_read_cb (uv_stream_t* stream,
           {
             if (p->telnetp)
               {
-                telnet_recv (p->telnetp, buf->base, (size_t) nread);
+                telnet_recv (p->telnetp, buf->base, (size_t) nread); //-V525
               }
             else
               {
@@ -443,7 +443,7 @@ static void fuv_read_cb (uv_stream_t* stream,
           }
       }
 
-    if (buf->base)
+    if (buf->base) //-V595
         free (buf->base); /* X-LINTED: FREE */
   }
 

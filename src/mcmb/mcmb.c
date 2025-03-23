@@ -1874,6 +1874,7 @@ main(int argc, char *argv[])
         {
           /* ul = sizeof ( struct cmb_xitem * ); */ // per Clang Analyzer
           ul = sizeof ( struct cmb_xitem );
+          if (nitems < 1) nitems = 1; // Appease Clang Analyzer
           if (( items_tmp = calloc(nitems, ul)) == NULL)
             {
               (void)fprintf(stderr, "\rFATAL: Out of memory?! Aborting at %s[%s:%d]\r\n",
