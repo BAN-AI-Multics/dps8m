@@ -910,7 +910,7 @@ mgp_checksum(struct mgp_packet_header *p, u_char *pkt, uint pklen)
        +   p->chaos_opcode;
   for (i = 0; i < pklen; i++)
     {
-      cks += pkt[i];
+      cks += pkt[i]; //-V557 /* XXX */
     }
 
   return cks % 256;
@@ -1325,7 +1325,7 @@ close_conn(int i)
     }
   sim_printf("%s: closing conn %d <%#x,%#x>, remote %#o, contact \"%s\"\r\n",
              __func__, i,
-             mgp_dev_state.conns[i].multics_proc,
+             mgp_dev_state.conns[i].multics_proc, //-V557 /* XXX */
              mgp_dev_state.conns[i].local_id,
              mgp_dev_state.conns[i].remote_addr,
              mgp_dev_state.conns[i].contact_name);
@@ -1738,7 +1738,7 @@ make_mgp_header(struct mgp_packet_header *p, u_char opcode, u_char *pkt,
   if (i >= 0)
     {
       // Never mind about these if it is a NOOP we're making
-      p->packet_number        = ++mgp_dev_state.conns[i].pkt_last_sent;
+      p->packet_number        = ++mgp_dev_state.conns[i].pkt_last_sent; //-V557 /* XXX */
       p->ack_number           =   mgp_dev_state.conns[i].pkt_last_received;
       p->source_process       =   mgp_dev_state.conns[i].local_id;
       p->destination_process  =   mgp_dev_state.conns[i].multics_proc;

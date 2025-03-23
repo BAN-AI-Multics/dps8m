@@ -966,7 +966,7 @@ static void _process(telnet_t *telnet, const char *buffer, size_t size) {
 /* push a bytes into the state tracker */
 void telnet_recv(telnet_t *telnet, const char *buffer,
                  size_t size) {
-        _process(telnet, buffer, size);
+        _process(telnet, buffer, size); //-V595
 }
 
 /* send an iac command */

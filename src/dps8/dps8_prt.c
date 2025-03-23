@@ -439,7 +439,7 @@ static int openPrtFile (int prt_unit_num, word36 * buffer, uint tally)
 // The first (spooled) write is a formfeed; special case it and delay opening
 //  until the next line
 
-    if (tally == 1 && buffer[0] == 0014013000000llu) //-V536
+    if (tally == 1 && buffer[0] == 0014013000000llu) //-V536 //-V522
       {
         prt_state[prt_unit_num].cachedFF = true;
         return -3;

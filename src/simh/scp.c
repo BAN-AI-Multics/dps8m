@@ -9506,7 +9506,7 @@ for (types=bit=0; bit <= ('Z'-'A'); bit++)
     if (sim_brk_types & (1 << bit))
         ++types;
 if ((!(sw & SWMASK ('C'))) && sim_brk_types && (types > 1)) {
-    (void)fprintf (st, "Supported Breakpoint Types:");
+    (void)fprintf (st, "Supported Breakpoint Types:"); //-V522
     for (bit=0; bit <= ('Z'-'A'); bit++)
         if (sim_brk_types & (1 << bit))
             (void)fprintf (st, " -%c", 'A' + bit);
