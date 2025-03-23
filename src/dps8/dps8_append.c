@@ -146,17 +146,17 @@ static void selftest_ptwaw (void)
       {
         ptw_s * p = cpu.PTWAM + i;
         if (p->USE > N_MODEL_WAM_ENTRIES - 1)
-          sim_printf ("PTWAM[%d].USE is %d; > %d!\n",
+          sim_printf ("PTWAM[%d].USE is %d; > %d!\r\n",
                       i, p->USE, N_MODEL_WAM_ENTRIES - 1);
         if (usages[p->USE] != -1)
-          sim_printf ("PTWAM[%d].USE is equal to PTWAM[%d].USE; %d\n",
+          sim_printf ("PTWAM[%d].USE is equal to PTWAM[%d].USE; %d\r\n",
                       i, usages[p->USE], p->USE);
         usages[p->USE] = i;
       }
     for (int i = 0; i < N_MODEL_WAM_ENTRIES; i ++)
       {
         if (usages[i] == -1)
-          sim_printf ("No PTWAM had a USE of %d\n", i);
+          sim_printf ("No PTWAM had a USE of %d\r\n", i);
       }
   }
 #endif /* if defined(do_selftestPTWAM) */
@@ -222,7 +222,7 @@ void do_ldbr (cpu_state_t * cpup, word36 * Ypair)
     // C(Y-pair) 60,71 -> C(DSBR.STACK)
     cpu.DSBR.STACK = (Ypair[1] >> (71 - 71)) & 07777;
     DBGAPP ("ldbr 0 -> SDWAM/PTWAM[*].F, i -> SDWAM/PTWAM[i].USE, "
-            "DSBR.ADDR 0%o, DSBR.BND 0%o, DSBR.U 0%o, DSBR.STACK 0%o\n",
+            "DSBR.ADDR 0%o, DSBR.BND 0%o, DSBR.U 0%o, DSBR.STACK 0%o\r\n",
             cpu.DSBR.ADDR, cpu.DSBR.BND, cpu.DSBR.U, cpu.DSBR.STACK);
   }
 
@@ -234,12 +234,12 @@ void do_ldbr (cpu_state_t * cpup, word36 * Ypair)
 
 static void fetch_dsptw (cpu_state_t * cpup, word15 segno)
   {
-    DBGAPP ("%s segno 0%o\n", __func__, segno);
+    DBGAPP ("%s segno 0%o\r\n", __func__, segno);
     PNL (L68_ (cpu.apu.state |= apu_FDPT;))
 
     if (2 * segno >= 16 * (cpu.DSBR.BND + 1))
       {
-        DBGAPP ("%s ACV15\n", __func__);
+        DBGAPP ("%s ACV15\r\n", __func__);
         // generate access violation, out of segment bounds fault
         PNL (cpu.acvFaults |= ACV15;)
         PNL (L68_ (cpu.apu.state |= apu_FLT;))
@@ -267,7 +267,7 @@ static void fetch_dsptw (cpu_state_t * cpup, word15 segno)
       add_l68_APU_history (cpup, APUH_FDSPTW);)
 
     DBGAPP ("%s x1 0%o DSBR.ADDR 0%o PTWx1 0%012"PRIo64" "
-            "PTW0: ADDR 0%o U %o M %o F %o FC %o\n",
+            "PTW0: ADDR 0%o U %o M %o F %o FC %o\r\n",
             __func__, x1, cpu.DSBR.ADDR, PTWx1, cpu.PTW0.ADDR, cpu.PTW0.U,
             cpu.PTW0.M, cpu.PTW0.DF, cpu.PTW0.FC);
   }
@@ -329,16 +329,16 @@ static word6 calc_hit_am (word6 LRU, uint hit_level)
         case 3:  // hit level D
           return (LRU & 064);
         default:
-          DBGAPP ("%s: Invalid AM level\n", __func__);
+          DBGAPP ("%s: Invalid AM level\r\n", __func__);
           return 0;
      }
   }
 
 static sdw_s * fetch_sdw_from_sdwam (cpu_state_t * cpup, word15 segno) {
-  DBGAPP ("%s(0):segno=%05o\n", __func__, segno);
+  DBGAPP ("%s(0):segno=%05o\r\n", __func__, segno);
 
   if ((! cpu.tweaks.enable_wam || ! cpu.cu.SD_ON)) {
-    DBGAPP ("%s(0): SDWAM disabled\n", __func__);
+    DBGAPP ("%s(0): SDWAM disabled\r\n", __func__);
     return NULL;
   }
 
@@ -347,7 +347,7 @@ static sdw_s * fetch_sdw_from_sdwam (cpu_state_t * cpup, word15 segno) {
     for (int _n = 0; _n < nwam; _n++) {
       // make certain we initialize SDWAM prior to use!!!
       if (cpu.SDWAM[_n].FE && segno == cpu.SDWAM[_n].POINTER) {
-        DBGAPP ("%s(1):found match for segno %05o " "at _n=%d\n", __func__, segno, _n);
+        DBGAPP ("%s(1):found match for segno %05o " "at _n=%d\r\n", __func__, segno, _n);
 
         cpu.cu.SDWAMM = 1;
         cpu.SDWAMR = (word4) _n;
@@ -368,7 +368,7 @@ static sdw_s * fetch_sdw_from_sdwam (cpu_state_t * cpup, word15 segno) {
         char buf[256];
         (void)buf;
 #if defined(TESTING)
-        DBGAPP ("%s(2):SDWAM[%d]=%s\n", __func__, _n, str_sdw (buf, cpu.SDW));
+        DBGAPP ("%s(2):SDWAM[%d]=%s\r\n", __func__, _n, str_sdw (buf, cpu.SDW));
 #endif /* if defined(TESTING) */
         return cpu.SDW;
       }
@@ -382,7 +382,7 @@ static sdw_s * fetch_sdw_from_sdwam (cpu_state_t * cpup, word15 segno) {
     for (toffset = 0; toffset < 64; toffset += 16) {
       p = & cpu.SDWAM[toffset + setno];
       if (p->FE && segno == p->POINTER) {
-        DBGAPP ("%s(1):found match for segno %05o " "at _n=%d\n", __func__, segno, toffset + setno);
+        DBGAPP ("%s(1):found match for segno %05o " "at _n=%d\r\n", __func__, segno, toffset + setno);
 
         cpu.cu.SDWAMM = 1;
         cpu.SDWAMR = (word6) (toffset + setno);
@@ -398,14 +398,14 @@ static sdw_s * fetch_sdw_from_sdwam (cpu_state_t * cpup, word15 segno) {
         char buf[256];
         (void)buf;
 #if defined(TESTING)
-        DBGAPP ("%s(2):SDWAM[%d]=%s\n", __func__, toffset + setno, str_sdw (buf, cpu.SDW));
+        DBGAPP ("%s(2):SDWAM[%d]=%s\r\n", __func__, toffset + setno, str_sdw (buf, cpu.SDW));
 #endif /* if defined(TESTING) */
         return cpu.SDW;
       }
     }
   }
 #if defined(TESTING)
-  DBGAPP ("%s(3):SDW for segment %05o not found in SDWAM\n", __func__, segno);
+  DBGAPP ("%s(3):SDW for segment %05o not found in SDWAM\r\n", __func__, segno);
 #endif /* if defined(TESTING) */
   cpu.cu.SDWAMM = 0;
   return NULL;    // segment not referenced in SDWAM
@@ -418,7 +418,7 @@ static sdw_s * fetch_sdw_from_sdwam (cpu_state_t * cpup, word15 segno) {
 
 static void fetch_psdw (cpu_state_t * cpup, word15 segno)
   {
-    DBGAPP ("%s(0):segno=%05o\n",
+    DBGAPP ("%s(0):segno=%05o\r\n",
             __func__, segno);
 
     PNL (L68_ (cpu.apu.state |= apu_FSDP;))
@@ -456,7 +456,7 @@ static void fetch_psdw (cpu_state_t * cpup, word15 segno)
      )
     DBGAPP ("%s y1 0%o p->ADDR 0%o SDW 0%012"PRIo64" 0%012"PRIo64" "
             "ADDR %o R %o%o%o BOUND 0%o REWPUGC %o%o%o%o%o%o%o "
-            "F %o FC %o FE %o USE %o\n",
+            "F %o FC %o FE %o USE %o\r\n",
             __func__, y1, cpu.PTW0.ADDR, SDWeven, SDWodd, cpu.SDW0.ADDR,
             cpu.SDW0.R1, cpu.SDW0.R2, cpu.SDW0.R3, cpu.SDW0.BOUND,
             cpu.SDW0.R, cpu.SDW0.E, cpu.SDW0.W, cpu.SDW0.P, cpu.SDW0.U,
@@ -470,7 +470,7 @@ static void fetch_psdw (cpu_state_t * cpup, word15 segno)
 
 static void fetch_nsdw (cpu_state_t * cpup, word15 segno)
   {
-    DBGAPP ("%s (0):segno=%05o\n", __func__, segno);
+    DBGAPP ("%s (0):segno=%05o\r\n", __func__, segno);
 
     PNL (L68_ (cpu.apu.state |= apu_FSDN;))
 
@@ -479,7 +479,7 @@ static void fetch_nsdw (cpu_state_t * cpup, word15 segno)
     if (2 * segno >= 16 * (cpu.DSBR.BND + 1))
       {
         DBGAPP ("%s (1):Access Violation, out of segment bounds for "
-                "segno=%05o DSBR.BND=%d\n",
+                "segno=%05o DSBR.BND=%d\r\n",
                 __func__, segno, cpu.DSBR.BND);
         // generate access violation, out of segment bounds fault
         PNL (cpu.acvFaults |= ACV15;)
@@ -487,7 +487,7 @@ static void fetch_nsdw (cpu_state_t * cpup, word15 segno)
         doFault (FAULT_ACV, fst_acv15,
                  "acvFault fetch_dsptw: out of segment bounds fault");
       }
-    DBGAPP ("%s (2):fetching SDW from %05o\n",
+    DBGAPP ("%s (2):fetching SDW from %05o\r\n",
             __func__, cpu.DSBR.ADDR + 2u * segno);
 
     word36 SDWeven, SDWodd;
@@ -520,7 +520,7 @@ static void fetch_nsdw (cpu_state_t * cpup, word15 segno)
 #if !defined(SPEED)
     char buf[256];
     (void)buf;
-    DBGAPP ("%s (2):SDW0=%s\n", __func__, str_SDW0 (buf, & cpu.SDW0));
+    DBGAPP ("%s (2):SDW0=%s\r\n", __func__, str_SDW0 (buf, & cpu.SDW0));
 #endif /* if !defined(SPEED) */
   }
 
@@ -553,7 +553,7 @@ t_stat dump_sdwam (cpu_state_t * cpup)
         sdw_s *p = & cpu.SDWAM[_n];
 
         if (p->FE)
-          sim_printf ("SDWAM n:%d %s\n", _n, str_sdw (buf, p));
+          sim_printf ("SDWAM n:%d %s\r\n", _n, str_sdw (buf, p));
       }
     return SCPE_OK;
   }
@@ -594,7 +594,7 @@ static void load_sdwam (cpu_state_t * cpup, word15 segno, bool nomatch)
 
     if (nomatch || (! cpu.tweaks.enable_wam) || (! cpu.cu.SD_ON))
       {
-        DBGAPP ("%s: SDWAM disabled\n", __func__);
+        DBGAPP ("%s: SDWAM disabled\r\n", __func__);
         return;
       }
 
@@ -609,7 +609,7 @@ static void load_sdwam (cpu_state_t * cpup, word15 segno, bool nomatch)
       for (int _n = 0; _n < N_L68_WAM_ENTRIES; _n++) {
         sdw_s * p = & cpu.SDWAM[_n];
         if (! p->FE || p->USE == 0) {
-          DBGAPP ("%s(1):SDWAM[%d] FE=0 || USE=0\n", __func__, _n);
+          DBGAPP ("%s(1):SDWAM[%d] FE=0 || USE=0\r\n", __func__, _n);
 
           * p = cpu.SDW0;
           p->POINTER = segno;
@@ -627,15 +627,15 @@ static void load_sdwam (cpu_state_t * cpup, word15 segno, bool nomatch)
           char buf[256];
           (void) buf;
 #if defined(TESTING)
-          DBGAPP ("%s(2):SDWAM[%d]=%s\n", __func__, _n, str_sdw (buf, p));
+          DBGAPP ("%s(2):SDWAM[%d]=%s\r\n", __func__, _n, str_sdw (buf, p));
 #endif /* if defined(TESTING) */
           return;
         }
       }
       // if we reach this, USE is scrambled
 #if defined(TESTING)
-      DBGAPP ("%s(3) no USE=0 found for segment=%d\n", __func__, segno);
-      sim_printf ("%s(%05o): no USE=0 found!\n", __func__, segno);
+      DBGAPP ("%s(3) no USE=0 found for segment=%d\r\n", __func__, segno);
+      sim_printf ("%s(%05o): no USE=0 found!\r\n", __func__, segno);
       dump_sdwam (cpup);
 #endif /* if defined(TESTING) */
     }
@@ -653,7 +653,7 @@ static void load_sdwam (cpu_state_t * cpup, word15 segno, bool nomatch)
         toffset = to_be_discarded_am (p->USE) << 4;
         p = & cpu.SDWAM[toffset + setno];
       }
-      DBGAPP ("%s(1):SDWAM[%d] FE=0 || LRU\n", __func__, toffset + setno);
+      DBGAPP ("%s(1):SDWAM[%d] FE=0 || LRU\r\n", __func__, toffset + setno);
 
       word6 u = calc_hit_am (p->USE, toffset >> 4); // before loading the SDWAM!
       * p = cpu.SDW0; // load the SDW
@@ -670,7 +670,7 @@ static void load_sdwam (cpu_state_t * cpup, word15 segno, bool nomatch)
       char buf[256];
       (void) buf;
 #if defined(TESTING)
-      DBGAPP ("%s(2):SDWAM[%d]=%s\n", __func__, toffset + setno, str_sdw (buf, cpu.SDW));
+      DBGAPP ("%s(2):SDWAM[%d]=%s\r\n", __func__, toffset + setno, str_sdw (buf, cpu.SDW));
 #endif /* if defined(TESTING) */
     } // DPS8M
   }
@@ -679,7 +679,7 @@ static ptw_s * fetch_ptw_from_ptwam (cpu_state_t * cpup, word15 segno, word18 CA
   {
     if ((! cpu.tweaks.enable_wam) || (! cpu.cu.PT_ON))
       {
-        DBGAPP ("%s: PTWAM disabled\n", __func__);
+        DBGAPP ("%s: PTWAM disabled\r\n", __func__);
         return NULL;
       }
 
@@ -691,7 +691,7 @@ static ptw_s * fetch_ptw_from_ptwam (cpu_state_t * cpup, word15 segno, word18 CA
               cpu.PTWAM[_n].POINTER == segno)   //_initialized
             {
               DBGAPP ("%s: found match for segno=%o pageno=%o "
-                      "at _n=%d\n",
+                      "at _n=%d\r\n",
                       __func__, segno, cpu.PTWAM[_n].PAGENO, _n);
               cpu.cu.PTWAMM = 1;
               cpu.PTWAMR = (word4) _n;
@@ -712,7 +712,7 @@ static ptw_s * fetch_ptw_from_ptwam (cpu_state_t * cpup, word15 segno, word18 CA
 #if defined(do_selftestPTWAM)
               selftest_ptwaw ();
 #endif /* if defined(do_selftestPTWAM) */
-              DBGAPP ("%s: ADDR 0%o U %o M %o F %o FC %o\n",
+              DBGAPP ("%s: ADDR 0%o U %o M %o F %o FC %o\r\n",
                       __func__, cpu.PTW->ADDR, cpu.PTW->U, cpu.PTW->M,
                       cpu.PTW->DF, cpu.PTW->FC);
               return cpu.PTW;
@@ -731,7 +731,7 @@ static ptw_s * fetch_ptw_from_ptwam (cpu_state_t * cpup, word15 segno, word18 CA
           if (p->FE && ((CA >> 6) & 07760) == p->PAGENO && p->POINTER == segno)
             {
               DBGAPP ("%s: found match for segno=%o pageno=%o "
-                      "at _n=%d\n",
+                      "at _n=%d\r\n",
                       __func__, segno, p->PAGENO, toffset + setno);
               cpu.cu.PTWAMM = 1;
               cpu.PTWAMR = (word6) (toffset + setno);
@@ -745,7 +745,7 @@ static ptw_s * fetch_ptw_from_ptwam (cpu_state_t * cpup, word15 segno, word18 CA
                     p->USE = u;
                 }
 
-              DBGAPP ("%s: ADDR 0%o U %o M %o F %o FC %o\n",
+              DBGAPP ("%s: ADDR 0%o U %o M %o F %o FC %o\r\n",
                       __func__, cpu.PTW->ADDR, cpu.PTW->U, cpu.PTW->M,
                       cpu.PTW->DF, cpu.PTW->FC);
               return cpu.PTW;
@@ -769,7 +769,7 @@ static void fetch_ptw (cpu_state_t * cpup, sdw_s *sdw, word18 offset)
 
     word36 PTWx2;
 
-    DBGAPP ("%s address %08o\n", __func__, sdw->ADDR + x2);
+    DBGAPP ("%s address %08o\r\n", __func__, sdw->ADDR + x2);
 
     PNL (cpu.lastPTWOffset = offset;)
     PNL (cpu.lastPTWIsDS = false;)
@@ -814,7 +814,7 @@ static void fetch_ptw (cpu_state_t * cpup, sdw_s *sdw, word18 offset)
       add_l68_APU_history (cpup, APUH_FPTW);)
 
     DBGAPP ("%s x2 0%o sdw->ADDR 0%o PTWx2 0%012"PRIo64" "
-            "PTW0: ADDR 0%o U %o M %o F %o FC %o\n",
+            "PTW0: ADDR 0%o U %o M %o F %o FC %o\r\n",
             __func__, x2, sdw->ADDR, PTWx2, cpu.PTW0.ADDR, cpu.PTW0.U,
             cpu.PTW0.M, cpu.PTW0.DF, cpu.PTW0.FC);
   }
@@ -829,7 +829,7 @@ static void loadPTWAM (cpu_state_t * cpup, word15 segno, word18 offset, UNUSED b
     cpu.PTW = & cpu.PTW0;
     if (nomatch || (! cpu.tweaks.enable_wam) || (! cpu.cu.PT_ON))
       {
-        DBGAPP ("loadPTWAM: PTWAM disabled\n");
+        DBGAPP ("loadPTWAM: PTWAM disabled\r\n");
         return;
       }
 
@@ -845,7 +845,7 @@ static void loadPTWAM (cpu_state_t * cpup, word15 segno, word18 offset, UNUSED b
           ptw_s * p = & cpu.PTWAM[_n];
           if (! p->FE || p->USE == 0)
             {
-              DBGAPP ("loadPTWAM(1):PTWAM[%d] FE=0 || USE=0\n", _n);
+              DBGAPP ("loadPTWAM(1):PTWAM[%d] FE=0 || USE=0\r\n", _n);
               *p = cpu.PTW0;
               p->PAGENO = (offset >> 6) & 07760;
               p->POINTER = segno;
@@ -861,7 +861,7 @@ static void loadPTWAM (cpu_state_t * cpup, word15 segno, word18 offset, UNUSED b
 
               cpu.PTW = p;
               DBGAPP ("loadPTWAM(2): ADDR 0%o U %o M %o F %o FC %o "
-                      "POINTER=%o PAGENO=%o USE=%d\n",
+                      "POINTER=%o PAGENO=%o USE=%d\r\n",
                       cpu.PTW->ADDR, cpu.PTW->U, cpu.PTW->M, cpu.PTW->DF,
                       cpu.PTW->FC, cpu.PTW->POINTER, cpu.PTW->PAGENO,
                       cpu.PTW->USE);
@@ -872,7 +872,7 @@ static void loadPTWAM (cpu_state_t * cpup, word15 segno, word18 offset, UNUSED b
             }
         }
       // if we reach this, USE is scrambled
-      sim_printf ("loadPTWAM(segno=%05o, offset=%012o): no USE=0 found!\n",
+      sim_printf ("loadPTWAM(segno=%05o, offset=%012o): no USE=0 found!\r\n",
                   segno, offset);
     }
 
@@ -892,7 +892,7 @@ static void loadPTWAM (cpu_state_t * cpup, word15 segno, word18 offset, UNUSED b
           p = & cpu.PTWAM[toffset + setno];
         }
 
-      DBGAPP ("loadPTWAM(1):PTWAM[%d] FE=0 || LRU\n",
+      DBGAPP ("loadPTWAM(1):PTWAM[%d] FE=0 || LRU\r\n",
               toffset + setno);
 
       word6 u = calc_hit_am (p->USE, toffset >> 4); // before loading the PTWAM
@@ -910,7 +910,7 @@ static void loadPTWAM (cpu_state_t * cpup, word15 segno, word18 offset, UNUSED b
         }
 
       DBGAPP ("loadPTWAM(2): ADDR 0%o U %o M %o F %o FC %o POINTER=%o "
-              "PAGENO=%o USE=%d\n",
+              "PAGENO=%o USE=%d\r\n",
               cpu.PTW->ADDR, cpu.PTW->U, cpu.PTW->M, cpu.PTW->DF,
               cpu.PTW->FC, cpu.PTW->POINTER, cpu.PTW->PAGENO, cpu.PTW->USE);
     )
@@ -963,7 +963,7 @@ static void do_ptw2 (cpu_state_t * cpup, sdw_s *sdw, word18 offset)
 
     word36 PTWx2n;
 
-    DBGAPP ("%s address %08o\n", __func__, sdw->ADDR + x2 + 1);
+    DBGAPP ("%s address %08o\r\n", __func__, sdw->ADDR + x2 + 1);
 
     core_read (cpup, (sdw->ADDR + x2 + 1) & PAMASK, & PTWx2n, __func__);
 
@@ -978,7 +978,7 @@ static void do_ptw2 (cpu_state_t * cpup, sdw_s *sdw, word18 offset)
       add_l68_APU_history (cpup, APUH_FPTW2);)
 
     DBGAPP ("%s x2 0%o sdw->ADDR 0%o PTW2 0%012"PRIo64" "
-            "PTW2: ADDR 0%o U %o M %o F %o FC %o\n",
+            "PTW2: ADDR 0%o U %o M %o F %o FC %o\r\n",
             __func__, x2, sdw->ADDR, PTWx2n, PTW2.ADDR, PTW2.U, PTW2.M,
             PTW2.DF, PTW2.FC);
 
@@ -1192,22 +1192,22 @@ word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data,
                       uint nWords)
   {
     DCDstruct * i = & cpu.currentInstruction;
-    DBGAPP ("do_append_cycle(Entry) thisCycle=%s\n",
+    DBGAPP ("do_append_cycle(Entry) thisCycle=%s\r\n",
             str_pct (thisCycle));
-    DBGAPP ("do_append_cycle(Entry) lastCycle=%s\n",
+    DBGAPP ("do_append_cycle(Entry) lastCycle=%s\r\n",
             str_pct (cpu.apu.lastCycle));
-    DBGAPP ("do_append_cycle(Entry) CA %06o\n",
+    DBGAPP ("do_append_cycle(Entry) CA %06o\r\n",
             cpu.TPR.CA);
-    DBGAPP ("do_append_cycle(Entry) n=%2u\n",
+    DBGAPP ("do_append_cycle(Entry) n=%2u\r\n",
             nWords);
-    DBGAPP ("do_append_cycle(Entry) PPR.PRR=%o PPR.PSR=%05o\n",
+    DBGAPP ("do_append_cycle(Entry) PPR.PRR=%o PPR.PSR=%05o\r\n",
             cpu.PPR.PRR, cpu.PPR.PSR);
-    DBGAPP ("do_append_cycle(Entry) TPR.TRR=%o TPR.TSR=%05o\n",
+    DBGAPP ("do_append_cycle(Entry) TPR.TRR=%o TPR.TSR=%05o\r\n",
             cpu.TPR.TRR, cpu.TPR.TSR);
 
     if (i->b29)
       {
-        DBGAPP ("do_append_cycle(Entry) isb29 PRNO %o\n",
+        DBGAPP ("do_append_cycle(Entry) isb29 PRNO %o\r\n",
                 GET_PRN (IWB_IRODD));
       }
 
@@ -1230,7 +1230,7 @@ word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data,
     processor_cycle_type lastCycle = cpu.apu.lastCycle;
     cpu.apu.lastCycle = thisCycle;
 
-    DBGAPP ("do_append_cycle(Entry) XSF %o\n", cpu.cu.XSF);
+    DBGAPP ("do_append_cycle(Entry) XSF %o\r\n", cpu.cu.XSF);
 
     PNL (L68_ (cpu.apu.state = 0;))
 
@@ -1272,7 +1272,7 @@ word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data,
         ! (cpu.cu.XSF || cpu.currentInstruction.b29) /*get_went_appending()*/)
       {
         cpu.TPR.TSR = 0;
-        DBGAPP ("RTCD_OPERAND_FETCH ABSOLUTE mode set TSR %05o TRR %o\n",
+        DBGAPP ("RTCD_OPERAND_FETCH ABSOLUTE mode set TSR %05o TRR %o\r\n",
                 cpu.TPR.TSR, cpu.TPR.TRR);
       }
 
@@ -1293,16 +1293,16 @@ A:;
     //PNL (cpu.APUMemAddr = address;)
     PNL (cpu.APUMemAddr = cpu.TPR.CA;)
 
-    DBGAPP ("do_append_cycle(A)\n");
+    DBGAPP ("do_append_cycle(A)\r\n");
 
     // is SDW for C(TPR.TSR) in SDWAM?
     if (nomatch || ! fetch_sdw_from_sdwam (cpu.TPR.TSR))
       {
         // No
-        DBGAPP ("do_append_cycle(A):SDW for segment %05o not in SDWAM\n",
+        DBGAPP ("do_append_cycle(A):SDW for segment %05o not in SDWAM\r\n",
                  cpu.TPR.TSR);
 
-        DBGAPP ("do_append_cycle(A):DSBR.U=%o\n",
+        DBGAPP ("do_append_cycle(A):DSBR.U=%o\r\n",
                 cpu.DSBR.U);
 
         if (cpu.DSBR.U == 0)
@@ -1326,7 +1326,7 @@ A:;
             if (thisCycle != ABSA_CYCLE)
               {
                 DBGAPP ("do_append_cycle(A): SDW0.F == 0! "
-                        "Initiating directed fault\n");
+                        "Initiating directed fault\r\n");
                 // initiate a directed fault ...
                 doFault (FAULT_DF0 + cpu.SDW0.FC, fst_zero, "SDW0.F == 0");
               }
@@ -1334,7 +1334,7 @@ A:;
         // load SDWAM .....
         load_sdwam (cpu.TPR.TSR, nomatch);
       }
-    DBGAPP ("do_append_cycle(A) R1 %o R2 %o R3 %o E %o\n",
+    DBGAPP ("do_append_cycle(A) R1 %o R2 %o R3 %o E %o\r\n",
             cpu.SDW->R1, cpu.SDW->R2, cpu.SDW->R3, cpu.SDW->E);
 
     // Yes...
@@ -1350,7 +1350,7 @@ A:;
 // B: Check the ring
 //
 
-    DBGAPP ("do_append_cycle(B)\n");
+    DBGAPP ("do_append_cycle(B)\r\n");
 
     // check ring bracket consistency
 
@@ -1374,7 +1374,7 @@ A:;
         i->opcode == 0610  && ! i->opcodeX)
       goto C;
     else if (lastCycle == RTCD_OPERAND_FETCH)
-      sim_warn ("%s: lastCycle == RTCD_OPERAND_FETCH opcode %0#o\n", __func__, i->opcode);
+      sim_warn ("%s: lastCycle == RTCD_OPERAND_FETCH opcode %0#o\r\n", __func__, i->opcode);
 
     //
     // B1: The operand is one of: an instruction, data to be read or data to be
@@ -1402,7 +1402,7 @@ A:;
                   ((i->info->flags & TRANSFER_INS) &&
                    thisCycle == OPERAND_READ));
     if (boolA != boolB)
-      sim_warn ("do_append_cycle(B) boolA %d != boolB %d cycle %s insflag %d\n",
+      sim_warn ("do_append_cycle(B) boolA %d != boolB %d cycle %s insflag %d\r\n",
                 boolA, boolB, str_pct (thisCycle), i->info->flags & TRANSFER_INS);
 # endif
 
@@ -1421,14 +1421,14 @@ A:;
     if (!StrOp)
 # endif /* if defined(LOCKLESS) */
       {
-        DBGAPP ("do_append_cycle(B):!STR-OP\n");
+        DBGAPP ("do_append_cycle(B):!STR-OP\r\n");
 
         // No
         // C(TPR.TRR) > C(SDW .R2)?
         if (cpu.TPR.TRR > cpu.SDW->R2)
           {
-            DBGAPP ("ACV3\n");
-            DBGAPP ("do_append_cycle(B) ACV3\n");
+            DBGAPP ("ACV3\r\n");
+            DBGAPP ("do_append_cycle(B) ACV3\r\n");
             //Set fault ACV3 = ORB
             cpu.acvFaults |= ACV3;
             PNL (L68_ (cpu.apu.state |= apu_FLT;))
@@ -1443,8 +1443,8 @@ A:;
             //C(PPR.PSR) = C(TPR.TSR)?
             if (cpu.PPR.PSR != cpu.TPR.TSR)
               {
-                DBGAPP ("ACV4\n");
-                DBGAPP ("do_append_cycle(B) ACV4\n");
+                DBGAPP ("ACV4\r\n");
+                DBGAPP ("do_append_cycle(B) ACV4\r\n");
                 //Set fault ACV4 = R-OFF
                 cpu.acvFaults |= ACV4;
                 PNL (L68_ (cpu.apu.state |= apu_FLT;))
@@ -1453,7 +1453,7 @@ A:;
 # if 0
             else
               {
-                // sim_warn ("do_append_cycle(B) SDW->R == 0 && cpu.PPR.PSR == cpu.TPR.TSR: %0#o\n", cpu.PPR.PSR);
+                // sim_warn ("do_append_cycle(B) SDW->R == 0 && cpu.PPR.PSR == cpu.TPR.TSR: %0#o\r\n", cpu.PPR.PSR);
               }
 # endif
           }
@@ -1468,7 +1468,7 @@ A:;
     if (StrOp)
 # endif /* if defined(LOCKLESS) */
       {
-        DBGAPP ("do_append_cycle(B):STR-OP\n");
+        DBGAPP ("do_append_cycle(B):STR-OP\r\n");
 
         // isolts 870
         if (cpu.TPR.TSR == cpu.PPR.PSR)
@@ -1477,7 +1477,7 @@ A:;
         // C(TPR.TRR) > C(SDW .R1)? Note typo in AL39, R2 should be R1
         if (cpu.TPR.TRR > cpu.SDW->R1)
           {
-            DBGAPP ("ACV5 TRR %o R1 %o\n",
+            DBGAPP ("ACV5 TRR %o R1 %o\r\n",
                     cpu.TPR.TRR, cpu.SDW->R1);
             //Set fault ACV5 = OWB
             cpu.acvFaults |= ACV5;
@@ -1490,7 +1490,7 @@ A:;
             // isolts 870
             cpu.TPR.TRR = cpu.PPR.PRR;
 
-            DBGAPP ("ACV6\n");
+            DBGAPP ("ACV6\r\n");
             // Set fault ACV6 = W-OFF
             cpu.acvFaults |= ACV6;
             PNL (L68_ (cpu.apu.state |= apu_FLT;))
@@ -1507,7 +1507,7 @@ A:;
 ////////////////////////////////////////
 
 C:;
-    DBGAPP ("do_append_cycle(C)\n");
+    DBGAPP ("do_append_cycle(C)\r\n");
 
     //
     // check ring bracket for instruction fetch after rtcd instruction
@@ -1520,8 +1520,8 @@ C:;
     if (cpu.TPR.TRR < cpu.SDW->R1 ||
         cpu.TPR.TRR > cpu.SDW->R2)
       {
-        DBGAPP ("ACV1 c\n");
-        DBGAPP ("acvFaults(C) ACV1 ! ( C(SDW .R1) %o <= C(TPR.TRR) %o <= C(SDW .R2) %o )\n",
+        DBGAPP ("ACV1 c\r\n");
+        DBGAPP ("acvFaults(C) ACV1 ! ( C(SDW .R1) %o <= C(TPR.TRR) %o <= C(SDW .R2) %o )\r\n",
                 cpu.SDW->R1, cpu.TPR.TRR, cpu.SDW->R2);
         //Set fault ACV1 = OEB
         cpu.acvFaults |= ACV1;
@@ -1531,21 +1531,21 @@ C:;
     // SDW.E set ON?
     if (! cpu.SDW->E)
       {
-        DBGAPP ("ACV2 a\n");
-        DBGAPP ("do_append_cycle(C) ACV2\n");
+        DBGAPP ("ACV2 a\r\n");
+        DBGAPP ("do_append_cycle(C) ACV2\r\n");
         //Set fault ACV2 = E-OFF
         cpu.acvFaults |= ACV2;
         PNL (L68_ (cpu.apu.state |= apu_FLT;))
         FMSG (acvFaultsMsg = "acvFaults(C) SDW.E";)
       }
     if (cpu.TPR.TRR > cpu.PPR.PRR)
-      sim_warn ("rtcd: outbound call cpu.TPR.TRR %d cpu.PPR.PRR %d\n",
+      sim_warn ("rtcd: outbound call cpu.TPR.TRR %d cpu.PPR.PRR %d\r\n",
                 cpu.TPR.TRR, cpu.PPR.PRR);
     // C(TPR.TRR) >= C(PPR.PRR)
     if (cpu.TPR.TRR < cpu.PPR.PRR)
       {
-        DBGAPP ("ACV11\n");
-        DBGAPP ("do_append_cycle(C) ACV11\n");
+        DBGAPP ("ACV11\r\n");
+        DBGAPP ("do_append_cycle(C) ACV11\r\n");
         //Set fault ACV11 = INRET
         cpu.acvFaults |= ACV11;
         PNL (L68_ (cpu.apu.state |= apu_FLT;))
@@ -1553,7 +1553,7 @@ C:;
       }
 
 D:;
-    DBGAPP ("do_append_cycle(D)\n");
+    DBGAPP ("do_append_cycle(D)\r\n");
 
     // transfer or instruction fetch
 
@@ -1565,8 +1565,8 @@ D:;
     // C(PPR.PRR) < RALR?
     if (! (cpu.PPR.PRR < cpu.rRALR))
       {
-        DBGAPP ("ACV13\n");
-        DBGAPP ("acvFaults(D) C(PPR.PRR) %o < RALR %o\n",
+        DBGAPP ("ACV13\r\n");
+        DBGAPP ("acvFaults(D) C(PPR.PRR) %o < RALR %o\r\n",
                 cpu.PPR.PRR, cpu.rRALR);
         cpu.acvFaults |= ACV13;
         PNL (L68_ (cpu.apu.state |= apu_FLT;))
@@ -1588,9 +1588,9 @@ E:;
     //   (this is the call6 read operand)
     //
 
-    DBGAPP ("do_append_cycle(E): CALL6\n");
+    DBGAPP ("do_append_cycle(E): CALL6\r\n");
     DBGAPP ("do_append_cycle(E): E %o G %o PSR %05o TSR %05o CA %06o "
-            "EB %06o R %o%o%o TRR %o PRR %o\n",
+            "EB %06o R %o%o%o TRR %o PRR %o\r\n",
             cpu.SDW->E, cpu.SDW->G, cpu.PPR.PSR, cpu.TPR.TSR, cpu.TPR.CA,
             cpu.SDW->EB, cpu.SDW->R1, cpu.SDW->R2, cpu.SDW->R3,
             cpu.TPR.TRR, cpu.PPR.PRR);
@@ -1598,8 +1598,8 @@ E:;
     //SDW.E set ON?
     if (! cpu.SDW->E)
       {
-        DBGAPP ("ACV2 b\n");
-        DBGAPP ("do_append_cycle(E) ACV2\n");
+        DBGAPP ("ACV2 b\r\n");
+        DBGAPP ("do_append_cycle(E) ACV2\r\n");
         // Set fault ACV2 = E-OFF
         cpu.acvFaults |= ACV2;
         PNL (L68_ (cpu.apu.state |= apu_FLT;))
@@ -1619,8 +1619,8 @@ E:;
     // Fixes ISOLTS 880-01
     if (cpu.TPR.CA >= (word18) cpu.SDW->EB)
       {
-        DBGAPP ("ACV7\n");
-        DBGAPP ("do_append_cycle(E) ACV7\n");
+        DBGAPP ("ACV7\r\n");
+        DBGAPP ("do_append_cycle(E) ACV7\r\n");
         // Set fault ACV7 = NO GA
         cpu.acvFaults |= ACV7;
         PNL (L68_ (cpu.apu.state |= apu_FLT;))
@@ -1628,13 +1628,13 @@ E:;
       }
 
 E1:
-    DBGAPP ("do_append_cycle(E1): CALL6 (cont'd)\n");
+    DBGAPP ("do_append_cycle(E1): CALL6 (cont'd)\r\n");
 
     // C(TPR.TRR) > SDW.R3?
     if (cpu.TPR.TRR > cpu.SDW->R3)
       {
-        DBGAPP ("ACV8\n");
-        DBGAPP ("do_append_cycle(E) ACV8\n");
+        DBGAPP ("ACV8\r\n");
+        DBGAPP ("do_append_cycle(E) ACV8\r\n");
         //Set fault ACV8 = OCB
         cpu.acvFaults |= ACV8;
         PNL (L68_ (cpu.apu.state |= apu_FLT;))
@@ -1644,8 +1644,8 @@ E1:
     // C(TPR.TRR) < SDW.R1?
     if (cpu.TPR.TRR < cpu.SDW->R1)
       {
-        DBGAPP ("ACV9\n");
-        DBGAPP ("do_append_cycle(E) ACV9\n");
+        DBGAPP ("ACV9\r\n");
+        DBGAPP ("do_append_cycle(E) ACV9\r\n");
         // Set fault ACV9 = OCALL
         cpu.acvFaults |= ACV9;
         PNL (L68_ (cpu.apu.state |= apu_FLT;))
@@ -1658,8 +1658,8 @@ E1:
         // C(PPR.PRR) < SDW.R2?
         if (cpu.PPR.PRR < cpu.SDW->R2)
           {
-            DBGAPP ("ACV10\n");
-            DBGAPP ("do_append_cycle(E) ACV10\n");
+            DBGAPP ("ACV10\r\n");
+            DBGAPP ("do_append_cycle(E) ACV10\r\n");
             // Set fault ACV10 = BOC
             cpu.acvFaults |= ACV10;
             PNL (L68_ (cpu.apu.state |= apu_FLT;))
@@ -1668,7 +1668,7 @@ E1:
           }
       }
 
-    DBGAPP ("do_append_cycle(E1): CALL6 TPR.TRR %o SDW->R2 %o\n",
+    DBGAPP ("do_append_cycle(E1): CALL6 TPR.TRR %o SDW->R2 %o\r\n",
             cpu.TPR.TRR, cpu.SDW->R2);
 
     // C(TPR.TRR) > SDW.R2?
@@ -1678,7 +1678,7 @@ E1:
         cpu.TPR.TRR = cpu.SDW->R2;
       }
 
-    DBGAPP ("do_append_cycle(E1): CALL6 TPR.TRR %o\n", cpu.TPR.TRR);
+    DBGAPP ("do_append_cycle(E1): CALL6 TPR.TRR %o\r\n", cpu.TPR.TRR);
 
     goto G;
 
@@ -1690,7 +1690,7 @@ E1:
 
 F:;
     PNL (L68_ (cpu.apu.state |= apu_PIAU;))
-    DBGAPP ("do_append_cycle(F): transfer or instruction fetch\n");
+    DBGAPP ("do_append_cycle(F): transfer or instruction fetch\r\n");
 
     //
     // check ring bracket for instruction fetch
@@ -1701,8 +1701,8 @@ F:;
     if (cpu.TPR.TRR < cpu.SDW->R1 ||
         cpu.TPR.TRR > cpu.SDW->R2)
       {
-        DBGAPP ("ACV1 a/b\n");
-        DBGAPP ("acvFaults(F) ACV1 !( C(SDW .R1) %o <= C(TPR.TRR) %o <= C(SDW .R2) %o )\n",
+        DBGAPP ("ACV1 a/b\r\n");
+        DBGAPP ("acvFaults(F) ACV1 !( C(SDW .R1) %o <= C(TPR.TRR) %o <= C(SDW .R2) %o )\r\n",
                 cpu.SDW->R1, cpu.TPR.TRR, cpu.SDW->R2);
         cpu.acvFaults |= ACV1;
         PNL (L68_ (cpu.apu.state |= apu_FLT;))
@@ -1711,8 +1711,8 @@ F:;
     // SDW .E set ON?
     if (! cpu.SDW->E)
       {
-        DBGAPP ("ACV2 c \n");
-        DBGAPP ("do_append_cycle(F) ACV2\n");
+        DBGAPP ("ACV2 c\r\n");
+        DBGAPP ("do_append_cycle(F) ACV2\r\n");
         cpu.acvFaults |= ACV2;
         PNL (L68_ (cpu.apu.state |= apu_FLT;))
         FMSG (acvFaultsMsg = "acvFaults(F) SDW .E set OFF";)
@@ -1721,8 +1721,8 @@ F:;
     // C(PPR.PRR) = C(TPR.TRR)?
     if (cpu.PPR.PRR != cpu.TPR.TRR)
       {
-        DBGAPP ("ACV12\n");
-        DBGAPP ("do_append_cycle(F) ACV12\n");
+        DBGAPP ("ACV12\r\n");
+        DBGAPP ("do_append_cycle(F) ACV12\r\n");
         //Set fault ACV12 = CRT
         cpu.acvFaults |= ACV12;
         PNL (L68_ (cpu.apu.state |= apu_FLT;))
@@ -1739,24 +1739,24 @@ F:;
 
 G:;
 
-    DBGAPP ("do_append_cycle(G)\n");
+    DBGAPP ("do_append_cycle(G)\r\n");
 
     //C(TPR.CA)0,13 > SDW.BOUND?
     if (((cpu.TPR.CA >> 4) & 037777) > cpu.SDW->BOUND)
       {
-        DBGAPP ("ACV15\n");
-        DBGAPP ("do_append_cycle(G) ACV15\n");
+        DBGAPP ("ACV15\r\n");
+        DBGAPP ("do_append_cycle(G) ACV15\r\n");
         cpu.acvFaults |= ACV15;
         PNL (L68_ (cpu.apu.state |= apu_FLT;))
         FMSG (acvFaultsMsg = "acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND";)
-        DBGAPP ("acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND\n"
+        DBGAPP ("acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND\r\n"
                 "   CA %06o CA>>4 & 037777 %06o SDW->BOUND %06o",
                 cpu.TPR.CA, ((cpu.TPR.CA >> 4) & 037777), cpu.SDW->BOUND);
       }
 
     if (cpu.acvFaults)
       {
-        DBGAPP ("do_append_cycle(G) acvFaults\n");
+        DBGAPP ("do_append_cycle(G) acvFaults\r\n");
         PNL (L68_ (cpu.apu.state |= apu_FLT;))
         // Initiate an access violation fault
         doFault (FAULT_ACV, (_fault_subtype) {.fault_acv_subtype=cpu.acvFaults},
@@ -1770,7 +1770,7 @@ G:;
     // Yes. segment is paged ...
     // is PTW for C(TPR.CA) in PTWAM?
 
-    DBGAPP ("do_append_cycle(G) CA %06o\n", cpu.TPR.CA);
+    DBGAPP ("do_append_cycle(G) CA %06o\r\n", cpu.TPR.CA);
     if (nomatch ||
         ! fetch_ptw_from_ptwam (cpu.SDW->POINTER, cpu.TPR.CA))  //TPR.CA))
       {
@@ -1806,7 +1806,7 @@ G:;
 ////////////////////////////////////////
 
 H:;
-    DBGAPP ("do_append_cycle(H): FANP\n");
+    DBGAPP ("do_append_cycle(H): FANP\r\n");
 
     PNL (L68_ (cpu.apu.state |= apu_FANP;))
 # if 0
@@ -1820,7 +1820,7 @@ H:;
 # endif
     set_apu_status (apuStatus_FANP);
 
-    DBGAPP ("do_append_cycle(H): SDW->ADDR=%08o CA=%06o \n",
+    DBGAPP ("do_append_cycle(H): SDW->ADDR=%08o CA=%06o\r\n",
             cpu.SDW->ADDR, cpu.TPR.CA);
 
     if (thisCycle == RTCD_OPERAND_FETCH &&
@@ -1836,7 +1836,7 @@ H:;
       }
     PNL (cpu.APUMemAddr = finalAddress;)
 
-    DBGAPP ("do_append_cycle(H:FANP): (%05o:%06o) finalAddress=%08o\n",
+    DBGAPP ("do_append_cycle(H:FANP): (%05o:%06o) finalAddress=%08o\r\n",
             cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
 
     //if (thisCycle == ABSA_CYCLE)
@@ -1847,7 +1847,7 @@ I:;
 
 // Set PTW.M
 
-    DBGAPP ("do_append_cycle(I): FAP\n");
+    DBGAPP ("do_append_cycle(I): FAP\r\n");
 # if defined(LOCKLESS)
     if ((StrOp ||
         thisCycle == OPERAND_RMW ||
@@ -1874,7 +1874,7 @@ I:;
     L68_ (if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
       add_l68_APU_history (APUH_FAP);)
 
-    DBGAPP ("do_append_cycle(H:FAP): (%05o:%06o) finalAddress=%08o\n",
+    DBGAPP ("do_append_cycle(H:FAP): (%05o:%06o) finalAddress=%08o\r\n",
             cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
 
     //if (thisCycle == ABSA_CYCLE)
@@ -1882,13 +1882,13 @@ I:;
     goto HI;
 
 HI:
-    DBGAPP ("do_append_cycle(HI)\n");
+    DBGAPP ("do_append_cycle(HI)\r\n");
 
     // isolts 870
     if (thisCycle != ABSA_CYCLE)
       {
         cpu.cu.XSF = 1;
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "loading of cpu.TPR.TSR sets XSF to 1\n");
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "loading of cpu.TPR.TSR sets XSF to 1\r\n");
       }
 
     if (thisCycle == OPERAND_STORE && cpu.useZone)
@@ -1909,7 +1909,7 @@ HI:
         else
           {
             if (thisCycle == OPERAND_RMW || thisCycle == APU_DATA_RMW)
-              sim_warn("do_append_cycle: RMW nWords %d !=1\n", nWords);
+              sim_warn("do_append_cycle: RMW nWords %d != 1\r\n", nWords);
             core_readN (finalAddress, data, nWords, str_pct (thisCycle));
           }
 # else
@@ -1948,7 +1948,7 @@ HI:
 // Indirect operand fetch
 
 J:;
-    DBGAPP ("do_append_cycle(J)\n");
+    DBGAPP ("do_append_cycle(J)\r\n");
 
     // ri or ir & TPC.CA even?
     word6 tag = GET_TAG (IWB_IRODD);
@@ -2015,7 +2015,7 @@ J:;
 ////////////////////////////////////////
 
 K:; // RTCD operand fetch
-    DBGAPP ("do_append_cycle(K)\n");
+    DBGAPP ("do_append_cycle(K)\r\n");
 
     word3 y = GET_ITS_RN (data);
 
@@ -2040,7 +2040,7 @@ K:; // RTCD operand fetch
 
 L:; // Transfer or instruction fetch
 
-    DBGAPP ("do_append_cycle(L)\n");
+    DBGAPP ("do_append_cycle(L)\r\n");
 
     // Is OPCODE tspn?
     if (thisCycle == OPERAND_READ && (i->info->flags & TSPN_INS))
@@ -2104,7 +2104,7 @@ L:; // Transfer or instruction fetch
     goto KL;
 
 KL:
-    DBGAPP ("do_append_cycle(KL)\n");
+    DBGAPP ("do_append_cycle(KL)\r\n");
 
     // C(TPR.TSR) -> C(PPR.PSR)
     cpu.PPR.PSR   = cpu.TPR.TSR;
@@ -2114,7 +2114,7 @@ KL:
     goto M;
 
 M: // Set P
-    DBGAPP ("do_append_cycle(M)\n");
+    DBGAPP ("do_append_cycle(M)\r\n");
 
     // C(TPR.TRR) = 0?
     if (cpu.TPR.TRR == 0)
@@ -2131,22 +2131,22 @@ M: // Set P
     goto Exit;
 
 N: // CALL6
-    DBGAPP ("do_append_cycle(N)\n");
+    DBGAPP ("do_append_cycle(N)\r\n");
 
     // C(TPR.TRR) = C(PPR.PRR)?
     if (cpu.TPR.TRR == cpu.PPR.PRR)
       {
         // C(PR6.SNR) -> C(PR7.SNR)
         cpu.PR[7].SNR = cpu.PR[6].SNR;
-        DBGAPP ("do_append_cycle(N) PR7.SNR = PR6.SNR %05o\n", cpu.PR[7].SNR);
+        DBGAPP ("do_append_cycle(N) PR7.SNR = PR6.SNR %05o\r\n", cpu.PR[7].SNR);
       }
     else
       {
         // C(DSBR.STACK) || C(TPR.TRR) -> C(PR7.SNR)
         cpu.PR[7].SNR = ((word15) (cpu.DSBR.STACK << 3)) | cpu.TPR.TRR;
-        DBGAPP ("do_append_cycle(N) STACK %05o TRR %o\n",
+        DBGAPP ("do_append_cycle(N) STACK %05o TRR %o\r\n",
                 cpu.DSBR.STACK, cpu.TPR.TRR);
-        DBGAPP ("do_append_cycle(N) PR7.SNR = STACK||TRR  %05o\n", cpu.PR[7].SNR);
+        DBGAPP ("do_append_cycle(N) PR7.SNR = STACK||TRR  %05o\r\n", cpu.PR[7].SNR);
       }
 
     // C(TPR.TRR) -> C(PR7.RNR)
@@ -2174,30 +2174,30 @@ N: // CALL6
 ////////////////////////////////////////
 
 O:; // ITS, RTCD
-    DBGAPP ("do_append_cycle(O)\n");
+    DBGAPP ("do_append_cycle(O)\r\n");
     word3 its_RNR = GET_ITS_RN (data);
-    DBGAPP ("do_append_cycle(O) TRR %o RSDWH.R1 %o ITS.RNR %o\n",
+    DBGAPP ("do_append_cycle(O) TRR %o RSDWH.R1 %o ITS.RNR %o\r\n",
             cpu.TPR.TRR, cpu.RSDWH_R1, its_RNR);
 
     // Maximum of
     //  C(Y)18,20;  C(TPR.TRR); C(SDW.R1) -> C(TPR.TRR)
     cpu.TPR.TRR = max3 (its_RNR, cpu.TPR.TRR, cpu.RSDWH_R1);
-    DBGAPP ("do_append_cycle(O) Set TRR to %o\n", cpu.TPR.TRR);
+    DBGAPP ("do_append_cycle(O) Set TRR to %o\r\n", cpu.TPR.TRR);
 
     goto Exit;
 
 P:; // ITP
 
-    DBGAPP ("do_append_cycle(P)\n");
+    DBGAPP ("do_append_cycle(P)\r\n");
 
     n = GET_ITP_PRNUM (data);
-    DBGAPP ("do_append_cycle(P) TRR %o RSDWH.R1 %o PR[n].RNR %o\n",
+    DBGAPP ("do_append_cycle(P) TRR %o RSDWH.R1 %o PR[n].RNR %o\r\n",
             cpu.TPR.TRR, cpu.RSDWH_R1, cpu.PR[n].RNR);
 
     // Maximum of
     // cpu.PR[n].RNR;  C(TPR.TRR); C(SDW.R1) -> C(TPR.TRR)
     cpu.TPR.TRR = max3 (cpu.PR[n].RNR, cpu.TPR.TRR, cpu.RSDWH_R1);
-    DBGAPP ("do_append_cycle(P) Set TRR to %o\n", cpu.TPR.TRR);
+    DBGAPP ("do_append_cycle(P) Set TRR to %o\r\n", cpu.TPR.TRR);
 
     goto Exit;
 
@@ -2208,9 +2208,9 @@ Exit:;
 
     PNL (L68_ (cpu.apu.state |= apu_FA;))
 
-    DBGAPP ("do_append_cycle (Exit) PRR %o PSR %05o P %o IC %06o\n",
+    DBGAPP ("do_append_cycle (Exit) PRR %o PSR %05o P %o IC %06o\r\n",
             cpu.PPR.PRR, cpu.PPR.PSR, cpu.PPR.P, cpu.PPR.IC);
-    DBGAPP ("do_append_cycle (Exit) TRR %o TSR %05o TBR %02o CA %06o\n",
+    DBGAPP ("do_append_cycle (Exit) TRR %o TSR %05o TBR %02o CA %06o\r\n",
             cpu.TPR.TRR, cpu.TPR.TSR, cpu.TPR.TBR, cpu.TPR.CA);
 
     return finalAddress;    // or 0 or -1???

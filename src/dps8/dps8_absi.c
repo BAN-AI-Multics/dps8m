@@ -75,7 +75,7 @@ static DEBTAB absi_dt[] =
 static t_stat absi_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr,
                                 UNUSED int val, UNUSED const void * desc)
   {
-    sim_printf ("Number of ABSI units in system is %d\n", absi_dev.numunits);
+    sim_printf ("Number of ABSI units in system is %d\r\n", absi_dev.numunits);
     return SCPE_OK;
   }
 
@@ -263,17 +263,17 @@ static iom_cmd_rc_t absi_cmd (uint iomUnitIdx, uint chan)
     cpu_state_t * cpup = _cpup;
 # endif
     iom_chan_data_t * p = &iom_chan_data[iomUnitIdx][chan];
-// sim_printf ("absi_cmd CHAN_CMD %o DEV_CODE %o DEV_CMD %o COUNT %o\n",
+// sim_printf ("absi_cmd CHAN_CMD %o DEV_CODE %o DEV_CMD %o COUNT %o\r\n",
 //p->IDCW_CHAN_CMD, p->IDCW_DEV_CODE, p->IDCW_DEV_CMD, p->IDCW_COUNT);
     sim_debug (DBG_TRACE, & absi_dev,
-               "absi_cmd CHAN_CMD %o DEV_CODE %o DEV_CMD %o COUNT %o\n",
+               "absi_cmd CHAN_CMD %o DEV_CODE %o DEV_CMD %o COUNT %o\r\n",
                p->IDCW_CHAN_CMD, p->IDCW_DEV_CODE, p->IDCW_DEV_CMD,
                p->IDCW_COUNT);
 
     // Not IDCW?
     if (IS_NOT_IDCW (p))
       {
-        sim_warn ("%s: Unexpected IOTx\n", __func__);
+        sim_warn ("%s: Unexpected IOTx\r\n", __func__);
         return IOM_CMD_ERROR;
       }
 
@@ -282,49 +282,49 @@ static iom_cmd_rc_t absi_cmd (uint iomUnitIdx, uint chan)
         case 000: // CMD 00 Request status
           {
             p->stati = 04000;
-sim_printf ("absi request status\n");
+sim_printf ("absi request status\r\n");
           }
           break;
 
         case 001: // CMD 01 Read
           {
             p->stati = 04000;
-sim_printf ("absi read\n");
+sim_printf ("absi read\r\n");
           }
           break;
 
         case 011: // CMD 11 Write
           {
             p->stati = 04000;
-sim_printf ("absi write\n");
+sim_printf ("absi write\r\n");
           }
           break;
 
         case 020: // CMD 20 Host switch down
           {
             p->stati = 04000;
-sim_printf ("absi host switch down\n");
+sim_printf ("absi host switch down\r\n");
           }
           break;
 
         case 040: // CMD 40 Reset status
           {
             p->stati = 04000;
-sim_printf ("absi reset status\n");
+sim_printf ("absi reset status\r\n");
           }
           break;
 
         case 060: // CMD 60 Host switch up
           {
             p->stati = 04000;
-sim_printf ("absi host switch up\n");
+sim_printf ("absi host switch up\r\n");
           }
           break;
 
         default:
           {
             if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
-              sim_warn ("%s: ABSI unrecognized device command  %02o\n", __func__, p->IDCW_DEV_CMD);
+              sim_warn ("%s: ABSI unrecognized device command  %02o\r\n", __func__, p->IDCW_DEV_CMD);
             p->stati = 04501; // cmd reject, invalid opcode
             p->chanStatus = chanStatIncorrectDCW;
           }
@@ -348,7 +348,7 @@ iom_cmd_rc_t absi_iom_cmd (uint iomUnitIdx, uint chan)
       {
         return absi_cmd (iomUnitIdx, chan);
       }
-    sim_printf ("%s expected IDCW\n", __func__);
+    sim_printf ("%s expected IDCW\r\n", __func__);
     return IOM_CMD_ERROR;
   }
 
@@ -364,11 +364,11 @@ void absi_process_event (void)
         int sz = udp_receive (absi_state[unit].link, pkt, psz);
         if (sz < 0)
           {
-            (void)fprintf (stderr, "udp_receive failed\n");
+            (void)fprintf (stderr, "udp_receive failed\r\n");
           }
         else if (sz == 0)
           {
-            //(void)fprintf (stderr, "udp_receive 0\n");
+            //(void)fprintf (stderr, "udp_receive 0\r\n");
           }
         else
           {
@@ -377,7 +377,7 @@ void absi_process_event (void)
                 (void)fprintf (stderr, "  %06o  %04x  ", pkt[i], pkt[i]);
                 for (int b = 0; b < 16; b ++)
                   (void)fprintf (stderr, "%c", pkt[i] & (1 << (16 - b)) ? '1' : '0');
-                (void)fprintf (stderr, "\n");
+                (void)fprintf (stderr, "\r\n");
               }
             // Send a NOP reply
             //int16_t reply[2] = 0x0040
@@ -385,7 +385,7 @@ void absi_process_event (void)
                                PFLG_FINAL);
             if (rc < 0)
               {
-                (void)fprintf (stderr, "udp_send failed\n");
+                (void)fprintf (stderr, "udp_send failed\r\n");
               }
           }
       }

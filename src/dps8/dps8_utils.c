@@ -174,7 +174,7 @@ word36 Add36b (cpu_state_t * cpup, word36 op1, word36 op2, word1 carryin, word18
   {
     CPT (cpt2L, 17); // Add36b
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "Add36b op1 %012"PRIo64" op2 %012"PRIo64" carryin %o flagsToSet %06o flags %06o\n",
+               "Add36b op1 %012"PRIo64" op2 %012"PRIo64" carryin %o flagsToSet %06o flags %06o\r\n",
                op1, op2, carryin, flagsToSet, * flags);
 
 // See: https://en.wikipedia.org/wiki/Two%27s_complement#Addition
@@ -246,7 +246,7 @@ word36 Add36b (cpu_state_t * cpup, word36 op1, word36 op2, word1 carryin, word18
           CLRF (* flags, I_NEG);
       }
 
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Add36b res %012"PRIo64" flags %06o ovf %o\n", res, * flags, * ovf);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "Add36b res %012"PRIo64" flags %06o ovf %o\r\n", res, * flags, * ovf);
     return res;
   }
 
@@ -613,7 +613,7 @@ word72 Sub72b (cpu_state_t * cpup, word72 op1, word72 op2, word1 carryin, word18
     CPT (cpt2L, 22); // Sub72b
 #if defined(NEED_128)
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "Sub72b op1 %012"PRIo64"%012"PRIo64" op2 %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\n",
+               "Sub72b op1 %012"PRIo64"%012"PRIo64" op2 %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\r\n",
                (word36) ((rshift_128 (op1, 36).l) & MASK36),
                (word36) (op1.l & MASK36),
                (word36) (rshift_128 (op2, 36).l & MASK36),
@@ -621,7 +621,7 @@ word72 Sub72b (cpu_state_t * cpup, word72 op1, word72 op2, word1 carryin, word18
                carryin, flagsToSet, * flags);
 #else
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "Sub72b op1 %012"PRIo64"%012"PRIo64" op2 %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\n",
+               "Sub72b op1 %012"PRIo64"%012"PRIo64" op2 %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\r\n",
                (word36) ((op1 >> 36) & MASK36),
                (word36) (op1 & MASK36),
                (word36) ((op2 >> 36) & MASK36),
@@ -667,7 +667,7 @@ word72 Sub72b (cpu_state_t * cpup, word72 op1, word72 op2, word1 carryin, word18
     // Do the math
 #if defined(NEED_128)
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "Sub72b op1e %012"PRIo64"%012"PRIo64" op2e %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\n",
+               "Sub72b op1e %012"PRIo64"%012"PRIo64" op2e %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\r\n",
                (word36) ((rshift_128 (op1e, 36).l) & MASK36),
                (word36) (op1e.l & MASK36),
                (word36) (rshift_128 (op2e, 36).l & MASK36),
@@ -675,7 +675,7 @@ word72 Sub72b (cpu_state_t * cpup, word72 op1, word72 op2, word1 carryin, word18
                carryin, flagsToSet, * flags);
 #else
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "Sub72b op1e %012"PRIo64"%012"PRIo64" op2e %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\n",
+               "Sub72b op1e %012"PRIo64"%012"PRIo64" op2e %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\r\n",
                (word36) ((op1e >> 36) & MASK36),
                (word36) (op1e & MASK36),
                (word36) ((op2e >> 36) & MASK36),
@@ -690,10 +690,10 @@ word72 Sub72b (cpu_state_t * cpup, word72 op1, word72 op2, word1 carryin, word18
     word74 res = (word72) (((word72s) op1e) - ((word72s) op2e) - ((word72s) ci));
 #endif
 #if defined(NEED_128)
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n",
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\r\n",
                (word36) (rshift_128 (res, 36).l & MASK36), (word36) (res.l & MASK36), * flags, * ovf);
 #else
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n",
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\r\n",
                (word36) ((res >> 36) & MASK36), (word36) (res & MASK36), * flags, * ovf);
 #endif
 
@@ -772,10 +772,10 @@ word72 Sub72b (cpu_state_t * cpup, word72 op1, word72 op2, word1 carryin, word18
       }
 
 #if defined(NEED_128)
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n",
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\r\n",
                (word36) (rshift_128 (res, 36).l & MASK36), (word36) (res.l & MASK36), * flags, * ovf);
 #else
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n",
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\r\n",
                (word36) ((res >> 36) & MASK36), (word36) (res & MASK36), * flags, * ovf);
 #endif
     return res;
@@ -785,7 +785,7 @@ word72 Sub72b (cpu_state_t * cpup, word72 op1, word72 op2, word1 carryin, word18
 word36 compl36(cpu_state_t * cpup, word36 op1, word18 *flags, bool * ovf)
 {
     CPT (cpt2L, 23); // compl36
-    //(void)printf("op1 = %"PRIo64" %"PRIo64"\n", op1, (-op1) & DMASK);
+    //(void)printf("op1 = %"PRIo64" %"PRIo64"\r\n", op1, (-op1) & DMASK);
 
     op1 &= DMASK;
 
@@ -821,7 +821,7 @@ word36 compl36(cpu_state_t * cpup, word36 op1, word18 *flags, bool * ovf)
 word18 compl18(cpu_state_t * cpup, word18 op1, word18 *flags, bool * ovf)
 {
     CPT (cpt2L, 24); // compl18
-    //(void)printf("op1 = %"PRIo64" %"PRIo64"\n", op1, (-op1) & DMASK);
+    //(void)printf("op1 = %"PRIo64" %"PRIo64"\r\n", op1, (-op1) & DMASK);
 
     op1 &= MASK18;
 
@@ -1112,19 +1112,19 @@ void cmp72(cpu_state_t * cpup, word72 op1, word72 op2, word18 *flags)
    // this code.
     L68_ (cpu.ou.cycle |= ou_GOS;)
 #if defined(NEED_128)
-sim_debug (DBG_TRACEEXT, & cpu_dev, "op1 %016"PRIx64"%016"PRIx64"\n", op1.h, op1.l);
-sim_debug (DBG_TRACEEXT, & cpu_dev, "op2 %016"PRIx64"%016"PRIx64"\n", op2.h, op2.l);
+sim_debug (DBG_TRACEEXT, & cpu_dev, "op1 %016"PRIx64"%016"PRIx64"\r\n", op1.h, op1.l);
+sim_debug (DBG_TRACEEXT, & cpu_dev, "op2 %016"PRIx64"%016"PRIx64"\r\n", op2.h, op2.l);
     int128 op1s =  SIGNEXT72_128 (and_128 (op1, MASK72));
     int128 op2s =  SIGNEXT72_128 (and_128 (op2, MASK72));
-sim_debug (DBG_TRACEEXT, & cpu_dev, "op1s %016"PRIx64"%016"PRIx64"\n", op1s.h, op1s.l);
-sim_debug (DBG_TRACEEXT, & cpu_dev, "op2s %016"PRIx64"%016"PRIx64"\n", op2s.h, op2s.l);
+sim_debug (DBG_TRACEEXT, & cpu_dev, "op1s %016"PRIx64"%016"PRIx64"\r\n", op1s.h, op1s.l);
+sim_debug (DBG_TRACEEXT, & cpu_dev, "op2s %016"PRIx64"%016"PRIx64"\r\n", op2s.h, op2s.l);
 #else
-sim_debug (DBG_TRACEEXT, & cpu_dev, "op1 %016"PRIx64"%016"PRIx64"\n", (uint64_t) (op1>>64), (uint64_t) op1);
-sim_debug (DBG_TRACEEXT, & cpu_dev, "op2 %016"PRIx64"%016"PRIx64"\n", (uint64_t) (op2>>64), (uint64_t) op2);
+sim_debug (DBG_TRACEEXT, & cpu_dev, "op1 %016"PRIx64"%016"PRIx64"\r\n", (uint64_t) (op1>>64), (uint64_t) op1);
+sim_debug (DBG_TRACEEXT, & cpu_dev, "op2 %016"PRIx64"%016"PRIx64"\r\n", (uint64_t) (op2>>64), (uint64_t) op2);
     int128 op1s =  SIGNEXT72_128 (op1 & MASK72);
     int128 op2s =  SIGNEXT72_128 (op2 & MASK72);
-sim_debug (DBG_TRACEEXT, & cpu_dev, "op1s %016"PRIx64"%016"PRIx64"\n", (uint64_t) (op1s>>64), (uint64_t) op1s);
-sim_debug (DBG_TRACEEXT, & cpu_dev, "op2s %016"PRIx64"%016"PRIx64"\n", (uint64_t) (op2s>>64), (uint64_t) op2s);
+sim_debug (DBG_TRACEEXT, & cpu_dev, "op1s %016"PRIx64"%016"PRIx64"\r\n", (uint64_t) (op1s>>64), (uint64_t) op1s);
+sim_debug (DBG_TRACEEXT, & cpu_dev, "op2s %016"PRIx64"%016"PRIx64"\r\n", (uint64_t) (op2s>>64), (uint64_t) op2s);
 #endif
 #if defined(NEED_128)
     if (isgt_s128 (op1s, op2s))
@@ -1512,7 +1512,7 @@ int cfg_parse (const char * tag, const char * cptr, config_list_t * clist, confi
     name = strtok_r (name_start, "=", & name_save);
     if (! name)
       {
-        sim_printf ("error: %s: can't parse name\n", tag);
+        sim_printf ("error: %s: can't parse name\r\n", tag);
         goto done;
       }
 
@@ -1526,7 +1526,7 @@ int cfg_parse (const char * tag, const char * cptr, config_list_t * clist, confi
       }
     if (! p -> name)
       {
-        sim_printf ("error: %s: don't know name <%s>\n", tag, name);
+        sim_printf ("error: %s: don't know name <%s>\r\n", tag, name);
         goto done;
       }
 
@@ -1541,7 +1541,7 @@ int cfg_parse (const char * tag, const char * cptr, config_list_t * clist, confi
           {
             return (int) (p - clist);
           }
-        sim_printf ("error: %s: can't parse value\n", tag);
+        sim_printf ("error: %s: can't parse value\r\n", tag);
         goto done;
       }
 
@@ -1567,27 +1567,27 @@ int cfg_parse (const char * tag, const char * cptr, config_list_t * clist, confi
     // Must be a number
     if (p -> min > p -> max)
       {
-        sim_printf ("error: %s: can't parse value\n", tag);
+        sim_printf ("error: %s: can't parse value\r\n", tag);
         goto done;
       }
 
     if (strlen (value) == 0)
       {
-         sim_printf ("error: %s: missing value\n", tag);
+         sim_printf ("error: %s: missing value\r\n", tag);
          goto done;
       }
     char * endptr;
     int64_t n = strtoll (value, & endptr, 0);
     if (* endptr)
       {
-        sim_printf ("error: %s: can't parse value\n", tag);
+        sim_printf ("error: %s: can't parse value\r\n", tag);
         goto done;
       }
 
 // XXX small bug; doesn't check for junk after number...
     if (n < p -> min || n > p -> max)
       {
-        sim_printf ("error: %s: value out of range\n", tag);
+        sim_printf ("error: %s: value out of range\r\n", tag);
         goto done;
       }
 
@@ -1867,11 +1867,11 @@ int extractASCII36FromBuffer (uint8 * bufp, t_mtrlnt tbc, uint * words_processed
     uint bytes_processed = wp * 4;
     if (bytes_processed >= tbc)
       return 1;
-    //sim_printf ("store 0%08lo@0%012"PRIo64"\n", wordp - M, extr36 (bufp, wp));
+    //sim_printf ("store 0%08lo@0%012"PRIo64"\r\n", wordp - M, extr36 (bufp, wp));
 
     * wordp = extrASCII36 (bufp, wp);
-    //if (* wordp & ~MASK36) sim_printf (">>>>>>> extr %012"PRIo64"\n", * wordp);
-    //sim_printf ("* %06lo = %012"PRIo64"\n", wordp - M, * wordp);
+    //if (* wordp & ~MASK36) sim_printf (">>>>>>> extr %012"PRIo64"\r\n", * wordp);
+    //sim_printf ("* %06lo = %012"PRIo64"\r\n", wordp - M, * wordp);
     (* words_processed) ++;
 
     return 0;
@@ -1886,11 +1886,11 @@ int extractWord36FromBuffer (uint8 * bufp, t_mtrlnt tbc, uint * words_processed,
     uint bytes_processed = (wp * 9 + 1) / 2;
     if (bytes_processed >= tbc)
       return 1;
-    //sim_printf ("store 0%08lo@0%012"PRIo64"\n", wordp - M, extr36 (bufp, wp));
+    //sim_printf ("store 0%08lo@0%012"PRIo64"\r\n", wordp - M, extr36 (bufp, wp));
 
     * wordp = extr36 (bufp, wp);
-    //if (* wordp & ~MASK36) sim_printf (">>>>>>> extr %012"PRIo64"\n", * wordp);
-    //sim_printf ("* %06lo = %012"PRIo64"\n", wordp - M, * wordp);
+    //if (* wordp & ~MASK36) sim_printf (">>>>>>> extr %012"PRIo64"\r\n", * wordp);
+    //sim_printf ("* %06lo = %012"PRIo64"\r\n", wordp - M, * wordp);
     (* words_processed) ++;
 
     return 0;
@@ -1905,10 +1905,10 @@ int insertASCII36toBuffer (uint8 * bufp, t_mtrlnt tbc, uint * words_processed, w
     uint bytes_processed = wp * 4;
     if (bytes_processed >= tbc)
       return 1;
-    //sim_printf ("store 0%08lo@0%012"PRIo64"\n", wordp - M, extr36 (bufp, wp));
+    //sim_printf ("store 0%08lo@0%012"PRIo64"\r\n", wordp - M, extr36 (bufp, wp));
 
     putASCII36 (word, bufp, wp);
-    //sim_printf ("* %06lo = %012"PRIo64"\n", wordp - M, * wordp);
+    //sim_printf ("* %06lo = %012"PRIo64"\r\n", wordp - M, * wordp);
     (* words_processed) ++;
 
     return 0;
@@ -1923,10 +1923,10 @@ int insertWord36toBuffer (uint8 * bufp, t_mtrlnt tbc, uint * words_processed, wo
     uint bytes_processed = (wp * 9 + 1) / 2;
     if (bytes_processed >= tbc)
       return 1;
-    //sim_printf ("store 0%08lo@0%012"PRIo64"\n", wordp - M, extr36 (bufp, wp));
+    //sim_printf ("store 0%08lo@0%012"PRIo64"\r\n", wordp - M, extr36 (bufp, wp));
 
     put36 (word, bufp, wp);
-    //sim_printf ("* %06lo = %012"PRIo64"\n", wordp - M, * wordp);
+    //sim_printf ("* %06lo = %012"PRIo64"\r\n", wordp - M, * wordp);
     (* words_processed) ++;
 
     return 0;
@@ -2046,7 +2046,7 @@ void currentTR (word27 * trunits, bool * ovf)
         return;
       }
     * trunits = (cpu.rTR - ticks) & MASK27;
-    //sim_printf ("time left %f\n", (float) (* trunits) / 5120000);
+    //sim_printf ("time left %f\r\n", (float) (* trunits) / 5120000);
     * ovf = false;
   }
 #endif

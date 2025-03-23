@@ -2055,12 +2055,12 @@ static inline int core_write (word24 addr, word36 data, \
       {
         if (cpu.MR.sdpap)
           {
-            sim_warn ("failing to implement sdpap\n");
+            sim_warn ("failing to implement sdpap\r\n");
             cpu.MR.sdpap = 0;
           }
         if (cpu.MR.separ)
           {
-            sim_warn ("failing to implement separ\n");
+            sim_warn ("failing to implement separ\r\n");
             cpu.MR.separ = 0;
           }
      }
@@ -2079,12 +2079,12 @@ static inline int core_write_zone (word24 addr, word36 data, \
       {
         if (cpu.MR.sdpap)
           {
-            sim_warn ("failing to implement sdpap\n");
+            sim_warn ("failing to implement sdpap\r\n");
             cpu.MR.sdpap = 0;
           }
         if (cpu.MR.separ)
           {
-            sim_warn ("failing to implement separ\n");
+            sim_warn ("failing to implement separ\r\n");
             cpu.MR.separ = 0;
           }
       }
@@ -2116,12 +2116,12 @@ static inline int core_write2 (word24 addr, word36 even, word36 odd,
       {
         if (cpu.MR.sdpap)
           {
-            sim_warn ("failing to implement sdpap\n");
+            sim_warn ("failing to implement sdpap\r\n");
             cpu.MR.sdpap = 0;
           }
         if (cpu.MR.separ)
           {
-            sim_warn ("failing to implement separ\n");
+            sim_warn ("failing to implement separ\r\n");
             cpu.MR.separ = 0;
           }
       }
@@ -2244,7 +2244,7 @@ int core_unlock_all(cpu_state_t * cpup);
         }                                                                \
       if (i == 0)                                                        \
         {                                                                \
-          sim_warn ("%s: locked %x addr %x deadlock\n", __func__,        \
+          sim_warn ("%s: locked %x addr %x deadlock\r\n", __func__,      \
               (lockStatePtr)->locked_addr, addr);                        \
         }                                                                \
       (lockStatePtr)->lockCnt++;                                         \
@@ -2288,7 +2288,7 @@ int core_unlock_all(cpu_state_t * cpup);
     }                                                                    \
       if (i == 0)                                                        \
         {                                                                \
-          sim_warn ("%s: locked %x addr %x deadlock\n",                  \
+          sim_warn ("%s: locked %x addr %x deadlock\r\n",                \
             __func__, (lockStatePtr)->locked_addr, addr);                \
         }                                                                \
       (lockStatePtr)->lockCnt++;                                         \
@@ -2338,7 +2338,7 @@ int core_unlock_all(cpu_state_t * cpup);
            }                                                             \
          if (i == 0)                                                     \
            {                                                             \
-            sim_warn ("%s: locked %x addr %x deadlock\n", __func__,      \
+            sim_warn ("%s: locked %x addr %x deadlock\r\n", __func__,    \
                 (lockStatePtr)->locked_addr, addr);                      \
             }                                                            \
          (lockStatePtr)->lockCnt++;                                      \

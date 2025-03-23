@@ -182,7 +182,7 @@ float72 IEEElongdoubleToFloat72(long double f0)
 
     int exp;
     long double mant = frexpl(f, &exp);
-    //sim_printf (sign=%d f0=%Lf mant=%Lf exp=%d\n", sign, f0, mant, exp);
+    //sim_printf (sign=%d f0=%Lf mant=%Lf exp=%d\r\n", sign, f0, mant, exp);
 
     word72 result = 0;
 
@@ -204,20 +204,20 @@ float72 IEEElongdoubleToFloat72(long double f0)
             //result = bitfieldInsert72(result, 1, n, 1);
             putbits72 (& result, 71-n, 1, 1);
             mant -= bitval;
-            //sim_printf ("Inserting a bit @ %d %012"PRIo64" %012"PRIo64"\n",
+            //sim_printf ("Inserting a bit @ %d %012"PRIo64" %012"PRIo64"\r\n",
             //            n, (word36)((result >> 36) & DMASK), (word36)(result & DMASK));
         }
         bitval /= 2.0;
     }
-    //sim_printf ("n=%d mant=%f\n", n, mant);
-    //sim_printf ("result=%012"PRIo64" %012"PRIo64"\n",
+    //sim_printf ("n=%d mant=%f\r\n", n, mant);
+    //sim_printf ("result=%012"PRIo64" %012"PRIo64"\r\n",
     //            (word36)((result >> 36) & DMASK), (word36)(result & DMASK));
 
     // if f is < 0 then take 2-comp of result ...
     if (sign)
     {
         result = -result & (((word72)1 << 64) - 1);
-        //sim_printf ("-result=%012"PRIo64" %012"PRIo64"\n",
+        //sim_printf ("-result=%012"PRIo64" %012"PRIo64"\r\n",
         //            (word36)((result >> 36) & DMASK), (word36)(result & DMASK));
     }
     // insert exponent ...
@@ -324,7 +324,7 @@ void IEEElongdoubleToEAQ(long double f0)
             //result = bitfieldInsert72(result, 1, n, 1);
             putbits72 (& result 71-n, 1, 1);
             mant -= bitval;
-            //sim_printf ("Inserting a bit @ %d %012"PRIo64" %012"PRIo64"\n",
+            //sim_printf ("Inserting a bit @ %d %012"PRIo64" %012"PRIo64"\r\n",
             //            n, (word36)((result >> 36) & DMASK), (word36)(result & DMASK));
         }
         bitval /= 2.0;
@@ -411,17 +411,17 @@ float36 IEEEdoubleTofloat36(double f0)
             //result = bitfieldInsert36(result, 1, n, 1);
             setbits36_1 (& result, 35-n, 1);
             mant -= bitval;
-            //sim_printf ("Inserting a bit @ %d result=%012"PRIo64"\n", n, result);
+            //sim_printf ("Inserting a bit @ %d result=%012"PRIo64"\r\n", n, result);
         }
         bitval /= 2.0;
     }
-    //sim_printf ("result=%012"PRIo64"\n", result);
+    //sim_printf ("result=%012"PRIo64"\r\n", result);
 
     // if f is < 0 then take 2-comp of result ...
     if (sign)
     {
         result = -result & 001777777777LL;
-        //sim_printf ("-result=%012"PRIo64"\n", result);
+        //sim_printf ("-result=%012"PRIo64"\r\n", result);
     }
     // insert exponent ...
     int e = (int)exp;
@@ -1180,18 +1180,18 @@ void ufm (cpu_state_t * cpup, bool normalize) {
   int128 t = SIGNEXT72_128(m2);
   uint128 ut = rshift_128 (cast_128 (t), 44);
   int128 m3 = multiply_s128 (SIGNEXT72_128(m1), cast_s128 (ut));
-//sim_debug (DBG_TRACEEXT, & cpu_dev, "m3 %016"PRIx64"%016"PRIx64"\n", m3.h, m3.l);
+//sim_debug (DBG_TRACEEXT, & cpu_dev, "m3 %016"PRIx64"%016"PRIx64"\r\n", m3.h, m3.l);
 #else
   int128 m3 = (SIGNEXT72_128(m1) * (SIGNEXT72_128(m2) >> 44));
-//sim_debug (DBG_TRACEEXT, & cpu_dev, "m3 %016"PRIx64"%016"PRIx64"\n", (uint64_t) (m3>>64), (uint64_t) m3);
+//sim_debug (DBG_TRACEEXT, & cpu_dev, "m3 %016"PRIx64"%016"PRIx64"\r\n", (uint64_t) (m3>>64), (uint64_t) m3);
 #endif
   // realign to 72bits
 #if defined(NEED_128)
   word72 m3a = and_128 (rshift_128 (cast_128 (m3), 98u - 71u), MASK72);
-//sim_debug (DBG_TRACEEXT, & cpu_dev, "m3a %016"PRIx64"%016"PRIx64"\n", m3a.h, m3a.l);
+//sim_debug (DBG_TRACEEXT, & cpu_dev, "m3a %016"PRIx64"%016"PRIx64"\r\n", m3a.h, m3a.l);
 #else
   word72 m3a = ((word72) (m3 >> (98-71))) & MASK72;
-//sim_debug (DBG_TRACEEXT, & cpu_dev, "m3a %016"PRIx64"%016"PRIx64"\n", (uint64_t) (m3a>>64), (uint64_t) m3a);
+//sim_debug (DBG_TRACEEXT, & cpu_dev, "m3a %016"PRIx64"%016"PRIx64"\r\n", (uint64_t) (m3a>>64), (uint64_t) m3a);
 #endif
 
   // A normalization is performed only in the case of both factor mantissas being 100...0
@@ -1215,7 +1215,7 @@ void ufm (cpu_state_t * cpup, bool normalize) {
   HDBGRegAW ("ufm");
 #endif
   cpu.rE = (word8) e3 & MASK8;
-sim_debug (DBG_TRACEEXT, & cpu_dev, "fmp A %012"PRIo64" Q %012"PRIo64" E %03o\n", cpu.rA, cpu.rQ, cpu.rE);
+sim_debug (DBG_TRACEEXT, & cpu_dev, "fmp A %012"PRIo64" Q %012"PRIo64" E %03o\r\n", cpu.rA, cpu.rQ, cpu.rE);
   SC_I_NEG (cpu.rA & SIGN36);
 
   if (cpu.rA == 0 && cpu.rQ == 0) {
@@ -2307,7 +2307,7 @@ void dufm (cpu_state_t * cpup, bool normalize) {
   int    e1 = SIGNEXT8_int (cpu . rE & MASK8);
 
 #if !defined(NEED_128)
-  sim_debug (DBG_TRACEEXT, & cpu_dev, "dufm e1 %d %03o m1 %012"PRIo64" %012"PRIo64"\n",
+  sim_debug (DBG_TRACEEXT, & cpu_dev, "dufm e1 %d %03o m1 %012"PRIo64" %012"PRIo64"\r\n",
              e1, e1, (word36) (m1 >> 36) & MASK36, (word36) m1 & MASK36);
 #endif
    // 64-bit mantissa (incl sign)
@@ -2323,7 +2323,7 @@ void dufm (cpu_state_t * cpup, bool normalize) {
   int    e2 = SIGNEXT8_int (getbits36_8 (cpu.Ypair[0], 0));
 
 #if !defined(NEED_128)
-  sim_debug (DBG_TRACEEXT, & cpu_dev, "dufm e2 %d %03o m2 %012"PRIo64" %012"PRIo64"\n",
+  sim_debug (DBG_TRACEEXT, & cpu_dev, "dufm e2 %d %03o m2 %012"PRIo64" %012"PRIo64"\r\n",
              e2, e2, (word36) (m2 >> 36) & MASK36, (word36) m2 & MASK36);
 #endif
 
@@ -2693,7 +2693,7 @@ void dfdi (cpu_state_t * cpup) {
 void dvf (cpu_state_t * cpup)
 {
 //#if defined(DBGCAC)
-//sim_printf ("DVF %"PRId64" %06o:%06o\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC);
+//sim_printf ("DVF %"PRId64" %06o:%06o\r\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC);
 //#endif
     // C(AQ) / (Y)
     //  fractional quotient → C(A)
@@ -2719,10 +2719,10 @@ void dvf (cpu_state_t * cpup)
 //HWR--    word72 m1 = SIGNEXT36_72((cpu . rA << 36) | (cpu . rQ & 0777777777776LLU));
 //HWR--    word72 m2 = SIGNEXT36_72(cpu.CY);
 //HWR--
-//HWR--//sim_debug (DBG_CAC, & cpu_dev, "[%"PRId64"]\n", cpu.cycleCnt);
-//HWR--//sim_debug (DBG_CAC, & cpu_dev, "m1 "); print_int128 (m1); sim_printf ("\n");
-//HWR--//sim_debug (DBG_CAC, & cpu_dev, "-----------------\n");
-//HWR--//sim_debug (DBG_CAC, & cpu_dev, "m2 "); print_int128 (m2); sim_printf ("\n");
+//HWR--//sim_debug (DBG_CAC, & cpu_dev, "[%"PRId64"]\r\n", cpu.cycleCnt);
+//HWR--//sim_debug (DBG_CAC, & cpu_dev, "m1 "); print_int128 (m1); sim_printf ("\r\n");
+//HWR--//sim_debug (DBG_CAC, & cpu_dev, "-----------------\r\n");
+//HWR--//sim_debug (DBG_CAC, & cpu_dev, "m2 "); print_int128 (m2); sim_printf ("\r\n");
 //HWR--
 //HWR--    if (m2 == 0)
 //HWR--    {
@@ -2938,10 +2938,10 @@ void dvf (cpu_state_t * cpup)
 # if defined(NEED_128)
     uint128 zFrac = lshift_128 (construct_128 (0, cpu.rA & MASK35), 35);
     zFrac = or_128 (zFrac, construct_128 (0, (cpu.rQ >> 1) & MASK35));
-//sim_debug (DBG_TRACEEXT, & cpu_dev, "zfrac %016"PRIx64" %016"PRIx64"\n", zFrac.h, zFrac.l);
+//sim_debug (DBG_TRACEEXT, & cpu_dev, "zfrac %016"PRIx64" %016"PRIx64"\r\n", zFrac.h, zFrac.l);
 # else
     uint128 zFrac = ((uint128) (cpu . rA & MASK35) << 35) | ((cpu . rQ >> 1) & MASK35);
-//sim_debug (DBG_TRACEEXT, & cpu_dev, "zfrac %016"PRIx64" %016"PRIx64"\n", (uint64) (zFrac>>64), (uint64) zFrac);
+//sim_debug (DBG_TRACEEXT, & cpu_dev, "zfrac %016"PRIx64" %016"PRIx64"\r\n", (uint64) (zFrac>>64), (uint64) zFrac);
 # endif
     //zFrac <<= 1; -- Makes Multics unbootable.
 
@@ -2958,10 +2958,10 @@ void dvf (cpu_state_t * cpup)
       }
 # if defined(NEED_128)
     zFrac = and_128 (zFrac, MASK70);
-//sim_debug (DBG_TRACEEXT, & cpu_dev, "zfrac %016"PRIx64" %016"PRIx64"\n", zFrac.h, zFrac.l);
+//sim_debug (DBG_TRACEEXT, & cpu_dev, "zfrac %016"PRIx64" %016"PRIx64"\r\n", zFrac.h, zFrac.l);
 # else
     zFrac &= MASK70;
-//sim_debug (DBG_TRACEEXT, & cpu_dev, "zfrac %016"PRIx64" %016"PRIx64"\n", (uint64) (zFrac>>64), (uint64) zFrac);
+//sim_debug (DBG_TRACEEXT, & cpu_dev, "zfrac %016"PRIx64" %016"PRIx64"\r\n", (uint64) (zFrac>>64), (uint64) zFrac);
 # endif
 
   //char buf [128];
@@ -2970,7 +2970,7 @@ void dvf (cpu_state_t * cpup)
   //sim_printf ("zFrac %s \r\n", buf);
     //char buf [128] = "";
     //print_int128 (zFrac, buf);
-    //sim_debug (DBG_CAC, & cpu_dev, "zFrac %s\n", buf);
+    //sim_debug (DBG_CAC, & cpu_dev, "zFrac %s\r\n", buf);
 
     // Get the 35 bits of the divisor (36 bits less the sign bit)
 
@@ -2979,9 +2979,9 @@ void dvf (cpu_state_t * cpup)
     // divisor goes in the low half
     uint128 dFrac = convert_to_word72 (0, cpu.CY & MASK35);
 # if defined(NEED_128)
-//sim_debug (DBG_TRACEEXT, & cpu_dev, "dfrac %016"PRIx64" %016"PRIx64"\n", dFrac.h, dFrac.l);
+//sim_debug (DBG_TRACEEXT, & cpu_dev, "dfrac %016"PRIx64" %016"PRIx64"\r\n", dFrac.h, dFrac.l);
 # else
-//sim_debug (DBG_TRACEEXT, & cpu_dev, "dfrac %016"PRIx64" %016"PRIx64"\n", (uint64) (dFrac>>64), (uint64) dFrac);
+//sim_debug (DBG_TRACEEXT, & cpu_dev, "dfrac %016"PRIx64" %016"PRIx64"\r\n", (uint64) (dFrac>>64), (uint64) dFrac);
 # endif
     if (divisorNegative)
       {
@@ -2996,15 +2996,15 @@ void dvf (cpu_state_t * cpup)
       }
 # if defined(NEED_128)
     dFrac = and_128 (dFrac, construct_128 (0, MASK35));
-//sim_debug (DBG_TRACEEXT, & cpu_dev, "dfrac %016"PRIx64" %016"PRIx64"\n", dFrac.h, dFrac.l);
+//sim_debug (DBG_TRACEEXT, & cpu_dev, "dfrac %016"PRIx64" %016"PRIx64"\r\n", dFrac.h, dFrac.l);
 # else
     dFrac &= MASK35;
-//sim_debug (DBG_TRACEEXT, & cpu_dev, "dfrac %016"PRIx64" %016"PRIx64"\n", (uint64) (dFrac>>64), (uint64) dFrac);
+//sim_debug (DBG_TRACEEXT, & cpu_dev, "dfrac %016"PRIx64" %016"PRIx64"\r\n", (uint64) (dFrac>>64), (uint64) dFrac);
 # endif
 
     //char buf2 [128] = "";
     //print_int128 (dFrac, buf2);
-    //sim_debug (DBG_CAC, & cpu_dev, "dFrac %s\n", buf2);
+    //sim_debug (DBG_CAC, & cpu_dev, "dFrac %s\r\n", buf2);
 
     //if (dFrac == 0 || zFrac >= dFrac)
     //if (dFrac == 0 || zFrac >= dFrac << 35)
@@ -3038,13 +3038,13 @@ void dvf (cpu_state_t * cpup)
 # if defined(NEED_128)
     uint128 remainder;
     uint128 quot = divide_128 (zFrac, dFrac, & remainder);
-//sim_debug (DBG_TRACEEXT, & cpu_dev, "remainder %016"PRIx64" %016"PRIx64"\n", remainder.h, remainder.l);
-//sim_debug (DBG_TRACEEXT, & cpu_dev, "quot %016"PRIx64" %016"PRIx64"\n", quot.h, quot.l);
+//sim_debug (DBG_TRACEEXT, & cpu_dev, "remainder %016"PRIx64" %016"PRIx64"\r\n", remainder.h, remainder.l);
+//sim_debug (DBG_TRACEEXT, & cpu_dev, "quot %016"PRIx64" %016"PRIx64"\r\n", quot.h, quot.l);
 # else
     uint128 quot = zFrac / dFrac;
     uint128 remainder = zFrac % dFrac;
-//sim_debug (DBG_TRACEEXT, & cpu_dev, "remainder %016"PRIx64" %016"PRIx64"\n", (uint64) (remainder>>64), (uint64) remainder);
-//sim_debug (DBG_TRACEEXT, & cpu_dev, "quot %016"PRIx64" %016"PRIx64"\n", (uint64) (quot>>64), (uint64) quot);
+//sim_debug (DBG_TRACEEXT, & cpu_dev, "remainder %016"PRIx64" %016"PRIx64"\r\n", (uint64) (remainder>>64), (uint64) remainder);
+//sim_debug (DBG_TRACEEXT, & cpu_dev, "quot %016"PRIx64" %016"PRIx64"\r\n", (uint64) (quot>>64), (uint64) quot);
 # endif
 
     // I am surmising that the "If | dividend | >= | divisor |" is an
@@ -3102,7 +3102,7 @@ void dvf (cpu_state_t * cpup)
       }
     //char buf3 [128] = "";
     //print_int128 (remainder, buf3);
-    //sim_debug (DBG_CAC, & cpu_dev, "remainder %s\n", buf3);
+    //sim_debug (DBG_CAC, & cpu_dev, "remainder %s\r\n", buf3);
 
     if (sign == -1)
 # if defined(NEED_128)
@@ -3130,8 +3130,8 @@ void dvf (cpu_state_t * cpup)
 # endif
 #endif
 
-//sim_debug (DBG_CAC, & cpu_dev, "Quotient %"PRId64" (%"PRIo64")\n", cpu . rA, cpu . rA);
-//sim_debug (DBG_CAC, & cpu_dev, "Remainder %"PRId64"\n", cpu . rQ);
+//sim_debug (DBG_CAC, & cpu_dev, "Quotient %"PRId64" (%"PRIo64")\r\n", cpu . rA, cpu . rA);
+//sim_debug (DBG_CAC, & cpu_dev, "Remainder %"PRId64"\r\n", cpu . rQ);
     SC_I_ZERO (cpu . rA == 0 && cpu . rQ == 0);
     SC_I_NEG (cpu . rA & SIGN36);
 // /* if (current_running_cpu_idx) */

@@ -716,7 +716,7 @@ static void sendConsole (int conUnitIdx, word12 stati)
     //ASSURE (csp->io_mode == opc_read_mode);
     if (csp->io_mode != opc_read_mode)
       {
-        sim_warn ("%s called with io_mode != opc_read_mode (%d)\n",
+        sim_warn ("%s called with io_mode != opc_read_mode (%d)\r\n",
                   __func__, csp->io_mode);
         return;
       }
@@ -780,7 +780,7 @@ static void sendConsole (int conUnitIdx, word12 stati)
                         break;
                     if (i >= 64)
                       {
-                        sim_warn ("Character %o does not map to BCD; replacing with '?'\n", c);
+                        sim_warn ("Character %o does not map to BCD; replacing with '?'\r\n", c);
                         i = 017; //-V536
                       }
                     putbits36_6 (bufp, charno * 6, (word6) i);
@@ -803,7 +803,7 @@ static void sendConsole (int conUnitIdx, word12 stati)
           }
         if (csp->readp < csp->tailp)
           {
-            sim_warn ("opc_iom_io: discarding %d characters from end of line\n",
+            sim_warn ("opc_iom_io: discarding %d characters from end of line\r\n",
                       (int) (csp->tailp - csp->readp));
           }
       }
@@ -874,7 +874,7 @@ static void consoleProcessIdx (int conUnitIdx)
 
         if (c < SCPE_KFLAG)
           {
-            sim_printf ("impossible %d %o\n", c, c);
+            sim_printf ("impossible %d %o\r\n", c, c);
             continue; // Should be impossible
           }
 
@@ -1108,7 +1108,7 @@ static void consoleProcessIdx (int conUnitIdx)
           {
             if (csp->tailp >= csp->keyboardLineBuffer + sizeof (csp->keyboardLineBuffer))
              {
-                sim_warn ("getConsoleInput: Buffer full; flushing autoinput.\n");
+                sim_warn ("getConsoleInput: Buffer full; flushing autoinput.\r\n");
                 sendConsole (conUnitIdx, 04000); // Normal status
                 return;
               }
@@ -1190,7 +1190,7 @@ eol:
     // Convert from scp encoding to ASCII
     if (c < SCPE_KFLAG)
       {
-        sim_printf ("impossible %d %o\n", c, c);
+        sim_printf ("impossible %d %o\r\n", c, c);
         return; // Should be impossible
       }
 
@@ -1268,7 +1268,7 @@ eol:
         csp->tailp = csp->keyboardLineBuffer;
         sendConsole (conUnitIdx, 04310); // Null line, status operator
                                          // distracted
-        console_putstr (conUnitIdx,  "CONSOLE: RELEASED\n");
+        console_putstr (conUnitIdx,  "CONSOLE: RELEASED\r\n");
         return;
       }
 
@@ -1333,13 +1333,13 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
 
     switch (p->IDCW_DEV_CMD) {
       case 000: // CMD 00 Request status
-        sim_debug (DBG_DEBUG, & opc_dev, "%s: Status request\n", __func__);
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Status request\r\n", __func__);
         csp->io_mode = opc_no_mode;
         p->stati     = 04000;
         break;
 
       case 003:               // Read BCD
-        sim_debug (DBG_DEBUG, & tape_dev, "%s: Read BCD echoed\n", __func__);
+        sim_debug (DBG_DEBUG, & tape_dev, "%s: Read BCD echoed\r\n", __func__);
         csp->io_mode = opc_read_mode;
         p->recordResidue --;
         csp->echo    = true;
@@ -1348,7 +1348,7 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
         break;
 
       case 013:               // Write BCD
-        sim_debug (DBG_DEBUG, & opc_dev, "%s: Write BCD\n", __func__);
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Write BCD\r\n", __func__);
         p->isRead    = false;
         csp->bcd     = true;
         csp->io_mode = opc_write_mode;
@@ -1357,7 +1357,7 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
         break;
 
       case 023:               // Read ASCII
-        sim_debug (DBG_DEBUG, & tape_dev, "%s: Read ASCII echoed\n", __func__);
+        sim_debug (DBG_DEBUG, & tape_dev, "%s: Read ASCII echoed\r\n", __func__);
         csp->io_mode = opc_read_mode;
         p->recordResidue --;
         csp->echo    = true;
@@ -1366,7 +1366,7 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
         break;
 
       case 033:               // Write ASCII
-        sim_debug (DBG_DEBUG, & opc_dev, "%s: Write ASCII\n", __func__);
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Write ASCII\r\n", __func__);
         p->isRead    = false;
         csp->bcd     = false;
         csp->io_mode = opc_write_mode;
@@ -1384,19 +1384,19 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
 // causing the parser to move to the DCW list.
 
       case 040:               // Reset
-        sim_debug (DBG_DEBUG, & opc_dev, "%s: Reset\n", __func__);
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Reset\r\n", __func__);
         p->stati = 04000;
         // T&D probing
         //if (p->IDCW_DEV_CODE == 077) {
           // T&D uses dev code 77 to test for the console device;
           // it ignores dev code, and so returns OK here.
           //p->stati = 04502; // invalid device code
-          // if (p->IDCW_CHAN_CTRL == 0) { sim_warn ("%s: TERMINATE_BUG\n", __func__); return IOM_CMD_DISCONNECT; }
+          // if (p->IDCW_CHAN_CTRL == 0) { sim_warn ("%s: TERMINATE_BUG\r\n", __func__); return IOM_CMD_DISCONNECT; }
         //}
         break;
 
       case 043:               // Read ASCII unechoed
-        sim_debug (DBG_DEBUG, & tape_dev, "%s: Read ASCII unechoed\n", __func__);
+        sim_debug (DBG_DEBUG, & tape_dev, "%s: Read ASCII unechoed\r\n", __func__);
         csp->io_mode = opc_read_mode;
         p->recordResidue --;
         csp->echo    = false;
@@ -1405,7 +1405,7 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
         break;
 
       case 051:               // Write Alert -- Ring Bell
-        sim_debug (DBG_DEBUG, & opc_dev, "%s: Alert\n", __func__);
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Alert\r\n", __func__);
         p->isRead = false;
         console_putstr ((int) con_unit_idx,  "CONSOLE: ALERT\r\n");
         console_putchar ((int) con_unit_idx, '\a');
@@ -1421,7 +1421,7 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
         //[CAC] Looking at the bootload console code, it seems more
         // concerned about the device responding, rather than the actual
         // returned value. Make some thing up.
-        sim_debug (DBG_DEBUG, & opc_dev, "%s: Read ID\n", __func__);
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Read ID\r\n", __func__);
         p->stati = 04500;
         if (csp->model == m6001 && p->isPCW) {
           rc = IOM_CMD_DISCONNECT;
@@ -1430,19 +1430,19 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
         break;
 
       case 060:               // LOCK MCA
-        sim_debug (DBG_DEBUG, & opc_dev, "%s: Lock\n", __func__);
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Lock\r\n", __func__);
         console_putstr ((int) con_unit_idx,  "CONSOLE: LOCK\r\n");
         p->stati = 04000;
         break;
 
       case 063:               // UNLOCK MCA
-        sim_debug (DBG_DEBUG, & opc_dev, "%s: Unlock\n", __func__);
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Unlock\r\n", __func__);
         console_putstr ((int) con_unit_idx,  "CONSOLE: UNLOCK\r\n");
         p->stati = 04000;
         break;
 
       default:
-        sim_debug (DBG_DEBUG, & opc_dev, "%s: Unknown command 0%o\n", __func__, p->IDCW_DEV_CMD);
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Unknown command 0%o\r\n", __func__, p->IDCW_DEV_CMD);
         p->stati = 04501; // command reject, invalid instruction code
         rc = IOM_CMD_ERROR;
         goto done;
@@ -1453,13 +1453,13 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
   // Not IDCW; TDCW are captured in IOM, so must be IOTD or IOTP
   switch (csp->io_mode) {
     case opc_no_mode:
-      sim_warn ("%s: Unexpected IOTx\n", __func__);
+      sim_warn ("%s: Unexpected IOTx\r\n", __func__);
       rc = IOM_CMD_ERROR;
       goto done;
 
     case opc_read_mode: {
         if (csp->tailp != csp->keyboardLineBuffer) {
-          sim_warn ("%s: Discarding previously buffered input.\n", __func__);
+          sim_warn ("%s: Discarding previously buffered input.\r\n", __func__);
         }
         uint tally = p->DDCW_TALLY;
         uint daddr = p->DDCW_ADDR;
@@ -1675,7 +1675,7 @@ static t_stat opc_svc (UNIT * unitp)
 static t_stat opc_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr,
                                  UNUSED int val, UNUSED const void * desc)
   {
-    sim_print ("%d units\n", opc_dev.numunits);
+    sim_print ("%d units\r\n", opc_dev.numunits);
     return SCPE_OK;
   }
 
@@ -1764,7 +1764,7 @@ static t_stat opc_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
             continue;
           }
 
-        sim_warn ("error: opc_set_config: Invalid cfg_parse rc <%d>\n",
+        sim_warn ("error: opc_set_config: Invalid cfg_parse rc <%d>\r\n",
                   rc);
         cfg_parse_done (& cfg_state);
         return SCPE_ARG;
@@ -1912,7 +1912,7 @@ static t_stat opc_set_console_pw (UNIT * uptr, UNUSED int32 value,
       }
     else
       {
-        sim_msg ("no password\n");
+        sim_msg ("no password\r\n");
         console_state[dev_idx].console_access.pw[0] = 0;
       }
 

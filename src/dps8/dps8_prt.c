@@ -462,7 +462,7 @@ static int openPrtFile (int prt_unit_num, word36 * buffer, uint tally)
     prt_state[prt_unit_num].prtfile = utfile_mkstemps (template, 4);
     if (prt_state[prt_unit_num].prtfile == -1)
       {
-        sim_warn ("Unable to open printer file '%s', errno %d\n", template, errno);
+        sim_warn ("Unable to open printer file '%s', errno %d\r\n", template, errno);
         return -1;
       }
     if (prt_state[prt_unit_num].cachedFF)
@@ -531,21 +531,21 @@ static int prt_read_status_register (uint dev_unit_idx, uint iom_unit_idx, uint 
     int rc = iom_list_service (iom_unit_idx, chan, & ptro, & send, & uff);
     if (rc < 0)
       {
-        sim_printf ("%s readStatusRegister list service failed\n", __func__);
+        sim_printf ("%s readStatusRegister list service failed\r\n", __func__);
         return -1;
       }
     if (uff)
       {
-        sim_printf ("%s ignoring uff\n", __func__); // XXX
+        sim_printf ("%s ignoring uff\r\n", __func__); // XXX
       }
     if (! send)
       {
-        sim_printf ("%s nothing to send\n", __func__);
+        sim_printf ("%s nothing to send\r\n", __func__);
         return 1;
       }
     if (p -> DCW_18_20_CP == 07 || p -> DDCW_22_23_TYPE == 2)
       {
-        sim_printf ("%s expected DDCW\n", __func__);
+        sim_printf ("%s expected DDCW\r\n", __func__);
         return -1;
       }
 
@@ -554,13 +554,13 @@ static int prt_read_status_register (uint dev_unit_idx, uint iom_unit_idx, uint 
     if (tally != 4)
       {
         sim_debug (DBG_ERR, &prt_dev,
-                   "%s: expected tally of 4, is %d\n",
+                   "%s: expected tally of 4, is %d\r\n",
                    __func__, tally);
       }
     if (tally == 0)
       {
         sim_debug (DBG_DEBUG, & prt_dev,
-                   "%s: Tally of zero interpreted as 010000(4096)\n",
+                   "%s: Tally of zero interpreted as 010000(4096)\r\n",
                    __func__);
         tally = 4096;
       }
@@ -569,7 +569,7 @@ static int prt_read_status_register (uint dev_unit_idx, uint iom_unit_idx, uint 
 // system_library_tools/source/bound_io_tools_.s.archive/analyze_detail_stat_.pl1  anal_fips_disk_().
 
 # if defined(TESTING)
-    sim_warn ("Need status register data format; tally %d\n", tally);
+    sim_warn ("Need status register data format; tally %d\r\n", tally);
 # endif /* if defined(TESTING) */
 # if 1
     word36 buffer[tally];
@@ -683,7 +683,7 @@ static int print_buf (int prt_unit_num, bool isBCD, bool is_edited, int slew, wo
       }
 
 #if 0
-sim_printf ("%s %s %d %u\n", isBCD ? "BCD" : "ASCII", is_edited ? "edited" : "nonedited", slew, tally);
+sim_printf ("%s %s %d %u\r\n", isBCD ? "BCD" : "ASCII", is_edited ? "edited" : "nonedited", slew, tally);
 for (uint i = 0; i < tally; i ++)
   {
     sim_printf ("%012llo \"", buffer[i]);
@@ -707,7 +707,7 @@ for (uint i = 0; i < tally; i ++)
         uint8_t ch = (uint8_t) bcd[(buffer[i] >> ((5 - j) * 6)) & 0077];
         sim_printf ("%c", isprint (ch) ? ch : '?');
       }
-    sim_printf ("'\n");
+    sim_printf ("'\r\n");
    }
 #endif
 
@@ -829,7 +829,7 @@ for (uint i = 0; i < tally; i ++)
 #if defined(TESTING)
                         else
                           {
-                            sim_warn ("Printer BCD edited ESC %u. %o ignored\n", n, n);
+                            sim_warn ("Printer BCD edited ESC %u. %o ignored\r\n", n, n);
                           }
 #endif /* if defined(TESTING) */
                       }
@@ -972,7 +972,7 @@ static int readStatusRegister (uint iom_unit_idx, uint chan)
 
     if (tally != 4)
       {
-        sim_warn ("%s: expected tally of 4, is %d\n", __func__, tally);
+        sim_warn ("%s: expected tally of 4, is %d\r\n", __func__, tally);
       }
     if (tally == 0)
       {
@@ -1042,29 +1042,29 @@ static iom_cmd_rc_t print_cmd (uint iom_unit_idx, uint chan, int prt_unit_num, b
         if (rc2 < 0)
           {
             p -> stati = 05001; // BUG: arbitrary error code; config switch
-            sim_printf ("%s list service failed\n", __func__);
+            sim_printf ("%s list service failed\r\n", __func__);
             return IOM_CMD_ERROR;
           }
         if (uff)
           {
-            sim_printf ("%s ignoring uff\n", __func__); // XXX
+            sim_printf ("%s ignoring uff\r\n", __func__); // XXX
           }
         if (! send)
           {
-            sim_printf ("%s nothing to send\n", __func__);
+            sim_printf ("%s nothing to send\r\n", __func__);
             p -> stati = 05001; // BUG: arbitrary error code; config switch
             return IOM_CMD_ERROR;
           }
         if (IS_IDCW (p) || IS_TDCW (p))
           {
-            sim_printf ("%s expected DDCW\n", __func__);
+            sim_printf ("%s expected DDCW\r\n", __func__);
             p -> stati = 05001; // BUG: arbitrary error code; config switch
             return IOM_CMD_ERROR;
           }
 #endif
         uint tally = p -> DDCW_TALLY;
         sim_debug (DBG_DEBUG, & prt_dev,
-                   "%s: Tally %d (%o)\n", __func__, tally, tally);
+                   "%s: Tally %d (%o)\r\n", __func__, tally, tally);
 
         if (tally == 0)
           tally = 4096;
@@ -1093,7 +1093,7 @@ sim_printf ("\r\n");
         else
           sim_printf ("\\%03o", ch);
       }
-        sim_printf (">\n");
+        sim_printf (">\r\n");
 #endif
         int rc = print_buf (prt_unit_num, isBCD, is_edited, slew, buffer, tally);
         if (rc == -1) // Can't open print file
@@ -1141,12 +1141,12 @@ iom_cmd_rc_t prt_cmd_202 (uint iomUnitIdx, uint chan) {
 
     switch (p->IDCW_DEV_CMD) {
       case 000: // CMD 00 Request status
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Request Status\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Request Status\r\n", __func__);
         p->stati = 04000;
         break;
 
       case 010: // CMD 010 -- print nonedited BCD, slew one line
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Nonedited BCD, Slew One Line\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Nonedited BCD, Slew One Line\r\n", __func__);
         statep->ioMode     = prtPrt;
         statep->prtUnitNum = prt_unit_num;
         statep->isBCD      = true;
@@ -1156,7 +1156,7 @@ iom_cmd_rc_t prt_cmd_202 (uint iomUnitIdx, uint chan) {
         break;
 
       case 030: // CMD 030 -- print edited BCD, slew zero lines
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Edited BCD, Slew Zero Lines\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Edited BCD, Slew Zero Lines\r\n", __func__);
         statep->ioMode     = prtPrt;
         statep->prtUnitNum = prt_unit_num;
         statep->isBCD      = true;
@@ -1166,7 +1166,7 @@ iom_cmd_rc_t prt_cmd_202 (uint iomUnitIdx, uint chan) {
         break;
 
       case 040: // CMD 40 Reset status
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Reset Status\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Reset Status\r\n", __func__);
         p->stati  = 04000;
         p->isRead = false;
         break;
@@ -1175,19 +1175,19 @@ iom_cmd_rc_t prt_cmd_202 (uint iomUnitIdx, uint chan) {
         p->stati      = 04501; // cmd reject, invalid opcode
         p->chanStatus = chanStatIncorrectDCW;
         if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
-          sim_warn ("%s: PRT unrecognized device command %02o\n", __func__, p->IDCW_DEV_CMD);
+          sim_warn ("%s: PRT unrecognized device command %02o\r\n", __func__, p->IDCW_DEV_CMD);
         return IOM_CMD_ERROR;
     } // switch IDCW_DEV_CMND
 
-    sim_debug (DBG_DEBUG, & prt_dev, "%s: stati %04o\n", __func__, p->stati);
+    sim_debug (DBG_DEBUG, & prt_dev, "%s: stati %04o\r\n", __func__, p->stati);
     return IOM_CMD_PROCEED;
   } // if IDCW
 
   // Not IDCW; TDCW are captured in IOM, so must be IOTD, IOTP or IOTNP
   switch (statep->ioMode) {
     case prtNoMode:
-      //sim_printf ("%s: Unexpected IOTx\n", __func__);
-      //sim_warn ("%s: Unexpected IOTx\n", __func__);
+      //sim_printf ("%s: Unexpected IOTx\r\n", __func__);
+      //sim_warn ("%s: Unexpected IOTx\r\n", __func__);
       //return IOM_CMD_ERROR;
       break;
 
@@ -1200,7 +1200,7 @@ iom_cmd_rc_t prt_cmd_202 (uint iomUnitIdx, uint chan) {
       break;
 
     default:
-      sim_warn ("%s: Unrecognized ioMode %d\n", __func__, statep->ioMode);
+      sim_warn ("%s: Unrecognized ioMode %d\r\n", __func__, statep->ioMode);
       return IOM_CMD_ERROR;
   }
 
@@ -1225,12 +1225,12 @@ iom_cmd_rc_t prt_cmd_300 (uint iomUnitIdx, uint chan) {
 
     switch (p->IDCW_DEV_CMD) {
       case 000: // CMD 00 Request status
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Request Status\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Request Status\r\n", __func__);
         p->stati = 04000;
         break;
 
       case 011: // CMD 011 -- print nonedited ASCII, slew one line
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Nonedited ASCII, Slew One Line\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Nonedited ASCII, Slew One Line\r\n", __func__);
         statep->ioMode     = prtPrt;
         statep->prtUnitNum = prt_unit_num;
         statep->isBCD      = false;
@@ -1240,13 +1240,13 @@ iom_cmd_rc_t prt_cmd_300 (uint iomUnitIdx, uint chan) {
         break;
 
       case 014: // CMD 014 -- Load Image Buffer
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Load Image Buffer\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Load Image Buffer\r\n", __func__);
         statep->ioMode = prtLdImgBuf;
         p->stati       = 04000;
         break;
 
       case 030: // CMD 030 -- print edited ASCII, slew zero lines
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Edited ASCII, Slew Zero Lines\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Edited ASCII, Slew Zero Lines\r\n", __func__);
         statep->ioMode     = prtPrt;
         statep->prtUnitNum = prt_unit_num;
         statep->isBCD      = false;
@@ -1256,7 +1256,7 @@ iom_cmd_rc_t prt_cmd_300 (uint iomUnitIdx, uint chan) {
         break;
 
       case 040: // CMD 40 Reset status
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Reset Status\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Reset Status\r\n", __func__);
         p->stati  = 04000;
         p->isRead = false;
         break;
@@ -1265,19 +1265,19 @@ iom_cmd_rc_t prt_cmd_300 (uint iomUnitIdx, uint chan) {
         p->stati      = 04501; // cmd reject, invalid opcode
         p->chanStatus = chanStatIncorrectDCW;
         if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
-          sim_warn ("%s: PRT unrecognized device command %02o\n", __func__, p->IDCW_DEV_CMD);
+          sim_warn ("%s: PRT unrecognized device command %02o\r\n", __func__, p->IDCW_DEV_CMD);
         return IOM_CMD_ERROR;
     } // switch IDCW_DEV_CMND
 
-    sim_debug (DBG_DEBUG, & prt_dev, "%s: stati %04o\n", __func__, p->stati);
+    sim_debug (DBG_DEBUG, & prt_dev, "%s: stati %04o\r\n", __func__, p->stati);
     return IOM_CMD_PROCEED;
   } // if IDCW
 
   // Not IDCW; TDCW are captured in IOM, so must be IOTD, IOTP or IOTNP
   switch (statep->ioMode) {
     case prtNoMode:
-      //sim_printf ("%s: Unexpected IOTx\n", __func__);
-      //sim_warn ("%s: Unexpected IOTx\n", __func__);
+      //sim_printf ("%s: Unexpected IOTx\r\n", __func__);
+      //sim_warn ("%s: Unexpected IOTx\r\n", __func__);
       //return IOM_CMD_ERROR;
       break;
 
@@ -1297,7 +1297,7 @@ iom_cmd_rc_t prt_cmd_300 (uint iomUnitIdx, uint chan) {
       break;
 
     default:
-      sim_warn ("%s: Unrecognized ioMode %d\n", __func__, statep->ioMode);
+      sim_warn ("%s: Unrecognized ioMode %d\r\n", __func__, statep->ioMode);
       return IOM_CMD_ERROR;
   }
   return IOM_CMD_PROCEED;
@@ -1321,18 +1321,18 @@ iom_cmd_rc_t prt_cmd_300a (uint iomUnitIdx, uint chan) {
 
     switch (p->IDCW_DEV_CMD) {
       case 000: // CMD 00 Request status
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Request Status\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Request Status\r\n", __func__);
         p->stati = 04000;
         break;
 
       case 001: // CMD 001 -- Load Image Buffer
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Load Image Buffer\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Load Image Buffer\r\n", __func__);
         statep->ioMode = prtLdImgBuf;
         p->stati       = 04000;
         break;
 
       case 015: // CMD 015 -- print nonedited ASCII, slew one line
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Nonedited ASCII, Slew One Line\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Nonedited ASCII, Slew One Line\r\n", __func__);
         statep->ioMode     = prtPrt;
         statep->prtUnitNum = prt_unit_num;
         statep->isBCD      = false;
@@ -1342,7 +1342,7 @@ iom_cmd_rc_t prt_cmd_300a (uint iomUnitIdx, uint chan) {
         break;
 
       case 034: // CMD 034 -- print edited ASCII, slew zero lines
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Edited ASCII, Slew Zero Lines\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Edited ASCII, Slew Zero Lines\r\n", __func__);
         statep->ioMode     = prtPrt;
         statep->prtUnitNum = prt_unit_num;
         statep->isBCD      = false;
@@ -1352,7 +1352,7 @@ iom_cmd_rc_t prt_cmd_300a (uint iomUnitIdx, uint chan) {
         break;
 
       case 040: // CMD 40 Reset status
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Reset Status\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Reset Status\r\n", __func__);
         p->stati  = 04000;
         p->isRead = false;
         break;
@@ -1361,19 +1361,19 @@ iom_cmd_rc_t prt_cmd_300a (uint iomUnitIdx, uint chan) {
         p->stati      = 04501; // cmd reject, invalid opcode
         p->chanStatus = chanStatIncorrectDCW;
         if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
-          sim_warn ("%s: PRT unrecognized device command %02o\n", __func__, p->IDCW_DEV_CMD);
+          sim_warn ("%s: PRT unrecognized device command %02o\r\n", __func__, p->IDCW_DEV_CMD);
         return IOM_CMD_ERROR;
     } // switch IDCW_DEV_CMND
 
-    sim_debug (DBG_DEBUG, & prt_dev, "%s: stati %04o\n", __func__, p->stati);
+    sim_debug (DBG_DEBUG, & prt_dev, "%s: stati %04o\r\n", __func__, p->stati);
     return IOM_CMD_PROCEED;
   } // if IDCW
 
   // Not IDCW; TDCW are captured in IOM, so must be IOTD, IOTP or IOTNP
   switch (statep->ioMode) {
     case prtNoMode:
-      //sim_printf ("%s: Unexpected IOTx\n", __func__);
-      //sim_warn ("%s: Unexpected IOTx\n", __func__);
+      //sim_printf ("%s: Unexpected IOTx\r\n", __func__);
+      //sim_warn ("%s: Unexpected IOTx\r\n", __func__);
       //return IOM_CMD_ERROR;
       break;
 
@@ -1393,7 +1393,7 @@ iom_cmd_rc_t prt_cmd_300a (uint iomUnitIdx, uint chan) {
       break;
 
     default:
-      sim_warn ("%s: Unrecognized ioMode %d\n", __func__, statep->ioMode);
+      sim_warn ("%s: Unrecognized ioMode %d\r\n", __func__, statep->ioMode);
       return IOM_CMD_ERROR;
   }
   return IOM_CMD_PROCEED;
@@ -1417,18 +1417,18 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
 
     switch (p->IDCW_DEV_CMD) {
       case 000: // CMD 00 Request status
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Request Status\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Request Status\r\n", __func__);
         p->stati = 04000;
         break;
 
       case 001: // CMD 001 -- Load Image Buffer
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Load Image Buffer\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Load Image Buffer\r\n", __func__);
         statep->ioMode = prtLdImgBuf;
         p->stati       = 04000;
         break;
 
       case 003: // CMD 003 -- Read Status
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Load Image Buffer\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Load Image Buffer\r\n", __func__);
         statep->ioMode = prtRdStatReg;
         p->stati       = 04000;
         break;
@@ -1458,13 +1458,13 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
       //      bit (9) static options (constant);
 
       case 005: // CMD 005 -- Load VFC image
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Load VFC Image\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Load VFC Image\r\n", __func__);
         statep->ioMode = prtLdVFCImg;
         p->stati       = 04000;
         break;
 
       case 010: // CMD 010 -- print nonedited BCD, slew zero lines
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Nonedited BCD, Slew Zero Lines\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Nonedited BCD, Slew Zero Lines\r\n", __func__);
         statep->ioMode     = prtPrt;
         statep->prtUnitNum = prt_unit_num;
         statep->isBCD      = true;
@@ -1474,7 +1474,7 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
         break;
 
       case 011: // CMD 011 -- print nonedited BCD, slew one line
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Nonedited BCD, Slew One Line\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Nonedited BCD, Slew One Line\r\n", __func__);
         statep->ioMode     = prtPrt;
         statep->prtUnitNum = prt_unit_num;
         statep->isBCD      = true;
@@ -1484,7 +1484,7 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
         break;
 
       case 012: // CMD 012 -- print nonedited BCD, slew two lines
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Nonedited BCD, Slew Two Lines\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Nonedited BCD, Slew Two Lines\r\n", __func__);
         statep->ioMode     = prtPrt;
         statep->prtUnitNum = prt_unit_num;
         statep->isBCD      = true;
@@ -1494,7 +1494,7 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
         break;
 
       case 013: // CMD 013 -- print nonedited BCD, slew top of page
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Nonedited BCD, Slew Top Of Page\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Nonedited BCD, Slew Top Of Page\r\n", __func__);
         statep->ioMode     = prtPrt;
         statep->prtUnitNum = prt_unit_num;
         statep->isBCD      = true;
@@ -1504,7 +1504,7 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
         break;
 
       case 014: // CMD 014 -- print nonedited ASCII, slew zero lines
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Nonedited ASCII, Slew Zero Lines\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Nonedited ASCII, Slew Zero Lines\r\n", __func__);
         statep->ioMode     = prtPrt;
         statep->prtUnitNum = prt_unit_num;
         statep->isBCD      = false;
@@ -1514,7 +1514,7 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
         break;
 
       case 015: // CMD 015 -- print nonedited ASCII, slew one line
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Nonedited ASCII, Slew One Line\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Nonedited ASCII, Slew One Line\r\n", __func__);
         statep->ioMode     = prtPrt;
         statep->prtUnitNum = prt_unit_num;
         statep->isBCD      = false;
@@ -1524,7 +1524,7 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
         break;
 
       case 016: // CMD 016 -- print nonedited ASCII, slew two lines
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Nonedited ASCII, Slew Two Lines\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Nonedited ASCII, Slew Two Lines\r\n", __func__);
         statep->ioMode     = prtPrt;
         statep->prtUnitNum = prt_unit_num;
         statep->isBCD      = false;
@@ -1534,7 +1534,7 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
         break;
 
       case 017: // CMD 017 -- print nonedited ASCII, slew top of page
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Nonedited ASCII, Slew Top Of Page\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Nonedited ASCII, Slew Top Of Page\r\n", __func__);
         statep->ioMode     = prtPrt;
         statep->prtUnitNum = prt_unit_num;
         statep->isBCD      = false;
@@ -1544,7 +1544,7 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
         break;
 
       case 030: // CMD 030 -- print edited BCD, slew zero lines
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Edited BCD, Slew Zero Lines\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Edited BCD, Slew Zero Lines\r\n", __func__);
         statep->ioMode     = prtPrt;
         statep->prtUnitNum = prt_unit_num;
         statep->isBCD      = true;
@@ -1554,7 +1554,7 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
         break;
 
       case 031: // CMD 031 -- print edited BCD, slew one line
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Edited BCD, Slew One Line\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Edited BCD, Slew One Line\r\n", __func__);
         statep->ioMode     = prtPrt;
         statep->prtUnitNum = prt_unit_num;
         statep->isBCD      = true;
@@ -1564,7 +1564,7 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
         break;
 
       case 032: // CMD 032 -- print edited BCD, slew two lines
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Edited BCD, Slew Two Lines\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Edited BCD, Slew Two Lines\r\n", __func__);
         statep->ioMode     = prtPrt;
         statep->prtUnitNum = prt_unit_num;
         statep->isBCD      = true;
@@ -1574,7 +1574,7 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
         break;
 
       case 033: // CMD 033 -- print edited BCD, slew top of page
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Edited BCD, Slew Top Of Page\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Edited BCD, Slew Top Of Page\r\n", __func__);
         statep->ioMode     = prtPrt;
         statep->prtUnitNum = prt_unit_num;
         statep->isBCD      = true;
@@ -1584,7 +1584,7 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
         break;
 
       case 034: // CMD 034 -- print edited ASCII, slew zero lines
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Edited ASCII, Slew Zero Lines\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Edited ASCII, Slew Zero Lines\r\n", __func__);
         statep->ioMode     = prtPrt;
         statep->prtUnitNum = prt_unit_num;
         statep->isBCD      = false;
@@ -1594,7 +1594,7 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
         break;
 
       case 035: // CMD 035 -- print edited ASCII, slew one line
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Edited ASCII, Slew One Line\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Edited ASCII, Slew One Line\r\n", __func__);
         statep->ioMode     = prtPrt;
         statep->prtUnitNum = prt_unit_num;
         statep->isBCD      = false;
@@ -1604,7 +1604,7 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
         break;
 
       case 036: // CMD 036 -- print edited ASCII, slew two lines
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Edited ASCII, Slew Two Lines\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Edited ASCII, Slew Two Lines\r\n", __func__);
         statep->ioMode     = prtPrt;
         statep->prtUnitNum = prt_unit_num;
         statep->isBCD      = false;
@@ -1614,7 +1614,7 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
         break;
 
       case 037: // CMD 037 -- print edited ASCII, slew top of page
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Edited ASCII, Slew Top Of Page\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Print Edited ASCII, Slew Top Of Page\r\n", __func__);
         statep->ioMode     = prtPrt;
         statep->prtUnitNum = prt_unit_num;
         statep->isBCD      = false;
@@ -1624,13 +1624,13 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
         break;
 
       case 040: // CMD 40 Reset status
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Reset Status\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Reset Status\r\n", __func__);
         p->stati  = 04000;
         p->isRead = false;
         break;
 
       case 061:  { // CMD 61 Slew one line
-          sim_debug (DBG_DEBUG, & prt_dev, "%s: Slew One Line\n", __func__);
+          sim_debug (DBG_DEBUG, & prt_dev, "%s: Slew One Line\r\n", __func__);
           int rc = print_buf (prt_unit_num, false, false, 1, NULL, 0);
           if (rc == -1) { // Can't open print file
             p->stati = 04201; // Out of paper
@@ -1646,7 +1646,7 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
         break;
 
       case 062: { // CMD 62 Slew two lines
-          sim_debug (DBG_DEBUG, & prt_dev, "%s: Slew Two Lines\n", __func__);
+          sim_debug (DBG_DEBUG, & prt_dev, "%s: Slew Two Lines\r\n", __func__);
           int rc = print_buf (prt_unit_num, false, false, 2, NULL, 0);
           if (rc == -1) { // Can't open print file
             p->stati = 04201; // Out of paper
@@ -1662,7 +1662,7 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
         break;
 
       case 063: { // CMD 63 Slew to top of page
-          sim_debug (DBG_DEBUG, & prt_dev, "%s: Slew To Top Of Page\n", __func__);
+          sim_debug (DBG_DEBUG, & prt_dev, "%s: Slew To Top Of Page\r\n", __func__);
           int rc = print_buf (prt_unit_num, false, false, -1, NULL, 0);
           if (rc == -1) { // Can't open print file
             p->stati = 04201; // Out of paper
@@ -1678,13 +1678,13 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
         break;
 
       case 066: // CMD 66 Reserve device
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Reserve Device\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Reserve Device\r\n", __func__);
         p->stati  = 04000;
         p->isRead = false;
         break;
 
       case 067: // CMD 67 Release device
-        sim_debug (DBG_DEBUG, & prt_dev, "%s: Release Device\n", __func__);
+        sim_debug (DBG_DEBUG, & prt_dev, "%s: Release Device\r\n", __func__);
         p->stati  = 04000;
         p->isRead = false;
         break;
@@ -1693,19 +1693,19 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
         p->stati      = 04501; // cmd reject, invalid opcode
         p->chanStatus = chanStatIncorrectDCW;
         if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
-        sim_warn ("%s: PRT unrecognized device command %02o\n", __func__, p->IDCW_DEV_CMD);
+        sim_warn ("%s: PRT unrecognized device command %02o\r\n", __func__, p->IDCW_DEV_CMD);
         return IOM_CMD_ERROR;
     } // switch IDCW_DEV_CMND
 
-    sim_debug (DBG_DEBUG, & prt_dev, "%s: stati %04o\n", __func__, p->stati);
+    sim_debug (DBG_DEBUG, & prt_dev, "%s: stati %04o\r\n", __func__, p->stati);
     return IOM_CMD_PROCEED;
   } // if IDCW
 
   // Not IDCW; TDCW are captured in IOM, so must be IOTD, IOTP or IOTNP
   switch (statep->ioMode) {
     case prtNoMode:
-      //sim_printf ("%s: Unexpected IOTx\n", __func__);
-      //sim_warn ("%s: Unexpected IOTx\n", __func__);
+      //sim_printf ("%s: Unexpected IOTx\r\n", __func__);
+      //sim_warn ("%s: Unexpected IOTx\r\n", __func__);
       //return IOM_CMD_ERROR;
       break;
 
@@ -1739,7 +1739,7 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
       break;
 
     default:
-      sim_warn ("%s: Unrecognized ioMode %d\n", __func__, statep->ioMode);
+      sim_warn ("%s: Unrecognized ioMode %d\r\n", __func__, statep->ioMode);
       return IOM_CMD_ERROR;
   }
   return IOM_CMD_PROCEED;
@@ -1773,7 +1773,7 @@ iom_cmd_rc_t prt_iom_cmd (uint iomUnitIdx, uint chan) {
 static t_stat prt_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int val,
                                UNUSED const void * desc)
   {
-    sim_printf("Number of PRT units in system is %d\n", prt_dev.numunits);
+    sim_printf("Number of PRT units in system is %d\r\n", prt_dev.numunits);
     return SCPE_OK;
   }
 
@@ -1815,10 +1815,10 @@ static t_stat prt_set_device_model (UNUSED UNIT * uptr, UNUSED int32 value,
                  return SCPE_OK;
                }
             }
-        sim_printf ("Model '%s' not known (202 300 301 302 303 304 401 402 901 1000 1200 1201 1600)\n", cptr);
+        sim_printf ("Model '%s' not known (202 300 301 302 303 304 401 402 901 1000 1200 1201 1600)\r\n", cptr);
         return SCPE_ARG;
       }
-    sim_printf ("Specify model from 202 300 301 302 303 304 401 402 901 1000 1200 1201 1600\n");
+    sim_printf ("Specify model from 202 300 301 302 303 304 401 402 901 1000 1200 1201 1600\r\n");
     return SCPE_ARG;
   }
 
@@ -1855,25 +1855,25 @@ static t_stat prt_show_path (UNUSED FILE * st, UNUSED UNUSED UNIT * uptr,
   {
     if (prt_path[1] != '\0')
       {
-        sim_printf("Path to PRT files is %s\n", prt_path);
+        sim_printf("Path to PRT files is %s\r\n", prt_path);
       }
     else
       {
         char cwd_path[PATH_MAX+1];
         if (getcwd(cwd_path, sizeof(cwd_path)) != NULL)
           {
-            sim_printf("Path to PRT files is %s\n", cwd_path);
+            sim_printf("Path to PRT files is %s\r\n", cwd_path);
           }
         else
           {
             if (errno)
               {
-                sim_printf("Path to PRT files is unavailable (%s)\n",
+                sim_printf("Path to PRT files is unavailable (%s)\r\n",
                            xstrerror_l(errno));
               }
             else
               {
-                sim_printf("Path to PRT files is undefined\n");
+                sim_printf("Path to PRT files is undefined\r\n");
               }
           }
       }
@@ -1917,11 +1917,11 @@ t_stat burst_printer (UNUSED int32 arg, const char * buf)
                 prt_state[i].prtfile = -1;
                 return SCPE_OK;
               }
-            sim_printf ("burst sees nothing to burst\n");
+            sim_printf ("burst sees nothing to burst\r\n");
             return SCPE_OK;
           }
       }
-    sim_printf ("burst can't find printer named '%s'\n", buf);
+    sim_printf ("burst can't find printer named '%s'\r\n", buf);
     return SCPE_ARG;
   }
 
@@ -1948,7 +1948,7 @@ static t_stat signal_prt_ready (uint prt_unit_idx) {
       }
     if (! sent_one)
       {
-        sim_printf ("signal_prt_ready can't find controller; dropping interrupt\n");
+        sim_printf ("signal_prt_ready can't find controller; dropping interrupt\r\n");
         return SCPE_ARG;
       }
     return SCPE_OK;
@@ -1980,8 +1980,8 @@ static t_stat prt_set_ready (UNIT * uptr, UNUSED int32 value,
     if (n < 0 || n >= N_PRT_UNITS_MAX)
       {
         sim_debug (DBG_ERR, & prt_dev,
-                   "Printer set ready: Invalid unit number %ld\n", (long) n);
-        sim_printf ("error: Invalid unit number %ld\n", (long) n);
+                   "Printer set ready: Invalid unit number %ld\r\n", (long) n);
+        sim_printf ("error: Invalid unit number %ld\r\n", (long) n);
         return SCPE_ARG;
       }
     return signal_prt_ready ((uint) n);
@@ -2031,7 +2031,7 @@ static t_stat prt_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
             continue;
           }
 
-        sim_warn ("error: prt_set_config: Invalid cfg_parse rc <%ld>\n",
+        sim_warn ("error: prt_set_config: Invalid cfg_parse rc <%ld>\r\n",
                   (long) rc);
         cfg_parse_done (& cfg_state);
         return SCPE_ARG;

@@ -19,15 +19,15 @@
 #define thisCycle ABSA_CYCLE
 word24 doAppendCycleABSA (cpu_state_t * cpup, word36 * data, uint nWords) {
   DCDstruct * i = & cpu.currentInstruction;
-  DBGAPP ("doAppendCycleABSA(Entry) thisCycle=ABSA_CYCLE\n");
-  DBGAPP ("doAppendCycleABSA(Entry) lastCycle=%s\n", str_pct (cpu.apu.lastCycle));
-  DBGAPP ("doAppendCycleABSA(Entry) CA %06o\n", cpu.TPR.CA);
-  DBGAPP ("doAppendCycleABSA(Entry) n=%2u\n", nWords);
-  DBGAPP ("doAppendCycleABSA(Entry) PPR.PRR=%o PPR.PSR=%05o\n", cpu.PPR.PRR, cpu.PPR.PSR);
-  DBGAPP ("doAppendCycleABSA(Entry) TPR.TRR=%o TPR.TSR=%05o\n", cpu.TPR.TRR, cpu.TPR.TSR);
+  DBGAPP ("doAppendCycleABSA(Entry) thisCycle=ABSA_CYCLE\r\n");
+  DBGAPP ("doAppendCycleABSA(Entry) lastCycle=%s\r\n", str_pct (cpu.apu.lastCycle));
+  DBGAPP ("doAppendCycleABSA(Entry) CA %06o\r\n", cpu.TPR.CA);
+  DBGAPP ("doAppendCycleABSA(Entry) n=%2u\r\n", nWords);
+  DBGAPP ("doAppendCycleABSA(Entry) PPR.PRR=%o PPR.PSR=%05o\r\n", cpu.PPR.PRR, cpu.PPR.PSR);
+  DBGAPP ("doAppendCycleABSA(Entry) TPR.TRR=%o TPR.TSR=%05o\r\n", cpu.TPR.TRR, cpu.TPR.TSR);
 
   if (i->b29) {
-    DBGAPP ("doAppendCycleABSA(Entry) isb29 PRNO %o\n", GET_PRN (IWB_IRODD));
+    DBGAPP ("doAppendCycleABSA(Entry) isb29 PRNO %o\r\n", GET_PRN (IWB_IRODD));
   }
 
   bool nomatch = true;
@@ -47,7 +47,7 @@ word24 doAppendCycleABSA (cpu_state_t * cpup, word36 * data, uint nWords) {
   processor_cycle_type lastCycle = cpu.apu.lastCycle;
   cpu.apu.lastCycle = ABSA_CYCLE;
 
-  DBGAPP ("doAppendCycleABSA(Entry) XSF %o\n", cpu.cu.XSF);
+  DBGAPP ("doAppendCycleABSA(Entry) XSF %o\r\n", cpu.cu.XSF);
 
   PNL (L68_ (cpu.apu.state = 0;))
 
@@ -68,14 +68,14 @@ word24 doAppendCycleABSA (cpu_state_t * cpup, word36 * data, uint nWords) {
 
   PNL (cpu.APUMemAddr = cpu.TPR.CA;)
 
-  DBGAPP ("doAppendCycleABSA(A)\n");
+  DBGAPP ("doAppendCycleABSA(A)\r\n");
 
   // is SDW for C(TPR.TSR) in SDWAM?
   if (nomatch || ! fetch_sdw_from_sdwam (cpup, cpu.TPR.TSR)) {
     // No
-    DBGAPP ("doAppendCycleABSA(A):SDW for segment %05o not in SDWAM\n", cpu.TPR.TSR);
+    DBGAPP ("doAppendCycleABSA(A):SDW for segment %05o not in SDWAM\r\n", cpu.TPR.TSR);
 
-    DBGAPP ("doAppendCycleABSA(A):DSBR.U=%o\n", cpu.DSBR.U);
+    DBGAPP ("doAppendCycleABSA(A):DSBR.U=%o\r\n", cpu.DSBR.U);
 
     if (cpu.DSBR.U == 0) {
       fetch_dsptw (cpup, cpu.TPR.TSR);
@@ -93,7 +93,7 @@ word24 doAppendCycleABSA (cpu_state_t * cpup, word36 * data, uint nWords) {
     // load SDWAM .....
     load_sdwam (cpup, cpu.TPR.TSR, nomatch);
   }
-  DBGAPP ("doAppendCycleABSA(A) R1 %o R2 %o R3 %o E %o\n", cpu.SDW->R1, cpu.SDW->R2, cpu.SDW->R3, cpu.SDW->E);
+  DBGAPP ("doAppendCycleABSA(A) R1 %o R2 %o R3 %o E %o\r\n", cpu.SDW->R1, cpu.SDW->R2, cpu.SDW->R3, cpu.SDW->E);
 
   // Yes...
   cpu.RSDWH_R1 = cpu.SDW->R1;
@@ -108,7 +108,7 @@ word24 doAppendCycleABSA (cpu_state_t * cpup, word36 * data, uint nWords) {
 // B: Check the ring
 //
 
-  DBGAPP ("doAppendCycleABSA(B)\n");
+  DBGAPP ("doAppendCycleABSA(B)\r\n");
 
   // check ring bracket consistency
 
@@ -127,19 +127,19 @@ word24 doAppendCycleABSA (cpu_state_t * cpup, word36 * data, uint nWords) {
   // the opcode is preserved across faults and only replaced as the
   // INSTRUCTION_FETCH succeeds.
   if (lastCycle == RTCD_OPERAND_FETCH)
-    sim_warn ("%s: lastCycle == RTCD_OPERAND_FETCH opcode %0#o\n", __func__, i->opcode);
+    sim_warn ("%s: lastCycle == RTCD_OPERAND_FETCH opcode %0#o\r\n", __func__, i->opcode);
 
   //
   // check read bracket for read access
   //
 
-  DBGAPP ("doAppendCycleABSA(B):!STR-OP\n");
+  DBGAPP ("doAppendCycleABSA(B):!STR-OP\r\n");
 
   // No
   // C(TPR.TRR) > C(SDW .R2)?
   if (cpu.TPR.TRR > cpu.SDW->R2) {
-    DBGAPP ("ACV3\n");
-    DBGAPP ("doAppendCycleABSA(B) ACV3\n");
+    DBGAPP ("ACV3\r\n");
+    DBGAPP ("doAppendCycleABSA(B) ACV3\r\n");
     //Set fault ACV3 = ORB
     cpu.acvFaults |= ACV3;
     PNL (L68_ (cpu.apu.state |= apu_FLT;))
@@ -152,14 +152,14 @@ word24 doAppendCycleABSA (cpu_state_t * cpup, word36 * data, uint nWords) {
 
     //C(PPR.PSR) = C(TPR.TSR)?
     if (cpu.PPR.PSR != cpu.TPR.TSR) {
-      DBGAPP ("ACV4\n");
-      DBGAPP ("doAppendCycleABSA(B) ACV4\n");
+      DBGAPP ("ACV4\r\n");
+      DBGAPP ("doAppendCycleABSA(B) ACV4\r\n");
       //Set fault ACV4 = R-OFF
       cpu.acvFaults |= ACV4;
       PNL (L68_ (cpu.apu.state |= apu_FLT;))
       FMSG (acvFaultsMsg = "acvFaults(B) C(PPR.PSR) = C(TPR.TSR)";)
     //} else {
-      // sim_warn ("doAppendCycleABSA(B) SDW->R == 0 && cpu.PPR.PSR == cpu.TPR.TSR: %0#o\n", cpu.PPR.PSR);
+      // sim_warn ("doAppendCycleABSA(B) SDW->R == 0 && cpu.PPR.PSR == cpu.TPR.TSR: %0#o\r\n", cpu.PPR.PSR);
     }
   }
 
@@ -169,22 +169,22 @@ word24 doAppendCycleABSA (cpu_state_t * cpup, word36 * data, uint nWords) {
 //
 ////////////////////////////////////////
 
-  DBGAPP ("doAppendCycleABSA(G)\n");
+  DBGAPP ("doAppendCycleABSA(G)\r\n");
 
   //C(TPR.CA)0,13 > SDW.BOUND?
   if (((cpu.TPR.CA >> 4) & 037777) > cpu.SDW->BOUND) {
-    DBGAPP ("ACV15\n");
-    DBGAPP ("doAppendCycleABSA(G) ACV15\n");
+    DBGAPP ("ACV15\r\n");
+    DBGAPP ("doAppendCycleABSA(G) ACV15\r\n");
     cpu.acvFaults |= ACV15;
     PNL (L68_ (cpu.apu.state |= apu_FLT;))
     FMSG (acvFaultsMsg = "acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND";)
-    DBGAPP ("acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND\n"
+    DBGAPP ("acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND\r\n"
             "   CA %06o CA>>4 & 037777 %06o SDW->BOUND %06o",
             cpu.TPR.CA, ((cpu.TPR.CA >> 4) & 037777), cpu.SDW->BOUND);
   }
 
   if (cpu.acvFaults) {
-    DBGAPP ("doAppendCycleABSA(G) acvFaults\n");
+    DBGAPP ("doAppendCycleABSA(G) acvFaults\r\n");
     PNL (L68_ (cpu.apu.state |= apu_FLT;))
     // Initiate an access violation fault
     doFault (FAULT_ACV, (_fault_subtype) {.fault_acv_subtype=cpu.acvFaults}, "ACV fault");
@@ -197,7 +197,7 @@ word24 doAppendCycleABSA (cpu_state_t * cpup, word36 * data, uint nWords) {
   // Yes. segment is paged ...
   // is PTW for C(TPR.CA) in PTWAM?
 
-  DBGAPP ("doAppendCycleABSA(G) CA %06o\n", cpu.TPR.CA);
+  DBGAPP ("doAppendCycleABSA(G) CA %06o\r\n", cpu.TPR.CA);
   if (nomatch || ! fetch_ptw_from_ptwam (cpup, cpu.SDW->POINTER, cpu.TPR.CA)) { //TPR.CA))
     fetch_ptw (cpup, cpu.SDW, cpu.TPR.CA);
     loadPTWAM (cpup, cpu.SDW->POINTER, cpu.TPR.CA, nomatch); // load PTW0 to PTWAM
@@ -221,7 +221,7 @@ word24 doAppendCycleABSA (cpu_state_t * cpup, word36 * data, uint nWords) {
 ////////////////////////////////////////
 
 H:;
-  DBGAPP ("doAppendCycleABSA(H): FANP\n");
+  DBGAPP ("doAppendCycleABSA(H): FANP\r\n");
 
   PNL (L68_ (cpu.apu.state |= apu_FANP;))
 #if 0
@@ -233,13 +233,13 @@ H:;
 #endif
   set_apu_status (cpup, apuStatus_FANP);
 
-  DBGAPP ("doAppendCycleABSA(H): SDW->ADDR=%08o CA=%06o \n", cpu.SDW->ADDR, cpu.TPR.CA);
+  DBGAPP ("doAppendCycleABSA(H): SDW->ADDR=%08o CA=%06o\r\n", cpu.SDW->ADDR, cpu.TPR.CA);
 
   finalAddress = (cpu.SDW->ADDR & 077777760) + cpu.TPR.CA;
   finalAddress &= 0xffffff;
   PNL (cpu.APUMemAddr = finalAddress;)
 
-  DBGAPP ("doAppendCycleABSA(H:FANP): (%05o:%06o) finalAddress=%08o\n", cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
+  DBGAPP ("doAppendCycleABSA(H:FANP): (%05o:%06o) finalAddress=%08o\r\n", cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
 
   goto HI;
 
@@ -261,12 +261,12 @@ I:;
   if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
     add_APU_history (APUH_FAP);
 #endif /* if defined(L68) */
-  DBGAPP ("doAppendCycleABSA(H:FAP): (%05o:%06o) finalAddress=%08o\n", cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
+  DBGAPP ("doAppendCycleABSA(H:FAP): (%05o:%06o) finalAddress=%08o\r\n", cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
 
   goto HI;
 
 HI:
-  DBGAPP ("doAppendCycleABSA(HI)\n");
+  DBGAPP ("doAppendCycleABSA(HI)\r\n");
 
   goto Exit;
 
@@ -277,8 +277,8 @@ Exit:;
 
   PNL (L68_ (cpu.apu.state |= apu_FA;))
 
-  DBGAPP ("doAppendCycleABSA (Exit) PRR %o PSR %05o P %o IC %06o\n", cpu.PPR.PRR, cpu.PPR.PSR, cpu.PPR.P, cpu.PPR.IC);
-  DBGAPP ("doAppendCycleABSA (Exit) TRR %o TSR %05o TBR %02o CA %06o\n", cpu.TPR.TRR, cpu.TPR.TSR, cpu.TPR.TBR, cpu.TPR.CA);
+  DBGAPP ("doAppendCycleABSA (Exit) PRR %o PSR %05o P %o IC %06o\r\n", cpu.PPR.PRR, cpu.PPR.PSR, cpu.PPR.P, cpu.PPR.IC);
+  DBGAPP ("doAppendCycleABSA (Exit) TRR %o TSR %05o TBR %02o CA %06o\r\n", cpu.TPR.TRR, cpu.TPR.TSR, cpu.TPR.TBR, cpu.TPR.CA);
 
   return finalAddress;    // or 0 or -1???
 }

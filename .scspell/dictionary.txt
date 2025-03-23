@@ -1989,6 +1989,7 @@ nkbevent
 nkbevents
 nlen
 nlink
+nlok
 nmask
 nmax
 nmin
@@ -6799,6 +6800,7 @@ deps
 destdir
 distclean
 dneed
+dockerenv
 dtest
 dumalibs
 endif
@@ -7781,6 +7783,7 @@ psmisc
 pygmentex
 pygments
 qpdf
+quay
 releasever
 rpmconf
 setopt

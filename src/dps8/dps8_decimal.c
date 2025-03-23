@@ -385,7 +385,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
 //                for(int i = 0 ; i < n ; i += 1)
 //                {
 //                    out2[i] = out1[i + r->digits - n];
-//                    sim_printf("out2[%d]:%s\n", i, out2);
+//                    sim_printf("out2[%d]:%s\r\n", i, out2);
 //                }
                 // memcpy
                 memcpy(out2, out1 + r->digits - n, n);
@@ -426,9 +426,9 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
     }
 
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "\nformatDecimal: adjLen=%d SF=%d S=%s TN=%s\n", adjLen, sf, CS[s], CTN[tn]);
+               "\r\nformatDecimal: adjLen=%d SF=%d S=%s TN=%s\r\n", adjLen, sf, CS[s], CTN[tn]);
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "formatDecimal: %s  r->digits=%d  r->exponent=%d\n", getBCD (bcd, r), r->digits, r->exponent);
+               "formatDecimal: %s  r->digits=%d  r->exponent=%d\r\n", getBCD (bcd, r), r->digits, r->exponent);
 
     if (adjLen < 1)
     {
@@ -463,7 +463,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
             decBCDFromNumber((uint8_t *)out, r->digits, &scale, r);
             for(int i = 0 ; i < r->digits ; i += 1 )
                 out[i] += '0';
-            sim_printf("formatDecimal(DEBUG): out[]: '%s'\n", out);
+            sim_printf("formatDecimal(DEBUG): out[]: '%s'\r\n", out);
         }
 # endif
 
@@ -471,11 +471,11 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
         {
             decNumberFromInt32(&_sf, sf);
             sim_debug (DBG_TRACEEXT, & cpu_dev,
-                       "formatDecimal(s != CSFL a): %s r->digits=%d r->exponent=%d\n",
+                       "formatDecimal(s != CSFL a): %s r->digits=%d r->exponent=%d\r\n",
                        getBCD (bcd, r), r->digits, r->exponent);
             r2 = decNumberRescale(&_r2, r, &_sf, set);
             sim_debug (DBG_TRACEEXT, & cpu_dev,
-                       "formatDecimal(s != CSFL b): %s r2->digits=%d r2->exponent=%d\n",
+                       "formatDecimal(s != CSFL b): %s r2->digits=%d r2->exponent=%d\r\n",
                        getBCD (bcd, r2), r2->digits, r2->exponent);
         }
         else
@@ -490,7 +490,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
                 out2[i] += '0';
 
             sim_debug (DBG_TRACEEXT, & cpu_dev,
-                       "formatDecimal: adjLen=%d E=%d SF=%d S=%s TN=%s digits(r2)=%s E2=%d\n",
+                       "formatDecimal: adjLen=%d E=%d SF=%d S=%s TN=%s digits(r2)=%s E2=%d\r\n",
                        adjLen, r->exponent, sf, CS[s], CTN[tn],out2, r2->exponent);
         }
 # endif
@@ -510,7 +510,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
     if (!ovr && !trunc)
     {
         sim_debug (DBG_TRACEEXT, & cpu_dev,
-                   "formatDecimal(OK): r->digits(%d) <= adjLen(%d) r2->digits(%d)\n", r->digits, adjLen, r2->digits);
+                   "formatDecimal(OK): r->digits(%d) <= adjLen(%d) r2->digits(%d)\r\n", r->digits, adjLen, r2->digits);
         if (s == CSFL)
             if (r2->digits < adjLen)
             {
@@ -529,7 +529,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
         decBCDFromNumber(out, adjLen, &scale, r2);
         for(int i = 0 ; i < adjLen ; i += 1 )
             out[i] += '0';
-        //sim_printf("out[ot]='%s'\n", out);
+        //sim_printf("out[ot]='%s'\r\n", out);
     }
     else
     {
@@ -539,7 +539,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
         // if we get here then we have either overflow or truncation....
 
         sim_debug (DBG_TRACEEXT, & cpu_dev,
-                   "formatDecimal(!OK%s): r2->digits %d adjLen %d\n", R ? " R" : "", r2->digits, adjLen);
+                   "formatDecimal(!OK%s): r2->digits %d adjLen %d\r\n", R ? " R" : "", r2->digits, adjLen);
 
         // so, what do we do?
         if (R)
@@ -556,7 +556,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
             {
                 //set->digits = ro->digits + sf + 1;
                 sim_debug (DBG_TRACEEXT, & cpu_dev,
-                           "formatDecimal(!OK R1): ro->digits %d adjLen %d\n", ro->digits, adjLen);
+                           "formatDecimal(!OK R1): ro->digits %d adjLen %d\r\n", ro->digits, adjLen);
 
                 set->digits = adjLen;
                 decNumberPlus(ro, ro, set);
@@ -572,13 +572,13 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
 
                 //strcpy(out, out+set->digits-adjLen); // this generates a SIGABRT - probably because of overlapping strings.
 
-                //sim_debug (DBG_TRACEEXT, & cpu_dev, "R OVR\n");
+                //sim_debug (DBG_TRACEEXT, & cpu_dev, "R OVR\r\n");
                 //ovr = true; breaks ET MVN 5
             }
             else
             {
                 sim_debug (DBG_TRACEEXT, & cpu_dev,
-                         "formatDecimal(!OK R2): ro->digits %d adjLen %d\n", ro->digits, adjLen);
+                         "formatDecimal(!OK R2): ro->digits %d adjLen %d\r\n", ro->digits, adjLen);
 
                 if (s==CSFL)
                 {
@@ -589,7 +589,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
                     for(int i = 0 ; i < adjLen ; i += 1 )
                         out[i] += '0';
                     out[adjLen] = 0;
-                    sim_debug (DBG_TRACEEXT, & cpu_dev, "formatDecimal(!OK R2a): %s\n", out);
+                    sim_debug (DBG_TRACEEXT, & cpu_dev, "formatDecimal(!OK R2a): %s\r\n", out);
 
                 }
                 else
@@ -607,11 +607,11 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
                     for(int j = 0 ; j < adjLen; j += 1 )
                         out[j] += '0';
 
-                    sim_debug (DBG_TRACEEXT, & cpu_dev, "formatDecimal(!OK R2b): %s\n", out);
+                    sim_debug (DBG_TRACEEXT, & cpu_dev, "formatDecimal(!OK R2b): %s\r\n", out);
                 }
                 ovr = false;    // since we've rounded we can have no overflow ?????
             }
-            sim_debug (DBG_TRACEEXT, & cpu_dev, "formatDecimal(R3): digits:'%s'\n", out);
+            sim_debug (DBG_TRACEEXT, & cpu_dev, "formatDecimal(R3): digits:'%s'\r\n", out);
 
             set->digits = safe;
 
@@ -627,7 +627,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
                 decBCDFromNumber((uint8_t *)outi, adjLen, &scale, i);
                 for(int j = 0 ; j < adjLen; j += 1 )
                     outi[j] += '0';
-                sim_debug (DBG_TRACEEXT, & cpu_dev, "i=%s\n", outi);
+                sim_debug (DBG_TRACEEXT, & cpu_dev, "i=%s\r\n", outi);
             }
 # endif
         }
@@ -652,7 +652,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
                 set->digits = safe;
                 decContextSetRounding(set, safeR);              // restore rounding mode
 
-                sim_debug (DBG_TRACEEXT, & cpu_dev, "CSFL TRUNC\n");
+                sim_debug (DBG_TRACEEXT, & cpu_dev, "CSFL TRUNC\r\n");
                 trunc = true;
             }
             else
@@ -676,7 +676,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
 
                     decContextSetRounding(set, safeR);              // restore rounding mode
 
-                    sim_debug (DBG_TRACEEXT, & cpu_dev, "TRUNC\n");
+                    sim_debug (DBG_TRACEEXT, & cpu_dev, "TRUNC\r\n");
                     trunc = true;
 
 //                } else if ((r2->digits-sf) > adjLen)     // HWR 18 July 2014 was (r->digits > adjLen)
@@ -694,16 +694,16 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
                     strcpy((char *) out, temp);
                     //strcpy(out, out+r->digits-adjLen); // this generates a SIGABRT - probably because of overlapping strings.
 
-                    sim_debug (DBG_TRACEEXT, & cpu_dev, "OVR\n");
+                    sim_debug (DBG_TRACEEXT, & cpu_dev, "OVR\r\n");
                     ovr = true;
                 }
                 else
-                    sim_printf("formatDecimal(?): How'd we get here?\n");
+                    sim_printf("formatDecimal(?): How'd we get here?\r\n");
             }
         }
     }
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "formatDecimal(END): ovrflow=%d trunc=%d R=%d out[]='%s'\n", ovr, trunc, R, out);
+               "formatDecimal(END): ovrflow=%d trunc=%d R=%d out[]='%s'\r\n", ovr, trunc, R, out);
     *OVR = ovr;
     *TRUNC = trunc;
 

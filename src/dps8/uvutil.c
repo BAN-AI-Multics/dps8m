@@ -69,7 +69,7 @@ static void accessWriteCallback (uv_write_t * req, int status)
           }
         else
           {
-            sim_warn ("accessWriteCallback status %d (%s)\n", -status,
+            sim_warn ("accessWriteCallback status %d (%s)\r\n", -status,
                       xstrerror_l(-status));
           }
 
@@ -97,7 +97,7 @@ static void accessWriteCallback (uv_write_t * req, int status)
 #endif /* if defined(USE_REQ_DATA) */
 
     // the buf structure is copied; do not free.
-    //sim_printf ("freeing req %p\n", req);
+    //sim_printf ("freeing req %p\r\n", req);
     FREE (req);
   }
 
@@ -177,7 +177,7 @@ static void accessStartWriteActual (uv_tcp_t * client, char * data,
     req->data = buf.base;
 # endif /* if defined(USE_REQ_DATA) */
     memcpy (buf.base, data, (unsigned long) datalen);
-//sim_printf ("write %u<%s>\n", datalen, data);
+//sim_printf ("write %u<%s>\r\n", datalen, data);
     int ret = uv_write (req, (uv_stream_t *) client, & buf, 1,
                         accessWriteCallback);
 // There seems to be a race condition when Multics signals a disconnect_line;
@@ -185,7 +185,7 @@ static void accessStartWriteActual (uv_tcp_t * client, char * data,
 // NULs.
 // If the socket has been closed, write will return BADF; just ignore it.
     if (ret < 0 && ret != -EBADF)
-      sim_printf ("uv_write returns %d\n", ret);
+      sim_printf ("uv_write returns %d\r\n", ret);
 #endif /* if !defined(__clang_analyzer__) */
   }
 
@@ -365,7 +365,7 @@ static void accessProcessInput (uv_access * access, unsigned char * buf,
   {
     if (access->inBuffer)
       {
-        //sim_warn ("inBuffer overrun\n");
+        //sim_warn ("inBuffer overrun\r\n");
         unsigned char * new =
           realloc (access->inBuffer,
                    (unsigned long) (access->inSize + nread));
@@ -460,33 +460,33 @@ static void evHandler (UNUSED telnet_t *telnet, telnet_event_t *event,
               }
             else
               {
-                sim_printf ("evHandler DO %d\n", event->neg.telopt);
+                sim_printf ("evHandler DO %d\r\n", event->neg.telopt);
               }
           }
           break;
 
         case TELNET_EV_DONT:
           {
-            sim_printf ("evHandler DONT %d\n", event->neg.telopt);
+            sim_printf ("evHandler DONT %d\r\n", event->neg.telopt);
           }
           break;
 
         case TELNET_EV_WILL:
           {
             if (event->neg.telopt != 3)
-              sim_printf ("evHandler WILL %d\n", event->neg.telopt);
+              sim_printf ("evHandler WILL %d\r\n", event->neg.telopt);
           }
           break;
 
         case TELNET_EV_WONT:
           {
-            sim_printf ("evHandler WONT %d\n", event->neg.telopt);
+            sim_printf ("evHandler WONT %d\r\n", event->neg.telopt);
           }
           break;
 
         case TELNET_EV_ERROR:
           {
-            sim_warn ("libtelnet evHandler error <%s>\n", event->error.msg);
+            sim_warn ("libtelnet evHandler error <%s>\r\n", event->error.msg);
           }
           break;
 
@@ -495,16 +495,16 @@ static void evHandler (UNUSED telnet_t *telnet, telnet_event_t *event,
             if (event->iac.cmd == 243 || // BRK
                 event->iac.cmd == 244)   // IP
               {
-                sim_warn ("libtelnet dropping unassociated BRK/IP\n");
+                sim_warn ("libtelnet dropping unassociated BRK/IP\r\n");
               }
             else
               if ((!sim_quiet) || (event->iac.cmd != 241))
-                sim_warn ("libtelnet unhandled IAC event %d\n", event->iac.cmd);
+                sim_warn ("libtelnet unhandled IAC event %d\r\n", event->iac.cmd);
           }
           break;
 
         default:
-          sim_printf ("evHandler: unhandled event %d\n", event->type);
+          sim_printf ("evHandler: unhandled event %d\r\n", event->type);
           break;
       }
 
@@ -600,7 +600,7 @@ static void onNewAccess (uv_stream_t * server, int status)
             access->telnetp = accessTelnetConnect (access->client);
             if (!access->telnetp)
               {
-                 sim_warn ("ltnConnect failed\n");
+                 sim_warn ("ltnConnect failed\r\n");
                  return;
               }
           }
@@ -631,7 +631,7 @@ void uv_open_access (uv_access * access)
 
     if (! access->port)
       {
-        //sim_printf ("access port disabled\n");
+        //sim_printf ("access port disabled\r\n");
         return;
       }
 

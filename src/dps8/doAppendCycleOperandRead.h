@@ -59,15 +59,15 @@ word24 doAppendCycleOperandRead (cpu_state_t * cpup, word36 * data, uint nWords)
 static int evcnt = 0;
   DCDstruct * i = & cpu.currentInstruction;
   (void)evcnt;
-  DBGAPP ("doAppendCycleOperandRead(Entry) thisCycle=OPERAND_READ\n");
-  DBGAPP ("doAppendCycleOperandRead(Entry) lastCycle=%s\n", str_pct (cpu.apu.lastCycle));
-  DBGAPP ("doAppendCycleOperandRead(Entry) CA %06o\n", cpu.TPR.CA);
-  DBGAPP ("doAppendCycleOperandRead(Entry) n=%2u\n", nWords);
-  DBGAPP ("doAppendCycleOperandRead(Entry) PPR.PRR=%o PPR.PSR=%05o\n", cpu.PPR.PRR, cpu.PPR.PSR);
-  DBGAPP ("doAppendCycleOperandRead(Entry) TPR.TRR=%o TPR.TSR=%05o\n", cpu.TPR.TRR, cpu.TPR.TSR);
+  DBGAPP ("doAppendCycleOperandRead(Entry) thisCycle=OPERAND_READ\r\n");
+  DBGAPP ("doAppendCycleOperandRead(Entry) lastCycle=%s\r\n", str_pct (cpu.apu.lastCycle));
+  DBGAPP ("doAppendCycleOperandRead(Entry) CA %06o\r\n", cpu.TPR.CA);
+  DBGAPP ("doAppendCycleOperandRead(Entry) n=%2u\r\n", nWords);
+  DBGAPP ("doAppendCycleOperandRead(Entry) PPR.PRR=%o PPR.PSR=%05o\r\n", cpu.PPR.PRR, cpu.PPR.PSR);
+  DBGAPP ("doAppendCycleOperandRead(Entry) TPR.TRR=%o TPR.TSR=%05o\r\n", cpu.TPR.TRR, cpu.TPR.TSR);
 
   if (i->b29) {
-    DBGAPP ("doAppendCycleOperandRead(Entry) isb29 PRNO %o\n", GET_PRN (IWB_IRODD));
+    DBGAPP ("doAppendCycleOperandRead(Entry) isb29 PRNO %o\r\n", GET_PRN (IWB_IRODD));
   }
 
   uint this = UC_OPERAND_READ;
@@ -194,7 +194,7 @@ miss:;
   processor_cycle_type lastCycle = cpu.apu.lastCycle;
   cpu.apu.lastCycle = OPERAND_READ;
 
-  DBGAPP ("doAppendCycleOperandRead(Entry) XSF %o\n", cpu.cu.XSF);
+  DBGAPP ("doAppendCycleOperandRead(Entry) XSF %o\r\n", cpu.cu.XSF);
 
   PNL (L68_ (cpu.apu.state = 0;))
 
@@ -228,13 +228,13 @@ miss:;
   //PNL (cpu.APUMemAddr = address;)
   PNL (cpu.APUMemAddr = cpu.TPR.CA;)
 
-  DBGAPP ("doAppendCycleOperandRead(A)\n");
+  DBGAPP ("doAppendCycleOperandRead(A)\r\n");
 
   // is SDW for C(TPR.TSR) in SDWAM?
   if (nomatch || ! fetch_sdw_from_sdwam (cpup, cpu.TPR.TSR)) {
     // No
-    DBGAPP ("doAppendCycleOperandRead(A):SDW for segment %05o not in SDWAM\n", cpu.TPR.TSR);
-    DBGAPP ("doAppendCycleOperandRead(A):DSBR.U=%o\n", cpu.DSBR.U);
+    DBGAPP ("doAppendCycleOperandRead(A):SDW for segment %05o not in SDWAM\r\n", cpu.TPR.TSR);
+    DBGAPP ("doAppendCycleOperandRead(A):DSBR.U=%o\r\n", cpu.DSBR.U);
 
     if (cpu.DSBR.U == 0) {
       fetch_dsptw (cpup, cpu.TPR.TSR);
@@ -250,14 +250,14 @@ miss:;
       fetch_nsdw (cpup, cpu.TPR.TSR); // load SDW0 from descriptor segment table.
 
     if (cpu.SDW0.DF == 0) {
-      DBGAPP ("doAppendCycleOperandRead(A): SDW0.F == 0! " "Initiating directed fault\n");
+      DBGAPP ("doAppendCycleOperandRead(A): SDW0.F == 0! " "Initiating directed fault\r\n");
       // initiate a directed fault ...
       doFault (FAULT_DF0 + cpu.SDW0.FC, fst_zero, "SDW0.F == 0");
     }
     // load SDWAM .....
     load_sdwam (cpup, cpu.TPR.TSR, nomatch);
   }
-  DBGAPP ("doAppendCycleOperandRead(A) R1 %o R2 %o R3 %o E %o\n", cpu.SDW->R1, cpu.SDW->R2, cpu.SDW->R3, cpu.SDW->E);
+  DBGAPP ("doAppendCycleOperandRead(A) R1 %o R2 %o R3 %o E %o\r\n", cpu.SDW->R1, cpu.SDW->R2, cpu.SDW->R3, cpu.SDW->E);
 
   // Yes...
   RSDWH_R1 = cpu.RSDWH_R1 = cpu.SDW->R1;
@@ -272,7 +272,7 @@ miss:;
 // B: Check the ring
 //
 
-  DBGAPP ("doAppendCycleOperandRead(B)\n");
+  DBGAPP ("doAppendCycleOperandRead(B)\r\n");
 
   // check ring bracket consistency
 
@@ -291,7 +291,7 @@ miss:;
   // the opcode is preserved across faults and only replaced as the
   // INSTRUCTION_FETCH succeeds.
   if (lastCycle == RTCD_OPERAND_FETCH)
-    sim_warn ("%s: lastCycle == RTCD_OPERAND_FETCH opcode %0#o\n", __func__, i->opcode);
+    sim_warn ("%s: lastCycle == RTCD_OPERAND_FETCH opcode %0#o\r\n", __func__, i->opcode);
 
   //
   // B1: The operand is one of: an instruction, data to be read or data to be
@@ -310,13 +310,13 @@ miss:;
   // check read bracket for read access
   //
 
-  DBGAPP ("doAppendCycleOperandRead(B):!STR-OP\n");
+  DBGAPP ("doAppendCycleOperandRead(B):!STR-OP\r\n");
 
   // No
   // C(TPR.TRR) > C(SDW .R2)?
   if (cpu.TPR.TRR > cpu.SDW->R2) {
-    DBGAPP ("ACV3\n");
-    DBGAPP ("doAppendCycleOperandRead(B) ACV3\n");
+    DBGAPP ("ACV3\r\n");
+    DBGAPP ("doAppendCycleOperandRead(B) ACV3\r\n");
     //Set fault ACV3 = ORB
     cpu.acvFaults |= ACV3;
     PNL (L68_ (cpu.apu.state |= apu_FLT;))
@@ -329,14 +329,14 @@ miss:;
 
     //C(PPR.PSR) = C(TPR.TSR)?
     if (cpu.PPR.PSR != cpu.TPR.TSR) {
-      DBGAPP ("ACV4\n");
-      DBGAPP ("doAppendCycleOperandRead(B) ACV4\n");
+      DBGAPP ("ACV4\r\n");
+      DBGAPP ("doAppendCycleOperandRead(B) ACV4\r\n");
       //Set fault ACV4 = R-OFF
       cpu.acvFaults |= ACV4;
       PNL (L68_ (cpu.apu.state |= apu_FLT;))
       FMSG (acvFaultsMsg = "acvFaults(B) C(PPR.PSR) = C(TPR.TSR)";)
     //} else {
-      // sim_warn ("doAppendCycleOperandRead(B) SDW->R == 0 && cpu.PPR.PSR == cpu.TPR.TSR: %0#o\n", cpu.PPR.PSR);
+      // sim_warn ("doAppendCycleOperandRead(B) SDW->R == 0 && cpu.PPR.PSR == cpu.TPR.TSR: %0#o\r\n", cpu.PPR.PSR);
     }
   }
 
@@ -349,7 +349,7 @@ miss:;
 ////////////////////////////////////////
 
 D:;
-  DBGAPP ("doAppendCycleOperandRead(D)\n");
+  DBGAPP ("doAppendCycleOperandRead(D)\r\n");
 
   // transfer or instruction fetch
 
@@ -360,8 +360,8 @@ D:;
 
   // C(PPR.PRR) < RALR?
   if (! (cpu.PPR.PRR < cpu.rRALR)) {
-    DBGAPP ("ACV13\n");
-    DBGAPP ("acvFaults(D) C(PPR.PRR) %o < RALR %o\n", cpu.PPR.PRR, cpu.rRALR);
+    DBGAPP ("ACV13\r\n");
+    DBGAPP ("acvFaults(D) C(PPR.PRR) %o < RALR %o\r\n", cpu.PPR.PRR, cpu.rRALR);
     cpu.acvFaults |= ACV13;
     PNL (L68_ (cpu.apu.state |= apu_FLT;))
     FMSG (acvFaultsMsg = "acvFaults(D) C(PPR.PRR) < RALR";)
@@ -382,15 +382,15 @@ E:;
   //   (this is the call6 read operand)
   //
 
-  DBGAPP ("doAppendCycleOperandRead(E): CALL6\n");
-  DBGAPP ("doAppendCycleOperandRead(E): E %o G %o PSR %05o TSR %05o CA %06o " "EB %06o R %o%o%o TRR %o PRR %o\n",
+  DBGAPP ("doAppendCycleOperandRead(E): CALL6\r\n");
+  DBGAPP ("doAppendCycleOperandRead(E): E %o G %o PSR %05o TSR %05o CA %06o " "EB %06o R %o%o%o TRR %o PRR %o\r\n",
           cpu.SDW->E,  cpu.SDW->G,  cpu.PPR.PSR, cpu.TPR.TSR, cpu.TPR.CA, cpu.SDW->EB,
           cpu.SDW->R1, cpu.SDW->R2, cpu.SDW->R3, cpu.TPR.TRR, cpu.PPR.PRR);
 
   //SDW.E set ON?
   if (! cpu.SDW->E) {
-    DBGAPP ("ACV2 b\n");
-    DBGAPP ("doAppendCycleOperandRead(E) ACV2\n");
+    DBGAPP ("ACV2 b\r\n");
+    DBGAPP ("doAppendCycleOperandRead(E) ACV2\r\n");
     // Set fault ACV2 = E-OFF
     cpu.acvFaults |= ACV2;
     PNL (L68_ (cpu.apu.state |= apu_FLT;))
@@ -409,8 +409,8 @@ E:;
   // EB is word 15; masking address makes no sense; rather 0-extend EB
   // Fixes ISOLTS 880-01
   if (cpu.TPR.CA >= (word18) cpu.SDW->EB) {
-    DBGAPP ("ACV7\n");
-    DBGAPP ("doAppendCycleOperandRead(E) ACV7\n");
+    DBGAPP ("ACV7\r\n");
+    DBGAPP ("doAppendCycleOperandRead(E) ACV7\r\n");
     // Set fault ACV7 = NO GA
     cpu.acvFaults |= ACV7;
     PNL (L68_ (cpu.apu.state |= apu_FLT;))
@@ -418,12 +418,12 @@ E:;
   }
 
 E1:
-  DBGAPP ("doAppendCycleOperandRead(E1): CALL6 (cont'd)\n");
+  DBGAPP ("doAppendCycleOperandRead(E1): CALL6 (cont'd)\r\n");
 
   // C(TPR.TRR) > SDW.R3?
   if (cpu.TPR.TRR > cpu.SDW->R3) {
-    DBGAPP ("ACV8\n");
-    DBGAPP ("doAppendCycleOperandRead(E) ACV8\n");
+    DBGAPP ("ACV8\r\n");
+    DBGAPP ("doAppendCycleOperandRead(E) ACV8\r\n");
     //Set fault ACV8 = OCB
     cpu.acvFaults |= ACV8;
     PNL (L68_ (cpu.apu.state |= apu_FLT;))
@@ -432,8 +432,8 @@ E1:
 
   // C(TPR.TRR) < SDW.R1?
   if (cpu.TPR.TRR < cpu.SDW->R1) {
-    DBGAPP ("ACV9\n");
-    DBGAPP ("doAppendCycleOperandRead(E) ACV9\n");
+    DBGAPP ("ACV9\r\n");
+    DBGAPP ("doAppendCycleOperandRead(E) ACV9\r\n");
     // Set fault ACV9 = OCALL
     cpu.acvFaults |= ACV9;
     PNL (L68_ (cpu.apu.state |= apu_FLT;))
@@ -444,8 +444,8 @@ E1:
   if (cpu.TPR.TRR > cpu.PPR.PRR) {
     // C(PPR.PRR) < SDW.R2?
     if (cpu.PPR.PRR < cpu.SDW->R2) {
-      DBGAPP ("ACV10\n");
-      DBGAPP ("doAppendCycleOperandRead(E) ACV10\n");
+      DBGAPP ("ACV10\r\n");
+      DBGAPP ("doAppendCycleOperandRead(E) ACV10\r\n");
       // Set fault ACV10 = BOC
       cpu.acvFaults |= ACV10;
       PNL (L68_ (cpu.apu.state |= apu_FLT;))
@@ -453,7 +453,7 @@ E1:
     }
   }
 
-  DBGAPP ("doAppendCycleOperandRead(E1): CALL6 TPR.TRR %o SDW->R2 %o\n", cpu.TPR.TRR, cpu.SDW->R2);
+  DBGAPP ("doAppendCycleOperandRead(E1): CALL6 TPR.TRR %o SDW->R2 %o\r\n", cpu.TPR.TRR, cpu.SDW->R2);
 
   // C(TPR.TRR) > SDW.R2?
   if (cpu.TPR.TRR > cpu.SDW->R2) {
@@ -461,7 +461,7 @@ E1:
     cpu.TPR.TRR = cpu.SDW->R2;
   }
 
-  DBGAPP ("doAppendCycleOperandRead(E1): CALL6 TPR.TRR %o\n", cpu.TPR.TRR);
+  DBGAPP ("doAppendCycleOperandRead(E1): CALL6 TPR.TRR %o\r\n", cpu.TPR.TRR);
 
   goto G;
 
@@ -473,7 +473,7 @@ E1:
 
 F:;
   PNL (L68_ (cpu.apu.state |= apu_PIAU;))
-  DBGAPP ("doAppendCycleOperandRead(F): transfer or instruction fetch\n");
+  DBGAPP ("doAppendCycleOperandRead(F): transfer or instruction fetch\r\n");
 
   //
   // check ring bracket for instruction fetch
@@ -482,16 +482,16 @@ F:;
   // C(TPR.TRR) < C(SDW .R1)?
   // C(TPR.TRR) > C(SDW .R2)?
   if (cpu.TPR.TRR < cpu.SDW->R1 || cpu.TPR.TRR > cpu.SDW->R2) {
-    DBGAPP ("ACV1 a/b\n");
-    DBGAPP ("acvFaults(F) ACV1 !( C(SDW .R1) %o <= C(TPR.TRR) %o <= C(SDW .R2) %o )\n", cpu.SDW->R1, cpu.TPR.TRR, cpu.SDW->R2);
+    DBGAPP ("ACV1 a/b\r\n");
+    DBGAPP ("acvFaults(F) ACV1 !( C(SDW .R1) %o <= C(TPR.TRR) %o <= C(SDW .R2) %o )\r\n", cpu.SDW->R1, cpu.TPR.TRR, cpu.SDW->R2);
     cpu.acvFaults |= ACV1;
     PNL (L68_ (cpu.apu.state |= apu_FLT;))
     FMSG (acvFaultsMsg = "acvFaults(F) C(TPR.TRR) < C(SDW .R1)";)
   }
   // SDW .E set ON?
   if (! cpu.SDW->E) {
-    DBGAPP ("ACV2 c \n");
-    DBGAPP ("doAppendCycleOperandRead(F) ACV2\n");
+    DBGAPP ("ACV2 c\r\n");
+    DBGAPP ("doAppendCycleOperandRead(F) ACV2\r\n");
     cpu.acvFaults |= ACV2;
     PNL (L68_ (cpu.apu.state |= apu_FLT;))
     FMSG (acvFaultsMsg = "acvFaults(F) SDW .E set OFF";)
@@ -499,8 +499,8 @@ F:;
 
   // C(PPR.PRR) = C(TPR.TRR)?
   if (cpu.PPR.PRR != cpu.TPR.TRR) {
-    DBGAPP ("ACV12\n");
-    DBGAPP ("doAppendCycleOperandRead(F) ACV12\n");
+    DBGAPP ("ACV12\r\n");
+    DBGAPP ("doAppendCycleOperandRead(F) ACV12\r\n");
     //Set fault ACV12 = CRT
     cpu.acvFaults |= ACV12;
     PNL (L68_ (cpu.apu.state |= apu_FLT;))
@@ -517,23 +517,23 @@ F:;
 
 G:;
 
-  DBGAPP ("doAppendCycleOperandRead(G)\n");
+  DBGAPP ("doAppendCycleOperandRead(G)\r\n");
 
   //C(TPR.CA)0,13 > SDW.BOUND?
   if (((cpu.TPR.CA >> 4) & 037777) > cpu.SDW->BOUND) {
-    DBGAPP ("ACV15\n");
-    DBGAPP ("doAppendCycleOperandRead(G) ACV15\n");
+    DBGAPP ("ACV15\r\n");
+    DBGAPP ("doAppendCycleOperandRead(G) ACV15\r\n");
     cpu.acvFaults |= ACV15;
     PNL (L68_ (cpu.apu.state |= apu_FLT;))
     FMSG (acvFaultsMsg = "acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND";)
-    DBGAPP ("acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND\n" "   CA %06o CA>>4 & 037777 %06o SDW->BOUND %06o",
+    DBGAPP ("acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND\r\n" "   CA %06o CA>>4 & 037777 %06o SDW->BOUND %06o",
             cpu.TPR.CA, ((cpu.TPR.CA >> 4) & 037777), cpu.SDW->BOUND);
   }
   bound = cpu.SDW->BOUND;
   p = cpu.SDW->P;
 
   if (cpu.acvFaults) {
-    DBGAPP ("doAppendCycleOperandRead(G) acvFaults\n");
+    DBGAPP ("doAppendCycleOperandRead(G) acvFaults\r\n");
     PNL (L68_ (cpu.apu.state |= apu_FLT;))
     // Initiate an access violation fault
     doFault (FAULT_ACV, (_fault_subtype) {.fault_acv_subtype=cpu.acvFaults},
@@ -547,7 +547,7 @@ G:;
   // Yes. segment is paged ...
   // is PTW for C(TPR.CA) in PTWAM?
 
-  DBGAPP ("doAppendCycleOperandRead(G) CA %06o\n", cpu.TPR.CA);
+  DBGAPP ("doAppendCycleOperandRead(G) CA %06o\r\n", cpu.TPR.CA);
   if (nomatch ||
       ! fetch_ptw_from_ptwam (cpup, cpu.SDW->POINTER, cpu.TPR.CA)) {
     fetch_ptw (cpup, cpu.SDW, cpu.TPR.CA);
@@ -577,7 +577,7 @@ G:;
 ////////////////////////////////////////
 
 H:;
-  DBGAPP ("doAppendCycleOperandRead(H): FANP\n");
+  DBGAPP ("doAppendCycleOperandRead(H): FANP\r\n");
 
   paged = false;
 
@@ -593,7 +593,7 @@ H:;
 #if defined(HDBG)
   hdbgNote ("doAppendCycleOperandRead", "FANP");
 #endif /* if defined(HDBG) */
-  DBGAPP ("doAppendCycleOperandRead(H): SDW->ADDR=%08o CA=%06o \n",
+  DBGAPP ("doAppendCycleOperandRead(H): SDW->ADDR=%08o CA=%06o\r\n",
           cpu.SDW->ADDR, cpu.TPR.CA);
 
   pageAddress = (cpu.SDW->ADDR & 077777760);
@@ -601,7 +601,7 @@ H:;
   finalAddress &= 0xffffff;
   PNL (cpu.APUMemAddr = finalAddress;)
 
-  DBGAPP ("doAppendCycleOperandRead(H:FANP): (%05o:%06o) finalAddress=%08o\n",
+  DBGAPP ("doAppendCycleOperandRead(H:FANP): (%05o:%06o) finalAddress=%08o\r\n",
           cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
 
   goto HI;
@@ -610,7 +610,7 @@ I:;
 
 // Set PTW.M
 
-  DBGAPP ("doAppendCycleOperandRead(I): FAP\n");
+  DBGAPP ("doAppendCycleOperandRead(I): FAP\r\n");
 
   paged = true;
 
@@ -634,13 +634,13 @@ I:;
   if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
     add_APU_history (APUH_FAP);
 #endif /* if defined(L68) */
-  DBGAPP ("doAppendCycleOperandRead(H:FAP): (%05o:%06o) finalAddress=%08o\n",
+  DBGAPP ("doAppendCycleOperandRead(H:FAP): (%05o:%06o) finalAddress=%08o\r\n",
           cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
 
   //goto HI;
 
 HI:
-  DBGAPP ("doAppendCycleOperandRead(HI)\n");
+  DBGAPP ("doAppendCycleOperandRead(HI)\r\n");
 
 #if defined(TEST_UCACHE)
   if (cacheHit) {
@@ -698,7 +698,7 @@ evcnt ++;
 
   // isolts 870
   cpu.cu.XSF = 1;
-  sim_debug (DBG_TRACEEXT, & cpu_dev, "loading of cpu.TPR.TSR sets XSF to 1\n");
+  sim_debug (DBG_TRACEEXT, & cpu_dev, "loading of cpu.TPR.TSR sets XSF to 1\r\n");
 
   core_readN (cpup, finalAddress, data, nWords, "OPERAND_READ");
 
@@ -721,7 +721,7 @@ evcnt ++;
 
 L:; // Transfer or instruction fetch
 
-  DBGAPP ("doAppendCycleOperandRead(L)\n");
+  DBGAPP ("doAppendCycleOperandRead(L)\r\n");
 
   // Is OPCODE tspn?
   if (i->info->flags & TSPN_INS) {
@@ -747,7 +747,7 @@ L:; // Transfer or instruction fetch
   }
 
 // KL:
-  DBGAPP ("doAppendCycleOperandRead(KL)\n");
+  DBGAPP ("doAppendCycleOperandRead(KL)\r\n");
 
   // C(TPR.TSR) -> C(PPR.PSR)
   cpu.PPR.PSR = cpu.TPR.TSR;
@@ -757,7 +757,7 @@ L:; // Transfer or instruction fetch
   //goto M;
 
 M: // Set P
-  DBGAPP ("doAppendCycleOperandRead(M)\n");
+  DBGAPP ("doAppendCycleOperandRead(M)\r\n");
 
   // C(TPR.TRR) = 0?
   if (cpu.TPR.TRR == 0) {
@@ -771,18 +771,18 @@ M: // Set P
   goto Exit;
 
 N: // CALL6
-  DBGAPP ("doAppendCycleOperandRead(N)\n");
+  DBGAPP ("doAppendCycleOperandRead(N)\r\n");
 
   // C(TPR.TRR) = C(PPR.PRR)?
   if (cpu.TPR.TRR == cpu.PPR.PRR) {
     // C(PR6.SNR) -> C(PR7.SNR)
     cpu.PR[7].SNR = cpu.PR[6].SNR;
-    DBGAPP ("doAppendCycleOperandRead(N) PR7.SNR = PR6.SNR %05o\n", cpu.PR[7].SNR);
+    DBGAPP ("doAppendCycleOperandRead(N) PR7.SNR = PR6.SNR %05o\r\n", cpu.PR[7].SNR);
   } else {
     // C(DSBR.STACK) || C(TPR.TRR) -> C(PR7.SNR)
     cpu.PR[7].SNR = ((word15) (cpu.DSBR.STACK << 3)) | cpu.TPR.TRR;
-    DBGAPP ("doAppendCycleOperandRead(N) STACK %05o TRR %o\n", cpu.DSBR.STACK, cpu.TPR.TRR);
-    DBGAPP ("doAppendCycleOperandRead(N) PR7.SNR = STACK||TRR  %05o\n", cpu.PR[7].SNR);
+    DBGAPP ("doAppendCycleOperandRead(N) STACK %05o TRR %o\r\n", cpu.DSBR.STACK, cpu.TPR.TRR);
+    DBGAPP ("doAppendCycleOperandRead(N) PR7.SNR = STACK||TRR  %05o\r\n", cpu.PR[7].SNR);
   }
 
   // C(TPR.TRR) -> C(PR7.RNR)
@@ -810,8 +810,8 @@ Exit:;
 
   PNL (L68_ (cpu.apu.state |= apu_FA;))
 
-  DBGAPP ("doAppendCycleOperandRead (Exit) PRR %o PSR %05o P %o IC %06o\n", cpu.PPR.PRR, cpu.PPR.PSR, cpu.PPR.P, cpu.PPR.IC);
-  DBGAPP ("doAppendCycleOperandRead (Exit) TRR %o TSR %05o TBR %02o CA %06o\n", cpu.TPR.TRR, cpu.TPR.TSR, cpu.TPR.TBR, cpu.TPR.CA);
+  DBGAPP ("doAppendCycleOperandRead (Exit) PRR %o PSR %05o P %o IC %06o\r\n", cpu.PPR.PRR, cpu.PPR.PSR, cpu.PPR.P, cpu.PPR.IC);
+  DBGAPP ("doAppendCycleOperandRead (Exit) TRR %o TSR %05o TBR %02o CA %06o\r\n", cpu.TPR.TRR, cpu.TPR.TSR, cpu.TPR.TBR, cpu.TPR.CA);
 
   return finalAddress;    // or 0 or -1???
 }

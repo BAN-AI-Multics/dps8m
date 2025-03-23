@@ -139,7 +139,7 @@
  *                    UNIT *uptr, int flag, const char *help, char *cptr, va_list ap)
  */
 
-# define T(level, text) #level " " #text "\n"
-# define L(text) " " #text "\n"
+# define T(level, text) #level " " #text "\r\n"
+# define L(text) " " #text "\r\n"
 
 #endif

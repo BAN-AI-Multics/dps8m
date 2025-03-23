@@ -691,7 +691,7 @@ wVersionRequested = MAKEWORD (2, 2);
 
 err = WSAStartup (wVersionRequested, &wsaData);         /* start Winsock */
 if (err != 0)
-    sim_printf ("Winsock: startup error %d\n", err);
+    sim_printf ("Winsock: startup error %d\r\n", err);
 # if defined(AF_INET6)
 load_ws2 ();
 # endif                                                 /* endif AF_INET6 */

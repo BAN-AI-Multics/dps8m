@@ -122,7 +122,7 @@ static void writeOperands (cpu_state_t * cpup)
     DCDstruct * i = & cpu.currentInstruction;
 
     sim_debug (DBG_ADDRMOD, & cpu_dev,
-               "%s (%s):mne=%s flags=%x\n",
+               "%s (%s):mne=%s flags=%x\r\n",
                __func__, disassemble (buf, IWB_IRODD), i->info->mne, i->info->flags);
 
     PNL (cpu.prepare_state |= ps_RAW);
@@ -147,7 +147,7 @@ static void writeOperands (cpu_state_t * cpup)
         word36 tmpdata;
         core_read(cpup, cpu.char_word_address, &tmpdata, __func__);
         if (tmpdata != cpu.ou.character_data)
-          sim_warn("write char: data changed from %llo to %llo at %o\n",
+          sim_warn("write char: data changed from %llo to %llo at %o\r\n",
                   (long long unsigned int)cpu.ou.character_data,
                   (long long unsigned int)tmpdata, cpu.char_word_address);
 #endif
@@ -178,7 +178,7 @@ static void writeOperands (cpu_state_t * cpup)
 
         sim_debug (DBG_ADDRMOD, & cpu_dev,
                    "%s IT wrote char/byte %012"PRIo64" to %06o "
-                   "tTB=%o tCF=%o\n",
+                   "tTB=%o tCF=%o\r\n",
                    __func__, cpu.ou.character_data, cpu.ou.character_address,
                    cpu.ou.characterOperandSize, cpu.ou.characterOperandOffset);
 
@@ -201,10 +201,10 @@ static void readOperands (cpu_state_t * cpup)
     DCDstruct * i = & cpu.currentInstruction;
 
     sim_debug (DBG_ADDRMOD, &cpu_dev,
-               "%s (%s):mne=%s flags=%x\n",
+               "%s (%s):mne=%s flags=%x\r\n",
                __func__, disassemble (buf, IWB_IRODD), i->info->mne, i->info->flags);
     sim_debug (DBG_ADDRMOD, &cpu_dev,
-              "%s a %d address %08o\n", __func__, i->b29, cpu.TPR.CA);
+              "%s a %d address %08o\r\n", __func__, i->b29, cpu.TPR.CA);
 
     PNL (cpu.prepare_state |= ps_POA);
 
@@ -223,7 +223,7 @@ static void readOperands (cpu_state_t * cpup)
         cpu.CY = 0;
         SETHI (cpu.CY, cpu.TPR.CA);
         sim_debug (DBG_ADDRMOD, & cpu_dev,
-                   "%s DU CY=%012"PRIo64"\n", __func__, cpu.CY);
+                   "%s DU CY=%012"PRIo64"\r\n", __func__, cpu.CY);
         return;
       }
 
@@ -236,7 +236,7 @@ static void readOperands (cpu_state_t * cpup)
         cpu.CY = 0;
         SETLO (cpu.CY, cpu.TPR.CA);
         sim_debug (DBG_ADDRMOD, & cpu_dev,
-                   "%s DL CY=%012"PRIo64"\n", __func__, cpu.CY);
+                   "%s DL CY=%012"PRIo64"\r\n", __func__, cpu.CY);
         return;
       }
 
@@ -263,7 +263,7 @@ static void readOperands (cpu_state_t * cpup)
 
         sim_debug (DBG_ADDRMOD, & cpu_dev,
                    "%s IT read operand %012"PRIo64" from"
-                   " %06o char/byte=%"PRIo64"\n",
+                   " %06o char/byte=%"PRIo64"\r\n",
                    __func__, cpu.ou.character_data, cpu.ou.character_address, cpu.CY);
 
         // Restore the CA; Read/Write() updates it.
@@ -319,7 +319,7 @@ static void read_tra_op (cpu_state_t * cpup)
         // ISOLTS 870-02f
         //cpu.PPR.PSR = 0;
       }
-    sim_debug (DBG_TRACE, & cpu_dev, "%s %05o:%06o\n",
+    sim_debug (DBG_TRACE, & cpu_dev, "%s %05o:%06o\r\n",
                __func__, cpu.PPR.PSR, cpu.PPR.IC);
     if (cpu.PPR.IC & 1)
       {
@@ -336,17 +336,17 @@ static void read_tra_op (cpu_state_t * cpup)
 static void dump_words (cpu_state_t * cpup, word36 * words)
   {
     sim_debug (DBG_FAULT, & cpu_dev,
-               "CU: P %d IR %#o PSR %0#o IC %0#o TSR %0#o\n",
+               "CU: P %d IR %#o PSR %0#o IC %0#o TSR %0#o\r\n",
                getbits36_1  (words[0], 18), getbits36_18 (words[4], 18),
                getbits36_15 (words[0], 3), getbits36_18 (words[4], 0),  getbits36_15 (words[2], 3));
     sim_debug (DBG_FAULT, & cpu_dev,
-               "CU: xsf %d rf %d rpt %d rd %d rl %d pot %d xde %d xdo %d itp %d rfi %d its %d fif %d hold %0#o\n",
+               "CU: xsf %d rf %d rpt %d rd %d rl %d pot %d xde %d xdo %d itp %d rfi %d its %d fif %d hold %0#o\r\n",
                getbits36_1  (words[0], 19),
                getbits36_1  (words[5], 18), getbits36_1  (words[5], 19), getbits36_1  (words[5], 20), getbits36_1  (words[5], 21),
                getbits36_1  (words[5], 22), getbits36_1  (words[5], 24), getbits36_1  (words[5], 25), getbits36_1  (words[5], 26),
                getbits36_1  (words[5], 27), getbits36_1  (words[5], 28), getbits36_1  (words[5], 29), getbits36_6  (words[5], 30));
     sim_debug (DBG_FAULT, & cpu_dev,
-               "CU: iwb %012"PRIo64" irodd %012"PRIo64"\n",
+               "CU: iwb %012"PRIo64" irodd %012"PRIo64"\r\n",
                words[6], words[7]);
   }
 
@@ -470,7 +470,7 @@ static void scu2words (cpu_state_t * cpup, word36 *words)
   //putbits36 (& words[4], 31, 1, 0);
 //  putbits36 (& words[4], 31, 1, cpu.PPR.P ? 0 : 1);
 //if (current_running_cpu_idx)
-//sim_printf ("cleared ABS\n");
+//sim_printf ("cleared ABS\r\n");
 //}
 //#endif
 
@@ -498,7 +498,7 @@ static void scu2words (cpu_state_t * cpup, word36 *words)
     // words[7]
 
     words[7] = cpu.cu.IRODD;
-//sim_printf ("scu2words %lld %012llo\n", cpu.cycleCnt, words [6]);
+//sim_printf ("scu2words %lld %012llo\r\n", cpu.cycleCnt, words [6]);
 
     if_sim_debug (DBG_FAULT, & cpu_dev)
         dump_words (cpup, words);
@@ -586,7 +586,7 @@ static void scu2words (cpu_state_t * cpup, word36 *words)
             if (memcmp (words, rewrite_table[i].was, 8*sizeof (word36)) == 0)
               {
                 memcpy (words, rewrite_table[i].should_be, 8*sizeof (word36));
-                sim_warn("%s: scu rewrite %d: %s\n", __func__, i, rewrite_table[i].name);
+                sim_warn("%s: scu rewrite %d: %s\r\n", __func__, i, rewrite_table[i].name);
                 break;
               }
           }
@@ -637,7 +637,7 @@ static void words2scu (cpu_state_t * cpup, word36 * words)
     cpu.PPR.PSR           = getbits36_15 (words[0], 3);
     cpu.PPR.P             = getbits36_1  (words[0], 18);
     cpu.cu.XSF            = getbits36_1  (words[0], 19);
-sim_debug (DBG_TRACEEXT, & cpu_dev, "%s sets XSF to %o\n", __func__, cpu.cu.XSF);
+sim_debug (DBG_TRACEEXT, & cpu_dev, "%s sets XSF to %o\r\n", __func__, cpu.cu.XSF);
     //cpu.cu.SDWAMM       = getbits36_1  (words[0], 20);
     //cpu.cu.SD_ON        = getbits36_1  (words[0], 21);
     //cpu.cu.PTWAMM       = getbits36_1  (words[0], 22);
@@ -1123,10 +1123,10 @@ t_stat display_the_matrix (UNUSED int32 arg, UNUSED const char * buf)
             strcat (result, extMods[tag].mod);
         }
         if (result[0] == '?')
-            sim_printf ("%20"PRId64": ? opcode 0%04o X %d a %d tag 0%02do\n",
+            sim_printf ("%20"PRId64": ? opcode 0%04o X %d a %d tag 0%02do\r\n",
                         count, opcode, opcodeX, a, tag);
         else
-            sim_printf ("%20"PRId64": %s\n", count, result);
+            sim_printf ("%20"PRId64": %s\r\n", count, result);
         total += count;
     }
     static char result[132] = "???";
@@ -1135,7 +1135,7 @@ t_stat display_the_matrix (UNUSED int32 arg, UNUSED const char * buf)
     // get mnemonic ...
     if (opcodes10 [opcode | (opcodeX ? 01000 : 0)].mne)
       strcpy (result, opcodes10[opcode | (opcodeX ? 01000 : 0)].mne);
-    sim_printf ("%20"PRId64": %s\n", total, result);
+    sim_printf ("%20"PRId64": %s\r\n", total, result);
     }
     }
     return SCPE_OK;
@@ -1228,25 +1228,25 @@ force:;
               {
                 if (isBAR)
                   {
-                    sim_debug (flag, &cpu_dev, "%06o|%06o %s\n",
+                    sim_debug (flag, &cpu_dev, "%06o|%06o %s\r\n",
                                cpu.BAR.BASE, cpu.PPR.IC, where);
                   }
                 else
                   {
-                    sim_debug (flag, &cpu_dev, "%06o %s\n", cpu.PPR.IC, where);
+                    sim_debug (flag, &cpu_dev, "%06o %s\r\n", cpu.PPR.IC, where);
                   }
               }
             else if (get_addr_mode (cpup) == APPEND_mode)
               {
                 if (isBAR)
                   {
-                    sim_debug (flag, &cpu_dev, "%05o:%06o|%06o %s\n",
+                    sim_debug (flag, &cpu_dev, "%05o:%06o|%06o %s\r\n",
                                cpu.PPR.PSR,
                                cpu.BAR.BASE, cpu.PPR.IC, where);
                   }
                 else
                   {
-                    sim_debug (flag, &cpu_dev, "%05o:%06o %s\n",
+                    sim_debug (flag, &cpu_dev, "%05o:%06o %s\r\n",
                                cpu.PPR.PSR, cpu.PPR.IC, where);
                   }
               }
@@ -1258,7 +1258,7 @@ force:;
               {
                 sim_debug (flag, &cpu_dev,
                   "%d: "
-                  "%05o|%06o %012"PRIo64" (%s) %06o %03o(%d) %o %o %o %02o\n",
+                  "%05o|%06o %012"PRIo64" (%s) %06o %03o(%d) %o %o %o %02o\r\n",
                   current_running_cpu_idx,
                   cpu.BAR.BASE,
                   cpu.PPR.IC,
@@ -1276,7 +1276,7 @@ force:;
               {
                 sim_debug (flag, &cpu_dev,
                   "%d: "
-                  "%06o %012"PRIo64" (%s) %06o %03o(%d) %o %o %o %02o\n",
+                  "%06o %012"PRIo64" (%s) %06o %03o(%d) %o %o %o %02o\r\n",
                   current_running_cpu_idx,
                   cpu.PPR.IC,
                   IWB_IRODD,
@@ -1296,7 +1296,7 @@ force:;
               {
                 sim_debug (flag, &cpu_dev,
                   "%d: "
-                 "%05o:%06o|%06o %o %012"PRIo64" (%s) %06o %03o(%d) %o %o %o %02o\n",
+                 "%05o:%06o|%06o %o %012"PRIo64" (%s) %06o %03o(%d) %o %o %o %02o\r\n",
                   current_running_cpu_idx,
                   cpu.PPR.PSR,
                   cpu.BAR.BASE,
@@ -1315,7 +1315,7 @@ force:;
               {
                 sim_debug (flag, &cpu_dev,
                   "%d: "
-                  "%05o:%06o %o %012"PRIo64" (%s) %06o %03o(%d) %o %o %o %02o\n",
+                  "%05o:%06o %o %012"PRIo64" (%s) %06o %03o(%d) %o %o %o %02o\r\n",
                   current_running_cpu_idx,
                   cpu.PPR.PSR,
                   cpu.PPR.IC,
@@ -1828,11 +1828,11 @@ restart_1:
 //
 
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "RPT/RPD first %d rpt %d rd %d e/o %d X0 %06o a %d b %d\n",
+               "RPT/RPD first %d rpt %d rd %d e/o %d X0 %06o a %d b %d\r\n",
                cpu.cu.repeat_first, cpu.cu.rpt, cpu.cu.rd, cpu.PPR.IC & 1, cpu.rX[0],
                !! (cpu.rX[0] & 01000), !! (cpu.rX[0] & 0400));
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "RPT/RPD CA %06o\n", cpu.TPR.CA);
+               "RPT/RPD CA %06o\r\n", cpu.TPR.CA);
 
 // Handle first time of a RPT or RPD
 
@@ -1858,18 +1858,18 @@ restart_1:
         word18 offset = ci->address;
         offset &= AMASK;
 
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "rpt/rd/rl repeat first; offset is %06o\n", offset);
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "rpt/rd/rl repeat first; offset is %06o\r\n", offset);
 
         word6 Td = GET_TD (tag);
         uint Xn = X (Td);  // Get Xn of next instruction
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "rpt/rd/rl repeat first; X%d was %06o\n", Xn, cpu.rX[Xn]);
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "rpt/rd/rl repeat first; X%d was %06o\r\n", Xn, cpu.rX[Xn]);
         // a:RJ78/rpd5
         cpu.TPR.CA = (cpu.rX[Xn] + offset) & AMASK;
         cpu.rX[Xn] = cpu.TPR.CA;
 #if defined(TESTING)
         HDBGRegXW (Xn, "rpt 1st");
 #endif
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "rpt/rd/rl repeat first; X%d now %06o\n", Xn, cpu.rX[Xn]);
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "rpt/rd/rl repeat first; X%d now %06o\r\n", Xn, cpu.rX[Xn]);
       } // rpt or rd or rl
 
     } // repeat first
@@ -1885,7 +1885,7 @@ restart_1:
 
   if (UNLIKELY (ndes > 0)) {
     CPT (cpt2U, 27); // EIS operand processing
-    sim_debug (DBG_APPENDING, &cpu_dev, "initialize EIS descriptors\n");
+    sim_debug (DBG_APPENDING, &cpu_dev, "initialize EIS descriptors\r\n");
     // This must not happen on instruction restart
     if (!restart) {
       CPT (cpt2U, 28); // EIS not restart
@@ -1908,7 +1908,7 @@ restart_1:
 { static bool first = true;
 if (first) {
 first = false;
-sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n");
+sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\r\n");
 }}
 #else
             // append cycles updates cpu.PPR.IC to TPR.CA
@@ -1944,7 +1944,7 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
       CPTUR (cptUsePRn + n);
 
       sim_debug (DBG_APPENDING, &cpu_dev,
-                 "doPtrReg: PR[%o] SNR=%05o RNR=%o WORDNO=%06o " "BITNO=%02o\n",
+                 "doPtrReg: PR[%o] SNR=%05o RNR=%o WORDNO=%06o " "BITNO=%02o\r\n",
                  n, cpu.PAR[n].SNR, cpu.PAR[n].RNR, cpu.PAR[n].WORDNO, GET_PR_BITNO (n));
 
 // Fix tst880: 'call6 pr1|0'. The instruction does a DF1; the fault handler
@@ -1961,7 +1961,7 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
         cpu.TPR.TRR = max3 (cpu.PAR[n].RNR, cpu.TPR.TRR, cpu.PPR.PRR);
 
       sim_debug (DBG_APPENDING, &cpu_dev,
-                 "doPtrReg: n=%o offset=%05o TPR.CA=%06o " "TPR.TBR=%o TPR.TSR=%05o TPR.TRR=%o\n",
+                 "doPtrReg: n=%o offset=%05o TPR.CA=%06o " "TPR.TBR=%o TPR.TSR=%05o TPR.TRR=%o\r\n",
                  n, offset, cpu.TPR.CA, cpu.TPR.TBR, cpu.TPR.TSR, cpu.TPR.TRR);
       //}
 
@@ -2052,9 +2052,9 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
 #if defined(LOCKLESS)
     if ((ci->info->flags & RMW) == RMW) {
       if (operand_size(cpup) != 1)
-        sim_warn("executeInstruction: operand_size!= 1\n");
+        sim_warn("executeInstruction: operand_size!= 1\r\n");
       if (cpu.iefpFinalAddress != cpu.rmw_address)
-        sim_warn("executeInstruction: write addr changed %o %d\n", cpu.iefpFinalAddress, cpu.rmw_address);
+        sim_warn("executeInstruction: write addr changed %o %d\r\n", cpu.iefpFinalAddress, cpu.rmw_address);
       core_write_unlock (cpup, cpu.iefpFinalAddress, cpu.CY, __func__);
 # if defined(TESTING)
       HDBGMWrite (cpu.iefpFinalAddress, cpu.CY, "Write RMW");
@@ -2108,7 +2108,7 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
       bool rptB = !! (cpu.rX[0] & 00400);
 
       sim_debug (DBG_TRACEEXT, & cpu_dev,
-                 "RPT/RPD delta first %d rf %d rpt %d rd %d " "e/o %d X0 %06o a %d b %d\n",
+                 "RPT/RPD delta first %d rf %d rpt %d rd %d " "e/o %d X0 %06o a %d b %d\r\n",
                  cpu.cu.repeat_first, rf, cpu.cu.rpt, cpu.cu.rd, icOdd, cpu.rX[0], rptA, rptB);
 
       if (cpu.cu.rpt) { // rpt
@@ -2119,7 +2119,7 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
 #if defined(TESTING)
         HDBGRegXW (Xn, "rpt delta");
 #endif
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "RPT/RPD delta; X%d now %06o\n", Xn, cpu.rX[Xn]);
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "RPT/RPD delta; X%d now %06o\r\n", Xn, cpu.rX[Xn]);
       }
 
       // a:RJ78/rpd6
@@ -2135,7 +2135,7 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
 #if defined(TESTING)
         HDBGRegXW (Xn, "rpd delta even");
 #endif
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "RPT/RPD delta; X%d now %06o\n", Xn, cpu.rX[Xn]);
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "RPT/RPD delta; X%d now %06o\r\n", Xn, cpu.rX[Xn]);
       }
 
       if (cpu.cu.rd && icOdd && rptB) { // rpdb, odd instruction
@@ -2147,7 +2147,7 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
 #if defined(TESTING)
         HDBGRegXW (Xn, "rpd delta odd");
 #endif
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "RPT/RPD delta; X%d now %06o\n", Xn, cpu.rX[Xn]);
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "RPT/RPD delta; X%d now %06o\r\n", Xn, cpu.rX[Xn]);
       }
     } // rpt || rd
 
@@ -2199,13 +2199,13 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
       //  c. If C(X0)0,7 = 0, then set the tally runout indicator ON
       //     and terminate
 
-      sim_debug (DBG_TRACEEXT, & cpu_dev, "tally %d\n", x);
+      sim_debug (DBG_TRACEEXT, & cpu_dev, "tally %d\r\n", x);
       if (x == 0) {
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "tally runout\n");
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "tally runout\r\n");
         SET_I_TALLY;
         exit = true;
       } else {
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "not tally runout\n");
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "not tally runout\r\n");
         CLR_I_TALLY;
       }
 
@@ -2213,37 +2213,37 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
       //     the tally runout indicator OFF and terminate
 
       if (TST_I_ZERO && (cpu.rX[0] & 0100)) {
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "is zero terminate\n");
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "is zero terminate\r\n");
         CLR_I_TALLY;
         exit = true;
       }
       if (!TST_I_ZERO && (cpu.rX[0] & 040)) {
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "is not zero terminate\n");
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "is not zero terminate\r\n");
         CLR_I_TALLY;
         exit = true;
       }
       if (TST_I_NEG && (cpu.rX[0] & 020)) {
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "is neg terminate\n");
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "is neg terminate\r\n");
         CLR_I_TALLY;
         exit = true;
       }
       if (!TST_I_NEG && (cpu.rX[0] & 010)) {
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "is not neg terminate\n");
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "is not neg terminate\r\n");
         CLR_I_TALLY;
         exit = true;
       }
       if (TST_I_CARRY && (cpu.rX[0] & 04)) {
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "is carry terminate\n");
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "is carry terminate\r\n");
         CLR_I_TALLY;
         exit = true;
       }
       if (!TST_I_CARRY && (cpu.rX[0] & 02)) {
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "is not carry terminate\n");
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "is not carry terminate\r\n");
         CLR_I_TALLY;
         exit = true;
       }
       if (TST_I_OFLOW && (cpu.rX[0] & 01)) {
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "is overflow terminate\n");
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "is overflow terminate\r\n");
 // ISOLTS test ps805 says that on overflow the tally should be set.
         //CLR_I_TALLY;
         SET_I_TALLY;
@@ -2256,7 +2256,7 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
         cpu.cu.rd = false;
         cpu.cu.rl = false;
       } else {
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "not terminate\n");
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "not terminate\r\n");
       }
     } // if (cpu.cu.rpt || cpu.cu.rd & (cpu.PPR.IC & 1))
 
@@ -2294,27 +2294,27 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
 
   if_sim_debug (DBG_REGDUMP, & cpu_dev) {
     char buf [256];
-    sim_debug (DBG_REGDUMPAQI, &cpu_dev, "A=%012"PRIo64" Q=%012"PRIo64" IR:%s\n",
+    sim_debug (DBG_REGDUMPAQI, &cpu_dev, "A=%012"PRIo64" Q=%012"PRIo64" IR:%s\r\n",
                cpu.rA, cpu.rQ, dump_flags (buf, cpu.cu.IR));
 #if !defined(__MINGW64__) || !defined(__MINGW32__)
-    sim_debug (DBG_REGDUMPFLT, &cpu_dev, "E=%03o A=%012"PRIo64" Q=%012"PRIo64" %.10Lg\n",
+    sim_debug (DBG_REGDUMPFLT, &cpu_dev, "E=%03o A=%012"PRIo64" Q=%012"PRIo64" %.10Lg\r\n",
                cpu.rE, cpu.rA, cpu.rQ, EAQToIEEElongdouble (cpup));
 #else
-    sim_debug (DBG_REGDUMPFLT, &cpu_dev, "E=%03o A=%012"PRIo64" Q=%012"PRIo64" %.10g\n",
+    sim_debug (DBG_REGDUMPFLT, &cpu_dev, "E=%03o A=%012"PRIo64" Q=%012"PRIo64" %.10g\r\n",
                cpu.rE, cpu.rA, cpu.rQ, EAQToIEEEdouble (cpup));
 #endif
-    sim_debug (DBG_REGDUMPIDX, &cpu_dev, "X[0]=%06o X[1]=%06o X[2]=%06o X[3]=%06o\n",
+    sim_debug (DBG_REGDUMPIDX, &cpu_dev, "X[0]=%06o X[1]=%06o X[2]=%06o X[3]=%06o\r\n",
                cpu.rX[0], cpu.rX[1], cpu.rX[2], cpu.rX[3]);
-    sim_debug (DBG_REGDUMPIDX, &cpu_dev, "X[4]=%06o X[5]=%06o X[6]=%06o X[7]=%06o\n",
+    sim_debug (DBG_REGDUMPIDX, &cpu_dev, "X[4]=%06o X[5]=%06o X[6]=%06o X[7]=%06o\r\n",
                cpu.rX[4], cpu.rX[5], cpu.rX[6], cpu.rX[7]);
     for (int n = 0 ; n < 8 ; n++) {
-      sim_debug (DBG_REGDUMPPR, &cpu_dev, "PR%d/%s: SNR=%05o RNR=%o WORDNO=%06o BITNO:%02o ARCHAR:%o ARBITNO:%02o\n",
+      sim_debug (DBG_REGDUMPPR, &cpu_dev, "PR%d/%s: SNR=%05o RNR=%o WORDNO=%06o BITNO:%02o ARCHAR:%o ARBITNO:%02o\r\n",
                  n, PRalias[n], cpu.PR[n].SNR, cpu.PR[n].RNR, cpu.PR[n].WORDNO,
                  GET_PR_BITNO (n), GET_AR_CHAR (n), GET_AR_BITNO (n));
     }
-    sim_debug (DBG_REGDUMPPPR, &cpu_dev, "PRR:%o PSR:%05o P:%o IC:%06o\n",
+    sim_debug (DBG_REGDUMPPPR, &cpu_dev, "PRR:%o PSR:%05o P:%o IC:%06o\r\n",
                cpu.PPR.PRR, cpu.PPR.PSR, cpu.PPR.P, cpu.PPR.IC);
-    sim_debug (DBG_REGDUMPDSBR, &cpu_dev, "ADDR:%08o BND:%05o U:%o STACK:%04o\n",
+    sim_debug (DBG_REGDUMPDSBR, &cpu_dev, "ADDR:%08o BND:%05o U:%o STACK:%04o\r\n",
                cpu.DSBR.ADDR, cpu.DSBR.BND, cpu.DSBR.U, cpu.DSBR.STACK);
   }
 
@@ -2938,7 +2938,7 @@ HOT static t_stat doInstruction (cpu_state_t * cpup)
 
               sim_debug (DBG_APPENDING, & cpu_dev,
                          "lprp%d CY 0%012"PRIo64", PR[n].RNR 0%o, "
-                         "PR[n].BITNO 0%o, PR[n].SNR 0%o, PR[n].WORDNO %o\n",
+                         "PR[n].BITNO 0%o, PR[n].SNR 0%o, PR[n].WORDNO %o\r\n",
                          n, cpu.CY, cpu.PR[n].RNR, GET_PR_BITNO (n),
                          cpu.PR[n].SNR, cpu.PR[n].WORDNO);
 #if defined(TESTING)
@@ -5274,7 +5274,7 @@ HOT static t_stat doInstruction (cpu_state_t * cpup)
           if ((cpu.rQ == MAXNEG && (cpu.CY == 1 || cpu.CY == NEG136)) ||
               (cpu.CY == 0))
             {
-//sim_printf ("DIV Q %012"PRIo64" Y %012"PRIo64"\n", cpu.rQ, cpu.CY);
+//sim_printf ("DIV Q %012"PRIo64" Y %012"PRIo64"\r\n", cpu.rQ, cpu.CY);
 // case 1  400000000000 000000000000 --> 000000000000
 // case 2  000000000000 000000000000 --> 400000000000
               //cpu.rA = 0;  // works for case 1
@@ -5307,12 +5307,12 @@ HOT static t_stat doInstruction (cpu_state_t * cpup)
               t_int64 divisor  = (t_int64) (SIGNEXT36_64 (cpu.CY));
 #if defined(TESTING)
 # if defined(DIV_TRACE)
-              sim_debug (DBG_CAC, & cpu_dev, "\n");
+              sim_debug (DBG_CAC, & cpu_dev, "\r\n");
               sim_debug (DBG_CAC, & cpu_dev,
-                         ">>> dividend cpu.rQ %"PRId64" (%012"PRIo64")\n",
+                         ">>> dividend cpu.rQ %"PRId64" (%012"PRIo64")\r\n",
                          dividend, cpu.rQ);
               sim_debug (DBG_CAC, & cpu_dev,
-                         ">>> divisor  CY %"PRId64" (%012"PRIo64")\n",
+                         ">>> divisor  CY %"PRId64" (%012"PRIo64")\r\n",
                          divisor, cpu.CY);
 # endif
 #endif
@@ -5322,8 +5322,8 @@ HOT static t_stat doInstruction (cpu_state_t * cpup)
               t_int64 remainder = dividend % divisor;
 #if defined(TESTING)
 # if defined(DIV_TRACE)
-              sim_debug (DBG_CAC, & cpu_dev, ">>> quot 1 %"PRId64"\n", quotient);
-              sim_debug (DBG_CAC, & cpu_dev, ">>> rem 1 %"PRId64"\n", remainder);
+              sim_debug (DBG_CAC, & cpu_dev, ">>> quot 1 %"PRId64"\r\n", quotient);
+              sim_debug (DBG_CAC, & cpu_dev, ">>> rem 1 %"PRId64"\r\n", remainder);
 # endif
 #endif
 
@@ -5340,9 +5340,9 @@ HOT static t_stat doInstruction (cpu_state_t * cpup)
 
 # if defined(DIV_TRACE)
                   sim_debug (DBG_CAC, & cpu_dev,
-                             ">>> quot 2 %"PRId64"\n", quotient);
+                             ">>> quot 2 %"PRId64"\r\n", quotient);
                   sim_debug (DBG_CAC, & cpu_dev,
-                             ">>> rem 2 %"PRId64"\n", remainder);
+                             ">>> rem 2 %"PRId64"\r\n", remainder);
 # endif
                 }
 #endif
@@ -5350,14 +5350,14 @@ HOT static t_stat doInstruction (cpu_state_t * cpup)
 # if defined(DIV_TRACE)
               //  (a/b)*b + a%b is equal to a.
               sim_debug (DBG_CAC, & cpu_dev,
-                         "dividend was                   = %"PRId64"\n", dividend);
+                         "dividend was                   = %"PRId64"\r\n", dividend);
               sim_debug (DBG_CAC, & cpu_dev,
-                         "quotient * divisor + remainder = %"PRId64"\n",
+                         "quotient * divisor + remainder = %"PRId64"\r\n",
                          quotient * divisor + remainder);
               if (dividend != quotient * divisor + remainder)
                 {
                   sim_debug (DBG_CAC, & cpu_dev,
-                     "---------------------------------^^^^^^^^^^^^^^^\n");
+                     "---------------------------------^^^^^^^^^^^^^^^\r\n");
                 }
 # endif
 #endif
@@ -5366,7 +5366,7 @@ HOT static t_stat doInstruction (cpu_state_t * cpup)
                 {
                   sim_debug (DBG_ERR, & cpu_dev,
                              "Internal division error;"
-                             " rQ %012"PRIo64" CY %012"PRIo64"\n", cpu.rQ, cpu.CY);
+                             " rQ %012"PRIo64" CY %012"PRIo64"\r\n", cpu.rQ, cpu.CY);
                 }
 
               cpu.rA = (word36) remainder & DMASK;
@@ -5376,8 +5376,8 @@ HOT static t_stat doInstruction (cpu_state_t * cpup)
               HDBGRegQW ("div");
 
 # if defined(DIV_TRACE)
-              sim_debug (DBG_CAC, & cpu_dev, "rA (rem)  %012"PRIo64"\n", cpu.rA);
-              sim_debug (DBG_CAC, & cpu_dev, "rQ (quot) %012"PRIo64"\n", cpu.rQ);
+              sim_debug (DBG_CAC, & cpu_dev, "rA (rem)  %012"PRIo64"\r\n", cpu.rA);
+              sim_debug (DBG_CAC, & cpu_dev, "rQ (quot) %012"PRIo64"\r\n", cpu.rQ);
 # endif
 #endif
 
@@ -6039,7 +6039,7 @@ HOT static t_stat doInstruction (cpu_state_t * cpup)
             word18 tmp18  = cpu.rX[n] & GETHI (cpu.CY);
             tmp18        &= MASK18;
             sim_debug (DBG_TRACEEXT, & cpu_dev,
-                       "n %o rX %06o HI %06o tmp %06o\n",
+                       "n %o rX %06o HI %06o tmp %06o\r\n",
                        n, cpu.rX[n], (word18) (GETHI (cpu.CY) & MASK18),
                        tmp18);
 
@@ -6521,7 +6521,7 @@ HOT static t_stat doInstruction (cpu_state_t * cpup)
           do_caf (cpup);
           read_tra_op (cpup);
           sim_debug (DBG_TRACEEXT, & cpu_dev,
-                     "call6 PRR %o PSR %o\n", cpu.PPR.PRR, cpu.PPR.PSR);
+                     "call6 PRR %o PSR %o\r\n", cpu.PPR.PRR, cpu.PPR.PSR);
 
           return CONT_TRA;
 
@@ -6573,11 +6573,11 @@ HOT static t_stat doInstruction (cpu_state_t * cpup)
               }
 
             //sim_debug (DBG_TRACEEXT, & cpu_dev,
-            //           "RET NBAR was %d now %d\n",
+            //           "RET NBAR was %d now %d\r\n",
             //           TST_NBAR ? 1 : 0,
             //           TSTF (tempIR, I_NBAR) ? 1 : 0);
             //sim_debug (DBG_TRACEEXT, & cpu_dev,
-            //           "RET ABS  was %d now %d\n",
+            //           "RET ABS  was %d now %d\r\n",
             //           TST_I_ABS ? 1 : 0,
             //           TSTF (tempIR, I_ABS) ? 1 : 0);
             CPTUR (cptUseIR);
@@ -7160,7 +7160,7 @@ HOT static t_stat doInstruction (cpu_state_t * cpup)
               cpu_port_num = (cpu.TPR.CA >> 15) & 03;
             if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
               {
-                sim_warn ("rccl on CPU %u port %d has no SCU; faulting\n",
+                sim_warn ("rccl on CPU %u port %d has no SCU; faulting\r\n",
                           current_running_cpu_idx, cpu_port_num);
                 doFault (FAULT_ONC, fst_onc_nem, "(rccl)");
               }
@@ -7195,7 +7195,7 @@ HOT static t_stat doInstruction (cpu_state_t * cpup)
                 uint64_t uSecs  = remainder;
                 uint64_t secs   = bigsecs.l;
                 sim_debug (DBG_TRACEEXT, & cpu_dev,
-                           "Clock time since boot %4llu.%06llu seconds\n",
+                           "Clock time since boot %4llu.%06llu seconds\r\n",
                            secs, uSecs);
 # else
                 // Convert to time since boot
@@ -7203,7 +7203,7 @@ HOT static t_stat doInstruction (cpu_state_t * cpup)
                 unsigned long uSecs  = big % 1000000u;
                 unsigned long secs   = (unsigned long) (big / 1000000u);
                 sim_debug (DBG_TRACEEXT, & cpu_dev,
-                           "Clock time since boot %4lu.%06lu seconds\n",
+                           "Clock time since boot %4lu.%06lu seconds\r\n",
                            secs, uSecs);
 # endif
               }
@@ -7517,7 +7517,7 @@ HOT static t_stat doInstruction (cpu_state_t * cpup)
                   cpu.CMR.inst_on = getbits36_1 (cpu.CY, 57 - 36);
                   cpu.CMR.csh_reg = getbits36_1 (cpu.CY, 59 - 36);
                   if (cpu.CMR.csh_reg)
-                    sim_warn ("LCPR set csh_reg\n");
+                    sim_warn ("LCPR set csh_reg\r\n");
                   // cpu.CMR.str_asd = <ignored for lcpr>
                   // cpu.CMR.col_ful = <ignored for lcpr>
                   // cpu.CMR.rro_AB = getbits36_1 (cpu.CY, 18);
@@ -7566,12 +7566,12 @@ HOT static t_stat doInstruction (cpu_state_t * cpup)
 #if 0
                   if (cpu.MR.sdpap)
                     {
-                      sim_warn ("LCPR set SDPAP\n");
+                      sim_warn ("LCPR set SDPAP\r\n");
                     }
 
                   if (cpu.MR.separ)
                     {
-                      sim_warn ("LCPR set SEPAR\n");
+                      sim_warn ("LCPR set SEPAR\r\n");
                     }
 #endif
                 }
@@ -7626,7 +7626,7 @@ HOT static t_stat doInstruction (cpu_state_t * cpup)
               cpu.shadowTR = cpu.TR0 = cpu.rTR;
               cpu.rTRlsb = 0;
             }
-          sim_debug (DBG_TRACEEXT, & cpu_dev, "ldt TR %d (%o)\n",
+          sim_debug (DBG_TRACEEXT, & cpu_dev, "ldt TR %d (%o)\r\n",
                      cpu.rTR, cpu.rTR);
 #if defined(LOOPTRC)
 elapsedtime ();
@@ -7676,7 +7676,7 @@ elapsedtime ();
         case x1 (0774):  // lra
             CPTUR (cptUseRALR);
             cpu.rRALR = cpu.CY & MASK3;
-            sim_debug (DBG_TRACEEXT, & cpu_dev, "RALR set to %o\n", cpu.rRALR);
+            sim_debug (DBG_TRACEEXT, & cpu_dev, "RALR set to %o\r\n", cpu.rRALR);
 #if defined(LOOPTRC)
 {
 void elapsedtime (void);
@@ -8046,7 +8046,7 @@ elapsedtime ();
 // In fact, I'm not even going to implement the halves.
 
                 DPS8M_ (if (cpu.TPR.CA != 0000002 && (cpu.TPR.CA & 3) != 0)
-                  sim_warn ("CAMP ignores enable/disable %06o\n", cpu.TPR.CA);)
+                  sim_warn ("CAMP ignores enable/disable %06o\r\n", cpu.TPR.CA);)
                 if ((cpu.TPR.CA & 3) == 02)
                   cpu.cu.PT_ON = 1;
                 else if ((cpu.TPR.CA & 3) == 01)
@@ -8091,7 +8091,7 @@ elapsedtime ();
 // fact, I'm not even going to implement the halves.
 
                 DPS8M_ (if (cpu.TPR.CA != 0000006 && (cpu.TPR.CA & 3) != 0)
-                  sim_warn ("CAMS ignores enable/disable %06o\n", cpu.TPR.CA);)
+                  sim_warn ("CAMS ignores enable/disable %06o\r\n", cpu.TPR.CA);)
                 if ((cpu.TPR.CA & 3) == 02)
                   cpu.cu.SD_ON = 1;
                 else if ((cpu.TPR.CA & 3) == 01)
@@ -8119,7 +8119,7 @@ elapsedtime ();
             if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
               {
                 sim_warn ("rmcm to non-existent controller on "
-                          "cpu %d port %d\n",
+                          "cpu %d port %d\r\n",
                           current_running_cpu_idx, cpu_port_num);
                 break;
               }
@@ -8646,7 +8646,7 @@ elapsedtime ();
             if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
               {
                 sim_warn ("smcm to non-existent controller on "
-                          "cpu %d port %d\n",
+                          "cpu %d port %d\r\n",
                           current_running_cpu_idx, cpu_port_num);
                 break;
               }
@@ -8780,17 +8780,17 @@ elapsedtime ();
                                      // break this logic
             {
               sim_printf ("DIS@0%06o with no interrupts pending and"
-                          " no events in queue\n", cpu.PPR.IC);
+                          " no events in queue\r\n", cpu.PPR.IC);
 #if defined(WIN_STDIO)
-              sim_printf ("\nCycles = %llu\n",
+              sim_printf ("\r\nCycles = %llu\r\n",
 #else
-              sim_printf ("\nCycles = %'llu\n",
+              sim_printf ("\r\nCycles = %'llu\r\n",
 #endif /* if defined(WIN_STDIO) */
                           (unsigned long long)cpu.cycleCnt);
 #if defined(WIN_STDIO)
-              sim_printf ("\nInstructions = %llu\n",
+              sim_printf ("\r\nInstructions = %llu\r\n",
 #else
-              sim_printf ("\nInstructions = %'llu\n",
+              sim_printf ("\r\nInstructions = %'llu\r\n",
 #endif /* if defined(WIN_STDIO) */
                           (unsigned long long)cpu.cycleCnt);
               longjmp (cpu.jmpMain, JMP_STOP);
@@ -8799,8 +8799,8 @@ elapsedtime ();
 // Multics/BCE halt
           if (cpu.PPR.PSR == 0430 && cpu.PPR.IC == 012)
               {
-                sim_printf ("BCE DIS causes CPU halt\n");
-                sim_debug (DBG_MSG, & cpu_dev, "BCE DIS causes CPU halt\n");
+                sim_printf ("BCE DIS causes CPU halt\r\n");
+                sim_debug (DBG_MSG, & cpu_dev, "BCE DIS causes CPU halt\r\n");
 #if defined(LOCKLESS)
                 bce_dis_called = true;
 #endif // LOCKLESS
@@ -8839,7 +8839,7 @@ elapsedtime ();
               cpu.inMultics &&
               (cpu.PPR.PSR !=0 || cpu.PPR.IC != 0)) {
 # ifdef SYNCTEST
-            sim_printf ("CPU%c DIS %o:%o gives up master\n", cpu.cpuIdx + 'A', cpu.PPR.PSR, cpu.PPR.IC);
+            sim_printf ("CPU%c DIS %o:%o gives up master\r\n", cpu.cpuIdx + 'A', cpu.PPR.PSR, cpu.PPR.IC);
 # endif
             //HDBGNote (cpup, "DIS", "DIS give up clock master%s", "");
             giveupClockMaster (cpup);
@@ -8858,8 +8858,8 @@ elapsedtime ();
           //if (cpu.PPR.PSR == 044 && cpu.PPR.IC == 0005217)
           if (cpu.PPR.PSR == 044 && cpu.cu.IWB == 0000777616207)
               {
-                sim_printf ("[%lld] pxss:delete_me DIS causes CPU halt\n", cpu.cycleCnt);
-                sim_debug (DBG_MSG, & cpu_dev, "pxss:delete_me DIS causes CPU halt\n");
+                sim_printf ("[%lld] pxss:delete_me DIS causes CPU halt\r\n", cpu.cycleCnt);
+                sim_debug (DBG_MSG, & cpu_dev, "pxss:delete_me DIS causes CPU halt\r\n");
                 longjmp (cpu.jmpMain, JMP_STOP);
                 //stopCPUThread ();
               }
@@ -8868,13 +8868,13 @@ elapsedtime ();
 #if defined(ROUND_ROBIN)
           if (cpu.PPR.PSR == 034 && cpu.PPR.IC == 03535)
               {
-                sim_printf ("[%lld] sys_trouble$die DIS causes CPU halt\n", cpu.cycleCnt);
-                sim_debug (DBG_MSG, & cpu_dev, "sys_trouble$die DIS causes CPU halt\n");
+                sim_printf ("[%lld] sys_trouble$die DIS causes CPU halt\r\n", cpu.cycleCnt);
+                sim_debug (DBG_MSG, & cpu_dev, "sys_trouble$die DIS causes CPU halt\r\n");
                 //longjmp (cpu.jmpMain, JMP_STOP);
                 cpu.isRunning = false;
               }
 #endif
-          sim_debug (DBG_TRACEEXT, & cpu_dev, "entered DIS_cycle\n");
+          sim_debug (DBG_TRACEEXT, & cpu_dev, "entered DIS_cycle\r\n");
 
           // No operation takes place, and the processor does not
           // continue with the next instruction; it waits for a
@@ -8901,7 +8901,7 @@ elapsedtime ();
 
           if (sample_interrupts (cpup))
             {
-              sim_debug (DBG_TRACEEXT, & cpu_dev, "DIS sees an interrupt\n");
+              sim_debug (DBG_TRACEEXT, & cpu_dev, "DIS sees an interrupt\r\n");
               cpu.interrupt_flag = true;
               break;
             }
@@ -8918,17 +8918,17 @@ elapsedtime ();
           if (noCheckTR ? bG7PendingNoTRO (cpup) : bG7Pending (cpup))
 #endif
             {
-              sim_debug (DBG_TRACEEXT, & cpu_dev, "DIS sees a TRO\n");
+              sim_debug (DBG_TRACEEXT, & cpu_dev, "DIS sees a TRO\r\n");
               cpu.g7_flag = true;
               break;
             }
           else
             {
-              sim_debug (DBG_TRACEEXT, & cpu_dev, "DIS refetches\n");
+              sim_debug (DBG_TRACEEXT, & cpu_dev, "DIS refetches\r\n");
 #if defined(ROUND_ROBIN)
               if (cpu.tweaks.isolts_mode)
                 {
-                  //sim_printf ("stopping CPU %c\n", current_running_cpu_idx + 'A');
+                  //sim_printf ("stopping CPU %c\r\n", current_running_cpu_idx + 'A');
                   cpu.isRunning = false;
                 }
 #endif
@@ -9617,7 +9617,7 @@ static int emCall (cpu_state_t * cpup)
        // OP 1: Print the unsigned decimal representation of the first data
        //       word.
        case 1:
-         sim_printf ("%lld\n", (long long int) M[i->address+1]);
+         sim_printf ("%lld\r\n", (long long int) M[i->address+1]);
          break;
 
        // OP 2: Halt the simulation
@@ -9708,7 +9708,7 @@ static int emCall (cpu_state_t * cpup)
            break;
          }
        default:
-         sim_printf ("emcall unknown op %llo\n", (unsigned long long)op);
+         sim_printf ("emcall unknown op %llo\r\n", (unsigned long long)op);
       }
     return 0;
 #if 0
@@ -9753,7 +9753,7 @@ static int emCall (cpu_state_t * cpup)
         case 4:     // putoctZ - put octal contents of A to stdout
                     // (zero-suppressed)
         {
-            sim_printf ("%"PRIo64"\n", cpu.rA);
+            sim_printf ("%"PRIo64"\r\n", cpu.rA);
             break;
         }
         case 5:     // putdec - put decimal contents of A to stdout
@@ -9775,7 +9775,7 @@ static int emCall (cpu_state_t * cpup)
         }
         case 7:   // dump index registers
             for (int i = 0 ; i < 8 ; i += 4)
-                sim_printf ("r[%d]=%06o r[%d]=%06o r[%d]=%06o r[%d]=%06o\n",
+                sim_printf ("r[%d]=%06o r[%d]=%06o r[%d]=%06o r[%d]=%06o\r\n",
                            i+0, cpu.rX[i+0], i+1, cpu.rX[i+1], i+2, cpu.rX[i+2],
                            i+3, cpu.rX[i+3]);
             break;
@@ -9784,17 +9784,17 @@ static int emCall (cpu_state_t * cpup)
             for (int n = 0 ; n < 8 ; n++)
             {
                 sim_printf ("PR[%d]/%s: SNR=%05o RNR=%o WORDNO=%06o "
-                           "BITNO:%02o\n",
+                           "BITNO:%02o\r\n",
                            n, PRalias[n], cpu.PR[n].SNR, cpu.PR[n].RNR,
                            cpu.PR[n].WORDNO, GET_PR_BITNO (n));
             }
             break;
         case 27:    // dump registers A & Q
-            sim_printf ("A: %012"PRIo64" Q:%012"PRIo64"\n", cpu.rA, cpu.rQ);
+            sim_printf ("A: %012"PRIo64" Q:%012"PRIo64"\r\n", cpu.rA, cpu.rQ);
             break;
 
         case 8: // crlf to console
-            sim_printf ("\n");
+            sim_printf ("\r\n");
             break;
 
         case 13:     // putoct - put octal contents of Q to stdout (split)
@@ -9879,7 +9879,7 @@ static int emCall (cpu_state_t * cpup)
         // case 17 used above
 
         case 18:     // halt
-            sim_printf ("emCall Halt\n");
+            sim_printf ("emCall Halt\r\n");
             return STOP_STOP;
 
         case 19:     // putdecaq - put decimal contents of AQ to stdout
@@ -9908,7 +9908,7 @@ static int emCall (cpu_state_t * cpup)
 static int doABSA (cpu_state_t * cpup, word36 * result)
   {
     word36 res;
-    sim_debug (DBG_APPENDING, & cpu_dev, "absa CA:%08o\n", cpu.TPR.CA);
+    sim_debug (DBG_APPENDING, & cpu_dev, "absa CA:%08o\r\n", cpu.TPR.CA);
 
     //if (get_addr_mode (cpup) == ABSOLUTE_mode && ! cpu.isb29)
     //if (get_addr_mode (cpup) == ABSOLUTE_mode && ! cpu.went_appending) // ISOLTS-860
@@ -9945,7 +9945,7 @@ elapsedtime ();
         dump_words(cpup, cpu.Yblock8);
         //for (int i = 0; i < 8; i ++)
         //  {
-        //    sim_debug (DBG_FAULT, & cpu_dev, "RCU %d %012"PRIo64"\n", i,
+        //    sim_debug (DBG_FAULT, & cpu_dev, "RCU %d %012"PRIo64"\r\n", i,
         //               cpu.Yblock8[i]);
         //  }
       }
@@ -9964,7 +9964,7 @@ elapsedtime ();
 
     if (getbits36_1  (cpu.Yblock8[1], 35) == 0) // cpu.cu.FLT_INT is interrupt, not fault
       {
-        sim_debug (DBG_FAULT, & cpu_dev, "RCU interrupt return\n");
+        sim_debug (DBG_FAULT, & cpu_dev, "RCU interrupt return\r\n");
         longjmp (cpu.jmpMain, JMP_REFETCH);
       }
 
@@ -10036,22 +10036,22 @@ elapsedtime ();
 #if defined(rework)
     if (cpu.cu.FIF) // fault occurred during instruction fetch
       {
-//if (cpu.cu.rfi) sim_printf ( "RCU FIF refetch return caught rfi\n");
+//if (cpu.cu.rfi) sim_printf ( "RCU FIF refetch return caught rfi\r\n");
         // I am misusing this bit; on restart I want a way to tell the
         // CPU state machine to restart the instruction, which is not
         // how Multics uses it. I need to pick a different way to
         // communicate; for now, turn it off on refetch so the state
         // machine doesn't become confused.
         cpu.cu.rfi = 0;
-        sim_debug (DBG_FAULT, & cpu_dev, "RCU FIF REFETCH return\n");
+        sim_debug (DBG_FAULT, & cpu_dev, "RCU FIF REFETCH return\r\n");
         longjmp (cpu.jmpMain, JMP_REFETCH);
       }
 
 // RFI means 'refetch this instruction'
     if (cpu.cu.rfi)
       {
-//sim_printf ( "RCU rfi refetch return\n");
-        sim_debug (DBG_FAULT, & cpu_dev, "RCU rfi refetch return\n");
+//sim_printf ( "RCU rfi refetch return\r\n");
+        sim_debug (DBG_FAULT, & cpu_dev, "RCU rfi refetch return\r\n");
 // Setting the to RESTART causes ISOLTS 776 to report unexpected
 // trouble faults.
 // Without clearing rfi, ISOLTS pm776-08i LUFs.
@@ -10070,8 +10070,8 @@ elapsedtime ();
         fi_addr == FAULT_DRL)
     //if (fi_addr == FAULT_MME2)
       {
-//sim_printf ("MME2 restart\n");
-        sim_debug (DBG_FAULT, & cpu_dev, "RCU MME2 restart return\n");
+//sim_printf ("MME2 restart\r\n");
+        sim_debug (DBG_FAULT, & cpu_dev, "RCU MME2 restart return\r\n");
         cpu.cu.rfi = 0;
         longjmp (cpu.jmpMain, JMP_RESTART);
       }
@@ -10086,7 +10086,7 @@ elapsedtime ();
         // machine doesn't become confused.
 
         cpu.cu.rfi = 0;
-        sim_debug (DBG_FAULT, & cpu_dev, "RCU rfi/FIF REFETCH return\n");
+        sim_debug (DBG_FAULT, & cpu_dev, "RCU rfi/FIF REFETCH return\r\n");
         longjmp (cpu.jmpMain, JMP_REFETCH);
       }
 
@@ -10096,8 +10096,8 @@ elapsedtime ();
 
     if (fi_addr == FAULT_MME2)
       {
-//sim_printf ("MME2 restart\n");
-        sim_debug (DBG_FAULT, & cpu_dev, "RCU MME2 restart return\n");
+//sim_printf ("MME2 restart\r\n");
+        sim_debug (DBG_FAULT, & cpu_dev, "RCU MME2 restart return\r\n");
         cpu.cu.rfi = 1;
         longjmp (cpu.jmpMain, JMP_RESTART);
       }
@@ -10128,7 +10128,7 @@ elapsedtime ();
         fi_addr == FAULT_OFL ||
         fi_addr == FAULT_IPR)
       {
-        sim_debug (DBG_FAULT, & cpu_dev, "RCU sync fault return\n");
+        sim_debug (DBG_FAULT, & cpu_dev, "RCU sync fault return\r\n");
         cpu.cu.rfi = 0;
         longjmp (cpu.jmpMain, JMP_SYNC_FAULT_RETURN);
       }
@@ -10142,7 +10142,7 @@ elapsedtime ();
         fi_addr == FAULT_OFL  ||
         fi_addr == FAULT_IPR)
       {
-        sim_debug (DBG_FAULT, & cpu_dev, "RCU MMEx sync fault return\n");
+        sim_debug (DBG_FAULT, & cpu_dev, "RCU MMEx sync fault return\r\n");
         cpu.cu.rfi = 0;
         longjmp (cpu.jmpMain, JMP_SYNC_FAULT_RETURN);
       }
@@ -10152,7 +10152,7 @@ elapsedtime ();
     if (fi_addr == FAULT_LUF)
       {
         cpu.cu.rfi = 1;
-        sim_debug (DBG_FAULT, & cpu_dev, "RCU LUF RESTART return\n");
+        sim_debug (DBG_FAULT, & cpu_dev, "RCU LUF RESTART return\r\n");
         longjmp (cpu.jmpMain, JMP_RESTART);
       }
 
@@ -10169,10 +10169,10 @@ elapsedtime ();
       {
         // If the fault occurred during fetch, handled above.
         cpu.cu.rfi = 1;
-        sim_debug (DBG_FAULT, & cpu_dev, "RCU ACV RESTART return\n");
+        sim_debug (DBG_FAULT, & cpu_dev, "RCU ACV RESTART return\r\n");
         longjmp (cpu.jmpMain, JMP_RESTART);
       }
-    sim_printf ("doRCU dies with unhandled fault number %d\n", fi_addr);
+    sim_printf ("doRCU dies with unhandled fault number %d\r\n", fi_addr);
     doFault (FAULT_TRB,
              (_fault_subtype) {.bits=fi_addr},
              "doRCU dies with unhandled fault number");

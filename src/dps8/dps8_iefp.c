@@ -78,7 +78,7 @@ void Read (cpu_state_t * cpup, word18 address, word36 * result, processor_cycle_
 # endif
                 sim_debug (DBG_FINAL, & cpu_dev,
                            "Read (Actual) Read:       bar address=%08o  "
-                           "readData=%012"PRIo64"\n", address, *result);
+                           "readData=%012"PRIo64"\r\n", address, *result);
 # if defined(TESTING)
                 HDBGIEFP (hdbgIEFP_abs_bar_read, 0, address, "Read ABS BAR");
                 HDBGMRead (cpu.iefpFinalAddress, * result, "Read ABS BAR");
@@ -99,7 +99,7 @@ void Read (cpu_state_t * cpup, word18 address, word36 * result, processor_cycle_
 # endif
                 sim_debug (DBG_FINAL, & cpu_dev,
                            "Read (Actual) Read:       abs address=%08o  "
-                           "readData=%012"PRIo64"\n", address, *result);
+                           "readData=%012"PRIo64"\r\n", address, *result);
 # if defined(TESTING)
                 HDBGIEFP (hdbgIEFP_abs_read, 0, address, "Read ABS");
                 HDBGMRead (address, * result, "Read ABS");
@@ -119,7 +119,7 @@ B29:;
                 cpu.iefpFinalAddress = do_append_cycle (cpup, cyctyp, result, 1);
                 sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
                            "Read (Actual) Read:  bar iefpFinalAddress=%08o  "
-                           "readData=%012"PRIo64"\n",
+                           "readData=%012"PRIo64"\r\n",
                            cpu.iefpFinalAddress, * result);
 # if defined(TESTING)
                 HDBGIEFP (hdbgIEFP_bar_read, cpu.TPR.TSR, address, "Read BAR");
@@ -136,7 +136,7 @@ B29:;
                   {
                     sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
                                "Read (Actual) Read:  iefpFinalAddress=%08o  "
-                               "readData=%012"PRIo64"\n",
+                               "readData=%012"PRIo64"\r\n",
                                cpu.iefpFinalAddress, * result);
 # if defined(TESTING)
                     HDBGIEFP (hdbgIEFP_read, cpu.TPR.TSR, address, "Read");
@@ -167,7 +167,7 @@ void ReadAPUDataRead (cpu_state_t * cpup, word18 address, word36 * result) {
         fauxDoAppendCycle (cpup, APU_DATA_READ);
         core_read (cpup, cpu.iefpFinalAddress, result, __func__);
         sim_debug (DBG_FINAL, & cpu_dev,
-                   "ReadAPUDataRead (Actual) Read:       bar address=%08o  readData=%012"PRIo64"\n",
+                   "ReadAPUDataRead (Actual) Read:       bar address=%08o  readData=%012"PRIo64"\r\n",
                    address, *result);
 # if defined(TESTING)
         HDBGIEFP (hdbgIEFP_abs_bar_read, 0, address, "ReadAPUDataRead ABS BAR");
@@ -179,7 +179,7 @@ void ReadAPUDataRead (cpu_state_t * cpup, word18 address, word36 * result) {
         fauxDoAppendCycle (cpup, APU_DATA_READ);
         core_read (cpup, address, result, __func__);
         sim_debug (DBG_FINAL, & cpu_dev,
-                   "ReadAPUDataRead (Actual) Read:       abs address=%08o  readData=%012"PRIo64"\n",
+                   "ReadAPUDataRead (Actual) Read:       abs address=%08o  readData=%012"PRIo64"\r\n",
                    address, *result);
 # if defined(TESTING)
         HDBGIEFP (hdbgIEFP_abs_read, 0, address, "ReadAPUDataRead ABS");
@@ -197,7 +197,7 @@ B29:;
         cpu.TPR.TRR = cpu.PPR.PRR;
         cpu.iefpFinalAddress = doAppendCycleAPUDataRead (cpup, result, 1);
         sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                   "ReadAPUDataRead (Actual) Read:  bar iefpFinalAddress=%08o  readData=%012"PRIo64"\n",
+                   "ReadAPUDataRead (Actual) Read:  bar iefpFinalAddress=%08o  readData=%012"PRIo64"\r\n",
                    cpu.iefpFinalAddress, * result);
 # if defined(TESTING)
         HDBGIEFP (hdbgIEFP_bar_read, cpu.TPR.TSR, address, "ReadAPUDataRead BAR");
@@ -209,7 +209,7 @@ B29:;
         // XXX Don't trace Multics idle loop
         if (cpu.PPR.PSR != 061 && cpu.PPR.IC != 0307) {
           sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                     "ReadAPUDataRead (Actual) Read:  iefpFinalAddress=%08o  readData=%012"PRIo64"\n",
+                     "ReadAPUDataRead (Actual) Read:  iefpFinalAddress=%08o  readData=%012"PRIo64"\r\n",
                      cpu.iefpFinalAddress, * result);
 # if defined(TESTING)
           HDBGIEFP (hdbgIEFP_read, cpu.TPR.TSR, address, "ReadAPUDataRead");
@@ -237,7 +237,7 @@ void ReadOperandRead (cpu_state_t * cpup, word18 address, word36 * result) {
         fauxDoAppendCycle (cpup, OPERAND_READ);
         core_read (cpup, cpu.iefpFinalAddress, result, __func__);
         sim_debug (DBG_FINAL, & cpu_dev,
-                   "readOperandRead (Actual) Read:       bar address=%08o  readData=%012"PRIo64"\n",
+                   "readOperandRead (Actual) Read:       bar address=%08o  readData=%012"PRIo64"\r\n",
                    address, *result);
 # if defined(TESTING)
         HDBGIEFP (hdbgIEFP_abs_bar_read, 0, address, "readOperandRead ABS BAR");
@@ -249,7 +249,7 @@ void ReadOperandRead (cpu_state_t * cpup, word18 address, word36 * result) {
         fauxDoAppendCycle (cpup, OPERAND_READ);
         core_read (cpup, address, result, __func__);
         sim_debug (DBG_FINAL, & cpu_dev,
-                   "readOperandRead (Actual) Read:       abs address=%08o  readData=%012"PRIo64"\n",
+                   "readOperandRead (Actual) Read:       abs address=%08o  readData=%012"PRIo64"\r\n",
                    address, *result);
 # if defined(TESTING)
         HDBGIEFP (hdbgIEFP_abs_read, 0, address, "readOperandRead ABS");
@@ -267,7 +267,7 @@ B29:;
         cpu.TPR.TRR = cpu.PPR.PRR;
         cpu.iefpFinalAddress = doAppendCycleOperandRead (cpup, result, 1);
         sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                   "readOperandRead (Actual) Read:  bar iefpFinalAddress=%08o  readData=%012"PRIo64"\n",
+                   "readOperandRead (Actual) Read:  bar iefpFinalAddress=%08o  readData=%012"PRIo64"\r\n",
                    cpu.iefpFinalAddress, * result);
 # if defined(TESTING)
         HDBGIEFP (hdbgIEFP_bar_read, cpu.TPR.TSR, address, "readOperandRead BAR");
@@ -280,7 +280,7 @@ B29:;
         // XXX Don't trace Multics idle loop
         if (cpu.PPR.PSR != 061 && cpu.PPR.IC != 0307) {
           sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                     "readOperandRead (Actual) Read:  iefpFinalAddress=%08o  readData=%012"PRIo64"\n",
+                     "readOperandRead (Actual) Read:  iefpFinalAddress=%08o  readData=%012"PRIo64"\r\n",
                      cpu.iefpFinalAddress, * result);
 # if defined(TESTING)
           HDBGIEFP (hdbgIEFP_read, cpu.TPR.TSR, address, "readOperandRead");
@@ -309,7 +309,7 @@ void ReadOperandRMW (cpu_state_t * cpup, word18 address, word36 * result) {
         fauxDoAppendCycle (cpup, OPERAND_RMW);
         core_read_lock (cpup, cpu.iefpFinalAddress, result, __func__);
         sim_debug (DBG_FINAL, & cpu_dev,
-                   "ReadOperandRMW (Actual) Read:       bar address=%08o  readData=%012"PRIo64"\n",
+                   "ReadOperandRMW (Actual) Read:       bar address=%08o  readData=%012"PRIo64"\r\n",
                    address, *result);
 #  if defined(TESTING)
         HDBGIEFP (hdbgIEFP_abs_bar_read, 0, address, "ReadOperandRMW ABS BAR");
@@ -321,7 +321,7 @@ void ReadOperandRMW (cpu_state_t * cpup, word18 address, word36 * result) {
         fauxDoAppendCycle (cpup, OPERAND_RMW);
         core_read_lock (cpup, address, result, __func__);
         sim_debug (DBG_FINAL, & cpu_dev,
-                   "ReadOperandRMW (Actual) Read:       abs address=%08o  readData=%012"PRIo64"\n",
+                   "ReadOperandRMW (Actual) Read:       abs address=%08o  readData=%012"PRIo64"\r\n",
                    address, *result);
 #  if defined(TESTING)
         HDBGIEFP (hdbgIEFP_abs_read, 0, address, "ReadOperandRMW ABS");
@@ -339,7 +339,7 @@ B29:;
         cpu.TPR.TRR = cpu.PPR.PRR;
         cpu.iefpFinalAddress = doAppendCycleOperandRMW (cpup, result, 1);
         sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                   "ReadOperandRMW (Actual) Read:  bar iefpFinalAddress=%08o  readData=%012"PRIo64"\n",
+                   "ReadOperandRMW (Actual) Read:  bar iefpFinalAddress=%08o  readData=%012"PRIo64"\r\n",
                    cpu.iefpFinalAddress, * result);
 #  if defined(TESTING)
         HDBGIEFP (hdbgIEFP_bar_read, cpu.TPR.TSR, address, "ReadOperandRMW BAR");
@@ -351,7 +351,7 @@ B29:;
         // XXX Don't trace Multics idle loop
         if (cpu.PPR.PSR != 061 && cpu.PPR.IC != 0307) {
           sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                     "ReadOperandRMW (Actual) Read:  iefpFinalAddress=%08o  readData=%012"PRIo64"\n",
+                     "ReadOperandRMW (Actual) Read:  iefpFinalAddress=%08o  readData=%012"PRIo64"\r\n",
                      cpu.iefpFinalAddress, * result);
 #  if defined(TESTING)
           HDBGIEFP (hdbgIEFP_read, cpu.TPR.TSR, address, "ReadOperandRMW");
@@ -379,7 +379,7 @@ void ReadAPUDataRMW (cpu_state_t * cpup, word18 address, word36 * result) {
         fauxDoAppendCycle (cpup, APU_DATA_RMW);
         core_read_lock (cpup, cpu.iefpFinalAddress, result, __func__);
         sim_debug (DBG_FINAL, & cpu_dev,
-                   "ReadAPUDataRMW (Actual) Read:       bar address=%08o  readData=%012"PRIo64"\n",
+                   "ReadAPUDataRMW (Actual) Read:       bar address=%08o  readData=%012"PRIo64"\r\n",
                    address, *result);
 #  if defined(TESTING)
         HDBGIEFP (hdbgIEFP_abs_bar_read, 0, address, "ReadAPUDataRMW ABS BAR");
@@ -391,7 +391,7 @@ void ReadAPUDataRMW (cpu_state_t * cpup, word18 address, word36 * result) {
         fauxDoAppendCycle (cpup, APU_DATA_RMW);
         core_read_lock (cpup, address, result, __func__);
         sim_debug (DBG_FINAL, & cpu_dev,
-                   "ReadAPUDataRMW (Actual) Read:       abs address=%08o  readData=%012"PRIo64"\n",
+                   "ReadAPUDataRMW (Actual) Read:       abs address=%08o  readData=%012"PRIo64"\r\n",
                    address, *result);
 #  if defined(TESTING)
         HDBGIEFP (hdbgIEFP_abs_read, 0, address, "ReadAPUDataRMW ABS");
@@ -409,7 +409,7 @@ B29:;
         cpu.TPR.TRR = cpu.PPR.PRR;
         cpu.iefpFinalAddress = doAppendCycleAPUDataRMW (cpup, result, 1);
         sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                   "ReadAPUDataRMW (Actual) Read:  bar iefpFinalAddress=%08o  readData=%012"PRIo64"\n",
+                   "ReadAPUDataRMW (Actual) Read:  bar iefpFinalAddress=%08o  readData=%012"PRIo64"\r\n",
                    cpu.iefpFinalAddress, * result);
 #  if defined(TESTING)
         HDBGIEFP (hdbgIEFP_bar_read, cpu.TPR.TSR, address, "ReadAPUDataRMW BAR");
@@ -421,7 +421,7 @@ B29:;
         // XXX Don't trace Multics idle loop
         if (cpu.PPR.PSR != 061 && cpu.PPR.IC != 0307) {
           sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                     "ReadAPUDataRMW (Actual) Read:  iefpFinalAddress=%08o  readData=%012"PRIo64"\n",
+                     "ReadAPUDataRMW (Actual) Read:  iefpFinalAddress=%08o  readData=%012"PRIo64"\r\n",
                      cpu.iefpFinalAddress, * result);
 #  if defined(TESTING)
           HDBGIEFP (hdbgIEFP_read, cpu.TPR.TSR, address, "ReadAPUDataRMW");
@@ -451,7 +451,7 @@ void ReadInstructionFetch (cpu_state_t * cpup, word18 address, word36 * result) 
         fauxDoAppendCycle (cpup, INSTRUCTION_FETCH);
         core_read (cpup, cpu.iefpFinalAddress, result, __func__);
         sim_debug (DBG_FINAL, & cpu_dev,
-                   "ReadInstructionFetch (Actual) Read:       bar address=%08o  readData=%012"PRIo64"\n",
+                   "ReadInstructionFetch (Actual) Read:       bar address=%08o  readData=%012"PRIo64"\r\n",
                    address, *result);
 # if defined(TESTING)
         HDBGIEFP (hdbgIEFP_abs_bar_read, 0, address, "ReadInstructionFetch ABS BAR");
@@ -463,7 +463,7 @@ void ReadInstructionFetch (cpu_state_t * cpup, word18 address, word36 * result) 
         fauxDoAppendCycle (cpup, INSTRUCTION_FETCH);
         core_read (cpup, address, result, __func__);
         sim_debug (DBG_FINAL, & cpu_dev,
-                   "ReadInstructionFetch (Actual) Read:       abs address=%08o  readData=%012"PRIo64"\n",
+                   "ReadInstructionFetch (Actual) Read:       abs address=%08o  readData=%012"PRIo64"\r\n",
                    address, *result);
 # if defined(TESTING)
         HDBGIEFP (hdbgIEFP_abs_read, 0, address, "ReadInstructionFetch ABS");
@@ -481,7 +481,7 @@ B29:;
         cpu.TPR.TRR = cpu.PPR.PRR;
         cpu.iefpFinalAddress = doAppendCycleInstructionFetch (cpup, result, 1);
         sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                   "ReadInstructionFetch (Actual) Read:  bar iefpFinalAddress=%08o  readData=%012"PRIo64"\n",
+                   "ReadInstructionFetch (Actual) Read:  bar iefpFinalAddress=%08o  readData=%012"PRIo64"\r\n",
                    cpu.iefpFinalAddress, * result);
 # if defined(TESTING)
         HDBGIEFP (hdbgIEFP_bar_read, cpu.TPR.TSR, address, "ReadInstructionFetch BAR");
@@ -493,7 +493,7 @@ B29:;
         // XXX Don't trace Multics idle loop
         if (cpu.PPR.PSR != 061 && cpu.PPR.IC != 0307) {
           sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                     "ReadInstructionFetch (Actual) Read:  iefpFinalAddress=%08o  readData=%012"PRIo64"\n",
+                     "ReadInstructionFetch (Actual) Read:  iefpFinalAddress=%08o  readData=%012"PRIo64"\r\n",
                      cpu.iefpFinalAddress, * result);
 # if defined(TESTING)
           HDBGIEFP (hdbgIEFP_read, cpu.TPR.TSR, address, "ReadInstructionFetch");
@@ -521,7 +521,7 @@ void ReadIndirectWordFetch (cpu_state_t * cpup, word18 address, word36 * result)
         fauxDoAppendCycle (cpup, INDIRECT_WORD_FETCH);
         core_read (cpup, cpu.iefpFinalAddress, result, __func__);
         sim_debug (DBG_FINAL, & cpu_dev,
-                   "ReadIndirectWordFetch (Actual) Read:       bar address=%08o  readData=%012"PRIo64"\n",
+                   "ReadIndirectWordFetch (Actual) Read:       bar address=%08o  readData=%012"PRIo64"\r\n",
                    address, *result);
 # if defined(TESTING)
         HDBGIEFP (hdbgIEFP_abs_bar_read, 0, address, "ReadIndirectWordFetch ABS BAR");
@@ -533,7 +533,7 @@ void ReadIndirectWordFetch (cpu_state_t * cpup, word18 address, word36 * result)
         fauxDoAppendCycle (cpup, INDIRECT_WORD_FETCH);
         core_read (cpup, address, result, __func__);
         sim_debug (DBG_FINAL, & cpu_dev,
-                   "ReadIndirectWordFetch (Actual) Read:       abs address=%08o  readData=%012"PRIo64"\n",
+                   "ReadIndirectWordFetch (Actual) Read:       abs address=%08o  readData=%012"PRIo64"\r\n",
                    address, *result);
 # if defined(TESTING)
         HDBGIEFP (hdbgIEFP_abs_read, 0, address, "ReadIndirectWordFetch ABS");
@@ -551,7 +551,7 @@ B29:;
         cpu.TPR.TRR = cpu.PPR.PRR;
         cpu.iefpFinalAddress = doAppendCycleIndirectWordFetch (cpup, result, 1);
         sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                   "ReadIndirectWordFetch (Actual) Read:  bar iefpFinalAddress=%08o  readData=%012"PRIo64"\n",
+                   "ReadIndirectWordFetch (Actual) Read:  bar iefpFinalAddress=%08o  readData=%012"PRIo64"\r\n",
                    cpu.iefpFinalAddress, * result);
 # if defined(TESTING)
         HDBGIEFP (hdbgIEFP_bar_read, cpu.TPR.TSR, address, "ReadIndirectWordFetch BAR");
@@ -563,7 +563,7 @@ B29:;
         // XXX Don't trace Multics idle loop
         if (cpu.PPR.PSR != 061 && cpu.PPR.IC != 0307) {
           sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                     "ReadIndirectWordFetch (Actual) Read:  iefpFinalAddress=%08o  readData=%012"PRIo64"\n",
+                     "ReadIndirectWordFetch (Actual) Read:  iefpFinalAddress=%08o  readData=%012"PRIo64"\r\n",
                      cpu.iefpFinalAddress, * result);
 # if defined(TESTING)
             HDBGIEFP (hdbgIEFP_read, cpu.TPR.TSR, address, "ReadIndirectWordFetch");
@@ -598,7 +598,7 @@ void Read2 (cpu_state_t * cpup, word18 address, word36 * result, processor_cycle
         if_sim_debug (DBG_FINAL, & cpu_dev) {
             for (uint i = 0; i < 2; i ++)
               sim_debug (DBG_FINAL, & cpu_dev,
-                         "Read2 (Actual) Read:       bar address=%08o" "  readData=%012"PRIo64"\n",
+                         "Read2 (Actual) Read:       bar address=%08o" "  readData=%012"PRIo64"\r\n",
                          address + i, result [i]);
         }
 # if defined(TESTING)
@@ -614,7 +614,7 @@ void Read2 (cpu_state_t * cpup, word18 address, word36 * result, processor_cycle
         if_sim_debug (DBG_FINAL, & cpu_dev) {
           for (uint i = 0; i < 2; i ++)
             sim_debug (DBG_FINAL, & cpu_dev,
-                       "Read2 (Actual) Read:       abs address=%08o" "  readData=%012"PRIo64"\n",
+                       "Read2 (Actual) Read:       abs address=%08o" "  readData=%012"PRIo64"\r\n",
                        address + i, result [i]);
         }
 # if defined(TESTING)
@@ -636,7 +636,7 @@ B29:;
         if_sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev) {
           for (uint i = 0; i < 2; i ++)
            sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                      "Read2 (Actual) Read:  bar iefpFinalAddress=" "%08o  readData=%012"PRIo64"\n",
+                      "Read2 (Actual) Read:  bar iefpFinalAddress=" "%08o  readData=%012"PRIo64"\r\n",
                       cpu.iefpFinalAddress + i, result [i]);
         }
 # if defined(TESTING)
@@ -650,14 +650,14 @@ B29:;
         if_sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev) {
           for (uint i = 0; i < 2; i ++)
             sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                       "Read2 (Actual) Read:  iefpFinalAddress=%08o" "  readData=%012"PRIo64"\n",
+                       "Read2 (Actual) Read:  iefpFinalAddress=%08o" "  readData=%012"PRIo64"\r\n",
                        cpu.iefpFinalAddress + i, result [i]);
         }
         if_sim_debug (DBG_FINAL, & cpu_dev) {
           if (cyctyp == OPERAND_READ) {
             for (uint i = 0; i < 2; i ++)
               sim_debug (DBG_FINAL, & cpu_dev,
-                         "Read2 (Actual) Read:  iefpFinalAddress=%08o" "  readData=%012"PRIo64"\n",
+                         "Read2 (Actual) Read:  iefpFinalAddress=%08o" "  readData=%012"PRIo64"\r\n",
                          cpu.iefpFinalAddress + i, result [i]);
           }
         }
@@ -693,7 +693,7 @@ void Read2OperandRead (cpu_state_t * cpup, word18 address, word36 * result) {
         if_sim_debug (DBG_FINAL, & cpu_dev) {
             for (uint i = 0; i < 2; i ++)
               sim_debug (DBG_FINAL, & cpu_dev,
-                         "Read2OperandRead (Actual) Read:       bar address=%08o" "  readData=%012"PRIo64"\n",
+                         "Read2OperandRead (Actual) Read:       bar address=%08o" "  readData=%012"PRIo64"\r\n",
                          address + i, result [i]);
         }
 # if defined(TESTING)
@@ -709,7 +709,7 @@ void Read2OperandRead (cpu_state_t * cpup, word18 address, word36 * result) {
         if_sim_debug (DBG_FINAL, & cpu_dev) {
           for (uint i = 0; i < 2; i ++)
             sim_debug (DBG_FINAL, & cpu_dev,
-                       "Read2OperandRead (Actual) Read:       abs address=%08o" "  readData=%012"PRIo64"\n",
+                       "Read2OperandRead (Actual) Read:       abs address=%08o" "  readData=%012"PRIo64"\r\n",
                        address + i, result [i]);
         }
 # if defined(TESTING)
@@ -731,7 +731,7 @@ B29:;
         if_sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev) {
           for (uint i = 0; i < 2; i ++)
            sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                      "Read2OperandRead (Actual) Read:  bar iefpFinalAddress=" "%08o  readData=%012"PRIo64"\n",
+                      "Read2OperandRead (Actual) Read:  bar iefpFinalAddress=" "%08o  readData=%012"PRIo64"\r\n",
                       cpu.iefpFinalAddress + i, result [i]);
         }
 # if defined(TESTING)
@@ -745,13 +745,13 @@ B29:;
         if_sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev) {
           for (uint i = 0; i < 2; i ++)
             sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                       "Read2OperandRead (Actual) Read:  iefpFinalAddress=%08o" "  readData=%012"PRIo64"\n",
+                       "Read2OperandRead (Actual) Read:  iefpFinalAddress=%08o" "  readData=%012"PRIo64"\r\n",
                        cpu.iefpFinalAddress + i, result [i]);
         }
         if_sim_debug (DBG_FINAL, & cpu_dev) {
           for (uint i = 0; i < 2; i ++)
             sim_debug (DBG_FINAL, & cpu_dev,
-                       "Read2OperandRead (Actual) Read:  iefpFinalAddress=%08o" "  readData=%012"PRIo64"\n",
+                       "Read2OperandRead (Actual) Read:  iefpFinalAddress=%08o" "  readData=%012"PRIo64"\r\n",
                        cpu.iefpFinalAddress + i, result [i]);
         }
 # if defined(TESTING)
@@ -785,7 +785,7 @@ void Read2OperandRMW (cpu_state_t * cpup, word18 address, word36 * result) {
         if_sim_debug (DBG_FINAL, & cpu_dev) {
             for (uint i = 0; i < 2; i ++)
               sim_debug (DBG_FINAL, & cpu_dev,
-                         "Read2OperandRMW (Actual) Read:       bar address=%08o" "  readData=%012"PRIo64"\n",
+                         "Read2OperandRMW (Actual) Read:       bar address=%08o" "  readData=%012"PRIo64"\r\n",
                          address + i, result [i]);
         }
 #  if defined(TESTING)
@@ -801,7 +801,7 @@ void Read2OperandRMW (cpu_state_t * cpup, word18 address, word36 * result) {
         if_sim_debug (DBG_FINAL, & cpu_dev) {
           for (uint i = 0; i < 2; i ++)
             sim_debug (DBG_FINAL, & cpu_dev,
-                       "Read2OperandRMW (Actual) Read:       abs address=%08o" "  readData=%012"PRIo64"\n",
+                       "Read2OperandRMW (Actual) Read:       abs address=%08o" "  readData=%012"PRIo64"\r\n",
                        address + i, result [i]);
         }
 #  if defined(TESTING)
@@ -823,7 +823,7 @@ B29:;
         if_sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev) {
           for (uint i = 0; i < 2; i ++)
            sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                      "Read2OperandRMW (Actual) Read:  bar iefpFinalAddress=" "%08o  readData=%012"PRIo64"\n",
+                      "Read2OperandRMW (Actual) Read:  bar iefpFinalAddress=" "%08o  readData=%012"PRIo64"\r\n",
                       cpu.iefpFinalAddress + i, result [i]);
         }
 #  if defined(TESTING)
@@ -837,7 +837,7 @@ B29:;
         if_sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev) {
           for (uint i = 0; i < 2; i ++)
             sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                       "Read2OperandRMW (Actual) Read:  iefpFinalAddress=%08o" "  readData=%012"PRIo64"\n",
+                       "Read2OperandRMW (Actual) Read:  iefpFinalAddress=%08o" "  readData=%012"PRIo64"\r\n",
                        cpu.iefpFinalAddress + i, result [i]);
         }
 #  if defined(TESTING)
@@ -871,7 +871,7 @@ void Read2InstructionFetch (cpu_state_t * cpup, word18 address, word36 * result)
         if_sim_debug (DBG_FINAL, & cpu_dev) {
             for (uint i = 0; i < 2; i ++)
               sim_debug (DBG_FINAL, & cpu_dev,
-                         "Read2InstructionFetch (Actual) Read:       bar address=%08o" "  readData=%012"PRIo64"\n",
+                         "Read2InstructionFetch (Actual) Read:       bar address=%08o" "  readData=%012"PRIo64"\r\n",
                          address + i, result [i]);
         }
 # if defined(TESTING)
@@ -887,7 +887,7 @@ void Read2InstructionFetch (cpu_state_t * cpup, word18 address, word36 * result)
         if_sim_debug (DBG_FINAL, & cpu_dev) {
           for (uint i = 0; i < 2; i ++)
             sim_debug (DBG_FINAL, & cpu_dev,
-                       "Read2InstructionFetch (Actual) Read:       abs address=%08o" "  readData=%012"PRIo64"\n",
+                       "Read2InstructionFetch (Actual) Read:       abs address=%08o" "  readData=%012"PRIo64"\r\n",
                        address + i, result [i]);
         }
 # if defined(TESTING)
@@ -909,7 +909,7 @@ B29:;
         if_sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev) {
           for (uint i = 0; i < 2; i ++)
            sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                      "Read2InstructionFetch (Actual) Read:  bar iefpFinalAddress=" "%08o  readData=%012"PRIo64"\n",
+                      "Read2InstructionFetch (Actual) Read:  bar iefpFinalAddress=" "%08o  readData=%012"PRIo64"\r\n",
                       cpu.iefpFinalAddress + i, result [i]);
         }
 # if defined(TESTING)
@@ -923,7 +923,7 @@ B29:;
         if_sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev) {
           for (uint i = 0; i < 2; i ++)
             sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                       "Read2InstructionFetch (Actual) Read:  iefpFinalAddress=%08o" "  readData=%012"PRIo64"\n",
+                       "Read2InstructionFetch (Actual) Read:  iefpFinalAddress=%08o" "  readData=%012"PRIo64"\r\n",
                        cpu.iefpFinalAddress + i, result [i]);
         }
 # if defined(TESTING)
@@ -950,7 +950,7 @@ void Read2RTCDOperandFetch (cpu_state_t * cpup, word18 address, word36 * result)
     if_sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev) {
       for (uint i = 0; i < 2; i ++)
        sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                  "Read2 (Actual) Read:  bar iefpFinalAddress=" "%08o  readData=%012"PRIo64"\n",
+                  "Read2 (Actual) Read:  bar iefpFinalAddress=" "%08o  readData=%012"PRIo64"\r\n",
                   cpu.iefpFinalAddress + i, result [i]);
     }
 # if defined(TESTING)
@@ -964,7 +964,7 @@ void Read2RTCDOperandFetch (cpu_state_t * cpup, word18 address, word36 * result)
     if_sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev) {
       for (uint i = 0; i < 2; i ++)
         sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                   "Read2 (Actual) Read:  iefpFinalAddress=%08o" "  readData=%012"PRIo64"\n",
+                   "Read2 (Actual) Read:  iefpFinalAddress=%08o" "  readData=%012"PRIo64"\r\n",
                    cpu.iefpFinalAddress + i, result [i]);
     }
 # if defined(TESTING)
@@ -995,7 +995,7 @@ void Read2IndirectWordFetch (cpu_state_t * cpup, word18 address, word36 * result
         if_sim_debug (DBG_FINAL, & cpu_dev) {
             for (uint i = 0; i < 2; i ++)
               sim_debug (DBG_FINAL, & cpu_dev,
-                         "Read2IndirectWordFetch (Actual) Read:       bar address=%08o" "  readData=%012"PRIo64"\n",
+                         "Read2IndirectWordFetch (Actual) Read:       bar address=%08o" "  readData=%012"PRIo64"\r\n",
                          address + i, result [i]);
         }
 # if defined(TESTING)
@@ -1011,7 +1011,7 @@ void Read2IndirectWordFetch (cpu_state_t * cpup, word18 address, word36 * result
         if_sim_debug (DBG_FINAL, & cpu_dev) {
           for (uint i = 0; i < 2; i ++)
             sim_debug (DBG_FINAL, & cpu_dev,
-                       "Read2IndirectWordFetch (Actual) Read:       abs address=%08o" "  readData=%012"PRIo64"\n",
+                       "Read2IndirectWordFetch (Actual) Read:       abs address=%08o" "  readData=%012"PRIo64"\r\n",
                        address + i, result [i]);
         }
 # if defined(TESTING)
@@ -1033,7 +1033,7 @@ B29:;
         if_sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev) {
           for (uint i = 0; i < 2; i ++)
            sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                      "Read2IndirectWordFetch (Actual) Read:  bar iefpFinalAddress=" "%08o  readData=%012"PRIo64"\n",
+                      "Read2IndirectWordFetch (Actual) Read:  bar iefpFinalAddress=" "%08o  readData=%012"PRIo64"\r\n",
                       cpu.iefpFinalAddress + i, result [i]);
         }
 # if defined(TESTING)
@@ -1047,7 +1047,7 @@ B29:;
         if_sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev) {
           for (uint i = 0; i < 2; i ++)
             sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                       "Read2IndirectWordFetch (Actual) Read:  iefpFinalAddress=%08o" "  readData=%012"PRIo64"\n",
+                       "Read2IndirectWordFetch (Actual) Read:  iefpFinalAddress=%08o" "  readData=%012"PRIo64"\r\n",
                        cpu.iefpFinalAddress + i, result [i]);
         }
 # if defined(TESTING)
@@ -1089,7 +1089,7 @@ void Read8 (cpu_state_t * cpup, word18 address, word36 * result, bool isAR)
                     for (uint i = 0; i < 8; i ++)
                       sim_debug (DBG_FINAL, & cpu_dev,
                                  "Read8 (Actual) Read:       bar address=%08o"
-                                 "  readData=%012"PRIo64"\n",
+                                 "  readData=%012"PRIo64"\r\n",
                                  address + i, result [i]);
                   }
 #if defined(TESTING)
@@ -1109,7 +1109,7 @@ void Read8 (cpu_state_t * cpup, word18 address, word36 * result, bool isAR)
                     for (uint i = 0; i < 8; i ++)
                       sim_debug (DBG_FINAL, & cpu_dev,
                                  "Read8 (Actual) Read:       abs address=%08o"
-                                 "  readData=%012"PRIo64"\n",
+                                 "  readData=%012"PRIo64"\r\n",
                                  address + i, result [i]);
                   }
 #if defined(TESTING)
@@ -1136,7 +1136,7 @@ B29:;
                     for (uint i = 0; i < 8; i ++)
                      sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
                                 "Read8 (Actual) Read:  bar iefpFinalAddress="
-                                "%08o  readData=%012"PRIo64"\n",
+                                "%08o  readData=%012"PRIo64"\r\n",
                                 cpu.iefpFinalAddress + i, result [i]);
                   }
 #if defined(TESTING)
@@ -1158,7 +1158,7 @@ B29:;
                         for (uint i = 0; i < 8; i ++)
                           sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
                                      "Read8 (Actual) Read:  iefpFinalAddress="
-                                     "%08o  readData=%012"PRIo64"\n",
+                                     "%08o  readData=%012"PRIo64"\r\n",
                                      cpu.iefpFinalAddress + i, result [i]);
                       }
 #if defined(TESTING)
@@ -1185,7 +1185,7 @@ void ReadPage (cpu_state_t * cpup, word18 address, word36 * result, bool isAR)
   {
     if ((address & PGMK) != 0)
       {
-        sim_warn ("ReadPage not on boundary %06o\n", address);
+        sim_warn ("ReadPage not on boundary %06o\r\n", address);
       }
     address &= (word18) ~PGMK; // Round to page boundary
     cpu.TPR.CA = cpu.iefpFinalAddress = address;
@@ -1213,7 +1213,7 @@ void ReadPage (cpu_state_t * cpup, word18 address, word36 * result, bool isAR)
                     for (uint i = 0; i < PGSZ; i ++)
                       sim_debug (DBG_FINAL, & cpu_dev,
                                  "ReadPage (Actual) Read:       bar address="
-                                 "%08o  readData=%012"PRIo64"\n",
+                                 "%08o  readData=%012"PRIo64"\r\n",
                                   address + i, result [i]);
                   }
 #if defined(TESTING)
@@ -1233,7 +1233,7 @@ void ReadPage (cpu_state_t * cpup, word18 address, word36 * result, bool isAR)
                     for (uint i = 0; i < PGSZ; i ++)
                       sim_debug (DBG_FINAL, & cpu_dev,
                                  "ReadPage (Actual) Read:       abs address="
-                                 "%08o  readData=%012"PRIo64"\n",
+                                 "%08o  readData=%012"PRIo64"\r\n",
                                  address + i, result [i]);
                   }
 #if defined(TESTING)
@@ -1260,7 +1260,7 @@ B29:;
                     for (uint i = 0; i < PGSZ; i ++)
                      sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
                                 "ReadPage (Actual) Read:  bar iefpFinalAddress="
-                                "%08o  readData=%012"PRIo64"\n",
+                                "%08o  readData=%012"PRIo64"\r\n",
                                 cpu.iefpFinalAddress + i, result [i]);
                   }
 #if defined(TESTING)
@@ -1283,7 +1283,7 @@ B29:;
                         for (uint i = 0; i < PGSZ; i ++)
                           sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
                                      "ReadPage (Actual) Read:  iefpFinalAddress"
-                                     "=%08o  readData=%012"PRIo64"\n",
+                                     "=%08o  readData=%012"PRIo64"\r\n",
                                      cpu.iefpFinalAddress + i, result [i]);
                       }
 #if defined(TESTING)
@@ -1317,7 +1317,7 @@ void Write (cpu_state_t * cpup, word18 address, word36 data, processor_cycle_typ
           core_write_zone (cpu.iefpFinalAddress, data, __func__);
         else
           core_write (cpu.iefpFinalAddress, data, __func__);
-        sim_debug (DBG_FINAL, & cpu_dev, "Write(Actual) Write:      bar address=%08o writeData=%012"PRIo64"\n", address, data);
+        sim_debug (DBG_FINAL, & cpu_dev, "Write(Actual) Write:      bar address=%08o writeData=%012"PRIo64"\r\n", address, data);
 # if defined(TESTING)
         HDBGIEFP (hdbgIEFP_abs_bar_write, 0, address, "Write ABBR");
         HDBGMWrite (cpu.iefpFinalAddress, data, "Write ABBR");
@@ -1331,7 +1331,7 @@ void Write (cpu_state_t * cpup, word18 address, word36 data, processor_cycle_typ
         else
           core_write (address, data, __func__);
         sim_debug (DBG_FINAL, & cpu_dev,
-                   "Write(Actual) Write:      abs address=%08o writeData=%012"PRIo64"\n",
+                   "Write(Actual) Write:      abs address=%08o writeData=%012"PRIo64"\r\n",
                    address, data);
 # if defined(TESTING)
         HDBGIEFP (hdbgIEFP_abs_write, 0, address, "Write AB");
@@ -1349,7 +1349,7 @@ B29:
         cpu.TPR.TRR = cpu.PPR.PRR;
         cpu.iefpFinalAddress = do_append_cycle (cpup, cyctyp, & data, 1);
         sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                   "Write(Actual) Write: bar iefpFinalAddress=%08o writeData=%012"PRIo64"\n",
+                   "Write(Actual) Write: bar iefpFinalAddress=%08o writeData=%012"PRIo64"\r\n",
                    cpu.iefpFinalAddress, data);
 # if defined(TESTING)
         HDBGIEFP (hdbgIEFP_bar_write, cpu.TPR.TSR, address, "Write BR");
@@ -1359,7 +1359,7 @@ B29:
       } else {
         cpu.iefpFinalAddress = do_append_cycle (cpup, cyctyp, & data, 1);
         sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                   "Write(Actual) Write: iefpFinalAddress=%08o " "writeData=%012"PRIo64"\n",
+                   "Write(Actual) Write: iefpFinalAddress=%08o " "writeData=%012"PRIo64"\r\n",
                    cpu.iefpFinalAddress, data);
 # if defined(TESTING)
         HDBGIEFP (hdbgIEFP_write, cpu.TPR.TSR, address, "Write");
@@ -1389,7 +1389,7 @@ void WriteAPUDataStore (cpu_state_t * cpup, word18 address, word36 data) {
         fauxDoAppendCycle (cpup, APU_DATA_STORE);
         core_write (cpup, cpu.iefpFinalAddress, data, __func__);
         sim_debug (DBG_FINAL, & cpu_dev,
-                   "WriteAPUDataStore(Actual) Write:      bar address=%08o writeData=%012"PRIo64"\n",
+                   "WriteAPUDataStore(Actual) Write:      bar address=%08o writeData=%012"PRIo64"\r\n",
                    address, data);
 # if defined(TESTING)
         HDBGIEFP (hdbgIEFP_abs_bar_write, 0, address, "WriteAPUDataStore ABBR");
@@ -1401,7 +1401,7 @@ void WriteAPUDataStore (cpu_state_t * cpup, word18 address, word36 data) {
         fauxDoAppendCycle (cpup, APU_DATA_STORE);
         core_write (cpup, address, data, __func__);
         sim_debug (DBG_FINAL, & cpu_dev,
-                   "WriteAPUDataStore(Actual) Write:      abs address=%08o writeData=%012"PRIo64"\n",
+                   "WriteAPUDataStore(Actual) Write:      abs address=%08o writeData=%012"PRIo64"\r\n",
                    address, data);
 # if defined(TESTING)
         HDBGIEFP (hdbgIEFP_abs_write, 0, address, "WriteAPUDataStore AB");
@@ -1419,7 +1419,7 @@ B29:
         cpu.TPR.TRR = cpu.PPR.PRR;
         cpu.iefpFinalAddress = doAppendCycleAPUDataStore (cpup, & data, 1);
         sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                   "WriteAPUDataStore(Actual) Write: bar iefpFinalAddress=%08o writeData=%012"PRIo64"\n",
+                   "WriteAPUDataStore(Actual) Write: bar iefpFinalAddress=%08o writeData=%012"PRIo64"\r\n",
                    cpu.iefpFinalAddress, data);
 # if defined(TESTING)
         HDBGIEFP (hdbgIEFP_bar_write, cpu.TPR.TSR, address, "WriteAPUDataStore BR");
@@ -1429,7 +1429,7 @@ B29:
       } else {
         cpu.iefpFinalAddress = doAppendCycleAPUDataStore (cpup, & data, 1);
         sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                   "WriteAPUDataStore(Actual) Write: iefpFinalAddress=%08o " "writeData=%012"PRIo64"\n",
+                   "WriteAPUDataStore(Actual) Write: iefpFinalAddress=%08o " "writeData=%012"PRIo64"\r\n",
                    cpu.iefpFinalAddress, data);
 # if defined(TESTING)
         HDBGIEFP (hdbgIEFP_write, cpu.TPR.TSR, address, "WriteAPUDataStore");
@@ -1460,7 +1460,7 @@ void WriteOperandStore (cpu_state_t * cpup, word18 address, word36 data) {
         else
           core_write (cpup, cpu.iefpFinalAddress, data, __func__);
         sim_debug (DBG_FINAL, & cpu_dev,
-                   "WriteOperandStore(Actual) Write:      bar address=%08o writeData=%012"PRIo64"\n",
+                   "WriteOperandStore(Actual) Write:      bar address=%08o writeData=%012"PRIo64"\r\n",
                    address, data);
 # if defined(TESTING)
         HDBGIEFP (hdbgIEFP_abs_bar_write, 0, address, "WriteOperandStore ABBR");
@@ -1475,7 +1475,7 @@ void WriteOperandStore (cpu_state_t * cpup, word18 address, word36 data) {
         else
           core_write (cpup, address, data, __func__);
         sim_debug (DBG_FINAL, & cpu_dev,
-                   "WriteOperandStore(Actual) Write:      abs address=%08o writeData=%012"PRIo64"\n",
+                   "WriteOperandStore(Actual) Write:      abs address=%08o writeData=%012"PRIo64"\r\n",
                    address, data);
 # if defined(TESTING)
         HDBGIEFP (hdbgIEFP_abs_write, 0, address, "WriteOperandStore AB");
@@ -1493,7 +1493,7 @@ B29:
         cpu.TPR.TRR = cpu.PPR.PRR;
         cpu.iefpFinalAddress = doAppendCycleOperandStore (cpup, & data, 1);
         sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                   "WriteOperandStore(Actual) Write: bar iefpFinalAddress=%08o writeData=%012"PRIo64"\n",
+                   "WriteOperandStore(Actual) Write: bar iefpFinalAddress=%08o writeData=%012"PRIo64"\r\n",
                    cpu.iefpFinalAddress, data);
 # if defined(TESTING)
         HDBGIEFP (hdbgIEFP_bar_write, cpu.TPR.TSR, address, "WriteOperandStore BR");
@@ -1503,7 +1503,7 @@ B29:
       } else {
         cpu.iefpFinalAddress = doAppendCycleOperandStore (cpup, & data, 1);
         sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                   "WriteOperandStore(Actual) Write: iefpFinalAddress=%08o " "writeData=%012"PRIo64"\n",
+                   "WriteOperandStore(Actual) Write: iefpFinalAddress=%08o " "writeData=%012"PRIo64"\r\n",
                    cpu.iefpFinalAddress, data);
 # if defined(TESTING)
         HDBGIEFP (hdbgIEFP_write, cpu.TPR.TSR, address, "WriteOperandStore");
@@ -1543,7 +1543,7 @@ void Write2 (cpu_state_t * cpup, word18 address, word36 * data, processor_cycle_
 # endif
                 sim_debug (DBG_FINAL, & cpu_dev,
                            "Write2 (Actual) Write:      bar address=%08o "
-                           "writeData=%012"PRIo64" %012"PRIo64"\n",
+                           "writeData=%012"PRIo64" %012"PRIo64"\r\n",
                            address, data [0], data [1]);
                 return;
               }
@@ -1554,7 +1554,7 @@ void Write2 (cpu_state_t * cpup, word18 address, word36 * data, processor_cycle_
                 core_write2 (address, data [0], data [1], __func__);
                 sim_debug (DBG_FINAL, & cpu_dev,
                            "Write2 (Actual) Write:      abs address=%08o "
-                           "writeData=%012"PRIo64" %012"PRIo64"\n",
+                           "writeData=%012"PRIo64" %012"PRIo64"\r\n",
                            address, data [0], data [1]);
 # if defined(TESTING)
                 HDBGIEFP (hdbgIEFP_abs_write, 0, address, "Write2 AB");
@@ -1576,7 +1576,7 @@ B29:
                 cpu.iefpFinalAddress = do_append_cycle (cyctyp, data, 2);
                 sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
                            "Write2 (Actual) Write: bar iefpFinalAddress=%08o "
-                           "writeData=%012"PRIo64" %012"PRIo64"\n",
+                           "writeData=%012"PRIo64" %012"PRIo64"\r\n",
                            address, data [0], data [1]);
 # if defined(TESTING)
                 HDBGIEFP (hdbgIEFP_bar_write, cpu.TPR.TSR, address, "Write2 BR");
@@ -1590,7 +1590,7 @@ B29:
                 cpu.iefpFinalAddress = do_append_cycle (cyctyp, data, 2);
                 sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
                            "Write2 (Actual) Write: iefpFinalAddress=%08o "
-                           "writeData=%012"PRIo64" %012"PRIo64"\n",
+                           "writeData=%012"PRIo64" %012"PRIo64"\r\n",
                            address, data [0], data [1]);
 # if defined(TESTING)
                 HDBGIEFP (hdbgIEFP_write, cpu.TPR.TSR, address, "Write2");
@@ -1625,7 +1625,7 @@ void Write2OperandStore (cpu_state_t * cpup, word18 address, word36 * data) {
         HDBGMWrite (cpu.iefpFinalAddress+1, data [1], "Write2OperandStore ABBR odd");
 # endif
         sim_debug (DBG_FINAL, & cpu_dev,
-                   "Write2OperandStore (Actual) Write:      bar address=%08o " "writeData=%012"PRIo64" %012"PRIo64"\n",
+                   "Write2OperandStore (Actual) Write:      bar address=%08o " "writeData=%012"PRIo64" %012"PRIo64"\r\n",
                    address, data [0], data [1]);
         return;
       } else {
@@ -1633,7 +1633,7 @@ void Write2OperandStore (cpu_state_t * cpup, word18 address, word36 * data) {
         fauxDoAppendCycle (cpup, OPERAND_STORE);
         core_write2 (cpup, address, data [0], data [1], __func__);
         sim_debug (DBG_FINAL, & cpu_dev,
-                   "Write2OperandStore (Actual) Write:      abs address=%08o " "writeData=%012"PRIo64" %012"PRIo64"\n",
+                   "Write2OperandStore (Actual) Write:      abs address=%08o " "writeData=%012"PRIo64" %012"PRIo64"\r\n",
                    address, data [0], data [1]);
 # if defined(TESTING)
         HDBGIEFP (hdbgIEFP_abs_write, 0, address, "Write2OperandStore AB");
@@ -1652,7 +1652,7 @@ B29:
         cpu.TPR.TRR = cpu.PPR.PRR;
         cpu.iefpFinalAddress = doAppendCycleOperandStore (cpup, data, 2);
         sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                   "Write2OperandStore (Actual) Write: bar iefpFinalAddress=%08o " "writeData=%012"PRIo64" %012"PRIo64"\n",
+                   "Write2OperandStore (Actual) Write: bar iefpFinalAddress=%08o " "writeData=%012"PRIo64" %012"PRIo64"\r\n",
                    address, data [0], data [1]);
 # if defined(TESTING)
         HDBGIEFP (hdbgIEFP_bar_write, cpu.TPR.TSR, address, "Write2OperandStore BR");
@@ -1663,7 +1663,7 @@ B29:
       } else {
         cpu.iefpFinalAddress = doAppendCycleOperandStore (cpup, data, 2);
         sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                   "Write2OperandStore (Actual) Write: iefpFinalAddress=%08o " "writeData=%012"PRIo64" %012"PRIo64"\n",
+                   "Write2OperandStore (Actual) Write: iefpFinalAddress=%08o " "writeData=%012"PRIo64" %012"PRIo64"\r\n",
                    address, data [0], data [1]);
 # if defined(TESTING)
         HDBGIEFP (hdbgIEFP_write, cpu.TPR.TSR, address, "Write2OperandStore");
@@ -1695,7 +1695,7 @@ void Write1 (cpu_state_t * cpup, word18 address, word36 data, bool isAR)
                 core_write (cpup, cpu.iefpFinalAddress, data, __func__);
                 sim_debug (DBG_FINAL, & cpu_dev,
                            "Write1(Actual) Write:      bar address=%08o "
-                           "writeData=%012"PRIo64"\n",
+                           "writeData=%012"PRIo64"\r\n",
                            address, data);
 #if defined(TESTING)
                 HDBGIEFP (hdbgIEFP_abs_bar_write, 0, address, "Write1 ABBR");
@@ -1710,7 +1710,7 @@ void Write1 (cpu_state_t * cpup, word18 address, word36 data, bool isAR)
                 core_write (cpup, address, data, __func__);
                 sim_debug (DBG_FINAL, & cpu_dev,
                            "Write1(Actual) Write:      abs address=%08o "
-                           "writeData=%012"PRIo64"\n",
+                           "writeData=%012"PRIo64"\r\n",
                            address, data);
 #if defined(TESTING)
                 HDBGIEFP (hdbgIEFP_abs_write, 0, address, "Write1 AB");
@@ -1732,7 +1732,7 @@ B29:
                 cpu.iefpFinalAddress = doAppendCycleAPUDataStore (cpup, & data, 1);
                 sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
                            "Write8(Actual) Write: bar iefpFinalAddress="
-                           "%08o writeData=%012"PRIo64"\n",
+                           "%08o writeData=%012"PRIo64"\r\n",
                            cpu.iefpFinalAddress, data);
 #if defined(TESTING)
                 HDBGIEFP (hdbgIEFP_bar_write, cpu.TPR.TSR, address, "Write1 BR");
@@ -1746,7 +1746,7 @@ B29:
                 cpu.iefpFinalAddress = doAppendCycleAPUDataStore (cpup, & data, 1);
                 sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
                            "Write(Actual) Write: iefpFinalAddress=%08o "
-                           "writeData=%012"PRIo64"\n",
+                           "writeData=%012"PRIo64"\r\n",
                            cpu.iefpFinalAddress, data);
 #if defined(TESTING)
                 HDBGIEFP (hdbgIEFP_write, cpu.TPR.TSR, address, "Write1");
@@ -1783,7 +1783,7 @@ void Write8 (cpu_state_t * cpup, word18 address, word36 * data, bool isAR)
                     for (uint i = 0; i < 8; i ++)
                       sim_debug (DBG_FINAL, & cpu_dev,
                                  "Write8(Actual) Write:      bar address=%08o "
-                                 "writeData=%012"PRIo64"\n",
+                                 "writeData=%012"PRIo64"\r\n",
                                  address + i, data [i]);
                   }
 #if defined(TESTING)
@@ -1803,7 +1803,7 @@ void Write8 (cpu_state_t * cpup, word18 address, word36 * data, bool isAR)
                     for (uint i = 0; i < 8; i ++)
                       sim_debug (DBG_FINAL, & cpu_dev,
                                  "Write8(Actual) Write:      abs address=%08o "
-                                 "writeData=%012"PRIo64"\n",
+                                 "writeData=%012"PRIo64"\r\n",
                                   address + i, data [i]);
                   }
 #if defined(TESTING)
@@ -1830,7 +1830,7 @@ B29:
                     for (uint i = 0; i < 8; i ++)
                       sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
                                  "Write8(Actual) Write: bar iefpFinalAddress="
-                                 "%08o writeData=%012"PRIo64"\n",
+                                 "%08o writeData=%012"PRIo64"\r\n",
                                  cpu.iefpFinalAddress + i, data [i]);
                   }
 #if defined(TESTING)
@@ -1850,7 +1850,7 @@ B29:
                     for (uint i = 0; i < 8; i ++)
                       sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
                                  "Write8(Actual) Write: iefpFinalAddress=%08o "
-                                 "writeData=%012"PRIo64"\n",
+                                 "writeData=%012"PRIo64"\r\n",
                                  cpu.iefpFinalAddress + i, data [i]);
                   }
 #if defined(TESTING)
@@ -1887,7 +1887,7 @@ void WritePage (cpu_state_t * cpup, word18 address, word36 * data, bool isAR)
   {
     if ((address & PGMK) != 0)
       {
-        sim_warn ("WritePage not on boundary %06o\n", address);
+        sim_warn ("WritePage not on boundary %06o\r\n", address);
       }
     address &= (word18) ~PGMK; // Round to page boundary
     cpu.TPR.CA = cpu.iefpFinalAddress = address;
@@ -1912,7 +1912,7 @@ void WritePage (cpu_state_t * cpup, word18 address, word36 * data, bool isAR)
                     for (uint i = 0; i < PGSZ; i ++)
                       sim_debug (DBG_FINAL, & cpu_dev,
                                  "WritePage(Actual) Write:      bar address="
-                                 "%08o writeData=%012"PRIo64"\n",
+                                 "%08o writeData=%012"PRIo64"\r\n",
                                  address + i, data [i]);
                   }
 #if defined(TESTING)
@@ -1932,7 +1932,7 @@ void WritePage (cpu_state_t * cpup, word18 address, word36 * data, bool isAR)
                     for (uint i = 0; i < PGSZ; i ++)
                       sim_debug (DBG_FINAL, & cpu_dev,
                                  "WritePage(Actual) Write:      abs address="
-                                 "%08o writeData=%012"PRIo64"\n",
+                                 "%08o writeData=%012"PRIo64"\r\n",
                                  address + i, data [i]);
                   }
 #if defined(TESTING)
@@ -1960,7 +1960,7 @@ B29:
                       sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
                                  "WritePage(Actual) Write: bar "
                                  "iefpFinalAddress=%08o writeData=%012"PRIo64
-                                 "\n",
+                                 "\r\n",
                                  cpu.iefpFinalAddress + i, data [i]);
                   }
 #if defined(TESTING)
@@ -1979,7 +1979,7 @@ B29:
                     for (uint i = 0; i < PGSZ; i ++)
                       sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
                                  "WritePage(Actual) Write: iefpFinalAddress="
-                                 "%08o writeData=%012"PRIo64"\n",
+                                 "%08o writeData=%012"PRIo64"\r\n",
                                  cpu.iefpFinalAddress + i, data [i]);
                   }
 #if defined(TESTING)

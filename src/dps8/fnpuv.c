@@ -314,7 +314,7 @@ void fnpuv_unassociated_readcb (uv_tcp_t * client,
                            ssize_t nread,
                            unsigned char * buf)
   {
-    //(void)printf ("unassoc. <%*s>\n", (int) nread, buf->base);
+    //(void)printf ("unassoc. <%*s>\r\n", (int) nread, buf->base);
     processUserInput (client, buf, nread);
   }
 
@@ -465,7 +465,7 @@ static void fuv_write_cb (uv_write_t * req, int status)
           }
         else
           {
-            sim_warn ("fuv_write_cb status %d (%s)\n", -status, xstrerror_l(-status));
+            sim_warn ("fuv_write_cb status %d (%s)\r\n", -status, xstrerror_l(-status));
           }
 
         // connection reset by peer
@@ -473,7 +473,7 @@ static void fuv_write_cb (uv_write_t * req, int status)
       }
 
 #if defined(USE_REQ_DATA)
-    //sim_printf ("freeing bufs %p\n", req->data);
+    //sim_printf ("freeing bufs %p\r\n", req->data);
     FREE (req->data);
 #else
     unsigned int nbufs = req->nbufs;
@@ -482,19 +482,19 @@ static void fuv_write_cb (uv_write_t * req, int status)
       {
         if (bufs && bufs[i].base)
           {
-            //sim_printf ("freeing bufs%d %p\n", i, bufs[i].base);
+            //sim_printf ("freeing bufs%d %p\r\n", i, bufs[i].base);
             FREE (bufs[i].base);
           }
         if (req->bufsml[i].base)
           {
-            //sim_printf ("freeing bufsml%d %p@%p\n", i, req->bufsml[i].base, & req->bufsml[i].base);
+            //sim_printf ("freeing bufsml%d %p@%p\r\n", i, req->bufsml[i].base, & req->bufsml[i].base);
             FREE (req->bufsml[i].base);
           }
       }
 #endif /* if defined(USE_REQ_DATA) */
 
     // the buf structure is copied; do not free.
-    //sim_printf ("freeing req %p\n", req);
+    //sim_printf ("freeing req %p\r\n", req);
     FREE (req);
   }
 
@@ -554,11 +554,11 @@ static void fnpuv_start_write_3270_actual (UNUSED uv_tcp_t * client, unsigned ch
     // This makes sure that bufs*.base and bufsml*.base are NULL
     (void)memset (req, 0, sizeof (uv_write_t));
     uv_buf_t buf = uv_buf_init ((char *) malloc ((unsigned long) datalen), (uint) datalen);
-//sim_printf ("allocated req %p data %p\n", req, buf.base);
+//sim_printf ("allocated req %p data %p\r\n", req, buf.base);
 # if defined(USE_REQ_DATA)
     req->data = buf.base;
 # endif
-//sim_printf ("fnpuv_start_write_actual req %p buf.base %p\n", req, buf.base);
+//sim_printf ("fnpuv_start_write_actual req %p buf.base %p\r\n", req, buf.base);
     memcpy (buf.base, data, (unsigned long) datalen);
     int ret = uv_write (req, (uv_stream_t *) stn_client, & buf, 1, fuv_write_3270_cb);
 // There seems to be a race condition when Multics signals a disconnect_line;
@@ -592,11 +592,11 @@ void fnpuv_start_write_actual (uv_tcp_t * client, unsigned char * data, ssize_t 
     // This makes sure that bufs*.base and bufsml*.base are NULL
     (void)memset (req, 0, sizeof (uv_write_t));
     uv_buf_t buf = uv_buf_init ((char *) malloc ((unsigned long) datalen), (uint) datalen);
-//sim_printf ("allocated req %p data %p\n", req, buf.base);
+//sim_printf ("allocated req %p data %p\r\n", req, buf.base);
 # if defined(USE_REQ_DATA)
     req->data = buf.base;
 # endif
-//sim_printf ("fnpuv_start_write_actual req %p buf.base %p\n", req, buf.base);
+//sim_printf ("fnpuv_start_write_actual req %p buf.base %p\r\n", req, buf.base);
     memcpy (buf.base, data, (unsigned long) datalen);
     int ret = uv_write (req, (uv_stream_t *) client, & buf, 1, fuv_write_cb);
 // There seems to be a race condition when Multics signals a disconnect_line;
@@ -621,7 +621,7 @@ void fnpuv_start_write (uv_tcp_t * client, unsigned char * data, ssize_t datalen
       return;
     if (!p->telnetp)
       {
-        sim_warn ("telnetp NULL; dropping fnpuv_start_write()\n");
+        sim_warn ("telnetp NULL; dropping fnpuv_start_write()\r\n");
         return;
       }
     telnet_send (p->telnetp, (char *) data, (size_t) datalen);
@@ -830,7 +830,7 @@ sim_printf ("\r[FNP emulation: dropping 2nd slave]\r\n");
 
         if (! p->telnetp)
           {
-             sim_warn ("ltnConnect failed\n");
+             sim_warn ("ltnConnect failed\r\n");
              return;
           }
       }
@@ -937,8 +937,8 @@ static void on_dialout_connect (uv_connect_t * server, int status)
     if (status < 0)
       {
         sim_printf ("\r[FNP emulation: dialout connection error: %s]\r\n", uv_strerror(status));
-        //sim_printf ("%p\n", p);
-        //sim_printf ("%d.%d\n", p->fnpno, p->lineno);
+        //sim_printf ("%p\r\n", p);
+        //sim_printf ("%d.%d\r\n", p->fnpno, p->lineno);
         linep->acu_dial_failure = true;
         return;
       }
@@ -1056,7 +1056,7 @@ void fnpuv_dial_out (uint fnpno, uint lineno, word36 d1, word36 d2, word36 d3)
 
     char ipaddr [256];
     (void)sprintf (ipaddr, "%d.%d.%d.%d", oct1, oct2, oct3, oct4);
-    sim_printf ("calling %s:%d\n", ipaddr,port);
+    sim_printf ("calling %s:%d\r\n", ipaddr,port);
 
     struct sockaddr_in dest;
     uv_ip4_addr(ipaddr, (int) port, &dest);
@@ -1104,7 +1104,7 @@ void fnpuv_dial_out (uint fnpno, uint lineno, word36 d1, word36 d2, word36 d3)
         p->telnetp         = ltnConnect (linep->line_client);
         if (! p->telnetp)
           {
-              sim_warn ("ltnConnect failed\n");
+              sim_warn ("ltnConnect failed\r\n");
           }
       }
     else
@@ -1120,12 +1120,12 @@ void fnpuv_dial_out (uint fnpno, uint lineno, word36 d1, word36 d2, word36 d3)
 #if 0
 static void on_slave_connect (uv_stream_t * server, int status)
   {
-    sim_printf ("slave connect\n");
+    sim_printf ("slave connect\r\n");
     uvClientData * p = (uvClientData *) server->data;
     struct t_line * linep = & fnpData.fnpUnitData[p->fnpno].MState.line[p->lineno];
     if (status < 0)
       {
-        sim_printf ("Slave connection error %s\n", uv_strerror(status));
+        sim_printf ("Slave connection error %s\r\n", uv_strerror(status));
         //linep->acu_dial_failure = true;
         return;
       }
@@ -1204,9 +1204,9 @@ static void processPacketInput (int fnpno, int lineno, unsigned char * buf, ssiz
         sim_printf ("\r[FNP emulation: processPacketInput bogus client data]\r\n");
         return;
       }
-//sim_printf ("assoc. %d.%d nread %ld <%*s>\n", fnpno, lineno, (long) nread, buf);
+//sim_printf ("assoc. %d.%d nread %ld <%*s>\r\n", fnpno, lineno, (long) nread, buf);
 //{for (int i = 0; i < nread; i ++) sim_printf (" %03o", buf[i]);
- //sim_printf ("\n");
+ //sim_printf ("\r\n");
 //}
 
     struct t_line * linep = & fnpData.fnpUnitData[fnpno].MState.line[lineno];
@@ -1263,7 +1263,7 @@ static void fnoTUNProcessLine (int fnpno, int lineno, struct t_line * linep)
         //exit (1);
         if (errno == EAGAIN)
           return;
-        sim_printf ("%ld %ld\n", (long) nread, (long) errno);
+        sim_printf ("%ld %ld\r\n", (long) nread, (long) errno);
         return;
       }
 
@@ -1284,11 +1284,11 @@ static void fnoTUNProcessLine (int fnpno, int lineno, struct t_line * linep)
 // 4 bytes of metadata
 # define ip 4
     /* Do whatever with the data */
-    sim_printf("Read %ld bytes\n", (long) nread);
-    sim_printf ("%02x %02x %02x %02x %02x %02x %02x %02x\n",
+    sim_printf("Read %ld bytes\r\n", (long) nread);
+    sim_printf ("%02x %02x %02x %02x %02x %02x %02x %02x\r\n",
       buffer [0],  buffer [1],  buffer [2],  buffer [3],
       buffer [4],  buffer [5],  buffer [6],  buffer [7]);
-    sim_printf ("%02x %02x %02x %02x %02x %02x %02x %02x\n",
+    sim_printf ("%02x %02x %02x %02x %02x %02x %02x %02x\r\n",
       buffer [8],  buffer [9],  buffer [10], buffer [11],
       buffer [12], buffer [13], buffer [14], buffer [15]);
     uint version         =         (buffer [ip +  0] >> 4) & 0xf;
@@ -1320,26 +1320,26 @@ static void fnoTUNProcessLine (int fnpno, int lineno, struct t_line * linep)
         uint type = buffer [payload_offset + 0];
         if (type == 0x08)
           {
-            sim_printf ("ICMP Echo Request %d.%d.%d.%d %d.%d.%d.%d\n",
+            sim_printf ("ICMP Echo Request %d.%d.%d.%d %d.%d.%d.%d\r\n",
               buffer [ip + 12], buffer [ip + 13], buffer [ip + 14], buffer [ip + 15],
               buffer [ip + 16], buffer [ip + 17], buffer [ip + 18], buffer [ip + 19]);
           }
         else
           {
-            sim_printf ("ICMP 0x%02x\n", type);
-            sim_printf ("%02x %02x %02x %02x %02x %02x %02x %02x\n",
+            sim_printf ("ICMP 0x%02x\r\n", type);
+            sim_printf ("%02x %02x %02x %02x %02x %02x %02x %02x\r\n",
               buffer [payload_offset + 0], buffer [payload_offset + 1], buffer [payload_offset + 2], buffer [payload_offset + 3],
               buffer [payload_offset + 4], buffer [payload_offset + 5], buffer [payload_offset + 6], buffer [payload_offset + 7]);
           }
       }
     if (protocol == 0x11)
       {
-        sim_printf ("UDP\n");
+        sim_printf ("UDP\r\n");
 
       }
     else
       {
-        sim_printf ("protocol %02x\n", protocol);
+        sim_printf ("protocol %02x\r\n", protocol);
       }
   }
 
@@ -1462,7 +1462,7 @@ static void on_new_3270_connection (uv_stream_t * server, int status)
 
     if (! p->telnetp)
       {
-        sim_warn ("ltnConnect3270 failed\n");
+        sim_warn ("ltnConnect3270 failed\r\n");
         return;
       }
     fnpuv_read_start (client);

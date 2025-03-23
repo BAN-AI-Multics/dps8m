@@ -118,7 +118,7 @@ is_compatible_architecture (const char *path)
   FILE *f = fopen(path, "rb");
   if (NULL == f) {
 #  if defined(TOPO_TESTING)
-    (void)fprintf(stderr, "WARNING: Unable to open '%s'!\n", path);
+    (void)fprintf(stderr, "WARNING: Unable to open '%s'!\r\n", path);
 #  endif
     return 0;
   }
@@ -126,7 +126,7 @@ is_compatible_architecture (const char *path)
   unsigned char e_ident[EI_NIDENT];
   if (EI_NIDENT != fread(e_ident, 1, EI_NIDENT, f)) {
 #  if defined(TOPO_TESTING)
-    (void)fprintf(stderr, "WARNING: Bad header in '%s'!\n", path);
+    (void)fprintf(stderr, "WARNING: Bad header in '%s'!\r\n", path);
 #  endif
     fclose(f);
     return 0;
@@ -135,7 +135,7 @@ is_compatible_architecture (const char *path)
 
   if (0 != memcmp(e_ident, ELFMAG, SELFMAG)) {
 #  if defined(TOPO_TESTING)
-    (void)fprintf(stderr, "WARNING: Bad header in '%s'!\n", path);
+    (void)fprintf(stderr, "WARNING: Bad header in '%s'!\r\n", path);
 #  endif
     return 0;
   }
@@ -146,7 +146,7 @@ is_compatible_architecture (const char *path)
     /* cppcheck-suppress arrayIndexOutOfBounds */
     if (EI_NIDENT >= EI_CLASS && ELFCLASS64 == e_ident[EI_CLASS]) { //-V560
 #  if defined(TOPO_TESTING)
-      (void)fprintf(stderr, "NOTICE: '%s' is valid 64-bit ELF.\n", path);
+      (void)fprintf(stderr, "NOTICE: '%s' is valid 64-bit ELF.\r\n", path);
 #  endif
       return 1;
     }
@@ -154,13 +154,13 @@ is_compatible_architecture (const char *path)
     /* cppcheck-suppress arrayIndexOutOfBounds */
     if (EI_NIDENT >= EI_CLASS && ELFCLASS32 == e_ident[EI_CLASS]) { //-V560
 #  if defined(TOPO_TESTING)
-      (void)fprintf(stderr, "NOTICE: '%s' is valid 32-bit ELF.\n", path);
+      (void)fprintf(stderr, "NOTICE: '%s' is valid 32-bit ELF.\r\n", path);
 #  endif
       return 1;
     }
   }
 #  if defined(TOPO_TESTING)
-  (void)fprintf(stderr, "WARNING: '%s' could not be validated!\n", path);
+  (void)fprintf(stderr, "WARNING: '%s' could not be validated!\r\n", path);
 #  endif
   return 0;
 # endif
@@ -409,7 +409,7 @@ get_core_count(void)
 # if defined(TOPO_TESTING)
     char *dl_error = dlerror();
     if (dl_error && *dl_error)
-      (void)fprintf(stderr, "ERROR: dlopen: %s\n", dl_error);
+      (void)fprintf(stderr, "ERROR: dlopen: %s\r\n", dl_error);
 # endif
     return 0;
   }
@@ -423,7 +423,7 @@ get_core_count(void)
 # if defined(TOPO_TESTING)
     char *dl_error = dlerror();
     if (dl_error && *dl_error)
-      (void)fprintf(stderr, "ERROR: no hwloc_topology_init: %s\n", dl_error);
+      (void)fprintf(stderr, "ERROR: no hwloc_topology_init: %s\r\n", dl_error);
 # endif
     (void)dlclose(handle);
     return 0;
@@ -435,7 +435,7 @@ get_core_count(void)
 # if defined(TOPO_TESTING)
     char *dl_error = dlerror();
     if (dl_error && *dl_error)
-      (void)fprintf(stderr, "ERROR: no hwloc_topology_load: %s\n", dl_error);
+      (void)fprintf(stderr, "ERROR: no hwloc_topology_load: %s\r\n", dl_error);
 # endif
     (void)dlclose(handle);
     return 0;
@@ -447,7 +447,7 @@ get_core_count(void)
 # if defined(TOPO_TESTING)
     char *dl_error = dlerror();
     if (dl_error && *dl_error)
-      (void)fprintf(stderr, "ERROR: no hwloc_topology_destroy: %s\n", dl_error);
+      (void)fprintf(stderr, "ERROR: no hwloc_topology_destroy: %s\r\n", dl_error);
 # endif
     (void)dlclose(handle);
     return 0;
@@ -459,7 +459,7 @@ get_core_count(void)
 # if defined(TOPO_TESTING)
     char *dl_error = dlerror();
     if (dl_error && *dl_error)
-      (void)fprintf(stderr, "ERROR: no hwloc_get_type_depth: %s\n", dl_error);
+      (void)fprintf(stderr, "ERROR: no hwloc_get_type_depth: %s\r\n", dl_error);
 # endif
     (void)dlclose(handle);
     return 0;
@@ -471,7 +471,7 @@ get_core_count(void)
 # if defined(TOPO_TESTING)
     char *dl_error = dlerror();
     if (dl_error && *dl_error)
-      (void)fprintf(stderr, "ERROR: no hwloc_get_nbobjs_by_depth: %s\n", dl_error);
+      (void)fprintf(stderr, "ERROR: no hwloc_get_nbobjs_by_depth: %s\r\n", dl_error);
 # endif
     (void)dlclose(handle);
     return 0;
@@ -480,7 +480,7 @@ get_core_count(void)
   dl_hwloc_topology_t topology;
   if (0 != hwloc_topology_init(&topology)) {
 # if defined(TOPO_TESTING)
-    (void)fprintf(stderr, "ERROR: hwloc_topology_init failure.\n");
+    (void)fprintf(stderr, "ERROR: hwloc_topology_init failure.\r\n");
 # endif
     (void)dlclose(handle);
     return 0;
@@ -488,7 +488,7 @@ get_core_count(void)
 
   if (0 != hwloc_topology_load(topology)) {
 # if defined(TOPO_TESTING)
-    (void)fprintf(stderr, "ERROR: hwloc_topology_load failure.\n");
+    (void)fprintf(stderr, "ERROR: hwloc_topology_load failure.\r\n");
     hwloc_topology_destroy(topology);
 # endif
     (void)dlclose(handle);
@@ -498,7 +498,7 @@ get_core_count(void)
   int32_t core_depth = hwloc_get_type_depth(topology, HWLOC_OBJ_CORE);
   if (-1 == core_depth) {
 # if defined(TOPO_TESTING)
-    (void)fprintf(stderr, "ERROR: hwloc_get_type_depth failure.\n");
+    (void)fprintf(stderr, "ERROR: hwloc_get_type_depth failure.\r\n");
     hwloc_topology_destroy(topology);
 # endif
     (void)dlclose(handle);

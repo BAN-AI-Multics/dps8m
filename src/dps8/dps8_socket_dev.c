@@ -87,7 +87,7 @@ static struct
 static t_stat sk_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr,
                               UNUSED int val, UNUSED const void * desc)
   {
-    sim_printf("Number of socket units in system is %d\n", skc_dev.numunits);
+    sim_printf("Number of socket units in system is %d\r\n", skc_dev.numunits);
     return SCPE_OK;
   }
 
@@ -341,16 +341,16 @@ static void skt_socket (uint unit_idx, word5 dev_code, word36 * buffer)
     int type =     (int) buffer[1];
     int protocol = (int) buffer[2];
 
-sim_printf ("socket() domain   %d\n", domain);
-sim_printf ("socket() type     %d\n", type);
-sim_printf ("socket() protocol %d\n", protocol);
+sim_printf ("socket() domain   %d\r\n", domain);
+sim_printf ("socket() type     %d\r\n", type);
+sim_printf ("socket() protocol %d\r\n", protocol);
 
     int _errno = 0;
     int fd = -1;
 
     if (domain != AF_INET)       // Only AF_INET
       {
-sim_printf ("socket() domain EAFNOSUPPORT\n");
+sim_printf ("socket() domain EAFNOSUPPORT\r\n");
         _errno = EAFNOSUPPORT;
       }
 # if defined(__APPLE__) || defined(_AIX) || defined(__HAIKU__)
@@ -359,21 +359,21 @@ sim_printf ("socket() domain EAFNOSUPPORT\n");
     else if (type != SOCK_STREAM && type != (SOCK_STREAM|SOCK_NONBLOCK)) // Only SOCK_STREAM or SOCK_STREAM + SOCK_NONBLOCK
 # endif
       {
-sim_printf ("socket() type EPROTOTYPE\n");
+sim_printf ("socket() type EPROTOTYPE\r\n");
         _errno = EPROTOTYPE;
       }
     else if (protocol != 0) // Only IP
       {
-sim_printf ("socket() protocol EPROTONOSUPPORT\n");
+sim_printf ("socket() protocol EPROTONOSUPPORT\r\n");
         _errno = EPROTONOSUPPORT;
       }
     else
       {
         fd = socket ((int) buffer[0], (int) buffer[1], (int) buffer[2]);
-sim_printf ("socket() returned %d\n", fd);
+sim_printf ("socket() returned %d\r\n", fd);
         if (fd < 0)
           {
-sim_printf ("errno %d\n", errno);
+sim_printf ("errno %d\r\n", errno);
             _errno = errno;
           }
         else if (fd < N_FDS)
@@ -418,7 +418,7 @@ static void skt_gethostbyname (word36 * buffer)
     word9 cnt = getbits36_9 (buffer [0], 27);
 
 # if 0
-    sim_printf ("strlen: %hu\n", cnt);
+    sim_printf ("strlen: %hu\r\n", cnt);
     sim_printf ("name: \"");
     for (uint i = 0; i < cnt; i ++)
       {
@@ -430,12 +430,12 @@ static void skt_gethostbyname (word36 * buffer)
          else
             sim_printf ("\\%03o", ch);
       }
-    sim_printf ("\"\n");
+    sim_printf ("\"\r\n");
 # endif
 
     if (cnt > 256)
       {
-        sim_warn ("socket$gethostbyname() clipping cnt from %u to 256\n", cnt);
+        sim_warn ("socket$gethostbyname() clipping cnt from %u to 256\r\n", cnt);
         cnt = 256;
       }
 
@@ -450,20 +450,20 @@ static void skt_gethostbyname (word36 * buffer)
     name[cnt] = 0;
 
     struct hostent * hostent = gethostbyname ((char *)name);
-sim_printf ("gethostbyname returned %p\n", (void *) hostent);
+sim_printf ("gethostbyname returned %p\r\n", (void *) hostent);
     if (hostent)
       {
-sim_printf ("addr_len %d\n", hostent->h_length);
-sim_printf ("%hhu.%hhu.%hhu.%hhu\n",
+sim_printf ("addr_len %d\r\n", hostent->h_length);
+sim_printf ("%hhu.%hhu.%hhu.%hhu\r\n",
             hostent->h_addr_list[0][0],
             hostent->h_addr_list[0][1],
             hostent->h_addr_list[0][2],
             hostent->h_addr_list[0][3]);
 
         uint32_t addr = * ((uint32_t *) & hostent->h_addr_list[0][0]);
-sim_printf ("addr %08x\n", addr);
+sim_printf ("addr %08x\r\n", addr);
         addr = ntohl (addr);
-sim_printf ("addr %08x\n", addr);
+sim_printf ("addr %08x\r\n", addr);
         buffer[65] = ((word36) addr) << 4;
         // Get the octets in the right order
         //putbits36_8 (& buffer[65],  0, (word8) (((unsigned char) (hostent->h_addr_list[0][0])) & 0xff));
@@ -474,7 +474,7 @@ sim_printf ("addr %08x\n", addr);
       }
     else
       {
-sim_printf ("h_errno %d\n", h_errno);
+sim_printf ("h_errno %d\r\n", h_errno);
         switch (h_errno)
           {
             case HOST_NOT_FOUND: set_error_str (& buffer[66], "HOST_NOT_FOUND"); break;
@@ -516,11 +516,11 @@ static void skt_bind (uint unit_idx, word6 dev_code, word36 * buffer)
     addr <<= 8;
     addr |= (uint32_t) octet[3];
 
-sim_printf ("bind() socket     %d\n",                  socket_fd);
-sim_printf ("bind() sin_family %d\n",                  sin_family);
-sim_printf ("bind() sin_port   %u\n",                  sin_port);
-sim_printf ("bind() s_addr     %hhu.%hhu.%hhu.%hhu\n", octet[0], octet[1], octet[2], octet[3]);
-sim_printf ("bind() s_addr     %08x\n",                addr);
+sim_printf ("bind() socket     %d\r\n",                  socket_fd);
+sim_printf ("bind() sin_family %d\r\n",                  sin_family);
+sim_printf ("bind() sin_port   %u\r\n",                  sin_port);
+sim_printf ("bind() s_addr     %hhu.%hhu.%hhu.%hhu\r\n", octet[0], octet[1], octet[2], octet[3]);
+sim_printf ("bind() s_addr     %08x\r\n",                addr);
   //(buffer [3] >> (36 - 1 * 8)) & MASK8,
   //(buffer [3] >> (36 - 2 * 8)) & MASK8,
   //(buffer [3] >> (36 - 3 * 8)) & MASK8,
@@ -541,11 +541,11 @@ sim_printf ("bind() s_addr     %08x\n",                addr);
 
     int _errno = 0;
     int rc = bind (socket_fd, (struct sockaddr *) & serv_addr, sizeof (serv_addr));
-sim_printf ("bind() returned %d\n", rc);
+sim_printf ("bind() returned %d\r\n", rc);
 
     if (rc < 0)
       {
-sim_printf ("errno %d\n", errno);
+sim_printf ("errno %d\r\n", errno);
         _errno = errno;
       }
     set_error (& buffer[4], _errno);
@@ -569,16 +569,16 @@ static void skt_listen (uint unit_idx, word6 dev_code, word36 * buffer)
 
     int socket_fd = (int) buffer[0];
     int backlog = (int) buffer[1];
-sim_printf ("listen() socket     %d\n", socket_fd);
-sim_printf ("listen() backlog    %d\n", backlog   );
+sim_printf ("listen() socket     %d\r\n", socket_fd);
+sim_printf ("listen() backlog    %d\r\n", backlog   );
 
     int rc = 0;
     int _errno = 0;
     // Does this socket belong to us?
     if (sk_data.fd_unit[socket_fd] != (int) unit_idx || sk_data.fd_dev_code[socket_fd] != dev_code)
       {
-sim_printf ("listen() socket doesn't belong to us\n");
-sim_printf ("socket_fd %u fd_unit %d fd_dev_code %u unit_idx %u dev_code %u\n",
+sim_printf ("listen() socket doesn't belong to us\r\n");
+sim_printf ("socket_fd %u fd_unit %d fd_dev_code %u unit_idx %u dev_code %u\r\n",
             socket_fd, sk_data.fd_unit[socket_fd], sk_data.fd_dev_code[socket_fd], unit_idx, dev_code);
         _errno = EBADF;
         goto done;
@@ -587,7 +587,7 @@ sim_printf ("socket_fd %u fd_unit %d fd_dev_code %u unit_idx %u dev_code %u\n",
     int on = 1;
     rc = setsockopt (socket_fd, SOL_SOCKET,  SO_REUSEADDR,
                    (char *) & on, sizeof (on));
-sim_printf ("listen() setsockopt returned %d\n", rc);
+sim_printf ("listen() setsockopt returned %d\r\n", rc);
     if (rc < 0)
       {
         _errno = errno;
@@ -596,7 +596,7 @@ sim_printf ("listen() setsockopt returned %d\n", rc);
 
 # if defined(FIONBIO)
     rc = ioctl (socket_fd, FIONBIO, (char *) & on);
-sim_printf ("listen() ioctl returned %d\n", rc);
+sim_printf ("listen() ioctl returned %d\r\n", rc);
     if (rc < 0)
       {
         _errno = errno;
@@ -605,11 +605,11 @@ sim_printf ("listen() ioctl returned %d\n", rc);
 # endif
 
     rc = listen (socket_fd, backlog);
-sim_printf ("listen() returned %d\n", rc);
+sim_printf ("listen() returned %d\r\n", rc);
 
     if (rc < 0)
       {
-sim_printf ("errno %d\n", errno);
+sim_printf ("errno %d\r\n", errno);
         _errno = errno;
         goto done;
       }
@@ -632,7 +632,7 @@ static int skt_accept (uint unit_idx, word6 dev_code, word36 * buffer)
 //       2 errno char(8);                              // 5, 6
 
     int socket_fd = (int) buffer[0];
-sim_printf ("accept() socket     %d\n", socket_fd);
+sim_printf ("accept() socket     %d\r\n", socket_fd);
     // Does this socket belong to us?
     if (sk_data.fd_unit[socket_fd] != (int) unit_idx || sk_data.fd_dev_code[socket_fd] != dev_code)
       {
@@ -660,14 +660,14 @@ static void skt_close (uint unit_idx, word6 dev_code, word36 * buffer)
 // /*   errno  */
 
     int socket_fd = (int) buffer[0];
-sim_printf ("close() socket     %d\n", socket_fd);
+sim_printf ("close() socket     %d\r\n", socket_fd);
 
     int rc     = 0;
     int _errno = 0;
     // Does this socket belong to us?
     if (sk_data.fd_unit[socket_fd] != (int) unit_idx || sk_data.fd_dev_code[socket_fd] != dev_code)
       {
-sim_printf ("close() socket doesn't belong to us\n");
+sim_printf ("close() socket doesn't belong to us\r\n");
         _errno = EBADF;
         goto done;
       }
@@ -681,7 +681,7 @@ sim_printf ("close() socket doesn't belong to us\n");
       }
     rc = close (socket_fd);
 
-sim_printf ("close() close returned %d\n", rc);
+sim_printf ("close() close returned %d\r\n", rc);
     if (rc < 0)
       {
         _errno = errno;
@@ -712,12 +712,12 @@ static int skt_read8 (uint unit_idx, word6 dev_code, UNUSED uint tally, word36 *
 
     int socket_fd = (int) buffer[0];
     uint count = (uint) buffer[1];
-sim_printf ("read8() socket     %d\n", socket_fd);
+sim_printf ("read8() socket     %d\r\n", socket_fd);
 
     // Does this socket belong to us?
     if (sk_data.fd_unit[socket_fd] != (int) unit_idx || sk_data.fd_dev_code[socket_fd] != dev_code)
       {
-sim_printf ("read8() socket doesn't belong to us\n");
+sim_printf ("read8() socket doesn't belong to us\r\n");
         set_error (& buffer[4], EBADF);
         return IOM_CMD_DISCONNECT; // send terminate interrupt
       }
@@ -753,14 +753,14 @@ static int skt_write8 (uint iom_unit_idx, uint chan, uint unit_idx, word6 dev_co
 /*   buffer   */
 
     int socket_fd = (int) buffer[0];
-sim_printf ("write8() socket     %d\n", socket_fd);
+sim_printf ("write8() socket     %d\r\n", socket_fd);
 
     ssize_t rc = 0;
     int _errno = 0;
     // Does this socket belong to us?
     if (sk_data.fd_unit[socket_fd] != (int) unit_idx || sk_data.fd_dev_code[socket_fd] != dev_code)
       {
-sim_printf ("write8() socket doesn't belong to us\n");
+sim_printf ("write8() socket doesn't belong to us\r\n");
         set_error (& buffer[3], EBADF);
         return IOM_CMD_DISCONNECT; // send terminate interrupt
       }
@@ -788,7 +788,7 @@ sim_printf ("write8() socket doesn't belong to us\n");
          uint wordno = (uint) n / 4;
          uint charno = (uint) n % 4;
          netdata[n] = getbits36_8 (buffer [5 + wordno], charno * 9 + 1);
-//sim_printf ("%012llo %u %u %u %03u\n", buffer [5 + wordno], n, wordno, charno, netdata[n]);
+//sim_printf ("%012llo %u %u %u %03u\r\n", buffer [5 + wordno], n, wordno, charno, netdata[n]);
       }
 
     rc = write (socket_fd, netdata, count);
@@ -807,22 +807,22 @@ static int get_ddcw (iom_chan_data_t * p, uint iom_unit_idx, uint chan, bool * p
     if (rc < 0)
       {
         p->stati = 05001; // BUG: arbitrary error code; config switch
-        sim_warn ("%s list service failed\n", __func__);
+        sim_warn ("%s list service failed\r\n", __func__);
         return IOM_CMD_ERROR;
       }
     if (uff)
       {
-        sim_warn ("%s ignoring uff\n", __func__); // XXX
+        sim_warn ("%s ignoring uff\r\n", __func__); // XXX
       }
     if (! send)
       {
-        sim_warn ("%s nothing to send\n", __func__);
+        sim_warn ("%s nothing to send\r\n", __func__);
         p->stati = 05001; // BUG: arbitrary error code; config switch
         return IOM_CMD_ERROR;
       }
     if (IS_IDCW (p) || IS_TDCW (p))
       {
-        sim_warn ("%s expected DDCW\n", __func__);
+        sim_warn ("%s expected DDCW\r\n", __func__);
         p->stati = 05001; // BUG: arbitrary error code; config switch
         return IOM_CMD_ERROR;
       }
@@ -831,17 +831,17 @@ static int get_ddcw (iom_chan_data_t * p, uint iom_unit_idx, uint chan, bool * p
     if (* tally == 0)
       {
         sim_debug (DBG_DEBUG, & skc_dev,
-                   "%s: Tally of zero interpreted as 010000(4096)\n",
+                   "%s: Tally of zero interpreted as 010000(4096)\r\n",
                    __func__);
         * tally = 4096;
       }
 
     sim_debug (DBG_DEBUG, & skc_dev,
-               "%s: Tally %d (%o)\n", __func__, * tally, * tally);
+               "%s: Tally %d (%o)\r\n", __func__, * tally, * tally);
 
     if (expected_tally && * tally && * tally != expected_tally) //-V560
       {
-        sim_warn ("socket_dev socket call expected tally of %d; got %d\n", expected_tally, * tally);
+        sim_warn ("socket_dev socket call expected tally of %d; got %d\r\n", expected_tally, * tally);
         p->stati = 05001; // BUG: arbitrary error code; config switch
         return IOM_CMD_ERROR;
       }
@@ -852,9 +852,9 @@ static int sk_cmd (uint iom_unit_idx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
 
-    sim_debug (DBG_DEBUG, & skc_dev, "IDCW_DEV_CODE %d\n", p->IDCW_DEV_CODE);
+    sim_debug (DBG_DEBUG, & skc_dev, "IDCW_DEV_CODE %d\r\n", p->IDCW_DEV_CODE);
     uint unit_idx = get_ctlr_idx (iom_unit_idx, chan);
-sim_printf ("device %u\n", p->IDCW_DEV_CODE);
+sim_printf ("device %u\r\n", p->IDCW_DEV_CODE);
     bool ptro;
     switch (p->IDCW_DEV_CMD)
       {
@@ -862,18 +862,18 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
           {
             p->stati = 04000; // have_status = 1
             sim_debug (DBG_DEBUG, & skc_dev,
-                       "%s: Request status: %04o\n", __func__, p->stati);
+                       "%s: Request status: %04o\r\n", __func__, p->stati);
             sim_debug (DBG_DEBUG, & skc_dev,
-                       "%s: Request status control: %o\n", __func__, p->IDCW_CHAN_CTRL);
+                       "%s: Request status control: %o\r\n", __func__, p->IDCW_CHAN_CTRL);
             sim_debug (DBG_DEBUG, & skc_dev,
-                       "%s: Request status channel command: %o\n", __func__, p->IDCW_CHAN_CMD);
+                       "%s: Request status channel command: %o\r\n", __func__, p->IDCW_CHAN_CMD);
           }
           break;
 
         case 01:               // CMD 01 -- socket()
           {
             sim_debug (DBG_DEBUG, & skc_dev,
-                       "%s: socket_dev_$socket\n", __func__);
+                       "%s: socket_dev_$socket\r\n", __func__);
             const uint expected_tally = 6;
             uint tally;
             int rc = get_ddcw (p, iom_unit_idx, chan, & ptro, expected_tally, & tally);
@@ -897,7 +897,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
         case 02:               // CMD 02 -- bind()
           {
             sim_debug (DBG_DEBUG, & skc_dev,
-                       "%s: socket_dev_$bind\n", __func__);
+                       "%s: socket_dev_$bind\r\n", __func__);
 
             const uint expected_tally = 6;
             uint tally;
@@ -930,7 +930,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
         case 04:               // CMD 04 -- gethostbyname()
           {
             sim_debug (DBG_DEBUG, & skc_dev,
-                       "%s: socket_dev_$gethostbyname\n", __func__);
+                       "%s: socket_dev_$gethostbyname\r\n", __func__);
 
             const uint expected_tally = 68;
             uint tally;
@@ -956,7 +956,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
         case 05:               // CMD 05 -- listen()
           {
             sim_debug (DBG_DEBUG, & skc_dev,
-                       "%s: socket_dev_$listen\n", __func__);
+                       "%s: socket_dev_$listen\r\n", __func__);
 
             const uint expected_tally = 5;
             uint tally;
@@ -982,7 +982,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
         case 06:               // CMD 06 -- accept()
           {
             sim_debug (DBG_DEBUG, & skc_dev,
-                       "%s: socket_dev_$accept\n", __func__);
+                       "%s: socket_dev_$accept\r\n", __func__);
 
             const uint expected_tally = 7;
             uint tally;
@@ -1012,7 +1012,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
         case 07:               // CMD 07 -- close()
           {
             sim_debug (DBG_DEBUG, & skc_dev,
-                       "%s: socket_dev_$close\n", __func__);
+                       "%s: socket_dev_$close\r\n", __func__);
 
             const uint expected_tally = 4;
             uint tally;
@@ -1037,7 +1037,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
         case 8:               // CMD 8 -- read8()
           {
             sim_debug (DBG_DEBUG, & skc_dev,
-                       "%s: socket_dev_$read8\n", __func__);
+                       "%s: socket_dev_$read8\r\n", __func__);
 
             const uint expected_tally = 0;
             uint tally;
@@ -1066,7 +1066,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
         case 9:               // CMD 9 -- write8()
           {
             sim_debug (DBG_DEBUG, & skc_dev,
-                       "%s: socket_dev_$write8\n", __func__);
+                       "%s: socket_dev_$write8\r\n", __func__);
 
             const uint expected_tally = 0;
             uint tally;
@@ -1094,7 +1094,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
           {
             p->stati = 04000;
             sim_debug (DBG_DEBUG, & skc_dev,
-                       "%s: Reset status is %04o.\n",
+                       "%s: Reset status is %04o.\r\n",
                        __func__, p->stati);
             return IOM_CMD_PROCEED;
           }
@@ -1104,13 +1104,13 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
             p->stati = 04501;
             p->chanStatus = chanStatIncorrectDCW;
             if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
-              sim_warn ("%s: Unknown command 0%o\n", __func__, p->IDCW_DEV_CMD);
+              sim_warn ("%s: Unknown command 0%o\r\n", __func__, p->IDCW_DEV_CMD);
           }
           return IOM_CMD_ERROR;
 
       } // IDCW_DEV_CMD
 
-    sim_debug (DBG_DEBUG, & skc_dev, "stati %04o\n", p->stati);
+    sim_debug (DBG_DEBUG, & skc_dev, "stati %04o\r\n", p->stati);
 
 # if 0
     if (p->IDCW_CHAN_CTRL == 3) // marker bit set
@@ -1133,7 +1133,7 @@ iom_cmd_rc_t skc_iom_cmd (uint iom_unit_idx, uint chan)
       }
     else // DDCW/TDCW
       {
-        sim_warn ("%s expected IDCW\n", __func__);
+        sim_warn ("%s expected IDCW\r\n", __func__);
         return IOM_CMD_ERROR;
       }
     return rc; //  Don't continue down the dcw list.

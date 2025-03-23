@@ -943,7 +943,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.**
 
 * Copyright © 2002-2019 &nbsp; **Devin Teske** &nbsp;
    \<[`dteske@FreeBSD.org`](mailto:dteske@FreeBSD.org)\>
-* Copyright © 2020-2024 &nbsp; **Jeffrey H. Johnson** &nbsp;
+* Copyright © 2020-2025 &nbsp; **Jeffrey H. Johnson** &nbsp;
    \<[`trnsz@pobox.com`](mailto:trnsz@pobox.com)\>
 * Copyright © 2021-2025 &nbsp; **The DPS8M Development Team**
 

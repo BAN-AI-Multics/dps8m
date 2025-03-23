@@ -828,10 +828,10 @@ struct FILEREF {
 /* with an expression which causes side effects (i.e. must be executed for */
 /* the program to work correctly) */
 
-# define ASSURE(_Expression) while (!(_Expression))                                         \
-         {                                                                                  \
-           fprintf(stderr, "%s failed at %s line %d\n", #_Expression, __FILE__, __LINE__);  \
-           sim_printf("%s failed at %s line %d\n", #_Expression, __FILE__, __LINE__);       \
+# define ASSURE(_Expression) while (!(_Expression))                                           \
+         {                                                                                    \
+           fprintf(stderr, "%s failed at %s line %d\r\n", #_Expression, __FILE__, __LINE__);  \
+           sim_printf("%s failed at %s line %d\r\n", #_Expression, __FILE__, __LINE__);       \
            abort();\
          }
 #endif

@@ -17,15 +17,15 @@
 
 word24 doAppendCycleOperandStore (cpu_state_t * cpup, word36 * data, uint nWords) {
   DCDstruct * i = & cpu.currentInstruction;
-  DBGAPP ("doAppendCycleOperandStore(Entry) thisCycle=OPERAND_STORE\n");
-  DBGAPP ("doAppendCycleOperandStore(Entry) lastCycle=%s\n", str_pct (cpu.apu.lastCycle));
-  DBGAPP ("doAppendCycleOperandStore(Entry) CA %06o\n", cpu.TPR.CA);
-  DBGAPP ("doAppendCycleOperandStore(Entry) n=%2u\n", nWords);
-  DBGAPP ("doAppendCycleOperandStore(Entry) PPR.PRR=%o PPR.PSR=%05o\n", cpu.PPR.PRR, cpu.PPR.PSR);
-  DBGAPP ("doAppendCycleOperandStore(Entry) TPR.TRR=%o TPR.TSR=%05o\n", cpu.TPR.TRR, cpu.TPR.TSR);
+  DBGAPP ("doAppendCycleOperandStore(Entry) thisCycle=OPERAND_STORE\r\n");
+  DBGAPP ("doAppendCycleOperandStore(Entry) lastCycle=%s\r\n", str_pct (cpu.apu.lastCycle));
+  DBGAPP ("doAppendCycleOperandStore(Entry) CA %06o\r\n", cpu.TPR.CA);
+  DBGAPP ("doAppendCycleOperandStore(Entry) n=%2u\r\n", nWords);
+  DBGAPP ("doAppendCycleOperandStore(Entry) PPR.PRR=%o PPR.PSR=%05o\r\n", cpu.PPR.PRR, cpu.PPR.PSR);
+  DBGAPP ("doAppendCycleOperandStore(Entry) TPR.TRR=%o TPR.TSR=%05o\r\n", cpu.TPR.TRR, cpu.TPR.TSR);
 
   if (i->b29) {
-    DBGAPP ("doAppendCycleOperandStore(Entry) isb29 PRNO %o\n", GET_PRN (IWB_IRODD));
+    DBGAPP ("doAppendCycleOperandStore(Entry) isb29 PRNO %o\r\n", GET_PRN (IWB_IRODD));
   }
 
   bool nomatch = true;
@@ -45,7 +45,7 @@ word24 doAppendCycleOperandStore (cpu_state_t * cpup, word36 * data, uint nWords
   processor_cycle_type lastCycle = cpu.apu.lastCycle;
   cpu.apu.lastCycle = OPERAND_STORE;
 
-  DBGAPP ("doAppendCycleOperandStore(Entry) XSF %o\n", cpu.cu.XSF);
+  DBGAPP ("doAppendCycleOperandStore(Entry) XSF %o\r\n", cpu.cu.XSF);
 
   PNL (L68_ (cpu.apu.state = 0;))
 
@@ -72,14 +72,14 @@ word24 doAppendCycleOperandStore (cpu_state_t * cpup, word36 * data, uint nWords
   //PNL (cpu.APUMemAddr = address;)
   PNL (cpu.APUMemAddr = cpu.TPR.CA;)
 
-  DBGAPP ("doAppendCycleOperandStore(A)\n");
+  DBGAPP ("doAppendCycleOperandStore(A)\r\n");
 
   // is SDW for C(TPR.TSR) in SDWAM?
   if (nomatch || ! fetch_sdw_from_sdwam (cpup, cpu.TPR.TSR)) {
     // No
-    DBGAPP ("doAppendCycleOperandStore(A):SDW for segment %05o not in SDWAM\n", cpu.TPR.TSR);
+    DBGAPP ("doAppendCycleOperandStore(A):SDW for segment %05o not in SDWAM\r\n", cpu.TPR.TSR);
 
-    DBGAPP ("doAppendCycleOperandStore(A):DSBR.U=%o\n", cpu.DSBR.U);
+    DBGAPP ("doAppendCycleOperandStore(A):DSBR.U=%o\r\n", cpu.DSBR.U);
 
     if (cpu.DSBR.U == 0) {
       fetch_dsptw (cpup, cpu.TPR.TSR);
@@ -95,14 +95,14 @@ word24 doAppendCycleOperandStore (cpu_state_t * cpup, word36 * data, uint nWords
       fetch_nsdw (cpup, cpu.TPR.TSR); // load SDW0 from descriptor segment table.
 
     if (cpu.SDW0.DF == 0) {
-      DBGAPP ("doAppendCycleOperandStore(A): SDW0.F == 0! " "Initiating directed fault\n");
+      DBGAPP ("doAppendCycleOperandStore(A): SDW0.F == 0! " "Initiating directed fault\r\n");
       // initiate a directed fault ...
       doFault (FAULT_DF0 + cpu.SDW0.FC, fst_zero, "SDW0.F == 0");
     }
     // load SDWAM .....
     load_sdwam (cpup, cpu.TPR.TSR, nomatch);
   }
-  DBGAPP ("doAppendCycleOperandStore(A) R1 %o R2 %o R3 %o E %o\n", cpu.SDW->R1, cpu.SDW->R2, cpu.SDW->R3, cpu.SDW->E);
+  DBGAPP ("doAppendCycleOperandStore(A) R1 %o R2 %o R3 %o E %o\r\n", cpu.SDW->R1, cpu.SDW->R2, cpu.SDW->R3, cpu.SDW->E);
 
   // Yes...
   cpu.RSDWH_R1 = cpu.SDW->R1;
@@ -117,7 +117,7 @@ word24 doAppendCycleOperandStore (cpu_state_t * cpup, word36 * data, uint nWords
 // B: Check the ring
 //
 
-  DBGAPP ("doAppendCycleOperandStore(B)\n");
+  DBGAPP ("doAppendCycleOperandStore(B)\r\n");
 
   // check ring bracket consistency
 
@@ -130,7 +130,7 @@ word24 doAppendCycleOperandStore (cpu_state_t * cpup, word36 * data, uint nWords
   }
 
   if (lastCycle == RTCD_OPERAND_FETCH)
-    sim_warn ("%s: lastCycle == RTCD_OPERAND_FETCH opcode %0#o\n", __func__, i->opcode);
+    sim_warn ("%s: lastCycle == RTCD_OPERAND_FETCH opcode %0#o\r\n", __func__, i->opcode);
 
   //
   // B1: The operand is one of: an instruction, data to be read or data to be
@@ -140,7 +140,7 @@ word24 doAppendCycleOperandStore (cpu_state_t * cpup, word36 * data, uint nWords
   //
   // check write bracket for write access
   //
-  DBGAPP ("doAppendCycleOperandStore(B):STR-OP\n");
+  DBGAPP ("doAppendCycleOperandStore(B):STR-OP\r\n");
 
   // isolts 870
   if (cpu.TPR.TSR == cpu.PPR.PSR)
@@ -148,7 +148,7 @@ word24 doAppendCycleOperandStore (cpu_state_t * cpup, word36 * data, uint nWords
 
   // C(TPR.TRR) > C(SDW .R1)? Note typo in AL39, R2 should be R1
   if (cpu.TPR.TRR > cpu.SDW->R1) {
-    DBGAPP ("ACV5 TRR %o R1 %o\n", cpu.TPR.TRR, cpu.SDW->R1);
+    DBGAPP ("ACV5 TRR %o R1 %o\r\n", cpu.TPR.TRR, cpu.SDW->R1);
     //Set fault ACV5 = OWB
     cpu.acvFaults |= ACV5;
     PNL (L68_ (cpu.apu.state |= apu_FLT;))
@@ -159,7 +159,7 @@ word24 doAppendCycleOperandStore (cpu_state_t * cpup, word36 * data, uint nWords
     // isolts 870
     cpu.TPR.TRR = cpu.PPR.PRR;
 
-    DBGAPP ("ACV6\n");
+    DBGAPP ("ACV6\r\n");
     // Set fault ACV6 = W-OFF
     cpu.acvFaults |= ACV6;
     PNL (L68_ (cpu.apu.state |= apu_FLT;))
@@ -176,21 +176,21 @@ word24 doAppendCycleOperandStore (cpu_state_t * cpup, word36 * data, uint nWords
 
 G:;
 
-  DBGAPP ("doAppendCycleOperandStore(G)\n");
+  DBGAPP ("doAppendCycleOperandStore(G)\r\n");
 
   //C(TPR.CA)0,13 > SDW.BOUND?
   if (((cpu.TPR.CA >> 4) & 037777) > cpu.SDW->BOUND) {
-    DBGAPP ("ACV15\n");
-    DBGAPP ("doAppendCycleOperandStore(G) ACV15\n");
+    DBGAPP ("ACV15\r\n");
+    DBGAPP ("doAppendCycleOperandStore(G) ACV15\r\n");
     cpu.acvFaults |= ACV15;
     PNL (L68_ (cpu.apu.state |= apu_FLT;))
     FMSG (acvFaultsMsg = "acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND";)
-    DBGAPP ("acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND\n" "   CA %06o CA>>4 & 037777 %06o SDW->BOUND %06o",
+    DBGAPP ("acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND\r\n" "   CA %06o CA>>4 & 037777 %06o SDW->BOUND %06o",
             cpu.TPR.CA, ((cpu.TPR.CA >> 4) & 037777), cpu.SDW->BOUND);
   }
 
   if (cpu.acvFaults) {
-    DBGAPP ("doAppendCycleOperandStore(G) acvFaults\n");
+    DBGAPP ("doAppendCycleOperandStore(G) acvFaults\r\n");
     PNL (L68_ (cpu.apu.state |= apu_FLT;))
     // Initiate an access violation fault
     doFault (FAULT_ACV, (_fault_subtype) {.fault_acv_subtype=cpu.acvFaults}, "ACV fault");
@@ -203,7 +203,7 @@ G:;
   // Yes. segment is paged ...
   // is PTW for C(TPR.CA) in PTWAM?
 
-  DBGAPP ("doAppendCycleOperandStore(G) CA %06o\n", cpu.TPR.CA);
+  DBGAPP ("doAppendCycleOperandStore(G) CA %06o\r\n", cpu.TPR.CA);
   if (nomatch || ! fetch_ptw_from_ptwam (cpup, cpu.SDW->POINTER, cpu.TPR.CA)) {
     fetch_ptw (cpup, cpu.SDW, cpu.TPR.CA);
     if (! cpu.PTW0.DF) {
@@ -231,7 +231,7 @@ G:;
 ////////////////////////////////////////
 
 H:;
-  DBGAPP ("doAppendCycleOperandStore(H): FANP\n");
+  DBGAPP ("doAppendCycleOperandStore(H): FANP\r\n");
 
   PNL (L68_ (cpu.apu.state |= apu_FANP;))
 #if 0
@@ -243,13 +243,13 @@ H:;
 #endif
   set_apu_status (cpup, apuStatus_FANP);
 
-  DBGAPP ("doAppendCycleOperandStore(H): SDW->ADDR=%08o CA=%06o \n", cpu.SDW->ADDR, cpu.TPR.CA);
+  DBGAPP ("doAppendCycleOperandStore(H): SDW->ADDR=%08o CA=%06o\r\n", cpu.SDW->ADDR, cpu.TPR.CA);
 
   finalAddress = (cpu.SDW->ADDR & 077777760) + cpu.TPR.CA;
   finalAddress &= 0xffffff;
   PNL (cpu.APUMemAddr = finalAddress;)
 
-  DBGAPP ("doAppendCycleOperandStore(H:FANP): (%05o:%06o) finalAddress=%08o\n", cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
+  DBGAPP ("doAppendCycleOperandStore(H:FANP): (%05o:%06o) finalAddress=%08o\r\n", cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
 
   goto HI;
 
@@ -257,7 +257,7 @@ I:;
 
 // Set PTW.M
 
-  DBGAPP ("doAppendCycleOperandStore(I): FAP\n");
+  DBGAPP ("doAppendCycleOperandStore(I): FAP\r\n");
   if (cpu.PTW->M == 0)  // is this the right way to do this?
    modify_ptw (cpup, cpu.SDW, cpu.TPR.CA);
 
@@ -277,16 +277,16 @@ I:;
   if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
     add_APU_history (APUH_FAP);
 #endif /* if defined(L68) */
-  DBGAPP ("doAppendCycleOperandStore(H:FAP): (%05o:%06o) finalAddress=%08o\n", cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
+  DBGAPP ("doAppendCycleOperandStore(H:FAP): (%05o:%06o) finalAddress=%08o\r\n", cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
 
   goto HI;
 
 HI:
-  DBGAPP ("doAppendCycleOperandStore(HI)\n");
+  DBGAPP ("doAppendCycleOperandStore(HI)\r\n");
 
   // isolts 870
   cpu.cu.XSF = 1;
-  sim_debug (DBG_TRACEEXT, & cpu_dev, "loading of cpu.TPR.TSR sets XSF to 1\n");
+  sim_debug (DBG_TRACEEXT, & cpu_dev, "loading of cpu.TPR.TSR sets XSF to 1\r\n");
 
   if (cpu.useZone)
     core_write_zone (cpup, finalAddress, * data, "OPERAND_STORE");
@@ -300,8 +300,8 @@ HI:
 
   PNL (L68_ (cpu.apu.state |= apu_FA;))
 
-  DBGAPP ("doAppendCycleOperandStore (Exit) PRR %o PSR %05o P %o IC %06o\n", cpu.PPR.PRR, cpu.PPR.PSR, cpu.PPR.P, cpu.PPR.IC);
-  DBGAPP ("doAppendCycleOperandStore (Exit) TRR %o TSR %05o TBR %02o CA %06o\n", cpu.TPR.TRR, cpu.TPR.TSR, cpu.TPR.TBR, cpu.TPR.CA);
+  DBGAPP ("doAppendCycleOperandStore (Exit) PRR %o PSR %05o P %o IC %06o\r\n", cpu.PPR.PRR, cpu.PPR.PSR, cpu.PPR.P, cpu.PPR.IC);
+  DBGAPP ("doAppendCycleOperandStore (Exit) TRR %o TSR %05o TBR %02o CA %06o\r\n", cpu.TPR.TRR, cpu.TPR.TSR, cpu.TPR.TBR, cpu.TPR.CA);
 
   return finalAddress;
 }

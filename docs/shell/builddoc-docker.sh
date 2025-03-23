@@ -21,13 +21,16 @@ FLOCK_COMMAND="$( command -v flock 2> /dev/null )" && {                      \
 #       BUILDDOC_FORCE_REBUILD will override the image age checks.
 
 # Fedora version to use
-DEFAULT_RELEASE="41"
+DEFAULT_RELEASE="42"
 
 # Make command to use
 DB_GMAKE="gmake"
 
 # Maximum age of image
 OLD_DAYS="60"
+
+# No hints from the simulator
+export DPS8M_NO_HINTS=1
 
 ##############################################################################
 

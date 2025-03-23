@@ -119,7 +119,7 @@ static void addSDW (word24 addr, long segnum, long length)
     // word36 * sdwp = (word36 *) M + ADDR_DSP + y1;
     word24 sdw0 = ADDR_DSP + y1 + 0;
     word24 sdw1 = ADDR_DSP + y1 + 1;
-    //sim_printf ("segnum %lo length %lu bound %u sdw0 %o sdw1 %o ADDR %06o\n",
+    //sim_printf ("segnum %lo length %lu bound %u sdw0 %o sdw1 %o ADDR %06o\r\n",
     //            (unsigned long) segnum, length, bound, sdw0, sdw1, pgTblAddr);
     putbits36_24 ((word36 *) & M[sdw0],  0, pgTblAddr); // ADDR
 // I can't get segldr_boot to cross to ring 4
@@ -155,7 +155,7 @@ static void addSDW (word24 addr, long segnum, long length)
         putbits36_1  ((word36 *) & M[ptw], 29,         0);  // unmodified
         putbits36_1  ((word36 *) & M[ptw], 33,         1);  // page is in memory
         putbits36_2  ((word36 *) & M[ptw], 34,         0);  // fault code
-        //sim_printf ("   ptw pg %u at %o addr %o\n", pg, pgTblAddr + pg, pgAddr);
+        //sim_printf ("   ptw pg %u at %o addr %o\r\n", pg, pgTblAddr + pg, pgAddr);
       }
   }
 #if 0
@@ -203,7 +203,7 @@ static t_stat stack (char * p2, char * p3)
       }
     if (segnum < 0 || segnum > MAX_SEG_NO)
       {
-        sim_printf ("Segment number is limited to 0 to 0377\n");
+        sim_printf ("Segment number is limited to 0 to 0377\r\n");
         if (running_perf_test == true)
           exit(1);
         return SCPE_ARG;
@@ -218,7 +218,7 @@ static t_stat stack (char * p2, char * p3)
       }
     if (len < 1 || len > 255)
       {
-        sim_printf ("Segment length is limited to 1 to 0377\n");
+        sim_printf ("Segment length is limited to 1 to 0377\r\n");
         if (running_perf_test == true)
           exit(1);
         return SCPE_ARG;
@@ -229,7 +229,7 @@ static t_stat stack (char * p2, char * p3)
     // Add SDW
     addSDW (nextSegAddr, segnum, length);
 
-    sim_printf ("Placed stack (%lo) at %o length %lo allocated %lo\n",
+    sim_printf ("Placed stack (%lo) at %o length %lo allocated %lo\r\n",
                 (unsigned long) segnum, nextSegAddr, (unsigned long) len, length);
     // Mark the pages as used
     nextSegAddr += length;
@@ -257,7 +257,7 @@ static t_stat bload (char * p2, char * p3)
           }
         if (segnum < 0 || segnum > MAX_SEG_NO)
           {
-            sim_printf ("Segment number is limited to 0 to 0377\n");
+            sim_printf ("Segment number is limited to 0 to 0377\r\n");
             if (running_perf_test == true)
               exit(1);
             return SCPE_ARG;
@@ -268,8 +268,8 @@ static t_stat bload (char * p2, char * p3)
     int deckfd = open (p3, O_RDONLY);
     if (deckfd < 0)
       {
-        if (errno) sim_printf ("Error: %s\n", xstrerror_l(errno));
-        sim_printf ("Unable to open '%s'\n", p3);
+        if (errno) sim_printf ("Error: %s\r\n", xstrerror_l(errno));
+        sim_printf ("Unable to open '%s'\r\n", p3);
         if (running_perf_test == true)
           exit(1);
         /*NOTREACHED*/ /* unreachable */
@@ -298,7 +298,7 @@ static t_stat bload (char * p2, char * p3)
         //if (sz != n) short read?
         word36 even = extr36 (bytes, 0);
         word36 odd = extr36 (bytes, 1);
-        //sim_printf ("%08o  %012"PRIo64"   %012"PRIo64"\n", addr, even, odd);
+        //sim_printf ("%08o  %012"PRIo64"   %012"PRIo64"\r\n", addr, even, odd);
         M[addr ++] = even;
         M[addr ++] = odd;
       }
@@ -322,7 +322,7 @@ static t_stat bload (char * p2, char * p3)
         addSDW (0, 0, lengthp);
       }
 
-    sim_printf ("Loaded %s (%lo) at %o length %o allocated %o\n",
+    sim_printf ("Loaded %s (%lo) at %o length %o allocated %o\r\n",
                 p3, segnum < 0 ? 0 : (unsigned long) segnum, startAddr, length, lengthp);
     close (deckfd);
     return SCPE_OK;
@@ -336,8 +336,8 @@ static t_stat msave (char * p2, word24 sz)
     int fd = open (p2, O_WRONLY | O_CREAT, 0664);
     if (fd < 0)
       {
-        if (errno) sim_printf ("Error: %s\n", xstrerror_l(errno));
-        sim_printf ("Unable to open '%s'\n", p2);
+        if (errno) sim_printf ("Error: %s\r\n", xstrerror_l(errno));
+        sim_printf ("Unable to open '%s'\r\n", p2);
         if (running_perf_test == true)
           exit(1);
         return SCPE_ARG;
@@ -345,8 +345,8 @@ static t_stat msave (char * p2, word24 sz)
     ssize_t n = write (fd, (void *) M, wrsz);
     if (n != wrsz)
       {
-        if (errno) sim_printf ("Error: %s\n", xstrerror_l(errno));
-        sim_printf ("Unable to write '%s'\n", p2);
+        if (errno) sim_printf ("Error: %s\r\n", xstrerror_l(errno));
+        sim_printf ("Unable to write '%s'\r\n", p2);
         if (running_perf_test == true)
           exit(1);
         (void) close (fd);
@@ -361,8 +361,8 @@ t_stat mrestore (char * p2)
     int fd = open (p2, O_RDONLY);
     if (fd < 0)
       {
-        if (errno) sim_printf ("Error: %s\n", xstrerror_l(errno));
-        sim_printf ("Unable to open '%s'\n", p2);
+        if (errno) sim_printf ("Error: %s\r\n", xstrerror_l(errno));
+        sim_printf ("Unable to open '%s'\r\n", p2);
         if (running_perf_test == true)
           exit(1);
         return SCPE_ARG;
@@ -370,17 +370,17 @@ t_stat mrestore (char * p2)
     ssize_t n = read (fd, (void *) M, msize);
     if (n < 1)
       {
-        if (errno) sim_printf ("Error: %s\n", xstrerror_l(errno));
-        sim_printf ("Unable to read '%s'\n", p2);
+        if (errno) sim_printf ("Error: %s\r\n", xstrerror_l(errno));
+        sim_printf ("Unable to read '%s'\r\n", p2);
         (void) close (fd);
         if (running_perf_test == true)
           exit(1);
         return SCPE_ARG;
       }
 #if defined(WIN_STDIO)
-    sim_printf ("Read %llu bytes (%llu pages, %llu segments)\n",
+    sim_printf ("Read %llu bytes (%llu pages, %llu segments)\r\n",
 #else
-    sim_printf ("Read %'llu bytes (%'llu pages, %'llu segments)\n",
+    sim_printf ("Read %'llu bytes (%'llu pages, %'llu segments)\r\n",
 #endif /* if defined(WIN_STDIO) */
                 (unsigned long long) n,
                 (unsigned long long) (n / sizeof (word36)),

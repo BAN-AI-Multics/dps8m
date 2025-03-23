@@ -156,7 +156,7 @@ static word4 get4 (word36 w, int pos)
           return getbits36_4 (w, 32);
 
       }
-    sim_printf ("get4(): How'd we get here?\n");
+    sim_printf ("get4(): How'd we get here?\r\n");
     return 0;
 }
 
@@ -184,7 +184,7 @@ static word4 get6 (word36 w, int pos)
          return getbits36_6 (w, 30);
 
       }
-    sim_printf ("get6(): How'd we get here?\n");
+    sim_printf ("get6(): How'd we get here?\r\n");
     return 0;
   }
 
@@ -206,7 +206,7 @@ static word9 get9(word36 w, int pos)
          return getbits36_9 (w, 27);
 
       }
-    sim_printf ("get9(): How'd we get here?\n");
+    sim_printf ("get9(): How'd we get here?\r\n");
     return 0;
   }
 
@@ -249,7 +249,7 @@ static word36 put4 (word36 w, int pos, word4 c)
         case 7:
           return setbits36_4 (w, 32, c);
       }
-    sim_printf ("put4(): How'd we get here?\n");
+    sim_printf ("put4(): How'd we get here?\r\n");
     return 0;
   }
 
@@ -283,7 +283,7 @@ static word36 put6 (word36 w, int pos, word6 c)
           return setbits36_6 (w, 30, c);
 
       }
-    sim_printf ("put6(): How'd we get here?\n");
+    sim_printf ("put6(): How'd we get here?\r\n");
     return 0;
   }
 
@@ -309,7 +309,7 @@ static word36 put9 (word36 w, int pos, word9 c)
           return setbits36_9 (w, 27, c);
 
       }
-    sim_printf ("put9(): How'd we get here?\n");
+    sim_printf ("put9(): How'd we get here?\r\n");
     return 0;
   }
 
@@ -388,7 +388,7 @@ static word18 getMFReg18 (cpu_state_t * cpup, uint n, bool allowDU, bool allowNI
         case 0: // n
           if (! allowNIC)
             {
-              //sim_printf ("getMFReg18 n\n");
+              //sim_printf ("getMFReg18 n\r\n");
               *mod_fault |= FR_ILL_MOD;
               //doFault (FAULT_IPR, fst_ill_mod, "getMFReg18 n");
             }
@@ -413,18 +413,18 @@ static word18 getMFReg18 (cpu_state_t * cpup, uint n, bool allowDU, bool allowNI
           if (! allowDU)
             {
 #if 0 // fixes first fail
-sim_printf ("getMFReg18 %012"PRIo64"\n", IWB_IRODD);
+sim_printf ("getMFReg18 %012"PRIo64"\r\n", IWB_IRODD);
               if (cpu.currentInstruction.opcode == 0305 && // dtb
                   cpu.currentInstruction.opcodeX == 1)
                 {
-                  sim_printf ("dtb special case 2\n");
+                  sim_printf ("dtb special case 2\r\n");
                   doFault (FAULT_IPR,
                     (_fault_subtype) (((_fault_subtype) {.fault_ipr_subtype=FR_ILL_MOD}).bits |
                                       ((_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC}).bits),
                     "getMFReg18 du");
                 }
 #endif
-              //sim_printf ("getMFReg18 du\n");
+              //sim_printf ("getMFReg18 du\r\n");
               *mod_fault |= FR_ILL_MOD;
               //doFault (FAULT_IPR, fst_ill_mod, "getMFReg18 du");
             }
@@ -437,7 +437,7 @@ sim_printf ("getMFReg18 %012"PRIo64"\n", IWB_IRODD);
                 // Note that AL39 is wrong saying "is permitted in MFk.REG and C(od)32,35". Only C(od)32,35 is correct. cf RJ78
           if (! allowNIC)
             {
-              //sim_printf ("getMFReg18 n\n");
+              //sim_printf ("getMFReg18 n\r\n");
               *mod_fault |= FR_ILL_MOD;
               //doFault (FAULT_IPR, fst_ill_mod, "getMFReg18 ic");
             }
@@ -470,7 +470,7 @@ sim_printf ("getMFReg18 %012"PRIo64"\n", IWB_IRODD);
         case 15:
           return cpu.rX [n - 8];
       }
-    sim_printf ("getMFReg18(cpup, ): How'd we get here? n=%d\n", n);
+    sim_printf ("getMFReg18(cpup, ): How'd we get here? n=%d\r\n", n);
     return 0;
   }
 
@@ -481,7 +481,7 @@ static word36 getMFReg36 (cpu_state_t * cpup, uint n, bool allowDU, bool allowNI
         case 0: // n
          if (! allowNIC)
            {
-             //sim_printf ("getMFReg36 n\n");
+             //sim_printf ("getMFReg36 n\r\n");
              *mod_fault |= FR_ILL_MOD;
              //doFault (FAULT_IPR, fst_ill_mod, "getMFReg36 n");
            }
@@ -512,7 +512,7 @@ static word36 getMFReg36 (cpu_state_t * cpup, uint n, bool allowDU, bool allowNI
                 // Note that AL39 is wrong saying "is permitted in MFk.REG and C(od)32,35". Only C(od)32,35 is correct. cf RJ78
           if (! allowNIC)
             {
-              //sim_printf ("getMFReg36 n\n");
+              //sim_printf ("getMFReg36 n\r\n");
               *mod_fault |= FR_ILL_MOD;
               //doFault (FAULT_IPR, fst_ill_mod, "getMFReg36 ic");
             }
@@ -545,7 +545,7 @@ static word36 getMFReg36 (cpu_state_t * cpup, uint n, bool allowDU, bool allowNI
         case 15:
             return cpu.rX [n - 8];
       }
-    sim_printf ("getMFReg36(cpup, ): How'd we get here? n=%d\n", n);
+    sim_printf ("getMFReg36(cpup, ): How'd we get here? n=%d\r\n", n);
     return 0;
   }
 
@@ -553,7 +553,7 @@ static word36 getMFReg36 (cpu_state_t * cpup, uint n, bool allowDU, bool allowNI
 
 static void EISWriteCache (cpu_state_t * cpup, EISaddr * p)
   {
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "EISWriteCache addr %06o\n", p->cachedAddr);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "EISWriteCache addr %06o\r\n", p->cachedAddr);
     word3 saveTRR = cpu.TPR.TRR;
 
     if (p -> cacheValid && p -> cacheDirty)
@@ -569,12 +569,12 @@ static void EISWriteCache (cpu_state_t * cpup, EISaddr * p)
                   if (p->wordDirty[i])
                     {
                   sim_debug (DBG_TRACEEXT, & cpu_dev,
-                             "%s: writeCache (PR) %012"PRIo64"@%o:%06o\n",
+                             "%s: writeCache (PR) %012"PRIo64"@%o:%06o\r\n",
                              __func__, p -> cachedParagraph [i], p -> SNR, p -> cachedAddr + i);
                    }
               }
 { long eisaddr_idx = EISADDR_IDX (p);
-sim_debug (DBG_TRACEEXT, & cpu_dev, "EIS %ld Write8 TRR %o TSR %05o\n", eisaddr_idx, cpu.TPR.TRR, cpu.TPR.TSR); }
+sim_debug (DBG_TRACEEXT, & cpu_dev, "EIS %ld Write8 TRR %o TSR %05o\r\n", eisaddr_idx, cpu.TPR.TRR, cpu.TPR.TSR); }
             for (uint i = 0; i < 8; i ++)
               if (p->wordDirty[i])
                 {
@@ -597,12 +597,12 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "EIS %ld Write8 TRR %o TSR %05o\n", eisaddr_
                   if (p->wordDirty[i])
                     {
                   sim_debug (DBG_TRACEEXT, & cpu_dev,
-                             "%s: writeCache %012"PRIo64"@%o:%06o\n",
+                             "%s: writeCache %012"PRIo64"@%o:%06o\r\n",
                              __func__, p -> cachedParagraph [i], cpu.TPR.TSR, p -> cachedAddr + i);
                      }
               }
 { long eisaddr_idx = EISADDR_IDX (p);
-sim_debug (DBG_TRACEEXT, & cpu_dev, "EIS %ld Write8 NO PR TRR %o TSR %05o\n", eisaddr_idx, cpu.TPR.TRR, cpu.TPR.TSR); }
+sim_debug (DBG_TRACEEXT, & cpu_dev, "EIS %ld Write8 NO PR TRR %o TSR %05o\r\n", eisaddr_idx, cpu.TPR.TRR, cpu.TPR.TSR); }
             for (uint i = 0; i < 8; i ++)
               if (p->wordDirty[i])
                 {
@@ -617,7 +617,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "EIS %ld Write8 NO PR TRR %o TSR %05o\n", ei
 
 static void EISReadCache (cpu_state_t * cpup, EISaddr * p, word18 address)
   {
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "EISReadCache addr %06o\n", address);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "EISReadCache addr %06o\r\n", address);
     word3 saveTRR = cpu.TPR.TRR;
 
     address &= AMASK;
@@ -641,14 +641,14 @@ static void EISReadCache (cpu_state_t * cpup, EISaddr * p, word18 address)
         cpu.TPR.TSR = p -> SNR;
         cpu.cu.XSF = 0;
 { long eisaddr_idx = EISADDR_IDX (p);
-sim_debug (DBG_TRACEEXT, & cpu_dev, "EIS %ld Read8 TRR %o TSR %05o\n", eisaddr_idx, cpu.TPR.TRR, cpu.TPR.TSR); }
+sim_debug (DBG_TRACEEXT, & cpu_dev, "EIS %ld Read8 TRR %o TSR %05o\r\n", eisaddr_idx, cpu.TPR.TRR, cpu.TPR.TSR); }
         Read8 (cpup, paragraphAddress, p -> cachedParagraph, true);
 
         if_sim_debug (DBG_TRACEEXT, & cpu_dev)
           {
             for (uint i = 0; i < 8; i ++)
               sim_debug (DBG_TRACEEXT, & cpu_dev,
-                         "%s: readCache (PR) %012"PRIo64"@%o:%06o\n",
+                         "%s: readCache (PR) %012"PRIo64"@%o:%06o\r\n",
                            __func__, p -> cachedParagraph [i], p -> SNR, paragraphAddress + i);
           }
       }
@@ -662,13 +662,13 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "EIS %ld Read8 TRR %o TSR %05o\n", eisaddr_i
           //}
 
 { long eisaddr_idx = EISADDR_IDX (p);
-sim_debug (DBG_TRACEEXT, & cpu_dev, "EIS %ld Read8 NO PR TRR %o TSR %05o\n", eisaddr_idx, cpu.TPR.TRR, cpu.TPR.TSR); }
+sim_debug (DBG_TRACEEXT, & cpu_dev, "EIS %ld Read8 NO PR TRR %o TSR %05o\r\n", eisaddr_idx, cpu.TPR.TRR, cpu.TPR.TSR); }
         Read8 (cpup, paragraphAddress, p -> cachedParagraph, false);
         if_sim_debug (DBG_TRACEEXT, & cpu_dev)
           {
             for (uint i = 0; i < 8; i ++)
               sim_debug (DBG_TRACEEXT, & cpu_dev,
-                         "%s: readCache %012"PRIo64"@%o:%06o\n",
+                         "%s: readCache %012"PRIo64"@%o:%06o\r\n",
                          __func__, p -> cachedParagraph [i], cpu.TPR.TSR, paragraphAddress + i);
           }
       }
@@ -685,10 +685,10 @@ static void EISWriteIdx (cpu_state_t * cpup, EISaddr *p, uint n, word36 data, bo
 #if defined(EIS_PTR)
     long eisaddr_idx = EISADDR_IDX (p);
 if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "EISWriteIdx addr %06o n %u\n", cpu.du.Dk_PTR_W[eisaddr_idx], n);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "EISWriteIdx addr %06o n %u\r\n", cpu.du.Dk_PTR_W[eisaddr_idx], n);
     word18 addressN = (cpu.du.Dk_PTR_W[eisaddr_idx] + n) & AMASK;
 #else
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "EISWriteIdx addr %06o n %u\n", p->address, n);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "EISWriteIdx addr %06o n %u\r\n", p->address, n);
     word18 addressN = p -> address + n;
 #endif
     addressN &= AMASK;
@@ -724,11 +724,11 @@ static word36 EISReadIdx (cpu_state_t * cpup, EISaddr * p, uint n)
     long eisaddr_idx = EISADDR_IDX (p);
 if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
 
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "EISReadIdx addr %06o n %u\n", cpu.du.Dk_PTR_W[eisaddr_idx], n);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "EISReadIdx addr %06o n %u\r\n", cpu.du.Dk_PTR_W[eisaddr_idx], n);
     word18 addressN = (cpu.du.Dk_PTR_W[eisaddr_idx] + n) & AMASK;
 #else
     long eisaddr_idx = EISADDR_IDX (p);
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "EISReadIdx %ld addr %06o n %u\n", eisaddr_idx, p->address, n);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "EISReadIdx %ld addr %06o n %u\r\n", eisaddr_idx, p->address, n);
     word18 addressN = p -> address + n;
 #endif
     addressN &= AMASK;
@@ -754,9 +754,9 @@ static word36 EISRead (cpu_state_t * cpup, EISaddr * p)
     long eisaddr_idx = EISADDR_IDX (p);
 if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
 
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "EISRead addr %06o\n", cpu.du.Dk_PTR_W[eisaddr_idx]);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "EISRead addr %06o\r\n", cpu.du.Dk_PTR_W[eisaddr_idx]);
 #else
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "EISRead addr %06o\n", p->address);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "EISRead addr %06o\r\n", p->address);
 #endif
     return EISReadIdx (cpup, p, 0);
   }
@@ -767,9 +767,9 @@ static void EISReadN (cpu_state_t * cpup, EISaddr * p, uint N, word36 *dst)
 # if defined(EIS_PTR)
     long eisaddr_idx = EISADDR_IDX (p);
 if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "EISReadN addr %06o N %u\n", cpu.du.Dk_PTR_W[eisaddr_idx], N);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "EISReadN addr %06o N %u\r\n", cpu.du.Dk_PTR_W[eisaddr_idx], N);
 # else
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "EISReadN addr %06o N %u\n", p->address, N);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "EISReadN addr %06o N %u\r\n", p->address, N);
 # endif
     for (uint n = 0; n < N; n ++)
       {
@@ -789,10 +789,10 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
 #endif
     addressN &= AMASK;
 
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "%s addr %06o\n", __func__, addressN);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "%s addr %06o\r\n", __func__, addressN);
     if ((addressN & PGMK) != 0)
       {
-        sim_warn ("EISReadPage not aligned %06o\n", addressN);
+        sim_warn ("EISReadPage not aligned %06o\r\n", addressN);
         addressN &= (word18) ~PGMK;
       }
 
@@ -810,11 +810,11 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
             for (uint i = 0; i < PGSZ; i ++)
 #if defined(EIS_PTR)
               sim_debug (DBG_TRACEEXT, & cpu_dev,
-                         "%s: (PR) %012"PRIo64"@%o:%06o\n",
+                         "%s: (PR) %012"PRIo64"@%o:%06o\r\n",
                            __func__, data [i], cpu.TPR.TSR, addressN + i);
 #else
               sim_debug (DBG_TRACEEXT, & cpu_dev,
-                         "%s: (PR) %012"PRIo64"@%o:%06o\n",
+                         "%s: (PR) %012"PRIo64"@%o:%06o\r\n",
                            __func__, data [i], p -> SNR, addressN + i);
 #endif
           }
@@ -833,7 +833,7 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
           {
             for (uint i = 0; i < PGSZ; i ++)
               sim_debug (DBG_TRACEEXT, & cpu_dev,
-                         "%s: %012"PRIo64"@%o:%06o\n",
+                         "%s: %012"PRIo64"@%o:%06o\r\n",
                          __func__, data [i], cpu.TPR.TSR, addressN + i);
           }
       }
@@ -851,10 +851,10 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
 #endif
     addressN &= AMASK;
 
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "%s addr %06o\n", __func__, addressN);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "%s addr %06o\r\n", __func__, addressN);
     if ((addressN & PGMK) != 0)
       {
-        sim_warn ("EISWritePage not aligned %06o\n", addressN);
+        sim_warn ("EISWritePage not aligned %06o\r\n", addressN);
         addressN &= (uint) ~PGMK;
       }
 
@@ -872,11 +872,11 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
             for (uint i = 0; i < PGSZ; i ++)
 #if defined(EIS_PTR)
               sim_debug (DBG_TRACEEXT, & cpu_dev,
-                         "%s: (PR) %012"PRIo64"@%o:%06o\n",
+                         "%s: (PR) %012"PRIo64"@%o:%06o\r\n",
                            __func__, data [i], cpu.TPR.TSR, addressN + i);
 #else
               sim_debug (DBG_TRACEEXT, & cpu_dev,
-                         "%s: (PR) %012"PRIo64"@%o:%06o\n",
+                         "%s: (PR) %012"PRIo64"@%o:%06o\r\n",
                            __func__, data [i], p -> SNR, addressN + i);
 #endif
           }
@@ -895,7 +895,7 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
           {
             for (uint i = 0; i < PGSZ; i ++)
               sim_debug (DBG_TRACEEXT, & cpu_dev,
-                         "%s: %012"PRIo64"@%o:%06o\n",
+                         "%s: %012"PRIo64"@%o:%06o\r\n",
                          __func__, data [i], cpu.TPR.TSR, addressN + i);
           }
       }
@@ -956,9 +956,9 @@ static word9 EISget469 (cpu_state_t * cpup, int k, uint i)
           break;
       }
 #if defined(EIS_PTR3)
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "EISGet469 : k: %u TAk %u coffset %u c %o \n", k, cpu.du.TAk[k - 1], residue, c);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "EISGet469 : k: %u TAk %u coffset %u c %o\r\n", k, cpu.du.TAk[k - 1], residue, c);
 #else
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "EISGet469 : k: %u TAk %u coffset %u c %o \n", k, e -> TA [k - 1], residue, c);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "EISGet469 : k: %u TAk %u coffset %u c %o\r\n", k, e -> TA [k - 1], residue, c);
 #endif
 
     return c;
@@ -1195,12 +1195,12 @@ static void setupOperandDescriptor (cpu_state_t * cpup, int k, fault_ipr_subtype
         if (opDesc & 0000000777660)
           {
 # if 0 // fix 2nd fail
-sim_printf ("setupOperandDescriptor %012"PRIo64"\n", opDesc);
-sim_printf ("setupOperandDescriptor %012"PRIo64"\n", IWB_IRODD);
+sim_printf ("setupOperandDescriptor %012"PRIo64"\r\n", opDesc);
+sim_printf ("setupOperandDescriptor %012"PRIo64"\r\n", IWB_IRODD);
             if (cpu.currentInstruction.opcode == 0305 && // dtb
                 cpu.currentInstruction.opcodeX == 1)
               {
-                sim_printf ("dtb special case\n");
+                sim_printf ("dtb special case\r\n");
                 doFault (FAULT_IPR,
                   (_fault_subtype) (((_fault_subtype) {.fault_ipr_subtype=FR_ILL_MOD}).bits |
                                     ((_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC}).bits),
@@ -1271,12 +1271,12 @@ sim_printf ("setupOperandDescriptor %012"PRIo64"\n", IWB_IRODD);
                                             cpu.PPR.PRR);
 
             e -> addr [k - 1].mat = viaPR;   // ARs involved
-sim_debug (DBG_TRACEEXT, & cpu_dev, "AR n %u k %u\n", n, k - 1);
+sim_debug (DBG_TRACEEXT, & cpu_dev, "AR n %u k %u\r\n", n, k - 1);
           }
         else
           {
             e->addr [k - 1].mat = OperandRead;      // no ARs involved yet
-sim_debug (DBG_TRACEEXT, & cpu_dev, "No ARb %u\n", k - 1);
+sim_debug (DBG_TRACEEXT, & cpu_dev, "No ARb %u\r\n", k - 1);
           }
 
         // Address modifier for ADDRESS. All register modifiers except du and
@@ -1303,7 +1303,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "No ARb %u\n", k - 1);
     else
     {
           e->addr [k - 1].mat = OperandRead;      // no ARs involved yet
-sim_debug (DBG_TRACEEXT, & cpu_dev, "No ARa %u\n", k - 1);
+sim_debug (DBG_TRACEEXT, & cpu_dev, "No ARa %u\r\n", k - 1);
     }
     setupOperandDescriptorCache (cpup, k);
 }
@@ -1419,14 +1419,14 @@ static void parseAlphanumericOperandDescriptor (cpu_state_t * cpup, uint k, uint
         e -> addr [k - 1].RNR = max3 (cpu.PR [n].RNR, cpu.TPR.TRR, cpu.PPR.PRR);
 
         e -> addr [k - 1].mat = viaPR;   // ARs involved
-sim_debug (DBG_TRACEEXT, & cpu_dev, "AR n %u k %u\n", n, k - 1);
+sim_debug (DBG_TRACEEXT, & cpu_dev, "AR n %u k %u\r\n", n, k - 1);
       }
 
     PNL (cpu.du.POL = 1);
 
     uint CN = getbits36_3 (opDesc, 18);    // character number
 
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "initial CN%u %u\n", k, CN);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "initial CN%u %u\r\n", k, CN);
 
     if (MFk & MFkRL)
     {
@@ -1461,7 +1461,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "AR n %u k %u\n", n, k - 1);
     //if (e->N [k - 1] == 0)
       //doFault (FAULT_IPR, FR_ILL_PROC, "parseAlphanumericOperandDescriptor N 0");
 
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "N%u %o\n", k, e->N[k-1]);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "N%u %o\r\n", k, e->N[k-1]);
 
     word36 r = getMFReg36 (cpup, MFk & 017, allowDU, true, mod_fault); // allow du based on instruction, allow n,ic
 
@@ -1505,7 +1505,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "AR n %u k %u\n", n, k - 1);
             e -> CN [k - 1] = effCHAR;
             e -> WN [k - 1] = effWORDNO;
 
-            sim_debug (DBG_TRACEEXT, & cpu_dev, "CN%d set to %d by CTA4\n",
+            sim_debug (DBG_TRACEEXT, & cpu_dev, "CN%d set to %d by CTA4\r\n",
                        k, e -> CN [k - 1]);
           }
           break;
@@ -1529,7 +1529,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "AR n %u k %u\n", n, k - 1);
 
           e -> CN [k - 1] = effCHAR;   // ??????
           e -> WN [k - 1] = effWORDNO;
-          sim_debug (DBG_TRACEEXT, & cpu_dev, "CN%d set to %d by CTA6\n",
+          sim_debug (DBG_TRACEEXT, & cpu_dev, "CN%d set to %d by CTA6\r\n",
                      k, e -> CN [k - 1]);
           break;
 
@@ -1544,7 +1544,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "AR n %u k %u\n", n, k - 1);
           effBITNO = 0;
           effCHAR = (CN + ARn_CHAR + r) % 4;
           sim_debug (DBG_TRACEEXT, & cpu_dev,
-                     "effCHAR %d = (CN %d + ARn_CHAR %d + r %"PRId64") %% 4)\n",
+                     "effCHAR %d = (CN %d + ARn_CHAR %d + r %"PRId64") %% 4)\r\n",
                      effCHAR, CN, ARn_CHAR, r);
           effWORDNO = (uint) (address +
                            ((9u * CN +
@@ -1555,7 +1555,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "AR n %u k %u\n", n, k - 1);
 
           e -> CN [k - 1] = effCHAR;   // ??????
           e -> WN [k - 1] = effWORDNO;
-          sim_debug (DBG_TRACEEXT, & cpu_dev, "CN%d set to %d by CTA9\n",
+          sim_debug (DBG_TRACEEXT, & cpu_dev, "CN%d set to %d by CTA9\r\n",
                      k, e -> CN [k - 1]);
           break;
 
@@ -1710,7 +1710,7 @@ static void parseNumericOperandDescriptor (cpu_state_t * cpup, int k, fault_ipr_
     else
         e->N[k-1] = opDesc & 077;
 
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "parseNumericOperandDescriptor(cpup, ): N%u %0o\n", k, e->N[k-1]);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "parseNumericOperandDescriptor(cpup, ): N%u %0o\r\n", k, e->N[k-1]);
 
     word36 r = getMFReg36(cpup, MFk & 017, false, true, mod_fault); // disallow du, allow n, ic
     if ((MFk & 017) == 4)   // reg == IC ?
@@ -1787,10 +1787,10 @@ static void parseNumericOperandDescriptor (cpu_state_t * cpup, int k, fault_ipr_
             break;
         default:
 #if defined(EIS_PTR3)
-            sim_printf ("parseNumericOperandDescriptor(cpup, ta=%d) How'd we get here 2?\n",
+            sim_printf ("parseNumericOperandDescriptor(cpup, ta=%d) How'd we get here 2?\r\n",
                         cpu.du.TAk[k-1]);
 #else
-            sim_printf ("parseNumericOperandDescriptor(cpup, ta=%d) How'd we get here 2?\n",
+            sim_printf ("parseNumericOperandDescriptor(cpup, ta=%d) How'd we get here 2?\r\n",
                         e->TA[k-1]);
 #endif
             break;
@@ -1811,11 +1811,11 @@ static void parseNumericOperandDescriptor (cpu_state_t * cpup, int k, fault_ipr_
 
 #if defined(EIS_PTR)
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "parseNumericOperandDescriptor(cpup, ): address:%06o cPos:%d bPos:%d N%u %u\n",
+               "parseNumericOperandDescriptor(cpup, ): address:%06o cPos:%d bPos:%d N%u %u\r\n",
                cpu.du.Dk_PTR_W[k-1], a->cPos, a->bPos, k, e->N[k-1]);
 #else
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "parseNumericOperandDescriptor(cpup, ): address:%06o cPos:%d bPos:%d N%u %u\n",
+               "parseNumericOperandDescriptor(cpup, ): address:%06o cPos:%d bPos:%d N%u %u\r\n",
                a->address, a->cPos, a->bPos, k, e->N[k-1]);
 #endif
 }
@@ -1853,7 +1853,7 @@ static void parseBitstringOperandDescriptor (cpu_state_t * cpup, int k, fault_ip
         word15 offset = address & MASK15;  // 15-bit signed number
         address = (cpu.AR[n].WORDNO + SIGNEXT15_18(offset)) & AMASK;
 
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "bitstring k %d AR%d\n", k, n);
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "bitstring k %d AR%d\r\n", k, n);
 
         ARn_CHAR = GET_AR_CHAR (n); // AR[n].CHAR;
         ARn_BITNO = GET_AR_BITNO (n); // AR[n].BITNO;
@@ -1873,15 +1873,15 @@ static void parseBitstringOperandDescriptor (cpu_state_t * cpup, int k, fault_ip
     {
         uint reg = opDesc & 017;
         e->N[k-1] = getMFReg36(cpup, reg, false, false, mod_fault) & 077777777;  // RL=1: disallow du,n,ic
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "bitstring k %d RL reg %u val %"PRIo64"\n", k, reg, (word36)e->N[k-1]);
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "bitstring k %d RL reg %u val %"PRIo64"\r\n", k, reg, (word36)e->N[k-1]);
     }
     else
     {
         e ->N[k-1] = opDesc & 07777;
     }
 
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "bitstring k %d opdesc %012"PRIo64"\n", k, opDesc);
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "N%u %u\n", k, e->N[k-1]);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "bitstring k %d opdesc %012"PRIo64"\r\n", k, opDesc);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "N%u %u\r\n", k, e->N[k-1]);
 
     word4 B = getbits36_4(opDesc, 20);    // bit# from descriptor
     word2 C = getbits36_2 (opDesc, 18);     // char# from descriptor
@@ -1959,7 +1959,7 @@ void a4bd (cpu_state_t * cpup)
     CPTUR (cptUsePRn + ARn);
     int32_t address = SIGNEXT15_32 (GET_OFFSET (cpu.cu.IWB));
 //if (current_running_cpu_idx)
-//sim_printf ("a4bd address %o %d.\n", address, address);
+//sim_printf ("a4bd address %o %d.\r\n", address, address);
 
     word4 reg = GET_TD (cpu.cu.IWB); // 4-bit register modification (None except
                                      // au, qu, al, ql, xn)
@@ -1967,13 +1967,13 @@ void a4bd (cpu_state_t * cpup)
     word36 ur = getCrAR (cpup, reg);
     int32 r = SIGNEXT22_32 ((word22) ur);
 //if (current_running_cpu_idx)
-//sim_printf ("a4bd r %o %d.\n", r, r);
+//sim_printf ("a4bd r %o %d.\r\n", r, r);
 
     uint augend = 0; // in 4bit characters
     if (GET_A (cpu.cu.IWB))
        {
 //if (current_running_cpu_idx)
-//sim_printf ("a4bd AR%d WORDNO %o %d. CHAR %o BITNO %o\n",
+//sim_printf ("a4bd AR%d WORDNO %o %d. CHAR %o BITNO %o\r\n",
 //            cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO,
 //            cpu.AR[ARn].CHAR, cpu.AR[ARn].BITNO);
 
@@ -1989,27 +1989,27 @@ void a4bd (cpu_state_t * cpup)
        }
 
 //if (current_running_cpu_idx)
-//sim_printf ("a4bd augend %o %d.\n", augend, augend);
+//sim_printf ("a4bd augend %o %d.\r\n", augend, augend);
 
     int32_t addend = address * 8 + r;  // in characters
 
 //if (current_running_cpu_idx)
-//sim_printf ("a4bd addend %o %d.\n", addend, addend);
+//sim_printf ("a4bd addend %o %d.\r\n", addend, addend);
 
     int32_t sum = (int32_t) augend + addend;
 //if (current_running_cpu_idx)
-//sim_printf ("a4bd sum %o %d.\n", sum, sum);
+//sim_printf ("a4bd sum %o %d.\r\n", sum, sum);
 
     // Handle over/under flow
     while (sum < 0)
       sum += n4chars;
     sum = sum % n4chars;
 //if (current_running_cpu_idx)
-//sim_printf ("a4bd sum %o %d.\n", sum, sum);
+//sim_printf ("a4bd sum %o %d.\r\n", sum, sum);
 
     cpu.AR[ARn].WORDNO = (word18) (sum / 8) & AMASK;
 //if (current_running_cpu_idx)
-//sim_printf ("a4bd WORDNO %o %d.\n", cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO);
+//sim_printf ("a4bd WORDNO %o %d.\r\n", cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO);
 
 //    // 0aaaabbbb0ccccdddd0eeeeffff0gggghhhh
 //    //             111111 11112222 22222233
@@ -2025,16 +2025,16 @@ void a4bd (cpu_state_t * cpup)
     //SET_PR_BITNO (ARn, bitFromCnt[bitno % 8]);
     uint char4no = (uint) (sum % 8);
 //if (current_running_cpu_idx)
-//sim_printf ("a4bd char4no %d.\n", char4no);
+//sim_printf ("a4bd char4no %d.\r\n", char4no);
 
     SET_AR_CHAR_BITNO (ARn, (word2) (char4no / 2), (char4no % 2) ? 5 : 0);
 #if defined(TESTING)
     HDBGRegARW (ARn, "a4bd");
 #endif
 //if (current_running_cpu_idx)
-//sim_printf ("a4bd CHAR %o %d.\n", cpu.AR[ARn].CHAR, cpu.AR[ARn].CHAR);
+//sim_printf ("a4bd CHAR %o %d.\r\n", cpu.AR[ARn].CHAR, cpu.AR[ARn].CHAR);
 //if (current_running_cpu_idx)
-//sim_printf ("a4bd BITNO %o %d.\n", cpu.AR[ARn].BITNO, cpu.AR[ARn].BITNO);
+//sim_printf ("a4bd BITNO %o %d.\r\n", cpu.AR[ARn].BITNO, cpu.AR[ARn].BITNO);
   }
 
 void s4bd (cpu_state_t * cpup)
@@ -2107,20 +2107,20 @@ void axbd (cpu_state_t * cpup, uint sz)
       r = SIGNEXT18_32 ((word18) rcnt);
 
     sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev,
-               "axbd sz %d ARn 0%o address 0%o reg 0%o r 0%o\n",
+               "axbd sz %d ARn 0%o address 0%o reg 0%o r 0%o\r\n",
                sz, ARn, address, reg, r);
 
     uint augend = 0;
     if (GET_A (cpu.cu.IWB))
       {
        sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev,
-                  "axbd ARn %d WORDNO %o CHAR %o BITNO %0o %d.\n",
+                  "axbd ARn %d WORDNO %o CHAR %o BITNO %0o %d.\r\n",
                   ARn, cpu.PAR[ARn].WORDNO, GET_AR_CHAR (ARn),
                   GET_AR_BITNO (ARn), GET_AR_BITNO (ARn));
        augend = cpu.AR[ARn].WORDNO * 36u + GET_AR_CHAR (ARn) * 9u + GET_AR_BITNO (ARn);
       }
     sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev,
-               "axbd augend 0%o\n",
+               "axbd augend 0%o\r\n",
                augend);
     // force to character boundary
     //if (sz == 9 || sz == 36 || GET_A (cpu.cu.IWB))
@@ -2128,7 +2128,7 @@ void axbd (cpu_state_t * cpup, uint sz)
       {
         augend = (augend / sz) * sz;
         sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev,
-                   "axbd force augend 0%o\n",
+                   "axbd force augend 0%o\r\n",
                    augend);
       }
 // If sz == 9, this is an a9bd instruction; ISOLTS says that r is in characters, not bits.
@@ -2137,7 +2137,7 @@ void axbd (cpu_state_t * cpup, uint sz)
 //      {
 //        r *= 9;
 //if (current_running_cpu_idx)
-//sim_printf ("axbd force chars 0%o %d. bits\n", r, r);
+//sim_printf ("axbd force chars 0%o %d. bits\r\n", r, r);
 //      }
 
     int32_t addend = address * 36 + r * (int32_t) sz;
@@ -2148,7 +2148,7 @@ void axbd (cpu_state_t * cpup, uint sz)
       sum += nxbits;
     sum = sum % nxbits;
 
-    sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev, "axbd augend 0%o addend 0%o sum 0%o\n", augend, addend, sum);
+    sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev, "axbd augend 0%o addend 0%o sum 0%o\r\n", augend, addend, sum);
 
     cpu.AR [ARn].WORDNO = (word18) (sum / 36) & AMASK;
     //SET_PR_BITNO (ARn, sum % 36);
@@ -2169,14 +2169,14 @@ void abd (cpu_state_t * cpup)
 
     word18 address = SIGNEXT15_18 (GET_OFFSET (cpu.cu.IWB));
 //if (current_running_cpu_idx)
-//sim_printf ("address %o\n", address);
+//sim_printf ("address %o\r\n", address);
     word4 reg = (word4) GET_TD (cpu.cu.IWB);
     // r is the count of bits (0 - 2^18 * 36 -1); 24 bits
     word24 r = getCrAR (cpup, (word4) reg) & MASK24;
 //if (current_running_cpu_idx)
-//sim_printf ("r 0%o %d.\n", r, r);
+//sim_printf ("r 0%o %d.\r\n", r, r);
 //if (current_running_cpu_idx)
-//sim_printf ("abd WORDNO 0%o %d. CHAR %o BITNO 0%o %d.\n",
+//sim_printf ("abd WORDNO 0%o %d. CHAR %o BITNO 0%o %d.\r\n",
 //            cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO, cpu.AR[ARn].CHAR,
 //            cpu.AR[ARn].BITNO, cpu.AR[ARn].BITNO);
 
@@ -2188,11 +2188,11 @@ void abd (cpu_state_t * cpup)
     if (GET_A (cpu.cu.IWB))
       {
 //if (current_running_cpu_idx)
-//sim_printf ("A 1\n");
+//sim_printf ("A 1\r\n");
         //word24 bits = 9 * cpu.AR[ARn].CHAR + cpu.AR[ARn].BITNO + r;
         word24 bits = 9u * GET_AR_CHAR (ARn) + GET_AR_BITNO (ARn) + r;
 //if (current_running_cpu_idx)
-//sim_printf ("bits 0%o %d.\n", bits, bits);
+//sim_printf ("bits 0%o %d.\r\n", bits, bits);
         cpu.AR[ARn].WORDNO = (cpu.AR[ARn].WORDNO + address +
                               bits / 36) & MASK18;
         if (r % 36)
@@ -2206,7 +2206,7 @@ void abd (cpu_state_t * cpup)
     else
       {
 //if (current_running_cpu_idx)
-//sim_printf ("A 0\n");
+//sim_printf ("A 0\r\n");
         cpu.AR[ARn].WORDNO = (address + r / 36) & MASK18;
         if (r % 36)
           {
@@ -2220,7 +2220,7 @@ void abd (cpu_state_t * cpup)
     HDBGRegARW (ARn, "abd");
 # endif
 //if (current_running_cpu_idx)
-//sim_printf ("abd WORDNO 0%o %d. CHAR %o BITNO 0%o %d.\n",
+//sim_printf ("abd WORDNO 0%o %d. CHAR %o BITNO 0%o %d.\r\n",
 //            cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO, cpu.AR[ARn].CHAR,
 //            cpu.AR[ARn].BITNO, cpu.AR[ARn].BITNO);
   }
@@ -2232,7 +2232,7 @@ void abd (cpu_state_t * cpup)
     int32_t address = SIGNEXT15_32 (GET_OFFSET (cpu.cu.IWB));
 
 if (current_running_cpu_idx)
-sim_printf ("abd address 0%o %d.\n", address, address);
+sim_printf ("abd address 0%o %d.\r\n", address, address);
 
     // 4-bit register modification (None except
     // au, qu, al, ql, xn)
@@ -2242,12 +2242,12 @@ sim_printf ("abd address 0%o %d.\n", address, address);
     int32_t r = getCrAR (cpup, reg);
 
 if (current_running_cpu_idx)
-sim_printf ("abd r 0%o %d.\n", r, r);
+sim_printf ("abd r 0%o %d.\r\n", r, r);
 
     r = SIGNEXT24_32 (r);
 
 if (current_running_cpu_idx)
-sim_printf ("abd r 0%o %d.\n", r, r);
+sim_printf ("abd r 0%o %d.\r\n", r, r);
 
 # define SEPARATE
 
@@ -2259,11 +2259,11 @@ sim_printf ("abd r 0%o %d.\n", r, r);
     if (GET_A (cpu.cu.IWB))
       {
 if (current_running_cpu_idx)
-sim_printf ("abd ARn %d WORDNO %o CHAR %o BITNO %0o %d. PR_BITNO %0o %d.\n",
+sim_printf ("abd ARn %d WORDNO %o CHAR %o BITNO %0o %d. PR_BITNO %0o %d.\r\n",
             ARn, cpu.PAR[ARn].WORDNO, cpu.PAR[ARn].CHAR, cpu.PAR[ARn].BITNO,
             cpu.PAR[ARn].BITNO, GET_AR_BITNO (ARn), GET_AR_BITNO (ARn));
        sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev,
-                  "abd ARn %d WORDNO %o BITNO %0o %d.\n",
+                  "abd ARn %d WORDNO %o BITNO %0o %d.\r\n",
                   ARn, cpu.PAR[ARn].WORDNO, GET_AR_BITNO (ARn), GET_AR_BITNO (ARn));
 
 # if defined(SEPARATE)
@@ -2277,31 +2277,31 @@ sim_printf ("abd ARn %d WORDNO %o CHAR %o BITNO %0o %d. PR_BITNO %0o %d.\n",
       }
 
 if (current_running_cpu_idx)
-sim_printf ("abd augend 0%o %d.\n", augend, augend);
+sim_printf ("abd augend 0%o %d.\r\n", augend, augend);
 
 # if defined(SEPARATE)
     if (GET_A (cpu.cu.IWB))
       {
 if (current_running_cpu_idx)
-sim_printf ("abd bitno 0%o %d.\n", bitno, bitno);
+sim_printf ("abd bitno 0%o %d.\r\n", bitno, bitno);
 
         int32_t rBitcnt = r % 36;
 
 if (current_running_cpu_idx)
-sim_printf ("abd rBitcnt 0%o %d.\n", rBitcnt, rBitcnt);
+sim_printf ("abd rBitcnt 0%o %d.\r\n", rBitcnt, rBitcnt);
 
         r -= rBitcnt;
 
 if (current_running_cpu_idx)
-sim_printf ("abd r 0%o %d.\n", r, r);
-    sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev, "abd augend 0%o\n", augend);
+sim_printf ("abd r 0%o %d.\r\n", r, r);
+    sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev, "abd augend 0%o\r\n", augend);
 
         // BITNO overflows oddly; handle separately
 
         int32_t deltaBits = rBitcnt + bitno;
 
 if (current_running_cpu_idx)
-sim_printf ("abd deltaBits 0%o %d.\n", deltaBits, deltaBits);
+sim_printf ("abd deltaBits 0%o %d.\r\n", deltaBits, deltaBits);
 
         while (deltaBits < 0)
           {
@@ -2316,9 +2316,9 @@ sim_printf ("abd deltaBits 0%o %d.\n", deltaBits, deltaBits);
         cpu.AR[ARn].BITNO = deltaBits;
 
 if (current_running_cpu_idx)
-sim_printf ("abd deltaBits 0%o %d.\n", deltaBits, deltaBits);
+sim_printf ("abd deltaBits 0%o %d.\r\n", deltaBits, deltaBits);
 if (current_running_cpu_idx)
-sim_printf ("abd r 0%o %d.\n", r, r);
+sim_printf ("abd r 0%o %d.\r\n", r, r);
 
       }
     else
@@ -2330,12 +2330,12 @@ sim_printf ("abd r 0%o %d.\n", r, r);
     int32_t addend = address * 36 + r;
 
 if (current_running_cpu_idx)
-sim_printf ("abd addend 0%o %d.\n", addend, addend);
+sim_printf ("abd addend 0%o %d.\r\n", addend, addend);
 
     int32_t sum = augend + addend;
 
 if (current_running_cpu_idx)
-sim_printf ("abd sum 0%o %d.\n", sum, sum);
+sim_printf ("abd sum 0%o %d.\r\n", sum, sum);
 
     // Handle over/under flow
     while (sum < 0)
@@ -2343,9 +2343,9 @@ sim_printf ("abd sum 0%o %d.\n", sum, sum);
     sum = sum % nxbits;
 
 if (current_running_cpu_idx)
-sim_printf ("abd sum 0%o %d.\n", sum, sum);
+sim_printf ("abd sum 0%o %d.\r\n", sum, sum);
 
-    sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev, "abd augend 0%o addend 0%o sum 0%o\n", augend, addend, sum);
+    sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev, "abd augend 0%o addend 0%o sum 0%o\r\n", augend, addend, sum);
 
     cpu.AR[ARn].WORDNO = (sum / 36) & AMASK;
 # if defined(SEPARATE)
@@ -2366,7 +2366,7 @@ sim_printf ("abd sum 0%o %d.\n", sum, sum);
     //cpu.AR[ARn].BITNO = bitno & MASK4;
 
 if (current_running_cpu_idx)
-sim_printf ("abd WORDNO 0%o %d. CHAR %o BITNO 0%o %d.\n",
+sim_printf ("abd WORDNO 0%o %d. CHAR %o BITNO 0%o %d.\r\n",
             cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO, cpu.AR[ARn].CHAR,
             cpu.AR[ARn].BITNO, cpu.AR[ARn].BITNO);
   }
@@ -2386,14 +2386,14 @@ void awd (cpu_state_t * cpup)
     r = SIGNEXT18_32 ((word18) r);
 
     sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev,
-               "awd ARn 0%o address 0%o reg 0%o r 0%o\n",
+               "awd ARn 0%o address 0%o reg 0%o r 0%o\r\n",
                ARn, address, reg, r);
 
     uint augend = 0;
     if (GET_A (cpu.cu.IWB))
       {
        sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev,
-                  "awd ARn %d WORDNO %o CHAR %o BITNO %0o %d.\n",
+                  "awd ARn %d WORDNO %o CHAR %o BITNO %0o %d.\r\n",
                   ARn, cpu.PAR[ARn].WORDNO, GET_AR_CHAR (ARn),
                   GET_AR_BITNO (ARn), GET_AR_BITNO (ARn));
 
@@ -2402,14 +2402,14 @@ void awd (cpu_state_t * cpup)
       }
 
     sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev,
-               "awd augend 0%o\n",
+               "awd augend 0%o\r\n",
                augend);
 
     int32_t addend = address + r;
     int32_t sum = (int32_t) augend + addend;
 
     sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev,
-               "awd augend 0%o addend 0%o sum 0%o\n",
+               "awd augend 0%o addend 0%o sum 0%o\r\n",
                augend, addend, sum);
 
     cpu.AR[ARn].WORDNO = (word18) sum & AMASK;
@@ -2469,14 +2469,14 @@ void swd (cpu_state_t * cpup)
     r = SIGNEXT18_32 ((word18) r);
 
     sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev,
-               "swd ARn 0%o address 0%o reg 0%o r 0%o\n",
+               "swd ARn 0%o address 0%o reg 0%o r 0%o\r\n",
                ARn, address, reg, r);
 
     uint minued = 0;
     if (GET_A (cpu.cu.IWB))
       {
        sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev,
-                  "swd ARn %d WORDNO %o CHAR %o BITNO %0o %d.\n",
+                  "swd ARn %d WORDNO %o CHAR %o BITNO %0o %d.\r\n",
                   ARn, cpu.PAR[ARn].WORDNO, GET_AR_CHAR (ARn),
                   GET_AR_BITNO (ARn), GET_AR_BITNO (ARn));
 
@@ -2485,13 +2485,13 @@ void swd (cpu_state_t * cpup)
       }
 
     sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev,
-               "swd minued 0%o\n", minued);
+               "swd minued 0%o\r\n", minued);
 
     int32_t subtractend = address + r;
     int32_t difference = (int32_t) minued - subtractend;
 
     sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev,
-               "swd minued 0%o subtractend 0%o difference 0%o\n",
+               "swd minued 0%o subtractend 0%o difference 0%o\r\n",
                minued, subtractend, difference);
 
     cpu.AR [ARn].WORDNO = (word18) difference & AMASK;
@@ -2513,9 +2513,9 @@ void s9bd (cpu_state_t * cpup)
     // r is the count of 9-bit characters
     word21 r = getCrAR (cpup, reg) & MASK21;;
 
-    sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev, "s9bd r 0%o\n", r);
+    sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev, "s9bd r 0%o\r\n", r);
 
-    sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev, "s9bd ARn 0%o address 0%o reg 0%o r 0%o\n", ARn, address, reg, r);
+    sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev, "s9bd ARn 0%o address 0%o reg 0%o r 0%o\r\n", ARn, address, reg, r);
 
     if (GET_A (cpu.cu.IWB))
       {
@@ -2546,7 +2546,7 @@ void s9bd (cpu_state_t * cpup)
     HDBGRegARW (ARn, "s9bd");
 #endif
 //if (current_running_cpu_idx)
-//sim_printf ("s9bd WORDNO 0%o %d. CHAR %o BITNO 0%o %d.\n",
+//sim_printf ("s9bd WORDNO 0%o %d. CHAR %o BITNO 0%o %d.\r\n",
 //            cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO, cpu.AR[ARn].CHAR,
 //            cpu.AR[ARn].BITNO, cpu.AR[ARn].BITNO);
   }
@@ -2801,7 +2801,7 @@ void asxbd (cpu_state_t * cpup, uint sz, bool sub)
     // r is the count of characters (or bits if sz is 1; words if sz == 36)
     word36 rcnt = getCrAR (cpup, reg);
 
-    sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev, "asxbd sz %d r 0%"PRIo64"\n", sz, rcnt);
+    sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev, "asxbd sz %d r 0%"PRIo64"\r\n", sz, rcnt);
 
     // Crop rcnt into r based on the operand size.
     uint r = 0;
@@ -2817,7 +2817,7 @@ void asxbd (cpu_state_t * cpup, uint sz, bool sub)
     else // if (sz == 36)
       r = (uint) (rcnt & MASK18);
 
-    sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev, "asxbd sz %d ARn 0%o address 0%o reg 0%o r 0%o\n", sz, ARn, address, reg, r);
+    sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev, "asxbd sz %d ARn 0%o address 0%o reg 0%o r 0%o\r\n", sz, ARn, address, reg, r);
 
 //
 // Calculate augend
@@ -2894,7 +2894,7 @@ void asxbd (cpu_state_t * cpup, uint sz, bool sub)
         sum %= nxbits;
       }
 
-    sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev, "asxbd augend 0%o addend 0%o sum 0%o\n", augend, addend, sum);
+    sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev, "asxbd augend 0%o addend 0%o sum 0%o\r\n", augend, addend, sum);
 
 //
 // Adjust to character boundary
@@ -3073,7 +3073,7 @@ void cmpc (cpu_state_t * cpup)
       {
         word9 c1 = EISget469 (cpup, 1, cpu.du.CHTALLY); // get Y-char1n
         word9 c2 = EISget469 (cpup, 2, cpu.du.CHTALLY); // get Y-char2n
-sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpc tally %d c1 %03o c2 %03o\n", cpu.du.CHTALLY, c1, c2);
+sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpc tally %d c1 %03o c2 %03o\r\n", cpu.du.CHTALLY, c1, c2);
         if (c1 != c2)
           {
             CLR_I_ZERO;  // an inequality found
@@ -3172,7 +3172,7 @@ void scd (cpu_state_t * cpup)
     // Bits 0-10 MBZ
     if (IWB_IRODD & 0777600000000)
       {
-        //sim_printf ("scd %12"PRIo64"\n", IWB_IRODD);
+        //sim_printf ("scd %12"PRIo64"\r\n", IWB_IRODD);
         doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "scd 0-10 MBZ");
       }
 
@@ -3355,7 +3355,7 @@ void scdr (cpu_state_t * cpup)
     // Bits 0-10 MBZ
     if (IWB_IRODD & 0777600000000)
       {
-        //sim_printf ("scdr %12"PRIo64"\n", IWB_IRODD);
+        //sim_printf ("scdr %12"PRIo64"\r\n", IWB_IRODD);
         doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "scdr 0-10 MBZ");
       }
 
@@ -3951,10 +3951,10 @@ void tct (cpu_state_t * cpup)
 
 #if defined(EIS_PTR3)
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "TCT CN1: %d TA1: %d\n", e -> CN1, TA1);
+               "TCT CN1: %d TA1: %d\r\n", e -> CN1, TA1);
 #else
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "TCT CN1: %d TA1: %d\n", e -> CN1, e -> TA1);
+               "TCT CN1: %d TA1: %d\r\n", e -> CN1, e -> TA1);
 #endif
 
     uint srcSZ = 0;
@@ -4018,7 +4018,7 @@ void tct (cpu_state_t * cpup)
     word36 CY3 = 0;
 
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "TCT N1 %d\n", e -> N1);
+               "TCT N1 %d\r\n", e -> N1);
 
     PNL (L68_ (if (e->N1 < 128)
       DU_CYCLE_FLEN_128;))
@@ -4045,7 +4045,7 @@ void tct (cpu_state_t * cpup)
         word9 cout = xlate (cpup, &e->ADDR2, CTA9, m);
 
         sim_debug (DBG_TRACEEXT, & cpu_dev,
-                   "TCT c %03o %c cout %03o %c\n",
+                   "TCT c %03o %c cout %03o %c\r\n",
                    m, isprint ((int) m) ? '?' : (char) m,
                    cout, isprint ((int) cout) ? '?' : (char) cout);
 
@@ -4146,10 +4146,10 @@ void tctr (cpu_state_t * cpup)
 
 #if defined(EIS_PTR3)
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "TCTR CN1: %d TA1: %d\n", e -> CN1, TA1);
+               "TCTR CN1: %d TA1: %d\r\n", e -> CN1, TA1);
 #else
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "TCTR CN1: %d TA1: %d\n", e -> CN1, e -> TA1);
+               "TCTR CN1: %d TA1: %d\r\n", e -> CN1, e -> TA1);
 #endif
 
     uint srcSZ = 0;
@@ -4213,7 +4213,7 @@ void tctr (cpu_state_t * cpup)
     word36 CY3 = 0;
 
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "TCT N1 %d\n", e -> N1);
+               "TCT N1 %d\r\n", e -> N1);
 
     PNL (L68_ (if (e->N1 < 128)
       DU_CYCLE_FLEN_128;))
@@ -4241,7 +4241,7 @@ void tctr (cpu_state_t * cpup)
         word9 cout = xlate (cpup, &e->ADDR2, CTA9, m);
 
         sim_debug (DBG_TRACEEXT, & cpu_dev,
-                   "TCT c %03o %c cout %03o %c\n",
+                   "TCT c %03o %c cout %03o %c\r\n",
                    m, isprint ((int) m) ? '?' : (char) m,
                    cout, isprint ((int) cout) ? '?' : (char) cout);
 
@@ -4470,11 +4470,11 @@ void mlr (cpu_state_t * cpup)
 
 #if defined(EIS_PTR3)
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "MLR TALLY %u TA1 %u TA2 %u N1 %u N2 %u CN1 %u CN2 %u\n",
+               "MLR TALLY %u TA1 %u TA2 %u N1 %u N2 %u CN1 %u CN2 %u\r\n",
                cpu.du.CHTALLY, TA1, TA2, e -> N1, e -> N2, e -> CN1, e -> CN2);
 #else
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "MLR TALLY %u TA1 %u TA2 %u N1 %u N2 %u CN1 %u CN2 %u\n",
+               "MLR TALLY %u TA1 %u TA2 %u N1 %u N2 %u CN1 %u CN2 %u\r\n",
                cpu.du.CHTALLY, e -> TA1, e -> TA2, e -> N1, e -> N2, e -> CN1, e -> CN2);
 #endif
 
@@ -4510,7 +4510,7 @@ void mlr (cpu_state_t * cpup)
         (e -> ADDR2.address & PGMK) == 0)
 #endif
       {
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "MLR special case #3\n");
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "MLR special case #3\r\n");
         while (cpu.du.CHTALLY < e -> N1)
           {
             word36 pg [PGSZ];
@@ -4550,7 +4550,7 @@ void mlr (cpu_state_t * cpup)
         (e -> ADDR2.address & PGMK) == 0)
 #endif
       {
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "MLR special case #4\n");
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "MLR special case #4\r\n");
         word36 pg [PGSZ];
         if (fill)
           {
@@ -4590,7 +4590,7 @@ void mlr (cpu_state_t * cpup)
         e -> CN1 == 0 &&  // and it starts at a word boundary // BITNO?
         e -> CN2 == 0)
       {
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "MLR special case #1\n");
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "MLR special case #1\r\n");
         for ( ; cpu.du.CHTALLY < e -> N2; cpu.du.CHTALLY += 4)
           {
             uint n = cpu.du.CHTALLY / 4;
@@ -4620,7 +4620,7 @@ void mlr (cpu_state_t * cpup)
         e -> CN1 == 0 &&  // and it starts at a word boundary // BITNO?
         e -> CN2 == 0)
       {
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "MLR special case #2\n");
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "MLR special case #2\r\n");
         word36 w = (word36) fill | ((word36) fill << 9) | ((word36) fill << 18) | ((word36) fill << 27);
         for ( ; cpu.du.CHTALLY < e -> N2; cpu.du.CHTALLY += 4)
           {
@@ -4885,7 +4885,7 @@ void mrl (cpu_state_t * cpup)
         e -> CN1 == 0 &&  // and it starts at a word boundary // BITNO?
         e -> CN2 == 0)
       {
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "MRL special case #1\n");
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "MRL special case #1\r\n");
         uint limit = e -> N2;
         for ( ; cpu.du.CHTALLY < limit; cpu.du.CHTALLY += 4)
           {
@@ -4916,7 +4916,7 @@ void mrl (cpu_state_t * cpup)
         e -> CN1 == 0 &&  // and it starts at a word boundary // BITNO?
         e -> CN2 == 0)
       {
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "MRL special case #2\n");
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "MRL special case #2\r\n");
         word36 w = (word36) fill |
                   ((word36) fill << 9) |
                   ((word36) fill << 18) |
@@ -5079,7 +5079,7 @@ static void EISloadInputBufferNumeric (cpu_state_t * cpup, int k)
     for(int n = 0 ; n < N ; n += 1)
     {
         word9 c = EISget49(cpup, a, &pos, TN);
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "src: %d: %o\n", n, c);
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "src: %d: %o\r\n", n, c);
 
         /*
          * Here we need to distinguish between 4 type of numbers.
@@ -5208,7 +5208,7 @@ static void EISloadInputBufferNumeric (cpu_state_t * cpup, int k)
         sim_debug (DBG_TRACEEXT, & cpu_dev, "inBuffer:");
         for (word9 *q = e->inBuffer; q < p; q ++)
           sim_debug (DBG_TRACEEXT, & cpu_dev, " %02o", * q);
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "\n");
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "\r\n");
       }
 }
 
@@ -5888,7 +5888,7 @@ static int mopLTE (cpu_state_t * cpup)
         sim_warn("mopIF %d OOB in %s!\r\n", e->mopIF, __func__);
         return 0;
     }
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "LTE IT[%d]<=%d\n", e -> mopIF - 1, next);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "LTE IT[%d]<=%d\r\n", e -> mopIF - 1, next);
     return 0;
 }
 
@@ -5939,10 +5939,10 @@ static int mopMFLC (cpu_state_t * cpup)
     //  Starting with the next available sending field character, the next IF
     //  characters are individually fetched and the following conditional
     //  actions occur.
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "MFLC IF %d, srcTally %d, dstTally %d\n", e->mopIF, e->srcTally, e->dstTally);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "MFLC IF %d, srcTally %d, dstTally %d\r\n", e->mopIF, e->srcTally, e->dstTally);
     for(int n = 0 ; n < e->mopIF ; n += 1)
     {
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "MFLC n %d, srcTally %d, dstTally %d\n", n, e->srcTally, e->dstTally);
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "MFLC n %d, srcTally %d, dstTally %d\r\n", n, e->srcTally, e->dstTally);
         if (e->dstTally == 0)
             break;
         if (e->srcTally == 0)
@@ -5954,19 +5954,19 @@ static int mopMFLC (cpu_state_t * cpup)
         // moved to the receiving field, and ES is set ON.
 
         word9 c = *(e->in);
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "MFLC c %d (0%o)\n", c, c);
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "MFLC c %d (0%o)\r\n", c, c);
         if (!e->mopES) { // e->mopES is OFF
 
-            sim_debug (DBG_TRACEEXT, & cpu_dev, "MFLC ES off\n");
+            sim_debug (DBG_TRACEEXT, & cpu_dev, "MFLC ES off\r\n");
             if (isDecimalZero (c)) {
-                sim_debug (DBG_TRACEEXT, & cpu_dev, "MFLC is zero\n");
+                sim_debug (DBG_TRACEEXT, & cpu_dev, "MFLC is zero\r\n");
                 // edit insertion table entry 1 is moved to the receiving field
                 // in place of the character.
                 writeToOutputBuffer(cpup, &e->out, 9, e->dstSZ, e->editInsertionTable[0]);
                 e->in += 1;
                 e->srcTally -= 1;
             } else {
-                sim_debug (DBG_TRACEEXT, & cpu_dev, "MFLC is not zero\n");
+                sim_debug (DBG_TRACEEXT, & cpu_dev, "MFLC is not zero\r\n");
                 // then edit insertion table entry 5 is moved to the receiving
                 // field, the character is also moved to the receiving field,
                 // and ES is set ON.
@@ -5980,7 +5980,7 @@ static int mopMFLC (cpu_state_t * cpup)
                 e->mopES = true;
             }
         } else {
-            sim_debug (DBG_TRACEEXT, & cpu_dev, "MFLC ES on\n");
+            sim_debug (DBG_TRACEEXT, & cpu_dev, "MFLC ES on\r\n");
             // If ES is ON, the character is moved to the receiving field.
             writeToOutputBuffer(cpup, &e->out, e->srcSZ, e->dstSZ, c);
 
@@ -6050,7 +6050,7 @@ static int mopMFLS (cpu_state_t * cpup)
             return -1;
 
         word9 c = *(e->in);
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "MFLS n %d c %o\n", n, c);
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "MFLS n %d c %o\r\n", n, c);
         if (!e->mopES) { // e->mopES is OFF
             if (isDecimalZero (c))
             {
@@ -6058,7 +6058,7 @@ static int mopMFLS (cpu_state_t * cpup)
                 // in place of the character.
                 sim_debug (DBG_TRACEEXT, & cpu_dev,
                            "ES is off, c is zero; edit insertion table entry 1"
-                           " is moved to the receiving field in place of the character.\n");
+                           " is moved to the receiving field in place of the character.\r\n");
                 writeToOutputBuffer(cpup, &e->out, 9, e->dstSZ, e->editInsertionTable[0]);
                 e->in += 1;
                 e->srcTally -= 1;
@@ -6072,7 +6072,7 @@ static int mopMFLS (cpu_state_t * cpup)
                     sim_debug (DBG_TRACEEXT, & cpu_dev,
                                "ES is off, c is non-zero, SN is off; edit insertion table entry 3"
                                " is moved to the receiving field; the character is also moved to"
-                               " the receiving field, and ES is set ON.\n");
+                               " the receiving field, and ES is set ON.\r\n");
                     writeToOutputBuffer(cpup, &e->out, 9, e->dstSZ, e->editInsertionTable[2]);
 
                     e->in += 1;
@@ -6096,7 +6096,7 @@ static int mopMFLS (cpu_state_t * cpup)
                     sim_debug (DBG_TRACEEXT, & cpu_dev,
                                "ES is off, c is non-zero, SN is OFF; edit insertion table entry 4"
                                " is moved to the receiving field; the character is also moved to"
-                               " the receiving field, and ES is set ON.\n");
+                               " the receiving field, and ES is set ON.\r\n");
                     writeToOutputBuffer(cpup, &e->out, 9, e->dstSZ, e->editInsertionTable[3]);
 
                     e->in += 1;
@@ -6110,7 +6110,7 @@ static int mopMFLS (cpu_state_t * cpup)
             }
         } else {
             // If ES is ON, the character is moved to the receiving field.
-            sim_debug (DBG_TRACEEXT, & cpu_dev, "ES is ON, the character is moved to the receiving field.\n");
+            sim_debug (DBG_TRACEEXT, & cpu_dev, "ES is ON, the character is moved to the receiving field.\r\n");
             writeToOutputBuffer(cpup, &e->out, e->srcSZ, e->dstSZ, c);
 
             if (! isDecimalZero (c))
@@ -6152,7 +6152,7 @@ static int mopMORS (cpu_state_t * cpup)
     if (e->mopIF == 0)
         e->mopIF = 16;
 
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "MORS mopIF %d src %d dst %d\n", e->mopIF, e->srcTally, e->dstTally);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "MORS mopIF %d src %d dst %d\r\n", e->mopIF, e->srcTally, e->dstTally);
     for(int n = 0 ; n < e->mopIF ; n += 1)
     {
 // The micro operation sequence is terminated normally when the receiving
@@ -6194,11 +6194,11 @@ static int mopMVC (cpu_state_t * cpup)
     if (e->mopIF == 0)
         e->mopIF = 16;
 
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "MVC mopIF %d\n", e->mopIF);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "MVC mopIF %d\r\n", e->mopIF);
 
     for(int n = 0 ; n < e->mopIF ; n += 1)
     {
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "MVC n %d srcTally %d dstTally %d\n", n, e->srcTally, e->dstTally);
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "MVC n %d srcTally %d dstTally %d\r\n", n, e->srcTally, e->dstTally);
 // GD's test_float shows that data exhaustion is not a fault.
 //#if 0
         if (e->dstTally == 0)
@@ -6206,7 +6206,7 @@ static int mopMVC (cpu_state_t * cpup)
         if (e->srcTally == 0)
             return -1;
 
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "MVC write to output buffer %o\n", *e->in);
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "MVC write to output buffer %o\r\n", *e->in);
         writeToOutputBuffer(cpup, &e->out, e->srcSZ, e->dstSZ, *e->in);
         if (! isDecimalZero (*e->in))
             e->mopZ = false;
@@ -6215,7 +6215,7 @@ static int mopMVC (cpu_state_t * cpup)
         e->srcTally -= 1;
     }
 
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "MVC done\n");
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "MVC done\r\n");
     return 0;
 }
 
@@ -6546,11 +6546,11 @@ static MOP_struct* EISgetMop (cpu_state_t * cpup)
     e->mopIF = mop9 & 0xf;
 
     MOP_struct *m = &mopTab[mop];
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "MOP %s(%o) %o\n", m -> mopName, mop, e->mopIF);
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "MOP %s(%o) %o\r\n", m -> mopName, mop, e->mopIF);
     e->m = m;
     if (e->m == NULL || e->m->f == NULL)
     {
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "getMop(e->m == NULL || e->m->f == NULL): mop:%d IF:%d\n", mop, e->mopIF);
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "getMop(e->m == NULL || e->m->f == NULL): mop:%d IF:%d\r\n", mop, e->mopIF);
         return NULL;
     }
 
@@ -6599,12 +6599,12 @@ static void mopExecutor (cpu_state_t * cpup, int kMop)
     while (e->dstTally)
     {
         sim_debug (DBG_TRACEEXT, & cpu_dev,
-                   "mopExecutor srcTally %d dstTally %d mopTally %d\n",
+                   "mopExecutor srcTally %d dstTally %d mopTally %d\r\n",
                    e->srcTally, e->dstTally, e->mopTally);
         MOP_struct *m = EISgetMop(cpup);
         if (! m)
           {
-            sim_debug (DBG_TRACEEXT, & cpu_dev, "mopExecutor EISgetMop forced break\n");
+            sim_debug (DBG_TRACEEXT, & cpu_dev, "mopExecutor EISgetMop forced break\r\n");
             e->_faults |= FAULT_IPR;   // XXX ill proc fault
             break;
           }
@@ -6629,14 +6629,14 @@ static void mopExecutor (cpu_state_t * cpup, int kMop)
         // delayed (L2) srcTally test
         if (e->mopTally == 0)
           {
-            sim_debug (DBG_TRACEEXT, & cpu_dev, "mopExecutor N2 exhausted\n");
+            sim_debug (DBG_TRACEEXT, & cpu_dev, "mopExecutor N2 exhausted\r\n");
 #else
         // immediate (L1 or L2) srcTally test
         // perhaps more adherent to documentation
         if (e->mopTally == 0 || mres)
           {
             sim_debug (DBG_TRACEEXT, & cpu_dev,
-                       "mopExecutor N1 or N2 exhausted\n");
+                       "mopExecutor N1 or N2 exhausted\r\n");
 #endif
             if (e->mopZ && e->mopBZ)
               {
@@ -6655,7 +6655,7 @@ static void mopExecutor (cpu_state_t * cpup, int kMop)
           }
     }
 
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "mop faults %o src %d dst %d mop %d\n",
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "mop faults %o src %d dst %d mop %d\r\n",
                e->_faults, e->srcTally, e->dstTally, e->mopTally);
 
 //"The micro-operation sequence is terminated normally when the receiving string
@@ -6674,7 +6674,7 @@ static void mopExecutor (cpu_state_t * cpup, int kMop)
     if (e->mopTally < e->dstTally)
       {
         sim_debug (DBG_TRACEEXT, & cpu_dev,
-                   "mop executor IPR fault; mopTally %d srcTally %d dstTally %d\n",
+                   "mop executor IPR fault; mopTally %d srcTally %d dstTally %d\r\n",
                    e->mopTally, e->srcTally, e->dstTally);
         e->_faults |= FAULT_IPR;   // XXX ill proc fault
       }
@@ -6691,7 +6691,7 @@ static void mopExecutor (cpu_state_t * cpup, int kMop)
     // mop string not exhausted?
     if (e->mopTally != 0)
       {
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "mop executor IPR fault; mopTally %d\n", e->mopTally);
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "mop executor IPR fault; mopTally %d\r\n", e->mopTally);
         e->_faults |= FAULT_IPR;   // XXX ill proc fault
       }
 #endif
@@ -6712,7 +6712,7 @@ void mve (cpu_state_t * cpup)
   {
     EISstruct * e = & cpu.currentEISinstruction;
 
-    sim_debug(DBG_TRACEEXT, & cpu_dev, "mve\n");
+    sim_debug(DBG_TRACEEXT, & cpu_dev, "mve\r\n");
 
     fault_ipr_subtype_ mod_fault = 0;
 
@@ -6949,10 +6949,10 @@ void mvne (cpu_state_t * cpup)
 //if ((e -> op [0]  & 0000000007700) ||
 //    (e -> op [1]  & 0000000077700) ||
 //    (e -> op [2]  & 0000000017700))
-//sim_printf ("%012"PRIo64"\n%012"PRIo64"\n%012"PRIo64"\n%012"PRIo64"\n", cpu.cu.IWB, e->op[0], e->op[1], e-> op[2]);
-//if (e -> op [0]  & 0000000007700) sim_printf ("op1\n");
-//if (e -> op [1]  & 0000000077700) sim_printf ("op2\n");
-//if (e -> op [2]  & 0000000017700) sim_printf ("op3\n");
+//sim_printf ("%012"PRIo64"\r\n%012"PRIo64"\r\n%012"PRIo64"\r\n%012"PRIo64"\r\n", cpu.cu.IWB, e->op[0], e->op[1], e-> op[2]);
+//if (e -> op [0]  & 0000000007700) sim_printf ("op1\r\n");
+//if (e -> op [1]  & 0000000077700) sim_printf ("op2\r\n");
+//if (e -> op [2]  & 0000000017700) sim_printf ("op3\r\n");
 //000140  aa  100 004 024 500   mvne      (pr),(ic),(pr)
 //000141  aa  6 00162 01 7511   desc9ls   pr6|114,9,-3
 //000142  aa   000236 00 0007   desc9a    158,7               000376 = 403040144040
@@ -7010,11 +7010,11 @@ void mvne (cpu_state_t * cpup)
 
 #if defined(EIS_PTR3)
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-      "mvne N1 %d N2 %d N3 %d TN1 %d CN1 %d TA3 %d CN3 %d\n",
+      "mvne N1 %d N2 %d N3 %d TN1 %d CN1 %d TA3 %d CN3 %d\r\n",
       e->N1, e->N2, e->N3, e->TN1, e->CN1, TA3, e->CN3);
 #else
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-      "mvne N1 %d N2 %d N3 %d TN1 %d CN1 %d TA3 %d CN3 %d\n",
+      "mvne N1 %d N2 %d N3 %d TN1 %d CN1 %d TA3 %d CN3 %d\r\n",
       e->N1, e->N2, e->N3, e->TN1, e->CN1, e->TA3, e->CN3);
 #endif
 
@@ -7098,14 +7098,14 @@ void mvt (cpu_state_t * cpup)
     // Bits 10 MBZ
     if (IWB_IRODD & 0000200000000)
       {
-        //sim_printf ("mvt %012"PRIo64"\n", IWB_IRODD);
+        //sim_printf ("mvt %012"PRIo64"\r\n", IWB_IRODD);
         doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "mvt 10 MBZ");
       }
 #else
     // Bits 0,1,9,10 MBZ
     if (IWB_IRODD & 0600600000000)
       {
-        //sim_printf ("mvt %012"PRIo64"\n", IWB_IRODD);
+        //sim_printf ("mvt %012"PRIo64"\r\n", IWB_IRODD);
         doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "mvt 0,1,9,10 MBZ");
       }
 #endif
@@ -7242,7 +7242,7 @@ void mvt (cpu_state_t * cpup)
     }
 
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-      "%s srcCN:%d dstCN:%d srcSZ:%d dstSZ:%d T:%d fill:%03o/%03o N1:%d N2:%d\n",
+      "%s srcCN:%d dstCN:%d srcSZ:%d dstSZ:%d T:%d fill:%03o/%03o N1:%d N2:%d\r\n",
       __func__, e -> CN1, e -> CN2, e -> srcSZ, e -> dstSZ, T,
       fill, fillT, e -> N1, e -> N2);
 
@@ -7721,13 +7721,13 @@ void mvn (cpu_state_t * cpup)
     uint dstCN = e->CN2;    // starting at char pos CN
 
     sim_debug (DBG_CAC, & cpu_dev,
-               "mvn(1): TN1 %d CN1 %d N1 %d TN2 %d CN2 %d N2 %d\n",
+               "mvn(1): TN1 %d CN1 %d N1 %d TN2 %d CN2 %d N2 %d\r\n",
                e->TN1, e->CN1, e->N1, e->TN2, e->CN2, e->N2);
     sim_debug (DBG_CAC, & cpu_dev,
-               "mvn(2): SF1 %d              SF2 %d\n",
+               "mvn(2): SF1 %d              SF2 %d\r\n",
                e->SF1, e->SF2);
     sim_debug (DBG_CAC, & cpu_dev,
-               "mvn(3): OP1 %012"PRIo64" OP2 %012"PRIo64"\n",
+               "mvn(3): OP1 %012"PRIo64" OP2 %012"PRIo64"\r\n",
                e->OP1, e->OP2);
 
     int n1 = 0, n2 = 0, sc1 = 0;
@@ -7765,7 +7765,7 @@ void mvn (cpu_state_t * cpup)
             break;  // no sign wysiwyg
     }
 
-    sim_debug (DBG_CAC, & cpu_dev, "n1 %d sc1 %d\n", n1, sc1);
+    sim_debug (DBG_CAC, & cpu_dev, "n1 %d sc1 %d\r\n", n1, sc1);
 
     // RJ78: An Illegal Procedure fault occurs if:
     // The values for the number of characters (N1 or N2) of the data
@@ -7796,7 +7796,7 @@ void mvn (cpu_state_t * cpup)
             break;          // no sign wysiwyg
     }
 
-    sim_debug (DBG_CAC, & cpu_dev, "n2 %d\n", n2);
+    sim_debug (DBG_CAC, & cpu_dev, "n2 %d\r\n", n2);
 
     if (n2 < 1)
         doFault (FAULT_IPR, fst_ill_proc, "mvn adjusted n2<1");
@@ -7829,7 +7829,7 @@ void mvn (cpu_state_t * cpup)
     char * res = formatDecimal (out, & set, op1, n2, (int) e->S2, e->SF2, R,
                                 & Ovr, & Trunc);
 
-    sim_debug (DBG_CAC, & cpu_dev, "mvn res: '%s'\n", res);
+    sim_debug (DBG_CAC, & cpu_dev, "mvn res: '%s'\r\n", res);
 
     // now write to memory in proper format.....
 
@@ -7951,16 +7951,16 @@ void mvn (cpu_state_t * cpup)
         }
     }
 
-sim_debug (DBG_CAC, & cpu_dev, "is neg %o\n", decNumberIsNegative(op1));
-sim_debug (DBG_CAC, & cpu_dev, "is zero %o\n", decNumberIsZero(op1));
-sim_debug (DBG_CAC, & cpu_dev, "R %o\n", R);
-sim_debug (DBG_CAC, & cpu_dev, "Trunc %o\n", Trunc);
-sim_debug (DBG_CAC, & cpu_dev, "TRUNC %o\n", TST_I_TRUNC);
-sim_debug (DBG_CAC, & cpu_dev, "OMASK %o\n", TST_I_OMASK);
-sim_debug (DBG_CAC, & cpu_dev, "tstOVFfault %o\n", tstOVFfault (cpup));
-sim_debug (DBG_CAC, & cpu_dev, "T %o\n", T);
-sim_debug (DBG_CAC, & cpu_dev, "EOvr %o\n", EOvr);
-sim_debug (DBG_CAC, & cpu_dev, "Ovr %o\n", Ovr);
+sim_debug (DBG_CAC, & cpu_dev, "is neg %o\r\n", decNumberIsNegative(op1));
+sim_debug (DBG_CAC, & cpu_dev, "is zero %o\r\n", decNumberIsZero(op1));
+sim_debug (DBG_CAC, & cpu_dev, "R %o\r\n", R);
+sim_debug (DBG_CAC, & cpu_dev, "Trunc %o\r\n", Trunc);
+sim_debug (DBG_CAC, & cpu_dev, "TRUNC %o\r\n", TST_I_TRUNC);
+sim_debug (DBG_CAC, & cpu_dev, "OMASK %o\r\n", TST_I_OMASK);
+sim_debug (DBG_CAC, & cpu_dev, "tstOVFfault %o\r\n", tstOVFfault (cpup));
+sim_debug (DBG_CAC, & cpu_dev, "T %o\r\n", T);
+sim_debug (DBG_CAC, & cpu_dev, "EOvr %o\r\n", EOvr);
+sim_debug (DBG_CAC, & cpu_dev, "Ovr %o\r\n", Ovr);
     // set negative indicator if op3 < 0
     SC_I_NEG (decNumberIsNegative(op1) && !decNumberIsZero(op1));
 
@@ -8094,11 +8094,11 @@ void csl (cpu_state_t * cpup)
 
 #if !defined(EIS_PTR)
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "CSL N1 %d N2 %d\n"
-               "CSL C1 %d C2 %d B1 %d B2 %d F %o T %d\n"
-               "CSL BOLR %u%u%u%u\n"
-               "CSL op1 SNR %06o WORDNO %06o CHAR %d BITNO %d\n"
-               "CSL op2 SNR %06o WORDNO %06o CHAR %d BITNO %d\n",
+               "CSL N1 %d N2 %d\r\n"
+               "CSL C1 %d C2 %d B1 %d B2 %d F %o T %d\r\n"
+               "CSL BOLR %u%u%u%u\r\n"
+               "CSL op1 SNR %06o WORDNO %06o CHAR %d BITNO %d\r\n"
+               "CSL op2 SNR %06o WORDNO %06o CHAR %d BITNO %d\r\n",
                e -> N1, e -> N2,
                e -> C1, e -> C2, e -> B1, e -> B2, F, T,
                B5, B6, B7, B8,
@@ -8227,11 +8227,11 @@ static bool EISgetBitRWNR (cpu_state_t * cpup, EISaddr * p, bool flush)
       }
 
 /* if (bitPosn < 0) { */
-/* sim_printf ("cPos %d bPos %d\n", p->cPos, p->bPos); */
-/* sim_printf ("baseCharPosn %d baseBitPosn %d\n", baseCharPosn, baseBitPosn); */
-/* sim_printf ("CHTALLY %d baseBitPosn %d\n", cpu.du.CHTALLY, baseBitPosn); */
-/* sim_printf ("bitPosn %d woff %d\n", bitPosn, woff); */
-/* sim_warn ("EISgetBitRWNR oops\n"); */
+/* sim_printf ("cPos %d bPos %d\r\n", p->cPos, p->bPos); */
+/* sim_printf ("baseCharPosn %d baseBitPosn %d\r\n", baseCharPosn, baseBitPosn); */
+/* sim_printf ("CHTALLY %d baseBitPosn %d\r\n", cpu.du.CHTALLY, baseBitPosn); */
+/* sim_printf ("bitPosn %d woff %d\r\n", bitPosn, woff); */
+/* sim_warn ("EISgetBitRWNR oops\r\n"); */
 /* return false; */
 /* } */
 
@@ -8363,11 +8363,11 @@ void csr (cpu_state_t * cpup)
 #endif
 
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "CSR N1 %d C1 %d B1 %d numWords1 %d cPos %d bPos %d\n",
+               "CSR N1 %d C1 %d B1 %d numWords1 %d cPos %d bPos %d\r\n",
                e->N1, e->C1, e->B1, numWords1, e->ADDR1.cPos, e->ADDR1.bPos);
     getBitOffsets((int) e->N2, (int) e->C2, (int) e->B2, &numWords2, &e->ADDR2.cPos, &e->ADDR2.bPos);
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "CSR N2 %d C2 %d B2 %d numWords2 %d cPos %d bPos %d\n",
+               "CSR N2 %d C2 %d B2 %d numWords2 %d cPos %d bPos %d\r\n",
                e->N2, e->C2, e->B2, numWords2, e->ADDR2.cPos, e->ADDR2.bPos);
     PNL (cpu.du.D2_PTR_W += (word18) numWords1);
     PNL (cpu.du.D2_PTR_W &= AMASK);
@@ -8579,11 +8579,11 @@ void sztl (cpu_state_t * cpup)
 
 #if !defined(EIS_PTR)
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "SZTL N1 %d N2 %d\n"
-               "SZTL C1 %d C2 %d B1 %d B2 %d F %o T %d\n"
-               "SZTL BOLR %u%u%u%u\n"
-               "SZTL op1 SNR %06o WORDNO %06o CHAR %d BITNO %d\n"
-               "SZTL op2 SNR %06o WORDNO %06o CHAR %d BITNO %d\n",
+               "SZTL N1 %d N2 %d\r\n"
+               "SZTL C1 %d C2 %d B1 %d B2 %d F %o T %d\r\n"
+               "SZTL BOLR %u%u%u%u\r\n"
+               "SZTL op1 SNR %06o WORDNO %06o CHAR %d BITNO %d\r\n"
+               "SZTL op2 SNR %06o WORDNO %06o CHAR %d BITNO %d\r\n",
                e -> N1, e -> N2,
                e -> C1, e -> C2, e -> B1, e -> B2, F, T,
                B5, B6, B7, B8,
@@ -8748,11 +8748,11 @@ void sztr (cpu_state_t * cpup)
 #endif
 
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "CSR N1 %d C1 %d B1 %d numWords1 %d cPos %d bPos %d\n",
+               "CSR N1 %d C1 %d B1 %d numWords1 %d cPos %d bPos %d\r\n",
                e->N1, e->C1, e->B1, numWords1, e->ADDR1.cPos, e->ADDR1.bPos);
     getBitOffsets((int) e->N2, (int) e->C2, (int) e->B2, &numWords2, &e->ADDR2.cPos, &e->ADDR2.bPos);
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "CSR N2 %d C2 %d B2 %d numWords2 %d cPos %d bPos %d\n",
+               "CSR N2 %d C2 %d B2 %d numWords2 %d cPos %d bPos %d\r\n",
                e->N2, e->C2, e->B2, numWords2, e->ADDR2.cPos, e->ADDR2.bPos);
     PNL (cpu.du.D2_PTR_W += (word18) numWords1);
     PNL (cpu.du.D2_PTR_W &= AMASK);
@@ -8951,7 +8951,7 @@ void cmpb (cpu_state_t * cpup)
     SET_I_ZERO;  // assume all =
     SET_I_CARRY; // assume all >=
 
-sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpb N1 %d N2 %d\n", e -> N1, e -> N2);
+sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpb N1 %d N2 %d\r\n", e -> N1, e -> N2);
 
 #if 0
 // RJ78: Notes 1:  If L1 or L2 = 0, both the Zero and Carry indicators are
@@ -8978,7 +8978,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpb N1 %d N2 %d\n", e -> N1, e -> N2);
         bool b1 = EISgetBit (cpup, &e->ADDR1, &charPosn1, &bitPosn1);
         bool b2 = EISgetBit (cpup, &e->ADDR2, &charPosn2, &bitPosn2);
 
-sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpb(min(e->N1, e->N2)) i %d b1 %d b2 %d\n", i, b1, b2);
+sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpb(min(e->N1, e->N2)) i %d b1 %d b2 %d\r\n", i, b1, b2);
         if (b1 != b2)
         {
             CLR_I_ZERO;
@@ -8998,7 +8998,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpb(min(e->N1, e->N2)) i %d b1 %d b2 %d\n"
         {
             bool b1 = F;
             bool b2 = EISgetBit(cpup, &e->ADDR2, &charPosn2, &bitPosn2);
-sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpb(e->N1 < e->N2) i %d b1fill %d b2 %d\n", i, b1, b2);
+sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpb(e->N1 < e->N2) i %d b1fill %d b2 %d\r\n", i, b1, b2);
 
             if (b1 != b2)
             {
@@ -9018,7 +9018,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpb(e->N1 < e->N2) i %d b1fill %d b2 %d\n"
         {
             bool b1 = EISgetBit(cpup, &e->ADDR1, &charPosn1, &bitPosn1);
             bool b2 = F;
-sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpb(e->N1 > e->N2) i %d b1 %d b2fill %d\n", i, b1, b2);
+sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpb(e->N1 > e->N2) i %d b1 %d b2fill %d\r\n", i, b1, b2);
 
             if (b1 != b2)
             {
@@ -9567,7 +9567,7 @@ void btd (cpu_state_t * cpup)
     // Bits 1-10 MBZ
     if (IWB_IRODD & 0377600000000)
       {
-        //sim_printf ("sb2d %012"PRIo64"\n", IWB_IRODD);
+        //sim_printf ("sb2d %012"PRIo64"\r\n", IWB_IRODD);
         doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "btd 0-8 MBZ");
       }
 
@@ -9615,7 +9615,7 @@ void btd (cpu_state_t * cpup)
     }
 
     sim_debug (DBG_CAC, & cpu_dev,
-      "n2 %d\n",
+      "n2 %d\r\n",
       n2);
 
     if (n2 < 1)
@@ -9791,7 +9791,7 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
     int sgn = 1;
 
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-      "loadDec: maxPos %d N1 %d\n", maxPos, e->N1);
+      "loadDec: maxPos %d N1 %d\r\n", maxPos, e->N1);
     for(uint n = 0 ; n < e->N1 ; n += 1)
     {
         if (pos > maxPos)   // overflows to next word?
@@ -9816,7 +9816,7 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
                 break;
         }
         sim_debug (DBG_TRACEEXT, & cpu_dev,
-          "loadDec: n %d c %d(%o)\n", n, c, c);
+          "loadDec: n %d c %d(%o)\r\n", n, c, c);
 
         // per CAC suggestion
         if (n == 0 && c == 0)           // treat as +0
@@ -9827,7 +9827,7 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
         if (n == 0 && e->TN1 == CTN4 && e->S1 == CSLS)
         {
             sim_debug (DBG_TRACEEXT, & cpu_dev,
-              "loadDec: n 0, TN1 CTN4, S1 CSLS\n");
+              "loadDec: n 0, TN1 CTN4, S1 CSLS\r\n");
             switch (c)
             {
                 case 015:   // 6-bit - sign
@@ -9849,7 +9849,7 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
         if (n == 0 && e->TN1 == CTN9 && e->S1 == CSLS)
         {
             sim_debug (DBG_TRACEEXT, & cpu_dev,
-              "loadDec: n 0, TN1 CTN9, S1 CSLS\n");
+              "loadDec: n 0, TN1 CTN9, S1 CSLS\r\n");
             switch (c)
             {
                 case '-':
@@ -9870,7 +9870,7 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
         if (n == e->N1-1 && e->TN1 == CTN4 && e->S1 == CSTS)
         {
             sim_debug (DBG_TRACEEXT, & cpu_dev,
-              "loadDec: n N1-1, TN1 CTN4, S1 CSTS\n");
+              "loadDec: n N1-1, TN1 CTN4, S1 CSTS\r\n");
             switch (c)
             {
                 case 015:   // 4-bit - sign
@@ -9891,7 +9891,7 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
         if (n == e->N1-1 && e->TN1 == CTN9 && e->S1 == CSTS)
         {
             sim_debug (DBG_TRACEEXT, & cpu_dev,
-              "loadDec: n N1-1, TN1 CTN9, S1 CSTS\n");
+              "loadDec: n N1-1, TN1 CTN9, S1 CSTS\r\n");
             switch (c)
             {
                 case '-':
@@ -9911,14 +9911,14 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
         x *= 10;
         x += c & 0xf;
         sim_debug (DBG_TRACEEXT, & cpu_dev,
-              "loadDec:  x %"PRId64"\n", (int64) x);
+              "loadDec:  x %"PRId64"\r\n", (int64) x);
 
         pos += 1;           // onto next position
     }
 
     e->x = sgn * x;
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-      "loadDec:  final x %"PRId64"\n", (int64) x);
+      "loadDec:  final x %"PRId64"\r\n", (int64) x);
 
     return 0;
 }
@@ -10091,7 +10091,7 @@ void dtb (cpu_state_t * cpup)
     if (decNumberIsZero(op1))
         op1->exponent = 127;
 
-sim_printf("dtb: N1 %d N2 %d nin %d CN1 %d CN2 %d msk %012"PRIo64" %012"PRIo64"\n",
+sim_printf("dtb: N1 %d N2 %d nin %d CN1 %d CN2 %d msk %012"PRIo64" %012"PRIo64"\r\n",
            e->N1,e->N2,n1,e->CN1,e->CN2,(word36)((msk >> 36) & DMASK), (word36)(msk & DMASK));
     PRINTDEC("dtb input (op1)", op1);
 #endif
@@ -10119,7 +10119,7 @@ sim_printf("dtb: N1 %d N2 %d nin %d CN1 %d CN2 %d msk %012"PRIo64" %012"PRIo64"\
     for (int i = 0; i < n1; i++) {
         x *= 10;
         x += e->inBuffer[i];
-        //sim_printf("%d %012"PRIo64" %012"PRIo64"\n",e->inBuffer[i],(word36)((x >> 36) & DMASK), (word36)(x & DMASK));
+        //sim_printf("%d %012"PRIo64" %012"PRIo64"\r\n",e->inBuffer[i],(word36)((x >> 36) & DMASK), (word36)(x & DMASK));
         Ovr |= x>msk?1:0;
         x &= msk; // multiplication and addition mod msk+1
     }
@@ -10128,7 +10128,7 @@ sim_printf("dtb: N1 %d N2 %d nin %d CN1 %d CN2 %d msk %012"PRIo64" %012"PRIo64"\
         // ubsan
         x = (word72) (- (word72s) x); // no need to mask it
 
-    //sim_printf ("dtb out %012"PRIo64" %012"PRIo64"\n", (word36)((x >> 36) & DMASK), (word36)(x & DMASK));
+    //sim_printf ("dtb out %012"PRIo64" %012"PRIo64"\r\n", (word36)((x >> 36) & DMASK), (word36)(x & DMASK));
 #endif /* if defined(NEED_128) */
     int pos = (int)e->CN2;
 
@@ -10343,7 +10343,7 @@ void ad2d (cpu_state_t * cpup)
 
             decNumberSubtract(op3, op3, &tmp, &set);
 
-            //decNumberToString(op3,(char*)pr); sim_printf("discarded: %s\n",pr);
+            //decNumberToString(op3,(char*)pr); sim_printf("discarded: %s\r\n",pr);
 
             decContextSetRounding(&set, safeR);
             iOvr = 1;
@@ -10734,7 +10734,7 @@ void ad3d (cpu_state_t * cpup)
 
             decNumberSubtract(op3, op3, &tmp, &set);
 
-            //decNumberToString(op3,(char*)pr); sim_printf("discarded: %s\n",pr);
+            //decNumberToString(op3,(char*)pr); sim_printf("discarded: %s\r\n",pr);
 
             decContextSetRounding(&set, safeR);
             iOvr = 1;
@@ -10910,7 +10910,7 @@ void sb2d (cpu_state_t * cpup)
     // Bits 1-8 MBZ
     if (IWB_IRODD & 0377000000000)
       {
-        //sim_printf ("sb2d %012"PRIo64"\n", IWB_IRODD);
+        //sim_printf ("sb2d %012"PRIo64"\r\n", IWB_IRODD);
         doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "sb2d 0-8 MBZ");
       }
 
@@ -11055,7 +11055,7 @@ void sb2d (cpu_state_t * cpup)
 
             decNumberSubtract(op3, op3, &tmp, &set);
 
-            //decNumberToString(op3,(char*)pr); sim_printf("discarded: %s\n",pr);
+            //decNumberToString(op3,(char*)pr); sim_printf("discarded: %s\r\n",pr);
 
             decContextSetRounding(&set, safeR);
             iOvr = 1;
@@ -11396,7 +11396,7 @@ void sb3d (cpu_state_t * cpup)
 
             decNumberSubtract(op3, op3, &tmp, &set);
 
-            //decNumberToString(op3,(char*)pr); sim_printf("discarded: %s\n",pr);
+            //decNumberToString(op3,(char*)pr); sim_printf("discarded: %s\r\n",pr);
 
             decContextSetRounding(&set, safeR);
             iOvr = 1;
@@ -11991,11 +11991,11 @@ void mp3d (cpu_state_t * cpup)
 //    char c3[1024];
 //
 //    decNumberToString(op1, c1);
-//    sim_printf("c1:%s\n", c1);
+//    sim_printf("c1:%s\r\n", c1);
 //    decNumberToString(op2, c2);
-//    sim_printf("c2:%s\n", c2);
+//    sim_printf("c2:%s\r\n", c2);
 //    decNumberToString(op3, c3);
-//    sim_printf("c3:%s\n", c3);
+//    sim_printf("c3:%s\r\n", c3);
 
     bool Ovr = false, EOvr = false, Trunc = false;
 
@@ -12378,7 +12378,7 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
 // this is the sane way to do it.....
 //    bool bDgtN = decCompare(num, den, set) == -1;
 //    if (s == CSFL && bDgtN)
-//        sim_printf("den > num\n");
+//        sim_printf("den > num\r\n");
 
     // 1) Floating-point quotient
     // NQ = N2, but if the divisor is greater than the dividend after
@@ -12414,7 +12414,7 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
 //            cmp = decNumberCompareTotal(&_cmp, op4, op5, set);
 //            bool bAdj2 = decNumberIsNegative(cmp);  // if denominator is > numerator then remove leading 0
 //            //    if (bAdj)
-//            sim_printf("bAdj2 == %d\n", decNumberToInt32(cmp, set));
+//            sim_printf("bAdj2 == %d\r\n", decNumberToInt32(cmp, set));
 //
 //
 
@@ -12437,7 +12437,7 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
 //
 //        decNumber _one, *one = decNumberFromInt32(&_one, -1);
 //        int c = decCompare(dividend, divisor, set);
-//        sim_printf("c0 = %d\n", c);
+//        sim_printf("c0 = %d\r\n", c);
 
         // we want to do a funky fractional alignment here so we can compare the mantissa's
 
@@ -12500,9 +12500,9 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
       }
 
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "\nformatDecimal: adjLen=%d SF=%d S=%s TN=%s\n", adjLen, sf, CS[s], CTN[tn]);
+               "\r\nformatDecimal: adjLen=%d SF=%d S=%s TN=%s\r\n", adjLen, sf, CS[s], CTN[tn]);
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "formatDecimal: %s  r->digits=%d  r->exponent=%d\n", getBCD(r), r->digits, r->exponent);
+               "formatDecimal: %s  r->digits=%d  r->exponent=%d\r\n", getBCD(r), r->digits, r->exponent);
 
     PRINTDEC("fd(1:r):", r);
     PRINTALL("pa(1:r):", r, set);
@@ -12537,7 +12537,7 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
           decBCDFromNumber((uint8_t *)out, r->digits, &scale, r);
           for(int i = 0 ; i < r->digits ; i += 1 )
               out[i] += '0';
-          sim_printf("formatDecimal(DEBUG): out[]: '%s'\n", out);
+          sim_printf("formatDecimal(DEBUG): out[]: '%s'\r\n", out);
         }
 # endif
 
@@ -12545,11 +12545,11 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
         {
           decNumberFromInt32(&_sf, sf);
           sim_debug (DBG_TRACEEXT, & cpu_dev,
-                     "formatDecimal(s != CSFL a): %s r->digits=%d r->exponent=%d\n",
+                     "formatDecimal(s != CSFL a): %s r->digits=%d r->exponent=%d\r\n",
                      getBCD(r), r->digits, r->exponent);
           r2 = decNumberRescale(&_r2, r, &_sf, set);
           sim_debug (DBG_TRACEEXT, & cpu_dev,
-                     "formatDecimal(s != CSFL b): %s r2->digits=%d r2->exponent=%d\n",
+                     "formatDecimal(s != CSFL b): %s r2->digits=%d r2->exponent=%d\r\n",
                      getBCD(r2), r2->digits, r2->exponent);
         }
       else
@@ -12566,7 +12566,7 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
             out2[i] += '0';
 
           sim_debug (DBG_TRACEEXT, & cpu_dev,
-                     "formatDecimal: adjLen=%d E=%d SF=%d S=%s TN=%s digits(r2)=%s E2=%d\n",
+                     "formatDecimal: adjLen=%d E=%d SF=%d S=%s TN=%s digits(r2)=%s E2=%d\r\n",
                      adjLen, r->exponent, sf, CS[s], CTN[tn], out2, r2->exponent);
         }
 # endif
@@ -12586,7 +12586,7 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
     if (!ovr && !trunc)
       {
         sim_debug (DBG_TRACEEXT, & cpu_dev,
-                   "formatDecimal(OK): r->digits(%d) <= adjLen(%d) r2->digits(%d)\n", r->digits, adjLen, r2->digits);
+                   "formatDecimal(OK): r->digits(%d) <= adjLen(%d) r2->digits(%d)\r\n", r->digits, adjLen, r2->digits);
         if (s == CSFL)
           {
             if (r2->digits < adjLen)
@@ -12676,7 +12676,7 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
         // if we get here then we have either overflow or truncation....
 
         sim_debug (DBG_TRACEEXT, & cpu_dev,
-                   "formatDecimal(!OK%s): r2->digits %d adjLen %d\n", R ? " R" : "", r2->digits, adjLen);
+                   "formatDecimal(!OK%s): r2->digits %d adjLen %d\r\n", R ? " R" : "", r2->digits, adjLen);
 
         // so, what do we do?
         if (R)
@@ -12693,7 +12693,7 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
               {
                 //set->digits = ro->digits + sf + 1;
                 sim_debug (DBG_TRACEEXT, & cpu_dev,
-                           "formatDecimal(!OK R1): ro->digits %d adjLen %d\n", ro->digits, adjLen);
+                           "formatDecimal(!OK R1): ro->digits %d adjLen %d\r\n", ro->digits, adjLen);
 
                 set->digits = adjLen;
                 decNumberPlus(ro, ro, set);
@@ -12709,13 +12709,13 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
 
                 //strcpy(out, out+set->digits-adjLen); // this generates a SIGABRT - probably because of overlapping strings.
 
-                //sim_debug (DBG_TRACEEXT, & cpu_dev, "R OVR\n");
+                //sim_debug (DBG_TRACEEXT, & cpu_dev, "R OVR\r\n");
                 //ovr = true; breaks ET MVN 5
               } // digits > adjlen
             else
               {
                 sim_debug (DBG_TRACEEXT, & cpu_dev,
-                           "formatDecimal(!OK R2): ro->digits %d adjLen %d\n", ro->digits, adjLen);
+                           "formatDecimal(!OK R2): ro->digits %d adjLen %d\r\n", ro->digits, adjLen);
 
                 if (s==CSFL)
                   {
@@ -12726,7 +12726,7 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
                     for(int i = 0 ; i < adjLen ; i += 1 )
                         out[i] += '0';
                     out[adjLen] = 0;
-                    sim_debug (DBG_TRACEEXT, & cpu_dev, "formatDecimal(!OK R2a): %s\n", out);
+                    sim_debug (DBG_TRACEEXT, & cpu_dev, "formatDecimal(!OK R2a): %s\r\n", out);
 
                   } // s == CSFL
                 else
@@ -12740,11 +12740,11 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
                     for(int j = 0 ; j < adjLen; j += 1 )
                         out[j] += '0';
 
-                    sim_debug (DBG_TRACEEXT, & cpu_dev, "formatDecimal(!OK R2b): %s\n", out);
+                    sim_debug (DBG_TRACEEXT, & cpu_dev, "formatDecimal(!OK R2b): %s\r\n", out);
                   } // s != CSFL
                 ovr = false;    // since we've rounded we can have no overflow ?????
               } // digits <= adjlen
-            sim_debug (DBG_TRACEEXT, & cpu_dev, "formatDecimal(R3): digits:'%s'\n", out);
+            sim_debug (DBG_TRACEEXT, & cpu_dev, "formatDecimal(R3): digits:'%s'\r\n", out);
 
             set->digits = safe;
 
@@ -12760,7 +12760,7 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
                 decBCDFromNumber((uint8_t *)outi, adjLen, &scale, i);
                 for(int j = 0 ; j < adjLen; j += 1 )
                     outi[j] += '0';
-                sim_debug (DBG_TRACEEXT, & cpu_dev, "i=%s\n", outi);
+                sim_debug (DBG_TRACEEXT, & cpu_dev, "i=%s\r\n", outi);
               }
 # endif
           } // R
@@ -12806,7 +12806,7 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
                 set->digits = safe;
                 decContextSetRounding(set, safeR);              // restore rounding mode
 
-                sim_debug (DBG_TRACEEXT, & cpu_dev, "CSFL TRUNC\n");
+                sim_debug (DBG_TRACEEXT, & cpu_dev, "CSFL TRUNC\r\n");
               } // s == CSFL
             else
               {
@@ -12843,7 +12843,7 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
                         trunc = false;
                       }
                     decContextSetRounding(set, safeR);              // restore rounding mode
-                    sim_debug (DBG_TRACEEXT, & cpu_dev, "TRUNC\n");
+                    sim_debug (DBG_TRACEEXT, & cpu_dev, "TRUNC\r\n");
 
                     //                else if ((r2->digits-sf) > adjLen)     // HWR 18 July 2014 was (r->digits > adjLen)
                   } // r2 < r
@@ -12861,16 +12861,16 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
                     strcpy((char *) out, temp);
                     //strcpy(out, out+r->digits-adjLen); // this generates a SIGABRT - probably because of overlapping strings.
 
-                    sim_debug (DBG_TRACEEXT, & cpu_dev, "OVR\n");
+                    sim_debug (DBG_TRACEEXT, & cpu_dev, "OVR\r\n");
                     ovr = true;
                   } // r2 >= r
                 else
-                  sim_printf("formatDecimal(?): How'd we get here?\n");
+                  sim_printf("formatDecimal(?): How'd we get here?\r\n");
               } // s != CSFL
           } // !R
       } // ovr || trunc
     sim_debug (DBG_TRACEEXT, & cpu_dev,
-               "formatDecimal(END): ovrflow=%d trunc=%d R=%d out[]='%s'\n", ovr, trunc, R, out);
+               "formatDecimal(END): ovrflow=%d trunc=%d R=%d out[]='%s'\r\n", ovr, trunc, R, out);
     *OVR = ovr;
     *TRUNC = trunc;
 
@@ -13051,13 +13051,13 @@ void dv2d (cpu_state_t * cpup)
             if (e->inBuffer[i]!=0) // this still holds op2 digits
                 break;
         clz2 = i;
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "dv2d: clz1 %d clz2 %d\n",clz1,clz2);
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "dv2d: clz1 %d clz2 %d\r\n",clz1,clz2);
 
         // XXX are clz also valid for CSFL dividend / divisor? probably yes
         // XXX seems that exponents and scale factors are used interchangeably here ? (RJ78)
         NQ = (n2-clz2+1) - (n1-clz1) + (-(e->S1==CSFL?op1->exponent:(int)e->SF1));
 
-sim_debug (DBG_TRACEEXT, & cpu_dev, "dv2d S1 %d S2 %d N1 %d N2 %d clz1 %d clz2 %d E1 %d E2 %d SF2 %d NQ %d\n",
+sim_debug (DBG_TRACEEXT, & cpu_dev, "dv2d S1 %d S2 %d N1 %d N2 %d clz1 %d clz2 %d E1 %d E2 %d SF2 %d NQ %d\r\n",
            e->S1,e->S2,e->N1,e->N2,clz1,clz2,op1->exponent,op2->exponent,e->SF2,NQ);
     }
     if (NQ > 63)
@@ -13134,7 +13134,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "dv2d S1 %d S2 %d N1 %d N2 %d clz1 %d clz2 %
 
         PRINTDEC("dv2d: op1a", &_1a);
         PRINTDEC("dv2d: op2a", &_2a);
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "dv2d: exp1 %d exp2 %d digits op1 %d op2 %d op1a %d op2a %d\n",
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "dv2d: exp1 %d exp2 %d digits op1 %d op2 %d op1a %d op2a %d\r\n",
                    op1->exponent,op2->exponent,op1->digits,op2->digits,_1a.digits,_2a.digits);
 
         if (decCompareMAG(&_1a, &_2a, &set) > 0) {
@@ -13146,7 +13146,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "dv2d S1 %d S2 %d N1 %d N2 %d clz1 %d clz2 %
             for (int i = n2; i > 0; i--) // incl.zero terminator
                  res[i] = res[i-1];
             res[0] = '0';
-            sim_debug (DBG_TRACEEXT, & cpu_dev, "dv2d: addzero n2 %d %s exp %d\n",n2,res,op3->exponent);
+            sim_debug (DBG_TRACEEXT, & cpu_dev, "dv2d: addzero n2 %d %s exp %d\r\n",n2,res,op3->exponent);
         } else {
             // full n2 digits are returned
             res = formatDecimal(out, &set, op3, n2, (int) e->S2, e->SF2, R, &Ovr, &Trunc);
@@ -13493,14 +13493,14 @@ void dv3d (cpu_state_t * cpup)
             if (e->inBuffer[i]!=0) // this still holds op2 digits
                 break;
         clz2 = i;
-        sim_debug (DBG_TRACEEXT, & cpu_dev, "dv3d: clz1 %d clz2 %d\n",clz1,clz2);
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "dv3d: clz1 %d clz2 %d\r\n",clz1,clz2);
 
         // XXX are clz also valid for CSFL dividend / divisor? probably yes
         // XXX seems that exponents and scale factors are used interchangeably here ? (RJ78)
         NQ = (n2-clz2+1) - (n1-clz1) + \
                 ((e->S2==CSFL?op2->exponent:(int)e->SF2)-(e->S1==CSFL?op1->exponent:(int)e->SF1)-(int)e->SF3);
 
-sim_debug (DBG_TRACEEXT, & cpu_dev, "dv3d S1 %d S2 %d N1 %d N2 %d clz1 %d clz2 %d E1 %d E2 %d SF3 %d NQ %d\n",
+sim_debug (DBG_TRACEEXT, & cpu_dev, "dv3d S1 %d S2 %d N1 %d N2 %d clz1 %d clz2 %d E1 %d E2 %d SF3 %d NQ %d\r\n",
            e->S1,e->S2,e->N1,e->N2,clz1,clz2,op1->exponent,op2->exponent,e->SF3,NQ);
     }
     if (NQ > 63)
@@ -13578,7 +13578,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "dv3d S1 %d S2 %d N1 %d N2 %d clz1 %d clz2 %
         PRINTDEC("dv3d: op1a", &_1a);
         PRINTDEC("dv3d: op2a", &_2a);
         sim_debug (DBG_TRACEEXT, & cpu_dev,
-                   "dv3d: exp1 %d exp2 %d digits op1 %d op2 %d op1a %d op2a %d\n",
+                   "dv3d: exp1 %d exp2 %d digits op1 %d op2 %d op1a %d op2a %d\r\n",
                    op1->exponent ,op2->exponent, op1->digits,
                    op2->digits, _1a.digits, _2a.digits);
 
@@ -13591,7 +13591,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "dv3d S1 %d S2 %d N1 %d N2 %d clz1 %d clz2 %
             for (int i = n3; i > 0; i--) // incl.zero terminator
                  res[i] = res[i-1];
             res[0] = '0';
-            sim_debug (DBG_TRACEEXT, & cpu_dev, "dv3d: addzero n3 %d %s exp %d\n",n3,res,op3->exponent);
+            sim_debug (DBG_TRACEEXT, & cpu_dev, "dv3d: addzero n3 %d %s exp %d\r\n",n3,res,op3->exponent);
         } else {
             // full n3 digits are returned
             res = formatDecimal(out, &set, op3, n3, (int) e->S3, e->SF3, R, &Ovr, &Trunc);

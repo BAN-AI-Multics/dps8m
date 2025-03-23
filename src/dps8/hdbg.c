@@ -148,7 +148,7 @@ static void createBuffer (void) {
   hevents = malloc (sizeof (struct hevt) * hdbgSize);
 # endif
   if (! hevents) {
-    sim_printf ("hdbg createBuffer failed\n");
+    sim_printf ("hdbg createBuffer failed\r\n");
     return;
   }
   (void)memset (hevents, 0, sizeof (struct hevt) * hdbgSize);
@@ -338,7 +338,7 @@ done: ;
 static FILE * hdbgOut = NULL;
 
 static void printM (struct hevt * p) {
-  (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d FINAL: %s %s %08o %012llo\n",
+  (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d FINAL: %s %s %08o %012llo\r\n",
                  (unsigned long long int)p->time,
                  p->cpu_idx,
                  p->ctx,
@@ -348,7 +348,7 @@ static void printM (struct hevt * p) {
 }
 
 static void printAPU (struct hevt * p) {
-  (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d APU: %s %s %05o:%06o %08o %012llo\n",
+  (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d APU: %s %s %05o:%06o %08o %012llo\r\n",
                  (unsigned long long int)p->time,
                  p->cpu_idx,
                  p->ctx,
@@ -362,7 +362,7 @@ static void printAPU (struct hevt * p) {
 static void printTrace (struct hevt * p) {
   char buf[256];
   if (p -> trace.addrMode == ABSOLUTE_mode) {
-    (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d TRACE: %s %06o %o %012llo (%s)\n",
+    (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d TRACE: %s %06o %o %012llo (%s)\r\n",
                    (unsigned long long int)p->time,
                    p->cpu_idx,
                    p->ctx,
@@ -371,7 +371,7 @@ static void printTrace (struct hevt * p) {
                    (unsigned long long int)p->trace.inst,
                    disassemble (buf, p->trace.inst));
   } else {
-    (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d TRACE: %s %05o:%06o %o %012llo (%s)\n",
+    (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d TRACE: %s %05o:%06o %o %012llo (%s)\r\n",
                    (unsigned long long int)p->time,
                    p->cpu_idx,
                    p->ctx,
@@ -384,7 +384,7 @@ static void printTrace (struct hevt * p) {
 }
 
 static void printFault (struct hevt * p) {
-  (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d FAULT: %s Fault %d(0%o), sub %llu(0%llo), '%s'\n",
+  (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d FAULT: %s Fault %d(0%o), sub %llu(0%llo), '%s'\r\n",
                  (unsigned long long int)p->time,
                  p->cpu_idx,
                  p->ctx,
@@ -396,7 +396,7 @@ static void printFault (struct hevt * p) {
 }
 
 static void printIntrSet (struct hevt * p) {
-  (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d INTR_SET: %s number %d(0%o), CPU %u SCU %u\n",
+  (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d INTR_SET: %s number %d(0%o), CPU %u SCU %u\r\n",
                  (unsigned long long int)p->time,
                  p->cpu_idx,
                  p->ctx,
@@ -407,7 +407,7 @@ static void printIntrSet (struct hevt * p) {
 }
 
 static void printIntr (struct hevt * p) {
-  (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d INTR: %s Interrupt pair address %o\n",
+  (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d INTR: %s Interrupt pair address %o\r\n",
                  (unsigned long long int)p->time,
                  p->cpu_idx,
                  p->ctx,
@@ -428,7 +428,7 @@ static char * regNames[] = {
 
 static void printReg (struct hevt * p) {
   if (p->reg.type == hreg_IR)
-    (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s %s %s %012llo Z%o N%o C %o O%o T%o \n",
+    (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s %s %s %012llo Z%o N%o C %o O%o T%o\r\n",
                    (unsigned long long int)p->time,
                    p->cpu_idx,
                    p->ctx,
@@ -441,7 +441,7 @@ static void printReg (struct hevt * p) {
                    TSTF (p->reg.data, I_OFLOW),
                    TSTF (p->reg.data, I_TALLY));
   else if (p->reg.type >= hreg_X0 && p->reg.type <= hreg_X7)
-    (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s %s %s %06llo\n",
+    (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s %s %s %06llo\r\n",
                    (unsigned long long int)p->time,
                    p->cpu_idx,
                    p->ctx,
@@ -449,7 +449,7 @@ static void printReg (struct hevt * p) {
                    regNames[p->reg.type],
                    (unsigned long long int)p->reg.data);
   else
-    (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s %s  %s %012llo\n",
+    (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s %s  %s %012llo\r\n",
                    (unsigned long long int)p->time,
                    p->cpu_idx,
                    p->ctx,
@@ -461,7 +461,7 @@ static void printReg (struct hevt * p) {
 static void printPAReg (struct hevt * p)
 {
   if (p->reg.type >= hreg_PR0 && p->reg.type <= hreg_PR7)
-    (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s %s %s %05o:%06o BIT %2o RNR %o\n",
+    (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s %s %s %05o:%06o BIT %2o RNR %o\r\n",
                    (unsigned long long int)p->time,
                     p->cpu_idx,
                     p->ctx,
@@ -472,7 +472,7 @@ static void printPAReg (struct hevt * p)
                     p->par.data.PR_BITNO,
                     p->par.data.RNR);
   else
-    (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s write %s %05o:%06o CHAR %o BIT %2o RNR %o\n",
+    (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s write %s %05o:%06o CHAR %o BIT %2o RNR %o\r\n",
                    (unsigned long long int)p->time,
                    p->cpu_idx,
                    p->ctx,
@@ -485,7 +485,7 @@ static void printPAReg (struct hevt * p)
 }
 
 static void printDSBRReg (struct hevt * p) {
-  (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s %s %s %05o:%06o BIT %2o RNR %o\n",
+  (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d REG: %s %s %s %05o:%06o BIT %2o RNR %o\r\n",
                  (unsigned long long int)p->time,
                  p->cpu_idx,
                  p->ctx,
@@ -500,21 +500,21 @@ static void printDSBRReg (struct hevt * p) {
 static void printIEFP (struct hevt * p) {
   switch (p->iefp.type) {
     case hdbgIEFP_abs_bar_read:
-      (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP ABS BAR READ:  |%06o\n",
+      (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP ABS BAR READ:  |%06o\r\n",
                      (unsigned long long int)p->time,
                      p->cpu_idx,
                      p->iefp.offset);
       break;
 
     case hdbgIEFP_abs_read:
-      (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP ABS     READ:  :%06o\n",
+      (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP ABS     READ:  :%06o\r\n",
                      (unsigned long long int)p->time,
                      p->cpu_idx,
                      p->iefp.offset);
       break;
 
     case hdbgIEFP_bar_read:
-      (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP APP BAR READ:  %05o|%06o\n",
+      (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP APP BAR READ:  %05o|%06o\r\n",
                      (unsigned long long int)p->time,
                      p->cpu_idx,
                      p->iefp.segno,
@@ -522,7 +522,7 @@ static void printIEFP (struct hevt * p) {
       break;
 
     case hdbgIEFP_read:
-      (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP APP     READ:  %05o:%06o\n",
+      (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP APP     READ:  %05o:%06o\r\n",
                      (unsigned long long int)p->time,
                      p->cpu_idx,
                      p->iefp.segno,
@@ -530,21 +530,21 @@ static void printIEFP (struct hevt * p) {
       break;
 
     case hdbgIEFP_abs_bar_write:
-      (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP ABS BAR WRITE: |%06o\n",
+      (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP ABS BAR WRITE: |%06o\r\n",
                      (long long unsigned int)p->time,
                      p->cpu_idx,
                      p->iefp.offset);
       break;
 
     case hdbgIEFP_abs_write:
-      (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP ABS     WRITE: :%06o\n",
+      (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP ABS     WRITE: :%06o\r\n",
                      (long long unsigned int)p->time,
                      p->cpu_idx,
                      p->iefp.offset);
       break;
 
     case hdbgIEFP_bar_write:
-      (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP APP BAR WRITE: %05o|%06o\n",
+      (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP APP BAR WRITE: %05o|%06o\r\n",
                      (unsigned long long int)p->time,
                      p->cpu_idx,
                      p->iefp.segno,
@@ -552,7 +552,7 @@ static void printIEFP (struct hevt * p) {
       break;
 
     case hdbgIEFP_write:
-      (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP APP     WRITE: %05o:%06o\n",
+      (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP APP     WRITE: %05o:%06o\r\n",
                      (unsigned long long int)p->time,
                      p->cpu_idx,
                      p->iefp.segno,
@@ -560,7 +560,7 @@ static void printIEFP (struct hevt * p) {
       break;
 
     default:
-      (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP ??? ??? WRITE: %05o?%06o\n",
+      (void)fprintf (hdbgOut, "DBG(%llu)> CPU %d IEFP ??? ??? WRITE: %05o?%06o\r\n",
                      (long long unsigned int)p->time,
                      p->cpu_idx,
                      p->iefp.segno,
@@ -570,25 +570,25 @@ static void printIEFP (struct hevt * p) {
 }
 
 static void printNote (struct hevt * p) {
-  (void)fprintf (hdbgOut, "DBG(%llu)> Note: %s\n",
+  (void)fprintf (hdbgOut, "DBG(%llu)> Note: %s\r\n",
                  (long long unsigned int)p->time,
                  p->note.noteBody);
 }
 
 void hdbgPrint (void) {
-  sim_printf ("hdbg print\n");
+  sim_printf ("hdbg print\r\n");
   if (! hevents)
     goto done;
   struct hevt * t = hevents;
   hevents = NULL;
   hdbgOut = fopen ("hdbg.list", "w");
   if (! hdbgOut) {
-    sim_printf ("can't open hdbg.list\n");
+    sim_printf ("can't open hdbg.list\r\n");
     goto done;
   }
   time_t curtime;
   time (& curtime);
-  (void)fprintf (hdbgOut, "%s\n", ctime (& curtime));
+  (void)fprintf (hdbgOut, "%s\r\n", ctime (& curtime));
 
   for (unsigned long p = 0; p < hdbgSize; p ++) {
     unsigned long q = (hevtPtr + p) % hdbgSize;
@@ -654,7 +654,7 @@ void hdbgPrint (void) {
         break;
 
       default:
-        (void)fprintf (hdbgOut, "hdbgPrint ? %d\n", evtp -> type);
+        (void)fprintf (hdbgOut, "hdbgPrint ? %d\r\n", evtp -> type);
         break;
     }
   }
@@ -662,7 +662,7 @@ void hdbgPrint (void) {
 
   int fd = open ("M.dump", O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
   if (fd == -1) {
-    sim_printf ("can't open M.dump\n");
+    sim_printf ("can't open M.dump\r\n");
     goto done;
   }
   // cast discards volatile
@@ -674,21 +674,21 @@ done: ;
 # if 0
 void hdbg_mark (void) {
   hevtMark = hdbgSize;
-  sim_printf ("hdbg mark set to %ld\n", (long) hevtMark);
+  sim_printf ("hdbg mark set to %ld\r\n", (long) hevtMark);
 }
 # endif
 
 t_stat hdbg_cpu_mask (UNUSED int32 arg, const char * buf)
   {
     hdbgCPUMask = strtoul (buf, NULL, 0);
-    sim_printf ("hdbg CPU mask set to %ld\n", (long) hdbgCPUMask);
+    sim_printf ("hdbg CPU mask set to %ld\r\n", (long) hdbgCPUMask);
     return SCPE_OK;
   }
 
 // set buffer size
 t_stat hdbg_size (UNUSED int32 arg, const char * buf) {
   hdbgSize = strtoul (buf, NULL, 0);
-  sim_printf ("hdbg size set to %ld\n", (long) hdbgSize);
+  sim_printf ("hdbg size set to %ld\r\n", (long) hdbgSize);
   createBuffer ();
   return SCPE_OK;
 }
@@ -696,7 +696,7 @@ t_stat hdbg_size (UNUSED int32 arg, const char * buf) {
 // set target segment number
 t_stat hdbgSegmentNumber (UNUSED int32 arg, const char * buf) {
   hdbgSegNum = strtoul (buf, NULL, 8);
-  sim_printf ("hdbg target segment number set to %lu\n", hdbgSize);
+  sim_printf ("hdbg target segment number set to %lu\r\n", hdbgSize);
   createBuffer ();
   return SCPE_OK;
 }

@@ -341,7 +341,7 @@ static DEBTAB disk_dt[] =
 
 static t_stat disk_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int val, UNUSED const void * desc)
   {
-    sim_printf("Number of DISK units in system is %d\n", dsk_dev . numunits);
+    sim_printf("Number of DISK units in system is %d\r\n", dsk_dev . numunits);
     return SCPE_OK;
   }
 
@@ -361,7 +361,7 @@ static t_stat disk_show_type (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int v
     int diskUnitIdx = (int) DSK_UNIT_IDX (uptr);
     if (diskUnitIdx < 0 || diskUnitIdx >= N_DSK_UNITS_MAX)
       {
-        sim_printf ("error: Invalid unit number %ld\n", (long) diskUnitIdx);
+        sim_printf ("error: Invalid unit number %ld\r\n", (long) diskUnitIdx);
         return SCPE_ARG;
       }
 
@@ -375,7 +375,7 @@ static t_stat disk_set_type (UNUSED UNIT * uptr, UNUSED int32 value, const char 
     int diskUnitIdx = (int) DSK_UNIT_IDX (uptr);
     if (diskUnitIdx < 0 || diskUnitIdx >= N_DSK_UNITS_MAX)
       {
-        sim_printf ("error: Invalid unit number %ld\n", (long) diskUnitIdx);
+        sim_printf ("error: Invalid unit number %ld\r\n", (long) diskUnitIdx);
         return SCPE_ARG;
       }
 
@@ -452,15 +452,15 @@ t_stat signal_disk_ready (uint dsk_unit_idx) {
   // so substr (w, 20, 1) is bit 0 of status0
   //    substr (w, 13, 6) is the low 6 bits of dev_no
   //    substr (w, 34, 3) is the low 3 bits of status 1
-      //sim_printf ("%s %d %o\n", disk_filename, ro,  mt_unit[dsk_unit_idx] . flags);
-      //sim_printf ("special int %d %o\n", dsk_unit_idx, mt_unit[dsk_unit_idx] . flags);
+      //sim_printf ("%s %d %o\r\n", disk_filename, ro,  mt_unit[dsk_unit_idx] . flags);
+      //sim_printf ("special int %d %o\r\n", dsk_unit_idx, mt_unit[dsk_unit_idx] . flags);
 
   uint ctlr_unit_idx = cables->dsk_to_ctlr[dsk_unit_idx].ctlr_unit_idx;
   enum ctlr_type_e ctlr_type = cables->dsk_to_ctlr[dsk_unit_idx].ctlr_type;
   if (ctlr_type != CTLR_T_MSP && ctlr_type != CTLR_T_IPC) {
     // If None, assume that the cabling hasn't happened yet.
     if (ctlr_type != CTLR_T_NONE) {
-      sim_warn ("loadDisk lost\n");
+      sim_warn ("loadDisk lost\r\n");
       return SCPE_ARG;
     }
     return SCPE_OK;
@@ -498,7 +498,7 @@ t_stat signal_disk_ready (uint dsk_unit_idx) {
       }
     if (! sent_one)
       {
-        sim_printf ("loadDisk can't find controller; dropping interrupt\n");
+        sim_printf ("loadDisk can't find controller; dropping interrupt\r\n");
         return SCPE_ARG;
       }
 
@@ -536,7 +536,7 @@ static t_stat disk_set_ready (UNIT * uptr, UNUSED int32 value,
     long disk_unit_idx = DSK_UNIT_IDX (uptr);
     if (disk_unit_idx >= (long) dsk_dev.numunits)
       {
-        sim_warn ("%s: error: Invalid unit number %ld\n", __func__, (long) disk_unit_idx);
+        sim_warn ("%s: error: Invalid unit number %ld\r\n", __func__, (long) disk_unit_idx);
         return SCPE_ARG;
       }
     return signal_disk_ready ((uint) disk_unit_idx);
@@ -546,7 +546,7 @@ t_stat unloadDisk (uint dsk_unit_idx) {
   if (dsk_unit [dsk_unit_idx] . flags & UNIT_ATT) {
     t_stat stat = sim_disk_detach (& dsk_unit [dsk_unit_idx]);
     if (stat != SCPE_OK) {
-      sim_warn ("%s: sim_disk_detach returned %ld\n", __func__, (long) stat);
+      sim_warn ("%s: sim_disk_detach returned %ld\r\n", __func__, (long) stat);
       return SCPE_ARG;
     }
   }
@@ -560,7 +560,7 @@ t_stat loadDisk (uint dsk_unit_idx, const char * disk_filename, bool ro) {
     dsk_unit[dsk_unit_idx].flags &= ~ MTUF_WRP;
   t_stat stat = attach_unit (& dsk_unit [dsk_unit_idx], disk_filename);
   if (stat != SCPE_OK) {
-    sim_printf ("%s: sim_disk_attach returned %d\n", __func__, stat);
+    sim_printf ("%s: sim_disk_attach returned %d\r\n", __func__, stat);
     return stat;
   }
   return signal_disk_ready ((uint) dsk_unit_idx);
@@ -627,7 +627,7 @@ static t_stat disk_attach (UNIT *uptr, CONST char *cptr)
     int diskUnitIdx = (int) DSK_UNIT_IDX (uptr);
     if (diskUnitIdx < 0 || diskUnitIdx >= N_DSK_UNITS_MAX)
       {
-        sim_printf ("error: Invalid unit number %ld\n", (long) diskUnitIdx);
+        sim_printf ("error: Invalid unit number %ld\r\n", (long) diskUnitIdx);
         return SCPE_ARG;
       }
 
@@ -699,7 +699,7 @@ static iom_cmd_rc_t diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
 
     uint typeIdx                     = disk_statep->typeIdx;
     if (diskTypes[typeIdx].seekSize != seek_64)
-      sim_warn ("%s: disk%u sent a SEEK_64 but is 512 sized\n", __func__, typeIdx);
+      sim_warn ("%s: disk%u sent a SEEK_64 but is 512 sized\r\n", __func__, typeIdx);
 
     uint tally = p->DDCW_TALLY;
 
@@ -707,7 +707,7 @@ static iom_cmd_rc_t diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
 
     if (tally != 1)
       {
-        sim_printf ("disk seek dazed by tally %d != 1\n", tally);
+        sim_printf ("disk seek dazed by tally %d != 1\r\n", tally);
         p->stati = 04510; // Cmd reject, invalid inst. seq.
         return IOM_CMD_ERROR;
       }
@@ -718,10 +718,10 @@ static iom_cmd_rc_t diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
     // POLTS claims that seek data doesn't count as an I/O xfer
     p->initiate = true;
     if (count != 1)
-      sim_warn ("%s: count %d not 1\n", __func__, count);
+      sim_warn ("%s: count %d not 1\r\n", __func__, count);
 
 #if defined(POLTS_DISK_TESTING)
-    if_sim_debug (DBG_TRACE, & dsk_dev) { sim_printf ("// Seek address %012"PRIo64"\n", seekData[0]); }
+    if_sim_debug (DBG_TRACE, & dsk_dev) { sim_printf ("// Seek address %012"PRIo64"\r\n", seekData[0]); }
 #endif
 
 // disk_control.pl1:
@@ -748,7 +748,7 @@ static int diskSeek512 (uint devUnitIdx, uint iomUnitIdx, uint chan)
     struct dsk_state * disk_statep = & dsk_states[devUnitIdx];
     uint typeIdx                   = disk_statep->typeIdx;
     if (diskTypes[typeIdx].seekSize != seek_512)
-      sim_warn ("%s: disk%u sent a SEEK_512 but is 64 sized\n", __func__, typeIdx);
+      sim_warn ("%s: disk%u sent a SEEK_512 but is 64 sized\r\n", __func__, typeIdx);
 
     uint tally = p->DDCW_TALLY;
 
@@ -756,7 +756,7 @@ static int diskSeek512 (uint devUnitIdx, uint iomUnitIdx, uint chan)
 
     if (tally != 1)
       {
-        sim_printf ("disk seek dazed by tally %d != 1\n", tally);
+        sim_printf ("disk seek dazed by tally %d != 1\r\n", tally);
         //p->stati = 04510; // Cmd reject, invalid inst. seq.
         //p->chanStatus = chanStatIncorrectDCW;
         //return -1;
@@ -769,7 +769,7 @@ static int diskSeek512 (uint devUnitIdx, uint iomUnitIdx, uint chan)
     // POLTS claims that seek data doesn't count as an I/O xfer
     p->initiate = true;
     if (count != 1)
-      sim_warn ("%s: count %d not 1\n", __func__, count);
+      sim_warn ("%s: count %d not 1\r\n", __func__, count);
 
     seekData[0] &= MASK21;
     if (seekData[0] >= diskTypes[typeIdx].capac)
@@ -791,7 +791,7 @@ static iom_cmd_rc_t diskSeekSpecial (uint devUnitIdx, uint iomUnitIdx, uint chan
 
     uint typeIdx = disk_statep->typeIdx;
     //if (diskTypes[typeIdx].seekSize != seek_64)
-      //sim_warn ("%s: disk%u sent a SEEK_64 but is 512 sized\n", __func__, typeIdx);
+      //sim_warn ("%s: disk%u sent a SEEK_64 but is 512 sized\r\n", __func__, typeIdx);
 
     uint tally = p->DDCW_TALLY;
 
@@ -799,7 +799,7 @@ static iom_cmd_rc_t diskSeekSpecial (uint devUnitIdx, uint iomUnitIdx, uint chan
 
     if (tally != 1)
       {
-        sim_printf ("disk seek dazed by tally %d != 1\n", tally);
+        sim_printf ("disk seek dazed by tally %d != 1\r\n", tally);
         //p->stati = 04510; // Cmd reject, invalid inst. seq.
         //p->chanStatus = chanStatIncorrectDCW;
         //return IOM_CMD_ERROR;
@@ -812,12 +812,12 @@ static iom_cmd_rc_t diskSeekSpecial (uint devUnitIdx, uint iomUnitIdx, uint chan
     // POLTS claims that seek data doesn't count as an I/O xfer
     p->initiate  = true;
     if (count   != 1)
-      sim_warn ("%s: count %d not 1\n", __func__, count);
+      sim_warn ("%s: count %d not 1\r\n", __func__, count);
 
 #if defined(POLTS_DISK_TESTING)
     if_sim_debug (DBG_TRACE, & dsk_dev)
       {
-        sim_printf ("// Seek address %012"PRIo64"\n", seekData[0]);
+        sim_printf ("// Seek address %012"PRIo64"\r\n", seekData[0]);
       }
 #endif
 
@@ -872,7 +872,7 @@ if (chan == 014)
                 SEEK_SET);
     if (rc)
       {
-        sim_warn ("%s: fseek (read) returned %d, errno %d\n", __func__, rc, errno);
+        sim_warn ("%s: fseek (read) returned %d, errno %d\r\n", __func__, rc, errno);
         p->stati = 04202; // attn, seek incomplete
 #if defined(POLTS_TESTING)
 if (chan == 014)
@@ -969,7 +969,7 @@ static int diskWrite (uint devUnitIdx, uint iomUnitIdx, uint chan)
                 SEEK_SET);
     if (rc)
       {
-        sim_printf ("fseek (read) returned %d, errno %d\n", rc, errno);
+        sim_printf ("fseek (read) returned %d, errno %d\r\n", rc, errno);
         p->stati = 04202; // attn, seek incomplete
         return -1;
       }
@@ -1005,7 +1005,7 @@ static int diskWrite (uint devUnitIdx, uint iomUnitIdx, uint chan)
 
     if (rc != (int) tallySectors)
       {
-        sim_printf ("fwrite returned %d, errno %d\n", rc, errno);
+        sim_printf ("fwrite returned %d, errno %d\r\n", rc, errno);
         p->stati      = 04202; // attn, seek incomplete
         p->chanStatus = chanStatIncorrectDCW;
         return -1;
@@ -1026,7 +1026,7 @@ static int readStatusRegister (uint devUnitIdx, uint iomUnitIdx, uint chan)
 
     if (tally != 4 && tally != 2)
       {
-        sim_warn ("%s: RSR expected tally of 2 or 4, is %d\n",
+        sim_warn ("%s: RSR expected tally of 2 or 4, is %d\r\n",
                   __func__, tally);
       }
     if (tally == 0)
@@ -1038,7 +1038,7 @@ static int readStatusRegister (uint devUnitIdx, uint iomUnitIdx, uint chan)
 // system_library_tools/source/bound_io_tools_.s.archive/analyze_detail_stat_.pl1  anal_fips_disk_().
 
 #if defined(TESTING)
-    sim_warn ("Need status register data format\n");
+    sim_warn ("Need status register data format\r\n");
 #endif
     word36 buffer[tally];
     (void)memset (buffer, 0, sizeof (buffer));
@@ -1185,7 +1185,7 @@ static int read_and_clear_statistics (uint dev_unit_idx, uint iom_unit_idx, uint
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
     UNIT * unitp        = & dsk_unit[dev_unit_idx];
 
-    sim_debug (DBG_NOTIFY, & dsk_dev, "Read %d\n", dev_unit_idx);
+    sim_debug (DBG_NOTIFY, & dsk_dev, "Read %d\r\n", dev_unit_idx);
 
     p->charPos = 0;
     p->stati   = 04000;
@@ -1220,7 +1220,7 @@ if (chan == 014)   {if_sim_debug (DBG_TRACE, & dsk_dev) { dumpDCW (p->DCW, 0); }
   else if (cables->iom_to_ctlr[iomUnitIdx][chan].ctlr_type == CTLR_T_MSP)
     devUnitIdx = cables->msp_to_dsk[ctlr_unit_idx][p->IDCW_DEV_CODE].unit_idx;
   else {
-    sim_warn ("%s: Can't find controller (%d)\n", __func__, cables->iom_to_ctlr[iomUnitIdx][chan].ctlr_type);
+    sim_warn ("%s: Can't find controller (%d)\r\n", __func__, cables->iom_to_ctlr[iomUnitIdx][chan].ctlr_type);
     return IOM_CMD_ERROR;
   }
 
@@ -1445,7 +1445,7 @@ if (chan == 014)
         p->stati      = 04501;
         p->chanStatus = chanStatIncorrectDCW;
         if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
-          sim_warn ("%s: Unrecognized device command %02o\n", __func__, p->IDCW_DEV_CMD);
+          sim_warn ("%s: Unrecognized device command %02o\r\n", __func__, p->IDCW_DEV_CMD);
         rc =  IOM_CMD_ERROR;
         goto done;
     }
@@ -1471,7 +1471,7 @@ if (chan == 014)
 // to do with it. Since this appears benign, we will assume that the
 // original H/W ignored, and so shall we.
 
-      //sim_warn ("%s: Unexpected IOTx\n", __func__);
+      //sim_warn ("%s: Unexpected IOTx\r\n", __func__);
       //rc = IOM_CMD_ERROR;
       goto done;
 
@@ -1662,7 +1662,7 @@ UNIT ipc_unit[N_IPC_UNITS_MAX] = {
 static t_stat ipc_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr,
                                UNUSED int val, UNUSED const void * desc)
   {
-    sim_printf("Number of IPC units in system is %d\n", ipc_dev.numunits);
+    sim_printf("Number of IPC units in system is %d\r\n", ipc_dev.numunits);
     return SCPE_OK;
   }
 
@@ -1804,7 +1804,7 @@ UNIT msp_unit[N_MSP_UNITS_MAX] =
 static t_stat msp_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr,
                                UNUSED int val, UNUSED const void * desc)
   {
-    sim_printf("Number of MSP units in system is %d\n", msp_dev.numunits);
+    sim_printf("Number of MSP units in system is %d\r\n", msp_dev.numunits);
     return SCPE_OK;
   }
 

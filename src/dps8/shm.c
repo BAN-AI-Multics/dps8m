@@ -208,7 +208,7 @@ create_shm(char *key, size_t shm_size)
       (void)sprintf (sthostname, "(unknown)");
     }
 
-  (void)sprintf (shostname, "on %s\n", sthostname);
+  (void)sprintf (shostname, "on %s\n", sthostname); //-NLOK
   if (!lck_ftr && (write(lck_fd, spid, strlen(spid)) != strlen(spid)))
     {
       (void)fprintf(stderr, "%s(): Failed to save PID to \"%s\": %s (Error %d)\r\n",

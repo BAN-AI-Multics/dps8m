@@ -345,17 +345,17 @@ char   lmsg[80]  = "";
 char msgbuf[512] = "";
 
 if ((!lp->notelnet) || (sim_switches & SWMASK ('V'))) {
-    (void)sprintf (cmsg, "\n\r\nConnected to the %s simulator ", sim_name);
+    (void)sprintf (cmsg, "\r\n\r\nConnected to the %s simulator ", sim_name);
 
     if (mp->dptr) {                                     /* device defined? */
-        (void)sprintf (dmsg, "%s device",                     /* report device name */
+        (void)sprintf (dmsg, "%s device",               /* report device name */
                        sim_dname (mp->dptr));
 
         if (mp->lines > 1)                              /* more than one line? */
             (void)sprintf (lmsg, ", line %d", (int)(lp-mp->ldsc));/* report the line number */
         }
 
-    (void)sprintf (msgbuf, "%s%s%s\r\n\n", cmsg, dmsg, lmsg);
+    (void)sprintf (msgbuf, "%s%s%s\r\n\n", cmsg, dmsg, lmsg); //-NLOK
     }
 
 if (!mp->buffered) {
@@ -398,7 +398,7 @@ static void tmxr_report_disconnection (TMLN *lp)
 {
 if (lp->notelnet)
     return;
-tmxr_linemsgf (lp, "\r\nDisconnected from the %s simulator\r\n\n", sim_name);/* report disconnection */
+tmxr_linemsgf (lp, "\r\nDisconnected from the %s simulator\r\n\r\n", sim_name); /* report disconnection */
 return;
 }
 
@@ -1315,7 +1315,7 @@ dptr = (lp->dptr ? lp->dptr : (lp->mp ? lp->mp->dptr : NULL));
 (void)dptr;
 // if ((lp->modembits != before_modem_bits) && (sim_deb && lp->mp && dptr)) {
    // sim_debug_bits (TMXR_DBG_MDM, dptr, tmxr_modem_bits, before_modem_bits, lp->modembits, FALSE);
-   // sim_debug (TMXR_DBG_MDM, dptr, " - Line %d - %p\n", (int)(lp-lp->mp->ldsc), lp->txb);
+   // sim_debug (TMXR_DBG_MDM, dptr, " - Line %d - %p\r\n", (int)(lp-lp->mp->ldsc), lp->txb);
     // }
 if (incoming_bits)
     *incoming_bits = lp->modembits;
@@ -2219,27 +2219,27 @@ while (*tptr) {
             cptr = get_glyph (cptr, gbuf, '=');
             if (0 == MATCH_CMD (gbuf, "LINE")) {
                 if ((NULL == cptr) || ('\0' == *cptr))
-                    return sim_messagef (SCPE_2FARG, "Missing Line Specifier\n");
+                    return sim_messagef (SCPE_2FARG, "Missing Line Specifier\r\n");
                 nextline = (int32) get_uint (cptr, 10, mp->lines-1, &r);
                 if (r)
-                    return sim_messagef (SCPE_ARG, "Invalid Line Specifier: %s\n", cptr);
+                    return sim_messagef (SCPE_ARG, "Invalid Line Specifier: %s\r\n", cptr);
                 break;
                 }
             if (0 == MATCH_CMD (gbuf, "LOG")) {
                 if ((NULL == cptr) || ('\0' == *cptr))
-                    return sim_messagef (SCPE_2FARG, "Missing Log Specifier\n");
+                    return sim_messagef (SCPE_2FARG, "Missing Log Specifier\r\n");
                 strncpy(logfiletmpl, cptr, sizeof(logfiletmpl)-1);
                 continue;
                 }
              if (0 == MATCH_CMD (gbuf, "LOOPBACK")) {
                 if ((NULL != cptr) && ('\0' != *cptr))
-                    return sim_messagef (SCPE_2MARG, "Unexpected Loopback Specifier: %s\n", cptr);
+                    return sim_messagef (SCPE_2MARG, "Unexpected Loopback Specifier: %s\r\n", cptr);
                 loopback = TRUE;
                 continue;
                 }
            if ((0 == MATCH_CMD (gbuf, "NOBUFFERED")) || (0 == MATCH_CMD (gbuf, "UNBUFFERED"))) { //-V600
                 if ((NULL != cptr) && ('\0' != *cptr))
-                    return sim_messagef (SCPE_2MARG, "Unexpected Unbuffered Specifier: %s\n", cptr);
+                    return sim_messagef (SCPE_2MARG, "Unexpected Unbuffered Specifier: %s\r\n", cptr);
                 buffered[0] = '\0';
                 continue;
                 }
@@ -2249,63 +2249,63 @@ while (*tptr) {
                 else {
                     i = (int32) get_uint (cptr, 10, 1024*1024, &r);
                     if (r || (i == 0))
-                        return sim_messagef (SCPE_ARG, "Invalid Buffered Specifier: %s\n", cptr);
+                        return sim_messagef (SCPE_ARG, "Invalid Buffered Specifier: %s\r\n", cptr);
                     (void)sprintf(buffered, "%d", i);
                     }
                 continue;
                 }
             if (0 == MATCH_CMD (gbuf, "NOLOG")) {
                 if ((NULL != cptr) && ('\0' != *cptr))
-                    return sim_messagef (SCPE_2MARG, "Unexpected NoLog Specifier: %s\n", cptr);
+                    return sim_messagef (SCPE_2MARG, "Unexpected NoLog Specifier: %s\r\n", cptr);
                 nolog = TRUE;
                 continue;
                 }
             if (0 == MATCH_CMD (gbuf, "NOMODEM")) {
                 if ((NULL != cptr) && ('\0' != *cptr))
-                    return sim_messagef (SCPE_2MARG, "Unexpected NoModem Specifier: %s\n", cptr);
+                    return sim_messagef (SCPE_2MARG, "Unexpected NoModem Specifier: %s\r\n", cptr);
                 modem_control = FALSE;
                 continue;
                 }
             if (0 == MATCH_CMD (gbuf, "MODEM")) {
                 if ((NULL != cptr) && ('\0' != *cptr))
-                    return sim_messagef (SCPE_2MARG, "Unexpected Modem Specifier: %s\n", cptr);
+                    return sim_messagef (SCPE_2MARG, "Unexpected Modem Specifier: %s\r\n", cptr);
                 modem_control = TRUE;
                 continue;
                 }
             if ((0 == MATCH_CMD (gbuf, "DATAGRAM")) || (0 == MATCH_CMD (gbuf, "UDP"))) { //-V600
                 if ((NULL != cptr) && ('\0' != *cptr))
-                    return sim_messagef (SCPE_2MARG, "Unexpected Datagram Specifier: %s\n", cptr);
+                    return sim_messagef (SCPE_2MARG, "Unexpected Datagram Specifier: %s\r\n", cptr);
                 notelnet = datagram = TRUE;
                 continue;
                 }
             if (0 == MATCH_CMD (gbuf, "PACKET")) {
                 if ((NULL != cptr) && ('\0' != *cptr))
-                    return sim_messagef (SCPE_2MARG, "Unexpected Packet Specifier: %s\n", cptr);
+                    return sim_messagef (SCPE_2MARG, "Unexpected Packet Specifier: %s\r\n", cptr);
                 packet = TRUE;
                 continue;
                 }
             if ((0 == MATCH_CMD (gbuf, "STREAM")) || (0 == MATCH_CMD (gbuf, "TCP"))) { //-V600
                 if ((NULL != cptr) && ('\0' != *cptr))
-                    return sim_messagef (SCPE_2MARG, "Unexpected Stream Specifier: %s\n", cptr);
+                    return sim_messagef (SCPE_2MARG, "Unexpected Stream Specifier: %s\r\n", cptr);
                 datagram = FALSE;
                 continue;
                 }
             if (0 == MATCH_CMD (gbuf, "CONNECT")) {
                 if ((NULL == cptr) || ('\0' == *cptr))
-                    return sim_messagef (SCPE_2FARG, "Missing Connect Specifier\n");
+                    return sim_messagef (SCPE_2FARG, "Missing Connect Specifier\r\n");
                 (void)strcpy (destination, cptr);
                 continue;
                 }
             if (0 == MATCH_CMD (gbuf, "SPEED")) {
                 if ((NULL == cptr) || ('\0' == *cptr) ||
                     (_tmln_speed_delta (cptr) < 0))
-                    return sim_messagef (SCPE_ARG, "Invalid Speed Specifier: %s\n", (cptr ? cptr : ""));
+                    return sim_messagef (SCPE_ARG, "Invalid Speed Specifier: %s\r\n", (cptr ? cptr : ""));
                 (void)strcpy (speed, cptr);
                 continue;
                 }
             cptr = get_glyph (gbuf, port, ';');
             if (sim_parse_addr (port, NULL, 0, NULL, NULL, 0, NULL, NULL))
-                return sim_messagef (SCPE_ARG, "Invalid Port Specifier: %s\n", port);
+                return sim_messagef (SCPE_ARG, "Invalid Port Specifier: %s\r\n", port);
             if (cptr) {
                 char *tptr = gbuf + (cptr - gbuf);
                 (void)get_glyph (cptr, tptr, 0);             /* upcase this string */
@@ -2315,16 +2315,16 @@ while (*tptr) {
                     if (0 == MATCH_CMD (cptr, "TELNET"))
                         listennotelnet = FALSE;
                     else
-                        return sim_messagef (SCPE_ARG, "Invalid Specifier: %s\n", tptr);
+                        return sim_messagef (SCPE_ARG, "Invalid Specifier: %s\r\n", tptr);
                 }
             cptr = init_cptr;
             }
         cptr = get_glyph_nc (cptr, port, ';');
         sock = sim_master_sock (port, &r);                      /* make master socket to validate port */
         if (r)
-            return sim_messagef (SCPE_ARG, "Invalid Port Specifier: %s\n", port);
+            return sim_messagef (SCPE_ARG, "Invalid Port Specifier: %s\r\n", port);
         if (sock == INVALID_SOCKET)                             /* open error */
-            return sim_messagef (SCPE_OPENERR, "Can't open network port: %s\n", port);
+            return sim_messagef (SCPE_OPENERR, "Can't open network port: %s\r\n", port);
         sim_close_sock (sock);
         sim_os_ms_sleep (2);                                    /* let the close finish (required on some platforms) */
         (void)strcpy (listen, port);
@@ -2338,7 +2338,7 @@ while (*tptr) {
                     listennotelnet = FALSE;
             else {
                 if (*tptr)
-                    return sim_messagef (SCPE_ARG, "Invalid Specifier: %s\n", tptr);
+                    return sim_messagef (SCPE_ARG, "Invalid Specifier: %s\r\n", tptr);
                 }
             }
         }
@@ -2357,11 +2357,11 @@ while (*tptr) {
                 else
                     if (0 == MATCH_CMD (eptr, "TELNET"))
                         if (datagram)
-                            return sim_messagef (SCPE_ARG, "Telnet invalid on Datagram socket\n");
+                            return sim_messagef (SCPE_ARG, "Telnet invalid on Datagram socket\r\n");
                         else
                             notelnet = FALSE;
                     else
-                        return sim_messagef (SCPE_ARG, "Unexpected specifier: %s\n", eptr);
+                        return sim_messagef (SCPE_ARG, "Unexpected specifier: %s\r\n", eptr);
                 }
             sock = sim_connect_sock_ex (NULL, hostport, "localhost", NULL, (datagram ? SIM_SOCK_OPT_DATAGRAM : 0) |
                                                                            (packet ? SIM_SOCK_OPT_NODELAY : 0)    |
@@ -2369,7 +2369,7 @@ while (*tptr) {
             if (sock != INVALID_SOCKET)
                 sim_close_sock (sock);
             else
-                return sim_messagef (SCPE_ARG, "Invalid destination: %s\n", hostport);
+                return sim_messagef (SCPE_ARG, "Invalid destination: %s\r\n", hostport);
         }
     if (line == -1) {
         if (modem_control != mp->modem_control)
@@ -2495,16 +2495,16 @@ while (*tptr) {
         if ((listen[0]) && (!datagram)) {
             sock = sim_master_sock (listen, &r);            /* make master socket */
             if (r)
-                return sim_messagef (SCPE_ARG, "Invalid network listen port: %s\n", listen);
+                return sim_messagef (SCPE_ARG, "Invalid network listen port: %s\r\n", listen);
             if (sock == INVALID_SOCKET)                     /* open error */
-                return sim_messagef (SCPE_OPENERR, "Can't open network socket for listen port: %s\n", listen);
+                return sim_messagef (SCPE_OPENERR, "Can't open network socket for listen port: %s\r\n", listen);
             if (mp->port) {                                 /* close prior listener */
                 sim_close_sock (mp->master);
                 mp->master = 0;
                 FREE (mp->port);
                 mp->port = NULL;
                 }
-            sim_printf ("Listening on port %s\n", listen);
+            sim_printf ("Listening on port %s\r\n", listen);
             mp->port = (char *)realloc (mp->port, 1 + strlen (listen));
             if (!mp->port)
               {
@@ -2537,8 +2537,8 @@ while (*tptr) {
             }
         if (loopback) {
             if (mp->lines > 1)
-                return sim_messagef (SCPE_ARG, "Ambiguous Loopback specification\n");
-            sim_printf ("Operating in loopback mode\n");
+                return sim_messagef (SCPE_ARG, "Ambiguous Loopback specification\r\n");
+            sim_printf ("Operating in loopback mode\r\n");
             for (i = 0; i < mp->lines; i++) { //-V1008
                 lp = mp->ldsc + i;
                 tmxr_set_line_loopback (lp, loopback);
@@ -2548,7 +2548,7 @@ while (*tptr) {
             }
         if (destination[0]) {
             if (mp->lines > 1)
-                return sim_messagef (SCPE_ARG, "Ambiguous Destination specification\n");
+                return sim_messagef (SCPE_ARG, "Ambiguous Destination specification\r\n");
             lp = &mp->ldsc[0];
                 lp->datagram = datagram;
                 if (datagram) {
@@ -2569,7 +2569,7 @@ while (*tptr) {
                         (void)strcpy (lp->port, listen);           /* save port */
                         }
                     else
-                        return sim_messagef (SCPE_ARG, "Missing listen port for Datagram socket\n");
+                        return sim_messagef (SCPE_ARG, "Missing listen port for Datagram socket\r\n");
                     }
                 lp->packet = packet;
                 sock = sim_connect_sock_ex (datagram ? listen : NULL, hostport, "localhost", NULL,
@@ -2619,7 +2619,7 @@ while (*tptr) {
                     return SCPE_OK;
                     }
                 else
-                    return sim_messagef (SCPE_ARG, "Can't open %s socket on %s%s%s\n",
+                    return sim_messagef (SCPE_ARG, "Can't open %s socket on %s%s%s\r\n",
                                          datagram ? "Datagram" : "Stream", datagram ? listen : "",
                                          datagram ? "<->" : "", hostport);
                 }
@@ -2650,7 +2650,7 @@ while (*tptr) {
             else {
                 FREE (lp->txlogname);
                 lp->txlogname = NULL;
-                return sim_messagef (r, "Can't open log file: %s\n", logfiletmpl);
+                return sim_messagef (r, "Can't open log file: %s\r\n", logfiletmpl);
                 }
             }
         if (buffered[0] == '\0') {
@@ -2712,14 +2712,14 @@ while (*tptr) {
             }
         if ((listen[0]) && (!datagram)) {
             if ((mp->lines == 1) && (mp->master))
-                return sim_messagef (SCPE_ARG, "Single Line MUX can have either line specific OR MUS listener but NOT both\n");
+                return sim_messagef (SCPE_ARG, "Single Line MUX can have either line specific OR MUS listener but NOT both\r\n");
             sock = sim_master_sock (listen, &r);            /* make master socket */
             if (r)
-                return sim_messagef (SCPE_ARG, "Invalid Listen Specification: %s\n", listen);
+                return sim_messagef (SCPE_ARG, "Invalid Listen Specification: %s\r\n", listen);
             if (sock == INVALID_SOCKET)                     /* open error */
-                return sim_messagef (SCPE_OPENERR, "Can't listen on port: %s\n", listen);
+                return sim_messagef (SCPE_OPENERR, "Can't listen on port: %s\r\n", listen);
             _mux_detach_line (lp, TRUE, FALSE);
-            sim_printf ("Line %d Listening on port %s\n", line, listen);
+            sim_printf ("Line %d Listening on port %s\r\n", line, listen);
             lp->port = (char *)realloc (lp->port, 1 + strlen (listen));
             if (!lp->port)
               {
@@ -2760,7 +2760,7 @@ while (*tptr) {
                         (void)strcpy (lp->port, listen);          /* save port */
                         }
                     else
-                        return sim_messagef (SCPE_ARG, "Missing listen port for Datagram socket\n");
+                        return sim_messagef (SCPE_ARG, "Missing listen port for Datagram socket\r\n");
                     }
                 sock = sim_connect_sock_ex (datagram ? listen : NULL, hostport, "localhost", NULL,
                                             (datagram ? SIM_SOCK_OPT_DATAGRAM : 0) | (packet ? SIM_SOCK_OPT_NODELAY : 0));
@@ -2803,7 +2803,7 @@ while (*tptr) {
                     tmxr_init_line (lp);                    /* init the line state */
                     }
                 else
-                    return sim_messagef (SCPE_ARG, "Can't open %s socket on %s%s%s\n",
+                    return sim_messagef (SCPE_ARG, "Can't open %s socket on %s%s%s\r\n",
                                          datagram ? "Datagram" : "Stream", datagram ? listen : "",
                                          datagram ? "<->" : "", hostport);
                 }
@@ -2811,7 +2811,7 @@ while (*tptr) {
         if (loopback) {
             if (lp != NULL) {
               tmxr_set_line_loopback (lp, loopback);
-              sim_printf ("Line %d operating in loopback mode\n", line);
+              sim_printf ("Line %d operating in loopback mode\r\n", line);
               }
             }
         if (lp != NULL) lp->modem_control = modem_control;
@@ -3035,7 +3035,7 @@ t_stat tmxr_show_open_devices (FILE* st, DEVICE *dptr, UNIT* uptr, int32 val, CO
 int i, j;
 
 if (0 == tmxr_open_device_count)
-    fprintf(st, "No Attached Multiplexer Devices\n");
+    fprintf(st, "No Attached Multiplexer Devices\r\n");
 else {
     for (i=0; i<tmxr_open_device_count; ++i) {
         TMXR *mp = tmxr_open_devices[i];
@@ -3059,7 +3059,7 @@ else {
             fprintf(st, ", Buffered=%d", mp->buffered);
         attach = tmxr_mux_attach_string (NULL, mp);
         if (attach)
-            fprintf(st, ",\n    attached to %s, ", attach);
+            fprintf(st, ",\r\n    attached to %s, ", attach);
         FREE (attach);
         tmxr_show_summ(st, NULL, 0, mp);
         fprintf(st, ", sessions=%d", mp->sessions);
@@ -3071,9 +3071,9 @@ else {
                 fprintf(st, " bps");
                 }
             }
-        fprintf(st, "\n");
+        fprintf(st, "\r\n");
         if (mp->ring_start_time) {
-            fprintf (st, "    incoming Connection from: %s ringing for %lu milliseconds\n",
+            fprintf (st, "    incoming Connection from: %s ringing for %lu milliseconds\r\n",
                      mp->ring_ipad, (unsigned long)sim_os_msec () - (unsigned long)mp->ring_start_time);
             }
         for (j = 0; j < mp->lines; j++) {
@@ -3096,7 +3096,7 @@ else {
                         fprintf(st, "*%.0f", lp->rxbpsfactor/TMXR_RX_BPS_UNIT_SCALE);
                     fprintf(st, " bps");
                     }
-                fprintf (st, "\n");
+                fprintf (st, "\r\n");
                 }
             if ((!lp->sock) && (!lp->connecting)
             && (!lp->master)) {
@@ -3228,191 +3228,191 @@ if (mux)
    single_line = (mux->lines == 1);
 
 if (!flag)
-    fprintf (st, "%s Multiplexer Attach Help\n\n", dptr->name);
+    fprintf (st, "%s Multiplexer Attach Help\r\n\r\n", dptr->name);
 if (single_line) {          /* Single Line Multiplexer */
-    fprintf (st, "The %s multiplexer may be connected to terminal emulators supporting the\n", dptr->name);
-    fprintf (st, "Telnet protocol via sockets.\n\n");
+    fprintf (st, "The %s multiplexer may be connected to terminal emulators supporting the\r\n", dptr->name);
+    fprintf (st, "Telnet protocol via sockets.\r\n\r\n");
     if (mux->modem_control) {
-        fprintf (st, "The %s device is a full modem control device and therefore is capable of\n", dptr->name);
-        fprintf (st, "passing port configuration information and modem signals.\n");
+        fprintf (st, "The %s device is a full modem control device and therefore is capable of\r\n", dptr->name);
+        fprintf (st, "passing port configuration information and modem signals.\r\n");
         }
-    fprintf (st, "A Telnet listening port can be configured with:\n\n");
-    fprintf (st, "   sim> ATTACH %s {interface:}port\n\n", dptr->name);
-    fprintf (st, "Line buffering can be enabled for the %s device with:\n\n", dptr->name);
-    fprintf (st, "   sim> ATTACH %s Buffer{=bufsize}\n\n", dptr->name);
-    fprintf (st, "Line buffering can be disabled for the %s device with:\n\n", dptr->name);
-    fprintf (st, "   sim> ATTACH %s NoBuffer\n\n", dptr->name);
-    fprintf (st, "The default buffer size is 32k bytes, the max buffer size is 1024k bytes\n\n");
-    fprintf (st, "The outbound traffic the %s device can be logged to a file with:\n", dptr->name);
-    fprintf (st, "   sim> ATTACH %s Log=LogFileName\n\n", dptr->name);
-    fprintf (st, "File logging can be disabled for the %s device with:\n\n", dptr->name);
-    fprintf (st, "   sim> ATTACH %s NoLog\n\n", dptr->name);
-    fprintf (st, "The %s device may be connected to a serial port on the host system.\n", dptr->name);
+    fprintf (st, "A Telnet listening port can be configured with:\r\n\r\n");
+    fprintf (st, "   sim> ATTACH %s {interface:}port\r\n\r\n", dptr->name);
+    fprintf (st, "Line buffering can be enabled for the %s device with:\r\n\r\n", dptr->name);
+    fprintf (st, "   sim> ATTACH %s Buffer{=bufsize}\r\n\r\n", dptr->name);
+    fprintf (st, "Line buffering can be disabled for the %s device with:\r\n\r\n", dptr->name);
+    fprintf (st, "   sim> ATTACH %s NoBuffer\r\n\r\n", dptr->name);
+    fprintf (st, "The default buffer size is 32k bytes, the max buffer size is 1024k bytes\r\n\r\n");
+    fprintf (st, "The outbound traffic the %s device can be logged to a file with:\r\n", dptr->name);
+    fprintf (st, "   sim> ATTACH %s Log=LogFileName\r\n\r\n", dptr->name);
+    fprintf (st, "File logging can be disabled for the %s device with:\r\n\r\n", dptr->name);
+    fprintf (st, "   sim> ATTACH %s NoLog\r\n\r\n", dptr->name);
+    fprintf (st, "The %s device may be connected to a serial port on the host system.\r\n", dptr->name);
     }
 else {
-    fprintf (st, "%s multiplexer lines may be connected to terminal emulators supporting the\n", dptr->name);
-    fprintf (st, "Telnet protocol via sockets, or to hardware terminals via host serial\n");
-    fprintf (st, "ports.  Concurrent Telnet and serial connections may be mixed on a given\n");
-    fprintf (st, "multiplexer.\n\n");
+    fprintf (st, "%s multiplexer lines may be connected to terminal emulators supporting the\r\n", dptr->name);
+    fprintf (st, "Telnet protocol via sockets, or to hardware terminals via host serial\r\n");
+    fprintf (st, "ports.  Concurrent Telnet and serial connections may be mixed on a given\r\n");
+    fprintf (st, "multiplexer.\r\n\r\n");
     if (mux && mux->modem_control) {
-        fprintf (st, "The %s device is a full modem control device and therefore is capable of\n", dptr->name);
-        fprintf (st, "passing port configuration information and modem signals on all lines.\n");
+        fprintf (st, "The %s device is a full modem control device and therefore is capable of\r\n", dptr->name);
+        fprintf (st, "passing port configuration information and modem signals on all lines.\r\n");
         }
-    fprintf (st, "Modem Control signalling behaviors can be enabled/disabled on a specific\n");
-    fprintf (st, "multiplexer line with:\n\n");
-    fprintf (st, "   sim> ATTACH %s Line=n,Modem\n", dptr->name);
-    fprintf (st, "   sim> ATTACH %s Line=n,NoModem\n\n", dptr->name);
-    fprintf (st, "A Telnet listening port can be configured with:\n\n");
-    fprintf (st, "   sim> ATTACH %s {interface:}port\n\n", dptr->name);
+    fprintf (st, "Modem Control signalling behaviors can be enabled/disabled on a specific\r\n");
+    fprintf (st, "multiplexer line with:\r\n\r\n");
+    fprintf (st, "   sim> ATTACH %s Line=n,Modem\r\n", dptr->name);
+    fprintf (st, "   sim> ATTACH %s Line=n,NoModem\r\n\r\n", dptr->name);
+    fprintf (st, "A Telnet listening port can be configured with:\r\n\r\n");
+    fprintf (st, "   sim> ATTACH %s {interface:}port\r\n\r\n", dptr->name);
     if (mux)
-        fprintf (st, "Line buffering for all %d lines on the %s device can be configured with:\n\n", mux->lines, dptr->name);
+        fprintf (st, "Line buffering for all %d lines on the %s device can be configured with:\r\n\r\n", mux->lines, dptr->name);
     else
-        fprintf (st, "Line buffering for all lines on the %s device can be configured with:\n\n", dptr->name);
-    fprintf (st, "   sim> ATTACH %s Buffer{=bufsize}\n\n", dptr->name);
+        fprintf (st, "Line buffering for all lines on the %s device can be configured with:\r\n\r\n", dptr->name);
+    fprintf (st, "   sim> ATTACH %s Buffer{=bufsize}\r\n\r\n", dptr->name);
     if (mux)
-        fprintf (st, "Line buffering for all %d lines on the %s device can be disabled with:\n\n", mux->lines, dptr->name);
+        fprintf (st, "Line buffering for all %d lines on the %s device can be disabled with:\r\n\r\n", mux->lines, dptr->name);
     else
-        fprintf (st, "Line buffering for all lines on the %s device can be disabled with:\n\n", dptr->name);
-    fprintf (st, "   sim> ATTACH %s NoBuffer\n\n", dptr->name);
-    fprintf (st, "The default buffer size is 32k bytes, the max buffer size is 1024k bytes\n\n");
-    fprintf (st, "The outbound traffic for the lines of the %s device can be logged to files\n", dptr->name);
-    fprintf (st, "with:\n\n");
-    fprintf (st, "   sim> ATTACH %s Log=LogFileName\n\n", dptr->name);
-    fprintf (st, "The log file name for each line uses the above LogFileName as a template\n");
-    fprintf (st, "for the actual file name which will be LogFileName_n where n is the line\n");
-    fprintf (st, "number.\n\n");
-    fprintf (st, "Multiplexer lines may be connected to serial ports on the host system.\n");
+        fprintf (st, "Line buffering for all lines on the %s device can be disabled with:\r\n\r\n", dptr->name);
+    fprintf (st, "   sim> ATTACH %s NoBuffer\r\n\r\n", dptr->name);
+    fprintf (st, "The default buffer size is 32k bytes, the max buffer size is 1024k bytes\r\n\r\n");
+    fprintf (st, "The outbound traffic for the lines of the %s device can be logged to files\r\n", dptr->name);
+    fprintf (st, "with:\r\n\r\n");
+    fprintf (st, "   sim> ATTACH %s Log=LogFileName\r\n\r\n", dptr->name);
+    fprintf (st, "The log file name for each line uses the above LogFileName as a template\r\n");
+    fprintf (st, "for the actual file name which will be LogFileName_n where n is the line\r\n");
+    fprintf (st, "number.\r\n\r\n");
+    fprintf (st, "Multiplexer lines may be connected to serial ports on the host system.\r\n");
     }
-fprintf (st, "Serial ports may be specified as an operating system specific device names\n");
-fprintf (st, "or using simh generic serial names.  simh generic names are of the form\n");
-fprintf (st, "serN, where N is from 0 thru one less than the maximum number of serial\n");
-fprintf (st, "ports on the local system.  The mapping of simh generic port names to OS \n");
-fprintf (st, "specific names can be displayed using the following command:\n\n");
-fprintf (st, "   sim> SHOW SERIAL\n");
-fprintf (st, "   Serial devices:\n");
-fprintf (st, "    ser0   COM1 (\\Device\\Serial0)\n");
-fprintf (st, "    ser1   COM3 (Winachcf0)\n\n");
+fprintf (st, "Serial ports may be specified as an operating system specific device names\r\n");
+fprintf (st, "or using simh generic serial names.  simh generic names are of the form\r\n");
+fprintf (st, "serN, where N is from 0 thru one less than the maximum number of serial\r\n");
+fprintf (st, "ports on the local system.  The mapping of simh generic port names to OS\r\n");
+fprintf (st, "specific names can be displayed using the following command:\r\n\r\n");
+fprintf (st, "   sim> SHOW SERIAL\r\n");
+fprintf (st, "   Serial devices:\r\n");
+fprintf (st, "    ser0   COM1 (\\Device\\Serial0)\r\n");
+fprintf (st, "    ser1   COM3 (Winachcf0)\r\n\r\n");
 if (single_line) {          /* Single Line Multiplexer */
-    fprintf (st, "   sim> ATTACH %s Connect=ser0\n\n", dptr->name);
-    fprintf (st, "or equivalently:\n\n");
-    fprintf (st, "   sim> ATTACH %s Connect=COM1\n\n", dptr->name);
+    fprintf (st, "   sim> ATTACH %s Connect=ser0\r\n\r\n", dptr->name);
+    fprintf (st, "or equivalently:\r\n\r\n");
+    fprintf (st, "   sim> ATTACH %s Connect=COM1\r\n\r\n", dptr->name);
     }
 else {
-    fprintf (st, "   sim> ATTACH %s Line=n,Connect=ser0\n\n", dptr->name);
-    fprintf (st, "or equivalently:\n\n");
-    fprintf (st, "   sim> ATTACH %s Line=n,Connect=COM1\n\n", dptr->name);
+    fprintf (st, "   sim> ATTACH %s Line=n,Connect=ser0\r\n\r\n", dptr->name);
+    fprintf (st, "or equivalently:\r\n\r\n");
+    fprintf (st, "   sim> ATTACH %s Line=n,Connect=COM1\r\n\r\n", dptr->name);
     if (mux)
-        fprintf (st, "Valid line numbers are from 0 thru %d\n\n", mux->lines-1);
+        fprintf (st, "Valid line numbers are from 0 thru %d\r\n\r\n", mux->lines-1);
     }
 if (single_line) {          /* Single Line Multiplexer */
-    fprintf (st, "The input data rate for the %s device can be controlled by\n", dptr->name);
-    fprintf (st, "specifying SPEED=nnn{*fac} on the ATTACH command.\n");
+    fprintf (st, "The input data rate for the %s device can be controlled by\r\n", dptr->name);
+    fprintf (st, "specifying SPEED=nnn{*fac} on the ATTACH command.\r\n");
     }
 else {
-    fprintf (st, "The input data rate for all lines or a particular line of a the %s\n", dptr->name);
-    fprintf (st, "device can be controlled by specifying SPEED=nnn{*fac} on the ATTACH command.\n");
+    fprintf (st, "The input data rate for all lines or a particular line of a the %s\r\n", dptr->name);
+    fprintf (st, "device can be controlled by specifying SPEED=nnn{*fac} on the ATTACH command.\r\n");
     }
-fprintf (st, "SPEED values can be any one of:\n\n");
-fprintf (st, "    0 50 75 110 134 150 300 600 1200 1800 2000 2400\n");
-fprintf (st, "    3600 4800 7200 9600 19200 38400 57600 76800 115200\n\n");
-fprintf (st, "A SPEED value of 0 causes input data to be delivered to the simulated\n");
-fprintf (st, "port as fast as it arrives.\n\n");
-fprintf (st, "If a simulated multiplexor devices can programmatically set a serial\n");
-fprintf (st, "port line speed, the programmatically specified speed will take precedence\n");
-fprintf (st, "over any input speed specified on an attach command.\n");
-fprintf (st, "Some simulated systems run very much faster than the original system\n");
-fprintf (st, "which is being simulated.  To accommodate this, the speed specified may\n");
-fprintf (st, "include a factor which will increase the input data delivery rate by\n");
-fprintf (st, "the specified factor.  A factor is specified with a speed value of the\n");
-fprintf (st, "form \"speed*factor\".  Factor values can range from 1 thru 32.\n");
-fprintf (st, "Example:\n\n");
-fprintf (st, "   sim> ATTACH %s 1234,SPEED=2400\n", dptr->name);
-fprintf (st, "   sim> ATTACH %s 1234,SPEED=9600*8\n", dptr->name);
+fprintf (st, "SPEED values can be any one of:\r\n\r\n");
+fprintf (st, "    0 50 75 110 134 150 300 600 1200 1800 2000 2400\r\n");
+fprintf (st, "    3600 4800 7200 9600 19200 38400 57600 76800 115200\r\n\r\n");
+fprintf (st, "A SPEED value of 0 causes input data to be delivered to the simulated\r\n");
+fprintf (st, "port as fast as it arrives.\r\n\r\n");
+fprintf (st, "If a simulated multiplexor devices can programmatically set a serial\r\n");
+fprintf (st, "port line speed, the programmatically specified speed will take precedence\r\n");
+fprintf (st, "over any input speed specified on an attach command.\r\n");
+fprintf (st, "Some simulated systems run very much faster than the original system\r\n");
+fprintf (st, "which is being simulated.  To accommodate this, the speed specified may\r\n");
+fprintf (st, "include a factor which will increase the input data delivery rate by\r\n");
+fprintf (st, "the specified factor.  A factor is specified with a speed value of the\r\n");
+fprintf (st, "form \"speed*factor\".  Factor values can range from 1 thru 32.\r\n");
+fprintf (st, "Example:\r\n\r\n");
+fprintf (st, "   sim> ATTACH %s 1234,SPEED=2400\r\n", dptr->name);
+fprintf (st, "   sim> ATTACH %s 1234,SPEED=9600*8\r\n", dptr->name);
 if (!single_line)
-    fprintf (st, "   sim> ATTACH %s Line=2,SPEED=2400\n", dptr->name);
-fprintf (st, "\n");
-fprintf (st, "The SPEED parameter only influences the rate at which data is delivered\n");
-fprintf (st, "into the simulated multiplexor port.  Output data rates are unaffected\n");
-fprintf (st, "If an attach command specifies a speed multiply factor, that value will\n");
-fprintf (st, "persist independent of any programmatic action by the simulated system to\n");
-fprintf (st, "change the port speed.\n\n");
-fprintf (st, "An optional serial port configuration string may be present after the port\n");
-fprintf (st, "name.  If present, it must be separated from the port name with a semicolon\n");
-fprintf (st, "and has this form:\n\n");
-fprintf (st, "   <rate>-<charsize><parity><stopbits>\n\n");
-fprintf (st, "where:\n");
-fprintf (st, "   rate     = communication rate in bits per second\n");
-fprintf (st, "   charsize = character size in bits (5-8, including optional parity)\n");
-fprintf (st, "   parity   = parity designator (N/E/O/M/S for no/even/odd/mark/space parity)\n");
-fprintf (st, "   stopbits = number of stop bits (1, 1.5, or 2)\n\n");
-fprintf (st, "As an example:\n\n");
-fprintf (st, "   9600-8n1\n\n");
-fprintf (st, "The supported rates, sizes, and parity options are host-specific.  If\n");
-fprintf (st, "a configuration string is not supplied, then the default of 9600-8N1\n");
-fprintf (st, "is used.\n");
-fprintf (st, "Note: The serial port configuration option is only available on multiplexer\n");
-fprintf (st, "      lines which are not operating with full modem control behaviors enabled.\n");
-fprintf (st, "      Lines with full modem control behaviors enabled have all of their\n");
-fprintf (st, "      configuration managed by the Operating System running within the\n");
-fprintf (st, "      simulator.\n\n");
-fprintf (st, "An attachment to a serial port with the '-V' switch will cause a\n");
-fprintf (st, "connection message to be output to the connected serial port.\n");
-fprintf (st, "This will help to confirm the correct port has been connected and\n");
-fprintf (st, "that the port settings are reasonable for the connected device.\n");
-fprintf (st, "This would be done as:\n\n");
+    fprintf (st, "   sim> ATTACH %s Line=2,SPEED=2400\r\n", dptr->name);
+fprintf (st, "\r\n");
+fprintf (st, "The SPEED parameter only influences the rate at which data is delivered\r\n");
+fprintf (st, "into the simulated multiplexor port.  Output data rates are unaffected\r\n");
+fprintf (st, "If an attach command specifies a speed multiply factor, that value will\r\n");
+fprintf (st, "persist independent of any programmatic action by the simulated system to\r\n");
+fprintf (st, "change the port speed.\r\n\r\n");
+fprintf (st, "An optional serial port configuration string may be present after the port\r\n");
+fprintf (st, "name.  If present, it must be separated from the port name with a semicolon\r\n");
+fprintf (st, "and has this form:\r\n\r\n");
+fprintf (st, "   <rate>-<charsize><parity><stopbits>\r\n\r\n");
+fprintf (st, "where:\r\n");
+fprintf (st, "   rate     = communication rate in bits per second\r\n");
+fprintf (st, "   charsize = character size in bits (5-8, including optional parity)\r\n");
+fprintf (st, "   parity   = parity designator (N/E/O/M/S for no/even/odd/mark/space parity)\r\n");
+fprintf (st, "   stopbits = number of stop bits (1, 1.5, or 2)\r\n\r\n");
+fprintf (st, "As an example:\r\n\r\n");
+fprintf (st, "   9600-8n1\r\n\r\n");
+fprintf (st, "The supported rates, sizes, and parity options are host-specific.  If\r\n");
+fprintf (st, "a configuration string is not supplied, then the default of 9600-8N1\r\n");
+fprintf (st, "is used.\r\n");
+fprintf (st, "Note: The serial port configuration option is only available on multiplexer\r\n");
+fprintf (st, "      lines which are not operating with full modem control behaviors enabled.\r\n");
+fprintf (st, "      Lines with full modem control behaviors enabled have all of their\r\n");
+fprintf (st, "      configuration managed by the Operating System running within the\r\n");
+fprintf (st, "      simulator.\r\n\r\n");
+fprintf (st, "An attachment to a serial port with the '-V' switch will cause a\r\n");
+fprintf (st, "connection message to be output to the connected serial port.\r\n");
+fprintf (st, "This will help to confirm the correct port has been connected and\r\n");
+fprintf (st, "that the port settings are reasonable for the connected device.\r\n");
+fprintf (st, "This would be done as:\r\n\r\n");
 if (single_line)            /* Single Line Multiplexer */
-    fprintf (st, "   sim> ATTACH -V %s Connect=SerN\n", dptr->name);
+    fprintf (st, "   sim> ATTACH -V %s Connect=SerN\r\n", dptr->name);
 else {
-    fprintf (st, "   sim> ATTACH -V %s Line=n,Connect=SerN\n\n", dptr->name);
-    fprintf (st, "Line specific tcp listening ports are supported.  These are configured\n");
-    fprintf (st, "using commands of the form:\n\n");
-    fprintf (st, "   sim> ATTACH %s Line=n,{interface:}port{;notelnet}\n\n", dptr->name);
+    fprintf (st, "   sim> ATTACH -V %s Line=n,Connect=SerN\r\n\r\n", dptr->name);
+    fprintf (st, "Line specific tcp listening ports are supported.  These are configured\r\n");
+    fprintf (st, "using commands of the form:\r\n\r\n");
+    fprintf (st, "   sim> ATTACH %s Line=n,{interface:}port{;notelnet}\r\n\r\n", dptr->name);
     }
-fprintf (st, "Direct computer to computer connections (Virtual Null Modem cables) may\n");
-fprintf (st, "be established using the telnet protocol or via raw tcp sockets.\n\n");
-fprintf (st, "   sim> ATTACH %s Line=n,Connect=host:port{;notelnet}\n\n", dptr->name);
-fprintf (st, "Computer to computer virtual connections can be one way (as illustrated\n");
-fprintf (st, "above) or symmetric.  A symmetric connection is configured by combining\n");
+fprintf (st, "Direct computer to computer connections (Virtual Null Modem cables) may\r\n");
+fprintf (st, "be established using the telnet protocol or via raw tcp sockets.\r\n\r\n");
+fprintf (st, "   sim> ATTACH %s Line=n,Connect=host:port{;notelnet}\r\n\r\n", dptr->name);
+fprintf (st, "Computer to computer virtual connections can be one way (as illustrated\r\n");
+fprintf (st, "above) or symmetric.  A symmetric connection is configured by combining\r\n");
 if (single_line) {          /* Single Line Multiplexer */
-    fprintf (st, "a one way connection with a tcp listening port on the same line:\n\n");
-    fprintf (st, "   sim> ATTACH %s listenport,Connect=host:port\n\n", dptr->name);
+    fprintf (st, "a one way connection with a tcp listening port on the same line:\r\n\r\n");
+    fprintf (st, "   sim> ATTACH %s listenport,Connect=host:port\r\n\r\n", dptr->name);
     }
 else {
-    fprintf (st, "a one way connection with a tcp listening port on the same line:\n\n");
-    fprintf (st, "   sim> ATTACH %s Line=n,listenport,Connect=host:port\n\n", dptr->name);
+    fprintf (st, "a one way connection with a tcp listening port on the same line:\r\n\r\n");
+    fprintf (st, "   sim> ATTACH %s Line=n,listenport,Connect=host:port\r\n\r\n", dptr->name);
     }
-fprintf (st, "When symmetric virtual connections are configured, incoming connections\n");
-fprintf (st, "on the specified listening port are checked to assure that they actually\n");
-fprintf (st, "come from the specified connection destination host system.\n\n");
+fprintf (st, "When symmetric virtual connections are configured, incoming connections\r\n");
+fprintf (st, "on the specified listening port are checked to assure that they actually\r\n");
+fprintf (st, "come from the specified connection destination host system.\r\n\r\n");
 if (single_line) {          /* Single Line Multiplexer */
-    fprintf (st, "The %s device can be attached in LOOPBACK mode:\n\n", dptr->name);
-    fprintf (st, "   sim> ATTACH %s Loopback\n\n", dptr->name);
+    fprintf (st, "The %s device can be attached in LOOPBACK mode:\r\n\r\n", dptr->name);
+    fprintf (st, "   sim> ATTACH %s Loopback\r\n\r\n", dptr->name);
     }
 else {
-    fprintf (st, "A line on the %s device can be attached in LOOPBACK mode:\n\n", dptr->name);
-    fprintf (st, "   sim> ATTACH %s Line=n,Loopback\n\n", dptr->name);
+    fprintf (st, "A line on the %s device can be attached in LOOPBACK mode:\r\n\r\n", dptr->name);
+    fprintf (st, "   sim> ATTACH %s Line=n,Loopback\r\n\r\n", dptr->name);
     }
-fprintf (st, "When operating in LOOPBACK mode, all outgoing data arrives as input and\n");
-fprintf (st, "outgoing modem signals (if enabled) (DTR and RTS) are reflected in the\n");
-fprintf (st, "incoming modem signals (DTR->(DCD and DSR), RTS->CTS)\n\n");
+fprintf (st, "When operating in LOOPBACK mode, all outgoing data arrives as input and\r\n");
+fprintf (st, "outgoing modem signals (if enabled) (DTR and RTS) are reflected in the\r\n");
+fprintf (st, "incoming modem signals (DTR->(DCD and DSR), RTS->CTS)\r\n\r\n");
 if (single_line)            /* Single Line Multiplexer */
-    fprintf (st, "The connection configured for the %s device is unconfigured by:\n\n", dptr->name);
+    fprintf (st, "The connection configured for the %s device is unconfigured by:\r\n\r\n", dptr->name);
 else
-    fprintf (st, "All connections configured for the %s device are unconfigured by:\n\n", dptr->name);
-fprintf (st, "   sim> DETACH %s\n\n", dptr->name);
+    fprintf (st, "All connections configured for the %s device are unconfigured by:\r\n\r\n", dptr->name);
+fprintf (st, "   sim> DETACH %s\r\n\r\n", dptr->name);
 if (dptr->modifiers) {
     MTAB *mptr;
 
     for (mptr = dptr->modifiers; mptr->mask != 0; mptr++)
         if (mptr->valid == &tmxr_dscln) {
-            fprintf (st, "A specific line on the %s device can be disconnected with:\n\n", dptr->name);
-            fprintf (st, "   sim> SET %s %s=n\n\n", dptr->name, mptr->mstring);
-            fprintf (st, "This will cause a telnet connection to be closed, but a serial port will\n");
-            fprintf (st, "normally have DTR dropped for 500ms and raised again (thus hanging up a\n");
-            fprintf (st, "modem on that serial port).\n\n");
-            fprintf (st, "A line which is connected to a serial port can be manually closed by\n");
-            fprintf (st, "adding the -C switch to a %s command.\n\n", mptr->mstring);
-            fprintf (st, "   sim> SET -C %s %s=n\n\n", dptr->name, mptr->mstring);
+            fprintf (st, "A specific line on the %s device can be disconnected with:\r\n\r\n", dptr->name);
+            fprintf (st, "   sim> SET %s %s=n\r\n\r\n", dptr->name, mptr->mstring);
+            fprintf (st, "This will cause a telnet connection to be closed, but a serial port will\r\n");
+            fprintf (st, "normally have DTR dropped for 500ms and raised again (thus hanging up a\r\n");
+            fprintf (st, "modem on that serial port).\r\n\r\n");
+            fprintf (st, "A line which is connected to a serial port can be manually closed by\r\n");
+            fprintf (st, "adding the -C switch to a %s command.\r\n\r\n", mptr->mstring);
+            fprintf (st, "   sim> SET -C %s %s=n\r\n\r\n", dptr->name, mptr->mstring);
             }
     }
 return SCPE_OK;
@@ -3533,55 +3533,55 @@ if (ln >= 0)
 if ((lp->sock) || (lp->connecting)) {                   /* tcp connection? */
     if (lp->destination)                                /* remote connection? */
         if (lp->datagram)
-            fprintf (st, "Datagram Connection from %s to remote port %s\n", lp->port, lp->destination);/* print port name */
+            fprintf (st, "Datagram Connection from %s to remote port %s\r\n", lp->port, lp->destination);/* print port name */
         else
-            fprintf (st, "Connection to remote port %s\n", lp->destination);/* print port name */
+            fprintf (st, "Connection to remote port %s\r\n", lp->destination);/* print port name */
     else                                                /* incoming connection */
-        fprintf (st, "Connection from IP address %s\n", lp->ipad);
+        fprintf (st, "Connection from IP address %s\r\n", lp->ipad);
     }
 else
     if (lp->destination)                                /* remote connection? */
-        fprintf (st, "Connecting to remote port %s\n", lp->destination);/* print port name */
+        fprintf (st, "Connecting to remote port %s\r\n", lp->destination);/* print port name */
 if (lp->sock) {
     char *sockname, *peername;
 
     sim_getnames_sock (lp->sock, &sockname, &peername);
-    fprintf (st, "Connection %s->%s\n", sockname, peername);
+    fprintf (st, "Connection %s->%s\r\n", sockname, peername);
     FREE (sockname);
     FREE (peername);
     }
 
 if ((lp->port) && (!lp->datagram))
-    fprintf (st, "Listening on port %s\n", lp->port);   /* print port name */
+    fprintf (st, "Listening on port %s\r\n", lp->port);   /* print port name */
 if (lp->cnms) {
     tctime = (sim_os_msec () - lp->cnms) / 1000;
     hr = tctime / 3600;
     mn = (tctime / 60) % 60;
     sc = tctime % 60;
     if (tctime)
-        fprintf (st, " %s %02d:%02d:%02d\n", lp->connecting ? "Connecting for" : "Connected", hr, mn, sc);
+        fprintf (st, " %s %02d:%02d:%02d\r\n", lp->connecting ? "Connecting for" : "Connected", hr, mn, sc);
     }
 else
-    fprintf (st, " Line disconnected\n");
+    fprintf (st, " Line disconnected\r\n");
 
 if (lp->modem_control) {
-    fprintf (st, " Modem Bits: %s%s%s%s%s%s\n", (lp->modembits & TMXR_MDM_DTR) ? "DTR " : "",
-                                                (lp->modembits & TMXR_MDM_RTS) ? "RTS " : "",
-                                                (lp->modembits & TMXR_MDM_DCD) ? "DCD " : "",
-                                                (lp->modembits & TMXR_MDM_RNG) ? "RNG " : "",
-                                                (lp->modembits & TMXR_MDM_CTS) ? "CTS " : "",
-                                                (lp->modembits & TMXR_MDM_DSR) ? "DSR " : "");
+    fprintf (st, " Modem Bits: %s%s%s%s%s%s\r\n", (lp->modembits & TMXR_MDM_DTR) ? "DTR " : "",
+                                                  (lp->modembits & TMXR_MDM_RTS) ? "RTS " : "",
+                                                  (lp->modembits & TMXR_MDM_DCD) ? "DCD " : "",
+                                                  (lp->modembits & TMXR_MDM_RNG) ? "RNG " : "",
+                                                  (lp->modembits & TMXR_MDM_CTS) ? "CTS " : "",
+                                                  (lp->modembits & TMXR_MDM_DSR) ? "DSR " : "");
     }
 
 if (
   (lp->sock) && (!lp->datagram))
-    fprintf (st, " %s\n", (lp->notelnet) ? "Telnet disabled (RAW data)" : "Telnet protocol");
+    fprintf (st, " %s\r\n", (lp->notelnet) ? "Telnet disabled (RAW data)" : "Telnet protocol");
 if (lp->send.buffer)
     sim_show_send_input (st, &lp->send);
 if (lp->expect.buf)
     sim_exp_showall (st, &lp->expect);
 if (lp->txlog)
-    fprintf (st, " Logging to %s\n", lp->txlogname);
+    fprintf (st, " Logging to %s\r\n", lp->txlogname);
 return;
 }
 
@@ -3596,30 +3596,30 @@ if (ln >= 0)
     fprintf (st, "Line %d:", ln);
 if ((!lp->sock) && (!lp->connecting)
    )
-    fprintf (st, " not connected\n");
+    fprintf (st, " not connected\r\n");
 else {
     if (ln >= 0)
-        fprintf (st, "\n");
+        fprintf (st, "\r\n");
     fprintf (st, "  input (%s)", (lp->rcve? enab: dsab));
     if (lp->rxcnt)
         fprintf (st, " queued/total = %d/%d", tmxr_rqln (lp), lp->rxcnt);
     if (lp->rxpcnt)
         fprintf (st, " packets = %d", lp->rxpcnt);
-    fprintf (st, "\n  output (%s)", (lp->xmte? enab: dsab));
+    fprintf (st, "\r\n  output (%s)", (lp->xmte? enab: dsab));
     if (lp->txcnt || lp->txbpi)
         fprintf (st, " queued/total = %d/%d", tmxr_tqln (lp), lp->txcnt);
     if (lp->txpcnt || tmxr_tpqln (lp))
         fprintf (st, " packet data queued/packets sent = %d/%d",
             tmxr_tpqln (lp), lp->txpcnt);
-    fprintf (st, "\n");
+    fprintf (st, "\r\n");
     }
 if (lp->txbfd)
-    fprintf (st, "  output buffer size = %d\n", lp->txbsz);
+    fprintf (st, "  output buffer size = %d\r\n", lp->txbsz);
 if (lp->txcnt || lp->txbpi)
-    fprintf (st, "  bytes in buffer = %d\n",
+    fprintf (st, "  bytes in buffer = %d\r\n",
                ((lp->txcnt > 0) && (lp->txcnt > lp->txbsz)) ? lp->txbsz : lp->txbpi);
 if (lp->txdrp)
-    fprintf (st, "  dropped = %d\n", lp->txdrp);
+    fprintf (st, "  dropped = %d\r\n", lp->txdrp);
 return;
 }
 
@@ -3666,7 +3666,7 @@ if (lp == NULL)                                                 /* bad line numb
 if ((lp->sock)
    ) {                                                          /* connection active? */
     if (!lp->notelnet)
-        tmxr_linemsg (lp, "\r\nOperator disconnected line\r\n\n");/* report closure */
+        tmxr_linemsg (lp, "\r\nOperator disconnected line\r\n\r\n"); /* report closure */
     tmxr_reset_ln_ex (lp, (sim_switches & SWMASK ('C')));       /* drop the line */
     }
 
@@ -3885,7 +3885,7 @@ if (iptr == NULL)                                       /* connection order unde
     return SCPE_NXPAR;                                  /* "Non-existent parameter" error */
 
 if (*iptr < 0)                                          /* sequential order indicated? */
-    fprintf (st, "Order=0-%d\n", mp->lines - 1);        /* print full line range */
+    fprintf (st, "Order=0-%d\r\n", mp->lines - 1);      /* print full line range */
 
 else {
     low = last = *iptr++;                               /* set first line value */
@@ -3968,7 +3968,7 @@ for (i = any = 0; i < mp->lines; i++) {
         }
     }
 if (any == 0)
-    fprintf (st, (mp->lines == 1? "disconnected\n": "all disconnected\n"));
+    fprintf (st, (mp->lines == 1? "disconnected\r\n": "all disconnected\r\n"));
 return SCPE_OK;
 }
 

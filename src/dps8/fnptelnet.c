@@ -64,7 +64,7 @@ static void evHandler (UNUSED telnet_t *telnet, telnet_event_t *event, void *use
 
         case TELNET_EV_SEND:
           {
-            //sim_printf ("evHandler: send %zu <%s>\n", event->data.size, event->data.buffer);
+            //sim_printf ("evHandler: send %zu <%s>\r\n", event->data.size, event->data.buffer);
             //fnpuv_start_write_actual (client, (char *) event->data.buffer, (ssize_t) event->data.size);
             if (! client || ! client->data)
               {
@@ -92,20 +92,20 @@ static void evHandler (UNUSED telnet_t *telnet, telnet_event_t *event, void *use
               }
             else if (event->neg.telopt == TELNET_TELOPT_EOR)
               {
-                //sim_printf ("EOR rcvd\n");
+                //sim_printf ("EOR rcvd\r\n");
                 //fnpuv_recv_eor (client);
                 // DO EOR
               }
             else
               {
-                sim_printf ("evHandler DO %d\n", event->neg.telopt);
+                sim_printf ("evHandler DO %d\r\n", event->neg.telopt);
               }
           }
           break;
 
         case TELNET_EV_DONT:
           {
-            sim_printf ("evHandler DONT %d\n", event->neg.telopt);
+            sim_printf ("evHandler DONT %d\r\n", event->neg.telopt);
           }
           break;
 
@@ -126,20 +126,20 @@ static void evHandler (UNUSED telnet_t *telnet, telnet_event_t *event, void *use
             else
               {
                 if (event->neg.telopt != 3)
-                  sim_printf ("evHandler WILL %d\n", event->neg.telopt);
+                  sim_printf ("evHandler WILL %d\r\n", event->neg.telopt);
               }
           }
           break;
 
         case TELNET_EV_WONT:
           {
-            sim_printf ("evHandler WONT %d\n", event->neg.telopt);
+            sim_printf ("evHandler WONT %d\r\n", event->neg.telopt);
           }
           break;
 
         case TELNET_EV_ERROR:
           {
-            sim_warn ("libtelnet evHandler error <%s>\n", event->error.msg);
+            sim_warn ("libtelnet evHandler error <%s>\r\n", event->error.msg);
           }
           break;
 
@@ -159,7 +159,7 @@ static void evHandler (UNUSED telnet_t *telnet, telnet_event_t *event, void *use
                     fnpuv_associated_brk (client);
                   }
                 else
-                  sim_warn ("libtelnet dropping unassociated BRK\n");
+                  sim_warn ("libtelnet dropping unassociated BRK\r\n");
               }
             else if (event->iac.cmd == TELNET_EOR)
               {
@@ -167,7 +167,7 @@ static void evHandler (UNUSED telnet_t *telnet, telnet_event_t *event, void *use
               }
             else
               if ((!sim_quiet) || (event->iac.cmd != 241))
-                sim_warn ("libtelnet unhandled IAC event %d\n", event->iac.cmd);
+                sim_warn ("libtelnet unhandled IAC event %d\r\n", event->iac.cmd);
           }
           break;
 
@@ -202,7 +202,7 @@ static void evHandler (UNUSED telnet_t *telnet, telnet_event_t *event, void *use
           break;
 
         default:
-          sim_printf ("evHandler: unhandled event %d\n", event->type);
+          sim_printf ("evHandler: unhandled event %d\r\n", event->type);
           break;
       }
 
@@ -283,7 +283,7 @@ void fnpTelnetInit (void)
             fnpUnitData[fnpno].MState.line[lineno].telnetp = telnet_init (my_telopts, evHandler, 0, NULL);
             if (! fnpUnitData[fnpno].MState.line[lineno].telnetp)
               {
-                sim_warn ("telnet_init failed\n");
+                sim_warn ("telnet_init failed\r\n");
               }
           }
       }

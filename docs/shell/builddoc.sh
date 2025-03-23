@@ -31,6 +31,7 @@ unset FLOCK_COMMAND > "/dev/null" 2>&1 || true
  set -e
  test -z "${VERBOSE:-}" || set -x
  export SHELL=/bin/sh > "/dev/null" 2>&1
+ export DPS8M_NO_HINTS=1
 
 ################################################################################
 # Install template
@@ -167,29 +168,29 @@ unset FLOCK_COMMAND > "/dev/null" 2>&1 || true
  PROMVERX="$(printf '%s%s\n'                                                 \
           "$(grep VER_H_GIT_RELT ../src/dps8/ver.h | cut -d '"' -f2)"        \
           "$(grep VER_H_PROM_VER_TEXT ../src/dps8/ver.h | cut -d '"' -f2)" | \
-          tr -s ' ' | tr -d ' /')"
+          tr -s ' ' | tr -d ' /' | ansifilter )"
 
  BUILDVER="$(../src/dps8/dps8 --version 2>&1 |
-             awk '/ simulator / { print $3 }' | tr -d ' */')"
+             awk '/ simulator / { print $3 }' | tr -d ' */' | ansifilter)"
    printf '    DPS8M Simulator version  : %s\n' "${BUILDVER:?}"
 
- BUILDGIT="$(env TZ=UTC git rev-parse HEAD | tr -d ' */')"
+ BUILDGIT="$(env TZ=UTC git rev-parse HEAD | tr -d ' */' | ansifilter)"
    printf '    Distribution commit hash : %s\n' "${BUILDGIT:?}"
 
  PRT2PDFV="$(../src/prt2pdf/prt2pdf -v 2>&1 |
-             awk '/^prt2pdf version / { print $3 }' | tr -d ' */')"
+             awk '/^prt2pdf version / { print $3 }' | tr -d ' */' | ansifilter)"
    printf '    Prt2PDF version          : %s\n' "${PRT2PDFV:?}"
 
  PUNUTILV="$(../src/punutil/punutil --version 2>&1 < "/dev/null" |
-             awk '/^Version/ { print $2 }' | tr -d ' */')"
+             awk '/^Version/ { print $2 }' | tr -d ' */' | ansifilter)"
    printf '    PunUtil version          : %s\n' "${PUNUTILV:?}"
 
- MCMBVERS="$(../src/mcmb/mcmb -v 2>&1 | cut -d ' ' -f 5- | tr -d '*/')"
+ MCMBVERS="$(../src/mcmb/mcmb -v 2>&1 | cut -d ' ' -f 5- | tr -d '*/' | ansifilter)"
    printf '    mcmb version             : %s\n' "${MCMBVERS:?}"
 
  LASTMODV="$(cd .. && env TZ=UTC git log -1  \
              --format="%cd"                  \
-             --date=format-local:'%Y-%m-%d %H:%M:%S UTC' | tr -d '*')"
+             --date=format-local:'%Y-%m-%d %H:%M:%S UTC' | tr -d '*' | ansifilter)"
    printf '    Last modification date   : %s\n' "${LASTMODV:?}"
 
  if [ "${BUILDDOC_HTML:-0}" -eq 1 ] 2> "/dev/null"; then

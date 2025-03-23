@@ -73,7 +73,7 @@ static inline void l_putbits36_1 (vol word36 * x, uint p, word1 val)
     const int n = 1;
     int shift = 36 - (int) p - (int) n;
     if (shift < 0 || shift > 35) {
-        sim_printf ("l_putbits36_1: bad args (%012"PRIo64",pos=%d)\n", *x, p);
+        sim_printf ("l_putbits36_1: bad args (%012"PRIo64",pos=%d)\r\n", *x, p);
         return;
     }
     word36 mask = ~ (~0U<<n);  // n low bits on
@@ -114,40 +114,40 @@ static void dmpmbx (uint mailboxAddress)
   {
     struct mailbox mbx;
     fnp_core_read_n (mailboxAddress, (word36 *) & mbx, MAILBOX_WORDS, "dmpmbx");
-    sim_printf ("dia_pcw            %012llo\n", (long long unsigned int) mbx.dia_pcw);
-    sim_printf ("mailbox_requests   %012llo\n", (long long unsigned int) mbx.mailbox_requests);
-    sim_printf ("term_inpt_mpx_wd   %012llo\n", (long long unsigned int) mbx.term_inpt_mpx_wd);
-    sim_printf ("last_mbx_req_count %012llo\n", (long long unsigned int) mbx.last_mbx_req_count);
-    sim_printf ("num_in_use         %012llo\n", (long long unsigned int) mbx.num_in_use);
-    sim_printf ("mbx_used_flags     %012llo\n", (long long unsigned int) mbx.mbx_used_flags);
+    sim_printf ("dia_pcw            %012llo\r\n", (long long unsigned int) mbx.dia_pcw);
+    sim_printf ("mailbox_requests   %012llo\r\n", (long long unsigned int) mbx.mailbox_requests);
+    sim_printf ("term_inpt_mpx_wd   %012llo\r\n", (long long unsigned int) mbx.term_inpt_mpx_wd);
+    sim_printf ("last_mbx_req_count %012llo\r\n", (long long unsigned int) mbx.last_mbx_req_count);
+    sim_printf ("num_in_use         %012llo\r\n", (long long unsigned int) mbx.num_in_use);
+    sim_printf ("mbx_used_flags     %012llo\r\n", (long long unsigned int) mbx.mbx_used_flags);
     for (uint i = 0; i < 8; i ++)
       {
-        sim_printf ("CS  mbx %d\n", i);
-        sim_printf ("    word1        %012llo\n",
+        sim_printf ("CS  mbx %d\r\n", i);
+        sim_printf ("    word1        %012llo\r\n",
                     (long long unsigned int) mbx.dn355_sub_mbxes[i].word1);
-        sim_printf ("    word2        %012llo\n",
+        sim_printf ("    word2        %012llo\r\n",
                     (long long unsigned int) mbx.dn355_sub_mbxes[i].word2);
-        sim_printf ("    command_data %012llo\n",
+        sim_printf ("    command_data %012llo\r\n",
                     (long long unsigned int) mbx.dn355_sub_mbxes[i].command_data [0]);
-        sim_printf ("                 %012llo\n",
+        sim_printf ("                 %012llo\r\n",
                     (long long unsigned int) mbx.dn355_sub_mbxes[i].command_data [1]);
-        sim_printf ("                 %012llo\n",
+        sim_printf ("                 %012llo\r\n",
                     (long long unsigned int) mbx.dn355_sub_mbxes[i].command_data [2]);
-        sim_printf ("    word6        %012llo\n",
+        sim_printf ("    word6        %012llo\r\n",
                     (long long unsigned int) mbx.dn355_sub_mbxes[i].word6);
       }
     for (uint i = 0; i < 4; i ++)
       {
-        sim_printf ("FNP mbx %d\n", i);
-        sim_printf ("    word1        %012llo\n",
+        sim_printf ("FNP mbx %d\r\n", i);
+        sim_printf ("    word1        %012llo\r\n",
                     (unsigned long long int)mbx.fnp_sub_mbxes[i].word1);
-        sim_printf ("    word2        %012llo\n",
+        sim_printf ("    word2        %012llo\r\n",
                     (unsigned long long int)mbx.fnp_sub_mbxes[i].word2);
-        sim_printf ("    mystery      %012llo\n",
+        sim_printf ("    mystery      %012llo\r\n",
                     (unsigned long long int)mbx.fnp_sub_mbxes[i].mystery [0]);
-        sim_printf ("                 %012llo\n",
+        sim_printf ("                 %012llo\r\n",
                     (unsigned long long int)mbx.fnp_sub_mbxes[i].mystery [1]);
-        sim_printf ("                 %012llo\n",
+        sim_printf ("                 %012llo\r\n",
                     (unsigned long long int)mbx.fnp_sub_mbxes[i].mystery [2]);
       }
 
@@ -164,7 +164,7 @@ static int wcd (struct decoded_t *decoded_p)
     cpu_state_t * cpup = _cpup;
 #endif
     struct t_line * linep = & decoded_p->fudp->MState.line[decoded_p->slot_no];
-    sim_debug (DBG_TRACE, & fnp_dev, "[%u] wcd op_code %u 0%o\n",
+    sim_debug (DBG_TRACE, & fnp_dev, "[%u] wcd op_code %u 0%o\r\n",
                decoded_p->slot_no, decoded_p->op_code, decoded_p->op_code);
 
     word36 command_data[3];
@@ -176,7 +176,7 @@ static int wcd (struct decoded_t *decoded_p)
       {
         case  1: // disconnect_this_line
           {
-            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    disconnect_this_line\n", decoded_p->slot_no);
+            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    disconnect_this_line\r\n", decoded_p->slot_no);
             if (linep->line_client && linep->service == service_login)
               fnpuv_start_writestr (linep->line_client, (unsigned char *) "Multics has disconnected you\r\n");
 #if defined(DISC_DELAY)
@@ -195,14 +195,14 @@ static int wcd (struct decoded_t *decoded_p)
 
         case  3: // dont_accept_calls
           {
-            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    dont_accept_calls\n", decoded_p->slot_no);
+            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    dont_accept_calls\r\n", decoded_p->slot_no);
             decoded_p->fudp->MState.accept_calls = false;
           }
           break;
 
         case  4: // accept_calls
           {
-            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    accept_calls\n", decoded_p->slot_no);
+            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    accept_calls\r\n", decoded_p->slot_no);
             decoded_p->fudp->MState.accept_calls = true;
           }
           break;
@@ -215,8 +215,8 @@ static int wcd (struct decoded_t *decoded_p)
 
         case  8: // set_framing_chars
           {
-            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    set_framing_chars\n", decoded_p->slot_no);
-            //sim_printf ("fnp set framing characters\n");
+            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    set_framing_chars\r\n", decoded_p->slot_no);
+            //sim_printf ("fnp set framing characters\r\n");
             uint d1 = getbits36_9 (command_data[0], 0);
             uint d2 = getbits36_9 (command_data[0], 9);
             linep->frame_begin = d1;
@@ -226,7 +226,7 @@ static int wcd (struct decoded_t *decoded_p)
 
         case 12: // dial out
           {
-            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    dial out\n", decoded_p->slot_no);
+            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    dial out\r\n", decoded_p->slot_no);
             //sim_printf ("XXX dial_out %d %012"PRIo64" %012"PRIo64" %012"PRIo64"",
             //            decoded_p->slot_no, command_data0, command_data1, command_data2);
             fnpuv_dial_out (decoded_p->devUnitIdx, decoded_p->slot_no,
@@ -236,9 +236,9 @@ static int wcd (struct decoded_t *decoded_p)
 
         case 22: // line_control
           {
-            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    line_control\n", decoded_p->slot_no);
+            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    line_control\r\n", decoded_p->slot_no);
             //word36 command_data2 = decoded_p->smbxp -> command_data [2];
-            //sim_printf ("XXX line_control %d %012"PRIo64" %012"PRIo64" %012"PRIo64"\n",
+            //sim_printf ("XXX line_control %d %012"PRIo64" %012"PRIo64" %012"PRIo64"\r\n",
             //            decoded_p->slot_no, command_data0, command_data1, command_data2);
 
 // bisync_line_data.inc.pl1
@@ -252,57 +252,57 @@ static int wcd (struct decoded_t *decoded_p)
                 case 1:
                   //if_sim_debug (DBG_TRACE, & fnp_dev) {
                   //    word18 val1 = getbits36_18 (command_data[0], 18);
-                  //    sim_debug (DBG_TRACE, & fnp_dev, "SET_BID_LIMIT\n");
-                  //    sim_debug (DBG_TRACE, & fnp_dev, "    %u\n", val1);
+                  //    sim_debug (DBG_TRACE, & fnp_dev, "SET_BID_LIMIT\r\n");
+                  //    sim_debug (DBG_TRACE, & fnp_dev, "    %u\r\n", val1);
                   //}
                   break;
                 case 2:
-                  sim_debug (DBG_TRACE, & fnp_dev, "ACCEPT_BID\n");
+                  sim_debug (DBG_TRACE, & fnp_dev, "ACCEPT_BID\r\n");
                   break;
                 case 3:
                   //if_sim_debug (DBG_TRACE, & fnp_dev) {
                   //    word18 val1 = getbits36_18 (command_data[0], 18);
-                  //    sim_debug (DBG_TRACE, & fnp_dev, "CONFIGURE\n");
+                  //    sim_debug (DBG_TRACE, & fnp_dev, "CONFIGURE\r\n");
                   //    if (val1 == 0)
-                  //      sim_debug (DBG_TRACE, & fnp_dev, "    non-transparent ASCII\n");
+                  //      sim_debug (DBG_TRACE, & fnp_dev, "    non-transparent ASCII\r\n");
                   //    else if (val1 == 1)
-                  //      sim_debug (DBG_TRACE, & fnp_dev, "    non-transparent EBCDIC\n");
+                  //      sim_debug (DBG_TRACE, & fnp_dev, "    non-transparent EBCDIC\r\n");
                   //    else if (val1 == 2)
-                  //      sim_debug (DBG_TRACE, & fnp_dev, "    transparent ASCII\n");
+                  //      sim_debug (DBG_TRACE, & fnp_dev, "    transparent ASCII\r\n");
                   //    else if (val1 == 3)
-                  //      sim_debug (DBG_TRACE, & fnp_dev, "    transparent EBCDIC\n");
+                  //      sim_debug (DBG_TRACE, & fnp_dev, "    transparent EBCDIC\r\n");
                   //    else
-                  //      sim_debug (DBG_TRACE, & fnp_dev, "    unknown %u. %o\n", val1, val1);
+                  //      sim_debug (DBG_TRACE, & fnp_dev, "    unknown %u. %o\r\n", val1, val1);
                   //}
                   break;
                 case 4:
                   //if_sim_debug (DBG_TRACE, & fnp_dev) {
                   //    word18 val1 = getbits36_18 (command_data[0], 18);
                   //    word18 val2 = getbits36_18 (command_data[1], 0);
-                  //    sim_debug (DBG_TRACE, & fnp_dev, "SET_TTD_PARAMS\n");
-                  //    sim_debug (DBG_TRACE, & fnp_dev, "    ttd_time  %u\n", val1);
-                  //    sim_debug (DBG_TRACE, & fnp_dev, "    ttd_limit %u\n", val2);
+                  //    sim_debug (DBG_TRACE, & fnp_dev, "SET_TTD_PARAMS\r\n");
+                  //    sim_debug (DBG_TRACE, & fnp_dev, "    ttd_time  %u\r\n", val1);
+                  //    sim_debug (DBG_TRACE, & fnp_dev, "    ttd_limit %u\r\n", val2);
                   //}
                   break;
                 case 5:
-                  sim_debug (DBG_TRACE, & fnp_dev, "REPORT_WRITE_STATUS\n");
+                  sim_debug (DBG_TRACE, & fnp_dev, "REPORT_WRITE_STATUS\r\n");
                   break;
                 case 6:
-                  sim_debug (DBG_TRACE, & fnp_dev, "SET_3270_MODE\n");
+                  sim_debug (DBG_TRACE, & fnp_dev, "SET_3270_MODE\r\n");
                   break;
                 case 7:
                   {
-                    sim_debug (DBG_TRACE, & fnp_dev, "SET_POLLING_ADDR\n");
+                    sim_debug (DBG_TRACE, & fnp_dev, "SET_POLLING_ADDR\r\n");
 //word36 command_data2 = decoded_p->smbxp -> command_data [2];
-//sim_printf ("XXX line_control %d %012"PRIo64" %012"PRIo64" %012"PRIo64"\n",
+//sim_printf ("XXX line_control %d %012"PRIo64" %012"PRIo64" %012"PRIo64"\r\n",
 //            decoded_p->slot_no, command_data0, command_data1, command_data2);
                     //word9 len = getbits36_9 (command_data0, 18);
                     word9 c1 = getbits36_9 (command_data[0], 27);
                     //word9 c2 = getbits36_9 (command_data1, 0);
                     word9 c3 = getbits36_9 (command_data[1], 9);
                     //word9 c4 = getbits36_9 (command_data1, 18);
-                    sim_debug (DBG_TRACE, & fnp_dev, "    char1 %u\n", c1);
-                    sim_debug (DBG_TRACE, & fnp_dev, "    char3 %u\n", c3);
+                    sim_debug (DBG_TRACE, & fnp_dev, "    char1 %u\r\n", c1);
+                    sim_debug (DBG_TRACE, & fnp_dev, "    char3 %u\r\n", c3);
                     fnpData.ibm3270ctlr[ASSUME0].pollCtlrChar = (unsigned char) (c1 & 0xff);
                     fnpData.ibm3270ctlr[ASSUME0].pollDevChar = (unsigned char) (c3 & 0xff);
                     fnpData.
@@ -313,19 +313,19 @@ static int wcd (struct decoded_t *decoded_p)
                   }
                   break;
                 case 8:
-                  sim_debug (DBG_TRACE, & fnp_dev, "START_POLL\n");
+                  sim_debug (DBG_TRACE, & fnp_dev, "START_POLL\r\n");
                   fnpuv3270Poll (true);
                   break;
                 case 9:
                   {
-                    sim_debug (DBG_TRACE, & fnp_dev, "SET_SELECT_ADDR\n");
+                    sim_debug (DBG_TRACE, & fnp_dev, "SET_SELECT_ADDR\r\n");
                     //word9 len = getbits36_9 (command_data0, 18);
                     word9 c1 = getbits36_9 (command_data[0], 27);
                     //word9 c2 = getbits36_9 (command_data1, 0);
                     word9 c3 = getbits36_9 (command_data[1], 9);
                     //word9 c4 = getbits36_9 (command_data1, 18);
-                    sim_debug (DBG_TRACE, & fnp_dev, "    char1 %u\n", c1);
-                    sim_debug (DBG_TRACE, & fnp_dev, "    char3 %u\n", c3);
+                    sim_debug (DBG_TRACE, & fnp_dev, "    char1 %u\r\n", c1);
+                    sim_debug (DBG_TRACE, & fnp_dev, "    char3 %u\r\n", c3);
                     fnpData.ibm3270ctlr[ASSUME0].selCtlrChar = (unsigned char) (c1 & 0xff);
                     fnpData.ibm3270ctlr[ASSUME0].selDevChar = (unsigned char) (c3 & 0xff);
 
@@ -365,45 +365,45 @@ static int wcd (struct decoded_t *decoded_p)
                   }
                   break;
                 case 10:
-                  sim_debug (DBG_TRACE, & fnp_dev, "STOP_AUTO_POLL\n");
+                  sim_debug (DBG_TRACE, & fnp_dev, "STOP_AUTO_POLL\r\n");
                   break;
                 case 11:
                   //if_sim_debug (DBG_TRACE, & fnp_dev) {
                   //    word18 val1 = getbits36_18 (command_data[0], 18);
-                  //    sim_debug (DBG_TRACE, & fnp_dev, "SET_MASTER_SLAVE_MODE\n");
+                  //    sim_debug (DBG_TRACE, & fnp_dev, "SET_MASTER_SLAVE_MODE\r\n");
                   //    if (val1 == 0)
-                  //      sim_debug (DBG_TRACE, & fnp_dev, "    slave\n");
+                  //      sim_debug (DBG_TRACE, & fnp_dev, "    slave\r\n");
                   //    else if (val1 == 1)
-                  //      sim_debug (DBG_TRACE, & fnp_dev, "    master\n");
+                  //      sim_debug (DBG_TRACE, & fnp_dev, "    master\r\n");
                   //    else
-                  //      sim_debug (DBG_TRACE, & fnp_dev, "    unknown %u. %o\n", val1, val1);
+                  //      sim_debug (DBG_TRACE, & fnp_dev, "    unknown %u. %o\r\n", val1, val1);
                   //}
                   break;
                 case 12:
-                  sim_debug (DBG_TRACE, & fnp_dev, "SET_HASP_MODE\n");
+                  sim_debug (DBG_TRACE, & fnp_dev, "SET_HASP_MODE\r\n");
                   break;
                 case 13:
-                  sim_debug (DBG_TRACE, & fnp_dev, "SET_NAK_LIMIT\n");
+                  sim_debug (DBG_TRACE, & fnp_dev, "SET_NAK_LIMIT\r\n");
                   break;
                 case 14:
-                  sim_debug (DBG_TRACE, & fnp_dev, "SET_HASP_TIMERS\n");
+                  sim_debug (DBG_TRACE, & fnp_dev, "SET_HASP_TIMERS\r\n");
                   break;
                 default:
-                  sim_printf ("unknown %u. %o\n", op, op);
+                  sim_printf ("unknown %u. %o\r\n", op, op);
                   break;
               }
 #if 0
-        sim_printf ("received line_control %d %012"PRIo64" %012"PRIo64" %012"PRIo64"\n", lineno, d1, d2, d3);
-        sim_printf ("  dce_or_dte  %"PRIo64"\n", getbits36 (d1, 0, 1));
-        sim_printf ("  lap_or_lapb %"PRIo64"\n", getbits36 (d1, 1, 1));
-        sim_printf ("  disc_first  %"PRIo64"\n", getbits36 (d1, 2, 1));
-        sim_printf ("  trace_off   %"PRIo64"\n", getbits36 (d1, 3, 1));
-        sim_printf ("  activation_order %09"PRIo64"\n", getbits36 (d1, 9, 9));
-        sim_printf ("  frame_size %"PRIo64" %"PRId64".\n", getbits36 (d1, 18, 18), getbits36 (d1, 18, 18));
-        sim_printf ("  K  %"PRIo64" %"PRId64".\n", getbits36 (d2,  0, 9), getbits36 (d2,  0, 9));
-        sim_printf ("  N2 %"PRIo64" %"PRId64".\n", getbits36 (d2,  9, 9), getbits36 (d2,  9, 9));
-        sim_printf ("  T1 %"PRIo64" %"PRId64".\n", getbits36 (d2, 18, 9), getbits36 (d2, 18, 9));
-        sim_printf ("  T3 %"PRIo64" %"PRId64".\n", getbits36 (d2, 27, 9), getbits36 (d2, 27, 9));
+        sim_printf ("received line_control %d %012"PRIo64" %012"PRIo64" %012"PRIo64"\r\n", lineno, d1, d2, d3);
+        sim_printf ("  dce_or_dte  %"PRIo64"\r\n", getbits36 (d1, 0, 1));
+        sim_printf ("  lap_or_lapb %"PRIo64"\r\n", getbits36 (d1, 1, 1));
+        sim_printf ("  disc_first  %"PRIo64"\r\n", getbits36 (d1, 2, 1));
+        sim_printf ("  trace_off   %"PRIo64"\r\n", getbits36 (d1, 3, 1));
+        sim_printf ("  activation_order %09"PRIo64"\r\n", getbits36 (d1, 9, 9));
+        sim_printf ("  frame_size %"PRIo64" %"PRId64".\r\n", getbits36 (d1, 18, 18), getbits36 (d1, 18, 18));
+        sim_printf ("  K  %"PRIo64" %"PRId64".\r\n", getbits36 (d2,  0, 9), getbits36 (d2,  0, 9));
+        sim_printf ("  N2 %"PRIo64" %"PRId64".\r\n", getbits36 (d2,  9, 9), getbits36 (d2,  9, 9));
+        sim_printf ("  T1 %"PRIo64" %"PRId64".\r\n", getbits36 (d2, 18, 9), getbits36 (d2, 18, 9));
+        sim_printf ("  T3 %"PRIo64" %"PRId64".\r\n", getbits36 (d2, 27, 9), getbits36 (d2, 27, 9));
 #endif
           }
         break;
@@ -411,7 +411,7 @@ static int wcd (struct decoded_t *decoded_p)
         case 23: // sync_msg_size
           {
             linep->sync_msg_size = (uint) getbits36_18 (command_data[0], 0);
-            //sim_printf ("sync_msg_size %u\n", sz);
+            //sim_printf ("sync_msg_size %u\r\n", sz);
           }
           break;
 
@@ -452,7 +452,7 @@ static int wcd (struct decoded_t *decoded_p)
         case 24: // set_echnego_break_table
           {
             sim_debug (DBG_TRACE, & fnp_dev,
-                       "[%u]    set_echnego_break_table\n", decoded_p->slot_no);
+                       "[%u]    set_echnego_break_table\r\n", decoded_p->slot_no);
 
 #if defined(ECHNEGO_DEBUG)
             sim_printf ("set_echnego_break_table\r\n");
@@ -465,7 +465,7 @@ static int wcd (struct decoded_t *decoded_p)
             uint data_addr = getbits36_18 (word6, 0);
             uint data_len = getbits36_18 (word6, 18);
 
-            //sim_printf ("set_echnego_break_table %d addr %06o len %d\n",
+            //sim_printf ("set_echnego_break_table %d addr %06o len %d\r\n",
             //            decoded_p->slot_no, data_addr, data_len);
 
             // According to the MOWSE documentation, length of 0
@@ -476,7 +476,7 @@ static int wcd (struct decoded_t *decoded_p)
             if (data_len != echoTableLen && data_len != 0 &&
                 data_len != MASK18)
               {
-                sim_printf ("set_echnego_break_table data_len !=8 (%d)\n", data_len);
+                sim_printf ("set_echnego_break_table data_len !=8 (%d)\r\n", data_len);
                 break;
               }
 
@@ -498,7 +498,7 @@ static int wcd (struct decoded_t *decoded_p)
                     iom_direct_data_service (decoded_p->iom_unit,
                       decoded_p->chan_num, data_addr + i, & echoTable [i],
                       direct_load);
-                      //sim_printf ("%012llo\n", echoTable[i]);
+                      //sim_printf ("%012llo\r\n", echoTable[i]);
                   }
 // Table format is actually
 //   16 bits 2 pad 15 bits 2 pad
@@ -515,7 +515,7 @@ static int wcd (struct decoded_t *decoded_p)
                   }
               }
 #if 0
-            sim_printf ("addr %o echoTableLen %d\n", data_addr, echoTableLen);
+            sim_printf ("addr %o echoTableLen %d\r\n", data_addr, echoTableLen);
 #endif
 #if 0
             for (int i = 0; i < 256; i += 8)
@@ -544,7 +544,7 @@ static int wcd (struct decoded_t *decoded_p)
         case 25: // start_negotiated_echo
           {
             sim_debug (DBG_TRACE, & fnp_dev,
-              "[%u]    start_negotiated_echo\n", decoded_p->slot_no);
+              "[%u]    start_negotiated_echo\r\n", decoded_p->slot_no);
 
             linep->echnego_sync_ctr =
               getbits36_18 (command_data[0], 0);
@@ -552,7 +552,7 @@ static int wcd (struct decoded_t *decoded_p)
 
 #if defined(ECHNEGO_DEBUG)
             sim_printf ("start_negotiated_echo ctr %d screenleft %d "
-              "unechoed cnt %d\n", linep->echnego_sync_ctr,
+              "unechoed cnt %d\r\n", linep->echnego_sync_ctr,
               linep->echnego_screen_left,linep->echnego_unechoed_cnt);
 #endif
 
@@ -564,7 +564,7 @@ static int wcd (struct decoded_t *decoded_p)
               linep->echnego_sync_ctr == linep->echnego_unechoed_cnt;
 
 #if defined(ECHNEGO_DEBUG)
-            sim_printf ("echnego is %s\n",
+            sim_printf ("echnego is %s\r\n",
                         linep->echnego_on ? "on" : "off");
 #endif
 
@@ -574,7 +574,7 @@ static int wcd (struct decoded_t *decoded_p)
         case 26: // stop_negotiated_echo
           {
             sim_debug (DBG_TRACE, & fnp_dev,
-                       "[%u]    stop_negotiated_echo\n",
+                       "[%u]    stop_negotiated_echo\r\n",
                        decoded_p->slot_no);
 #if defined(ECHNEGO_DEBUG)
             sim_printf ("stop_negotiated_echo\r\n");
@@ -588,7 +588,7 @@ static int wcd (struct decoded_t *decoded_p)
         case 27: // init_echo_negotiation
           {
             sim_debug (DBG_TRACE, & fnp_dev,
-                       "[%u]    init_echo_negotiation\n",
+                       "[%u]    init_echo_negotiation\r\n",
                        decoded_p->slot_no);
 #if defined(ECHNEGO_DEBUG)
             sim_printf ("init_echo_negotiation\r\n");
@@ -618,7 +618,7 @@ static int wcd (struct decoded_t *decoded_p)
 //       3 chars char (3),
 //     2 timeout bit (1);
 
-            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    input_fc_chars\n",
+            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    input_fc_chars\r\n",
                        decoded_p->slot_no);
             word36 suspendStr = command_data[0];
             linep->inputSuspendStr[0] = getbits36_8 (suspendStr, 10);
@@ -627,7 +627,7 @@ static int wcd (struct decoded_t *decoded_p)
             uint suspendLen = getbits36_9 (suspendStr, 0);
             if (suspendLen > 3)
               {
-                //sim_printf ("input_fc_chars truncating suspend %d to 3\n",
+                //sim_printf ("input_fc_chars truncating suspend %d to 3\r\n",
                 //            suspendLen);
                 suspendLen = 3;
               }
@@ -640,7 +640,7 @@ static int wcd (struct decoded_t *decoded_p)
             uint resumeLen = getbits36_9 (resumeStr, 0);
             if (resumeLen > 3)
               {
-                //sim_printf ("input_fc_chars truncating suspend %d to 3\n",
+                //sim_printf ("input_fc_chars truncating suspend %d to 3\r\n",
                 //            suspendLen);
                 resumeLen = 3;
               }
@@ -652,9 +652,9 @@ static int wcd (struct decoded_t *decoded_p)
 
         case 31: // output_fc_chars
           {
-            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    output_fc_chars\n",
+            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    output_fc_chars\r\n",
                        decoded_p->slot_no);
-            //sim_printf ("fnp output_fc_chars\n");
+            //sim_printf ("fnp output_fc_chars\r\n");
 
             word36 suspendStr = command_data[0];
             linep->outputSuspendStr[0] = getbits36_8 (suspendStr, 10);
@@ -663,7 +663,7 @@ static int wcd (struct decoded_t *decoded_p)
             uint suspendLen = getbits36_9 (suspendStr, 0);
             if (suspendLen > 3)
               {
-                //sim_printf ("output_fc_chars truncating suspend %d to 3\n",
+                //sim_printf ("output_fc_chars truncating suspend %d to 3\r\n",
                 //            suspendLen);
                 suspendLen = 3;
               }
@@ -676,7 +676,7 @@ static int wcd (struct decoded_t *decoded_p)
             uint resumeLen = getbits36_9 (resumeStr, 0);
             if (resumeLen > 3)
               {
-                //sim_printf ("output_fc_chars truncating suspend %d to 3\n",
+                //sim_printf ("output_fc_chars truncating suspend %d to 3\r\n",
                 //            suspendLen);
                 resumeLen = 3;
               }
@@ -686,38 +686,38 @@ static int wcd (struct decoded_t *decoded_p)
 
         case 34: // alter_parameters
           {
-            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    alter_parameters\n",
+            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    alter_parameters\r\n",
                        decoded_p->slot_no);
-            //sim_printf ("fnp alter parameters\n");
+            //sim_printf ("fnp alter parameters\r\n");
             // The docs insist the subtype is in word2, but I think
             // it is in command data...
             uint subtype = getbits36_9 (command_data[0], 0);
             uint flag = getbits36_1 (command_data[0], 17);
-            //sim_printf ("  subtype %d\n", subtype);
+            //sim_printf ("  subtype %d\r\n", subtype);
             switch (subtype)
               {
                 case  3: // Fullduplex
                   {
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters fullduplex %u\n",
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters fullduplex %u\r\n",
                                decoded_p->slot_no, flag);
-                    //sim_printf ("fnp full_duplex\n");
+                    //sim_printf ("fnp full_duplex\r\n");
                     linep->fullDuplex = !! flag;
                   }
                   break;
 
                 case  8: // Crecho
                   {
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters crecho %u\n",
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters crecho %u\r\n",
                                decoded_p->slot_no, flag);
-                    //sim_printf ("fnp crecho\n");
+                    //sim_printf ("fnp crecho\r\n");
                     linep->crecho = !! flag;
                   }
                   break;
 
                 case  9: // Lfecho
                   {
-                    //sim_printf ("fnp lfecho\n");
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters lfecho %u\n",
+                    //sim_printf ("fnp lfecho\r\n");
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters lfecho %u\r\n",
                                decoded_p->slot_no, flag);
                     linep->lfecho = !! flag;
                   }
@@ -725,9 +725,9 @@ static int wcd (struct decoded_t *decoded_p)
 
                 case 13: // Dumpoutput
                   {
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters dumpoutput\n",
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters dumpoutput\r\n",
                                decoded_p->slot_no);
-                    //sim_printf ("fnp dumpoutput\n");
+                    //sim_printf ("fnp dumpoutput\r\n");
                     // XXX ignored
                     //linep -> send_output = true;
                     linep -> send_output = SEND_OUTPUT_DELAY;
@@ -736,18 +736,18 @@ static int wcd (struct decoded_t *decoded_p)
 
                 case 14: // Tabecho
                   {
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters tabecho %u\n",
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters tabecho %u\r\n",
                                decoded_p->slot_no, flag);
-                    //sim_printf ("fnp tabecho\n");
+                    //sim_printf ("fnp tabecho\r\n");
                     linep->tabecho = !! flag;
                   }
                   break;
 
                 case 16: // Listen
                   {
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters listen %u\n",
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters listen %u\r\n",
                                decoded_p->slot_no, flag);
-                    //sim_printf ("fnp listen %p %d.%d %d\n",
+                    //sim_printf ("fnp listen %p %d.%d %d\r\n",
                     //            linep->line_client, decoded_p->devUnitIdx,decoded_p->slot_no, flag);
                     uint bufsz = getbits36_18 (command_data[0], 18);
                     linep->listen = !! flag;
@@ -770,18 +770,18 @@ static int wcd (struct decoded_t *decoded_p)
 
                 case 17: // Hndlquit
                   {
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters handlequit%u \n",
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters handlequit%u \r\n",
                                decoded_p->slot_no, flag);
-                    //sim_printf ("fnp handle_quit %d\n", flag);
+                    //sim_printf ("fnp handle_quit %d\r\n", flag);
                     linep->handleQuit = !! flag;
                   }
                   break;
 
                 case 18: // Chngstring
                   {
-                    //sim_printf ("fnp Change control string\n");
+                    //sim_printf ("fnp Change control string\r\n");
                     uint idx =  getbits36_9 (command_data[0], 9);
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters chngstring %u\n",
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters chngstring %u\r\n",
                                decoded_p->slot_no, flag);
                     linep->ctrlStrIdx = idx;
                   }
@@ -789,7 +789,7 @@ static int wcd (struct decoded_t *decoded_p)
 
                 case 19: // Wru
                   {
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters wru\n",
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters wru\r\n",
                                decoded_p->slot_no);
                     linep -> wru_timeout = true;
                   }
@@ -797,42 +797,42 @@ static int wcd (struct decoded_t *decoded_p)
 
                 case 20: // Echoplex
                   {
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters echoplex %u\n",
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters echoplex %u\r\n",
                                decoded_p->slot_no, flag);
-                    //sim_printf ("fnp echoplex\n");
+                    //sim_printf ("fnp echoplex\r\n");
                     linep->echoPlex = !! flag;
                   }
                   break;
 
                 case 22: // Dumpinput
                   {
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters dumpinput\n",
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters dumpinput\r\n",
                                decoded_p->slot_no);
 // XXX
 // dump input should discard whatever input buffers it can
 
-                    //sim_printf ("fnp dump input\n");
+                    //sim_printf ("fnp dump input\r\n");
         // dump the input
        //int muxLineNo = MState[fnpUnitNum].line [lineno] . muxLineNum;
-       //sim_printf ("dumping mux line %d\n");
+       //sim_printf ("dumping mux line %d\r\n");
        //ttys [muxLineNo] . nPos = 0;
                   }
                   break;
 
                 case 23: // Replay
                   {
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters replay %u\n",
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters replay %u\r\n",
                                decoded_p->slot_no, flag);
-                    //sim_printf ("fnp replay\n");
+                    //sim_printf ("fnp replay\r\n");
                     linep->replay = !! flag;
                   }
                   break;
 
                 case 24: // Polite
                   {
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters polite %u\n",
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters polite %u\r\n",
                                decoded_p->slot_no, flag);
-                    //sim_printf ("fnp polite\n");
+                    //sim_printf ("fnp polite\r\n");
                     linep->polite = !! flag;
                   }
                   break;
@@ -841,12 +841,12 @@ static int wcd (struct decoded_t *decoded_p)
                   {
                     uint bufsiz1 = getbits36_18 (command_data[0], 18);
                     uint bufsiz2 = getbits36_18 (command_data[1], 0);
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters block_xfer %u %u\n",
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters block_xfer %u %u\r\n",
                                decoded_p->slot_no, bufsiz1, bufsiz2);
                     linep->block_xfer_out_frame_sz = bufsiz1;
                     linep->block_xfer_in_frame_sz = bufsiz2;
-//sim_printf ("in frame sz %u out frame sz %u\n", linep->block_xfer_in_frame_sz, linep->block_xfer_out_frame_sz);
-                    //sim_printf ("fnp block_xfer %d %d\n", bufsiz1, bufsiz2);
+//sim_printf ("in frame sz %u out frame sz %u\r\n", linep->block_xfer_in_frame_sz, linep->block_xfer_out_frame_sz);
+                    //sim_printf ("fnp block_xfer %d %d\r\n", bufsiz1, bufsiz2);
                   }
                   break;
 
@@ -858,72 +858,72 @@ static int wcd (struct decoded_t *decoded_p)
                     // of input buffers to be allocated for the
                     // channel.
                     uint sz =  getbits36_18 (command_data[0], 18);
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters set_buffer_size %u\n",
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters set_buffer_size %u\r\n",
                                decoded_p->slot_no, flag);
                     linep->inputBufferSize = sz;
-//sim_printf ("Set_buffer_size %u\n", sz);
+//sim_printf ("Set_buffer_size %u\r\n", sz);
                   }
                   break;
 
                 case 27: // Breakall
                   {
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters breakall %u\n",
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters breakall %u\r\n",
                                decoded_p->slot_no, flag);
-                    //sim_printf ("fnp break_all\n");
+                    //sim_printf ("fnp break_all\r\n");
                     linep->breakAll = !! flag;
                   }
                   break;
 
                 case 28: // Prefixnl
                   {
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters prefixnl %u\n",
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters prefixnl %u\r\n",
                                decoded_p->slot_no, flag);
-                    //sim_printf ("fnp prefixnl\n");
+                    //sim_printf ("fnp prefixnl\r\n");
                     linep->prefixnl = !! flag;
                   }
                   break;
 
                 case 29: // Input_flow_control
                   {
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters input_flow_control %u\n",
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters input_flow_control %u\r\n",
                                decoded_p->slot_no, flag);
-                    //sim_printf ("fnp input_flow_control\n");
+                    //sim_printf ("fnp input_flow_control\r\n");
                     linep->input_flow_control = !! flag;
                   }
                   break;
 
                 case 30: // Output_flow_control
                   {
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters output_flow_control %u\n",
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters output_flow_control %u\r\n",
                                decoded_p->slot_no, flag);
-                    //sim_printf ("fnp output_flow_control\n");
+                    //sim_printf ("fnp output_flow_control\r\n");
                     linep->output_flow_control = !! flag;
                   }
                   break;
 
                 case 31: // Odd_parity
                   {
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters odd_parity %u\n",
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters odd_parity %u\r\n",
                                decoded_p->slot_no, flag);
-                    //sim_printf ("fnp odd_parity\n");
+                    //sim_printf ("fnp odd_parity\r\n");
                     linep->odd_parity = !! flag;
                   }
                   break;
 
                 case 32: // Eight_bit_in
                   {
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters eight_bit_in %u\n",
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters eight_bit_in %u\r\n",
                                decoded_p->slot_no, flag);
-                    //sim_printf ("fnp eight_bit_in\n");
+                    //sim_printf ("fnp eight_bit_in\r\n");
                     linep->eight_bit_in = !! flag;
                   }
                   break;
 
                 case 33: // Eight_bit_out
                   {
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters eight_bit_out %u\n",
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters eight_bit_out %u\r\n",
                                decoded_p->slot_no, flag);
-                    //sim_printf ("fnp eight_bit_out\n");
+                    //sim_printf ("fnp eight_bit_out\r\n");
                     linep->eight_bit_out = !! flag;
                   }
                   break;
@@ -940,18 +940,18 @@ static int wcd (struct decoded_t *decoded_p)
                 case 15: // Setbusy
                 case 21: // Xmit_hold
                   {
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters unimplemented\n",
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters unimplemented\r\n",
                                decoded_p->slot_no);
-                    sim_printf ("fnp unimplemented subtype %d (%o)\n", subtype, subtype);
+                    sim_printf ("fnp unimplemented subtype %d (%o)\r\n", subtype, subtype);
                     // doFNPfault (...) // XXX
                     return -1;
                   }
 
                 default:
                   {
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters illegal\n",
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters illegal\r\n",
                                decoded_p->slot_no);
-                    sim_printf ("fnp illegal subtype %d (%o)\n", subtype, subtype);
+                    sim_printf ("fnp illegal subtype %d (%o)\r\n", subtype, subtype);
                     // doFNPfault (...) // XXX
                     return -1;
                   }
@@ -961,8 +961,8 @@ static int wcd (struct decoded_t *decoded_p)
 
         case 37: // set_delay_table
           {
-            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    set_delay_table\n", decoded_p->slot_no);
-            //sim_printf ("fnp set delay table\n");
+            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    set_delay_table\r\n", decoded_p->slot_no);
+            //sim_printf ("fnp set delay table\r\n");
             uint d1 = getbits36_18 (command_data[0], 0);
             uint d2 = getbits36_18 (command_data[0], 18);
 
@@ -1057,8 +1057,8 @@ word36 pad; //-V779
 //
         case 36: // report_meters
           {
-            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    report_meters\n", decoded_p->slot_no);
-            //sim_printf ("fnp report_meters\n");
+            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    report_meters\r\n", decoded_p->slot_no);
+            //sim_printf ("fnp report_meters\r\n");
 // XXX Do nothing, the request will timeout...
           }
           break;
@@ -1089,10 +1089,10 @@ word36 pad; //-V779
       //case 33: // ???
         case 35: // checksum_error
           {
-            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    unimplemented opcode\n", decoded_p->slot_no);
-            sim_warn ("fnp unimplemented opcode %d (%o)\n", decoded_p->op_code, decoded_p->op_code);
-            //sim_debug (DBG_ERR, & fnp_dev, "fnp unimplemented opcode %d (%o)\n", decoded_p->op_code, decoded_p->op_code);
-            //sim_printf ("fnp unimplemented opcode %d (%o)\n", decoded_p->op_code, decoded_p->op_code);
+            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    unimplemented opcode\r\n", decoded_p->slot_no);
+            sim_warn ("fnp unimplemented opcode %d (%o)\r\n", decoded_p->op_code, decoded_p->op_code);
+            //sim_debug (DBG_ERR, & fnp_dev, "fnp unimplemented opcode %d (%o)\r\n", decoded_p->op_code, decoded_p->op_code);
+            //sim_printf ("fnp unimplemented opcode %d (%o)\r\n", decoded_p->op_code, decoded_p->op_code);
             // doFNPfault (...) // XXX
             //return -1;
           }
@@ -1100,7 +1100,7 @@ word36 pad; //-V779
 
         default:
           {
-            sim_debug (DBG_TRACE, & fnp_dev, "[%u]fnp illegal opcode %d (%o)\n",
+            sim_debug (DBG_TRACE, & fnp_dev, "[%u]fnp illegal opcode %d (%o)\r\n",
                        decoded_p->slot_no, decoded_p->op_code, decoded_p->op_code);
             // doFNPfault (...) // XXX
             return -1;
@@ -1140,7 +1140,7 @@ static void tun_write (struct t_line * linep, uint16_t * data, uint tally)
 
         if (linep->frameLen >= 2+1500)
           {
-            sim_printf ("inFrame overrun\n");
+            sim_printf ("inFrame overrun\r\n");
             break;
           }
         linep->frame[linep->frameLen ++] = (uint8_t) (data [i] & 0xff);
@@ -1153,7 +1153,7 @@ static void tun_write (struct t_line * linep, uint16_t * data, uint tally)
           uint16_t target = (uint16_t) ((linep->frame[0] & 0xff) << 8) | (linep->frame[1]);
           if (target + 2 >= linep->frameLen)
             {
-              sim_printf ("frame received\n");
+              sim_printf ("frame received\r\n");
               fnpuv_tun_write (linep);
               linep->in_frame = false;
             }
@@ -1165,7 +1165,7 @@ static void fnp_wtx_output (struct decoded_t *decoded_p, uint tally, uint dataAd
   {
 #if defined(TESTING)
     cpu_state_t * cpup = _cpup;
-    sim_debug (DBG_TRACE, & fnp_dev, "[%u]rcd wtx_output\n", decoded_p->slot_no);
+    sim_debug (DBG_TRACE, & fnp_dev, "[%u]rcd wtx_output\r\n", decoded_p->slot_no);
 #endif
     struct t_line * linep = & decoded_p->fudp->MState.line[decoded_p->slot_no];
 
@@ -1195,7 +1195,7 @@ static void fnp_wtx_output (struct decoded_t *decoded_p, uint tally, uint dataAd
          data9 [i] = (uint16_t) byte;
 #endif
 
-//sim_printf ("   %03o %c\n", data [i], isgraph (data [i]) ? data [i] : '.');
+//sim_printf ("   %03o %c\r\n", data [i], isgraph (data [i]) ? data [i] : '.');
        }
 #if 0
 if_sim_debug (DBG_TRACE, & fnp_dev) {
@@ -1207,7 +1207,7 @@ sim_printf ("%c", data [i]);
 else
 sim_printf ("\\%03o", data [i]);
 }
-sim_printf ("']\n");
+sim_printf ("']\r\n");
 }
 }
 #endif
@@ -1234,17 +1234,17 @@ static int wtx (struct decoded_t *decoded_p)
   {
 #if defined(TESTING)
     cpu_state_t * cpup = _cpup;
-    sim_debug (DBG_TRACE, & fnp_dev, "[%u]wtx op_code %u 0%o\n", decoded_p->slot_no, decoded_p->op_code, decoded_p->op_code);
+    sim_debug (DBG_TRACE, & fnp_dev, "[%u]wtx op_code %u 0%o\r\n", decoded_p->slot_no, decoded_p->op_code, decoded_p->op_code);
 #endif
-//sim_printf ("wtx op_code %o (%d.) %c.h%03d\n",
+//sim_printf ("wtx op_code %o (%d.) %c.h%03d\r\n",
 //            decoded_p->op_code, decoded_p->op_code,
 //            decoded_p->devUnitIdx+'a', decoded_p->slot_no);
     if (decoded_p->op_code != 012 && decoded_p->op_code != 014) //-V536
       {
-        sim_debug (DBG_TRACE, & fnp_dev, "[%u]     unimplemented opcode\n", decoded_p->slot_no);
-        sim_debug (DBG_ERR, & fnp_dev, "[%u]fnp wtx unimplemented opcode %d (%o)\n",
+        sim_debug (DBG_TRACE, & fnp_dev, "[%u]     unimplemented opcode\r\n", decoded_p->slot_no);
+        sim_debug (DBG_ERR, & fnp_dev, "[%u]fnp wtx unimplemented opcode %d (%o)\r\n",
                    decoded_p->slot_no, decoded_p->op_code, decoded_p->op_code);
-         sim_printf ("fnp wtx unimplemented opcode %d (%o)\n", decoded_p->op_code, decoded_p->op_code);
+         sim_printf ("fnp wtx unimplemented opcode %d (%o)\r\n", decoded_p->op_code, decoded_p->op_code);
         // doFNPfault (...) // XXX
         return -1;
       }
@@ -1266,7 +1266,7 @@ static int wtx (struct decoded_t *decoded_p)
         // Get the address and the tally from the dcw
         uint dataAddr = getbits36_18 (dcw, 0);
         uint tally = getbits36_9 (dcw, 27);
-        //sim_printf ("%6d %012o\n", tally, dataAddr);
+        //sim_printf ("%6d %012o\r\n", tally, dataAddr);
         if (! tally)
           continue;
         fnp_wtx_output (decoded_p, tally, dataAddr);
@@ -1346,11 +1346,11 @@ sim_printf ("%c", linep->buffer [i]);
 else
 sim_printf ("\\%03o", linep->buffer [i]);
 }
-sim_printf ("']\n");
+sim_printf ("']\r\n");
 }
 }
 #endif
-//sim_printf ("long  in; line %d tally %d\n", decoded_p->slot_no, linep->nPos);
+//sim_printf ("long  in; line %d tally %d\r\n", decoded_p->slot_no, linep->nPos);
         uint n_chars_in_buf = min(n_chars-off, tally);
         for (uint i = 0; i < n_chars_in_buf; i += 4)
           {
@@ -1399,7 +1399,7 @@ static int interruptL66_CS_to_FNP (struct decoded_t *decoded_p)
     //ASSURE(mbx < 8);
     if (mbx >= 8)
       {
-        sim_warn ("bad mbx number in interruptL66_CS_to_FNP; dropping\n");
+        sim_warn ("bad mbx number in interruptL66_CS_to_FNP; dropping\r\n");
         return -1;
       }
     decoded_p->smbx = decoded_p->fudp->mailboxAddress + DN355_SUB_MBXES + mbx*DN355_SUB_MBX_SIZE;
@@ -1414,7 +1414,7 @@ static int interruptL66_CS_to_FNP (struct decoded_t *decoded_p)
     iom_direct_data_service (decoded_p->iom_unit, decoded_p->chan_num, decoded_p->smbx+WORD1, & word1, direct_load);
     decoded_p->slot_no = getbits36_6 (word1, 12);
 
-    sim_debug (DBG_TRACE, & fnp_dev, "io_cmd %u\n", io_cmd);
+    sim_debug (DBG_TRACE, & fnp_dev, "io_cmd %u\r\n", io_cmd);
     switch (io_cmd)
       {
 #if 0
@@ -1444,17 +1444,17 @@ static int interruptL66_CS_to_FNP (struct decoded_t *decoded_p)
 
         case 1: // rcd (read control data)
           {
-            sim_debug (DBG_TRACE, & fnp_dev, "[%u]rcd unimplemented\n", decoded_p->slot_no);
-            sim_debug (DBG_ERR, & fnp_dev, "[%u]fnp unimplemented io_cmd %d\n", decoded_p->slot_no, io_cmd);
-             sim_printf ("fnp unimplemented io_cmd %d\n", io_cmd);
+            sim_debug (DBG_TRACE, & fnp_dev, "[%u]rcd unimplemented\r\n", decoded_p->slot_no);
+            sim_debug (DBG_ERR, & fnp_dev, "[%u]fnp unimplemented io_cmd %d\r\n", decoded_p->slot_no, io_cmd);
+             sim_printf ("fnp unimplemented io_cmd %d\r\n", io_cmd);
             // doFNPfault (...) // XXX
             return -1;
           }
         default:
           {
-            sim_debug (DBG_TRACE, & fnp_dev, "[%u]rcd illegal opcode\n", decoded_p->slot_no);
-            sim_debug (DBG_ERR, & fnp_dev, "[%u]fnp illegal io_cmd %d\n", decoded_p->slot_no, io_cmd);
-            sim_printf ("fnp illegal io_cmd %d\n", io_cmd);
+            sim_debug (DBG_TRACE, & fnp_dev, "[%u]rcd illegal opcode\r\n", decoded_p->slot_no);
+            sim_debug (DBG_ERR, & fnp_dev, "[%u]fnp illegal io_cmd %d\r\n", decoded_p->slot_no, io_cmd);
+            sim_printf ("fnp illegal io_cmd %d\r\n", io_cmd);
             // doFNPfault (...) // XXX
             return -1;
           }
@@ -1474,17 +1474,17 @@ static int interruptL66_FNP_to_CS (struct decoded_t *decoded_p)
     //ASSURE(mbx < 4);
     if (mbx >= 4)
       {
-        sim_warn ("bad mbx number in interruptL66_FNP_to_CS; dropping\n");
+        sim_warn ("bad mbx number in interruptL66_FNP_to_CS; dropping\r\n");
         return -1;
       }
     decoded_p->fsmbx = decoded_p->fudp->mailboxAddress + FNP_SUB_MBXES + mbx*FNP_SUB_MBX_SIZE;
 #if 0
-    sim_printf ("fnp smbox %d update\n", decoded_p->cell);
-    sim_printf ("    word1 %012"PRIo64"\n", decoded_p->fsmbxp -> word1);
-    sim_printf ("    word2 %012"PRIo64"\n", decoded_p->fsmbxp -> word2);
-    sim_printf ("    word3 %012"PRIo64"\n", decoded_p->fsmbxp -> mystery[0]);
-    sim_printf ("    word4 %012"PRIo64"\n", decoded_p->fsmbxp -> mystery[1]);
-    sim_printf ("    word5 %012"PRIo64"\n", decoded_p->fsmbxp -> mystery[2]);
+    sim_printf ("fnp smbox %d update\r\n", decoded_p->cell);
+    sim_printf ("    word1 %012"PRIo64"\r\n", decoded_p->fsmbxp -> word1);
+    sim_printf ("    word2 %012"PRIo64"\r\n", decoded_p->fsmbxp -> word2);
+    sim_printf ("    word3 %012"PRIo64"\r\n", decoded_p->fsmbxp -> mystery[0]);
+    sim_printf ("    word4 %012"PRIo64"\r\n", decoded_p->fsmbxp -> mystery[1]);
+    sim_printf ("    word5 %012"PRIo64"\r\n", decoded_p->fsmbxp -> mystery[2]);
 #endif
     word36 word2;
     iom_direct_data_service (decoded_p->iom_unit, decoded_p->chan_num, decoded_p->fsmbx+WORD2, & word2, direct_load);
@@ -1500,39 +1500,39 @@ static int interruptL66_FNP_to_CS (struct decoded_t *decoded_p)
     decoded_p->slot_no = getbits36_6 (word1, 12);
     //uint terminal_id = getbits36_18 (word1, 18);
 
-    sim_debug (DBG_TRACE, & fnp_dev, "[%u]fnp interrupt\n", decoded_p->slot_no);
+    sim_debug (DBG_TRACE, & fnp_dev, "[%u]fnp interrupt\r\n", decoded_p->slot_no);
     switch (io_cmd)
       {
         case 2: // rtx (read transmission)
           {
-            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    rtx\n", decoded_p->slot_no);
+            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    rtx\r\n", decoded_p->slot_no);
             switch (op_code)
               {
                 case  5: // input_accepted
                   {
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        input_accepted\n", decoded_p->slot_no);
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        input_accepted\r\n", decoded_p->slot_no);
                     fnp_rtx_input_accepted (decoded_p);
                   }
                   break;
                 default:
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        illegal rtx ack\n", decoded_p->slot_no);
-                  sim_warn ("rtx %d. %o ack ignored\n", op_code, op_code);
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        illegal rtx ack\r\n", decoded_p->slot_no);
+                  sim_warn ("rtx %d. %o ack ignored\r\n", op_code, op_code);
                   break;
               }
               break;
           }
         case 3: // wcd (write control data)
           {
-            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    wcd\n", decoded_p->slot_no);
+            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    wcd\r\n", decoded_p->slot_no);
             switch (op_code)
               {
                 case  0: // terminal_accepted
                   {
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        terminal accepted\n", decoded_p->slot_no);
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        terminal accepted\r\n", decoded_p->slot_no);
                     // outputBufferThreshold Ignored
                     //word36 command_data0 = decoded_p->fsmbxp -> mystery [0];
                     //uint outputBufferThreshold = getbits36_18 (command_data0, 0);
-                    //sim_printf ("  outputBufferThreshold %d\n", outputBufferThreshold);
+                    //sim_printf ("  outputBufferThreshold %d\r\n", outputBufferThreshold);
 
                     // Prime the pump
                     //decoded_p->fudp->MState.line[decoded_p->slot_no].send_output = true;
@@ -1546,16 +1546,16 @@ static int interruptL66_FNP_to_CS (struct decoded_t *decoded_p)
 
                 case  1: // disconnect_this_line
                   {
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        disconnect_this_line\n", decoded_p->slot_no);
-                    //sim_printf ("disconnect_this_line ack.\n");
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        disconnect_this_line\r\n", decoded_p->slot_no);
+                    //sim_printf ("disconnect_this_line ack.\r\n");
                   }
                   break;
 
                 case 14: // reject_request_temp
                   {
 sim_printf ("reject_request_temp\r\n");
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        reject_request_temp\n", decoded_p->slot_no);
-                    //sim_printf ("fnp reject_request_temp\n");
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        reject_request_temp\r\n", decoded_p->slot_no);
+                    //sim_printf ("fnp reject_request_temp\r\n");
                     // Retry in one second;
                     decoded_p->fudp->MState.line[decoded_p->slot_no].accept_input = 100;
                   }
@@ -1597,20 +1597,20 @@ sim_printf ("reject_request_temp\r\n");
                 case 36: // report_meters
                 case 37: // set_delay_table
                   {
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        unimplemented opcode\n", decoded_p->slot_no);
-                    sim_debug (DBG_ERR, & fnp_dev, "[%u]fnp reply unimplemented opcode %d (%o)\n",
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        unimplemented opcode\r\n", decoded_p->slot_no);
+                    sim_debug (DBG_ERR, & fnp_dev, "[%u]fnp reply unimplemented opcode %d (%o)\r\n",
                                decoded_p->slot_no, op_code, op_code);
-                    sim_printf ("fnp reply unimplemented opcode %d (%o)\n", op_code, op_code);
+                    sim_printf ("fnp reply unimplemented opcode %d (%o)\r\n", op_code, op_code);
                     // doFNPfault (...) // XXX
                     return -1;
                   }
 
                 default:
                   {
-                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        illegal opcode\n", decoded_p->slot_no);
-                    sim_debug (DBG_ERR, & fnp_dev, "[%u]fnp reply illegal opcode %d (%o)\n",
+                    sim_debug (DBG_TRACE, & fnp_dev, "[%u]        illegal opcode\r\n", decoded_p->slot_no);
+                    sim_debug (DBG_ERR, & fnp_dev, "[%u]fnp reply illegal opcode %d (%o)\r\n",
                                decoded_p->slot_no, op_code, op_code);
-                    sim_printf ("fnp reply illegal opcode %d (%o)\n", op_code, op_code);
+                    sim_printf ("fnp reply illegal opcode %d (%o)\r\n", op_code, op_code);
                     // doFNPfault (...) // XXX
                     return -1;
                   }
@@ -1630,10 +1630,10 @@ sim_printf ("reject_request_temp\r\n");
 
         default:
           {
-            sim_debug (DBG_TRACE, & fnp_dev, "[%u]        illegal io_cmd\n", decoded_p->slot_no);
-            sim_debug (DBG_ERR, & fnp_dev, "[%u]illegal/unimplemented io_cmd (%d) in fnp submbx\n",
+            sim_debug (DBG_TRACE, & fnp_dev, "[%u]        illegal io_cmd\r\n", decoded_p->slot_no);
+            sim_debug (DBG_ERR, & fnp_dev, "[%u]illegal/unimplemented io_cmd (%d) in fnp submbx\r\n",
                        decoded_p->slot_no, io_cmd);
-            sim_printf ("illegal/unimplemented io_cmd (%d) in fnp submbx\n", io_cmd);
+            sim_printf ("illegal/unimplemented io_cmd (%d) in fnp submbx\r\n", io_cmd);
             // doFNPfault (...) // XXX
             return -1;
           }
@@ -1650,29 +1650,29 @@ static int interruptL66_CS_done (struct decoded_t *decoded_p)
     //ASSURE(mbx < 4);
     if (mbx >= 4)
       {
-        sim_warn ("bad mbx number in interruptL66_CS_done; dropping\n");
+        sim_warn ("bad mbx number in interruptL66_CS_done; dropping\r\n");
         return -1;
       }
     if (! decoded_p->fudp -> fnpMBXinUse [mbx])
       {
-        sim_debug (DBG_ERR, & fnp_dev, "odd -- Multics marked an unused mbx as unused? cell %d (mbx %d)\n",
+        sim_debug (DBG_ERR, & fnp_dev, "odd -- Multics marked an unused mbx as unused? cell %d (mbx %d)\r\n",
                    decoded_p->cell, mbx);
-        sim_debug (DBG_ERR, & fnp_dev, "  %d %d %d %d\n",
+        sim_debug (DBG_ERR, & fnp_dev, "  %d %d %d %d\r\n",
                    decoded_p->fudp -> fnpMBXinUse [0], decoded_p->fudp -> fnpMBXinUse [1],
                    decoded_p->fudp -> fnpMBXinUse [2], decoded_p->fudp -> fnpMBXinUse [3]);
       }
     else
       {
-        sim_debug (DBG_TRACE, & fnp_dev, "Multics marked cell %d (mbx %d) as unused; was %o\n",
+        sim_debug (DBG_TRACE, & fnp_dev, "Multics marked cell %d (mbx %d) as unused; was %o\r\n",
                    decoded_p->cell, mbx, decoded_p->fudp -> fnpMBXinUse [mbx]);
         decoded_p->fudp -> fnpMBXinUse [mbx] = false;
         if (decoded_p->fudp->lineWaiting[mbx])
           {
             struct t_line * linep = & decoded_p->fudp->MState.line[decoded_p->fudp->fnpMBXlineno[mbx]];
-            sim_debug (DBG_TRACE, & fnp_dev, "clearing wait; was %d\n", linep->waitForMbxDone);
+            sim_debug (DBG_TRACE, & fnp_dev, "clearing wait; was %d\r\n", linep->waitForMbxDone);
             linep->waitForMbxDone = false;
           }
-          sim_debug (DBG_TRACE, & fnp_dev, "  %d %d %d %d\n",
+          sim_debug (DBG_TRACE, & fnp_dev, "  %d %d %d %d\r\n",
                      decoded_p->fudp->fnpMBXinUse [0], decoded_p->fudp->fnpMBXinUse [1],
                      decoded_p->fudp->fnpMBXinUse [2], decoded_p->fudp->fnpMBXinUse [3]);
       }
@@ -1728,7 +1728,7 @@ static int interruptL66 (uint iomUnitIdx, uint chan)
 //   12-15 Multics is done with mbx 8-11  (n - 4).
 
     decoded_p->cell = getbits36_6 (dia_pcw, 24);
-    sim_debug (DBG_TRACE, & fnp_dev, "CS interrupt %u\n", decoded_p->cell);
+    sim_debug (DBG_TRACE, & fnp_dev, "CS interrupt %u\r\n", decoded_p->cell);
     if (decoded_p->cell < 8)
       {
         interruptL66_CS_to_FNP (decoded_p);
@@ -1743,8 +1743,8 @@ static int interruptL66 (uint iomUnitIdx, uint chan)
       }
     else
       {
-        sim_debug (DBG_ERR, & fnp_dev, "fnp illegal cell number %d\n", decoded_p->cell);
-        sim_printf ("fnp illegal cell number %d\n", decoded_p->cell);
+        sim_debug (DBG_ERR, & fnp_dev, "fnp illegal cell number %d\r\n", decoded_p->cell);
+        sim_printf ("fnp illegal cell number %d\r\n", decoded_p->cell);
         // doFNPfault (...) // XXX
         return -1;
       }
@@ -1830,7 +1830,7 @@ static void processMBX (uint iomUnitIdx, uint chan)
     word36 dia_pcw;
     iom_direct_data_service (iomUnitIdx, chan, fudp->mailboxAddress+DIA_PCW, & dia_pcw, direct_load);
     sim_debug (DBG_TRACE, & fnp_dev,
-               "%s: chan %d dia_pcw %012"PRIo64"\n", __func__, chan, dia_pcw);
+               "%s: chan %d dia_pcw %012"PRIo64"\r\n", __func__, chan, dia_pcw);
 
 // Mailbox word 0:
 //
@@ -1939,7 +1939,7 @@ static void processMBX (uint iomUnitIdx, uint chan)
     if (command == 000) // reset
       {
         sim_debug (DBG_TRACE, & fnp_dev,
-                   "%s: chan %d reset command\n", __func__, chan);
+                   "%s: chan %d reset command\r\n", __func__, chan);
         send_general_interrupt (iomUnitIdx, chan, imwTerminatePic);
       }
     else if (command == 072) // bootload
@@ -1957,16 +1957,16 @@ static void processMBX (uint iomUnitIdx, uint chan)
 //
 // where n is (in 36 bit words) (gicb len + 1) + 63 / 64
 
-//sim_printf ("l66addr %08o\n", l66addr);
+//sim_printf ("l66addr %08o\r\n", l66addr);
         word36 dcw;
         iom_direct_data_service (iomUnitIdx, chan, l66addr, & dcw, direct_load);
         word12 tally = getbits36_12 (dcw, 24);
-        // sim_printf ("%o %d.\n", tally, tally);
-//sim_printf ("dcw %012llo\n", dcw);
+        // sim_printf ("%o %d.\r\n", tally, tally);
+//sim_printf ("dcw %012llo\r\n", dcw);
 
         // Calculate start of core image
         word24 image_off = (tally + 64) & 077777700;
-        // sim_printf ("image_off %o %d.\n", image_off, image_off);
+        // sim_printf ("image_off %o %d.\r\n", image_off, image_off);
 #endif
 
 #if 0
@@ -1981,20 +1981,20 @@ for (uint i = 0; i < 4096; i ++) {
 #if 0
   word36 word0;
   iom_direct_data_service (iomUnitIdx, chan, l66addr + 001170, & word0, direct_load);
-  sim_printf ("001170 %012llo\n", word0);
-  sim_printf ("(000370*2 %08o\n", getl6core (iomUnitIdx, chan, l66addr + image_off, (0370*2)));
+  sim_printf ("001170 %012llo\r\n", word0);
+  sim_printf ("(000370*2 %08o\r\n", getl6core (iomUnitIdx, chan, l66addr + image_off, (0370*2)));
 #endif
 #if 0
-sim_printf ("%05o %08o\n", 0, getl6core (iomUnitIdx, chan, l66addr + image_off, 0));
+sim_printf ("%05o %08o\r\n", 0, getl6core (iomUnitIdx, chan, l66addr + image_off, 0));
 word36 word0;
 iom_direct_data_service (iomUnitIdx, chan, l66addr + image_off, & word0, direct_load);
-sim_printf ("word0 %012llo\n", word0);
+sim_printf ("word0 %012llo\r\n", word0);
 #endif
 
 #if 0
 //for (uint i = 0640; i <=0677; i ++)
 for (uint i = 0370*2; i <=0400*2; i ++)
-  sim_printf ("%05o %08o\n", i, getl6core (iomUnitIdx, chan, l66addr + image_off, i));
+  sim_printf ("%05o %08o\r\n", i, getl6core (iomUnitIdx, chan, l66addr + image_off, i));
 #endif
 
 // comm_ref
@@ -2047,9 +2047,9 @@ for (uint i = 0370*2; i <=0400*2; i ++)
 
 #if 0
 // print IOM table
-        sim_printf ("FNP IOM table\n");
+        sim_printf ("FNP IOM table\r\n");
         word18 criom = getl6core (iomUnitIdx, chan, l66addr + image_off, 0653);
-        //sim_printf ("criom %08o\n", criom);
+        //sim_printf ("criom %08o\r\n", criom);
         for (uint ichan = 0; ichan < 16; ichan ++)
           {
             word18 flag = getl6core (iomUnitIdx, chan, l66addr + image_off, criom + ichan * 2);
@@ -2091,7 +2091,7 @@ for (uint i = 0370*2; i <=0400*2; i ++)
                 "clock  "
               };
 
-            sim_printf ("%2d %s %08o %d %d %d %s\n",
+            sim_printf ("%2d %s %08o %d %d %d %s\r\n",
                         ichan, itable[ichan], taddr, device_type_code, adapter_number, speed_code, dtc_str);
           }
 #endif
@@ -2100,7 +2100,7 @@ for (uint i = 0370*2; i <=0400*2; i ++)
         // Number of LSLAs
 # if defined(VERBOSE_BOOT)
         word18 crnls = getl6core (iomUnitIdx, chan, l66addr + image_off, 0655);
-        sim_printf ("Number of LSLAs (crnls) %d\n", crnls);
+        sim_printf ("Number of LSLAs (crnls) %d\r\n", crnls);
 # endif /* if defined(VERBOSE_BOOT) */
 
         // Address of IOM table
@@ -2159,11 +2159,11 @@ for (uint i = 0370*2; i <=0400*2; i ++)
                           {
                             hdr = true;
 # if defined(VERBOSE_BOOT)
-                            sim_printf ("LSLA table: card number, slot, slot_id, slot_id string\n");
+                            sim_printf ("LSLA table: card number, slot, slot_id, slot_id string\r\n");
 # endif /* if defined(VERBOSE_BOOT) */
                           }
 # if defined(VERBOSE_BOOT)
-                        sim_printf ("%d %2d %d %s\n", lsla, slot, slot_id, id);
+                        sim_printf ("%d %2d %d %s\r\n", lsla, slot, slot_id, id);
 # endif /* if defined(VERBOSE_BOOT) */
                       }
                   } // for slot
@@ -2171,13 +2171,13 @@ for (uint i = 0370*2; i <=0400*2; i ++)
           } // iom table entry
 # if defined(VERBOSE_BOOT)
         if (nfound != crnls)
-          sim_printf ("LSLAs configured %d found %d\n", crnls, nfound);
+          sim_printf ("LSLAs configured %d found %d\r\n", crnls, nfound);
 # endif /* if defined(VERBOSE_BOOT) */
 
         // Number of HSLAs
 # if defined(VERBOSE_BOOT)
         word18 crnhs = getl6core (iomUnitIdx, chan, l66addr + image_off, 0654);
-        sim_printf ("Number of HSLAs (crnhs) %d\n", crnhs);
+        sim_printf ("Number of HSLAs (crnhs) %d\r\n", crnhs);
 # endif /* if defined(VERBOSE_BOOT) */
 
         // Walk the HSLAs in the IOM table
@@ -2357,11 +2357,11 @@ for (uint i = 0370*2; i <=0400*2; i ++)
 # if defined(VERBOSE_BOOT)
                         sim_printf ("HSLA table: card number, slot, "
                                     "sync/async, line type, modem_type, "
-                                    "speed\n");
+                                    "speed\r\n");
 # endif
                       }
 # if defined(VERBOSE_BOOT)
-                    sim_printf ("%d %2d %s %s %s %s\n",
+                    sim_printf ("%d %2d %s %s %s %s\r\n",
                                  hsla, slot, async ? "async" :"sync ",
                                  line_types[line_type],
                                  modem_types[modem_type],
@@ -2372,7 +2372,7 @@ for (uint i = 0370*2; i <=0400*2; i ++)
 # if 0
                      if (line_type == 0)
                        {
-                         sim_printf ("Note: mapping %c.%03d line type from 'none' to 'ASCII'\n",  hsla + 'a', slot);
+                         sim_printf ("Note: mapping %c.%03d line type from 'none' to 'ASCII'\r\n",  hsla + 'a', slot);
                          line_type = 1;
                        }
 # endif
@@ -2383,7 +2383,7 @@ for (uint i = 0370*2; i <=0400*2; i ++)
           } // iom table entry
 # if defined(VERBOSE_BOOT)
         if (nfound != crnls)
-          sim_printf ("LSLAs configured %d found %d\n", crnls, nfound);
+          sim_printf ("LSLAs configured %d found %d\r\n", crnls, nfound);
 # endif /* if defined(VERBOSE_BOOT) */
 #endif
 
@@ -2439,10 +2439,10 @@ for (uint i = 0370*2; i <=0400*2; i ++)
         //
 
         //word24 L66Addr = (word24) getbits36_18 (dia_pcw, 0);
-        //sim_printf ("L66 xfer\n");
-        //sim_printf ("PCW  %012"PRIo64"\n", dia_pcw);
-        //sim_printf ("L66Addr %08o\n", L66Addr);
-        //sim_printf ("M[] %012"PRIo64"\n", M[L66Addr]);
+        //sim_printf ("L66 xfer\r\n");
+        //sim_printf ("PCW  %012"PRIo64"\r\n", dia_pcw);
+        //sim_printf ("L66Addr %08o\r\n", L66Addr);
+        //sim_printf ("M[] %012"PRIo64"\r\n", M[L66Addr]);
 
         // 'dump_mpx d'
         //L66 xfer
@@ -2482,7 +2482,7 @@ for (uint i = 0370*2; i <=0400*2; i ++)
       }
     else
       {
-        sim_warn ("bogus fnp command %d (%o)\n", command, command);
+        sim_warn ("bogus fnp command %d (%o)\r\n", command, command);
         ok = false;
       }
 
@@ -2528,7 +2528,7 @@ static int fnpCmd (uint iomUnitIdx, uint chan) {
       p->stati = 04501; // cmd reject, invalid opcode
       p->chanStatus = chanStatIncorrectDCW;
       if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
-        sim_warn ("%s: FNP unrecognized device command  %02o\n", __func__, p->IDCW_DEV_CMD);
+        sim_warn ("%s: FNP unrecognized device command  %02o\r\n", __func__, p->IDCW_DEV_CMD);
       }
       return IOM_CMD_ERROR;
   }
@@ -2547,6 +2547,6 @@ iom_cmd_rc_t fnp_iom_cmd (uint iomUnitIdx, uint chan) {
     return fnpCmd (iomUnitIdx, chan);
   }
   // else // DDCW/TDCW
-  sim_warn ("%s expected IDCW\n", __func__);
+  sim_warn ("%s expected IDCW\r\n", __func__);
   return IOM_CMD_ERROR;
 }

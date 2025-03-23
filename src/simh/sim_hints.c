@@ -492,7 +492,7 @@ check_scaling_governors (void)
       file = fopen (path, "r");
       if (file) {
         if (fgets (governor, sizeof (governor), file)) {
-          governor[strcspn (governor, "\n")] = '\0';
+          governor[strcspn (governor, "\n")] = '\0'; //-NLOK
           if ( 0 == strcmp (governor, "powersave" )
             || 0 == strcmp (governor, "conservative") ) {
             bad_govs++;

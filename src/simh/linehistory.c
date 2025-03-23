@@ -853,8 +853,8 @@ refreshMultiLine(struct linenoiseState *l)
 
   if (l->pos && l->pos == l->len && ( l->pos + plen ) % l->cols == 0)
   {
-    abAppend(&ab, "\n", 1);
-    (void)snprintf(seq, sizeof ( seq ), "\r");
+    abAppend(&ab, "\n", 1); //-NLOK
+    (void)snprintf(seq, sizeof ( seq ), "\r"); //-NLOK
     abAppend(&ab, seq, strlen(seq));
     rows++;
     if (rows > (int)l->maxrows)
@@ -1591,7 +1591,7 @@ linenoiseRaw(char *buf, size_t buflen, const char *prompt)
 
   count = linenoiseEdit(STDIN_FILENO, STDOUT_FILENO, buf, buflen, prompt);
   disableRawMode(STDIN_FILENO);
-  (void)printf("\n");
+  (void)printf("\r\n");
   return ( count );
 }
 

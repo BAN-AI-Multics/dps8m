@@ -156,7 +156,7 @@ static t_stat
 mgp_show_nunits(UNUSED FILE *st, UNUSED UNIT *uptr, UNUSED int val,
                 UNUSED const void *desc)
 {
-  sim_printf("Number of MGP units in system is %d\n", mgp_dev.numunits);
+  sim_printf("Number of MGP units in system is %d\r\n", mgp_dev.numunits);
 
   return SCPE_OK;
 }
@@ -357,19 +357,19 @@ get_ddcw(iom_chan_data_t *p, uint iom_unit_idx, uint chan, bool *ptro,
   if (rc < 0)
     {
       p->stati = 05001; // BUG: arbitrary error code; config switch
-      sim_warn("%s list service failed\n", __func__);
+      sim_warn("%s list service failed\r\n", __func__);
 
       return IOM_CMD_ERROR;
     }
 
   if (uff)
     {
-      sim_warn("%s ignoring uff\n", __func__); // XXX
+      sim_warn("%s ignoring uff\r\n", __func__); // XXX
     }
 
   if (!send)
     {
-      sim_warn("%s nothing to send\n", __func__);
+      sim_warn("%s nothing to send\r\n", __func__);
       p->stati = 05001; // BUG: arbitrary error code; config switch
 
       return IOM_CMD_ERROR;
@@ -377,7 +377,7 @@ get_ddcw(iom_chan_data_t *p, uint iom_unit_idx, uint chan, bool *ptro,
 
   if (IS_IDCW(p) || IS_TDCW(p))
     {
-      sim_warn("%s expected DDCW\n", __func__);
+      sim_warn("%s expected DDCW\r\n", __func__);
       p->stati = 05001; // BUG: arbitrary error code; config switch
 
       return IOM_CMD_ERROR;
@@ -388,16 +388,16 @@ get_ddcw(iom_chan_data_t *p, uint iom_unit_idx, uint chan, bool *ptro,
   if (*tally == 0)
     {
       sim_debug(DBG_DEBUG, &mgp_dev,
-                "%s: Tally of zero interpreted as 010000(4096)\n", __func__);
+                "%s: Tally of zero interpreted as 010000(4096)\r\n", __func__);
       *tally = 4096;
     }
 
   sim_debug(DBG_DEBUG, &mgp_dev,
-            "%s: Tally %d (%o)\n", __func__, *tally, *tally);
+            "%s: Tally %d (%o)\r\n", __func__, *tally, *tally);
 
   if (expected_tally && *tally != expected_tally)
     {
-      sim_warn("mgp_dev call expected tally of %d; got %d\n",
+      sim_warn("mgp_dev call expected tally of %d; got %d\r\n",
                expected_tally, *tally);
       p->stati = 05001; // BUG: arbitrary error code; config switch
 
@@ -451,20 +451,20 @@ mgp_cmd(uint iom_unit_idx, uint chan)
   iom_chan_data_t *p = &iom_chan_data[iom_unit_idx][chan];
 
   sim_debug(DBG_TRACE, &mgp_dev,
-            "mgp_cmd CHAN_CMD %o DEV_CODE %o DEV_CMD %o COUNT %o\n",
+            "mgp_cmd CHAN_CMD %o DEV_CODE %o DEV_CMD %o COUNT %o\r\n",
             p->IDCW_CHAN_CMD, p->IDCW_DEV_CODE, p->IDCW_DEV_CMD, p->IDCW_COUNT);
 
   // Not IDCW?
   if (IS_NOT_IDCW(p))
     {
-      sim_warn("%s: Unexpected IOTx\n", __func__);
+      sim_warn("%s: Unexpected IOTx\r\n", __func__);
 
       return IOM_CMD_ERROR;
     }
 
   bool ptro;
 
-  sim_printf("mgp_cmd %#o (%s)\n",
+  sim_printf("mgp_cmd %#o (%s)\r\n",
              p->IDCW_DEV_CMD, cmd_name(p->IDCW_DEV_CMD));
 
   switch (p->IDCW_DEV_CMD)
@@ -472,13 +472,13 @@ mgp_cmd(uint iom_unit_idx, uint chan)
     case 000: // CMD 00 Request status
     {
       p->stati = 04000;
-      sim_printf("mgp request status\n");
+      sim_printf("mgp request status\r\n");
     }
     break;
 
     case 001: // CMD 01 Read
     {
-      sim_debug(DBG_DEBUG, &mgp_dev, "%s: mgp_dev_$read\n", __func__);
+      sim_debug(DBG_DEBUG, &mgp_dev, "%s: mgp_dev_$read\r\n", __func__);
 
       const uint    expected_tally = 0;
       uint          tally;
@@ -494,7 +494,7 @@ mgp_cmd(uint iom_unit_idx, uint chan)
       iom_indirect_data_service(
         iom_unit_idx, chan, buffer, &words_processed, false);
 
-      sim_printf("mgp_cmd: Read unit %#x chan %#x (%d)\n",
+      sim_printf("mgp_cmd: Read unit %#x chan %#x (%d)\r\n",
                  iom_unit_idx, chan, chan);
 
       /*
@@ -509,14 +509,14 @@ mgp_cmd(uint iom_unit_idx, uint chan)
       if (( v = poll_from_cbridge(buffer, words_processed, 0)) < 0)
         {
           // nothing to read
-          sim_printf("%s: nothing to read\n", __func__);
+          sim_printf("%s: nothing to read\r\n", __func__);
         }
       else
         {
           // something was read
           if (v > 0)
             {
-              sim_printf("%s: read something, rc IOM_CMD_DISCONNECT\n",
+              sim_printf("%s: read something, rc IOM_CMD_DISCONNECT\r\n",
                          __func__);
               rc = IOM_CMD_DISCONNECT; /* so send terminate interrupt */
             }
@@ -545,7 +545,7 @@ mgp_cmd(uint iom_unit_idx, uint chan)
 
     case 011: // CMD 11 Write
     {
-      sim_debug(DBG_DEBUG, &mgp_dev, "%s: mgp_dev_$write\n", __func__);
+      sim_debug(DBG_DEBUG, &mgp_dev, "%s: mgp_dev_$write\r\n", __func__);
 
       const uint    expected_tally = 0;
       uint          tally;
@@ -557,12 +557,12 @@ mgp_cmd(uint iom_unit_idx, uint chan)
       iom_indirect_data_service(
         iom_unit_idx, chan, buffer, &words_processed, false);
 
-      sim_printf("mgp_cmd: Write unit %#x chan %#x (%d)\n",
+      sim_printf("mgp_cmd: Write unit %#x chan %#x (%d)\r\n",
                  iom_unit_idx, chan, chan);
       dumppkt("Write", buffer, words_processed);
 
       int v = handle_mgp_packet(buffer, words_processed);
-      sim_printf("%s: handle_mgp_packet returned %d\n", __func__, v);
+      sim_printf("%s: handle_mgp_packet returned %d\r\n", __func__, v);
 # if 0
       // @@@@ Errors should be reported somehow
       if (v < 0)
@@ -590,7 +590,7 @@ mgp_cmd(uint iom_unit_idx, uint chan)
     case 020: // CMD 20 Host switch down
     {
       p->stati = 04000;
-      sim_printf("mgp host switch down\n");
+      sim_printf("mgp host switch down\r\n");
     }
     break;
 
@@ -598,28 +598,28 @@ mgp_cmd(uint iom_unit_idx, uint chan)
     {
       p->stati = 04000;
       // is called repeatedly causing system console to be unusable
-      // sim_printf ("mgp reset status\n");
+      // sim_printf ("mgp reset status\r\n");
     }
     break;
 
     case 042: // CMD 42 Disable Bus Back
     {
       p->stati = 04000;
-      sim_printf("mgp disable bus back\n");
+      sim_printf("mgp disable bus back\r\n");
     }
     break;
 
     case 043: // CMD 43 Enable Bus Back
     {
       p->stati = 04000;
-      sim_printf("mgp enable bus back\n");
+      sim_printf("mgp enable bus back\r\n");
     }
     break;
 
     case 060: // CMD 60 Host switch up
     {
       p->stati = 04000;
-      sim_printf("mgp host switch up\n");
+      sim_printf("mgp host switch up\r\n");
     }
     break;
 
@@ -627,7 +627,7 @@ mgp_cmd(uint iom_unit_idx, uint chan)
     {
       if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
         {
-          sim_warn("%s: MGP unrecognized device command  %02o\n",
+          sim_warn("%s: MGP unrecognized device command  %02o\r\n",
             __func__, p->IDCW_DEV_CMD);
         }
 
@@ -662,7 +662,7 @@ mgp_iom_cmd(uint iom_unit_idx, uint chan)
       return mgp_cmd(iom_unit_idx, chan);
     }
 
-  sim_printf("%s expected IDCW\n", __func__);
+  sim_printf("%s expected IDCW\r\n", __func__);
 
   return IOM_CMD_ERROR;
 }
@@ -685,11 +685,11 @@ mgp_process_event(void)
       if (v <= 0)
         {
           // nothing to read
-          // sim_printf("%s: nothing to read\n", __func__);
+          // sim_printf("%s: nothing to read\r\n", __func__);
         }
       else if (v > 0)
         {
-          sim_printf("%s: read something (%d) for unit %d chan %d\n", __func__,
+          sim_printf("%s: read something (%d) for unit %d chan %d\r\n", __func__,
                      v, iom_unit_idx, chan);
           dumppkt("Read", buffer, words_processed);
           iom_indirect_data_service(
@@ -707,7 +707,7 @@ mgp_process_event(void)
         {
           // And avoid complaints
           sim_printf("%s: poll %d, terminate interrupt unit \"%s\": iom "
-                     "unit %#x, chan %#x\n", __func__, v,
+                     "unit %#x, chan %#x\r\n", __func__, v,
                      mgp_state[iom_unit_idx].device_name,
                      iom_unit_idx, chan);
           send_terminate_interrupt(iom_unit_idx, chan);
@@ -921,7 +921,7 @@ parse_packet_header(word36 *buf, uint words)
 {
   if (words * 4 < sizeof ( struct mgp_packet_header ))
     {
-      sim_printf("%s: buffer too small (%d words) for mgp packet header\n",
+      sim_printf("%s: buffer too small (%d words) for mgp packet header\r\n",
                  __func__, words);
 
       return NULL;
@@ -996,7 +996,7 @@ unparse_packet_header(struct mgp_packet_header *p, word36 *buf, uint words)
 {
   if (words * 4 < sizeof ( struct mgp_packet_header ))
     {
-      sim_printf("%s: buffer too small (%d words) for mgp packet header\n",
+      sim_printf("%s: buffer too small (%d words) for mgp packet header\r\n",
                  __func__, words);
 
       return;
@@ -1038,15 +1038,15 @@ dumppkt(char *hdr, word36 *buf, uint words)
   struct mgp_packet_header *p = parse_packet_header(buf, words);
   if (p == NULL)
     {
-      sim_printf("%s: failed to parse packet!\n", __func__);
+      sim_printf("%s: failed to parse packet!\r\n", __func__);
 
       return;
     }
 
-  sim_printf("%s packet (%d words)\n", hdr, words);
-  sim_printf("cks %#x, id %#x, type %#x (%s), flags %#x (%s%s%s%s)\n"
-             "frame %#x, rcpt %#x, pknr %#x, acknr %#x\n"
-             "bytecount %d, src %#x, dst %#x, chopcode %#o (%s)\n",
+  sim_printf("%s packet (%d words)\r\n", hdr, words);
+  sim_printf("cks %#x, id %#x, type %#x (%s), flags %#x (%s%s%s%s)\r\n"
+             "frame %#x, rcpt %#x, pknr %#x, acknr %#x\r\n"
+             "bytecount %d, src %#x, dst %#x, chopcode %#o (%s)\r\n",
              p->checksum, p->identification, p->packet_type,
              pktype_name(p->packet_type),
              ( p->flags.unusable << 8 ) | ( p->flags.nak << 7 )
@@ -1060,13 +1060,13 @@ dumppkt(char *hdr, word36 *buf, uint words)
 
   if (p->identification != '#')
     {
-      sim_printf("[Warning: identification byte is %d instead of %d]\n",
+      sim_printf("[Warning: identification byte is %d instead of %d]\r\n",
                  p->identification, '#');
     }
 
   if (p->reserved != 0)
     {
-      sim_printf("[Warning: MBZ byte is %d]\n", p->reserved);
+      sim_printf("[Warning: MBZ byte is %d]\r\n", p->reserved);
     }
 
   int pklen = 4 + ( p->byte_count / 4 ) \
@@ -1082,7 +1082,7 @@ dumppkt(char *hdr, word36 *buf, uint words)
       int b3  = getbits36_9  (buf[i], 27);
       if (i < MGP_PACKET_HEADER_SIZE)
         {
-          sim_printf(" %d: %06o,,%06o = 0x%02x %02x %02x %02x\n",
+          sim_printf(" %d: %06o,,%06o = 0x%02x %02x %02x %02x\r\n",
                      i, lh, rh, b0, b1, b2, b3);
         }
       else
@@ -1134,12 +1134,12 @@ dumppkt(char *hdr, word36 *buf, uint words)
                       b3 < 0100 ? b3 + 0100 : b3 - 0100);
             }
 
-          sim_printf(" %d: %06o,,%06o = 0x%02x %02x %02x %02x = %s\n",
+          sim_printf(" %d: %06o,,%06o = 0x%02x %02x %02x %02x = %s\r\n",
                      i, lh, rh, b0, b1, b2, b3, chars);
         }
     }
 
-  sim_printf("EOP\n"); /* although this helps */
+  sim_printf("EOP\r\n"); /* although this helps */
 }
 
 // Pipe for sending conn index which needs to have a STATUS packet sent for
@@ -1155,7 +1155,7 @@ mgp_init_dev_state(void)
   status_conns[0] = status_conns[1] = 0;
   if (pipe(status_conns) < 0)
     {
-      sim_printf("%s: error from pipe(): %s (%d)\n",
+      sim_printf("%s: error from pipe(): %s (%d)\r\n",
                  __func__, xstrerror_l(errno), errno);
     }
 
@@ -1320,10 +1320,10 @@ close_conn(int i)
 {
   if (i < 0)
     {
-      sim_printf("%s: closing conn %d which is invalid!\n", __func__, i);
+      sim_printf("%s: closing conn %d which is invalid!\r\n", __func__, i);
       return;
     }
-  sim_printf("%s: closing conn %d <%#x,%#x>, remote %#o, contact \"%s\"\n",
+  sim_printf("%s: closing conn %d <%#x,%#x>, remote %#o, contact \"%s\"\r\n",
              __func__, i,
              mgp_dev_state.conns[i].multics_proc,
              mgp_dev_state.conns[i].local_id,
@@ -1358,19 +1358,19 @@ cbridge_send_packet(int i, u_char *pkt, int len)
        || ( errno == ECONNRESET )  \
        || ( errno == EPIPE      ))
         {
-          sim_printf("%s: socket seems to have closed: %s\n",
+          sim_printf("%s: socket seems to have closed: %s\r\n",
                      __func__, xstrerror_l(errno));
           close_conn(i);
         }
       else
         {
-          sim_warn("%s: socket write error: %s (%d)\n",
+          sim_warn("%s: socket write error: %s (%d)\r\n",
                    __func__, xstrerror_l(errno), errno);
         }
     }
   else if (x != len)
     {
-      sim_printf("%s: wrote %d bytes (expected %d)\n", __func__, x, len);
+      sim_printf("%s: wrote %d bytes (expected %d)\r\n", __func__, x, len);
     }
 
   FREE(pkt);
@@ -1385,7 +1385,7 @@ handle_packet(int opcode, struct mgp_packet_header *p, word36 *buf,
   int i = find_conn_for(p->source_process, p->destination_process);
   if (i < 0)
     {
-      sim_warn("%s: can't find conn for %#x,%#x\n",
+      sim_warn("%s: can't find conn for %#x,%#x\r\n",
                __func__, p->source_process, p->destination_process);
       return -1;
     }
@@ -1434,13 +1434,13 @@ handle_connect(struct mgp_packet_header *p, word36 *buf, uint words)
   char *i;
   copy_packet9_to_cbridge8(buf,
     words, (u_char *)connect_string, sizeof ( connect_string ));
-  sim_printf("%s: connect string is \"%s\"\n", __func__, connect_string);
+  sim_printf("%s: connect string is \"%s\"\r\n", __func__, connect_string);
   // Parse the connect string, something like "CHAOS 12234 NAME /W BV"
   net  = connect_string;
   i    = index(net, ' ');
   if (i == NULL)
     {
-      sim_printf("%s: bad connect string: first space not found\n", __func__);
+      sim_printf("%s: bad connect string: first space not found\r\n", __func__);
 
       return -1;
     }
@@ -1450,7 +1450,7 @@ handle_connect(struct mgp_packet_header *p, word36 *buf, uint words)
   i     = index(host, ' ');
   if (i == NULL)
     {
-      sim_printf("%s: bad connect string: second space not found\n", __func__);
+      sim_printf("%s: bad connect string: second space not found\r\n", __func__);
 
       return -1;
     }
@@ -1460,7 +1460,7 @@ handle_connect(struct mgp_packet_header *p, word36 *buf, uint words)
   i        = index(contact, ' ');
   if (i == NULL)
     {
-      sim_printf("%s: third space not found, no contact args\n", __func__);
+      sim_printf("%s: third space not found, no contact args\r\n", __func__);
       args = NULL;
     }
   else
@@ -1470,10 +1470,10 @@ handle_connect(struct mgp_packet_header *p, word36 *buf, uint words)
     }
 
   sim_printf("%s: parsed connect string: net \"%s\", host \"%s\", contact "
-             "\"%s\", args \"%s\"\n", __func__, net, host, contact, args);
+             "\"%s\", args \"%s\"\r\n", __func__, net, host, contact, args);
   if (strcasecmp(net, "CHAOS") != 0)
     {
-      sim_printf("%s: not CHAOS net, ignoring\n", __func__);
+      sim_printf("%s: not CHAOS net, ignoring\r\n", __func__);
 
       return -1;
     }
@@ -1482,7 +1482,7 @@ handle_connect(struct mgp_packet_header *p, word36 *buf, uint words)
   int cindex               = find_free_conn();
   if (cindex < 0)
     {
-      sim_printf("%s: no free conns available!\n", __func__);
+      sim_printf("%s: no free conns available!\r\n", __func__);
       return -1;
     }
   struct conn_table *conn  = &mgp_dev_state.conns[cindex];
@@ -1497,7 +1497,7 @@ handle_connect(struct mgp_packet_header *p, word36 *buf, uint words)
   u_short raddr;
   if (( sscanf(host, "%ho", &raddr) != 1 ) || !valid_chaos_host_address(raddr))
     {
-      sim_printf("%s: bad remote address %s\n", __func__, host);
+      sim_printf("%s: bad remote address %s\r\n", __func__, host);
 
       return -1;
     }
@@ -1513,7 +1513,7 @@ handle_connect(struct mgp_packet_header *p, word36 *buf, uint words)
   int cbskt = cbridge_open_socket();
   if (cbskt < 0)
     {
-      sim_printf("%s: unable to get a socket\n", __func__);
+      sim_printf("%s: unable to get a socket\r\n", __func__);
 
       return cbskt;
     }
@@ -1539,7 +1539,7 @@ handle_connect(struct mgp_packet_header *p, word36 *buf, uint words)
     {
       int i = cindex;
       sim_printf(
-           "%s: opened conn %d <%#x,%#x>, remote %#o, contact \"%s\"\n",
+           "%s: opened conn %d <%#x,%#x>, remote %#o, contact \"%s\"\r\n",
            __func__, i, mgp_dev_state.conns[i].multics_proc,
            mgp_dev_state.conns[i].local_id, mgp_dev_state.conns[i].remote_addr,
            mgp_dev_state.conns[i].contact_name);
@@ -1568,7 +1568,7 @@ handle_mgp_packet(word36 *buf, uint words)
   if (mgp_dev_state.first_frame_received
       && ( p->frame_number != ( mgp_dev_state.frame_last_received + 1 )))
     {
-      sim_printf("%s: unordered frame %#x read, expected %#x\n", __func__,
+      sim_printf("%s: unordered frame %#x read, expected %#x\r\n", __func__,
                  p->frame_number, mgp_dev_state.frame_last_received + 1);
       // send NAK?
     }
@@ -1579,7 +1579,7 @@ handle_mgp_packet(word36 *buf, uint words)
 
   int i = find_conn_for(p->source_process, p->destination_process);
   sim_printf(
-          "%s: packet %#x (ack %#x) for conn %d <%#x,%#x>, pktype %d (%s)\n",
+          "%s: packet %#x (ack %#x) for conn %d <%#x,%#x>, pktype %d (%s)\r\n",
           __func__, p->packet_number, p->ack_number, i,
           i < 0 ? 0 : mgp_dev_state.conns[i].multics_proc,
           i < 0 ? 0 : mgp_dev_state.conns[i].local_id,
@@ -1622,12 +1622,12 @@ handle_mgp_packet(word36 *buf, uint words)
         {
           char b[2] = { i, 0 };
           sim_printf(
-              "%s: asking for STATUS to be sent for conn %d on status_conns\n",
+              "%s: asking for STATUS to be sent for conn %d on status_conns\r\n",
               __func__, i);
           if (write(status_conns[1], b, 1) < 0)
             {
               sim_printf(
-                  "%s: write() on status_conns failed: %s (%d)\n",
+                  "%s: write() on status_conns failed: %s (%d)\r\n",
                   __func__, xstrerror_l(errno), errno);
               status_conns[1] = status_conns[0] = 0;
             }
@@ -1637,12 +1637,12 @@ handle_mgp_packet(word36 *buf, uint words)
 
     case pktype_STATUS:
       sim_printf("%s: STATUS for conn %d: frame,rcpt = <%#x,%#x>, pkt,ack = "
-            "<%#x,%#x>\n", __func__, i, p->frame_number, p->receipt_number,
+            "<%#x,%#x>\r\n", __func__, i, p->frame_number, p->receipt_number,
             p->packet_number, p->ack_number);
       break;
 
     default:
-      sim_printf("%s: can't handle pkt type %#o (%s) yet\n",
+      sim_printf("%s: can't handle pkt type %#o (%s) yet\r\n",
                  __func__, pktype, pktype_name(pktype));
       rval = -1;
     }
@@ -1650,7 +1650,7 @@ handle_mgp_packet(word36 *buf, uint words)
   // Set a mark to make a NOOP being available for reading next.
     if (p->flags.reply_now)
       {
-        sim_printf("%s: reply_NOW set, setting flag for sending NOOP\n",
+        sim_printf("%s: reply_NOW set, setting flag for sending NOOP\r\n",
                    __func__);
         mgp_dev_state.send_noop = 1;
 # if 0  // Not sure about this yet
@@ -1668,11 +1668,11 @@ handle_mgp_packet(word36 *buf, uint words)
                 // But only do this if there is actually a conn
                 char b[2] = { i, 0 };
                 sim_printf(
-                    "%s: asking for STATUS to be sent for conn %d on status_conns\n",
+                    "%s: asking for STATUS to be sent for conn %d on status_conns\r\n",
                     __func__, i);
                 if (write(status_conns[1], b, 1) < 0)
                   {
-                    sim_printf("%s: write() on status_conns failed: %s (%d)\n",
+                    sim_printf("%s: write() on status_conns failed: %s (%d)\r\n",
                                __func__, xstrerror_l(errno), errno);
                     status_conns[1] = status_conns[0] = 0;
                   }
@@ -1683,7 +1683,7 @@ handle_mgp_packet(word36 *buf, uint words)
 
   // Count the frame
   mgp_dev_state.frame_last_received = p->frame_number;
-  sim_printf("%s: afterwards, frame last sent %#x, last received %#x\n",
+  sim_printf("%s: afterwards, frame last sent %#x, last received %#x\r\n",
              __func__, mgp_dev_state.frame_last_sent,
              mgp_dev_state.frame_last_received);
   FREE(p);
@@ -1747,7 +1747,7 @@ make_mgp_header(struct mgp_packet_header *p, u_char opcode, u_char *pkt,
   p->chaos_opcode  = opcode;
   p->byte_count    = pklen;
   sim_printf(
-        "%s: made %s (%d) f,r=<%#x,%#x> p,a=<%#x,%#x> opc %s (%d) bc %d\n",
+        "%s: made %s (%d) f,r=<%#x,%#x> p,a=<%#x,%#x> opc %s (%d) bc %d\r\n",
         __func__, pktype_name(p->packet_type), p->packet_type, p->frame_number,
         p->receipt_number, p->packet_number, p->ack_number,
         chop_name(p->chaos_opcode), p->chaos_opcode, p->byte_count);
@@ -1771,7 +1771,7 @@ make_mgp_packet(u_char opcode, u_char *pkt, uint pklen, word36 *buf,
   // copy the data part, converting from 8-bit to 9-bit
   copy_cbridge8_to_packet9(pkt, pklen, buf, words);
   sim_printf("%s: conn %d <%#x,%#x> made %s pkt %#x (ack %#x), frame %#x "
-      "(rcpt %#x)\n", __func__, conni, mgp_dev_state.conns[conni].local_id,
+      "(rcpt %#x)\r\n", __func__, conni, mgp_dev_state.conns[conni].local_id,
       mgp_dev_state.conns[conni].multics_proc, pktype_name(hdr.packet_type),
       hdr.packet_number, hdr.ack_number, hdr.frame_number, hdr.receipt_number);
 
@@ -1794,7 +1794,7 @@ make_status_packet(int conni, word36 *buf, uint words)
 
   // (no data to copy)
   sim_printf("%s: conn %d <%#x,%#x> made %s pkt %#x (ack %#x), frame %#x "
-      "(rcpt %#x)\n", __func__, conni, mgp_dev_state.conns[conni].local_id,
+      "(rcpt %#x)\r\n", __func__, conni, mgp_dev_state.conns[conni].local_id,
       mgp_dev_state.conns[conni].multics_proc, pktype_name(hdr.packet_type),
       hdr.packet_number, hdr.ack_number, hdr.frame_number, hdr.receipt_number);
 
@@ -1817,7 +1817,7 @@ make_noop_packet(word36 *buf, uint words)
   unparse_packet_header(&hdr, buf, words);
 
   // (no data to copy)
-  sim_printf("%s: made NOOP pkt %#x (ack %#x), frame %#x (rcpt %#x)\n",
+  sim_printf("%s: made NOOP pkt %#x (ack %#x), frame %#x (rcpt %#x)\r\n",
              __func__, hdr.packet_number, hdr.ack_number, hdr.frame_number,
              hdr.receipt_number);
 
@@ -1840,7 +1840,7 @@ make_open_packet(u_char opcode, u_char *pkt, uint pklen, word36 *buf,
       u_short src = pkt[0] | ( pkt[1] << 8 );
       if (src != mgp_dev_state.conns[conni].remote_addr)
         {
-          sim_printf("%s: got ANS from %#o but had remote addr %#o\n",
+          sim_printf("%s: got ANS from %#o but had remote addr %#o\r\n",
                      __func__, src, mgp_dev_state.conns[conni].remote_addr);
                      mgp_dev_state.conns[conni].remote_addr = src;
         }
@@ -1850,7 +1850,7 @@ make_open_packet(u_char opcode, u_char *pkt, uint pklen, word36 *buf,
     }
   else
     {
-      sim_warn("%s: BUG: opcode is not ANS or OPN: %s (%#o)\n",
+      sim_warn("%s: BUG: opcode is not ANS or OPN: %s (%#o)\r\n",
                __func__, chop_name(opcode), opcode);
 
       return -1;
@@ -1891,7 +1891,7 @@ make_connect_packet(u_char *pkt, uint pklen, word36 *buf, uint words,
   if ( ( mgp_dev_state.conns[conni].contact_name == NULL )
    || ( *mgp_dev_state.conns[conni].contact_name == '\0' ))
     {
-      sim_printf("%s: no contact name known for conn %d\n", __func__, conni);
+      sim_printf("%s: no contact name known for conn %d\r\n", __func__, conni);
 
       return -1;
     }
@@ -1908,7 +1908,7 @@ static int
 receive_cbridge_opcode(u_char copcode, u_char *cbuf, uint clen, word36 *buf,
                        uint words, int conni)
 {
-  sim_printf("%s: got opcode %#o (%s)\n",
+  sim_printf("%s: got opcode %#o (%s)\r\n",
              __func__, copcode, chop_name(copcode));
   switch (copcode)
     {
@@ -2025,7 +2025,7 @@ poll_from_cbridge(word36 *buf, uint words, uint probe_only)
               else
                 {
                   sim_printf(
-                       "%s: select() error, maxfd %d, numfds %d: %s (%d)\n",
+                       "%s: select() error, maxfd %d, numfds %d: %s (%d)\r\n",
                        __func__, maxfd, numfds, xstrerror_l(errno), errno);
                 }
 
@@ -2040,25 +2040,25 @@ poll_from_cbridge(word36 *buf, uint words, uint probe_only)
                 {
                   char b[2];
                   sim_printf(
-                       "%s: about to read a byte from status_conns[0] = %d\n",
+                       "%s: about to read a byte from status_conns[0] = %d\r\n",
                        __func__, status_conns[0]);
                   int s = read(status_conns[0], b, 1);
                   if (s < 0)
                     {
-                      sim_warn("%s: read on status_conns failed: %s (%d)\n",
+                      sim_warn("%s: read on status_conns failed: %s (%d)\r\n",
                                __func__, xstrerror_l(errno), errno);
                       status_conns[0] = status_conns[1] = 0;
                     }
                   else if (s == 0)
                     {
-                      sim_printf("%s: read on status_conns returned 0\n",
+                      sim_printf("%s: read on status_conns returned 0\r\n",
                                  __func__);
                       status_conns[0] = status_conns[1] = 0;
                     }
                   else
                     {
                       sim_printf(
-                         "%s: read %d from status_conns, make STATUS packet\n",
+                         "%s: read %d from status_conns, make STATUS packet\r\n",
                          __func__, b[0]);
                       // make a STATUS packet
                       statusconn = b[0];
@@ -2078,7 +2078,7 @@ poll_from_cbridge(word36 *buf, uint words, uint probe_only)
                         {
                           // @@@@ handle error, socket closed, pass on to Multics
                           sim_printf(
-                              "%s: read() header error for conn %d: %s (%d)\n",
+                              "%s: read() header error for conn %d: %s (%d)\r\n",
                               __func__, i, xstrerror_l(errno), errno);
                           FD_CLR(mgp_dev_state.conns[i].skt, &rfd);
                           numfds--;
@@ -2089,7 +2089,7 @@ poll_from_cbridge(word36 *buf, uint words, uint probe_only)
                       else if (cnt == 0)
                         {
                           sim_printf(
-                              "%s: read() header zero length conn %d, assuming closed\n",
+                              "%s: read() header zero length conn %d, assuming closed\r\n",
                               __func__, i);
                           FD_CLR(mgp_dev_state.conns[i].skt, &rfd);
                           numfds--;
@@ -2100,7 +2100,7 @@ poll_from_cbridge(word36 *buf, uint words, uint probe_only)
                       else if (cnt != CBRIDGE_PACKET_HEADER_SIZE)
                         {
                           sim_printf(
-                                "%s: read() header length %d for conn %d\n",
+                                "%s: read() header length %d for conn %d\r\n",
                                 __func__, cnt, i);
                           foundone = 0;
                           continue;
@@ -2111,14 +2111,14 @@ poll_from_cbridge(word36 *buf, uint words, uint probe_only)
                       int mbz      = cbuf[1];
                       int clen     = cbuf[2] | ( cbuf[3] << 8 );
                       sim_printf(
-                        "%s: read cbridge pkt: opcode %#o (%s), mbz %d, len %d\n",
+                        "%s: read cbridge pkt: opcode %#o (%s), mbz %d, len %d\r\n",
                         __func__, copcode, chop_name(copcode), mbz, clen);
                       if (( mbz != 0 ) || (( copcode > CHOP_BRD )  \
                                   && ( copcode < CHOP_ACK ))       \
                                   || ( clen > CH_PK_MAX_DATALEN ))
                         {
                           sim_printf(
-                            "%s: cbridge header bad: opcode %#o (%s), mbz %d, len %d\n",
+                            "%s: cbridge header bad: opcode %#o (%s), mbz %d, len %d\r\n",
                             __func__, copcode, chop_name(copcode), mbz, clen);
                           FD_CLR(mgp_dev_state.conns[i].skt, &rfd);
                           numfds--;
@@ -2131,7 +2131,7 @@ poll_from_cbridge(word36 *buf, uint words, uint probe_only)
                         {
                           // @@@@ handle error, socket closed, pass on to Multics
                           sim_printf(
-                               "%s: read() body error for conn %d: %s (%d)\n",
+                               "%s: read() body error for conn %d: %s (%d)\r\n",
                                __func__, i, xstrerror_l(errno), errno);
                           FD_CLR(mgp_dev_state.conns[i].skt, &rfd);
                           numfds--;
@@ -2142,7 +2142,7 @@ poll_from_cbridge(word36 *buf, uint words, uint probe_only)
                       else if (cnt != clen)
                         {
                           sim_printf(
-                            "%s: read() body read %d (expected %d) for conn %d\n",
+                            "%s: read() body read %d (expected %d) for conn %d\r\n",
                             __func__, cnt, clen, i);
                           foundone = 0;
                           continue;
@@ -2166,7 +2166,7 @@ poll_from_cbridge(word36 *buf, uint words, uint probe_only)
 
               if (statusconn >= 0)
                 {
-                  sim_printf("%s: making STATUS packet for conn %d\n",
+                  sim_printf("%s: making STATUS packet for conn %d\r\n",
                              __func__, statusconn);
                   make_status_packet(statusconn, buf, words);
                   foundone  = 1;
@@ -2175,7 +2175,7 @@ poll_from_cbridge(word36 *buf, uint words, uint probe_only)
             }
           else
             {
-              // sim_printf("%s: select() returned 0 (maxfd %d)\n",
+              // sim_printf("%s: select() returned 0 (maxfd %d)\r\n",
               //   __func__, maxfd);
               rval = -1;
             }
@@ -2184,7 +2184,7 @@ poll_from_cbridge(word36 *buf, uint words, uint probe_only)
           if (!foundone && ( mgp_dev_state.read_index > -1 ))
             {
               sim_printf(
-                  "%s: nothing to read at indices over %d, retrying select\n",
+                  "%s: nothing to read at indices over %d, retrying select\r\n",
                   __func__, mgp_dev_state.read_index);
               mgp_dev_state.read_index  = -1;
               tryagain                  =  1;
@@ -2196,7 +2196,7 @@ poll_from_cbridge(word36 *buf, uint words, uint probe_only)
   // If we didn't already send something, make a NOOP
   if (mgp_dev_state.send_noop)
     {
-      sim_printf("%s: asked to send a NOOP - current frame %#x receipt %#x\n",
+      sim_printf("%s: asked to send a NOOP - current frame %#x receipt %#x\r\n",
                  __func__, mgp_dev_state.frame_last_sent,
                  mgp_dev_state.frame_last_received);
       mgp_dev_state.send_noop = 0;
@@ -2207,7 +2207,7 @@ poll_from_cbridge(word36 *buf, uint words, uint probe_only)
         }
       else
         {
-          sim_printf("%s: already made a packet, skipping NOOP\n", __func__);
+          sim_printf("%s: already made a packet, skipping NOOP\r\n", __func__);
         }
     }
 

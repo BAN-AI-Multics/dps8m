@@ -74,7 +74,7 @@ void unlock_libuv (void)
 #if defined(TESTING)
 bool test_libuv_lock (void)
   {
-    //sim_debug (DBG_TRACE, & cpu_dev, "test_libuv_lock\n");
+    //sim_debug (DBG_TRACE, & cpu_dev, "test_libuv_lock\r\n");
     int rc;
     rc = pthread_mutex_trylock (& libuv_lock);
     if (rc)
@@ -85,7 +85,7 @@ bool test_libuv_lock (void)
     // lock acquired, it wasn't locked
     rc = pthread_mutex_unlock (& libuv_lock);
     if (rc)
-      sim_printf ("test_libuv_lock pthread_mutex_lock libuv_lock %d\n", rc);
+      sim_printf ("test_libuv_lock pthread_mutex_lock libuv_lock %d\r\n", rc);
     return false;
   }
 #endif
@@ -123,17 +123,17 @@ void lock_rmw (void)
   {
     if (have_rmw_lock)
       {
-        sim_warn ("%s: Already have RMW lock\n", __func__);
+        sim_warn ("%s: Already have RMW lock\r\n", __func__);
         return;
       }
     if (have_mem_lock)
       {
-        sim_warn ("%s: Already have memory lock\n", __func__);
+        sim_warn ("%s: Already have memory lock\r\n", __func__);
         return;
       }
     int rc= pthread_rwlock_wrlock (& mem_lock);
     if (rc)
-      sim_printf ("%s pthread_rwlock_rdlock mem_lock %d\n", __func__, rc);
+      sim_printf ("%s pthread_rwlock_rdlock mem_lock %d\r\n", __func__, rc);
     have_mem_lock = true;
     have_rmw_lock = true;
   }
@@ -146,12 +146,12 @@ void lock_mem_rd (void)
 
     if (have_mem_lock)
       {
-        sim_warn ("%s: Already have memory lock\n", __func__);
+        sim_warn ("%s: Already have memory lock\r\n", __func__);
         return;
       }
     int rc= pthread_rwlock_rdlock (& mem_lock);
     if (rc)
-      sim_printf ("%s pthread_rwlock_rdlock mem_lock %d\n", __func__, rc);
+      sim_printf ("%s pthread_rwlock_rdlock mem_lock %d\r\n", __func__, rc);
     have_mem_lock = true;
   }
 
@@ -163,12 +163,12 @@ void lock_mem_wr (void)
 
     if (have_mem_lock)
       {
-        sim_warn ("%s: Already have memory lock\n", __func__);
+        sim_warn ("%s: Already have memory lock\r\n", __func__);
         return;
       }
     int rc= pthread_rwlock_wrlock (& mem_lock);
     if (rc)
-      sim_printf ("%s pthread_rwlock_wrlock mem_lock %d\n", __func__, rc);
+      sim_printf ("%s pthread_rwlock_wrlock mem_lock %d\r\n", __func__, rc);
     have_mem_lock = true;
   }
 
@@ -176,18 +176,18 @@ void unlock_rmw (void)
   {
     if (! have_mem_lock)
       {
-        sim_warn ("%s: Don't have memory lock\n", __func__);
+        sim_warn ("%s: Don't have memory lock\r\n", __func__);
         return;
       }
     if (! have_rmw_lock)
       {
-        sim_warn ("%s: Don't have RMW lock\n", __func__);
+        sim_warn ("%s: Don't have RMW lock\r\n", __func__);
         return;
       }
 
     int rc = pthread_rwlock_unlock (& mem_lock);
     if (rc)
-      sim_printf ("%s pthread_rwlock_ublock mem_lock %d\n", __func__, rc);
+      sim_printf ("%s pthread_rwlock_ublock mem_lock %d\r\n", __func__, rc);
     have_mem_lock = false;
     have_rmw_lock = false;
   }
@@ -198,13 +198,13 @@ void unlock_mem (void)
       return;
     if (! have_mem_lock)
       {
-        sim_warn ("%s: Don't have memory lock\n", __func__);
+        sim_warn ("%s: Don't have memory lock\r\n", __func__);
         return;
       }
 
     int rc = pthread_rwlock_unlock (& mem_lock);
     if (rc)
-      sim_printf ("%s pthread_rwlock_ublock mem_lock %d\n", __func__, rc);
+      sim_printf ("%s pthread_rwlock_ublock mem_lock %d\r\n", __func__, rc);
     have_mem_lock = false;
   }
 
@@ -214,7 +214,7 @@ void unlock_mem_force (void)
       {
         int rc = pthread_rwlock_unlock (& mem_lock);
         if (rc)
-          sim_printf ("%s pthread_rwlock_unlock mem_lock %d\n", __func__, rc);
+          sim_printf ("%s pthread_rwlock_unlock mem_lock %d\r\n", __func__, rc);
       }
     have_mem_lock = false;
     have_rmw_lock = false;
@@ -228,16 +228,16 @@ void lock_ptr (pthread_mutex_t * lock)
     int rc;
     rc = pthread_mutex_lock (lock);
     if (rc)
-      sim_printf ("lock_ptr %d\n", rc);
+      sim_printf ("lock_ptr %d\r\n", rc);
   }
 
 void unlock_ptr (pthread_mutex_t * lock)
   {
-    //sim_debug (DBG_TRACE, & cpu_dev, "unlock_scu\n");
+    //sim_debug (DBG_TRACE, & cpu_dev, "unlock_scu\r\n");
     int rc;
     rc = pthread_mutex_unlock (lock);
     if (rc)
-      sim_printf ("unlock_ptr %d\n", rc);
+      sim_printf ("unlock_ptr %d\r\n", rc);
   }
 
 // SCU serializer
@@ -246,20 +246,20 @@ static pthread_mutex_t scu_lock;
 
 void lock_scu (void)
   {
-    //sim_debug (DBG_TRACE, & cpu_dev, "lock_scu\n");
+    //sim_debug (DBG_TRACE, & cpu_dev, "lock_scu\r\n");
     int rc;
     rc = pthread_mutex_lock (& scu_lock);
     if (rc)
-      sim_printf ("lock_scu pthread_spin_lock scu %d\n", rc);
+      sim_printf ("lock_scu pthread_spin_lock scu %d\r\n", rc);
   }
 
 void unlock_scu (void)
   {
-    //sim_debug (DBG_TRACE, & cpu_dev, "unlock_scu\n");
+    //sim_debug (DBG_TRACE, & cpu_dev, "unlock_scu\r\n");
     int rc;
     rc = pthread_mutex_unlock (& scu_lock);
     if (rc)
-      sim_printf ("unlock_scu pthread_spin_lock scu %d\n", rc);
+      sim_printf ("unlock_scu pthread_spin_lock scu %d\r\n", rc);
   }
 // synchronous clock serializer
 
@@ -270,7 +270,7 @@ void unlock_scu (void)
 //     int rc;
 //     rc = pthread_mutex_lock (& syncLock);
 //     if (rc)
-//       sim_printf ("lockSync pthread_spin_lock syncLock %d\n", rc);
+//       sim_printf ("lockSync pthread_spin_lock syncLock %d\r\n", rc);
 //   }
 
 // void unlockSync (void)
@@ -278,7 +278,7 @@ void unlock_scu (void)
 //     int rc;
 //     rc = pthread_mutex_unlock (& syncLock);
 //     if (rc)
-//       sim_printf ("unlockSync pthread_spin_lock syncLock %d\n", rc);
+//       sim_printf ("unlockSync pthread_spin_lock syncLock %d\r\n", rc);
 //   }
 
 // IOM serializer
@@ -290,7 +290,7 @@ void lock_iom (void)
     int rc;
     rc = pthread_mutex_lock (& iom_lock);
     if (rc)
-      sim_printf ("%s pthread_spin_lock iom %d\n", __func__, rc);
+      sim_printf ("%s pthread_spin_lock iom %d\r\n", __func__, rc);
   }
 
 void unlock_iom (void)
@@ -298,7 +298,7 @@ void unlock_iom (void)
     int rc;
     rc = pthread_mutex_unlock (& iom_lock);
     if (rc)
-      sim_printf ("%s pthread_spin_lock iom %d\n", __func__, rc);
+      sim_printf ("%s pthread_spin_lock iom %d\r\n", __func__, rc);
   }
 
 // Debugging tool
@@ -308,27 +308,27 @@ static pthread_mutex_t tst_lock = PTHREAD_MUTEX_INITIALIZER;
 
 void lock_tst (void)
   {
-    //sim_debug (DBG_TRACE, & cpu_dev, "lock_tst\n");
+    //sim_debug (DBG_TRACE, & cpu_dev, "lock_tst\r\n");
     int rc;
     rc = pthread_mutex_lock (& tst_lock);
     if (rc)
-      sim_printf ("lock_tst pthread_mutex_lock tst_lock %d\n", rc);
+      sim_printf ("lock_tst pthread_mutex_lock tst_lock %d\r\n", rc);
   }
 
 void unlock_tst (void)
   {
-    //sim_debug (DBG_TRACE, & cpu_dev, "unlock_tst\n");
+    //sim_debug (DBG_TRACE, & cpu_dev, "unlock_tst\r\n");
     int rc;
     rc = pthread_mutex_unlock (& tst_lock);
     if (rc)
-      sim_printf ("unlock_tst pthread_mutex_lock tst_lock %d\n", rc);
+      sim_printf ("unlock_tst pthread_mutex_lock tst_lock %d\r\n", rc);
   }
 
 // assertion
 
 bool test_tst_lock (void)
   {
-    //sim_debug (DBG_TRACE, & cpu_dev, "test_tst_lock\n");
+    //sim_debug (DBG_TRACE, & cpu_dev, "test_tst_lock\r\n");
     int rc;
     rc = pthread_mutex_trylock (& tst_lock);
     if (rc)
@@ -339,7 +339,7 @@ bool test_tst_lock (void)
     // lock acquired, it wasn't locked
     rc = pthread_mutex_unlock (& tst_lock);
     if (rc)
-      sim_printf ("test_tst_lock pthread_mutex_lock tst_lock %d\n", rc);
+      sim_printf ("test_tst_lock pthread_mutex_lock tst_lock %d\r\n", rc);
     return false;
   }
 #endif /* if defined(TESTING) */
@@ -424,15 +424,15 @@ void createCPUThread (uint cpuNum)
     rc = pthread_mutex_init (& p->sleepLock, NULL);
 #endif /* FreeBSD || OpenBSD || Linux+GLIBC */
     if (rc)
-      sim_printf ("createCPUThread pthread_mutex_init sleepLock %d\n", rc);
+      sim_printf ("createCPUThread pthread_mutex_init sleepLock %d\r\n", rc);
 
     rc = pthread_mutex_init (& p->runLock, NULL);
     if (rc)
-      sim_printf ("createCPUThread pthread_mutex_init runLock %d\n", rc);
+      sim_printf ("createCPUThread pthread_mutex_init runLock %d\r\n", rc);
 
     rc = pthread_cond_init (& p->runCond, NULL);
     if (rc)
-      sim_printf ("createCPUThread pthread_cond_init runCond %d\n", rc);
+      sim_printf ("createCPUThread pthread_cond_init runCond %d\r\n", rc);
 
     p->run = true;
     p->sleeping = false;
@@ -445,11 +445,11 @@ void createCPUThread (uint cpuNum)
 # else
     rc = pthread_condattr_init (& p->sleepCondAttr);
     if (rc)
-      sim_printf ("createCPUThread pthread_condattr_init sleepCond %d\n", rc);
+      sim_printf ("createCPUThread pthread_condattr_init sleepCond %d\r\n", rc);
 
     rc = pthread_condattr_setclock (& p->sleepCondAttr, CLOCK_MONOTONIC);
     if (rc) {
-      //sim_printf ("createCPUThread pthread_condattr_setclock  sleepCond %d\n", rc);
+      //sim_printf ("createCPUThread pthread_condattr_setclock  sleepCond %d\r\n", rc);
       p->sleepClock = CLOCK_REALTIME;
     } else {
       p->sleepClock = CLOCK_MONOTONIC;
@@ -460,7 +460,7 @@ void createCPUThread (uint cpuNum)
     rc = pthread_cond_init (& p->sleepCond, NULL);
 #endif
     if (rc)
-      sim_printf ("createCPUThread pthread_cond_init sleepCond %d\n", rc);
+      sim_printf ("createCPUThread pthread_cond_init sleepCond %d\r\n", rc);
 
 #if defined(__APPLE__)
     rc = pthread_create_with_cpu_policy(
@@ -477,7 +477,7 @@ void createCPUThread (uint cpuNum)
             & p->cpuThreadArg);
 #endif /* if defined(__APPLE__) */
     if (rc)
-      sim_printf ("createCPUThread pthread_create %d\n", rc);
+      sim_printf ("createCPUThread pthread_create %d\r\n", rc);
 
 #if defined(AFFINITY)
     if (cpus[cpuNum].set_affinity)
@@ -487,7 +487,7 @@ void createCPUThread (uint cpuNum)
         CPU_SET (cpus[cpuNum].affinity, & cpuset);
         int s = pthread_setaffinity_np (p->cpuThread, sizeof (cpu_set_t), & cpuset);
         if (s)
-          sim_printf ("pthread_setaffinity_np %u on CPU %u returned %d\n",
+          sim_printf ("pthread_setaffinity_np %u on CPU %u returned %d\r\n",
                       cpus[cpuNum].affinity, cpuNum, s);
       }
 #endif /* if defined(AFFINITY) */
@@ -511,16 +511,16 @@ void cpuRunningWait (void)
       return;
     rc = pthread_mutex_lock (& p->runLock);
     if (rc)
-      sim_printf ("cpuRunningWait pthread_mutex_lock %d\n", rc);
+      sim_printf ("cpuRunningWait pthread_mutex_lock %d\r\n", rc);
     while (! p->run)
       {
         rc = pthread_cond_wait (& p->runCond, & p->runLock);
         if (rc)
-          sim_printf ("cpuRunningWait pthread_cond_wait %d\n", rc);
+          sim_printf ("cpuRunningWait pthread_cond_wait %d\r\n", rc);
      }
     rc = pthread_mutex_unlock (& p->runLock);
     if (rc)
-      sim_printf ("cpuRunningWait pthread_mutex_unlock %d\n", rc);
+      sim_printf ("cpuRunningWait pthread_mutex_unlock %d\r\n", rc);
   }
 #endif
 
@@ -543,7 +543,7 @@ unsigned long  sleepCPU (unsigned long usec) {
 
   rc = pthread_mutex_lock (& p->sleepLock);
   if (rc)
-    sim_printf ("sleepCPU pthread_mutex_lock sleepLock %d\n", rc);
+    sim_printf ("sleepCPU pthread_mutex_lock sleepLock %d\r\n", rc);
 
   p->sleeping = true;
   rc = pthread_cond_timedwait (& p->sleepCond, & p->sleepLock, & absTime);
@@ -551,7 +551,7 @@ unsigned long  sleepCPU (unsigned long usec) {
 
   int rc2 = pthread_mutex_unlock (& p->sleepLock);
   if (rc2)
-    sim_printf ("sleepCPU pthread_mutex_unlock sleepLock %d\n", rc2);
+    sim_printf ("sleepCPU pthread_mutex_unlock sleepLock %d\r\n", rc2);
 
   if (rc == ETIMEDOUT) {
     return 0;
@@ -559,7 +559,7 @@ unsigned long  sleepCPU (unsigned long usec) {
 
   if (rc) {
     cpu_state_t * cpup = _cpup;
-    sim_printf ("sleepCPU pthread_cond_timedwait rc %ld  usec %ld TR %lu CPU %lu\n",
+    sim_printf ("sleepCPU pthread_cond_timedwait rc %ld  usec %ld TR %lu CPU %lu\r\n",
                 (long) rc, (long) usec, (unsigned long) cpu.rTR,
                 (unsigned long) current_running_cpu_idx);
   }
@@ -587,17 +587,17 @@ void wakeCPU (uint cpuNum)
 
     rc = pthread_mutex_lock (& p->sleepLock);
     if (rc)
-      sim_printf ("sleepCPU pthread_mutex_lock sleepLock %d\n", rc);
+      sim_printf ("sleepCPU pthread_mutex_lock sleepLock %d\r\n", rc);
 
     if (p->sleeping) {
       rc = pthread_cond_signal (& p->sleepCond);
       if (rc)
-        sim_printf ("wakeCPU pthread_cond_signal %d\n", rc);
+        sim_printf ("wakeCPU pthread_cond_signal %d\r\n", rc);
     }
 
     int rc2 = pthread_mutex_unlock (& p->sleepLock);
     if (rc2)
-      sim_printf ("sleepCPU pthread_mutex_unlock sleepLock %d\n", rc2);
+      sim_printf ("sleepCPU pthread_mutex_unlock sleepLock %d\r\n", rc2);
   }
 
 #if defined(IO_THREADZ)
@@ -643,10 +643,10 @@ void createIOMThread (uint iomNum)
     p->intr = false;
     rc = pthread_mutex_init (& p->intrLock, NULL);
     if (rc)
-      sim_printf ("createIOMThread pthread_mutex_init intrLock %d\n", rc);
+      sim_printf ("createIOMThread pthread_mutex_init intrLock %d\r\n", rc);
     rc = pthread_cond_init (& p->intrCond, NULL);
     if (rc)
-      sim_printf ("createIOMThread pthread_cond_init intrCond %d\n", rc);
+      sim_printf ("createIOMThread pthread_cond_init intrCond %d\r\n", rc);
 
 # if defined(__APPLE__)
     rc = pthread_create_with_cpu_policy(
@@ -663,7 +663,7 @@ void createIOMThread (uint iomNum)
             & p->iomThreadArg);
 # endif /* if defined(__APPLE__) */
     if (rc)
-      sim_printf ("createIOMThread pthread_create %d\n", rc);
+      sim_printf ("createIOMThread pthread_create %d\r\n", rc);
   }
 
 // Called by IOM thread to block until CIOC call
@@ -674,18 +674,18 @@ void iomInterruptWait (void)
     struct iomThreadz_t * p = & iomThreadz[this_iom_idx];
     rc = pthread_mutex_lock (& p->intrLock);
     if (rc)
-      sim_printf ("iomInterruptWait pthread_mutex_lock %d\n", rc);
+      sim_printf ("iomInterruptWait pthread_mutex_lock %d\r\n", rc);
     p -> ready = true;
     while (! p->intr)
       {
         rc = pthread_cond_wait (& p->intrCond, & p->intrLock);
         if (rc)
-          sim_printf ("iomInterruptWait pthread_cond_wait %d\n", rc);
+          sim_printf ("iomInterruptWait pthread_cond_wait %d\r\n", rc);
       }
 # if defined(tdbg)
     p->outCnt++;
     if (p->inCnt != p->outCnt)
-      sim_printf ("iom thread %d in %d out %d\n", this_iom_idx,
+      sim_printf ("iom thread %d in %d out %d\r\n", this_iom_idx,
                   p->inCnt, p->outCnt);
 # endif
   }
@@ -699,10 +699,10 @@ void iomInterruptDone (void)
     p->intr = false;
     rc = pthread_cond_signal (& p->intrCond);
     if (rc)
-      sim_printf ("iomInterruptDone pthread_cond_signal %d\n", rc);
+      sim_printf ("iomInterruptDone pthread_cond_signal %d\r\n", rc);
     rc = pthread_mutex_unlock (& p->intrLock);
     if (rc)
-      sim_printf ("iomInterruptDone pthread_mutex_unlock %d\n", rc);
+      sim_printf ("iomInterruptDone pthread_mutex_unlock %d\r\n", rc);
   }
 
 // Called by CPU thread to wait for iomInterruptDone
@@ -713,16 +713,16 @@ void iomDoneWait (uint iomNum)
     struct iomThreadz_t * p = & iomThreadz[iomNum];
     rc = pthread_mutex_lock (& p->intrLock);
     if (rc)
-      sim_printf ("iomDoneWait pthread_mutex_lock %d\n", rc);
+      sim_printf ("iomDoneWait pthread_mutex_lock %d\r\n", rc);
     while (p->intr)
       {
         rc = pthread_cond_wait (& p->intrCond, & p->intrLock);
         if (rc)
-          sim_printf ("iomDoneWait pthread_cond_wait %d\n", rc);
+          sim_printf ("iomDoneWait pthread_cond_wait %d\r\n", rc);
       }
     rc = pthread_mutex_unlock (& p->intrLock);
     if (rc)
-      sim_printf ("iomDoneWait pthread_mutex_unlock %d\n", rc);
+      sim_printf ("iomDoneWait pthread_mutex_unlock %d\r\n", rc);
   }
 
 // Signal CIOC to IOM thread
@@ -733,12 +733,12 @@ void setIOMInterrupt (uint iomNum)
     struct iomThreadz_t * p = & iomThreadz[iomNum];
     rc = pthread_mutex_lock (& p->intrLock);
     if (rc)
-      sim_printf ("setIOMInterrupt pthread_mutex_lock %d\n", rc);
+      sim_printf ("setIOMInterrupt pthread_mutex_lock %d\r\n", rc);
     while (p->intr)
       {
         rc = pthread_cond_wait(&p->intrCond, &p->intrLock);
         if (rc)
-          sim_printf ("setIOMInterrupt pthread_cond_wait intrLock %d\n", rc);
+          sim_printf ("setIOMInterrupt pthread_cond_wait intrLock %d\r\n", rc);
       }
 # if defined(tdbg)
     p->inCnt++;
@@ -746,10 +746,10 @@ void setIOMInterrupt (uint iomNum)
     p->intr = true;
     rc = pthread_cond_signal (& p->intrCond);
     if (rc)
-      sim_printf ("setIOMInterrupt pthread_cond_signal %d\n", rc);
+      sim_printf ("setIOMInterrupt pthread_cond_signal %d\r\n", rc);
     rc = pthread_mutex_unlock (& p->intrLock);
     if (rc)
-      sim_printf ("setIOMInterrupt pthread_mutex_unlock %d\n", rc);
+      sim_printf ("setIOMInterrupt pthread_mutex_unlock %d\r\n", rc);
   }
 
 // Wait for IOM thread to initialize
@@ -802,10 +802,10 @@ void createChnThread (uint iomNum, uint chnNum, const char * devTypeStr)
     p->connect = false;
     rc = pthread_mutex_init (& p->connectLock, NULL);
     if (rc)
-      sim_printf ("createChnThread pthread_mutex_init connectLock %d\n", rc);
+      sim_printf ("createChnThread pthread_mutex_init connectLock %d\r\n", rc);
     rc = pthread_cond_init (& p->connectCond, NULL);
     if (rc)
-      sim_printf ("createChnThread pthread_cond_init connectCond %d\n", rc);
+      sim_printf ("createChnThread pthread_cond_init connectCond %d\r\n", rc);
 
 # if defined(__APPLE__)
     rc = pthread_create_with_cpu_policy(
@@ -822,7 +822,7 @@ void createChnThread (uint iomNum, uint chnNum, const char * devTypeStr)
             & p->chnThreadArg);
 # endif /* if defined(__APPLE__) */
     if (rc)
-      sim_printf ("createChnThread pthread_create %d\n", rc);
+      sim_printf ("createChnThread pthread_create %d\r\n", rc);
   }
 
 // Called by channel thread to block until I/O command presented
@@ -834,18 +834,18 @@ void chnConnectWait (void)
 
     rc = pthread_mutex_lock (& p->connectLock);
     if (rc)
-      sim_printf ("chnConnectWait pthread_mutex_lock %d\n", rc);
+      sim_printf ("chnConnectWait pthread_mutex_lock %d\r\n", rc);
     p -> ready = true;
     while (! p->connect)
       {
         rc = pthread_cond_wait (& p->connectCond, & p->connectLock);
         if (rc)
-          sim_printf ("chnConnectWait pthread_cond_wait %d\n", rc);
+          sim_printf ("chnConnectWait pthread_cond_wait %d\r\n", rc);
       }
 # if defined(tdbg)
     p->outCnt++;
     if (p->inCnt != p->outCnt)
-      sim_printf ("chn thread %d in %d out %d\n", this_chan_num,
+      sim_printf ("chn thread %d in %d out %d\r\n", this_chan_num,
                   p->inCnt, p->outCnt);
 # endif
   }
@@ -859,10 +859,10 @@ void chnConnectDone (void)
     p->connect = false;
     rc = pthread_cond_signal (& p->connectCond);
     if (rc)
-      sim_printf ("chnInterruptDone pthread_cond_signal %d\n", rc);
+      sim_printf ("chnInterruptDone pthread_cond_signal %d\r\n", rc);
     rc = pthread_mutex_unlock (& p->connectLock);
     if (rc)
-      sim_printf ("chnConnectDone pthread_mutex_unlock %d\n", rc);
+      sim_printf ("chnConnectDone pthread_mutex_unlock %d\r\n", rc);
   }
 
 // Signal I/O presented to channel thread
@@ -873,12 +873,12 @@ void setChnConnect (uint iomNum, uint chnNum)
     struct chnThreadz_t * p = & chnThreadz[iomNum][chnNum];
     rc = pthread_mutex_lock (& p->connectLock);
     if (rc)
-      sim_printf ("setChnConnect pthread_mutex_lock %d\n", rc);
+      sim_printf ("setChnConnect pthread_mutex_lock %d\r\n", rc);
     while (p->connect)
       {
         rc = pthread_cond_wait(&p->connectCond, &p->connectLock);
         if (rc)
-          sim_printf ("setChnInterrupt pthread_cond_wait connectLock %d\n", rc);
+          sim_printf ("setChnInterrupt pthread_cond_wait connectLock %d\r\n", rc);
       }
 # if defined(tdbg)
     p->inCnt++;
@@ -886,10 +886,10 @@ void setChnConnect (uint iomNum, uint chnNum)
     p->connect = true;
     rc = pthread_cond_signal (& p->connectCond);
     if (rc)
-      sim_printf ("setChnConnect pthread_cond_signal %d\n", rc);
+      sim_printf ("setChnConnect pthread_cond_signal %d\r\n", rc);
     rc = pthread_mutex_unlock (& p->connectLock);
     if (rc)
-      sim_printf ("setChnConnect pthread_mutex_unlock %d\n", rc);
+      sim_printf ("setChnConnect pthread_mutex_unlock %d\r\n", rc);
   }
 
 // Block until channel thread ready
