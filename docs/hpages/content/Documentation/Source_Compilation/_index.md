@@ -776,21 +776,17 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 
 ### Recommended compilers
 
-* [**IBM Open XL C/C++ for AIX V17.1.3 GA** (November 2024)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the recommended compiler for **Power11** systems.
+* [**IBM Open XL C/C++ for AIX V17.1.3 Fix Pack 1** (March 2025)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the recommended compiler for **Power11** systems.
   * LTO (*link-time optimization*) and native 128-bit integer operations are both fully supported.
 
 []()
 
-* [**IBM Open XL C/C++ for AIX V17.1.2 Fix Pack 14** (December 2024)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the *minimum* recommended version of the **Open XL C/C++ V17.1.2** compiler for **POWER8**, **POWER9**, and **Power10** systems.
+* [**IBM Open XL C/C++ for AIX V17.1.2 Fix Pack 15** (February 2025)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the *minimum* recommended version of the **Open XL C/C++ V17.1.2** compiler for **POWER8**, **POWER9**, and **Power10** systems.
   * LTO (*link-time optimization*) and native 128-bit integer operations are both fully supported.
 
 []()
 
-* [**Clang 18.1.8**](https://clang.llvm.org/) is the *minimum* recommended version of the **Clang** compiler for **POWER8**, **POWER9**, and **Power10** systems.
-
-[]()
-
-* [**Clang 19.1.4**](https://clang.llvm.org/) is the *minimum* recommended version of the **Clang** compiler for **Power11** systems.
+* [**Clang 20.1.0**](https://clang.llvm.org/) is the *minimum* recommended version of the mainline **Clang** compiler.
   * LTO *(link-time optimization)* and native 128-bit integer operations are both fully supported.
 
 #### Other supported compilers
@@ -811,7 +807,7 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 * **GNU C 11.3.0** is the *minimum* recommended version of the **GNU C** compiler for **POWER8**, **POWER9**, and **Power10** systems.
   * LTO (*link-time optimization*) and 128-bit integer operations are both **not supported**.
     * Use of the **`NEED_128=1`** and **`NO_LTO=1`** options are required when building with **GNU C**.
-  * **GCC 11** and **GCC 12** can be installed from the [IBM AIX Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository.
+  * **GCC 11** (and **GCC 12**) can be installed from the [IBM AIX Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository.
 
 []()
 
@@ -851,7 +847,8 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 * *Optionally* install mainline **Clang**.  At the time of writing, mainline **Clang** for **AIX** was not yet available from the [IBM AIX Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository, but can be obtained from:
 
   * [LLVM Downloads](https://releases.llvm.org/) (*source code*), or,
-  * [GitHub Releases](https://github.com/llvm/llvm-project/releases) (*source code and binary releases*)
+  * [IBM GitHub Releases](https://github.com/IBM/llvm-project/releases) (*source code and binary releases*)
+  * [LLVM GitHub Releases](https://github.com/llvm/llvm-project/releases) (*source code and binary releases*)
 
 #### IBM compiler support
 
