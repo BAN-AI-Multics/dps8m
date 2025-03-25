@@ -49,12 +49,13 @@
 * **Linux** using **APT** (*as root*):
 
   ```sh
-  apt install wget apt-transport-https
+  apt install wget
   wget -O "/usr/share/keyrings/dps8m.gpg" "https://dps8m.gitlab.io/repo/pubkey.gpg"
   wget -O "/etc/apt/sources.list.d/dps8m-stable.list" "https://dps8m.gitlab.io/repo/deb/dps8m-stable.list"
   apt update
   apt install dps8m
   ```
+<hr>
 
 ### Termux
 
@@ -80,6 +81,8 @@
   dnf config-manager --add-repo "https://dps8m.gitlab.io/repo/rpm/dps8m.repo"
   dnf install dps8m
   ```
+
+<hr>
 
 ### Yum
 
@@ -159,6 +162,8 @@
   apt install dps8m
   ```
 
+<hr>
+
 ### Termux
 
 * **Android** with **Termux**:
@@ -183,6 +188,8 @@
   dnf config-manager --add-repo "https://dps8m.gitlab.io/repo/rpm/dps8m-bleeding.repo"
   dnf install dps8m
   ```
+
+<hr>
 
 ### Yum
 
