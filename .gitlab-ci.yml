@@ -1405,42 +1405,6 @@ Cppcheck:
 
 #############################################################################
 
-Oracle Developer Studio Lint:
-  stage: test
-  allow_failure: false
-  needs:
-    - job: Source Tree Checks
-  image: registry.gitlab.com/dps8m/dps8m/base:latest
-  tags:
-    - Linux
-    - Docker-x64
-    - amd64
-  script:
-    - *scriptSanity
-    - *scriptCommon
-    - *scriptExtraInfo
-    - /opt/oracle/developerstudio12.6/bin/lint -V
-    - |
-      # Start of Oracle Lint ...
-      echo -e "section_start:`date +%s`:Lint_section[collapsed=true]\r\e[0K\033[0;36mOracle Lint ...\033[0m" || true
-    - make orstlint || true
-    - sleep 5 || true
-    - pkill lint > /dev/null 2>&1 || true
-    - |
-      # End of Oracle Lint ...
-      echo -e "section_end:`date +%s`:Lint_section\r\e[0K" || true
-    - sh -xc 'set +e; { grep "^E_" orstlint.txt && exit 1; }; exit 0'
-  dependencies: []
-  artifacts:
-    when: always
-    expire_in: 30 days
-    paths:
-      - orstlint.txt
-  timeout: 90 minutes
-  interruptible: true
-
-#############################################################################
-
 Source Tree Checks:
   stage: src_test
   image: registry.gitlab.com/dps8m/dps8m/base:latest
@@ -1497,7 +1461,6 @@ pages:
     - job: Multics CI-Kit Test
     - job: NSIS Installer
     - job: Option Verification Test
-    - job: Oracle Developer Studio Lint
     - job: PVS-Studio
     - job: Source Kits
     - job: Windows/ARM64, LLVM-MinGW
@@ -1513,7 +1476,6 @@ pages:
     - "GNU GLOBAL Hypertext"
     - "Hugo"
     - "NSIS Installer"
-    - "Oracle Developer Studio Lint"
     - "PVS-Studio"
     - "Source Kits"
     - "Windows/ARM64, LLVM-MinGW"

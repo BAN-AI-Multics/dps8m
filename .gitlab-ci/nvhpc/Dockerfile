@@ -38,13 +38,6 @@ RUN set -x && \
     dnf -y clean all && \
     rm -rf ~/.cache && \
     rm -rf /var/tmp/* && \
-    rm -rf /var/log/dnf* && \
-    cd /opt/nvidia/hpc_sdk/Linux_x86_64/*.* && \
-    rm -rf profilers && \
-    rm -rf math_libs && \
-    rm -rf examples && \
-    rm -rf cuda && \
-    rm -rf comm_libs && \
-    rm -rf cmake
+    rm -rf /var/log/dnf*
 
 RUN printf '\n%s\n' "BUILD SUCCESS"
