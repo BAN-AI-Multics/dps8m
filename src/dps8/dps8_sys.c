@@ -4237,19 +4237,6 @@ static void dps8_init (void) {
     sim_msg ("NEED_128");
 # endif /* if defined(NEED_128) */
 
-/* NO_UCACHE */
-# if defined(NO_UCACHE)
-#  if defined(HAVE_DPSOPT)
-    sim_msg (", ");
-#  else
-    sim_msg ("\r\n Options: ");
-#  endif
-#  if !defined(HAVE_DPSOPT)
-#   define HAVE_DPSOPT 1
-#  endif
-    sim_msg ("NO_UCACHE");
-# endif /* if defined(NO_UCACHE) */
-
 /* WAM */
 # if defined(WAM)
 #  if defined(HAVE_DPSOPT)

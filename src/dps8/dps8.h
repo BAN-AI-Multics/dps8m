@@ -99,18 +99,8 @@ typedef struct { int64_t h;  uint64_t l; } x__int128_t;
 # define DISC_DELAY 200
 
 // Micro-cache
-# if !defined(NO_UCACHE)
-#  undef OLDAPP
-# else
-#  define OLDAPP
-# endif /* if !defined(NO_UCACHE) */
-# if !defined(OLDAPP)
-#  if !defined(UCACHE_STATS)
-#   define UCACHE_STATS
-#  endif /* if !defined(UCACHE_STATS) */
-# else
-#  undef UCACHE_STATS
-# endif /* if !defined(OLDAPP) */
+# undef OLDAPP
+# define UCACHE_STATS
 
 // Shift/rotate instruction barrel shifter
 # define BARREL_SHIFTER 1

@@ -5137,19 +5137,6 @@ if (flag) {
     (void)fprintf (st, "ISOLTS");
 #endif /* if defined(ISOLTS) */
 
-/* NO_UCACHE */
-#if defined(NO_UCACHE)
-# if defined(HAVE_DPSOPT)
-    (void)fprintf (st, ", ");
-# else
-    (void)fprintf (st, "\r\n   Options: ");
-# endif
-# if !defined(HAVE_DPSOPT)
-#  define HAVE_DPSOPT 1
-# endif
-    (void)fprintf (st, "NO_UCACHE");
-#endif /* if defined(NO_UCACHE) */
-
 /* NEED_128 */
 #if defined(NEED_128)
 # if defined(HAVE_DPSOPT)

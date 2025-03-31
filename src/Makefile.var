@@ -44,14 +44,6 @@ ifdef PANEL68
 endif
 
 ###############################################################################
-# Disable the APU micro-cache
-
-ifdef NO_UCACHE
-  NO_UCACHE=1
-  CFLAGS += -DNO_UCACHE
-endif
-
-###############################################################################
 # Enable libbacktrace support
 
 LIBBACKTRACE ?= -lbacktrace
