@@ -44,13 +44,13 @@ Official releases of the simulator are available from:
 
 * Executables are provided for many hardware architectures, including:
 
-  * **POWER** &nbsp; (*e.g.* IBM Power Systems, Raptor Talos™, Freescale PowerPC …)
-  * **ARM** &nbsp; (*e.g.* Raspberry Pi, Pine64, Orange Pi …)
-  * **ARM64** / **AArch64** &nbsp; (*e.g.* Apple M1, Fujitsu A64FX, Arm Neoverse N1 …)
-  * **RISC-V** &nbsp; (*e.g.* SiFive HiFive, AndesCore™ AX25/AX27 …)
-  * **OpenRISC** &nbsp; (*e.g.* OpenRISC OR1200, mor1kx, marocchino …)
   * **x86** / **ix86**
   * **x86_64** / **AMD64**
+  * **ARM** &nbsp; (*e.g.* Raspberry Pi, Pine64, Orange Pi …)
+  * **ARM64** / **AArch64** &nbsp; (*e.g.* Apple M, Fujitsu A64FX, Ampere AmpereOne, Arm Neoverse …)
+  * **POWER** &nbsp; (*e.g.* IBM Power Systems, Raptor Talos™, Freescale PowerPC …)
+  * **RISC-V** &nbsp; (*e.g.* SiFive HiFive, AndesCore™ V5 …)
+  * **МЦСТ Эльбрус**
   * *and others* …
 
 []()

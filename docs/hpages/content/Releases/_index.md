@@ -675,15 +675,26 @@ title: DPS8M Releases
 {{< /expand >}}
 
 {{< expand "LoongArch" "…" >}}
-| File                                                                                       | Platform         |
-| :----------------------------------------------------------------------------------------- | :--------------- |
-| [**dps8m-git-linux-l64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-l64.tar.gz) | glibc&nbsp;2.12+ |
+| File                                                                                       | Platform |
+| :----------------------------------------------------------------------------------------- | :------- |
+| [**dps8m-git-linux-l64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-l64.tar.gz) | LA64     |
 {{< /expand >}}
 
 {{< expand "RISC-V" "…" >}}
 | File                                                                                       | Platform |
 | :----------------------------------------------------------------------------------------- | :------- |
 | [**dps8m-git-linux-r64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-r64.tar.gz) | RV64     |
+{{< /expand >}}
+
+{{< expand "МЦСТ Эльбрус" "…" >}}
+| File                                                                                           | Platform      |
+| :--------------------------------------------------------------------------------------------- | :------------ |
+| [**dps8m-git-linux-e2kv3.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-e2kv3.tar.gz) | v3            |
+| [**dps8m-git-linux-e2kv4.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-e2kv4.tar.gz) | v4            |
+| [**dps8m-git-linux-e2k1c.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-e2k1c.tar.gz) | v4&nbsp;(1С+) |
+| [**dps8m-git-linux-e2kv5.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-e2kv5.tar.gz) | v5            |
+| [**dps8m-git-linux-e2k6c.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-e2k6c.tar.gz) | v6&nbsp;(16С) |
+| [**dps8m-git-linux-e2k63.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-e2k63.tar.gz) | v6&nbsp;(2С3) |
 {{< /expand >}}
 
 {{< expand "z/Architecture" "…" >}}
