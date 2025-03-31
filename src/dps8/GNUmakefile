@@ -703,7 +703,7 @@ kit dist:
              $(GREP) -v '^src/dps8/listings/' | $(GREP) -v '.reuse/dep5'   |  \
               $(GREP) -v '^.scspell' | $(GREP) -v '^LICENSES/'             |  \
                $(GREP) -v '^.*\.license$$' | $(GREP) -v 'src/Makefile.doc' |  \
-                $(GREP) -v '^src/perf_test/' | $(GREP) -v '^.nsis/'        |  \
+                $(GREP) -v '^.nsis/'                                       |  \
                  $(GREP) -v '^.hpkg/' | $(GREP) -v '^.editorconfig'        |  \
                   $(GREP) -v '^src/Makefile.dev' | $(GREP) -v '^.gtags' )     \
                               'src/dps8/ver.h~' )
@@ -731,7 +731,7 @@ zipkit zipdist:
              $(GREP) -v '^.scspell' | $(GREP) -v '^LICENSES/'              |  \
               $(GREP) -v '^.*\.license$$' | $(GREP) -v 'src/Makefile.doc'  |  \
                $(GREP) -v '^src/dps8/listings/'                            |  \
-                $(GREP) -v '^src/perf_test/' | $(GREP) -v '^.nsis/'        |  \
+                $(GREP) -v '^.nsis/'                                       |  \
                  $(GREP) -v '^.hpkg/' | $(GREP) -v '^.editorconfig'        |  \
                   $(GREP) -v '.reuse/dep5' | $(GREP) -v '^.gtags' )           \
                              'src/dps8/ver.h~' )
