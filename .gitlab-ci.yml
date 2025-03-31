@@ -589,6 +589,108 @@ Cross-compiled release binaries:
 
 ############################################################################
 
+Elbrus binaries:
+  image: registry.gitlab.com/dps8m/dps8m/mcst:latest
+  stage: build
+  needs:
+    - job: Source Tree Checks
+  tags:
+    - Docker-x64
+    - amd64
+    - Linux
+  script:
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptExtraInfo
+    - |
+      # Start of Configuration ...
+      echo -e "section_start:`date +%s`:config_section[collapsed=true]\r\e[0K\033[0;36mConfiguration ...\033[0m" || true
+    - ulimit -c 0 2> /dev/null || true > /dev/null 2>&1
+    - export CI_SKIP_MKREBUILD=1
+    - mkdir -p /tmp 2> /dev/null || true > /dev/null 2>&1
+    - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
+    - export LOCAL_CLONEOPTS=""
+    - git config --global user.name "GitLab CI" || true
+    - git config --global user.email "ci@example.com" || true
+    - |
+      # End of Configuration ...
+      echo -e "section_end:`date +%s`:config_section\r\e[0K" || true
+    - *scriptDPS8Mods
+    - env PATH=/opt/mcst/lcc-1.27.21.e2k-v3.5.10/bin.toolchain:$PATH CC=/opt/mcst/lcc-1.27.21.e2k-v3.5.10/bin/lcc LOCAL_CONFOPTS="--host=e2k-linux" gmake libuvdev -j $(nproc)
+    - env PATH=/opt/mcst/lcc-1.27.21.e2k-v3.5.10/bin.toolchain:$PATH CC=/opt/mcst/lcc-1.27.21.e2k-v3.5.10/bin/lcc gmake -j $(nproc)
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cf ../dps8m-git-linux-e2kv3.tar "./${DISTDIR:?}"; )
+    - pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-e2kv3.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - git clean -fdxq -e '*.tar*' -e 'dps8m*'
+    - *scriptDPS8Mods
+    - env PATH=/opt/mcst/lcc-1.27.21.e2k-v4.1c+.5.10/bin.toolchain:$PATH CC=/opt/mcst/lcc-1.27.21.e2k-v4.1c+.5.10/bin/lcc LOCAL_CONFOPTS="--host=e2k-linux" gmake libuvdev -j $(nproc)
+    - env PATH=/opt/mcst/lcc-1.27.21.e2k-v4.1c+.5.10/bin.toolchain:$PATH CC=/opt/mcst/lcc-1.27.21.e2k-v4.1c+.5.10/bin/lcc gmake -j $(nproc)
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cf ../dps8m-git-linux-e2k1c.tar "./${DISTDIR:?}"; )
+    - pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-e2k1c.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - git clean -fdxq -e '*.tar*' -e 'dps8m*'
+    - *scriptDPS8Mods
+    - env PATH=/opt/mcst/lcc-1.27.21.e2k-v4.5.10/bin.toolchain:$PATH CC=/opt/mcst/lcc-1.27.21.e2k-v4.5.10/bin/lcc LOCAL_CONFOPTS="--host=e2k-linux" gmake libuvdev -j $(nproc)
+    - env PATH=/opt/mcst/lcc-1.27.21.e2k-v4.5.10/bin.toolchain:$PATH CC=/opt/mcst/lcc-1.27.21.e2k-v4.5.10/bin/lcc gmake -j $(nproc)
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cf ../dps8m-git-linux-e2kv4.tar "./${DISTDIR:?}"; )
+    - pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-e2kv4.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - git clean -fdxq -e '*.tar*' -e 'dps8m*'
+    - *scriptDPS8Mods
+    - env PATH=/opt/mcst/lcc-1.27.21.e2k-v5.5.10/bin.toolchain:$PATH CC=/opt/mcst/lcc-1.27.21.e2k-v5.5.10/bin/lcc LOCAL_CONFOPTS="--host=e2k-linux" gmake libuvdev -j $(nproc)
+    - env PATH=/opt/mcst/lcc-1.27.21.e2k-v5.5.10/bin.toolchain:$PATH CC=/opt/mcst/lcc-1.27.21.e2k-v5.5.10/bin/lcc gmake -j $(nproc)
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cf ../dps8m-git-linux-e2kv5.tar "./${DISTDIR:?}"; )
+    - pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-e2kv5.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - git clean -fdxq -e '*.tar*' -e 'dps8m*'
+    - *scriptDPS8Mods
+    - env PATH=/opt/mcst/lcc-1.27.21.e2k-v6.5.10-e16c/bin.toolchain:$PATH CC=/opt/mcst/lcc-1.27.21.e2k-v6.5.10-e16c/bin/lcc LOCAL_CONFOPTS="--host=e2k-linux" gmake libuvdev -j $(nproc)
+    - env PATH=/opt/mcst/lcc-1.27.21.e2k-v6.5.10-e16c/bin.toolchain:$PATH CC=/opt/mcst/lcc-1.27.21.e2k-v6.5.10-e16c/bin/lcc gmake -j $(nproc)
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cf ../dps8m-git-linux-e2k6c.tar "./${DISTDIR:?}"; )
+    - pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-e2k6c.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - git clean -fdxq -e '*.tar*' -e 'dps8m*'
+    - *scriptDPS8Mods
+    - env PATH=/opt/mcst/lcc-1.27.21.e2k-v6.5.10-e2c3/bin.toolchain:$PATH CC=/opt/mcst/lcc-1.27.21.e2k-v6.5.10-e2c3/bin/lcc LOCAL_CONFOPTS="--host=e2k-linux" gmake libuvdev -j $(nproc)
+    - env PATH=/opt/mcst/lcc-1.27.21.e2k-v6.5.10-e2c3/bin.toolchain:$PATH CC=/opt/mcst/lcc-1.27.21.e2k-v6.5.10-e2c3/bin/lcc gmake -j $(nproc)
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cf ../dps8m-git-linux-e2k63.tar "./${DISTDIR:?}"; )
+    - pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-e2k63.tar
+    - rm -rf "src/${DISTDIR:?}"
+    - git clean -fdxq -e '*.tar*' -e 'dps8m*'
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - dps8m-git-linux-e2kv3.tar.gz
+      - dps8m-git-linux-e2kv4.tar.gz
+      - dps8m-git-linux-e2k1c.tar.gz
+      - dps8m-git-linux-e2kv5.tar.gz
+      - dps8m-git-linux-e2k6c.tar.gz
+      - dps8m-git-linux-e2k63.tar.gz
+  retry: 2
+  timeout: 480 minutes
+  interruptible: true
+
+############################################################################
+
 GNU GLOBAL Hypertext:
   image: registry.gitlab.com/dps8m/dps8m/base:latest
   stage: docs
@@ -1452,6 +1554,7 @@ pages:
     - job: Clang Analyzer
     - job: Cppcheck
     - job: Cross-compiled release binaries
+    - job: Elbrus binaries
     - job: DPS8M Omnibus Documentation
     - job: Flawfinder
     - job: GNU GLOBAL Hypertext
@@ -1471,6 +1574,7 @@ pages:
     - "Clang Analyzer"
     - "Cppcheck"
     - "Cross-compiled release binaries"
+    - "Elbrus binaries"
     - "DPS8M Omnibus Documentation"
     - "Flawfinder"
     - "GNU GLOBAL Hypertext"
@@ -1534,6 +1638,12 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-mingw-a64.zip public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-mingw-av7.zip public
   - mv -f ${CI_PROJECT_DIR:?}/.nsis/dps8m-git-win-setup.exe public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-e2kv3.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-e2kv4.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-e2k1c.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-e2kv5.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-e2k6c.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-e2k63.tar.gz public
   - find "public" -type f -name '*-mingw-*.zip' -print0 | xargs -0 -n 1 -P 0 advzip -k -z4 || true
   - find "public" -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\)$' -print0 | xargs -0 -n 1 -P 0 brotli -f -k -v -Z -- || true
   - find "public" -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\)$' -print0 | xargs -0 -n 1 -P 0 pigz -9 -f -k -m -v -- || true

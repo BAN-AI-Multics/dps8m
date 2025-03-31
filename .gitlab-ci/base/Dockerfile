@@ -94,6 +94,7 @@ RUN set -x && \
       glibc-headers-x86 \
       glibc-static \
       global \
+      gmp-devel \
       gnupg2 \
       golang \
       graphviz \
@@ -126,7 +127,8 @@ RUN set -x && \
       libfaketime \
       libffi \
       libffi-devel \
-      libgcc gmp-devel \
+      libfl2 \
+      libgcc \
       libidn \
       libidn2-devel \
       libidn-devel \
