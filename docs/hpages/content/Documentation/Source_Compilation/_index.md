@@ -1046,7 +1046,7 @@ The default **Haiku** installation includes the required header files, an accept
 []()
 
   * **Red Hat** offers the [**Red Hat Developer Toolset**](https://developers.redhat.com/products/developertoolset/) for **Red Hat Enterprise Linux** and **CentOS Stream**, which provides up-to-date versions of **GCC** on a rapid release cycle, with *full support*.
-    * The *Toolset* packages are also included in various "clone" distributions such as **AlmaLinux**. These tools are regularly tested and highly recommended by **The DPS8M Development Team**. Check your distribution packager manager (*i.e.* '**`dnf search`**') for packages named '**`gcc-toolset-12`**', '**`gcc-toolset-13`**', or similar.
+    * The *Toolset* packages are also included in various "clone" distributions such as **AlmaLinux**. These tools are regularly tested and highly recommended by **The DPS8M Development Team**. Check your distribution packager manager (*i.e.* '**`dnf search`**') for packages named '**`gcc-toolset-13`**', '**`gcc-toolset-14`**', or similar.
 
 []()
 
