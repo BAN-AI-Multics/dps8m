@@ -1283,7 +1283,18 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
 #### DEFAULT_PATH
 
-* TBD
+"`DEFAULT_PATH`" configures the default path to use when searching for tape files.
+
+        DEFAULT_PATH=<path>
+
+* Setting this option will clear any previous "`ADD_PATH`" parameters.
+* If "`DEFAULT_PATH`" is *not* set, the simulator will use the current working directory of the host operating system.
+* When using relative paths (beginning with "`.`" or "`..`") the starting point is the current working directory of the host operating system.
+
+**Example**
+
+* Set the default path to search for tape files to "`./tapes`":
+        SET TAPE DEFAULT_PATH=./tapes
 
 <!-- br -->
 
@@ -1291,7 +1302,35 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
 #### ADD_PATH
 
-* TBD
+"`ADD_PATH`" adds a new tape search path at the end of the current search path list.
+
+        ADD_PATH=<prefix=directory>
+
+* When using relative paths (beginning with "`.`" or "`..`"), the starting point is the current working directory of the host operating system.
+* If "`SET DEFAULT_PATH`" is used, all previous "`ADD_PATH`" entries will be removed.
+* New tape search paths cannot be added unless a "`DEFAULT_PATH`" has been explicitly set.
+
+**Example**
+
+* Look for tapes with a volume name starting with "`BK`" in the directory "`./tapes/backups`":
+        SET TAPE ADD_PATH=BK=./tapes/backups
+
+**Notes**
+
+* When the tape search path table is evaluated during a tape file lookup, it is processed in order, with the first matching entry being accepted.
+* For example, if the following commands are given, a tape with a volume name of "`BK001`" will be placed in the "`./tapes/billing`" directory and not the "`./tapes/backups`" directory, since it begins with the substring "`B`", matching the first entry in the search table:
+        SET TAPE DEFAULT_PATH=./tapes/general
+        SET TAPE ADD_PATH=B=./tapes/billing
+        SET TAPE ADD_PATH=BK=./tapes/backups
+
+* To get the intended effect, the commands may be reordered to ensure names starting with "`BK`" are checked before names starting with "`B`":
+        SET TAPE DEFAULT_PATH=./tapes/general
+        SET TAPE ADD_PATH=BK=./tapes/backups
+        SET TAPE ADD_PATH=B=./tapes/billing
+
+* The simulator "`ATTACH`" command used in script files (usually for mounting the boot tape) is *not* aware of the alternative tape search paths.  If a directory is needed for an "`ATTACH`" command, the full path should be specified, for example:
+
+        ATTACH -r tape0 ./tapes/12.8/12.8MULTICS.tap
 
 <!-- br -->
 
@@ -1299,7 +1338,16 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
 #### CAPACITY_ALL
 
-* TBD
+"`CAPACITY_ALL`" configures the default maximum size (in megabytes) that can be written to a tape file for all tape devices.
+
+        CAPACITY_ALL=<n>
+
+* If "`CAPACITY_ALL`" is *not* set, the simulator will default to using a maximum size of **`88`MB**.
+
+**Example**
+
+* Set the default maximum size of tape files for all tape devices to **`40`MB**:
+        SET TAPE CAPACITY_ALL=40
 
 <!-- br -->
 
@@ -1307,7 +1355,16 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
 #### CAPACITY
 
-* TBD
+"`CAPACITY`" configures the maximum size (in megabytes) that can be written to a tape file for a specific tape devices.
+
+        CAPACITY=<n>
+
+* If "`CAPACITY`" is *not* set, the simulator will default to using a maximum size of **`88`MB**.
+
+**Example**
+
+* Set the maximum size of tape files for the "`TAPE`**`1`**" device to **`40`MB**:
+        SET TAPE1 CAPACITY_ALL=40
 
 <!-- br -->
 
@@ -1330,6 +1387,7 @@ The following "**`SCU`**" configuration options are associated with a specified 
 <!------------------------------------------------------------------------------------->
 
 #### NAME
+
 "**`NAME`**" configures the device name of the specified "`TAPE`" unit.
 
         NAME=<name>
@@ -1344,6 +1402,7 @@ The following "**`SCU`**" configuration options are associated with a specified 
 <!------------------------------------------------------------------------------------->
 
 #### NUNITS
+
 "**`NUNITS`**" configures the number of "`TAPE`" units.
 
         NUNITS=<n>
@@ -1576,7 +1635,58 @@ The following "**`MTP`**" configuration options are associated with a specified 
 
 <!-- br -->
 
+<!-- pagebreak -->
+
 ### PUN Configuration
+
+#### Overview
+
+The following commands configure simulated card punch devices.
+
+The simulated card punch devices operate by writing simulated punched card decks to *spool files*.  The location of the spool files on the host system is controlled with the "`SET PUN PATH`" command.
+
+The *spool file* will contain all ***banner***, ***lace***, and ***trailer*** cards that Multics punches.  The ***lace*** cards are parsed to extract job information that is used to name the spool files on the host system.
+
+* The simulator includes a utility, **`punutil`**, that can be used to extract the various cards from the deck in easily usable formats (such as ASCII text).
+
+#### Card format
+
+Each column in a punched card has **twelve** rows, designated from top to bottom:
+
+|       |       |       |       |       |       |       |       |       |       |       |       |
+| ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- |
+| '`&`' | '`-`' | '`0`' | '`1`' | '`2`' | '`3`' | '`4`' | '`5`' | '`6`' | '`7`' | '`8`' | '`9`' |
+
+Given the above, an **`80`-column** punched card would then look like:
+
+               ┌───┬───┬───┬───┬───┬───────────────────┬───┬───┬───┬───┬───┐
+               │ & │ & │ & │ & │ & │                   │ & │ & │ & │ & │ & │
+               │ - │ - │ - │ - │ - │                   │ - │ - │ - │ - │ - │
+               │ 0 │ 0 │ 0 │ 0 │ 0 │                   │ 0 │ 0 │ 0 │ 0 │ 0 │
+               │ 1 │ 1 │ 1 │ 1 │ 1 │                   │ 1 │ 1 │ 1 │ 1 │ 1 │
+               │ 2 │ 2 │ 2 │ 2 │ 2 │                   │ 2 │ 2 │ 2 │ 2 │ 2 │
+               │ 3 │ 3 │ 3 │ 3 │ 3 │ [… +70 columns …] │ 3 │ 3 │ 3 │ 3 │ 3 │
+               │ 4 │ 4 │ 4 │ 4 │ 4 │                   │ 4 │ 4 │ 4 │ 4 │ 4 │
+               │ 5 │ 5 │ 5 │ 5 │ 5 │                   │ 5 │ 5 │ 5 │ 5 │ 5 │
+               │ 6 │ 6 │ 6 │ 6 │ 6 │                   │ 6 │ 6 │ 6 │ 6 │ 6 │
+               │ 7 │ 7 │ 7 │ 7 │ 7 │                   │ 7 │ 7 │ 7 │ 7 │ 7 │
+               │ 8 │ 8 │ 8 │ 8 │ 8 │                   │ 8 │ 8 │ 8 │ 8 │ 8 │
+               │ 9 │ 9 │ 9 │ 9 │ 9 │                   │ 9 │ 9 │ 9 │ 9 │ 9 │
+               └───┴───┴───┴───┴───┴───────────────────┴───┴───┴───┴───┴───┘
+
+The most obvious way to represent a punched card column in a *spool file* is to assign a single bit per punch.  This means that there are **`12` bits** for each column.  When looking at a hexadecimal dump of a *spool file*, each column occupies **three** **`4`-bit** nibbles. The following representation is *big-endian*:
+
+          ┌───────────────────────────────────┬────────────────────────────────────┐
+          │              Column 1             │             Column 2               │
+          ├──┬──┬──┬──┬──┬──┬──┬──┬──┬──┬──┬──┬──┬──┬──┬──┬──┬──┬──┬──┬──┬──┬──┬───┤
+          │ &  -  0  1  2  3  4  5  6  7  8  9  &  -  0  1  2  3  4  5  6  7  8  9 │
+          ├──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼───┤
+          │  Nibble 1 │ Nibble 2  │  Nibble 3 │  Nibble 1 │  Nibble 2 │  Nibble 3  │
+          ├──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼───┤
+          │         Byte 1        │         Byte 2        │         Byte 3         │
+          ├──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼──┼───┤
+          │ 7  6  5  4  3  2  1  0  7  6  5  4  3  2  1  0  7  6  5  4  3  2  1  0 │
+          └──┴──┴──┴──┴──┴──┴──┴──┴──┴──┴──┴──┴──┴──┴──┴──┴──┴──┴──┴──┴──┴──┴──┴───┘
 
 #### DEBUG (NODEBUG)
 
@@ -1588,7 +1698,31 @@ The following "**`MTP`**" configuration options are associated with a specified 
 
 #### PATH
 
-* TBD
+"`PATH`" configures the path that will be used as the location to write punch *spool files*.
+
+        PATH=<path>
+
+**Example**
+
+* Set the punch spool file path to "`/home/tom/punches`":
+        SET PUN PATH=/home/tom/punches
+
+[]()
+[]()
+
+[]()
+[]()
+
+**Notes**
+
+* When unset, all punch spool files will be written to the current working directory of the host operating system.
+* When set, the simulator expects a subdirectory to exist for each named punch device - the simulator will **not** automatically create these subdirectories.  For example, if "`PATH`" is set to "`/home/tom/punches`" and three punch devices are configured (`puna`, `punb`, `punc`), then the following directory structure must exist for punch jobs to be output properly:
+         /home
+         └── tom
+             └── punches
+                 ├── puna
+                 ├── punb
+                 └── punc
 
 <!-- br -->
 
@@ -1638,7 +1772,24 @@ The following "**`PUN`**" configuration options are associated with a specified 
 ##### LOGCARDS
 \
 \
-* TBD
+"`LOGCARDS`" configures the simulator to output a significant amount of diagnostic details regarding a punch device to the simulator console.  This includes an "ASCII art" representation of the punched cards, where asterisks (`*`) are used to represent the punched holes.  It is recommended to enable this option only if you are attempting to diagnose a card punch issue.
+
+        SET PUNn CONFIG=LOGCARDS=<0 or 1>
+        SET PUNn CONFIG=LOGCARDS=<disable or enable>
+
+**Example**
+
+* Turn on logging of card punch diagnostic data for punch device "PUN**`0`**":
+        SET PUN0 CONFIG=LOGCARDS=1
+
+[]()
+[]()
+
+[]()
+[]()
+
+* Turn off logging of card punch diagnostic data for punch device "PUN**`1`**":
+        SET PUN1 CONFIG=LOGCARDS=disable
 
 <!------------------------------------------------------------------------------------->
 

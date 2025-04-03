@@ -9299,6 +9299,7 @@ adjusts
 admin
 administrative
 administrator
+administrators
 admit
 adobe
 adopt
@@ -9685,6 +9686,7 @@ bitmaps
 bitmask
 bitno
 bits
+bitsavers
 bitwise
 bjorn
 black
@@ -10397,6 +10399,7 @@ decipher
 decision
 decisions
 deck
+decks
 declaration
 declarations
 declared
@@ -10550,6 +10553,7 @@ devil
 devin
 devoted
 diaeresis
+diagnose
 diagnostic
 diagnostics
 diagrams
@@ -12189,6 +12193,7 @@ mechanization
 media
 medical
 medium
+megabytes
 megawords
 meld
 member
@@ -12311,6 +12316,7 @@ motor
 motorola
 mount
 mounted
+mounting
 mounts
 mouse
 moved
@@ -12509,6 +12515,7 @@ obviously
 occasional
 occasionally
 occluded
+occupies
 occurred
 occurrence
 occurring
@@ -13968,6 +13975,7 @@ stupid
 style
 styling
 stylized
+subdirectories
 subdirectory
 subexpression
 subject

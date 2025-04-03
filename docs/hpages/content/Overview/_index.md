@@ -191,7 +191,7 @@
 
   * <u>Operating systems</u> supported are **IBM AIX**, **IBM i** (**OS/400**), **QNX**, **FreeBSD**, **NetBSD**, **OpenBSD**, **DragonFly BSD**, **Haiku**, **Android**, **illumos** (**OpenIndiana**), **Linux**, **macOS**, **Solaris**, **SerenityOS**, and **Windows** (both **Cygwin** and native).
 
-  * <u>C compilers</u> supported are **Clang**, **LLVM-MinGW**, AMD Optimizing C/C++ (**AOCC**), Arm C/C++ Compiler (**ARMClang**), GNU C (**GCC**), IBM Advance Toolchain (**AT**), IBM XL C/C++ (**XLC**), IBM Open XL C/C++ (**IBMClang**), Intel oneAPI DPC++/C++ (**ICX**), NVIDIA HPC SDK C Compiler (**NVC**), Oracle Developer Studio (**SunCC**), and МЦСТ LCC (**Elbrus C Compiler**).
+  * <u>C compilers</u> supported are **Clang**, **LLVM-MinGW**, AMD Optimizing C/C++ (**AOCC**), Arm C/C++ Compiler (**ARMClang**), GNU C (**GCC**), IBM Advance Toolchain (**AT**), IBM XL C/C++ (**XLC**), IBM Open XL C/C++ (**IBMClang**), Intel oneAPI DPC++/C++ (**ICX**), NVIDIA HPC SDK C Compiler (**NVC**), Oracle Developer Studio (**SunCC**), and МЦСТ Эльбрус C Compiler (**LCC**).
 
   * <u>Hardware architectures</u> actively supported include **Intel x86** (i686, x86_64), **ARM** (ARMv6, ARMv7, ARM64), **LoongArch** (LA64), **MIPS** (MIPS, MIPS64), **OpenRISC** (OR1200, MOR1KX), **PowerPC** (PPC, PPC64, PPC64le), **RISC-V** (RV64), **SPARC** (SPARC, UltraSPARC), **E2K** (МЦСТ Эльбрус), **KVX** (Kalray MPPA®, Coolidge™), and **IBM Z** (s390x, z13+).
 

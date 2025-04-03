@@ -186,7 +186,11 @@ Review the complete [**DPS8M Omnibus Documentation**](https://dps8m.gitlab.io/dp
 
 <!-- br -->
 
+<!-- start nopdf -->
+
 The following sections document ***only*** platform-specific variations, and are **not** intended to be a general or exhaustive reference.
+
+<!-- stop nopdf -->
 
 <br>
 
