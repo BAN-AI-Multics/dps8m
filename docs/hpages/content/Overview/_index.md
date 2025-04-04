@@ -187,7 +187,7 @@
 
 * **DPS8M** is [**open source software**](https://dps8m.gitlab.io/dps8m/License_Information) developed by **The DPS8M Development Team** and **many contributors**.
 
-* **DPS8M** supports most <u>operating systems</u> conforming to *IEEE Std 1003.1-2008* (**POSIX.1-2008**), many <u>C compilers</u> conforming to *ISO/IEC 9899:2011* (**C11**), and numerous <u>hardware architectures</u>.
+* **DPS8M** supports most <u>operating systems</u> conforming to *IEEE Std 1003.1‑2008* (**POSIX.1‑2008**), many <u>C compilers</u> conforming to *ISO/IEC 9899:2011* (**C11**), and numerous <u>hardware architectures</u>.
 
   * <u>Operating systems</u> supported are **IBM AIX**, **IBM i** (**OS/400**), **QNX**, **FreeBSD**, **NetBSD**, **OpenBSD**, **DragonFly BSD**, **Haiku**, **Android**, **illumos** (**OpenIndiana**), **Linux**, **macOS**, **Solaris**, **SerenityOS**, and **Windows** (both **Cygwin** and native).
 

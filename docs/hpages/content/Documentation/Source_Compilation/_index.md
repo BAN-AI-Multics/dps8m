@@ -1038,14 +1038,13 @@ The default **Haiku** installation includes the required header files, an accept
 
 ## Linux
 
-* Most major **Linux** distributions using the [**GNU C Library**](https://www.gnu.org/software/libc/) and [**musl-libc**](https://musl.libc.org/) are supported.
-  * [**Debian GNU/Linux**](https://www.debian.org/) and derivatives ([**Raspberry Pi OS**](https://www.raspberrypi.com/software/)), **Red Hat** variants ([**Fedora**](https://fedoraproject.org/), [**CentOS Stream**](https://www.centos.org/centos-stream/), [**RHEL**](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux)) and compatibles ([**AlmaLinux**](https://almalinux.org/), [**Amazon Linux**](https://aws.amazon.com/amazon-linux-2/), [**Oracle Linux**](https://www.oracle.com/linux/)),  [**Alpine**](https://www.alpinelinux.org/), **SUSE** ([**SLES**](https://www.suse.com/products/server/), [**OpenSUSE**](https://www.opensuse.org/)), [**Void**](https://voidlinux.org/), and [**Ubuntu**](https://ubuntu.com/) are regularly tested on **Intel**, **ARM**, **RISC-V**, and **POWER** systems.
-  * [**uClibc-ng**](https://uclibc-ng.org/) is ***no longer supported*** for building **DPS8M** (*as of* ***R3.0.2***) due to some unimplemented POSIX.1-2008 functionality.
+* Most major **Linux** distributions using the [**GNU C Library**](https://www.gnu.org/software/libc/), [**musl-libc**](https://musl.libc.org/), and [**uClibc‑ng**](https://uclibc-ng.org/) (with `NO_LOCALE=1`) are supported.
+  * [**Debian GNU/Linux**](https://www.debian.org/) and derivatives ([**Raspberry Pi OS**](https://www.raspberrypi.com/software/)), **Red Hat** variants ([**Fedora**](https://fedoraproject.org/), [**CentOS Stream**](https://www.centos.org/centos-stream/), [**RHEL**](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux)) and compatibles ([**AlmaLinux**](https://almalinux.org/), [**Amazon Linux**](https://aws.amazon.com/amazon-linux-2/), [**Oracle Linux**](https://www.oracle.com/linux/)),  [**Alpine**](https://www.alpinelinux.org/), **SUSE** ([**SLES**](https://www.suse.com/products/server/), [**OpenSUSE**](https://www.opensuse.org/)), [**Void**](https://voidlinux.org/), and [**Ubuntu**](https://ubuntu.com/) are regularly tested on **Intel**, **ARM**, **RISC-V**, **POWER**, and МЦСТ Эльбрус systems.
 
 ### Linux compilers
 
 * **GCC** **12** or later is recommended for optimal performance on most architectures including **Intel** and **ARM**.
-  * **The DPS8M Development Team** regularly tests and supports a wide range of Linux compilers, including **Clang**, AMD Optimizing C/C++ (**AOCC**), Arm C/C++ Compiler (**ARMClang**), GNU C (**GCC**) (*version* **9**+), IBM Advance Toolchain for Linux, IBM XL C/C++ for Linux (**XLC**), IBM Open XL C/C++ for Linux (**IBMClang**), Intel oneAPI DPC++/C++ (**ICX**), NVIDIA HPC SDK C Compiler (**NVC**), and Oracle Developer Studio (**SunCC**).
+  * **The DPS8M Development Team** regularly tests and supports a wide range of Linux compilers, including **Clang**, AMD Optimizing C/C++ (**AOCC**), Arm C/C++ Compiler (**ARMClang**), GNU C (**GCC**) (*version* **9**+), IBM Advance Toolchain for Linux, IBM XL C/C++ for Linux (**XLC**), IBM Open XL C/C++ for Linux (**IBMClang**), Intel oneAPI DPC++/C++ (**ICX**), NVIDIA HPC SDK C Compiler (**NVC**), Oracle Developer Studio (**SunCC**), and МЦСТ Эльбрус C Compiler (**LCC**)..
 
 []()
 
@@ -1562,7 +1561,7 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
   * [**Intel® C++ Compiler Classic for macOS**](https://www.intel.com/content/www/us/en/developer/articles/tool/oneapi-standalone-components.html#dpcpp-cpp) (**`icc`**) is ***no longer supported*** for building **DPS8M** (*as of* ***R3.0.2***).
     * Intel® has *retired* support for **ICC**.
   * Building the simulator on **macOS** using **GCC** is ***not recommended***.
-* The following instructions were verified using **macOS 15.1.1** with **Xcode 16.2** (Apple Clang 16.0.0).
+* The following instructions were verified using **macOS 15.4** with **Xcode 16.3** (Apple Clang 17.0.0).
 
 ### macOS prerequisites
 

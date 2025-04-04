@@ -21,8 +21,8 @@
         SET CPU0 DPS8M=0
 
 * Configure CPU**`1`** to simulate a **DPS‑8/M** processor:
-        SET CPU0 L68=0
-        SET CPU0 DPS8M=1
+        SET CPU1 L68=disable
+        SET CPU1 DPS8M=enable
 
 <!------------------------------------------------------------------------------------->
 
@@ -906,7 +906,7 @@ The following "**`IOM`**" configuration options are associated with a specified 
 **Example**
 
 * Set the allowed operating system mode for **IOM`0`** to **`multics`** (*the default allowed mode*):
-        SET IOM0 CONFIG=MODE=multics
+        SET IOM0 CONFIG=OS=multics
 
 <!-- br -->
 
