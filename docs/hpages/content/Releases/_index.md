@@ -743,18 +743,10 @@ title: DPS8M Releases
 | [**dps8m-git-win-setup.exe**](https://dps8m.gitlab.io/dps8m/dps8m-git-win-setup.exe) | x86_64&nbsp;+&nbsp;i686 |
 {{< /expand >}}
 
-{{< expand "ARM" "…" >}}
 {{< expand "ARM64" "…" >}}
 | File                                                                                 | Platform |
 |:------------------------------------------------------------------------------------ |:-------- |
 | [**dps8m-git-mingw-a64.zip**](https://dps8m.gitlab.io/dps8m/dps8m-git-mingw-a64.zip) | ARMv8    |
-{{< /expand >}}
-
-{{< expand "ARM (32-bit)" "…" >}}
-| File                                                                                 | Platform |
-|:------------------------------------------------------------------------------------ |:-------- |
-| [**dps8m-git-mingw-av7.zip**](https://dps8m.gitlab.io/dps8m/dps8m-git-mingw-av7.zip) | ARMv7    |
-{{< /expand >}}
 {{< /expand >}}
 {{< /tab >}}
 {{< /tabs >}}

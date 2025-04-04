@@ -917,55 +917,6 @@ Windows/ARM64, LLVM-MinGW:
 
 ############################################################################
 
-Windows/ARMv7, LLVM-MinGW:
-  image: registry.gitlab.com/dps8m/dps8m/llvm-mingw:latest
-  stage: build
-  needs:
-    - job: Source Tree Checks
-  tags:
-    - Docker-x64
-    - amd64
-    - Linux
-  script:
-    - *scriptSanity
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - armv7-w64-mingw32-clang --version | head -1 || true
-    - |
-      # Start of libuv build ...
-      echo -e "section_start:`date +%s`:libuv_section[collapsed=true]\r\e[0K\033[0;36mBuild libuv ...\033[0m" || true
-    - mkdir -p "${HOME}/libuv-build" && mkdir -p "${HOME}/libuv-win32-armv7" && ( cd "${HOME}/libuv-build" && wget -q "https://github.com/libuv/libuv/archive/v1.x.zip" && unzip -xa "v1.x.zip" && cd "libuv-1.x" && sh ./autogen.sh && ./configure --prefix="${HOME}/libuv-win32-armv7" --enable-static --disable-shared --host="armv7-w64-mingw32" && make -j $(nproc) && make install )
-    - |
-      # End of libuv build ...
-      echo -e "section_end:`date +%s`:libuv_section\r\e[0K" || true
-    - |
-      # Start of build ...
-      echo -e "section_start:`date +%s`:Build_section[collapsed=true]\r\e[0K\033[0;36mBuild ...\033[0m" || true
-    - env CC="armv7-w64-mingw32-clang" CFLAGS="-I${HOME}/libuv-win32-armv7/include -D__MINGW64__" LDFLAGS="-L${HOME}/libuv-win32-armv7/lib" NEED_128=1 make -j $(nproc) CROSS="MINGW64"
-    - |
-      # End of build ...
-      echo -e "section_end:`date +%s`:Build_section\r\e[0K" || true
-    - test -f src/dps8/dps8.exe
-    - *scriptBuildInfo
-    - mkdir -p "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
-    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
-    - cp -f src/dps8/dps8.exe src/prt2pdf/prt2pdf.exe src/punutil/punutil.exe "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
-    - cp -f /opt/llvm-mingw/armv7-w64-mingw32/bin/libwinpthread-1.dll "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
-    - ( cd src && zip -9 ../dps8m-git-mingw-av7.zip ./dps8m-${CI_COMMIT_SHORT_SHA:?}/* )
-    - *scriptCompressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - dps8m-git-mingw-av7.zip
-      - dps8m.zip
-  retry: 2
-  timeout: 90 minutes
-  interruptible: true
-
-############################################################################
-
 Windows/i686, LLVM-MinGW:
   image: registry.gitlab.com/dps8m/dps8m/llvm-mingw:latest
   stage: build
@@ -1567,7 +1518,6 @@ pages:
     - job: PVS-Studio
     - job: Source Kits
     - job: Windows/ARM64, LLVM-MinGW
-    - job: Windows/ARMv7, LLVM-MinGW
     - job: Windows/i686, LLVM-MinGW
     - job: Windows/x86_64, LLVM-MinGW
   dependencies:
@@ -1583,7 +1533,6 @@ pages:
     - "PVS-Studio"
     - "Source Kits"
     - "Windows/ARM64, LLVM-MinGW"
-    - "Windows/ARMv7, LLVM-MinGW"
   stage: deploy
   script:
   - brotli --version
@@ -1636,7 +1585,6 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-iloi-641.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-970.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-mingw-a64.zip public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-mingw-av7.zip public
   - mv -f ${CI_PROJECT_DIR:?}/.nsis/dps8m-git-win-setup.exe public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-e2kv3.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-e2kv4.tar.gz public

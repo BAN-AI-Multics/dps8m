@@ -148,7 +148,6 @@ Review the complete [**DPS8M Omnibus Documentation**](https://dps8m.gitlab.io/dp
   * [Unix-hosted LLVM-MinGW Clang cross-compilation](#unix-hosted-llvm-mingw-clang-cross-compilation)
     + [Windows i686](#windows-i686-1)
     + [Windows x86_64](#windows-x86_64-1)
-    + [Windows ARMv7](#windows-armv7)
     + [Windows ARM64](#windows-arm64)
   * [Unix-hosted MinGW-w64 GCC cross-compilation](#unix-hosted-mingw-w64-gcc-cross-compilation)
     + [Windows i686](#windows-i686-2)
@@ -1750,7 +1749,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 []()
 
-* Cross-compilation is supported.  Builds targeting Microsoft **Windows** (**MinGW** and **Cygwin**) running on **x86_64**, **i686**, **ARMv7**, and **ARM64** platforms are regularly cross-compiled from a variety of UNIX-like systems (using **LLVM-MinGW** and **MinGW-GCC**), and from Microsoft **Windows** using **Cygwin**.
+* Cross-compilation is supported.  Builds targeting Microsoft **Windows** (**MinGW** and **Cygwin**) running on **x86_64**, **i686**, and **ARM64** platforms are regularly cross-compiled from a variety of UNIX-like systems (using **LLVM-MinGW** and **MinGW-GCC**), and from Microsoft **Windows** using **Cygwin**.
 
 []()
 
@@ -1763,8 +1762,8 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 []()
 
-* Only the **64-bit** version of **Cygwin** is regularly tested by **The DPS8M Development Team**.
-  * Although the **32-bit** version of **Cygwin** is not regularly tested (*and not recommended due to suboptimal performance*), it *should* work for building **DPS8M** (with the `NEED_128=1` build option).
+* Only current **64-bit** versions of **Cygwin** are regularly tested by **The DPS8M Development Team**.
+  * The **32-bit** version of **Cygwin** was **discontinued** in 2022 and is ***no longer supported*** for building **DPS8M** (*as of* ***R3.0.2***).
 
 #### Cygwin prerequisites
 
@@ -1932,33 +1931,6 @@ In the following cross-compilation examples, the *latest* **`libuv`** sources (f
     env CC="x86_64-w64-mingw32-clang"                                    \
         CFLAGS="-I${HOME}/libuv-win32-x86_64/include -D__MINGW64__"      \
         LDFLAGS="-L${HOME}/libuv-win32-x86_64/lib"                       \
-      make CROSS="MINGW64"
-    ```
-
-#### Windows ARMv7
-
-* Using **Clang** (*the* **LLVM-MinGW** *compiler*) to cross-compile a local static `libuv` library and a native **32-bit** Windows/**ARMv7** executable:
-
-  * Build `libuv`:
-
-    ```sh
-    mkdir -p "${HOME}/libuv-build" &&                                   \
-    mkdir -p "${HOME}/libuv-win32-armv7" &&                             \
-    ( cd "${HOME}/libuv-build" &&                                       \
-      wget -v "https://github.com/libuv/libuv/archive/v1.x.zip" &&      \
-      unzip -xa "v1.x.zip" && cd "libuv-1.x" && sh ./autogen.sh &&      \
-      ./configure --prefix="${HOME}/libuv-win32-armv7"                  \
-        --enable-static --disable-shared --host="armv7-w64-mingw32" &&  \
-      make && make install )
-    ```
-
-  * Build the simulator:
-
-    ```sh
-    env CC="armv7-w64-mingw32-clang"                                    \
-        CFLAGS="-I${HOME}/libuv-win32-armv7/include -D__MINGW64__"      \
-        LDFLAGS="-L${HOME}/libuv-win32-armv7/lib"                       \
-        NEED_128=1                                                      \
       make CROSS="MINGW64"
     ```
 
