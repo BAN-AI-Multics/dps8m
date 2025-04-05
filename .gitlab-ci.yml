@@ -616,11 +616,12 @@ KVX binaries:
       # End of Configuration ...
       echo -e "section_end:`date +%s`:config_section\r\e[0K" || true
     - *scriptDPS8Mods
-    - mkdir -p /home/jhj/src/kalray/buildroot/build_kvx
-    - ln -s $HOME/x-tools/kvx-buildroot-linux-uclibc /home/jhj/src/kalray/buildroot/build_kvx/host
-    - export LDFLAGS=-static
-    - export PATH=$HOME/x-tools/kvx-buildroot-linux-uclibc/bin:$PATH
-    - export CC=$HOME/x-tools/kvx-buildroot-linux-uclibc/bin/kvx-linux-cc
+    - mkdir -p "/home/jhj/src/kalray/buildroot/build_kvx"
+    - ln -s "${HOME}/x-tools/kvx-buildroot-linux-uclibc" "/home/jhj/src/kalray/buildroot/build_kvx/host"
+    - export LDFLAGS="-static"
+    - export CFLAGS="-DFORCE_STATIC=1"
+    - export PATH="${HOME}/x-tools/kvx-buildroot-linux-uclibc/bin:${PATH}"
+    - export CC="${HOME}/x-tools/kvx-buildroot-linux-uclibc/bin/kvx-linux-cc"
     - env LOCAL_CONFOPTS="--host=kvx-linux" gmake libuvdev -j $(nproc)
     - env NO_LOCALE=1 gmake -j $(nproc)
     - mkdir -p "src/${DISTDIR:?}"
