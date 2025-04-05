@@ -589,6 +589,57 @@ Cross-compiled release binaries:
 
 ############################################################################
 
+KVX binaries:
+  image: registry.gitlab.com/dps8m/dps8m/kvx:latest
+  stage: build
+  needs:
+    - job: Source Tree Checks
+  tags:
+    - Docker-x64
+    - amd64
+    - Linux
+  script:
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptExtraInfo
+    - |
+      # Start of Configuration ...
+      echo -e "section_start:`date +%s`:config_section[collapsed=true]\r\e[0K\033[0;36mConfiguration ...\033[0m" || true
+    - ulimit -c 0 2> /dev/null || true > /dev/null 2>&1
+    - export CI_SKIP_MKREBUILD=1
+    - mkdir -p /tmp 2> /dev/null || true > /dev/null 2>&1
+    - export DISTDIR="dps8m-${CI_COMMIT_SHORT_SHA:?}"
+    - export LOCAL_CLONEOPTS=""
+    - git config --global user.name "GitLab CI" || true
+    - git config --global user.email "ci@example.com" || true
+    - |
+      # End of Configuration ...
+      echo -e "section_end:`date +%s`:config_section\r\e[0K" || true
+    - *scriptDPS8Mods
+    - mkdir -p /home/jhj/src/kalray/buildroot/build_kvx
+    - ln -s $HOME/x-tools/kvx-buildroot-linux-uclibc /home/jhj/src/kalray/buildroot/build_kvx/host
+    - export LDFLAGS=-static
+    - export PATH=$HOME/x-tools/kvx-buildroot-linux-uclibc/bin:$PATH
+    - export CC=$HOME/x-tools/kvx-buildroot-linux-uclibc/bin/kvx-linux-cc
+    - env LOCAL_CONFOPTS="--host=kvx-linux" gmake libuvdev -j $(nproc)
+    - env NO_LOCALE=1 gmake -j $(nproc)
+    - mkdir -p "src/${DISTDIR:?}"
+    - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - ( cd src && tar cf ../dps8m-git-linux-kvx3.tar "./${DISTDIR:?}"; )
+    - pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-kvx3.tar
+    - rm -rf "src/${DISTDIR:?}"
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - dps8m-git-linux-kvx3.tar.gz
+  retry: 2
+  timeout: 480 minutes
+  interruptible: true
+
+############################################################################
+
 Elbrus binaries:
   image: registry.gitlab.com/dps8m/dps8m/mcst:latest
   stage: build
@@ -1506,6 +1557,7 @@ pages:
     - job: Cppcheck
     - job: Cross-compiled release binaries
     - job: Elbrus binaries
+    - job: KVX binaries
     - job: DPS8M Omnibus Documentation
     - job: Flawfinder
     - job: GNU GLOBAL Hypertext
@@ -1525,6 +1577,7 @@ pages:
     - "Cppcheck"
     - "Cross-compiled release binaries"
     - "Elbrus binaries"
+    - "KVX binaries"
     - "DPS8M Omnibus Documentation"
     - "Flawfinder"
     - "GNU GLOBAL Hypertext"
@@ -1557,7 +1610,7 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-src.7z public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-src.zip public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-src.zpaq public
-  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-s114-sv9.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-s114-sv9.tar.gz publi
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-fbd13-a64.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-fbd13-x61.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-fbd13-x32.tar.gz public
@@ -1592,6 +1645,7 @@ pages:
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-e2kv5.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-e2k6c.tar.gz public
   - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-e2k63.tar.gz public
+  - mv -f ${CI_PROJECT_DIR:?}/dps8m-git-linux-kvx3.tar.gz public
   - find "public" -type f -name '*-mingw-*.zip' -print0 | xargs -0 -n 1 -P 0 advzip -k -z4 || true
   - find "public" -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\)$' -print0 | xargs -0 -n 1 -P 0 brotli -f -k -v -Z -- || true
   - find "public" -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\)$' -print0 | xargs -0 -n 1 -P 0 pigz -9 -f -k -m -v -- || true

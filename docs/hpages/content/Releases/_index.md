@@ -686,6 +686,12 @@ title: DPS8M Releases
 | [**dps8m-git-linux-r64.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-r64.tar.gz) | RV64     |
 {{< /expand >}}
 
+{{< expand "Kalray Coolidge™ MPPA® (KVX)" "…" >}}
+| File                                                                                         | Platform |
+| :------------------------------------------------------------------------------------------- | :------- |
+| [**dps8m-git-linux-kvx3.tar.gz**](https://dps8m.gitlab.io/dps8m/dps8m-git-linux-kvx3.tar.gz) | KV3‑1    |
+{{< /expand >}}
+
 {{< expand "МЦСТ Эльбрус" "…" >}}
 | File                                                                                           | Platform      |
 | :--------------------------------------------------------------------------------------------- | :------------ |
