@@ -41,6 +41,7 @@
 
 # include <time.h>
 # include <sys/types.h>
+# include <unistd.h>
 # include <pthread.h>
 
 # define SIM_NTIMERS          8   /* # timers */

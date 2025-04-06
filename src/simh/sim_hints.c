@@ -117,6 +117,12 @@
 # define PROC_SELF "/proc/self/path/a.out"
 #endif
 
+#if defined(__managarm__)
+# if !defined(FORCE_STATIC)
+#  define FORCE_STATIC
+# endif
+#endif
+
 #if !defined(CHAR_BIT)
 # define CHAR_BIT 8
 #endif
@@ -1002,7 +1008,7 @@ show_hints (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /* HINT: Check available memory and warn the user if it seems too low. */
 
-  if (sim_free_memory < 192000000) {
+  if (sim_free_memory < 192000000 && sim_free_memory > 0) {
     if (!flag) {
       sim_hrline ();
       sim_printf ("\r\n* Hint #%u - LOW SYSTEM MEMORY DETECTED\r\n", ++hint_count);

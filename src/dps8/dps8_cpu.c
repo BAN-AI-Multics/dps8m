@@ -5172,6 +5172,8 @@ void setupPROM (uint cpuNo, unsigned char * PROM) {
 #  else
 #   define VER_H_PROM_TSV_TEXT "QNX                 "
 #  endif
+# elif defined(__managarm__)
+#  define VER_H_PROM_TSV_TEXT "Managarm            "
 # endif
 # if !defined(VER_H_PROM_TSV_TEXT)
 #  define BURN_PROM_TSV_TEXT "Unknown Target OpSys"

@@ -123,7 +123,7 @@ utfile_mkstemps(char *request_pattern, int suffix_length)
   h = hash32s(&ptr, sizeof(ptr), h);
   time_t t = time(0);
   h = hash32s(&t, sizeof(t), h);
-#if !defined(_AIX)
+#if !defined(_AIX) && !defined(__managarm__)
   for (int i = 0; i < 1000; i++)
     {
       unsigned long counter = 0;

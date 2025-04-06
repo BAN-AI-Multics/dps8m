@@ -1170,7 +1170,7 @@ mgp_init_dev_state(void)
   h = hash32s(&ptr, sizeof(ptr), h);
   time_t t = time(0);
   h = hash32s(&t, sizeof(t), h);
-# if !defined(_AIX)
+# if !defined(_AIX) && !defined(__managarm__)
   for (int i = 0; i < 1000; i++)
     {
       unsigned long counter = 0;
