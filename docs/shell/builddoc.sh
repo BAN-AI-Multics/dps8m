@@ -58,6 +58,7 @@ unset FLOCK_COMMAND > "/dev/null" 2>&1 || true
  INPUTS="${INPUTS:-} hpages/content/Documentation/Source_Compilation/_index.md" # <-------- Building from Source Code
  INPUTS="${INPUTS:-} md/post-source.md" # <-------- (finish) Building from Source Code
  INPUTS="${INPUTS:-} md/commandref.md" # <--------- Simulator Command Reference
+ INPUTS="${INPUTS:-} md/tips.md" # <--------------- Tips and Tricks
  INPUTS="${INPUTS:-} md/licensing.md" # <---------- Licensing Terms and Legal
 
 ################################################################################

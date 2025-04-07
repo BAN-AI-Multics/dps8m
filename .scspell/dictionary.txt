@@ -9910,6 +9910,7 @@ certifies
 certs
 cfgal
 cflags
+cgroups
 chain
 chained
 chance
@@ -9946,11 +9947,13 @@ chicken
 chiclitz
 child
 children
+chmod
 choice
 choices
 choose
 chopping
 chosen
+chown
 christmas
 chrony
 chuck
@@ -10013,6 +10016,7 @@ closest
 closing
 closure
 cluster
+cmnd
 coarse
 cobol
 code
@@ -10178,6 +10182,7 @@ consequential
 consequently
 conservative
 consider
+considerations
 considered
 considering
 considers
@@ -10193,6 +10198,7 @@ consternated
 constitute
 constrained
 constraint
+constraints
 construct
 constructed
 consts
@@ -10321,6 +10327,7 @@ credentials
 criteria
 critical
 crocodile
+crontab
 cross
 crossing
 cruft
@@ -10749,6 +10756,7 @@ dynamically
 each
 earlier
 early
+earlyoom
 easier
 easiest
 easily
@@ -10879,6 +10887,7 @@ erasing
 erasure
 eric
 erlang
+errno
 error
 erroring
 errors
@@ -10903,6 +10912,7 @@ estimation
 eswenson
 etags
 ethernet
+euid
 europe
 eval
 evaluated
@@ -10962,6 +10972,8 @@ executive
 executor
 exemplary
 exempt
+exempting
+exempts
 exercises
 exhausted
 exhaustion
@@ -11031,6 +11043,8 @@ extracts
 extras
 exuberant
 fabs
+facebook
+facebookincubator
 facilitate
 facilitates
 facilities
@@ -11216,6 +11230,7 @@ frankfurter
 free
 freebsd
 freed
+freedesktop
 freely
 frees
 freescale
@@ -11261,6 +11276,7 @@ general
 generality
 generalization
 generalized
+generally
 generated
 generates
 generating
@@ -11496,6 +11512,7 @@ hull
 human
 humor
 hundred
+hung
 hurd
 hurts
 hwloc
@@ -11554,6 +11571,7 @@ implied
 implies
 implying
 important
+importantly
 impossible
 improper
 improve
@@ -11851,6 +11869,7 @@ keywords
 kids
 kill
 killed
+killer
 kind
 kinds
 king
@@ -11869,6 +11888,7 @@ krah
 kretzschmar
 krewat
 krewinkel
+kubernetes
 label
 labeled
 labels
@@ -11934,6 +11954,7 @@ liability
 liable
 libbacktrace
 libbrotli
+libcap
 libcmb
 libcurl
 liberal
@@ -12003,6 +12024,7 @@ literate
 little
 live
 llvm
+lmkd
 loaded
 loader
 loading
@@ -12449,6 +12471,7 @@ nonzero
 noon
 noop
 noordhuis
+nopasswd
 nopdf
 nope
 norfolk
@@ -12560,6 +12583,7 @@ onln
 only
 onto
 onward
+oomd
 oops
 ooxml
 opacity
@@ -12624,6 +12648,7 @@ outward
 oval
 overall
 overcome
+overcommitment
 overestimated
 overflow
 overflowed
@@ -12681,6 +12706,7 @@ pairs
 pandoc
 panel
 panels
+panic
 paper
 parade
 paradigm
@@ -12783,6 +12809,7 @@ pertaining
 pesetas
 pessimistic
 peter
+pgrep
 pharmaceutical
 phase
 philip
@@ -12886,6 +12913,7 @@ powered
 powering
 powerpc
 powers
+ppid
 practical
 practice
 practices
@@ -13115,6 +13143,7 @@ randomly
 randomness
 range
 ranges
+ranging
 rank
 rapid
 raptor
@@ -13323,6 +13352,7 @@ repair
 repeatable
 repeated
 repeatedly
+repeating
 repeats
 repetition
 replaced
@@ -13448,6 +13478,7 @@ rewriting
 rewritten
 rexx
 rfcs
+rfjakob
 rhel
 ribeye
 ribs
@@ -13550,6 +13581,7 @@ saved
 saving
 saying
 says
+sbin
 scalar
 scale
 scaled
@@ -13570,6 +13602,8 @@ schemes
 science
 scientific
 scope
+score
+scoring
 scrambled
 scraper
 scratch
@@ -13592,6 +13626,7 @@ secrets
 section
 sections
 sectors
+securely
 security
 seed
 seek
@@ -14036,6 +14071,8 @@ successive
 successor
 successors
 such
+sudo
+sudoers
 suffice
 sufficient
 sufficiently
@@ -14169,6 +14206,7 @@ terminated
 terminates
 terminating
 termination
+terminations
 terminator
 terms
 termsp
@@ -14260,6 +14298,7 @@ timing
 timothe
 tiniest
 tiny
+tips
 title
 titles
 titling
@@ -14359,10 +14398,12 @@ tree
 trick
 trickery
 trickier
+tricks
 tricky
 tried
 tries
 triggered
+triggering
 triggers
 trim
 trimmed
@@ -14383,6 +14424,7 @@ truncation
 trunk
 trying
 tuesday
+tuned
 tuning
 tuple
 turing
@@ -14632,6 +14674,7 @@ varies
 various
 vary
 varying
+vdso
 vector
 vectorize
 vectors
@@ -14664,11 +14707,13 @@ violates
 violation
 violations
 virtual
+virtuozzo
 visible
 visit
 visited
 visual
 visually
+visudo
 voiced
 void
 volatile
