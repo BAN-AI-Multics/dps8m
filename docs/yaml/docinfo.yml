@@ -101,6 +101,7 @@ include-before: |
 \hyphenation{CLANGARM}
 \hyphenation{combinatorics}
 \hyphenation{command}
+\hyphenation{commands}
 \hyphenation{compiler}
 \hyphenation{COMPLETENESS}
 \hyphenation{computer}
@@ -108,6 +109,7 @@ include-before: |
 \hyphenation{configuration}
 \hyphenation{configures}
 \hyphenation{CONNECTION}
+\hyphenation{consideration}
 \hyphenation{consoles}
 \hyphenation{contained}
 \hyphenation{contributed}
@@ -120,12 +122,14 @@ include-before: |
 \hyphenation{CORRECTIONS}
 \hyphenation{CURRENCY}
 \hyphenation{currently}
+\hyphenation{customers}
 \hyphenation{Cygwin}
 \hyphenation{DAMAGES}
 \hyphenation{decimal}
 \hyphenation{Definition}
 \hyphenation{deprecated}
 \hyphenation{DEVELOPMENT}
+\hyphenation{device}
 \hyphenation{directory}
 \hyphenation{disabled}
 \hyphenation{disclaimer}
@@ -146,6 +150,7 @@ include-before: |
 \hyphenation{endorse}
 \hyphenation{Engineering}
 \hyphenation{ENHANCEMENTS}
+\hyphenation{especially}
 \hyphenation{executable}
 \hyphenation{EXPRESS}
 \hyphenation{external}
@@ -177,6 +182,7 @@ include-before: |
 \hyphenation{including}
 \hyphenation{incorporate}
 \hyphenation{incorporated}
+\hyphenation{indicating}
 \hyphenation{Information}
 \hyphenation{infringement}
 \hyphenation{INFRINGEMENT}
@@ -217,6 +223,7 @@ include-before: |
 \hyphenation{originally}
 \hyphenation{OTHERWISE}
 \hyphenation{owners}
+\hyphenation{packages}
 \hyphenation{parallelization}
 \hyphenation{particular}
 \hyphenation{PERFORMANCE}
@@ -227,6 +234,7 @@ include-before: |
 \hyphenation{precision}
 \hyphenation{prerequisites}
 \hyphenation{privilege}
+\hyphenation{process}
 \hyphenation{Professor}
 \hyphenation{protection}
 \hyphenation{provided}
@@ -235,7 +243,9 @@ include-before: |
 \hyphenation{purpose}
 \hyphenation{QuickStart}
 \hyphenation{quiescent}
+\hyphenation{ranging}
 \hyphenation{recommend}
+\hyphenation{recommended}
 \hyphenation{Regents}
 \hyphenation{replace}
 \hyphenation{required}
@@ -250,10 +260,12 @@ include-before: |
 \hyphenation{similar}
 \hyphenation{simply}
 \hyphenation{simulator}
+\hyphenation{situations}
 \hyphenation{Software}
 \hyphenation{Source}
 \hyphenation{specific}
 \hyphenation{specification}
+\hyphenation{specified}
 \hyphenation{spreadsheet}
 \hyphenation{standard}
 \hyphenation{SUBSTITUTE}
@@ -266,10 +278,12 @@ include-before: |
 \hyphenation{Technology}
 \hyphenation{TELNET}
 \hyphenation{TeX}
+\hyphenation{tracking}
 \hyphenation{trademark}
 \hyphenation{University}
 \hyphenation{Unix}
 \hyphenation{UNIX}
+\hyphenation{unusable}
 \hyphenation{upstream}
 \hyphenation{vector}
 \hyphenation{version}
@@ -279,14 +293,3 @@ include-before: |
 \hyphenation{Windows/}
 \hyphenation{Windows}
 \hyphenation{without}
-\hyphenation{customers}
-\hyphenation{tracking}
-\hyphenation{recommended}
-\hyphenation{specified}
-\hyphenation{especially}
-\hyphenation{process}
-\hyphenation{unusable}
-\hyphenation{commands}
-\hyphenation{situations}
-\hyphenation{indicating}
-\hyphenation{consideration}
