@@ -223,6 +223,7 @@ include-before: |
 \hyphenation{originally}
 \hyphenation{OTHERWISE}
 \hyphenation{owners}
+\hyphenation{packager}
 \hyphenation{packages}
 \hyphenation{parallelization}
 \hyphenation{particular}
@@ -247,6 +248,7 @@ include-before: |
 \hyphenation{recommend}
 \hyphenation{recommended}
 \hyphenation{Regents}
+\hyphenation{regularly}
 \hyphenation{replace}
 \hyphenation{required}
 \hyphenation{Research}

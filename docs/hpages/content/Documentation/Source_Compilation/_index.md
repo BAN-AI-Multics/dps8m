@@ -1219,7 +1219,7 @@ Examples of building the simulator on **Linux** using various popular compilers 
 * Build the simulator using **NVIDIA HPC SDK C Compiler** (**NVC**), version 25.3, for Linux/**x86_64** (with versions also available for Linux/**ARM64** and Linux/**OpenPOWER**):
 
   ```sh
-  export NVCVER="25.3" &&                                                   \
+  export NVCVER="25.3" &&                                                    \
   export NVPLAT="Linux_x86_64" &&                                            \
   export NVCPATH="/opt/nvidia/hpc_sdk/${NVPLAT}/${NVCVER}/compilers/bin" &&  \
   env CFLAGS="-noswitcherror --diag_suppress=mixed_enum_type                 \
