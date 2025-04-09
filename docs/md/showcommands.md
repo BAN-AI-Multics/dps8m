@@ -707,6 +707,8 @@ SHOWPRTDEBUGHERE
 
 The following device-specific "`SHOW`" commands are available for the "`PUN`" device. If the "`SHOW PUN`" command can operate on a specific unit, but no unit is specified, the first unit (*i.e.* `PUN`**`0`**) is assumed.
 
+For details on usage and configuration of "`PUN`" devices, see the "`SET PUN`" section of this documentation.
+
 #### CONFIG
 
 "**`CONFIG`**" shows configuration details (set via "`SET PUNn CONFIG`") for the "`PUN`" unit specified.
@@ -772,6 +774,8 @@ SHOWPUNDEBUGHERE
 ### RDR
 
 The following device-specific "`SHOW`" commands are available for the "`RDR`" device. If the "`SHOW RDR`" command can operate on a specific unit, but no unit is specified, the first unit (*i.e.* `RDR`**`0`**) is assumed.
+
+For details on usage and configuration of "`RDR`" devices, see the "`SET RDR`" section of this documentation.
 
 <!------------------------------------------------------------------------------------->
 

@@ -95,6 +95,7 @@ include-before: |
 \hyphenation{automatically}
 \hyphenation{available}
 \hyphenation{background}
+\hyphenation{because}
 \hyphenation{Berkeley}
 \hyphenation{Bull}
 \hyphenation{California}
@@ -103,6 +104,7 @@ include-before: |
 \hyphenation{command}
 \hyphenation{commands}
 \hyphenation{compiler}
+\hyphenation{completed}
 \hyphenation{COMPLETENESS}
 \hyphenation{computer}
 \hyphenation{concentric}
@@ -261,6 +263,7 @@ include-before: |
 \hyphenation{series}
 \hyphenation{similar}
 \hyphenation{simply}
+\hyphenation{simulated}
 \hyphenation{simulator}
 \hyphenation{situations}
 \hyphenation{Software}
@@ -280,8 +283,10 @@ include-before: |
 \hyphenation{Technology}
 \hyphenation{TELNET}
 \hyphenation{TeX}
+\hyphenation{Therefore}
 \hyphenation{tracking}
 \hyphenation{trademark}
+\hyphenation{unexpected}
 \hyphenation{University}
 \hyphenation{Unix}
 \hyphenation{UNIX}

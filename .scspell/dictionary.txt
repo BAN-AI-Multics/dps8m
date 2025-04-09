@@ -9200,6 +9200,14 @@ libfl
 FILEID: 9f846ffc-13ce-11f0-804d-80ee73e9b8e7
 sektion
 
+FILEID: 65252877-3180-11ed-bcd8-80ee73e9b8e7
+absin
+addnl
+noaddnl
+notrim
+nthony
+viipunch
+
 NATURAL:
 abandon
 abandoned
@@ -9235,6 +9243,7 @@ accessible
 accessing
 accessors
 accommodate
+accomplished
 according
 accordingly
 account
@@ -9898,6 +9907,7 @@ causing
 caution
 cbridge
 cctree
+cdeck
 cedille
 ceiling
 cells
@@ -10036,6 +10046,7 @@ collating
 collect
 collected
 collection
+collections
 collide
 collision
 collisions
@@ -10524,6 +10535,7 @@ descriptors
 deserves
 designated
 designates
+designating
 designation
 designator
 designed
@@ -11292,6 +11304,7 @@ generous
 genuine
 geometry
 german
+gets
 getting
 ghostscript
 ghostview
@@ -11349,6 +11362,7 @@ gross
 ground
 group
 groupe
+grouped
 groupings
 groups
 grow
@@ -11823,6 +11837,7 @@ itself
 iwmmxt
 jade
 jailed
+jammed
 january
 java
 jean
@@ -12779,6 +12794,7 @@ peak
 pedantic
 pedantry
 peek
+peeks
 peer
 penalty
 pending
@@ -12950,6 +12966,7 @@ prefill
 prefilter
 prefix
 prefixed
+prefixes
 prefixing
 preliminary
 preload
@@ -13299,6 +13316,7 @@ registers
 registry
 regressions
 regularly
+reinit
 reinspect
 reinstall
 reissued
@@ -13622,6 +13640,7 @@ scripting
 scripts
 scroll
 scspell
+sdeck
 sdwam
 seagreen
 sean
@@ -14194,6 +14213,7 @@ technically
 technology
 teletype
 tell
+tells
 telnet
 temp
 temperature
@@ -14381,6 +14401,7 @@ transition
 transitioning
 translated
 translates
+translating
 translation
 translator
 transmission

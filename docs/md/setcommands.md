@@ -1591,6 +1591,125 @@ The following "**`MTP`**" configuration options are associated with a specified 
 
 ### RDR Configuration
 
+The simulated card reader devices (**`RDR`**) operate by reading simulated punched card deck files from a queue directory.
+
+The following sections document the commands for configuring the simulated card reader devices and provide an overview of their usage.  The simulator includes a utility, **`punutil`**, used to manipulate punched card deck files, which is referred to in the following documentation.
+
+#### Submitting punched card decks to the card reader
+
+Decks are submitted by copying the deck files into the queue directory.
+
+The location of the queue directory on the host system is controlled with the "`SET RDR PATH`" command (and can be viewed with the "`SHOW RDR PATH`" command).
+
+#### Punched card formats
+
+* There are three card formats recognized by the simulator:
+
+  1. '`card`'
+  2. '`stream`'
+  3. '`7punch`'
+
+##### Punched card "`card`" format
+
+* In '`card`' format, each line of text is treated as an `80`-column card image.
+* Newlines in the file are treated as card separators.
+* Lines longer than `80` characters are silently extended to the next card image.
+
+##### Punched card "`stream`" format
+
+* In '`stream`' format, each byte of input is read and translated to *MCC* punch codes, grouped into collections of `80` columns.
+* No newline processing is done by the simulator.
+
+##### Punched card "`7punch`" format
+
+* In '`7punch`' format, after the '`++INPUT`' card, all input is treated as a *bit stream* intended to pass binary files (*in '`7punch`' format*) to '`++DATA`' decks for copying the file to a Multics segment.
+
+##### Punched card format determination
+
+* The deck format is determined by the prefix of the filename being submitted:
+
+  1. '`card`' format: "`cdeck.*`"
+  2. '`stream`' format: "`sdeck.*`"
+  3. '`7punch`' format: "`7deck.*`"
+
+##### Punched card format / simulator interaction
+\
+\
+Any file in the card reader queue directory that does *not* start with one of these prefixes will be ignored (other than a file named "`discard`", see "*Restarting the card reader device*" for more details).
+
+Note that the simulator "peeks" at the card data, because it needs to know when to start using a specific encoding.  The simulator always starts by translating the cards into *MCC* punch codes for the job control cards (*i.e.* those that start with a "`++`").  When it detects an "`++input`" card, it will switch to processing further input based on the deck format as specified by the filename prefixes given above.
+
+#### Restarting the card reader device
+
+If the card reader device gets jammed due to an error in a deck, use the following procedure to clear and reset it:
+
+1. On the host system, create an empty file in the card reader queue directory named "`discard`".
+   * On Unix systems, this can be accomplished with "`touch discard`".
+2. On the Multics console, issue the following commands:
+        r rdra reinit
+        r rdra read_cards
+
+   * You should replace "`rdra`" above with the appropriate card reader device name if you have more than one card reader device configured.
+
+This will close out the card reader file in the simulator and restart the card reader in Multics.
+
+#### Working with card decks
+
+When working with card decks, it is important to understand how Multics is going to process them.  Refer to *AG91-04A* (*Multics Programmer's Reference Manual*), Pages `5-50` through `5-60` ("*Bulk Input and Output*"), and Appendix `C` ("*Punched-Card Input Output and Returned Output Control*") for complete details.  Some simple examples follow, but *AG91-04A* is the definitive reference.
+
+Note that other than the punched card deck format prefixes above, the rest of this information does not involve the simulator, only Multics.  It is also important to note that, when dealing with punched card decks, you are using a simulated media that is limited to a maximum of `80` characters per line.  Trying to use lines longer than `80` characters will cause unexpected behavior and will likely not result in what you expect.
+
+#### Using the punched card format "`card`" ('`cdeck.*`')
+
+The '`++FORMAT`' card should read '`++format mcc addnl trim`'.  This tells the card reader processor to trim trailing blanks and add newlines to each card image.
+
+The following example loads a data file into Multics:
+        ++data bootload_1.alm \Anthony \Sys\Eng
+        ++password XXX
+        ++format mcc addnl trim
+        ++control overwrite
+        ++input
+
+* Since card input gets translated into lower case, there needs to be a method of designating upper case letters (because Multics is case-sensitive, and Multics *Person IDs* and *Project IDs* typically use mixed-case names).  Therefore, prefixing a letter with a backslash ('`\`') will cause that character to be translated as upper case.
+
+* The '`++format`' card above will tell Multics to trim trailing blanks and add newlines to each card image.  The "`mcc`" tells it that the cards are punched with *MCC* codes (this is done by the simulator when using '`cdeck`' or '`sdeck`' formats).  Even though it is optional, it is best practice to *always* include a '`++format`' card so you know how Multics will process your deck.
+
+The following example executes a Multics absentee job:
+        ++rje test.absin \Anthony \Sys\Eng
+        ++password XXX
+        ++format mcc addnl trim
+        ++input
+        ccd bootload_1.alm
+        alm -list bootload_1
+
+* This deck will log in as `Anthony.SysEng` and execute the two commands after the '`++input`' card.  When completed, a print job containing the results of executing these commands will be queued.
+
+#### Using the punched card format "`stream`" ('`sdeck.*`')
+
+This example is the same as the first '`cdeck`' example above, except formatted to use '`stream`' format:
+        ++data bootload_1.alm \Anthony \Sys\Eng
+        ++password XXX
+        ++format mcc noaddnl notrim
+        ++control overwrite
+        ++input
+
+* The '`++format`' card specifies *not* to add newlines for each card and *not* to trim trailing spaces.
+
+* The '`++control`' card specifies "`overwrite`", which will truncate an existing file with the same name if it already exists.
+
+* For this example, compared to the equivalent example in '`cdeck`' format above, there is no significant advantage to choose the '`sdeck`' format over '`cdeck`'.  Just pick one and use the correct `++format` card.
+
+#### Using the punched card format "`7punch`" ('`7deck.*`')
+
+The '`7punch`' format is used when you need to transfer a binary file via punched card.  The simulator will just read raw bytes after the '`++input`' card and transfer them to Multics.  Using Multics, you can create a '`7punch`' output deck on the card punch device and use the "**`punutil`**" utility to extract just the binary cards from the deck.  The resulting file can be loaded by prefixing it with the following:
+        ++data bound_segment_ \Anthony \Sys\Eng
+        ++password XXX
+        ++format viipunch noaddnl notrim
+        ++control overwrite
+        ++input
+
+* The '`++format`' card ***must*** have "`viipunch`" and specify *not* to add newlines and *not* to trim.
+
 #### DEBUG (NODEBUG)
 
 * TBD
@@ -1601,7 +1720,14 @@ The following "**`MTP`**" configuration options are associated with a specified 
 
 #### PATH
 
-* TBD
+"**`PATH`**" configures the path that will be used as the queue directory for reading simulated punched card deck files (for all '`RDR`' devices).
+
+        PATH=<path>
+
+**Example**
+
+* Set the punched card reader queue directory to "`/home/tom/card_decks`":
+        SET RDR PATH=/home/tom/card_decks
 
 <!-- br -->
 

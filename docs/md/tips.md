@@ -134,5 +134,5 @@ If you want to automate the process of setting the '`protect`' flag each time th
   PID 55290 protected successfully.
   ```
 
-***NOTE***: If "`sudo`" asks for a password to run the script (executed via the full absolute path) even after the above configuration you should examine the output of "`sudo -l`" to review your configuration, and ensure that the entry for "`dps8-oom`" appears *after* any generic "`(ALL) ALL`" or similar entries.  See the "[`sudo`](https://www.sudo.ws/)" documentation for further details.
+***NOTE***: If "`sudo`" asks for a password to run the script (executed via the full absolute path) even after the above configuration you should examine the output of "`sudo -l`" to review your rule ordering, and ensure that the entry for "`dps8-oom`" appears *after* any generic "`(ALL) ALL`" or similar entries.  See the "[`sudo`](https://www.sudo.ws/)" documentation for further details.
 
