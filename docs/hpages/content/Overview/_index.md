@@ -195,7 +195,7 @@
 
   * <u>Hardware architectures</u> actively supported include **Intel x86** (i686, x86_64), **ARM** (ARMv6, ARMv7, ARM64), **LoongArch** (LA64), **MIPS** (MIPS, MIPS64), **OpenRISC** (OR1200, MOR1KX), **PowerPC** (PPC, PPC64, PPC64le), **RISC-V** (RV64), **SPARC** (SPARC, UltraSPARC), **E2K** (МЦСТ Эльбрус), **KVX** (Kalray MPPA®, Coolidge™), and **IBM Z** (s390x, z13+).
 
-* Various releases of **DPS8M** have been ported to **embedded systems**, **cell phones**, **tablets**, **handheld gaming consoles**, **wireless routers**, and even modern **mainframes**.  A full-featured port should be possible for any 32- or 64-bit platform (preferably with appropriate hardware atomic operations) and able to support ports of the [**libuv**](https://libuv.org/) asynchronous I/O library and [**libsir**](https://github.com/aremmell/libsir) logging library.
+* Various releases of **DPS8M** have been ported to **embedded systems**, **cell phones**, **tablets**, **handheld gaming consoles**, **wireless routers**, and even modern **mainframes**.  A full-featured port should be possible for any 32‑ or 64‑bit platform (preferably with appropriate hardware atomic operations) and able to support ports of the [**libuv**](https://libuv.org/) asynchronous I/O library and [**libsir**](https://github.com/aremmell/libsir) logging library.
 
 * The simulator is distributed as an [**easy-to-build**](https://dps8m.gitlab.io/dps8m/Documentation/Source_Compilation) source code [**distribution**](https://dps8m.gitlab.io/dps8m/Releases) (buildable simply via '**`make`**' on most systems) or as ready-to-run [**pre-compiled binaries**](https://dps8m.gitlab.io/dps8m/Releases) for several popular platforms.
 

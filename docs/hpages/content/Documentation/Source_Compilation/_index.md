@@ -167,7 +167,7 @@ Review the complete [**DPS8M Omnibus Documentation**](https://dps8m.gitlab.io/dp
 
 []()
 
-* Building on a **64-bit** platform is **strongly encouraged for optimal performance**.
+* Building on a **64‑bit** platform is **strongly encouraged for optimal performance**.
 
 []()
 
@@ -771,7 +771,7 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 
 []()
 
-* The simulator can be built for **64-bit** **AIX®** systems using [**IBM XL C/C++ for AIX**](https://www.ibm.com/products/xl-c-aix-compiler-power) (**`xlc`**), [**IBM Open XL C/C++ for AIX**](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) (**`ibm-clang`**), mainline **Clang** (**`clang`**), and **GNU C** (**`gcc`**).  When using **XL compilers**, ensure that you are using the [latest available XL compiler and associated PTF updates](https://www.ibm.com/support/pages/aix-os-levels-supported-xl-compilers) for your **IBM AIX** OS level. Review the current [fix list for XL compilers on AIX](https://www.ibm.com/support/pages/fix-list-xl-cc-aix) for complete details.
+* The simulator can be built for **64‑bit** **AIX®** systems using [**IBM XL C/C++ for AIX**](https://www.ibm.com/products/xl-c-aix-compiler-power) (**`xlc`**), [**IBM Open XL C/C++ for AIX**](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) (**`ibm-clang`**), mainline **Clang** (**`clang`**), and **GNU C** (**`gcc`**).  When using **XL compilers**, ensure that you are using the [latest available XL compiler and associated PTF updates](https://www.ibm.com/support/pages/aix-os-levels-supported-xl-compilers) for your **IBM AIX** OS level. Review the current [fix list for XL compilers on AIX](https://www.ibm.com/support/pages/fix-list-xl-cc-aix) for complete details.
 
 []()
 
@@ -780,35 +780,35 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 ### Recommended compilers
 
 * [**IBM Open XL C/C++ for AIX V17.1.3 Fix Pack 1** (March 2025)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the recommended compiler for **Power11** systems.
-  * LTO (*link-time optimization*) and native 128-bit integer operations are both fully supported.
+  * LTO (*link-time optimization*) and native 128‑bit integer operations are both fully supported.
 
 []()
 
 * [**IBM Open XL C/C++ for AIX V17.1.2 Fix Pack 15** (February 2025)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the *minimum* recommended version of the **Open XL C/C++ V17.1.2** compiler for **POWER8**, **POWER9**, and **Power10** systems.
-  * LTO (*link-time optimization*) and native 128-bit integer operations are both fully supported.
+  * LTO (*link-time optimization*) and native 128‑bit integer operations are both fully supported.
 
 []()
 
 * [**Clang 20.1.0**](https://clang.llvm.org/) is the *minimum* recommended version of the mainline **Clang** compiler.
-  * LTO *(link-time optimization)* and native 128-bit integer operations are both fully supported.
+  * LTO *(link-time optimization)* and native 128‑bit integer operations are both fully supported.
 
 #### Other supported compilers
 
 * [**IBM Open XL C/C++ for AIX V17.1.1 Fix Pack 6** (February 2024)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the *minimum* recommended version of the **Open XL C/C++ V17.1.1** compiler for **POWER8**, **POWER9**, and **Power10** systems.
-  * LTO (*link-time optimization*) is supported, but 128-bit integer operations are **not supported**.
+  * LTO (*link-time optimization*) is supported, but 128‑bit integer operations are **not supported**.
     * Use of the **`NEED_128=1`** option is required when building with **Open XL C/C++ V17.1.1**.
 
 []()
 
 * [**IBM XL C/C++ for AIX V16.1.0 Fix Pack 20** (December 2024)](https://www.ibm.com/support/pages/ibm-xl-cc-aix-161) is the *minimum* recommended version of the **IBM XL C/C++ V16.1.0** compiler for **POWER8** and **POWER9** systems.
-  * LTO (*link-time optimization*) and 128-bit integer operations are both **not supported**.
+  * LTO (*link-time optimization*) and 128‑bit integer operations are both **not supported**.
     * Use of the **`NEED_128=1`** and **`NO_LTO=1`** options are required when building with **IBM XL C/C++ V16.1.0**.
   * **IBM XL C/C++ V16.1.0** is **not** recommended for **Power10** systems.
 
 []()
 
 * **GNU C 11.3.0** is the *minimum* recommended version of the **GNU C** compiler for **POWER8**, **POWER9**, and **Power10** systems.
-  * LTO (*link-time optimization*) and 128-bit integer operations are both **not supported**.
+  * LTO (*link-time optimization*) and 128‑bit integer operations are both **not supported**.
     * Use of the **`NEED_128=1`** and **`NO_LTO=1`** options are required when building with **GNU C**.
   * **GCC 11** (and **GCC 12**) can be installed from the [IBM AIX Toolbox for Open Source Software](https://www.ibm.com/support/pages/aix-toolbox-open-source-software-overview) repository.
 
@@ -992,7 +992,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 ## Haiku
 
-* Ensure you are running a recent release of [**Haiku**](https://www.haiku-os.org/) on a [supported **64-bit** platform](https://www.haiku-os.org/guides/building/port_status).
+* Ensure you are running a recent release of [**Haiku**](https://www.haiku-os.org/) on a [supported **64‑bit** platform](https://www.haiku-os.org/guides/building/port_status).
   * Use the '**SoftwareUpdater**' application to ensure your **Haiku** installation is up-to-date.
 * **The DPS8M Development Team** regularly tests the simulator using the [nightly **Haiku** **x86_64** snapshots](https://download.haiku-os.org/nightly-images/x86_64/).
   * **Haiku** **x86_64** (**`hrev58181`**) was used to verify the following instructions.
@@ -1027,7 +1027,7 @@ The default **Haiku** installation includes the required header files, an accept
 
 ### Additional Haiku Notes
 
-* **DPS8M** on **32-bit** **Haiku** platforms (*i.e.* **x86**, **x86_gcc2**) is **not** supported at this time.
+* **DPS8M** on **32‑bit** **Haiku** platforms (*i.e.* **x86**, **x86_gcc2**) is **not** supported at this time.
 
 <br>
 
@@ -1038,7 +1038,7 @@ The default **Haiku** installation includes the required header files, an accept
 ## Linux
 
 * Most major **Linux** distributions using the [**GNU C Library**](https://www.gnu.org/software/libc/), [**musl-libc**](https://musl.libc.org/), and [**uClibc‑ng**](https://uclibc-ng.org/) (with `NO_LOCALE=1`) are supported.
-  * [**Debian GNU/Linux**](https://www.debian.org/) and derivatives ([**Raspberry Pi OS**](https://www.raspberrypi.com/software/)), **Red Hat** variants ([**Fedora**](https://fedoraproject.org/), [**CentOS Stream**](https://www.centos.org/centos-stream/), [**RHEL**](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux)) and compatibles ([**AlmaLinux**](https://almalinux.org/), [**Amazon Linux**](https://aws.amazon.com/amazon-linux-2/), [**Oracle Linux**](https://www.oracle.com/linux/)),  [**Alpine**](https://www.alpinelinux.org/), **SUSE** ([**SLES**](https://www.suse.com/products/server/), [**OpenSUSE**](https://www.opensuse.org/)), [**Void**](https://voidlinux.org/), and [**Ubuntu**](https://ubuntu.com/) are regularly tested on **Intel**, **ARM**, **RISC-V**, **POWER**, and МЦСТ Эльбрус systems.
+  * [**Debian GNU/Linux**](https://www.debian.org/) and derivatives ([**Raspberry Pi OS**](https://www.raspberrypi.com/software/)), **Red Hat** variants ([**Fedora**](https://fedoraproject.org/), [**CentOS Stream**](https://www.centos.org/centos-stream/), [**RHEL**](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux)) and compatibles ([**AlmaLinux**](https://almalinux.org/), [**Amazon Linux**](https://aws.amazon.com/amazon-linux-2/), [**Oracle Linux**](https://www.oracle.com/linux/)),  [**Alpine**](https://www.alpinelinux.org/), **SUSE** ([**SLES**](https://www.suse.com/products/server/), [**OpenSUSE**](https://www.opensuse.org/)), [**Void**](https://voidlinux.org/), and [**Ubuntu**](https://ubuntu.com/) are regularly tested on **Intel**, **ARM**, **RISC-V**, **POWER**, and **МЦСТ Эльбрус** systems.
 
 ### Linux compilers
 
@@ -1290,11 +1290,11 @@ If your site uses modules (*i.e.* `module avail`), loading the appropriate modul
 
 ### Linux cross-compilation
 
-The following commands will download and cross-compile a local static **`libuv`** and then cross-compile the simulator.
+The following commands will download and cross‑compile a local static **`libuv`** and then cross‑compile the simulator.
 
 #### IBM Advance Toolchain
 
-* Using the **IBM Advance Toolchain** **V17** to cross-compile for Linux/**POWER**:
+* Using the **IBM Advance Toolchain** **V17** to cross‑compile for Linux/**POWER**:
 
   * Build `libuv`:
 
@@ -1319,11 +1319,11 @@ The following commands will download and cross-compile a local static **`libuv`*
 
 #### Arm GNU Toolchain
 
-The [**GNU Toolchain for the Arm Architecture**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) (referred to as the “**Arm GNU Toolchain**”) provides regularly updated, high-quality, validated Linux/**ARM** cross-compilers running on Microsoft Windows, Linux, and macOS.
+The [**GNU Toolchain for the Arm Architecture**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) (referred to as the “**Arm GNU Toolchain**”) provides regularly updated, high-quality, validated Linux/**ARM** cross‑compilers running on Microsoft Windows, Linux, and macOS.
 
 ##### Linux/ARMv7-HF
 
-* Using the [**Arm GNU Toolchain**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) on Linux/x86_64, version **13.2.Rel1**, to cross-compile for Linux/**ARMv7-HF** (*hardware floating point*):
+* Using the [**Arm GNU Toolchain**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) on Linux/x86_64, version **13.2.Rel1**, to cross‑compile for Linux/**ARMv7-HF** (*hardware floating point*):
 
   * Build `libuv`:
 
@@ -1347,7 +1347,7 @@ The [**GNU Toolchain for the Arm Architecture**](https://developer.arm.com/Tools
 
 ##### Linux/ARM64
 
-* Using the [**Arm GNU Toolchain**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) on Linux/x86_64, version **13.2.Rel1**, to cross-compile for Linux/**ARM64**:
+* Using the [**Arm GNU Toolchain**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) on Linux/x86_64, version **13.2.Rel1**, to cross‑compile for Linux/**ARM64**:
 
   * Build `libuv`:
 
@@ -1368,7 +1368,7 @@ The [**GNU Toolchain for the Arm Architecture**](https://developer.arm.com/Tools
 
 ##### Linux/ARM64BE
 
-* Using the [**Arm GNU Toolchain**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) on Linux/x86_64, version **13.2.Rel1**, to cross-compile for Linux/**ARM64BE** (*big endian*):
+* Using the [**Arm GNU Toolchain**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) on Linux/x86_64, version **13.2.Rel1**, to cross‑compile for Linux/**ARM64BE** (*big endian*):
 
   * Build `libuv`:
 
@@ -1393,7 +1393,7 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
 
 ##### Linux/ARMv7-HF
 
-* Using the [**Linaro GNU Toolchain Integration Build**](https://snapshots.linaro.org/gnu-toolchain) on Linux/x86_64, version **14.0.0-2023.06**, to cross-compile for Linux/**ARMv7-HF** (*hardware floating point*):
+* Using the [**Linaro GNU Toolchain Integration Build**](https://snapshots.linaro.org/gnu-toolchain) on Linux/x86_64, version **14.0.0-2023.06**, to cross‑compile for Linux/**ARMv7-HF** (*hardware floating point*):
 
   * Build `libuv`:
 
@@ -1417,7 +1417,7 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
 
 ##### Linux/ARM64
 
-* Using the [**Linaro GNU Toolchain Integration Build**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) on Linux/x86_64, version **14.0.0-2023.06**, to cross-compile for Linux/**ARM64**:
+* Using the [**Linaro GNU Toolchain Integration Build**](https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain) on Linux/x86_64, version **14.0.0-2023.06**, to cross‑compile for Linux/**ARM64**:
 
   * Build `libuv`:
 
@@ -1444,7 +1444,7 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
 
 ##### Linux/RV64
 
-* Using a **crosstool-NG** generated **GCC**+**musl** toolchain to cross-compile for Linux/**RV64** (**64-bit RISC-V** *static binary*):
+* Using a **crosstool-NG** generated **GCC**+**musl** toolchain to cross‑compile for Linux/**RV64** (**64‑bit RISC-V** *static binary*):
 
   * Build `libuv`:
 
@@ -1466,7 +1466,7 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
 
 ##### Linux/i686
 
-* Using a **crosstool-NG** generated **GCC**+**musl** toolchain to cross-compile for Linux/**i686** (**32-bit** *static binary*):
+* Using a **crosstool-NG** generated **GCC**+**musl** toolchain to cross‑compile for Linux/**i686** (**32‑bit** *static binary*):
 
   * Build `libuv`:
 
@@ -1489,7 +1489,7 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
 
 ##### Linux/ARMv6-HF
 
-* Using a **crosstool-NG** generated **GCC**+**glibc** toolchain to cross-compile for Linux/**ARMv6-HF** (*hardware floating point*):
+* Using a **crosstool-NG** generated **GCC**+**glibc** toolchain to cross‑compile for Linux/**ARMv6-HF** (*hardware floating point*):
 
   * Build `libuv`:
 
@@ -1513,7 +1513,7 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
 
 ##### Linux/PPC64le
 
-* Using a **crosstool-NG** generated **GCC**+**musl** toolchain to cross-compile for Linux/**PPC64le** (**64-bit POWER9** *little endian static binary*):
+* Using a **crosstool-NG** generated **GCC**+**musl** toolchain to cross‑compile for Linux/**PPC64le** (**64‑bit POWER9** *little endian static binary*):
 
   * Build `libuv`:
 
@@ -1538,7 +1538,7 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
 ### Additional Linux Notes
 
 * Although normally handled automatically, when building on (*or cross-compiling to*) some
-  32-bit targets using a compiler lacking support for 128-bit integer types, it may be
+  32‑bit targets using a compiler lacking support for 128‑bit integer types, it may be
   necessary to explicitly set the **`NEED_128=1`** build option via the environment or as
   an argument to **`make`**.
 
@@ -1586,8 +1586,8 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 ### macOS cross-compilation
 
-The following commands will download and cross-compile a local static **`libuv`** and then
-cross-compile the simulator using **Xcode**.
+The following commands will download and cross‑compile a local static **`libuv`** and then
+cross‑compile the simulator using **Xcode**.
 
 You **must** perform a '**`make distclean`**' before building for a different target.
 
@@ -1651,7 +1651,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 * The following more complex example builds a **macOS** ***Universal Binary***.
   * The ***Universal Binary*** will support *three* architectures: **ARM64**, **Intel**, and **Intel Haswell**.
-  * The simulator (and **`libuv`**) will be cross-compiled three times each, once for each architecture.
+  * The simulator (and **`libuv`**) will be cross‑compiled three times each, once for each architecture.
   * The [**`lipo`**](https://developer.apple.com/documentation/apple-silicon/building-a-universal-macos-binary) utility will be used to create the universal **`dps8`** binary (in the top-level build directory).
 
 * Cross-compilation targeting **ARM64**, **Intel**, **Intel Haswell** (**AVX2**):
@@ -1744,12 +1744,12 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 []()
 
-* Microsoft **Windows** supports various development and runtime environments, including [**Universal CRT**](https://learn.microsoft.com/en-us/cpp/porting/upgrade-your-code-to-the-universal-crt), [**MinGW-w64**](https://www.mingw-w64.org/), [**Cygwin**](https://www.cygwin.com/), [**Midipix**](https://midipix.org/), [**MSYS2**](https://www.msys2.org/), and many others.
+* Microsoft **Windows** supports various development and runtime environments, including [**Universal CRT**](https://learn.microsoft.com/en-us/cpp/porting/upgrade-your-code-to-the-universal-crt), [**MinGW‑w64**](https://www.mingw-w64.org/), [**Cygwin**](https://www.cygwin.com/), [**Midipix**](https://midipix.org/), [**MSYS2**](https://www.msys2.org/), and many others.
   * Care must be taken to avoid mixing incompatible libraries and tools.
 
 []()
 
-* Cross-compilation is supported.  Builds targeting Microsoft **Windows** (**MinGW** and **Cygwin**) running on **x86_64**, **i686**, and **ARM64** platforms are regularly cross-compiled from a variety of UNIX-like systems (using **LLVM-MinGW** and **MinGW-GCC**), and from Microsoft **Windows** using **Cygwin**.
+* Cross-compilation is supported.  Builds targeting Microsoft **Windows** (**MinGW** and **Cygwin**) running on **x86_64**, **i686**, and **ARM64** platforms are regularly cross‑compiled from a variety of UNIX-like systems (using **LLVM‑MinGW** and **MinGW‑GCC**), and from Microsoft **Windows** using **Cygwin**.
 
 []()
 
@@ -1762,8 +1762,8 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 []()
 
-* Only current **64-bit** versions of **Cygwin** are regularly tested by **The DPS8M Development Team**.
-  * The **32-bit** version of **Cygwin** was **discontinued** in 2022 and is ***no longer supported*** for building **DPS8M** (*as of* ***R3.0.2***).
+* Only current **64‑bit** versions of **Cygwin** are regularly tested by **The DPS8M Development Team**.
+  * The **32‑bit** version of **Cygwin** was **discontinued** in 2022 and is ***no longer supported*** for building **DPS8M** (*as of* ***R3.0.2***).
 
 #### Cygwin prerequisites
 
@@ -1796,7 +1796,7 @@ Build the simulator from the top-level source directory (using **GNU Make**):
 
 #### Cygwin-hosted cross-compilation to MinGW
 
-The following commands will download and cross-compile a local native **`libuv`** library and then cross-compile the simulator.
+The following commands will download and cross‑compile a local native **`libuv`** library and then cross‑compile the simulator.
 
 You **must** perform a '`make distclean`' followed by an '`rm -rf ${HOME}/libuv-build`' before building for a different target (or changing build flags).
 
@@ -1804,7 +1804,7 @@ In the following cross-compilation examples, the *latest* **`libuv`** sources (f
 
 ##### Windows i686
 
-* Using **GCC** (*the* **Cygwin** **`mingw64-i686-gcc-core`** *package*) to cross-compile a native **32-bit** Windows executable (*not depending on Cygwin*):
+* Using **GCC** (*the* **Cygwin** **`mingw64-i686-gcc-core`** *package*) to cross‑compile a native **32‑bit** Windows executable (*not depending on Cygwin*):
 
   * Build `libuv`:
 
@@ -1836,7 +1836,7 @@ In the following cross-compilation examples, the *latest* **`libuv`** sources (f
 
 ##### Windows x86_64
 
-* Using **GCC** (*the* **Cygwin** **`mingw64-x86_64-gcc-core`** *package*) to cross-compile a native **64-bit** Windows executable (*not depending on Cygwin*):
+* Using **GCC** (*the* **Cygwin** **`mingw64-x86_64-gcc-core`** *package*) to cross‑compile a native **64‑bit** Windows executable (*not depending on Cygwin*):
 
   * Build `libuv`:
 
@@ -1884,7 +1884,7 @@ In the following cross-compilation examples, the *latest* **`libuv`** sources (f
 
 #### Windows i686
 
-* Using **Clang** (*the* **LLVM-MinGW** *compiler*) to cross-compile a local static `libuv` library and a native **32-bit** Windows/**i686** executable:
+* Using **Clang** (*the* **LLVM-MinGW** *compiler*) to cross‑compile a local static `libuv` library and a native **32‑bit** Windows/**i686** executable:
 
   * Build `libuv`:
 
@@ -1910,7 +1910,7 @@ In the following cross-compilation examples, the *latest* **`libuv`** sources (f
 
 #### Windows x86_64
 
-* Using **Clang** (*the* **LLVM-MinGW** *compiler*) to cross-compile a local static `libuv` library and a native **64-bit** Windows/**x86_64** executable:
+* Using **Clang** (*the* **LLVM-MinGW** *compiler*) to cross‑compile a local static `libuv` library and a native **64‑bit** Windows/**x86_64** executable:
 
   * Build `libuv`:
 
@@ -1936,7 +1936,7 @@ In the following cross-compilation examples, the *latest* **`libuv`** sources (f
 
 #### Windows ARM64
 
-* Using **Clang** (*the* **LLVM-MinGW** *compiler*) to cross-compile a local static `libuv` library and a native **64-bit** Windows/**ARM64** executable:
+* Using **Clang** (*the* **LLVM-MinGW** *compiler*) to cross‑compile a local static `libuv` library and a native **64‑bit** Windows/**ARM64** executable:
 
   * Build `libuv`:
 
@@ -1966,13 +1966,13 @@ The [**MinGW-w64 GCC**](https://www.mingw-w64.org/) toolchain supports building 
 
 * [Many **MinGW-w64 toolchains** are available](https://www.mingw-w64.org/downloads/) for a wide variety of host platforms and operating systems.
 * Version **9.0** is the *minimum* version of **MinGW-w64** tested with **DPS8M**; version **11.0** (or later) is *strongly* recommended.
-* **The DPS8M Development Team** regularly cross-compiles **Windows** executables using **GCC**-based **MinGW-w64** toolchains on **Alpine Linux** and **Fedora Linux** host systems.
+* **The DPS8M Development Team** regularly cross‑compiles **Windows** executables using **GCC**-based **MinGW-w64** toolchains on **Alpine Linux** and **Fedora Linux** host systems.
 
 In the following cross-compilation examples, the *latest* **`libuv`** sources (from the `v1.x` *git* branch) are used, but the current official release (available from `https://libuv.org/`) can also be used.
 
 #### Windows i686
 
-* Using **GCC** (*the* **MinGW-w64** *compiler*) to cross-compile a local static `libuv` library and a native **32-bit** Windows/**i686** executable:
+* Using **GCC** (*the* **MinGW-w64** *compiler*) to cross‑compile a local static `libuv` library and a native **32‑bit** Windows/**i686** executable:
 
   * Build `libuv`:
 
@@ -2000,7 +2000,7 @@ In the following cross-compilation examples, the *latest* **`libuv`** sources (f
 
 #### Windows x86_64
 
-* Using **GCC** (*the* **MinGW-w64** *compiler*) to cross-compile a local static `libuv` library and a native **64-bit** Windows/**x86_64** executable:
+* Using **GCC** (*the* **MinGW-w64** *compiler*) to cross‑compile a local static `libuv` library and a native **64‑bit** Windows/**x86_64** executable:
 
   * Build `libuv`:
 

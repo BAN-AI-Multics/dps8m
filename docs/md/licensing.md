@@ -519,10 +519,50 @@ written permission.**
 
 <!-- pagebreak -->
 
+#### libsir
+
+* **libsir** is a cross‑platform, thread‑safe logging and utility library
+  written in C (ISO/IEC `9899:2011` C`11`) that is designed to simplify and
+  streamline the generation and distribution of human‑readable information in
+  software.  It is developed by **Ryan M. Lederman** and
+  **Jeffrey H. Johnson** and is distributed under the terms of the
+  **MIT License**.
+
+<!-- br -->
+
+**libsir License**
+
+* Copyright © 2018-2025 &nbsp; Ryan M. Lederman &nbsp;
+   \<[`lederman@gmail.com`](mailto:lederman@gmail.com)\>
+* Copyright © 2018-2025 &nbsp; Jeffrey H. Johnson &nbsp;
+   \<[`trnsz@pobox.com`](mailto:trnsz@pobox.com)\>
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the “Software”),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:
+
+ * The above copyright notice and this permission notice shall be included
+   in all copies or substantial portions of the Software.
+
+**THE SOFTWARE IS PROVIDED “_AS IS_”, WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+USE OR OTHER DEALINGS IN THE SOFTWARE.**
+
+----
+
+<!-- pagebreak -->
+
 #### libuv
 
-* **libuv** is a portable high-performance platform support library, with a
-  focus on asynchronous-I/O based on event loops, originally developed by
+* **libuv** is a portable high‑performance platform support library, with a
+  focus on asynchronous‑I/O based on event loops, originally developed by
   **Ben Noordhuis** to support the *Node.js*® runtime. It is distributed under
   the terms of the **MIT License**.
 
@@ -643,9 +683,9 @@ in this Software without prior written authorization from the authors.
 
 <!-- pagebreak -->
 
-#### PunUtil
+#### punutil
 
-* **PunUtil** is a utility to process the output of the **DPS8M**
+* **punutil** is a utility to process the output of the **DPS8M**
   punch device. It was written by **Dean S. Anderson** of **The DPS8M
   Development Team** and is distributed under the **ICU License**.
 
@@ -681,10 +721,10 @@ in this Software without prior written authorization of the copyright holder.
 
 <!-- pagebreak -->
 
-#### Prt2PDF
+#### prt2pdf
 
-* **Prt2PDF** is a utility to convert the output of the simulated
-  **DPS8M** line printer device to ISO 32000 Portable Document Format
+* **prt2pdf** is a utility to convert the output of the simulated
+  **DPS8M** line printer device to ISO `32000` Portable Document Format
   (*PDF*), and is distributed under the **ICU License**. It is derived
   from **Txt2PDF**, a utility to transform ASCII text files to Adobe
   Acrobat PDF documents written by **P. G. Womack**.
@@ -730,7 +770,7 @@ in this Software without prior written authorization of the copyright holder.
 
 * **decNumber** is an *ANSI* C reference implementation of the *IBM
   General Decimal Arithmetic* standard, implementing the decimal
-  floating-point arithmetic and encoding formats described by the
+  floating‑point arithmetic and encoding formats described by the
   (*revised*) IEEE 754 specification. It was written by *IBM* and
   *IEEE* Fellow **Mike Cowlishaw**, with contributions by **Matthew
   Hagerty**, **John Matzka**, **Klaus Kretzschmar**, **Stefan Krah**,
@@ -774,7 +814,7 @@ in this Software without prior written authorization of the copyright holder.
 
 * **LibTELNET** is an implementation of the protocol specified by the Network
   Working Group of the Internet Engineering Task Force, as described in
-  RFC-854, RFC-855, RFC-1091, RFC-1143, RFC-1408, and RFC-1572 — the TELNET
+  RFC‑854, RFC‑855, RFC‑1091, RFC‑1143, RFC‑1408, and RFC‑1572 — the TELNET
   protocol and the Q method for TELNET protocol option negotiation — written
   by **Sean Middleditch** and other contributors.
 
@@ -803,11 +843,11 @@ in this Software without prior written authorization of the copyright holder.
 
 #### Line History
 
-* **Line History** is a small and self-contained line editor, implementing
-  *Emacs*-style line editing functionality similar to GNU *`readline`* or
+* **Line History** is a small and self‑contained line editor, implementing
+  *Emacs*‑style line editing functionality similar to GNU *`readline`* or
   BSD *`libedit`*. It is derived from the *linenoise* library written by
   **Salvatore** “***antirez***” **Sanfilippo** and **Pieter Noordhuis**
-  and distributed under a **two-clause BSD license**.
+  and distributed under a **two‑clause BSD license**.
 
 <!-- br -->
 
@@ -853,7 +893,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.**
   derived from software originally developed for the *Berkeley Software
   Distribution* by the *Computer Systems Research Group* at the *University
   of California, Berkeley*, and copyrighted by *The Regents of the University
-  of California*. It is distributed under a **three-clause BSD license**.
+  of California*. It is distributed under a **three‑clause BSD license**.
 
 <!-- br -->
 
@@ -898,7 +938,7 @@ THE POSSIBILITY OF SUCH DAMAGE.**
 
 * **musl libc** is a lightweight and standards conforming implementation
   of the C standard library, which includes the interfaces defined in the
-  base language standard, POSIX™, and widely agreed-upon extensions. It
+  base language standard, POSIX™, and widely agreed‑upon extensions. It
   was written by **Rich “_dalias_” Felker** and other contributors, and is
   distributed under the terms of the **MIT License**.
 
@@ -932,10 +972,10 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.**
 
 #### mcmb
 
-* **mcmb** (*`miniature cmb`*) is a general-purpose tool for complex
+* **mcmb** (*`miniature cmb`*) is a general‑purpose tool for complex
   combinatorics, derived from the `libcmb` combinatorics library and the
   `cmb` combinatorics utility developed **Devin Teske**. It is distributed
-  under the terms of a **two-clause BSD license**.
+  under the terms of a **two‑clause BSD license**.
 
 <!-- br -->
 
@@ -1036,7 +1076,7 @@ written permission.**
 <!-- br -->
 
 * The **DPS8M Simulator** is **not designed or intended** for use in any
-  safety-critical, life-critical, or life-sustaining applications or
+  safety‑critical, life‑critical, or life‑sustaining applications or
   activities.
 
 * These applications and activities include, but are not
@@ -1069,7 +1109,7 @@ written permission.**
   errors and omissions in the contents of this document.
 
 * **NO WARRANTY OF ANY KIND**, either express or implied, including but not
-  limited to the warranties of non-infringement, merchantability, or fitness
+  limited to the warranties of non‑infringement, merchantability, or fitness
   for a particular purpose, is given with respect to the contents of this
   document or the contents of linked external resources. Linked external
   resources are not under the control of **The DPS8M Development Team**.

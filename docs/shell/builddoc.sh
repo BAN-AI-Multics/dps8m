@@ -58,6 +58,9 @@ unset FLOCK_COMMAND > "/dev/null" 2>&1 || true
  INPUTS="${INPUTS:-} hpages/content/Documentation/Source_Compilation/_index.md" # <-------- Building from Source Code
  INPUTS="${INPUTS:-} md/post-source.md" # <-------- (finish) Building from Source Code
  INPUTS="${INPUTS:-} md/commandref.md" # <--------- Simulator Command Reference
+ INPUTS="${INPUTS:-} md/utilities.md" # <---------- Simulator Utilities
+ INPUTS="${INPUTS:-} md/punutil.md.out" # <-------- Multics Punch Utility Program
+ INPUTS="${INPUTS:-} md/prt2pdf.md.out" # <-------- Printer Utility Program
  INPUTS="${INPUTS:-} md/tips.md" # <--------------- Tips and Tricks
  INPUTS="${INPUTS:-} md/licensing.md" # <---------- Licensing Terms and Legal
 
@@ -149,6 +152,8 @@ unset FLOCK_COMMAND > "/dev/null" 2>&1 || true
  rm -rf ./s1temp.tmp               > "/dev/null"  2>&1 || true
  rm -f  ./complete.out             > "/dev/null"  2>&1 || true
  rm -f  ./md/commandref.md         > "/dev/null"  2>&1 || true
+ rm -f  ./md/punutil.md.out        > "/dev/null"  2>&1 || true
+ rm -f  ./md/prt2pdf.md.out        > "/dev/null"  2>&1 || true
  rm -f  ./md/commandref.out        > "/dev/null"  2>&1 || true
  rm -rf ./temp.out                 > "/dev/null"  2>&1 || true
 
@@ -186,9 +191,6 @@ unset FLOCK_COMMAND > "/dev/null" 2>&1 || true
              awk '/^Version/ { print $2 }' | tr -d ' */' | ansifilter)"
    printf '    PunUtil version          : %s\n' "${PUNUTILV:?}"
 
- MCMBVERS="$(../src/mcmb/mcmb -v 2>&1 | cut -d ' ' -f 5- | tr -d '*/' | ansifilter)"
-   printf '    mcmb version             : %s\n' "${MCMBVERS:?}"
-
  LASTMODV="$(cd .. && env TZ=UTC git log -1  \
              --format="%cd"                  \
              --date=format-local:'%Y-%m-%d %H:%M:%S UTC' | tr -d '*' | ansifilter)"
@@ -225,14 +227,13 @@ unset FLOCK_COMMAND > "/dev/null" 2>&1 || true
 ################################################################################
 # Generate docinfo-post.yml
 
- sed                                     \
+ ${SED:-sed}                             \
      -e "s/##PROMVERX##/${PROMVERX:?}/"  \
      -e "s/##BUILDUTC##/${BUILDUTC:?}/"  \
      -e "s/##BUILDVER##/${BUILDVER:?}/"  \
      -e "s/##LASTMODV##/${LASTMODV:?}/"  \
      -e "s/##PUNUTILV##/${PUNUTILV:?}/"  \
      -e "s/##PRT2PDFV##/${PRT2PDFV:?}/"  \
-     -e "s/##MCMBVERS##/${MCMBVERS:?}/"  \
      -e "s/##BUILDGIT##/${BUILDGIT:?}/"  \
           yaml/docinfo.yml               \
             > yaml/docinfo-post.yml
@@ -244,7 +245,7 @@ unset FLOCK_COMMAND > "/dev/null" 2>&1 || true
  (
   stdbuf -o L ./shell/refgen.sh |
    stdbuf -o L grep --line-buffered '^## ' |
-    stdbuf -o L sed 's/^## //' |
+    stdbuf -o L ${SED:-sed} 's/^## //' |
      stdbuf -o L xargs -n1 \
       printf '%s\n'
  ) |
@@ -275,6 +276,35 @@ ${SED:-sed} -i -e 's/```dps8/\\begin{tcolorbox}\[colback=black!2!white,breakable
       SAVE_TEE="tee input.sav"
       grep -v 'scspell-id' "md/commandref.md" > "cmdref.sav" || true
    }
+
+################################################################################
+# Generate punutil.md.out
+
+printf '%s\n' "The \"**\`punutil\`**\" utility (version \`${PUNUTILV:?}\`) manipulates punched card deck files for use with simulated punch devices." >> "./md/_cmdout.md"
+printf '%s\n' '```dps8' >> "./md/_cmdout.md"
+## Note: Unicode space used with sed!
+../src/punutil/punutil -h 2> /dev/null | ansifilter -T | expand | \
+    ${SED:-sed} 's/\.\.\/src\/punutil\/punutil /punutil /' | \
+    ${SED:-sed} 's/^ / /' >> "./md/_cmdout.md"
+printf '%s\n' '```' >> "./md/_cmdout.md"
+${SED:-sed} -e '/^SHOWPUNUTILHELPHERE$/ {' -e 'r md/_cmdout.md' -e 'd' -e '}' "./md/punutil.md" > "./md/punutil.md.out"
+rm -f "./md/_cmdout.md" 2> /dev/null 2>&1
+# Transform dps8 fenced blocks to Verbatims in punutil.md.out
+${SED:-sed} -i -e 's/```dps8/\\begin{tcolorbox}\[colback=black!2!white,breakable=true\]\n\\begin{Verbatim}\[fontsize=\\small\]/' -e 's/```/\\end{Verbatim}\n\\end{tcolorbox}/' "md/punutil.md.out"
+
+################################################################################
+# Generate prt2pdf.md.out
+
+printf '%s\n' "The \"**\`prt2pdf\`**\" utility (version \`${PRT2PDFV:?}\`) converts the output of simulated line printer devices to ISO \`32000\` Portable Document Format (*PDF*)." >> "./md/_cmdout.md"
+printf '%s\n' '```dps8' >> "./md/_cmdout.md"
+## Note: Unicode space used with sed!
+../src/prt2pdf/prt2pdf -h 2>&1 | ansifilter -T | expand | \
+    ${SED:-sed} 's/^ / /' >> "./md/_cmdout.md"
+printf '%s\n' '```' >> "./md/_cmdout.md"
+${SED:-sed} -e '/^SHOWPRT2PDFHELPHERE$/ {' -e 'r md/_cmdout.md' -e 'd' -e '}' "./md/prt2pdf.md" > "./md/prt2pdf.md.out"
+rm -f "./md/_cmdout.md" 2> /dev/null 2>&1
+# Transform dps8 fenced blocks to Verbatims in prt2pdf.md.out
+${SED:-sed} -i -e 's/```dps8/\\begin{tcolorbox}\[colback=black!2!white,breakable=true\]\n\\begin{Verbatim}\[fontsize=\\small\]/' -e 's/```/\\end{Verbatim}\n\\end{tcolorbox}/' "md/prt2pdf.md.out"
 
 ################################################################################
 # Processing - Stage 1 -- Assembly
@@ -331,7 +361,7 @@ ${SED:-sed} -i -e 's/```dps8/\\begin{tcolorbox}\[colback=black!2!white,breakable
      -o stage1.${HTML_EXT:-pdf}
 
  test -f "./input.sav" &&  \
-     sed -i 's/scspell-id:/scspell-no:/g' "./input.sav"
+     ${SED:-sed} -i 's/scspell-id:/scspell-no:/g' "./input.sav"
 
  # HTML output ...
  test -z "${BUILDDOC_HTML:-}" ||
@@ -409,6 +439,8 @@ ${SED:-sed} -i -e 's/```dps8/\\begin{tcolorbox}\[colback=black!2!white,breakable
  rm -rf   ./s1epub3.tmp             > "/dev/null"  2>&1 || true
  rm -rf   ./s1temp.tmp              > "/dev/null"  2>&1 || true
  rm -f    ./md/commandref.md        > "/dev/null"  2>&1 || true
+ rm -f    ./md/punutil.md.out       > "/dev/null"  2>&1 || true
+ rm -f    ./md/prt2pdf.md.out       > "/dev/null"  2>&1 || true
  rm -f    ./md/commandref.out       > "/dev/null"  2>&1 || true
  rm -rf   ./temp.out                > "/dev/null"  2>&1 || true
  mv -f   "./complete.out" "./${OUTPUTPDF:?}"

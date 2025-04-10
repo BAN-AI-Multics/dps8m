@@ -28,7 +28,7 @@ The `CABLE` command (*abbreviated* `C`) connects (or "*strings*") a simulated ca
 * Connect a cable from "`IOM`**`i`**" channel "**`j`**" to (*operator console*) "`OPC`**`k`**".
         CABLE IOMi j OPCk
 
-* Connect a cable from "`IOM`**`i`**" channel "**`j`**" to (*front-end network processor*) "`FNP`**`k`**".
+* Connect a cable from "`IOM`**`i`**" channel "**`j`**" to (*front‑end network processor*) "`FNP`**`k`**".
         CABLE IOMi j FNPk
 
 * Connect a cable from "`MTP`**`i`**" device code "**`j`**" to (*tape drive*) "`TAPE`**`k`**".

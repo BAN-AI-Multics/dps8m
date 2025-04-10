@@ -109,8 +109,8 @@ be set by the CPU being brought online.
 
 Latency guarantees of the original hardware prevent this condition from occurring when
 the hardware is properly functioning.  Unfortunately, without introducing strict
-hard-realtime requirements for simulated operations such as requiring the simulator
-execute under the control of a hard-realtime RTOS, there is no practical way to provide
+hard‑realtime requirements for simulated operations such as requiring the simulator
+execute under the control of a hard‑realtime RTOS, there is no practical way to provide
 Multics these precision timing guarantees.
 
 When running on original hardware, the lockup fault would be triggered by an independent
@@ -623,7 +623,7 @@ Refer to *GB61-01* **Operators Guide, Appendix A** for more details.
 
 **See also**
 
-Refer to *GB61-01* **Operators Guide, Appendix A** for more details.
+Refer to *GB61‑01* **Operators Guide, Appendix A** for more details.
 
 <!------------------------------------------------------------------------------------->
 
@@ -1240,7 +1240,7 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
         CLOCK_DELTA=<-2147483648 to 2147483647>
 
-* Setting "`CLOCK_DELTA`" to a negative value is useful to enable booting older Multics releases (*i.e.* MR12.3 and MR12.5) that are *not* Y2K-compliant without modification.
+* Setting "`CLOCK_DELTA`" to a negative value is useful to enable booting older Multics releases (*i.e.* MR12.3 and MR12.5) that are *not* Y2K‑compliant without modification.
 
 * Setting "`CLOCK_DELTA`" to a positive value is useful for Multics development or working with disks that were used "in the future".
 
@@ -1248,12 +1248,12 @@ The following "**`SCU`**" configuration options are associated with a specified 
   ```dps8
   printf '%s\n' "$(( $(date --date='5 years' +%s) - $(date +%s) ))"
   ```
-  * macOS and BSD users usually have this tool available as "`gdate`" (part of the *GNU coreutils* package, which may require separate installation).
+  * macOS and BSD users usually have this tool available as "`gdate`" (part of the *GNU `coreutils`* package, which may require separate installation).
 
 * It is the responsibility of the user to set a reasonable "`CLOCK_DELTA`" value.
   * Multics may not handle times in the year 2043 and beyond.
 
-  * Undefined behavior may result if the modified time is beyond *January 19 2038 03:14:07 UTC* on a host system that measures time as seconds elapsed since *January 1 1970 00:00:00 UTC* (*the Unix epoch*) and stores the result in a signed 32-bit integer (*i.e.* Unix systems using 32-bit `time_t`).
+  * Undefined behavior may result if the modified time is beyond *January 19 2038 03:14:07 UTC* on a host system that measures time as seconds elapsed since *January 1 1970 00:00:00 UTC* (*the Unix epoch*) and stores the result in a signed 32‑bit integer (*i.e.* Unix systems using 32‑bit `time_t`).
 
 * It is not expected that the "`CLOCK_DELTA`" value will require modification by most users under normal operating circumstances.
 
@@ -1342,7 +1342,7 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
         CAPACITY_ALL=<n>
 
-* If "`CAPACITY_ALL`" is *not* set, the simulator will default to using a maximum size of **`88`MB**.
+* If "`CAPACITY_ALL`" is *not* set, the simulator will default to using a maximum size of **`40`MB**.
 
 **Example**
 
@@ -1359,7 +1359,7 @@ The following "**`SCU`**" configuration options are associated with a specified 
 
         CAPACITY=<n>
 
-* If "`CAPACITY`" is *not* set, the simulator will default to using a maximum size of **`88`MB**.
+* If "`CAPACITY`" is *not* set, the simulator will default to using a maximum size of **`40`MB**.
 
 **Example**
 
@@ -1593,7 +1593,7 @@ The following "**`MTP`**" configuration options are associated with a specified 
 
 The simulated card reader devices (**`RDR`**) operate by reading simulated punched card deck files from a queue directory.
 
-The following sections document the commands for configuring the simulated card reader devices and provide an overview of their usage.  The simulator includes a utility, **`punutil`**, used to manipulate punched card deck files, which is referred to in the following documentation.
+The following sections document the commands for configuring the simulated card reader devices and provide an overview of their usage.  The simulator includes a utility, "**`punutil`**", used to manipulate punched card deck files, which is referred to in the following documentation.
 
 #### Submitting punched card decks to the card reader
 
@@ -1611,7 +1611,7 @@ The location of the queue directory on the host system is controlled with the "`
 
 ##### Punched card "`card`" format
 
-* In '`card`' format, each line of text is treated as an `80`-column card image.
+* In '`card`' format, each line of text is treated as an `80`‑column card image.
 * Newlines in the file are treated as card separators.
 * Lines longer than `80` characters are silently extended to the next card image.
 
@@ -1655,7 +1655,7 @@ This will close out the card reader file in the simulator and restart the card r
 
 #### Working with card decks
 
-When working with card decks, it is important to understand how Multics is going to process them.  Refer to *AG91-04A* (*Multics Programmer's Reference Manual*), Pages `5-50` through `5-60` ("*Bulk Input and Output*"), and Appendix `C` ("*Punched-Card Input Output and Returned Output Control*") for complete details.  Some simple examples follow, but *AG91-04A* is the definitive reference.
+When working with card decks, it is important to understand how Multics is going to process them.  Refer to *AG91‑04A* (*Multics Programmer's Reference Manual*), Pages `5-50` through `5-60` ("*Bulk Input and Output*"), and Appendix `C` ("*Punched‑Card Input Output and Returned Output Control*") for complete details.  Some simple examples follow, but *AG91‑04A* is the definitive reference.
 
 Note that other than the punched card deck format prefixes above, the rest of this information does not involve the simulator, only Multics.  It is also important to note that, when dealing with punched card decks, you are using a simulated media that is limited to a maximum of `80` characters per line.  Trying to use lines longer than `80` characters will cause unexpected behavior and will likely not result in what you expect.
 
@@ -1670,7 +1670,7 @@ The following example loads a data file into Multics:
         ++control overwrite
         ++input
 
-* Since card input gets translated into lower case, there needs to be a method of designating upper case letters (because Multics is case-sensitive, and Multics *Person IDs* and *Project IDs* typically use mixed-case names).  Therefore, prefixing a letter with a backslash ('`\`') will cause that character to be translated as upper case.
+* Since card input gets translated into lower case, there needs to be a method of designating upper case letters (because Multics is case‑sensitive, and Multics *Person IDs* and *Project IDs* typically use mixed‑case names).  Therefore, prefixing a letter with a backslash ('`\`') will cause that character to be translated as upper case.
 
 * The '`++format`' card above will tell Multics to trim trailing blanks and add newlines to each card image.  The "`mcc`" tells it that the cards are punched with *MCC* codes (this is done by the simulator when using '`cdeck`' or '`sdeck`' formats).  Even though it is optional, it is best practice to *always* include a '`++format`' card so you know how Multics will process your deck.
 
@@ -1771,9 +1771,9 @@ The following commands configure simulated card punch devices.
 
 The simulated card punch devices operate by writing simulated punched card decks to *spool files*.  The location of the spool files on the host system is controlled with the "`SET PUN PATH`" command.
 
-The *spool file* will contain all ***banner***, ***lace***, and ***trailer*** cards that Multics punches.  The ***lace*** cards are parsed to extract job information that is used to name the spool files on the host system.
+The *spool file* will contain all '***banner***', '***lace***', and '***trailer***' cards that Multics punches.  The '***lace***' cards are parsed to extract job information that is used to name the spool files on the host system.
 
-* The simulator includes a utility, **`punutil`**, that can be used to extract the various cards from the deck in easily usable formats (such as ASCII text).
+* The simulator includes a utility, "**`punutil`**", that can be used to extract the various cards from the deck in easily usable formats (such as `ASCII` text).
 
 #### Card format
 
@@ -1800,7 +1800,7 @@ Given the above, an **`80`-column** punched card would then look like:
                │ 9 │ 9 │ 9 │ 9 │ 9 │                   │ 9 │ 9 │ 9 │ 9 │ 9 │
                └───┴───┴───┴───┴───┴───────────────────┴───┴───┴───┴───┴───┘
 
-The most obvious way to represent a punched card column in a *spool file* is to assign a single bit per punch.  This means that there are **`12` bits** for each column.  When looking at a hexadecimal dump of a *spool file*, each column occupies **three** **`4`-bit** nibbles. The following representation is *big-endian*:
+The most obvious way to represent a punched card column in a *spool file* is to assign a single bit per punch.  This means that there are **`12` bits** for each column.  When looking at a hexadecimal dump of a *spool file*, each column occupies **three** **`4`‑bit** nibbles. The following representation is *big‑endian*:
 
           ┌───────────────────────────────────┬────────────────────────────────────┐
           │              Column 1             │             Column 2               │
@@ -1842,7 +1842,7 @@ The most obvious way to represent a punched card column in a *spool file* is to 
 **Notes**
 
 * When unset, all punch spool files will be written to the current working directory of the host operating system.
-* When set, the simulator expects a subdirectory to exist for each named punch device - the simulator will **not** automatically create these subdirectories.  For example, if "`PATH`" is set to "`/home/tom/punches`" and three punch devices are configured (`puna`, `punb`, `punc`), then the following directory structure must exist for punch jobs to be output properly:
+* When set, the simulator expects a subdirectory to exist for each named punch device — the simulator will **not** automatically create these subdirectories.  For example, if "`PATH`" is set to "`/home/tom/punches`" and three punch devices are configured (`puna`, `punb`, `punc`), then the following directory structure must exist for punch jobs to be output properly:
          /home
          └── tom
              └── punches
@@ -1898,7 +1898,7 @@ The following "**`PUN`**" configuration options are associated with a specified 
 ##### LOGCARDS
 \
 \
-"`LOGCARDS`" configures the simulator to output a significant amount of diagnostic details regarding a punch device to the simulator console.  This includes an "ASCII art" representation of the punched cards, where asterisks (`*`) are used to represent the punched holes.  It is recommended to enable this option only if you are attempting to diagnose a card punch issue.
+"`LOGCARDS`" configures the simulator to output a significant amount of diagnostic details regarding a punch device to the simulator console.  This includes an "`ASCII` art" representation of the punched cards, where asterisks (`*`) are used to represent the punched holes.  It is recommended to enable this option only if you are attempting to diagnose a card punch issue.
 
         SET PUNn CONFIG=LOGCARDS=<0 or 1>
         SET PUNn CONFIG=LOGCARDS=<disable or enable>

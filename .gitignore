@@ -252,6 +252,8 @@ docs/*.sav
 docs/md/showtemp.md
 docs/md/_cmdout.md
 docs/commandref.md
+docs/punutil.md.out
+docs/prt2pdf.md.out
 docs/md/commandref.md
 docs/dps8*.pdf
 docs/docsdocker

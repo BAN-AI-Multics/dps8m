@@ -20,7 +20,7 @@
     \<[`charles.unix.pro@gmail.com`](mailto:charles.unix.pro@gmail.com)\>,
   * Jeffrey H. Johnson &nbsp;
     \<[`trnsz@pobox.com`](mailto:trnsz@pobox.com)\>,
-  * Jean-Michel Merliot, &nbsp;
+  * Jean‑Michel Merliot, &nbsp;
   * Michael Mondy &nbsp;
     \<[`michael.mondy@coffeebird.net`](mailto:michael.mondy@coffeebird.net)\>,
   * Harry Reed, &nbsp;

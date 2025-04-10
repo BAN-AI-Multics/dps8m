@@ -35,7 +35,14 @@ include-before: |
     * &nbsp; &nbsp; **DPS8M** &nbsp; &nbsp;&nbsp;&nbsp; &nbsp; **##BUILDVER##**
     * &nbsp; &nbsp; **Prt2PDF** &nbsp; &nbsp;&nbsp; **##PRT2PDFV##**
     * &nbsp; &nbsp; **PunUtil** &nbsp; &nbsp;&nbsp; &nbsp; **##PUNUTILV##**
-    * &nbsp; &nbsp; **mcmb** &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **##MCMBVERS##**
+
+  &nbsp;
+
+  &nbsp;
+
+  &nbsp;
+
+  &nbsp;
 
   &nbsp;
 
@@ -130,6 +137,8 @@ include-before: |
 \hyphenation{decimal}
 \hyphenation{Definition}
 \hyphenation{deprecated}
+\hyphenation{designed}
+\hyphenation{developed}
 \hyphenation{DEVELOPMENT}
 \hyphenation{device}
 \hyphenation{directory}

@@ -11,11 +11,11 @@
 
 If the simulator is terminated unexpectedly, data loss or corruption could occur.  Users may wish to exempt the **DPS8M** process from being terminated in low memory situations.
 
-* Exempting the simulator from the operating system out-of-memory handler does *not* necessarily ensure stability in out-of-memory situations.  The system could decide to kill other important system processes leaving the machine in a hung or otherwise unusable state.  It is always best to ensure that enough memory is free to avoid triggering the out-of-memory condition in the first place.
+* Exempting the simulator from the operating system out‑of‑memory handler does *not* necessarily ensure stability in out‑of‑memory situations.  The system could decide to kill other important system processes leaving the machine in a hung or otherwise unusable state.  It is always best to ensure that enough memory is free to avoid triggering the out‑of‑memory condition in the first place.
 
 ### Exempting DPS8M from the Linux OOM Killer
 
-Linux users may wish to exempt the **DPS8M** process from the Linux "**OOM** (***out-of-memory***) **Killer**" to avoid unexpected terminations in low memory situations.
+Linux users may wish to exempt the **DPS8M** process from the Linux "**OOM** (***out‑of‑memory***) **Killer**" to avoid unexpected terminations in low memory situations.
 
 Before initiating a kernel panic due to total memory exhaustion, the Linux *OOM Killer* is activated to inspect all running processes and assigns a score to each one.  It then terminates the process with the highest score, repeating the procedure until enough memory has been freed to avoid a kernel panic.
 
@@ -25,7 +25,7 @@ The actual scoring algorithm is complex and varies greatly depending on the Linu
 
 Users who are running the simulator in production environments should adjust the "`oom_adj`" value so other processes are considered for termination first (or to exempt the simulator completely).  The "`oom_adj`" is one of `32` values ranging from '`14`' through '`-17`', with '`14`' indicating the process should most likely be selected by the *OOM Killer* and '`-16`' indicating the process should most likely *not* be selected by the *OOM Killer*.  The special value of '`-17`' exempts the process from consideration entirely.
 
-> At the time of writing, this functionality is *not* integrated in the simulator itself, because allowing a non-`root` process to *securely* adjust it's own "`oom_adj`" value requires adding a compile-time dependency on the "`libcap`" headers and a run-time dependency on the "`libcap`" library.
+> At the time of writing, this functionality is *not* integrated in the simulator itself, because allowing a non‑`root` process to *securely* adjust it's own "`oom_adj`" value requires adding a compile‑time dependency on the "`libcap`" headers and a run‑time dependency on the "`libcap`" library.
 
 * To adjust the "`oom_adj`" value to '`-17`' for all running "`dps8`" processes, use the following shell commands:
   ```dps8
@@ -83,7 +83,7 @@ If you want to automate the process of adjusting the "`oom_adj`" value, or compl
 
 The **FreeBSD** operating system will automatically terminate processes that are not explicitly protected if all memory and swap space is exhausted.  FreeBSD users may wish to protect the **DPS8M** process to avoid unexpected termination of the simulator in low memory situations.
 
-The system decides which processes to terminate based on a large number of factors and heuristics which vary from release to release, but include process priority, memory usage, resource consumption, interactive vs. non-interactive status, and most importantly, the setting of the process '`protect`' flag.
+The system decides which processes to terminate based on a large number of factors and heuristics which vary from release to release, but include process priority, memory usage, resource consumption, interactive vs. non‑interactive status, and most importantly, the setting of the process '`protect`' flag.
 
 Users running the simulator on FreeBSD in production environments should set the '`protect`' flag for the simulator process using the "[`protect(1)`](https://man.freebsd.org/cgi/man.cgi?query=protect&sektion=1&format=html)" utility.
 

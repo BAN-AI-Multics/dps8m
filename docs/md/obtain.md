@@ -49,7 +49,7 @@ Official releases of the simulator are available from:
   * **ARM** &nbsp; (*e.g.* Raspberry Pi, Pine64, Orange Pi …)
   * **ARM64** / **AArch64** &nbsp; (*e.g.* Apple M, Fujitsu A64FX, Ampere AmpereOne, Arm Neoverse …)
   * **POWER** &nbsp; (*e.g.* IBM Power Systems, Raptor Talos™, Freescale PowerPC …)
-  * **RISC-V** &nbsp; (*e.g.* SiFive HiFive, AndesCore™ V5 …)
+  * **RISC‑V** &nbsp; (*e.g.* SiFive HiFive, AndesCore™ V5 …)
   * **МЦСТ Эльбрус**
   * *and others* …
 
@@ -103,7 +103,7 @@ Most development takes place on branches of the [**`git` repository**](https://g
 
 #### Git mirroring
 
-Users who wish to **mirror** the [**`git` repository**](https://gitlab.com/dps8m/dps8m) for backup or archival purposes (*i.e.* copying ***all*** remote-tracking branches, tags, notes, references, etc.) should use the mirroring functionality of **`git`**.
+Users who wish to **mirror** the [**`git` repository**](https://gitlab.com/dps8m/dps8m) for backup or archival purposes (*i.e.* copying ***all*** remote‑tracking branches, tags, notes, references, etc.) should use the mirroring functionality of **`git`**.
 
 * Anyone may mirror the repository via HTTPS:
 
