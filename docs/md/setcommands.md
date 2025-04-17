@@ -1933,7 +1933,19 @@ The following "**`PUN`**" configuration options are associated with a specified 
 
 #### PATH
 
-* TBD
+"**`PATH`**" configures the output path for printer devices.
+
+        PATH=<path>
+
+* If "`PATH`" is *not* set, the simulator will use the current working directory of the host operating system for printer output.
+* When using relative paths (beginning with "`.`" or "`..`") the starting point is the current working directory of the host operating system.
+
+**Example**
+
+* Set the output path for printer devices to "`/home/tom/printers`":
+        SET PRT PATH=/home/tom/printers
+
+**NOTE**: Normally, no matter how many printers are configured, all print jobs will be output to the same directory (with guaranteed unique names).  If it is desirable to have each printer output to a separate directory, refer to the documentation for the "`CONFIG=SPLIT`" option.
 
 <!-- br -->
 
@@ -1999,7 +2011,15 @@ The following "**`PRT`**" configuration options are associated with a specified 
 ##### SPLIT
 \
 \
-* TBD
+"**`SPLIT`**" configures the specified "`PRT`" unit to output jobs into a subdirectory of the directory specified by the "`PATH`" setting.  Print devices that do not enable "`SPLIT`" will output their files into the directory specified by "`PATH`".
+
+        SPLIT=<0 or 1>
+        SPLIT=<off or on>
+
+**Example**
+
+* Enable output splitting for the "PRT**`1`**" device:
+        SET PRT1 CONFIG=SPLIT=on
 
 <!------------------------------------------------------------------------------------->
 
