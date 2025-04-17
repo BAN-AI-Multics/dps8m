@@ -113,13 +113,13 @@ ${MAKE:-make} clean "${@}"
 # Move profiling data where lcc expects to find it, if not STAGE2_ONLY
 test -z "${STAGE2_ONLY:-}" && \
   mv -f src/perf_test/eprof.*.sum src/dps8 2> /dev/null || true
-# Create temporary empty mcmb/prt2pdf/punutil (so we won't build them)
-touch src/mcmb/mcmb src/prt2pdf/prt2pdf src/punutil/punutil || true
+# Create temporary empty mcmb/tap2raw/prt2pdf/punutil (so we won't build them)
+touch src/mcmb/mcmb src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil || true
 ${MAKE:-make} dps8 "${@}"
-# Cleanup temporary empty mcmb/prt2pdf/punutil
-rm -f src/mcmb/mcmb src/prt2pdf/prt2pdf src/punutil/punutil 2> /dev/null
+# Cleanup temporary empty mcmb/tap2raw/prt2pdf/punutil
+rm -f src/mcmb/mcmb src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil 2> /dev/null
 rm -f src/perf_test/eprof.*.sum src/dps8/eprof.*.sum 2> /dev/null
 # Now actually build these (non-PGO'd) utilities, using regular flags.
 export CFLAGS="${BASE_CFLAGS:?}"
 export LDFLAGS="${BASE_LDFLAGS:?}"
-${MAKE:-make} mcmb prt2pdf punutil "${@}"
+${MAKE:-make} mcmb tap2raw prt2pdf punutil "${@}"

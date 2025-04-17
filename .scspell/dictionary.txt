@@ -8242,8 +8242,11 @@ oneside
 pdfhelphere
 pdluaflt
 pdtmplte
+rawhelphere
+rawv
 showprt
 showpunutilhelphere
+showtap
 verbatims
 
 FILEID: 234ac36d-f778-11ec-8863-80ee73e9b8e7
@@ -8289,6 +8292,7 @@ papersize
 pdfv
 promverx
 punutilv
+rawv
 runoff
 titlepage
 unifdefv
@@ -9217,6 +9221,38 @@ showprt
 
 FILEID: e26ba98e-15b3-11f0-b6c6-80ee73e9b8e7
 showpunutilhelphere
+
+FILEID: 131e6164-1afc-11f0-96cf-80ee73e9b8e7
+cleandep
+cleandepend
+depclean
+dependclean
+distclean
+dumalibs
+endif
+findstring
+gcda
+ifneq
+listchars
+makecmdgoals
+notparallel
+setv
+
+FILEID: 21a630e0-1afc-11f0-af20-80ee73e9b8e7
+bread
+checkbe
+isbe
+mbufsiz
+outfile
+reccnt
+shiftwidth
+softtabstop
+wcnt
+xhtons
+
+FILEID: 5eaa804c-1aff-11f0-b51b-80ee73e9b8e7
+rawhelphere
+showtap
 
 NATURAL:
 abandon

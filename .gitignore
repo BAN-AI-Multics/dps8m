@@ -30,6 +30,7 @@ serial.txt
 .nvimlog
 .debug
 src/mcmb/mcmb.dSYM/
+src/tap2raw/tap2raw.dSYM/
 src/prt2pdf/prt2pdf.dSYM/
 src/punutil/punutil.dSYM/
 src/empty/empty.dSYM/
@@ -78,6 +79,8 @@ M.dump
 hdbg.list
 src/blinkenLights2/blinkenLights2
 src/blinkenLights2/blinkenLights2.exe
+src/tap2raw/tap2raw
+src/tap2raw/tap2raw.exe
 src/prt2pdf/prt2pdf
 src/prt2pdf/prt2pdf.exe
 src/punutil/punutil
@@ -157,6 +160,7 @@ simh.xml
 decNumber.xml
 dps8.xml
 dps8m.xml
+tap2raw.xml
 prt2pdf.xml
 cppcheck.xml
 log.pvs
@@ -171,6 +175,7 @@ dps8m-simulator.xz
 src/dps8/dps8.analyze
 src/empty/empty.analyze
 src/mcmb/mcmb.analyze
+src/tap2raw/tap2raw.analyze
 src/prt2pdf/prt2pdf.analyze
 src/punutil/punutil.analyze
 
@@ -253,6 +258,7 @@ docs/md/showtemp.md
 docs/md/_cmdout.md
 docs/commandref.md
 docs/punutil.md.out
+docs/tap2raw.md.out
 docs/prt2pdf.md.out
 docs/md/commandref.md
 docs/dps8*.pdf

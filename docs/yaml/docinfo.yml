@@ -33,10 +33,9 @@ include-before: |
 
   * This documentation is intended for use with the following software:
     * &nbsp; &nbsp; **DPS8M** &nbsp; &nbsp;&nbsp;&nbsp; &nbsp; **##BUILDVER##**
-    * &nbsp; &nbsp; **Prt2PDF** &nbsp; &nbsp;&nbsp; **##PRT2PDFV##**
-    * &nbsp; &nbsp; **PunUtil** &nbsp; &nbsp;&nbsp; &nbsp; **##PUNUTILV##**
-
-  &nbsp;
+    * &nbsp; &nbsp; **tap2raw** &nbsp; &nbsp;&nbsp; **##TAP2RAWV##**
+    * &nbsp; &nbsp; **prt2pdf** &nbsp; &nbsp;&nbsp;&nbsp; **##PRT2PDFV##**
+    * &nbsp; &nbsp; **punutil** &nbsp; &nbsp;&nbsp; &nbsp; **##PUNUTILV##**
 
   &nbsp;
 

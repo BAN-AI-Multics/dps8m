@@ -721,6 +721,38 @@ in this Software without prior written authorization of the copyright holder.
 
 <!-- pagebreak -->
 
+#### tap2raw
+
+* **tap2raw** is a utility to convert the `tap` output of the simulated
+  **DPS8M** tape devices to `raw` format.  It was written by
+  **Jeffrey H. Johnson** and distributed under the terms of the
+  **MIT No Attribution License** (**MIT-0**).
+
+<!-- br -->
+
+* Copyright © 2024-2025 &nbsp; **Jeffrey H. Johnson** &nbsp;
+  \<[`trnsz@pobox.com`](mailto:trnsz@pobox.com)\>
+* Copyright © 2024-2025 &nbsp; **The DPS8M Development Team**
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+“Software”), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so.
+
+**THE SOFTWARE IS PROVIDED “_AS IS_”, WITHOUT WARRANTY OF ANY
+KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.**
+
+----
+
+<!-- pagebreak -->
+
 #### prt2pdf
 
 * **prt2pdf** is a utility to convert the output of the simulated

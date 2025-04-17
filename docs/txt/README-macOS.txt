@@ -17,6 +17,7 @@ is set to "Anywhere". From a Terminal window, use the "codesign"
 tool distributed with Xcode or Xcode Command-Line Tools, by running:
 
   xattr -d com.apple.quarantine dps8; codesign -f -s "-" dps8
+  xattr -d com.apple.quarantine tap2raw; codesign -f -s "-" tap2raw
   xattr -d com.apple.quarantine prt2pdf; codesign -f -s "-" prt2pdf
   xattr -d com.apple.quarantine punutil; codesign -f -s "-" punutil
 
