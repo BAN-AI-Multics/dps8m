@@ -124,6 +124,20 @@ punutil: .rebuild.env                                                        \
             $(TRUE)
 
 ##############################################################################
+# Builds tap2raw tool
+
+.PHONY: tap2raw .rebuild.env
+tap2raw: .rebuild.env                                                        \
+    # tap2raw:    # Builds the tap2raw conversion utility
+	-@$(PRINTF) '%s\n' "BUILD: Starting tap2raw build" 2> /dev/null ||       \
+        $(TRUE)
+	@$(MAKE) -s -C "." ".rebuild.env";                                       \
+      $(TEST) -f ".needrebuild" && $(MAKE) -C "." "clean" || $(TRUE);        \
+        $(MAKE) -C "src/tap2raw" "all" &&                                    \
+          $(PRINTF) '%s\n' "BUILD: Successful tap2raw build" 2> /dev/null || \
+            $(TRUE)
+
+##############################################################################
 # Builds prt2pdf tool
 
 .PHONY: prt2pdf .rebuild.env

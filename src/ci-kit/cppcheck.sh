@@ -343,6 +343,13 @@ printf '%s\n' "" >&2
 
 ###############################################################################
 
+title_line "$(printf '%s' 'tap2raw')" >&2
+printf '%s\n' "" >&2
+do_cppcheck "tap2raw" "./src/tap2raw"
+printf '%s\n' "" >&2
+
+###############################################################################
+
 title_line "$(printf '%s' 'blinkenLights2')" >&2
 printf '%s\n' "" >&2
 do_cppcheck "blinkenLights2" "./src/blinkenLights2"

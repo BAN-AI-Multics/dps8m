@@ -61,6 +61,7 @@ unset FLOCK_COMMAND > "/dev/null" 2>&1 || true
  INPUTS="${INPUTS:-} md/utilities.md" # <---------- Simulator Utilities
  INPUTS="${INPUTS:-} md/punutil.md.out" # <-------- Multics Punch Utility Program
  INPUTS="${INPUTS:-} md/prt2pdf.md.out" # <-------- Printer Utility Program
+ INPUTS="${INPUTS:-} md/tap2raw.md.out" # <-------- tap2raw Utility Program
  INPUTS="${INPUTS:-} md/tips.md" # <--------------- Tips and Tricks
  INPUTS="${INPUTS:-} md/licensing.md" # <---------- Licensing Terms and Legal
 
@@ -124,6 +125,9 @@ unset FLOCK_COMMAND > "/dev/null" 2>&1 || true
  test -x "../src/prt2pdf/prt2pdf" ||
    { printf '%s\n' "Error: prt2pdf not found."; exit 1; }
 
+ test -x "../src/tap2raw/tap2raw" ||
+   { printf '%s\n' "Error: tap2raw not found."; exit 1; }
+
 ################################################################################
 # Check working directory
 
@@ -154,6 +158,7 @@ unset FLOCK_COMMAND > "/dev/null" 2>&1 || true
  rm -f  ./md/commandref.md         > "/dev/null"  2>&1 || true
  rm -f  ./md/punutil.md.out        > "/dev/null"  2>&1 || true
  rm -f  ./md/prt2pdf.md.out        > "/dev/null"  2>&1 || true
+ rm -f  ./md/tap2raw.md.out        > "/dev/null"  2>&1 || true
  rm -f  ./md/commandref.out        > "/dev/null"  2>&1 || true
  rm -rf ./temp.out                 > "/dev/null"  2>&1 || true
 
@@ -182,6 +187,10 @@ unset FLOCK_COMMAND > "/dev/null" 2>&1 || true
 
  BUILDGIT="$(env TZ=UTC git rev-parse HEAD | tr -d ' */' | ansifilter)"
    printf '    Distribution commit hash : %s\n' "${BUILDGIT:?}"
+
+ TAP2RAWV="$(../src/tap2raw/tap2raw -v 2>&1 |
+             awk '/^tap2raw / { print $2 }' | tr -d ' */' | ansifilter)"
+   printf '    tap2raw version          : %s\n' "${TAP2RAWV:?}"
 
  PRT2PDFV="$(../src/prt2pdf/prt2pdf -v 2>&1 |
              awk '/^prt2pdf version / { print $3 }' | tr -d ' */' | ansifilter)"
@@ -233,6 +242,7 @@ unset FLOCK_COMMAND > "/dev/null" 2>&1 || true
      -e "s/##BUILDVER##/${BUILDVER:?}/"  \
      -e "s/##LASTMODV##/${LASTMODV:?}/"  \
      -e "s/##PUNUTILV##/${PUNUTILV:?}/"  \
+     -e "s/##TAP2RAWV##/${TAP2RAWV:?}/"  \
      -e "s/##PRT2PDFV##/${PRT2PDFV:?}/"  \
      -e "s/##BUILDGIT##/${BUILDGIT:?}/"  \
           yaml/docinfo.yml               \
@@ -306,6 +316,19 @@ rm -f "./md/_cmdout.md" 2> /dev/null 2>&1
 # Transform dps8 fenced blocks to Verbatims in prt2pdf.md.out
 ${SED:-sed} -i -e 's/```dps8/\\begin{tcolorbox}\[colback=black!2!white,breakable=true\]\n\\begin{Verbatim}\[fontsize=\\small\]/' -e 's/```/\\end{Verbatim}\n\\end{tcolorbox}/' "md/prt2pdf.md.out"
 
+################################################################################
+# Generate tap2raw.md.out
+
+printf '%s\n' "The \"**\`tap2raw\`**\" utility (version \`${TAP2RAWV:?}\`) converts \`tap\` files produced by the simulated tape devices to \`raw\` format." >> "./md/_cmdout.md"
+printf '%s\n' '```dps8' >> "./md/_cmdout.md"
+## Note: Unicode space used with sed!
+../src/tap2raw/tap2raw -h 2>&1 | ansifilter -T | expand | \
+    ${SED:-sed} 's/^ / /' >> "./md/_cmdout.md"
+printf '%s\n' '```' >> "./md/_cmdout.md"
+${SED:-sed} -e '/^SHOWTAP2RAWHELPHERE$/ {' -e 'r md/_cmdout.md' -e 'd' -e '}' "./md/tap2raw.md" > "./md/tap2raw.md.out"
+rm -f "./md/_cmdout.md" 2> /dev/null 2>&1
+# Transform dps8 fenced blocks to Verbatims in tap2raw.md.out
+${SED:-sed} -i -e 's/```dps8/\\begin{tcolorbox}\[colback=black!2!white,breakable=true\]\n\\begin{Verbatim}\[fontsize=\\small\]/' -e 's/```/\\end{Verbatim}\n\\end{tcolorbox}/' "md/tap2raw.md.out"
 ################################################################################
 # Processing - Stage 1 -- Assembly
 
@@ -441,6 +464,7 @@ ${SED:-sed} -i -e 's/```dps8/\\begin{tcolorbox}\[colback=black!2!white,breakable
  rm -f    ./md/commandref.md        > "/dev/null"  2>&1 || true
  rm -f    ./md/punutil.md.out       > "/dev/null"  2>&1 || true
  rm -f    ./md/prt2pdf.md.out       > "/dev/null"  2>&1 || true
+ rm -f    ./md/tap2raw.md.out       > "/dev/null"  2>&1 || true
  rm -f    ./md/commandref.out       > "/dev/null"  2>&1 || true
  rm -rf   ./temp.out                > "/dev/null"  2>&1 || true
  mv -f   "./complete.out" "./${OUTPUTPDF:?}"

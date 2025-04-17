@@ -356,7 +356,7 @@ DECN_OBJS = ../decNumber/decContext.o  ../decNumber/decNumber.o
 ###############################################################################
 
 .PHONY: all
-all:  ver.h libsir prt2pdf punutil mcmb locallibs_then_dps8 $(TAGS)
+all:  ver.h libsir tap2raw prt2pdf punutil mcmb locallibs_then_dps8 $(TAGS)
 	-@$(TRUE)
 
 ###############################################################################
@@ -381,6 +381,16 @@ ifeq ($(shell $(UNAME) -s 2>/dev/null || true >/dev/null 2>&1),Linux)
 	$(TEST) -f "/.dockerenv" || { $(SETCAP) 'cap_sys_nice,cap_ipc_lock+eip' \
         "$(DESTDIR)$(INSTALL_BIN)/dps8$(EXE)" 2>/dev/null || $(TRUE); }
 endif
+	$(TEST) -f "../tap2raw/tap2raw$(EXE)" && \
+        $(MV) "$(DESTDIR)$(INSTALL_BIN)/tap2raw$(EXE)" \
+            "$(DESTDIR)$(INSTALL_BIN)/tap2raw$(EXE).old$(X)" 2>/dev/null || \
+                $(TRUE)
+	$(TEST) -f "../tap2raw/tap2raw$(EXE)" && \
+        $(CP) "../tap2raw/tap2raw$(EXE)" \
+            "$(DESTDIR)$(INSTALL_BIN)/tap2raw$(EXE)"
+	$(TEST) -f "../tap2raw/tap2raw$(EXE)" && \
+        $(RM) "$(DESTDIR)$(INSTALL_BIN)/tap2raw$(EXE).old$(X)" 2>/dev/null || \
+            $(TRUE)
 	$(TEST) -f "../prt2pdf/prt2pdf$(EXE)" && \
         $(MV) "$(DESTDIR)$(INSTALL_BIN)/prt2pdf$(EXE)" \
             "$(DESTDIR)$(INSTALL_BIN)/prt2pdf$(EXE).old$(X)" 2>/dev/null || \
@@ -505,6 +515,12 @@ locallibs_then_dps8: ver.h errnos.h libsir
 
 ###############################################################################
 
+.PHONY: tap2raw
+tap2raw:
+	@$(SETV); $(MAKE) -C "../tap2raw" "all"
+
+###############################################################################
+
 .PHONY: prt2pdf
 prt2pdf:
 	@$(SETV); $(MAKE) -C "../prt2pdf" "all"
@@ -584,6 +600,7 @@ distclean: clean
 	@$(RMF) ../blinkenLights2/*.gc??         2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../decNumber/*.gc??              2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../mcmb/*.gc??                   2> /dev/null  ||  $(TRUE)
+	@$(RMF) ../tap2raw/*.gc??                2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../prt2pdf/*.gc??                2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../punutil/*.gc??                2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../simh/*.gc??                   2> /dev/null  ||  $(TRUE)
@@ -591,6 +608,7 @@ distclean: clean
 	@$(RMF) ../blinkenLights2/*.prof*        2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../decNumber/*.prof*             2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../mcmb/*.prof*                  2> /dev/null  ||  $(TRUE)
+	@$(RMF) ../tap2raw/*.prof*               2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../prt2pdf/*.prof*               2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../simh/*.prof*                  2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../punutil/*.prof*               2> /dev/null  ||  $(TRUE)
@@ -643,6 +661,7 @@ clean:
 	@$(SETV); $(MAKE) -C "$(SIMHx)"          -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../blinkenLights2" -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../decNumber"      -f "GNUmakefile"  "clean"
+	@$(SETV); $(MAKE) -C "../tap2raw"        -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../prt2pdf"        -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../punutil"        -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../mcmb"           -f "GNUmakefile"  "clean"

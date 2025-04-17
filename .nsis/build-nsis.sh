@@ -212,6 +212,8 @@ mkdir -p "bin/32-bit" &&                                                   \
     cp -f "../src/dps8/dps8.exe" "bin/32-bit/dps8.exe" &&                  \
   rm -f "bin/32-bit/punutil/punutil.exe" &&                                \
     cp -f "../src/punutil/punutil.exe" "bin/32-bit/punutil.exe" &&         \
+  rm -f "bin/32-bit/tap2raw/tap2raw.exe" &&                                \
+    cp -f "../src/tap2raw/tap2raw.exe" "bin/32-bit/tap2raw.exe" &&         \
   rm -f "bin/32-bit/prt2pdf/prt2pdf.exe" &&                                \
     cp -f "../src/prt2pdf/prt2pdf.exe" "bin/32-bit/prt2pdf.exe"
 }
@@ -240,6 +242,8 @@ mkdir -p "bin/64-bit" &&                                                   \
     cp -f "../src/dps8/dps8.exe" "bin/64-bit/dps8.exe" &&                  \
   rm -f "bin/64-bit/punutil/punutil.exe" &&                                \
     cp -f "../src/punutil/punutil.exe" "bin/64-bit/punutil.exe" &&         \
+  rm -f "bin/64-bit/tap2raw/tap2raw.exe" &&                                \
+    cp -f "../src/tap2raw/tap2raw.exe" "bin/64-bit/tap2raw.exe" &&         \
   rm -f "bin/64-bit/prt2pdf/prt2pdf.exe" &&                                \
     cp -f "../src/prt2pdf/prt2pdf.exe" "bin/64-bit/prt2pdf.exe"
 }

@@ -89,6 +89,8 @@ dep depend: predepend                                                         \
       ( $(CD) "src/dps8"           && $(DO_MAKEDEP) )
 	@$(PRINTF) 'DEPEND: %s' "mcmb" ;                                          \
       ( $(CD) "src/mcmb"           && $(DO_MAKEDEP) )
+	@$(PRINTF) 'DEPEND: %s' "tap2raw" ;                                       \
+      ( $(CD) "src/tap2raw"        && $(DO_MAKEDEP) )
 	@$(PRINTF) 'DEPEND: %s' "prt2pdf" ;                                       \
       ( $(CD) "src/prt2pdf"        && $(DO_MAKEDEP) )
 	@$(PRINTF) 'DEPEND: %s' "punutil" ;                                       \
@@ -132,6 +134,8 @@ dependclean depclean cleandepend cleandep:                                    \
       ( $(CD) "src/dps8"           && $(DO_CLEANDEP) )
 	@$(PRINTF) 'DEPEND: %s' "mcmb" ;                                          \
       ( $(CD) "src/mcmb"           && $(DO_CLEANDEP) )
+	@$(PRINTF) 'DEPEND: %s' "tap2raw" ;                                       \
+      ( $(CD) "src/tap2raw"        && $(DO_CLEANDEP) )
 	@$(PRINTF) 'DEPEND: %s' "prt2pdf" ;                                       \
       ( $(CD) "src/prt2pdf"        && $(DO_CLEANDEP) )
 	@$(PRINTF) 'DEPEND: %s' "punutil" ;                                       \
@@ -312,6 +316,7 @@ lmscspell:                                                                    \
      $(GREP) -Ev '(\.o$$)'                                                  | \
      $(GREP) -Ev '(\.out$$)'                                                | \
      $(GREP) -Ev '(\.pdf$$)'                                                | \
+     $(GREP) -Ev '(/tap2raw$$)'                                             | \
      $(GREP) -Ev '(/prt2pdf$$)'                                             | \
      $(GREP) -Ev '(/punutil$$)'                                             | \
      $(GREP) -Ev '(\.rar$$)'                                                | \

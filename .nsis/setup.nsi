@@ -150,6 +150,22 @@ SectionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; Section: tap2raw
+
+LangString DESC_TAP2RAW ${LANG_ENGLISH} "tap2raw is a utility to convert the tap-format output of the simulated DPS8M tape device to raw format."
+Section "tap2raw" TAP2RAW
+  SetOutPath $INSTDIR
+  ${If} ${RunningX64}
+    SetRegView 64
+    File "/oname=tap2raw.exe" "bin/64-bit/tap2raw.exe"
+  ${Else}
+    SetRegView 32
+    File "/oname=tap2raw.exe" "bin/32-bit/tap2raw.exe"
+  ${EndIf}
+SectionEnd
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;; Section: Prt2PDF
 
 LangString DESC_PRT2PDF ${LANG_ENGLISH} "Prt2PDF is a utility to convert the Prt-format output of the simulated DPS8M line printer device to (PDF) ISO 32000 Portable Document Format."
@@ -181,6 +197,7 @@ SectionEnd
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
 !insertmacro MUI_DESCRIPTION_TEXT ${DPS8M}   $(DESC_DPS8M)
 !insertmacro MUI_DESCRIPTION_TEXT ${PUNUTIL} $(DESC_PUNUTIL)
+!insertmacro MUI_DESCRIPTION_TEXT ${TAP2RAW} $(DESC_TAP2RAW)
 !insertmacro MUI_DESCRIPTION_TEXT ${PRT2PDF} $(DESC_PRT2PDF)
 !insertmacro MUI_DESCRIPTION_TEXT ${OMNIBUS} $(DESC_OMNIBUS)
 !insertmacro MUI_DESCRIPTION_TEXT ${SOURCES} $(DESC_SOURCES)
@@ -222,6 +239,7 @@ functionEnd
 Section "uninstall"
   delete "$INSTDIR\dps8.exe"
   delete "$INSTDIR\punutil.exe"
+  delete "$INSTDIR\tap2raw.exe"
   delete "$INSTDIR\prt2pdf.exe"
   delete "$INSTDIR\dps8m-omnibus.pdf"
   delete "$INSTDIR\dps8m-sources.zip"

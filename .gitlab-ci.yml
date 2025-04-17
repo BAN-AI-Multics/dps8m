@@ -13,6 +13,9 @@
     test -f ${CI_PROJECT_DIR:?}/src/dps8/dps8 && file ${CI_PROJECT_DIR:?}/src/dps8/dps8 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/dps8/dps8 && ldd ${CI_PROJECT_DIR:?}/src/dps8/dps8 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/dps8/dps8.exe && file ${CI_PROJECT_DIR:?}/src/dps8/dps8.exe 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/tap2raw/tap2raw && file ${CI_PROJECT_DIR:?}/src/tap2raw/tap2raw 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/tap2raw/tap2raw && ldd ${CI_PROJECT_DIR:?}/src/tap2raw/tap2raw 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/tap2raw/tap2raw.exe && file ${CI_PROJECT_DIR:?}/src/tap2raw/tap2raw.exe 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf && file ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf && ldd ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.exe && file ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.exe 2> /dev/null || true > /dev/null 2>&1
@@ -46,9 +49,11 @@
     # *scriptCompressArtifacts - Compress build artifacts
     echo -e "section_start:`date +%s`:compress_section[collapsed=true]\r\e[0K\033[0;36mCompress Artifacts ...\033[0m" || true
     test -f ${CI_PROJECT_DIR:?}/src/dps8/dps8 && lzip -9v ${CI_PROJECT_DIR:?}/src/dps8/dps8 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/tap2raw/tap2raw && lzip -9v ${CI_PROJECT_DIR:?}/src/tap2raw/tap2raw 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf && lzip -9v ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil && lzip -9v ${CI_PROJECT_DIR:?}/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/dps8/dps8.exe && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/dps8/dps8.exe  2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/tap2raw/tap2raw.exe && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/tap2raw/tap2raw.exe 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.exe && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.exe 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil.exe && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/punutil/punutil.exe 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/libwinpthread-1.dll && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/libwinpthread-1.dll 2> /dev/null || true > /dev/null 2>&1
@@ -175,7 +180,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env CC=/home/jhj/x-tools/x86_64-unknown-haiku/generated/cross-tools-x86_64/bin/x86_64-unknown-haiku-gcc gmake -j $(nproc) LIBS="../../libuv-local/local/lib/libuv.a -lnetwork" EMPTYLIBS="-lbsd"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { mkdir -p "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-haiku-x64.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-haiku-x64.tar; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { rm -rf "src/${DISTDIR:?}"; }; fi
@@ -191,7 +196,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/opt/android-ndk/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH:-} CFLAGS="-DFORCE_STATIC=1" CC=/opt/android-ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android24-clang LIBUTIL="" gmake -j $(nproc) LIBS="../../libuv-local/libuv/../local/lib/libuv.a -ldl"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { mkdir -p "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-ndk24-x64.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-ndk24-x64.tar; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { rm -rf "src/${DISTDIR:?}"; }; fi
@@ -205,7 +210,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/opt/android-ndk/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH:-} CFLAGS="-DFORCE_STATIC=1" CC=/opt/android-ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android24-clang LIBUTIL="" gmake -j $(nproc) LIBS="../../libuv-local/libuv/../local/lib/libuv.a -ldl" NEED_128=1; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { mkdir -p "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-ndk24-x32.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-ndk24-x32.tar; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { rm -rf "src/${DISTDIR:?}"; }; fi
@@ -219,7 +224,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/opt/android-ndk/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH:-} CFLAGS="-DFORCE_STATIC=1" CC=/opt/android-ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi24-clang gmake -j $(nproc) LIBS="../../libuv-local/libuv/../local/lib/libuv.a -ldl" NEED_128=1; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { mkdir -p "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-ndk24-a32.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-ndk24-a32.tar; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { rm -rf "src/${DISTDIR:?}"; }; fi
@@ -233,7 +238,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/opt/android-ndk/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH:-} CFLAGS="-DFORCE_STATIC=1" CC=/opt/android-ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang LIBUTIL="" gmake -j $(nproc) LIBS="../../libuv-local/libuv/../local/lib/libuv.a -ldl"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { mkdir -p "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-ndk24-a64.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-ndk24-a64.tar; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { rm -rf "src/${DISTDIR:?}"; }; fi
@@ -247,7 +252,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env CFLAGS="-DFORCE_STATIC=1" PATH=/home/jhj/x-tools/s390x-ibm-linux-musl/bin:${PATH:-} CC=/home/jhj/x-tools/s390x-ibm-linux-musl/bin/s390x-ibm-linux-musl-gcc LDFLAGS="-static" gmake -j $(nproc); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { mkdir -p "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-linux-390.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-390.tar; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { rm -rf "src/${DISTDIR:?}"; }; fi
@@ -262,7 +267,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env CFLAGS="-DFORCE_STATIC=1" PATH=/home/jhj/x-tools/riscv64-unknown-linux-musl/bin:${PATH:-} CC=/home/jhj/x-tools/riscv64-unknown-linux-musl/bin/riscv64-unknown-linux-musl-gcc LDFLAGS="-static" gmake -j $(nproc) LOCALLIBS="-latomic"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { mkdir -p "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-linux-r64.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-r64.tar; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { rm -rf "src/${DISTDIR:?}"; }; fi
@@ -276,7 +281,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/powerpc-unknown-linux-musl/bin:${PATH:-} CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -DFORCE_STATIC=1" CC=/home/jhj/x-tools/powerpc-unknown-linux-musl/bin/powerpc-unknown-linux-musl-gcc LDFLAGS="-static" gmake -j $(nproc) NEED_128=1 LOCALLIBS="-latomic"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { mkdir -p "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-linux-740.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-740.tar; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { rm -rf "src/${DISTDIR:?}"; }; fi
@@ -290,7 +295,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/arm-unknown-linux-musleabi/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?} -DFORCE_STATIC=1" CC=/home/jhj/x-tools/arm-unknown-linux-musleabi/bin/arm-unknown-linux-musleabi-gcc LDFLAGS="-static" gmake -j $(nproc) NEED_128=1 LOCALLIBS="-latomic"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { mkdir -p "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-linux-a6s.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-a6s.tar; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { rm -rf "src/${DISTDIR:?}"; }; fi
@@ -301,7 +306,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/arm-unknown-linux-musleabi/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?} -DFORCE_STATIC=1" CC=/home/jhj/x-tools/arm-unknown-linux-musleabi/bin/arm-unknown-linux-musleabi-gcc LDFLAGS="-static" gmake -j $(nproc) NEED_128=1 LOCALLIBS="-latomic"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { mkdir -p "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-linux-a6f.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-a6f.tar; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { rm -rf "src/${DISTDIR:?}"; }; fi
@@ -312,7 +317,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/arm-unknown-linux-musleabi/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?} -DFORCE_STATIC=1" CC=/home/jhj/x-tools/arm-unknown-linux-musleabi/bin/arm-unknown-linux-musleabi-gcc LDFLAGS="-static" gmake -j $(nproc) NEED_128=1 LOCALLIBS="-latomic"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { mkdir -p "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-linux-a7s.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-a7s.tar; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { rm -rf "src/${DISTDIR:?}"; }; fi
@@ -323,7 +328,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/arm-unknown-linux-musleabi/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?} -DFORCE_STATIC=1" CC=/home/jhj/x-tools/arm-unknown-linux-musleabi/bin/arm-unknown-linux-musleabi-gcc LDFLAGS="-static" gmake -j $(nproc) NEED_128=1 LOCALLIBS="-latomic"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { mkdir -p "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-linux-a7f.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-a7f.tar; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { rm -rf "src/${DISTDIR:?}"; }; fi
@@ -337,7 +342,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/aarch64-unknown-linux-musl/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?} -DFORCE_STATIC=1" CC=/home/jhj/x-tools/aarch64-unknown-linux-musl/bin/aarch64-unknown-linux-musl-gcc LDFLAGS="-static" gmake -j $(nproc); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { mkdir -p "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-linux-a8a.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-a8a.tar; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { rm -rf "src/${DISTDIR:?}"; }; fi
@@ -352,7 +357,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/i386-unknown-linux-musl/bin:${PATH:-} CFLAGS="-march=i686 -DFORCE_STATIC=1" CC=/home/jhj/x-tools/i386-unknown-linux-musl/bin/i386-unknown-linux-musl-gcc LDFLAGS="-static" gmake -j $(nproc) NEED_128=1; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { mkdir -p "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-linux-686.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-686.tar; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { rm -rf "src/${DISTDIR:?}"; }; fi
@@ -365,7 +370,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/x86_64-unknown-linux-musl/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE} -DFORCE_STATIC=1" LOCAL_CONFOPTS="--host=x86_64-unknown-linux-musl" CC=/home/jhj/x-tools/x86_64-unknown-linux-musl/bin/x86_64-unknown-linux-musl-gcc LDFLAGS="-static" LIBUVVER="libuvdev" ./src/pgo/Build.PGO.GCC.sh -j $(nproc); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { mkdir -p "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-linux-641.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-641.tar; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { rm -rf "src/${DISTDIR:?}"; }; fi
@@ -379,7 +384,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/powerpc64le-unknown-linux-musl/bin:${PATH:-} CFLAGS="-mcpu=${DPS8_CPUTYPE} -DFORCE_STATIC=1" CC=/home/jhj/x-tools/powerpc64le-unknown-linux-musl/bin/powerpc64le-unknown-linux-musl-gcc LDFLAGS="-static" gmake -j $(nproc); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { mkdir -p "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-linux-pw8.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-pw8.tar; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { rm -rf "src/${DISTDIR:?}"; }; fi
@@ -394,7 +399,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/sparc64-local-linux-gnu/bin:${PATH:-} CC=/home/jhj/x-tools/sparc64-local-linux-gnu/bin/sparc64-local-linux-gnu-gcc gmake -j $(nproc); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { mkdir -p "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-linux-s64.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-s64.tar; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { rm -rf "src/${DISTDIR:?}"; }; fi
@@ -409,7 +414,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/sparc-local-linux-gnu/bin:${PATH:-} CC=/home/jhj/x-tools/sparc-local-linux-gnu/bin/sparc-local-linux-gnu-gcc gmake -j $(nproc) NEED_128=1 LOCALLIBS="-latomic"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { mkdir -p "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-linux-s32.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-s32.tar; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { rm -rf "src/${DISTDIR:?}"; }; fi
@@ -424,7 +429,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env CFLAGS="-DFORCE_STATIC=1" PATH=/home/jhj/x-tools/loongarch64-unknown-linux-musl/bin:${PATH:-} CC=/home/jhj/x-tools/loongarch64-unknown-linux-musl/bin/loongarch64-unknown-linux-musl-gcc LDFLAGS="-static" gmake -j $(nproc); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { mkdir -p "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-linux-l64.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-l64.tar; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { rm -rf "src/${DISTDIR:?}"; }; fi
@@ -438,7 +443,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/FreeBSD-AMD64-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?} -DFORCE_STATIC=1" CC=/home/jhj/src/FreeBSD-AMD64-crossgcc/out/bin/amd64-unknown-freebsd13-gcc LDFLAGS="-static" gmake -j $(nproc); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { mkdir -p "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-fbd13-x61.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-fbd13-x61.tar; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { rm -rf "src/${DISTDIR:?}"; }; fi
@@ -452,7 +457,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/FreeBSD-i386-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?} -DFORCE_STATIC=1" CC=/home/jhj/src/FreeBSD-i386-crossgcc/out/bin/i386-unknown-freebsd13-gcc LDFLAGS="-static" gmake -j $(nproc) NEED_128=1 ATOMICS=GNU LOCALLIBS="-latomic"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { mkdir -p "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-fbd13-x32.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-fbd13-x32.tar; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { rm -rf "src/${DISTDIR:?}"; }; fi
@@ -466,7 +471,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/src/FreeBSD-ARM64-crossgcc/out/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?} -DFORCE_STATIC=1" CC=/home/jhj/src/FreeBSD-ARM64-crossgcc/out/bin/aarch64-local-freebsd13-gcc LDFLAGS="-static" gmake -j $(nproc); }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-fbd13-a64.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-fbd13-a64.tar; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { rm -rf "src/${DISTDIR:?}"; }; fi
@@ -480,7 +485,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/x86_64-pc-solaris2.11/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/x-tools/x86_64-pc-solaris2.11/bin/x86_64-pc-solaris2.11-gcc gmake -j $(nproc) LOCALLIBS="-lmtmalloc -lmp -lmd -lsocket -lnsl -lm -lpthread"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { mkdir -p "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-iloi-641.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-iloi-641.tar; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { rm -rf "src/${DISTDIR:?}"; }; fi
@@ -495,7 +500,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/x86_64-pc-solaris2.11/bin:${PATH:-} CFLAGS="-march=${DPS8_CPUTYPE:?}" CC=/home/jhj/x-tools/x86_64-pc-solaris2.11/bin/x86_64-pc-solaris2.11-gcc gmake -j $(nproc) LOCALLIBS="-lmtmalloc -lmp -lmd -lsocket -lnsl -lm -lpthread" LIBUTIL="" LIBUTIL="" OVR_FLOCK=""; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { mkdir -p "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-s114-641.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-s114-641.tar; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { rm -rf "src/${DISTDIR:?}"; }; fi
@@ -510,7 +515,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH="/home/jhj/x-tools/powerpc64-local-linux-musl/bin:${PATH}" CC="/home/jhj/x-tools/powerpc64-local-linux-musl/bin/powerpc64-local-linux-musl-gcc" CFLAGS="-mcpu=${DPS8_CPUTYPE:?} -DFORCE_STATIC=1" LDFLAGS="-static" gmake -j $(nproc); }; fi
     - mkdir -p "src/${DISTDIR:?}"
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-linux-970.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-970.tar; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { rm -rf "src/${DISTDIR:?}"; }; fi
@@ -525,7 +530,7 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env PATH=/home/jhj/x-tools/sparc64-sun-solaris2.11/sparc64-sun-solaris2.11/bin:/home/jhj/x-tools/sparc64-sun-solaris2.11/sparc64-sun-solaris2.11/bin:/home/jhj/x-tools/sparc64-sun-solaris2.11/bin:${PATH:-} CFLAGS="-static-libgcc -m64 -mcpu=${DPS8_CPUTYPE:?} -DFORCE_STATIC=1" CC=/home/jhj/x-tools/sparc64-sun-solaris2.11/bin/sparc64-sun-solaris2.11-gcc gmake -j $(nproc) LOCALLIBS="-lmtmalloc -lmp -lmd -lsocket -lnsl -lm -lpthread" LIBUTIL="" OVR_FLOCK=""; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { mkdir -p "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-s114-sv9.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-s114-sv9.tar; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { rm -rf "src/${DISTDIR:?}"; }; fi
@@ -538,13 +543,13 @@ Cross-compiled release binaries:
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { mkdir -p "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { gmake distclean; env CI_SKIP_MKREBUILD=1 PATH="/home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin:${PATH:?}" CSTD="c11" CC="clang -Wno-macro-redefined -Wno-typedef-redefinition -Wno-nullability-extension -Wno-unused-command-line-argument -Wno-expansion-to-defined -Wno-nullability-completeness -m64 -fpic -fPIC --target=x86_64-apple-darwin17.0.0 -B/home/jhj/x-tools/MacOSX.sdk/usr/lib -L/home/jhj/x-tools/MacOSX.sdk/usr/lib -I/home/jhj/x-tools/MacOSX.sdk/usr/include -fuse-ld=lld -fno-stack-protector -march=core2" LOCAL_CONFOPTS="--host=x86_64-apple-darwin17.0.0" gmake libuvdev -j $(nproc) && llvm-ranlib libuv-local/libuv/../local/lib/libuv.a; }; fi
     - *scriptDPS8Mods
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env CI_SKIP_MKREBUILD=1 PATH="/home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin:${PATH:?}" CSTD="c11" CC="clang -Wno-macro-redefined -Wno-typedef-redefinition -Wno-nullability-extension -Wno-unused-command-line-argument -Wno-expansion-to-defined -Wno-nullability-completeness -m64 -fpic -fPIC --target=x86_64-apple-darwin17.0.0 -B/home/jhj/x-tools/MacOSX.sdk/usr/lib -L/home/jhj/x-tools/MacOSX.sdk/usr/lib -I/home/jhj/x-tools/MacOSX.sdk/usr/include -fuse-ld=lld -fno-stack-protector -march=core2" LOCAL_CONFOPTS="--host=x86_64-apple-darwin17.0.0" gmake -j $(nproc) LIBRT="" && cp -f src/dps8/dps8 dps8.x86_64 && cp -f src/punutil/punutil punutil.x86_64 && cp -f src/prt2pdf/prt2pdf prt2pdf.x86_64 && gmake distclean; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env CI_SKIP_MKREBUILD=1 PATH="/home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin:${PATH:?}" CSTD="c11" CC="clang -Wno-macro-redefined -Wno-typedef-redefinition -Wno-nullability-extension -Wno-unused-command-line-argument -Wno-expansion-to-defined -Wno-nullability-completeness -m64 -fpic -fPIC --target=x86_64-apple-darwin17.0.0 -B/home/jhj/x-tools/MacOSX.sdk/usr/lib -L/home/jhj/x-tools/MacOSX.sdk/usr/lib -I/home/jhj/x-tools/MacOSX.sdk/usr/include -fuse-ld=lld -fno-stack-protector -march=core2" LOCAL_CONFOPTS="--host=x86_64-apple-darwin17.0.0" gmake -j $(nproc) LIBRT="" && cp -f src/dps8/dps8 dps8.x86_64 && cp -f src/punutil/punutil punutil.x86_64 && cp -f src/tap2raw/tap2raw tap2raw.x86_64 && cp -f src/prt2pdf/prt2pdf prt2pdf.x86_64 && gmake distclean; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env CI_SKIP_MKREBUILD=1 PATH="/home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin:${PATH:?}" CSTD="c11" CC="clang -Wno-macro-redefined -Wno-typedef-redefinition -Wno-nullability-extension -Wno-unused-command-line-argument -Wno-expansion-to-defined -Wno-nullability-completeness -m64 -fpic -fPIC --target=x86_64-apple-darwin17.0.0 -B/home/jhj/x-tools/MacOSX.sdk/usr/lib -L/home/jhj/x-tools/MacOSX.sdk/usr/lib -I/home/jhj/x-tools/MacOSX.sdk/usr/include -fuse-ld=lld -fno-stack-protector -march=haswell" LOCAL_CONFOPTS="--host=x86_64-apple-darwin17.0.0" gmake libuvdev -j $(nproc) && llvm-ranlib libuv-local/libuv/../local/lib/libuv.a; }; fi
     - *scriptDPS8Mods
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env CI_SKIP_MKREBUILD=1 PATH="/home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin:${PATH:?}" CSTD="c11" CC="clang -Wno-macro-redefined -Wno-typedef-redefinition -Wno-nullability-extension -Wno-unused-command-line-argument -Wno-expansion-to-defined -Wno-nullability-completeness -m64 -fpic -fPIC --target=x86_64-apple-darwin17.0.0 -B/home/jhj/x-tools/MacOSX.sdk/usr/lib -L/home/jhj/x-tools/MacOSX.sdk/usr/lib -I/home/jhj/x-tools/MacOSX.sdk/usr/include -fuse-ld=lld -fno-stack-protector -march=haswell" LOCAL_CONFOPTS="--host=x86_64-apple-darwin17.0.0" gmake -j $(nproc) LIBRT="" && cp -f src/dps8/dps8 dps8.x86_64h && cp -f src/punutil/punutil punutil.x86_64h && cp -f src/prt2pdf/prt2pdf prt2pdf.x86_64h && sed -i'' -e 's/\xCF\xFA\xED\xFE\x07\x00\x00\x01\x03/\xCF\xFA\xED\xFE\x07\x00\x00\x01\x08/' dps8.x86_64h && sed -i'' -e 's/\xCF\xFA\xED\xFE\x07\x00\x00\x01\x03/\xCF\xFA\xED\xFE\x07\x00\x00\x01\x08/' prt2pdf.x86_64h && sed -i'' -e 's/\xCF\xFA\xED\xFE\x07\x00\x00\x01\x03/\xCF\xFA\xED\xFE\x07\x00\x00\x01\x08/' punutil.x86_64h && gmake distclean; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env CI_SKIP_MKREBUILD=1 PATH="/home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin:${PATH:?}" CSTD="c11" CC="clang -Wno-macro-redefined -Wno-typedef-redefinition -Wno-nullability-extension -Wno-unused-command-line-argument -Wno-expansion-to-defined -Wno-nullability-completeness -m64 -fpic -fPIC --target=x86_64-apple-darwin17.0.0 -B/home/jhj/x-tools/MacOSX.sdk/usr/lib -L/home/jhj/x-tools/MacOSX.sdk/usr/lib -I/home/jhj/x-tools/MacOSX.sdk/usr/include -fuse-ld=lld -fno-stack-protector -march=haswell" LOCAL_CONFOPTS="--host=x86_64-apple-darwin17.0.0" gmake -j $(nproc) LIBRT="" && cp -f src/dps8/dps8 dps8.x86_64h && cp -f src/punutil/punutil punutil.x86_64h && cp -f src/tap2raw/tap2raw tap2raw.x86_64h && cp -f src/prt2pdf/prt2pdf prt2pdf.x86_64h && sed -i'' -e 's/\xCF\xFA\xED\xFE\x07\x00\x00\x01\x03/\xCF\xFA\xED\xFE\x07\x00\x00\x01\x08/' dps8.x86_64h && sed -i'' -e 's/\xCF\xFA\xED\xFE\x07\x00\x00\x01\x03/\xCF\xFA\xED\xFE\x07\x00\x00\x01\x08/' prt2pdf.x86_64h && sed -i'' -e 's/\xCF\xFA\xED\xFE\x07\x00\x00\x01\x03/\xCF\xFA\xED\xFE\x07\x00\x00\x01\x08/' tap2raw.x86_64h && sed -i'' -e 's/\xCF\xFA\xED\xFE\x07\x00\x00\x01\x03/\xCF\xFA\xED\xFE\x07\x00\x00\x01\x08/' punutil.x86_64h && gmake distclean; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env CI_SKIP_MKREBUILD=1 PATH="/home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin:${PATH:?}" CSTD="c11" CC="clang -Wno-macro-redefined -Wno-typedef-redefinition -Wno-nullability-extension -Wno-unused-command-line-argument -Wno-expansion-to-defined -Wno-nullability-completeness -m64 -fpic -fPIC --target=arm64-apple-darwin20.0.0 -B/home/jhj/x-tools/MacOSX.sdk/usr/lib -L/home/jhj/x-tools/MacOSX.sdk/usr/lib -I/home/jhj/x-tools/MacOSX.sdk/usr/include -fuse-ld=lld -fno-stack-protector -march=armv8.4-a+simd+nosve+nosve2" LOCAL_CONFOPTS="--host=arm64-apple-darwin20.0.0" gmake libuvdev -j $(nproc) && llvm-ranlib libuv-local/libuv/../local/lib/libuv.a; }; fi
     - *scriptDPS8Mods
-    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env CI_SKIP_MKREBUILD=1 PATH="/home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin:${PATH:?}" CSTD="c11" CC="clang -Wno-macro-redefined -Wno-typedef-redefinition -Wno-nullability-extension -Wno-unused-command-line-argument -Wno-expansion-to-defined -Wno-nullability-completeness -m64 -fpic -fPIC --target=arm64-apple-darwin20.0.0 -B/home/jhj/x-tools/MacOSX.sdk/usr/lib -L/home/jhj/x-tools/MacOSX.sdk/usr/lib -I/home/jhj/x-tools/MacOSX.sdk/usr/include -fuse-ld=lld -fno-stack-protector -march=armv8.4-a+simd+nosve+nosve2" LOCAL_CONFOPTS="--host=arm64-apple-darwin20.0.0" gmake -j $(nproc) LIBRT="" && cp -f src/dps8/dps8 dps8.arm64 && cp -f src/punutil/punutil punutil.arm64 && cp -f src/prt2pdf/prt2pdf prt2pdf.arm64 && /home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin/lipo -create -output "dps8" "dps8.x86_64" "dps8.x86_64h" "dps8.arm64" && /home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin/lipo -create -output "prt2pdf" "prt2pdf.x86_64" "prt2pdf.x86_64h" "prt2pdf.arm64" && /home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin/lipo -create -output "punutil" "punutil.x86_64" "punutil.x86_64h" "punutil.arm64" && env rm -f *.x86_64 *.x86_64h *.arm64 && mv -f "dps8" "prt2pdf" "punutil" "src/${DISTDIR:?}" && /home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin/otool -l "src/${DISTDIR:?}/dps8" && /home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin/otool -l "src/${DISTDIR:?}/prt2pdf" && /home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin/otool -l "src/${DISTDIR:?}/punutil"; }; fi
+    - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { env CI_SKIP_MKREBUILD=1 PATH="/home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin:${PATH:?}" CSTD="c11" CC="clang -Wno-macro-redefined -Wno-typedef-redefinition -Wno-nullability-extension -Wno-unused-command-line-argument -Wno-expansion-to-defined -Wno-nullability-completeness -m64 -fpic -fPIC --target=arm64-apple-darwin20.0.0 -B/home/jhj/x-tools/MacOSX.sdk/usr/lib -L/home/jhj/x-tools/MacOSX.sdk/usr/lib -I/home/jhj/x-tools/MacOSX.sdk/usr/include -fuse-ld=lld -fno-stack-protector -march=armv8.4-a+simd+nosve+nosve2" LOCAL_CONFOPTS="--host=arm64-apple-darwin20.0.0" gmake -j $(nproc) LIBRT="" && cp -f src/dps8/dps8 dps8.arm64 && cp -f src/punutil/punutil punutil.arm64 && cp -f src/tap2raw/tap2raw tap2raw.arm64 && cp -f src/prt2pdf/prt2pdf prt2pdf.arm64 && /home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin/lipo -create -output "dps8" "dps8.x86_64" "dps8.x86_64h" "dps8.arm64" && /home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin/lipo -create -output "tap2raw" "tap2raw.x86_64" "tap2raw.x86_64h" "tap2raw.arm64" && /home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin/lipo -create -output "prt2pdf" "prt2pdf.x86_64" "prt2pdf.x86_64h" "prt2pdf.arm64" && /home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin/lipo -create -output "punutil" "punutil.x86_64" "punutil.x86_64h" "punutil.arm64" && env rm -f *.x86_64 *.x86_64h *.arm64 && mv -f "dps8" "tap2raw" "prt2pdf" "punutil" "src/${DISTDIR:?}" && /home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin/otool -l "src/${DISTDIR:?}/dps8" && /home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin/otool -l "src/${DISTDIR:?}/prt2pdf" && /home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin/otool -l "src/${DISTDIR:?}/tap2raw" && /home/jhj/x-tools/MacOSX13.1-Xcode14.3/linux64bin/otool -l "src/${DISTDIR:?}/punutil"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { cp -f docs/txt/README-macOS.txt docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"; }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { ( cd src && tar cf ../dps8m-git-macos-uni.tar "./${DISTDIR:?}"; ); }; fi
     - if [ ${PARALLEL_CI_COUNT:?} -eq ${CI_NODE_INDEX:?} ]; then { pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-macos-uni.tar; }; fi
@@ -626,7 +631,7 @@ KVX binaries:
     - env NO_LOCALE=1 gmake -j $(nproc)
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
-    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
     - ( cd src && tar cf ../dps8m-git-linux-kvx3.tar "./${DISTDIR:?}"; )
     - pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-kvx3.tar
     - rm -rf "src/${DISTDIR:?}"
@@ -672,7 +677,7 @@ Elbrus binaries:
     - env PATH=/opt/mcst/lcc-1.27.21.e2k-v3.5.10/bin.toolchain:$PATH CC=/opt/mcst/lcc-1.27.21.e2k-v3.5.10/bin/lcc gmake -j $(nproc)
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
-    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
     - ( cd src && tar cf ../dps8m-git-linux-e2kv3.tar "./${DISTDIR:?}"; )
     - pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-e2kv3.tar
     - rm -rf "src/${DISTDIR:?}"
@@ -682,7 +687,7 @@ Elbrus binaries:
     - env PATH=/opt/mcst/lcc-1.27.21.e2k-v4.1c+.5.10/bin.toolchain:$PATH CC=/opt/mcst/lcc-1.27.21.e2k-v4.1c+.5.10/bin/lcc gmake -j $(nproc)
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
-    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
     - ( cd src && tar cf ../dps8m-git-linux-e2k1c.tar "./${DISTDIR:?}"; )
     - pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-e2k1c.tar
     - rm -rf "src/${DISTDIR:?}"
@@ -692,7 +697,7 @@ Elbrus binaries:
     - env PATH=/opt/mcst/lcc-1.27.21.e2k-v4.5.10/bin.toolchain:$PATH CC=/opt/mcst/lcc-1.27.21.e2k-v4.5.10/bin/lcc gmake -j $(nproc)
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
-    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
     - ( cd src && tar cf ../dps8m-git-linux-e2kv4.tar "./${DISTDIR:?}"; )
     - pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-e2kv4.tar
     - rm -rf "src/${DISTDIR:?}"
@@ -702,7 +707,7 @@ Elbrus binaries:
     - env PATH=/opt/mcst/lcc-1.27.21.e2k-v5.5.10/bin.toolchain:$PATH CC=/opt/mcst/lcc-1.27.21.e2k-v5.5.10/bin/lcc gmake -j $(nproc)
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
-    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
     - ( cd src && tar cf ../dps8m-git-linux-e2kv5.tar "./${DISTDIR:?}"; )
     - pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-e2kv5.tar
     - rm -rf "src/${DISTDIR:?}"
@@ -712,7 +717,7 @@ Elbrus binaries:
     - env PATH=/opt/mcst/lcc-1.27.21.e2k-v6.5.10-e16c/bin.toolchain:$PATH CC=/opt/mcst/lcc-1.27.21.e2k-v6.5.10-e16c/bin/lcc gmake -j $(nproc)
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
-    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
     - ( cd src && tar cf ../dps8m-git-linux-e2k6c.tar "./${DISTDIR:?}"; )
     - pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-e2k6c.tar
     - rm -rf "src/${DISTDIR:?}"
@@ -722,7 +727,7 @@ Elbrus binaries:
     - env PATH=/opt/mcst/lcc-1.27.21.e2k-v6.5.10-e2c3/bin.toolchain:$PATH CC=/opt/mcst/lcc-1.27.21.e2k-v6.5.10-e2c3/bin/lcc gmake -j $(nproc)
     - mkdir -p "src/${DISTDIR:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/${DISTDIR:?}"
-    - cp -f src/dps8/dps8 src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
+    - cp -f src/dps8/dps8 src/tap2raw/tap2raw src/prt2pdf/prt2pdf src/punutil/punutil "src/${DISTDIR:?}"
     - ( cd src && tar cf ../dps8m-git-linux-e2k63.tar "./${DISTDIR:?}"; )
     - pigz -C "${CI_COMMIT_SHA:?}" -9 -f -m -n dps8m-git-linux-e2k63.tar
     - rm -rf "src/${DISTDIR:?}"
@@ -952,7 +957,7 @@ Windows/ARM64, LLVM-MinGW:
     - *scriptBuildInfo
     - mkdir -p "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - cp -f docs/txt/README.txt docs/txt/LICENSE.txt "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
-    - cp -f src/dps8/dps8.exe src/prt2pdf/prt2pdf.exe src/punutil/punutil.exe "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
+    - cp -f src/dps8/dps8.exe src/tap2raw/tap2raw.exe src/prt2pdf/prt2pdf.exe src/punutil/punutil.exe "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - cp -f /opt/llvm-mingw/aarch64-w64-mingw32/bin/libwinpthread-1.dll "src/dps8m-${CI_COMMIT_SHORT_SHA:?}"
     - ( cd src && zip -9 ../dps8m-git-mingw-a64.zip ./dps8m-${CI_COMMIT_SHORT_SHA:?}/* )
     - rm -rf "src/dps8m-${CI_COMMIT_SHORT_SHA:?}" || true
