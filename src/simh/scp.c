@@ -1065,7 +1065,7 @@ static const char simh_help[] =
       " The following example illustrates usage of the `GOTO` command (by\r\n"
       " creating an infinite loop):\r\n\r\n"
       "++:Label\r\n"
-      "++:: This is a loop.`\r\n"
+      "++:: This is a loop.\r\n"
       "++GOTO Label\r\n\r\n"
 #define HLP_RETURN      "*Commands Executing_Command_Files RETURN"
        /***************** 80 character line width template *************************/
