@@ -62,7 +62,8 @@ export AR
 
 # Test AR
 printf '\nAR: %s\n' "${AR:?}"
-${AR:?} --version
+command -v "${AR:?}" \
+  || { printf '%s\n' "${AR:?} not found!"; exit 1; }
 
 # RANLIB
 test -z "${RANLIB:-}" && RANLIB="ranlib"
@@ -70,7 +71,8 @@ export RANLIB
 
 # Test RANLIB
 printf '\nRANLIB: %s\n' "${RANLIB:?}"
-${RANLIB:?} --version
+command -v "${RANLIB:?}" \
+  || { printf '%s\n' "${RANLIB:?} not found!"; exit 1; }
 
 # Setup
 printf '\n%s\n' "Настройка сборки PGO ..."

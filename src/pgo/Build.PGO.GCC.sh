@@ -32,7 +32,8 @@ export AR
 
 # Test AR
 printf '\nAR: %s\n' "${AR:?}"
-command -v "${AR:?}"
+command -v "${AR:?}" \
+  || { printf '%s\n' "${AR:?} not found!"; exit 1; }
 
 # RANLIB
 test -z "${RANLIB:-}" && RANLIB="gcc-ranlib${TOOLSUFFIX:-}"
@@ -40,7 +41,8 @@ export RANLIB
 
 # Test RANLIB
 printf '\nRANLIB: %s\n' "${RANLIB:?}"
-command -v "${RANLIB:?}"
+command -v "${RANLIB:?}" \
+  || { printf '%s\n' "${RANLIB:?} not found!"; exit 1; }
 
 # LIBUVVER
 test -z "${LIBUVVER:-}" && LIBUVVER="libuvrel"
