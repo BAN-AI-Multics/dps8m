@@ -779,7 +779,7 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 
 ### Recommended compilers
 
-* [**IBM Open XL C/C++ for AIX V17.1.3 Fix Pack 1** (March 2025)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the recommended compiler for **Power11** systems.
+* [**IBM Open XL C/C++ for AIX V17.1.3 Fix Pack 2** (April 2025)](https://www.ibm.com/products/open-xl-cpp-aix-compiler-power) is the recommended compiler for **Power11** systems.
   * LTO (*link-time optimization*) and native 128‑bit integer operations are both fully supported.
 
 []()
@@ -789,7 +789,7 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 
 []()
 
-* [**Clang 20.1.0**](https://clang.llvm.org/) is the *minimum* recommended version of the mainline **Clang** compiler.
+* [**Clang 20.1.1**](https://clang.llvm.org/) is the *minimum* recommended version of the mainline **Clang** compiler.
   * LTO *(link-time optimization)* and native 128‑bit integer operations are both fully supported.
 
 #### Other supported compilers
