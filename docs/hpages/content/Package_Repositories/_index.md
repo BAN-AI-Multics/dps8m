@@ -155,7 +155,7 @@
 * Using **APT** (*as root*):
 
   ```sh
-  apt install wget apt-transport-https
+  apt install wget
   wget -O "/usr/share/keyrings/dps8m.gpg" "https://dps8m.gitlab.io/repo/pubkey.gpg"
   wget -O "/etc/apt/sources.list.d/dps8m-bleeding.list" "https://dps8m.gitlab.io/repo/deb/dps8m-bleeding.list"
   apt update
