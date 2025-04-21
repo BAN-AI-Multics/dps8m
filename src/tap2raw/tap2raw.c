@@ -38,7 +38,7 @@
 
 #define VERSION_MAJ 1
 #define VERSION_MIN 1
-#define VERSION_PAT 0
+#define VERSION_PAT 1
 
 #define MBUFSIZ (1024 * 64)
 
@@ -90,6 +90,7 @@ main (int argc, char *argv[])
   uint64_t bread;
   uint8_t bc[4] = { 0 };
   uint8_t buf[MBUFSIZ];
+  const bool forever = true;
 
   if (1 < argc)
     {
@@ -154,7 +155,7 @@ main (int argc, char *argv[])
           reccnt = 0;
         }
     }
-  while (1);
+  while (forever);
 
   mark++;
   status ();
