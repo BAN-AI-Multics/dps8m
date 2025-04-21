@@ -76,6 +76,8 @@
 #endif
 #include <locale.h>
 
+static const int never = 0;
+
 #if defined(FREE)
 # undef FREE
 #endif /* if defined(FREE) */
@@ -83,7 +85,7 @@
   {                 \
     free((p));      \
     (p) = NULL;     \
-  } while(0)
+  } while(never)
 
 /* ============================================================================================================================== */
 #define MAX(x, y)       ((x) > (y) ?  (x) : (y))
@@ -121,7 +123,7 @@
  static int   GLOBAL_ADD=0;
  static int   GLOBAL_VERSION = 3;
  static int   GLOBAL_VERSION_MIN = 0;
- static int   GLOBAL_VERSION_PATCH = 2;
+ static int   GLOBAL_VERSION_PATCH = 3;
  static float GLOBAL_LEAD_SIZE;
  static float GLOBAL_FONT_SIZE;
  static int   GLOBAL_OBJECT_ID = 1;
