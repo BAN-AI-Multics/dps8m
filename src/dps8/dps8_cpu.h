@@ -1789,10 +1789,6 @@ typedef struct cpu_state_s
     // L68 FFV faults
     bool is_FFV;
 
-#if defined(ROUND_ROBIN)
-    bool isRunning;
-#endif /* if defined(ROUND_ROBIN) */
-
 #if defined(AFFINITY)
     bool set_affinity;
 #endif /* if defined(AFFINITY) */
@@ -1980,11 +1976,7 @@ uint set_cpu_idx (uint cpuNum);
 extern __thread uint current_running_cpu_idx;
 extern bool bce_dis_called;
 #else
-# if defined(ROUND_ROBIN)
-extern uint current_running_cpu_idx;
-# else
-#  define current_running_cpu_idx 0
-# endif /* if defined(ROUND_ROBIN) */
+# define current_running_cpu_idx 0
 #endif /* if defined(THREADZ) || defined(LOCKLESS) */
 
 // Support code to access ARn.BITNO, ARn.CHAR, PRn.BITNO

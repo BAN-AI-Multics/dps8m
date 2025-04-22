@@ -680,7 +680,6 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\r\n", cpu.cycle,
           {
 #if !defined(THREADZ) && !defined(LOCKLESS)
 # if !defined(PANEL68)
-#  if !defined(ROUND_ROBIN)
             if ((! sample_interrupts (cpup)) &&
                 (sim_qcount () == 0))  // XXX If clk_svc is implemented it will
                                        // break this logic
@@ -693,7 +692,6 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\r\n", cpu.cycle,
                 //stop_reason = STOP_FLT_CASCADE;
                 longjmp (cpu.jmpMain, JMP_STOP);
               }
-#  endif /* if !defined(ROUND_ROBIN) */
 # endif /* if !defined(PANEL68) */
 #endif
           }
@@ -826,7 +824,6 @@ void do_FFV_fault (cpu_state_t * cpup, uint fault_number, const char * fault_msg
           {
 #if !defined(THREADZ) && !defined(LOCKLESS)
 # if !defined(PANEL68)
-#  if !defined(ROUND_ROBIN)
             if ((! sample_interrupts (cpup)) &&
                 (sim_qcount () == 0))  // XXX If clk_svc is implemented it will
                                        // break this logic
@@ -838,7 +835,6 @@ void do_FFV_fault (cpu_state_t * cpup, uint fault_number, const char * fault_msg
                 sim_printf("\r\nInstructions = %"PRId64"\r\n", cpu.instrCnt);
                 longjmp (cpu.jmpMain, JMP_STOP);
               }
-#  endif /* if !defined(ROUND_ROBIN) */
 # endif /* if !defined(PANEL68) */
 #endif /* if !defined(THREADZ) && !defined(LOCKLESS) */
           }

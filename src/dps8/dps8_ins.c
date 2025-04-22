@@ -8865,15 +8865,6 @@ elapsedtime ();
               }
 # endif
 #endif
-#if defined(ROUND_ROBIN)
-          if (cpu.PPR.PSR == 034 && cpu.PPR.IC == 03535)
-              {
-                sim_printf ("[%lld] sys_trouble$die DIS causes CPU halt\r\n", cpu.cycleCnt);
-                sim_debug (DBG_MSG, & cpu_dev, "sys_trouble$die DIS causes CPU halt\r\n");
-                //longjmp (cpu.jmpMain, JMP_STOP);
-                cpu.isRunning = false;
-              }
-#endif
           sim_debug (DBG_TRACEEXT, & cpu_dev, "entered DIS_cycle\r\n");
 
           // No operation takes place, and the processor does not
@@ -8925,13 +8916,6 @@ elapsedtime ();
           else
             {
               sim_debug (DBG_TRACEEXT, & cpu_dev, "DIS refetches\r\n");
-#if defined(ROUND_ROBIN)
-              if (cpu.tweaks.isolts_mode)
-                {
-                  //sim_printf ("stopping CPU %c\r\n", current_running_cpu_idx + 'A');
-                  cpu.isRunning = false;
-                }
-#endif
               return CONT_DIS;
             }
 

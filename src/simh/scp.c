@@ -5163,19 +5163,6 @@ if (flag) {
     (void)fprintf (st, "WAM");
 #endif /* if defined(WAM) */
 
-/* ROUND_ROBIN */
-#if defined(ROUND_ROBIN)
-# if defined(HAVE_DPSOPT)
-    (void)fprintf (st, ", ");
-# else
-    (void)fprintf (st, "\r\n   Options: ");
-# endif
-# if !defined(HAVE_DPSOPT)
-#  define HAVE_DPSOPT 1
-# endif
-    (void)fprintf (st, "ROUND_ROBIN");
-#endif /* if defined(ROUND_ROBIN) */
-
 /* NO_LOCKLESS */
 #if !defined(LOCKLESS)
 # if defined(HAVE_DPSOPT)

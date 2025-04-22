@@ -1733,11 +1733,7 @@ static char * default_base_system_script [] =
 # if defined(THREADZ) || defined(LOCKLESS)
     "SET CPU NUNITS=6",
 # else
-#  if defined(ROUND_ROBIN)
-    "SET CPU NUNITS=6",
-#  else
     "SET CPU NUNITS=1",
-#  endif
 # endif // THREADZ
     // "SET SYS CONFIG=ACTIVATE_TIME=8",
     // "SET SYS CONFIG=TERMINATE_TIME=8",
@@ -4249,19 +4245,6 @@ static void dps8_init (void) {
 #  endif
     sim_msg ("WAM");
 # endif /* if defined(WAM) */
-
-/* ROUND_ROBIN */
-# if defined(ROUND_ROBIN)
-#  if defined(HAVE_DPSOPT)
-    sim_msg (", ");
-#  else
-    sim_msg ("\r\n Options: ");
-#  endif
-#  if !defined(HAVE_DPSOPT)
-#   define HAVE_DPSOPT 1
-#  endif
-    sim_msg ("ROUND_ROBIN");
-# endif /* if defined(ROUND_ROBIN) */
 
 /* NO_LOCKLESS */
 # if !defined(LOCKLESS)
