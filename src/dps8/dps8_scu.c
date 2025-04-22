@@ -1445,10 +1445,6 @@ static void deliver_interrupts (cpu_state_t * cpup, uint scu_unit_idx)
                            "interrupt set for CPU %d SCU %d\r\n",
                            cpu_unit_udx, scu_unit_idx);
 # else // ! THREADZ
-//if (cpu_unit_udx && ! cpu.isRunning) sim_printf ("starting CPU %c\r\n", cpu_unit_udx + 'A');
-#  if defined(ROUND_ROBIN)
-                cpus[cpu_unit_udx].isRunning = true;
-#  endif
                 cpus[cpu_unit_udx].events.XIP[scu_unit_idx] = true;
 sim_debug (DBG_DEBUG, & scu_dev, "interrupt set for CPU %d SCU %d\r\n", cpu_unit_udx, scu_unit_idx);
                 sim_debug (DBG_INTR, & scu_dev,
@@ -1532,10 +1528,6 @@ if (cpus[cpu_unit_udx].rcfDelete) sim_printf ("Poking CPU %c in rcfDelete\r\n", 
                            "interrupt set for CPU %d SCU %d\r\n",
                            cpu_unit_udx, scu_unit_idx);
 # else // ! THREADZ
-//if (cpu_unit_udx && ! cpu.isRunning) sim_printf ("starting CPU %c\r\n", cpu_unit_udx + 'A');
-#  if defined(ROUND_ROBIN)
-                cpus[cpu_unit_udx].isRunning = true;
-#  endif
                 cpus[cpu_unit_udx].events.XIP[scu_unit_idx] = true;
 sim_debug (DBG_DEBUG, & scu_dev, "interrupt set for CPU %d SCU %d\r\n", cpu_unit_udx, scu_unit_idx);
                 sim_debug (DBG_INTR, & scu_dev,

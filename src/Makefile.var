@@ -75,17 +75,6 @@ ifeq ($(ISOLTS),1)
 endif
 
 ###############################################################################
-# Round-robin non-threaded multiprocessing
-
-ifeq ($(ROUND_ROBIN),1)
-  ROUND_ROBIN=1
-  NO_LOCKLESS=1
-  undefine LOCKLESS
-  unexport LOCKLESS
-  CFLAGS += -DROUND_ROBIN
-endif
-
-###############################################################################
 # Legacy (non-lockless) build
 
 ifneq ($(NO_LOCKLESS),1)

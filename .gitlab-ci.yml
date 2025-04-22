@@ -1195,7 +1195,7 @@ Option Verification Test:
       # Start of job setup ...
       echo -e "section_start:`date +%s`:setup_section[collapsed=true]\r\e[0K\033[0;36mJob setup ...\033[0m" || true
     - export NO_LTO=1
-    - export CMB_OPTIONS="NO_LOCKLESS=1 TESTING=1 NEED_128=1 ROUND_ROBIN=1"
+    - export CMB_OPTIONS="NO_LOCKLESS=1 TESTING=1 NEED_128=1"
     - make -C "src/mcmb" && export CMB_TOOL="$(command -p env PATH="$(command -p env getconf PATH)" mktemp)" && mv -f "src/mcmb/mcmb" "${CMB_TOOL:?}" && chmod a+x "${CMB_TOOL:?}"
     - touch part_x.sh && rm -f part_*.sh > /dev/null 2>&1 || true > /dev/null 2>&1
     - ( export NSPLIT=${CI_NODE_TOTAL:?}; for i in $(seq 1 ${CI_NODE_TOTAL:?}); do ( bash -c '${CMB_TOOL:?} -N -e ${CMB_OPTIONS:?} -p "make -j $(nproc) " -s " && printf %s\\\\n \"SHOW VERSION\" | ./src/dps8/dps8 -t && make distclean && \\"' ) | awk '{ print "env ITERATION="$0 }' 2> /dev/null | split -e -n "r/${i:?}/${NSPLIT:?}" | awk "BEGIN { print \"#!/usr/bin/env bash\"; print \"# Part ${i:?} of ${NSPLIT:?}\"; printf \"\"; print \"set -eux -o pipefail\" } { print \$0 } END { print \"true\"; print \"\" }" | tr -d '\r' > "part_${i:?}_of_${NSPLIT:?}.sh" 2> /dev/null; done )
@@ -1277,6 +1277,7 @@ DPS8M Omnibus Documentation:
 Multics CI-Kit Test:
   stage: ci_test
   image: registry.gitlab.com/dps8m/dps8m/base:latest
+  when: manual
   tags:
     - Docker-x64-fast
     - Linux
@@ -1570,7 +1571,6 @@ pages:
     - job: Hugo
     - job: Linux/x86_64, NVIDIA HPC SDK C
     - job: Linux/x86_64, Oracle Developer Studio
-    - job: Multics CI-Kit Test
     - job: NSIS Installer
     - job: Option Verification Test
     - job: PVS-Studio

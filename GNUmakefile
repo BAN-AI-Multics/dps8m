@@ -26,7 +26,6 @@
 #           PANEL68=1                      Enable custom L68 panel interface
 #        PERF_STRIP=1                      Enable CPU-only benchmarking mode
 #               QNX=1                      Force QNX compilation without qcc
-#       ROUND_ROBIN=1                      Enable non-threaded multiple CPUs
 #           TESTING=1                      Enable developmental testing mode
 #                 V=1                      Enable verbose compilation output
 #                 W=1                      Enable extra compilation warnings

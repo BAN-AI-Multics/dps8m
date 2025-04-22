@@ -941,9 +941,6 @@ uint set_cpu_idx (UNUSED uint cpu_idx)
 #if defined(THREADZ) || defined(LOCKLESS)
     current_running_cpu_idx = cpu_idx;
 #endif
-#if defined(ROUND_ROBIN)
-    current_running_cpu_idx = cpu_idx;
-#endif
     _cpup = & cpus [current_running_cpu_idx];
     return prev;
   }
@@ -1723,9 +1720,6 @@ __thread cpu_state_t * restrict _cpup;
 #else
 cpu_state_t * restrict _cpup;
 #endif
-#if defined(ROUND_ROBIN)
-uint current_running_cpu_idx;
-#endif
 
 // Scan the SCUs; it one has an interrupt present, return the fault pair
 // address for the highest numbered interrupt on that SCU. If no interrupts
@@ -2260,9 +2254,7 @@ void giveupClockMaster (cpu_state_t * cpup) {
 
 t_stat threadz_sim_instr (void)
   {
-#if !defined(ROUND_ROBIN)
     cpu_state_t * cpup = _cpup;
-#endif
   //cpu.have_tst_lock = false;
 
 #if !defined(SCHED_NEVER_YIELD)
@@ -2287,29 +2279,6 @@ t_stat threadz_sim_instr (void)
     cpus [0].PPR.IC = dummy_IC;
 # endif
 
-# if defined(ROUND_ROBIN)
-    cpu_state_t * cpup = _cpup;
-    cpup->isRunning = true;
-    set_cpu_idx (cpu_dev.numunits - 1);
-
-setCPU:;
-    uint current = current_running_cpu_idx;
-    uint c;
-    for (c = 0; c < cpu_dev.numunits; c ++)
-      {
-        set_cpu_idx (c);
-        if (cpu.isRunning)
-          break;
-      }
-    if (c == cpu_dev.numunits)
-      {
-        sim_msg ("All CPUs stopped\r\n");
-        goto leave;
-      }
-    set_cpu_idx ((current + 1) % cpu_dev.numunits);
-    if (! _cpup-> isRunning)
-      goto setCPU;
-# endif
 #endif
 
     // This allows long jumping to the top of the state machine
@@ -2435,7 +2404,7 @@ setCPU:;
         core_unlock_all (cpup);
 #endif // LOCKLESS
 
-#if defined(ROUND_ROBIN) || !defined(LOCKLESS)
+#if !defined(LOCKLESS)
         int con_unit_idx = check_attn_key ();
         if (con_unit_idx != -1)
           console_attn_idx (con_unit_idx);
@@ -3118,14 +3087,13 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\r\n");
 //    continue processing
 //
 
-// The sim_usleep logic is not smart enough w.r.t. ROUND_ROBIN/ISOLTS.
+// The sim_usleep logic is not smart enough w.r.t. ISOLTS.
 // The sleep should only happen if all running processors are in DIS mode.
-#if !defined(ROUND_ROBIN)
                   // 1/100 is .01 secs.
                   // *1000 is 10  milliseconds
                   // *1000 is 10000 microseconds
                   // in uSec;
-# if defined(THREADZ) || defined(LOCKLESS)
+#if defined(THREADZ) || defined(LOCKLESS)
 
 // XXX If interrupt inhibit set, then sleep forever instead of TRO
                   // rTR is 512KHz; sleepCPU is in 1Mhz
@@ -3135,7 +3103,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\r\n");
                   //   rTR * 250 / 128
                   //   rTR * 125 / 64
 
-#  if defined(NO_TIMEWAIT)
+# if defined(NO_TIMEWAIT)
                   //sim_usleep (sys_opts.sys_poll_interval * 1000 /*10000*/ );
                   struct timespec req, rem;
                   uint ms        = sys_opts.sys_poll_interval;
@@ -3162,18 +3130,18 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\r\n");
 
                   if (cpu.rTR == 0)
                     cpu.rTR = MASK27;
-#  else // !NO_TIMEWAIT
+# else // !NO_TIMEWAIT
                   // unsigned long left = cpu.rTR * 125u / 64u;
                   // ubsan
                   unsigned long left = (unsigned long) ((uint64) (cpu.rTR) * 125u / 64u);
-#   if 0
+#  if 0
                   if (left > 250000) { // 1/4 second
                     if (left > 1000000) { // 1 second
                       sim_printf ("WARN: sleep time too big (%lu uSecs); clamping\r\n", left);
                     }
                     left = 250000; // clamp
                   }
-#   endif
+#  endif
                   unsigned long nowLeft = left;
                   if (!sample_interrupts (cpup))
                     {
@@ -3198,24 +3166,24 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\r\n");
                         }
                       cpu.rTR = MASK27;
                     }
-#  endif // !NO_TIMEWAIT
+# endif // !NO_TIMEWAIT
                   cpu.rTRticks = 0;
                   break;
-# else // ! (THREADZ || LOCKLESS)
+#else // ! (THREADZ || LOCKLESS)
                   //sim_sleep (10000);
                   sim_usleep (sys_opts.sys_poll_interval * 1000/*10000*/);
                   // Trigger I/O polling
-#  if defined(CONSOLE_FIX)
-#   if defined(THREADZ) || defined(LOCKLESS)
+# if defined(CONSOLE_FIX)
+#  if defined(THREADZ) || defined(LOCKLESS)
                   lock_libuv ();
-#   endif
 #  endif
+# endif
                   uv_run (ev_poll_loop, UV_RUN_NOWAIT);
-#  if defined(CONSOLE_FIX)
-#   if defined(THREADZ) || defined(LOCKLESS)
+# if defined(CONSOLE_FIX)
+#  if defined(THREADZ) || defined(LOCKLESS)
                   unlock_libuv ();
-#   endif
 #  endif
+# endif
                   fast_queue_subsample = 0;
 
                   sim_interval = 0;
@@ -3241,8 +3209,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\r\n");
                     cpu.rTR = (cpu.rTR - sys_opts.sys_poll_interval * 512) & MASK27;
                   if (cpu.rTR == 0)
                     cpu.rTR = MASK27;
-# endif // ! (THREADZ || LOCKLESS)
-#endif // ! ROUND_ROBIN
+#endif // ! (THREADZ || LOCKLESS)
                   /*NOTREACHED*/ /* unreachable */
                   break;
                 }
@@ -3487,13 +3454,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\r\n");
 
           }  // switch (cpu.cycle)
       }
-#if defined(ROUND_ROBIN)
-    while (0);
-    if (reason == 0)
-      goto setCPU;
-#else
     while (reason == 0);
-#endif
 
 leave:
 #if defined(THREADZ) || defined(LOCKLESS)
