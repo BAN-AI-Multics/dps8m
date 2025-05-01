@@ -126,7 +126,7 @@ if (uptr == NULL)
 if (cptr == NULL)
     return SCPE_ARG;
 for (f = 0; f < DKUF_N_FMT && fmts[f].name; f++) {
-    if (fmts[f].name && (strcmp (cptr, fmts[f].name) == 0)) {
+    if (fmts[f].name && (strcmp (cptr, fmts[f].name) == 0)) { //-V560
         if ((fmts[f].impl_fnc) && (fmts[f].impl_fnc() != SCPE_OK))
             return SCPE_NOFNC;
         uptr->flags = (uptr->flags & ~DKUF_FMT) |

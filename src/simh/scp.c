@@ -10042,7 +10042,7 @@ exp->buf[exp->buf_ins] = '\0';                          /* Nul terminate for Reg
 
 for (i=0; i < exp->size; i++) {
     ep = &exp->rules[i];
-    if (ep == NULL)
+    if (ep == NULL) //-V547
         break;
     if (ep->switches & EXP_TYP_REGEX) {
         }

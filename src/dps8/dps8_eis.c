@@ -6548,7 +6548,7 @@ static MOP_struct* EISgetMop (cpu_state_t * cpup)
     MOP_struct *m = &mopTab[mop];
     sim_debug (DBG_TRACEEXT, & cpu_dev, "MOP %s(%o) %o\r\n", m -> mopName, mop, e->mopIF);
     e->m = m;
-    if (e->m == NULL || e->m->f == NULL)
+    if (e->m == NULL || e->m->f == NULL) //-V560
     {
         sim_debug (DBG_TRACEEXT, & cpu_dev, "getMop(e->m == NULL || e->m->f == NULL): mop:%d IF:%d\r\n", mop, e->mopIF);
         return NULL;
