@@ -789,7 +789,7 @@ Build **`libuv`** and the simulator from the top-level source directory (using *
 
 []()
 
-* [**Clang 20.1.1**](https://clang.llvm.org/) is the *minimum* recommended version of the mainline **Clang** compiler.
+* [**Clang 20.1.2**](https://clang.llvm.org/) is the *minimum* recommended version of the mainline **Clang** compiler.
   * LTO *(link-time optimization)* and native 128‑bit integer operations are both fully supported.
 
 #### Other supported compilers
@@ -1560,7 +1560,7 @@ The [**Linaro**](https://www.linaro.org/) [**GNU Toolchain Integration Builds**]
   * [**Intel® C++ Compiler Classic for macOS**](https://www.intel.com/content/www/us/en/developer/articles/tool/oneapi-standalone-components.html#dpcpp-cpp) (**`icc`**) is ***no longer supported*** for building **DPS8M** (*as of* ***R3.0.2***).
     * Intel® has *retired* support for **ICC**.
   * Building the simulator on **macOS** using **GCC** is ***not recommended***.
-* The following instructions were verified using **macOS 15.4** with **Xcode 16.3** (Apple Clang 17.0.0).
+* The following instructions were verified using **macOS 15.4.1** with **Xcode 16.4** (Apple Clang 17.0.0).
 
 ### macOS prerequisites
 
